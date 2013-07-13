@@ -1,0 +1,14 @@
+Authors working on this project.
+
+Core:
+
+W@WAdict - Project Leader.
+Unix (of course for his coding on VanillaWoW).
+Gaddas (for his work on VanillaWoW as well).
+
+
+Database:
+
+W@WAdict - Project Leader.
+Unix (Again for his work on the VanillaWoW database).
+
