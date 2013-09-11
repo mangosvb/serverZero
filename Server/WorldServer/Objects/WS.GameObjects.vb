@@ -245,7 +245,7 @@ Public Module WS_GameObjects
             Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 1, Rotations(1))
             Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 2, Rotations(2))
             Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 3, Rotations(3))
-            Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_TIMESTAMP, msTime)
+            'Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_TIMESTAMP, msTime) ' Changed in 1.12.x client branch?
         End Sub
         Private Sub Dispose() Implements System.IDisposable.Dispose
             Me.RemoveFromWorld()
@@ -837,7 +837,7 @@ Public Module WS_GameObjects
             response.AddInt32(GameObject.Type)
             response.AddInt32(GameObject.Model)
             response.AddString(GameObject.Name)
-            response.AddInt8(0) 'Name2
+            response.AddInt16(0) 'Name2
             response.AddInt8(0) 'Name3
             response.AddInt8(0) 'Name4
 

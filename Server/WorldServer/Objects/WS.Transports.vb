@@ -563,7 +563,7 @@ Public Module WS_Transports
             'Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 2, Rotations(2))
             'Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 3, Rotations(3))
 
-            Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_TIMESTAMP, msTime)
+            'Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_TIMESTAMP, msTime) ' Changed in 1.12.x client branch?
         End Sub
     End Class
 End Module

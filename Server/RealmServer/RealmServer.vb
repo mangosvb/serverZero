@@ -49,10 +49,10 @@ Public Module RS_Main
     '2.00.10 - 6448
     '2.00.12 - 6546
     Const REQUIRED_VERSION_1 As Integer = 1
-    Const REQUIRED_VERSION_2 As Integer = 11
-    Const REQUIRED_VERSION_3 As Integer = 2
-    Const REQUIRED_BUILD_LOW As Integer = 5464
-    Const REQUIRED_BUILD_HIGH As Integer = 5464
+    Const REQUIRED_VERSION_2 As Integer = 12
+    Const REQUIRED_VERSION_3 As Integer = 1
+    Const REQUIRED_BUILD_LOW As Integer = 5875
+    Const REQUIRED_BUILD_HIGH As Integer = 5875
     Const CONNETION_SLEEP_TIME As Integer = 100
 
     'RealmServ OP Codes
@@ -426,7 +426,7 @@ Public Module RS_Main
                     Array.Copy(Client.AuthEngine.N, 0, data_response, 38, 32)
                     Array.Copy(Client.AuthEngine.salt, 0, data_response, 70, 32)
                     Array.Copy(AuthEngineClass.CrcSalt, 0, data_response, 102, 16)
-                    data_response(118) = 0
+                    data_response(118) = 0 ' Added in 1.12.x client branch? Security Flags (&H0...&H4)?
                     Client.Send(data_response)
                     Exit Sub
                 Case AccountState.LOGIN_UNKNOWN_ACCOUNT

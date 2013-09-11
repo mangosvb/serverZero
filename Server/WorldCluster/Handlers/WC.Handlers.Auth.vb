@@ -29,8 +29,8 @@ Imports SpuriousZero.Common
 
 Public Module WC_Handlers_Auth
 
-    Const REQUIRED_BUILD_LOW As Integer = 5464
-    Const REQUIRED_BUILD_HIGH As Integer = 5464
+    Const REQUIRED_BUILD_LOW As Integer = 5875 ' 1.12.1
+    Const REQUIRED_BUILD_HIGH As Integer = 5875
 
     Public Sub SendLoginOK(ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", Client.IP, Client.Port, Client.Account)
@@ -411,7 +411,9 @@ Public Module WC_Handlers_Auth
                 'DONE: Get items
                 Dim GUID As Long = MySQLQuery.Rows(i).Item("char_guid")
                 Dim ItemsMySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM characters_inventory, items WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
+                Dim characterDB As String = CharacterDatabase.SQLDBName
+                Dim worldDB As String = WorldDatabase.SQLDBName
+                CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM " & characterDB & ".characters_inventory, " & worldDB & ".items WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
 
                 Dim e As IEnumerator = ItemsMySQLQuery.Rows.GetEnumerator
                 e.Reset()
@@ -507,7 +509,7 @@ Public Module WC_Handlers_Auth
                 CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildid=0, char_guildrank=0, char_guildpnote='', charguildoffnote='' WHERE char_guildid=""{0}"";", q.Rows(0).Item("guild_id")))
                 CharacterDatabase.Update(String.Format("DELETE FROM guild WHERE guild_id=""{0}"";", q.Rows(0).Item("guild_id")))
             End If
-            response.AddInt8(AuthResponseCodes.CHAR_DELETE_SUCCESS)
+            response.AddInt8(AuthResponseCodes.CHAR_DELETE_SUCCESS) ' Changed in 1.12.x client branch?
         Catch e As Exception
             response.AddInt8(AuthResponseCodes.CHAR_DELETE_FAILED)
         End Try

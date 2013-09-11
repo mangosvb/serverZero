@@ -1520,6 +1520,7 @@ Public Module WS_Items
         response.AddInt32(Item.ItemSet)
         response.AddInt32(Item.Durability)
         response.AddInt32(Item.ZoneNameID)
+        response.AddInt32(Item.MapID) ' Added in 1.12.1 client branch
         response.AddInt32(Item.BagFamily)
 
         'response.AddInt32(Item.TotemCategory)

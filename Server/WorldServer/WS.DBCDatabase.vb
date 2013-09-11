@@ -1503,7 +1503,7 @@ Public Module WS_DBCDatabase
     Public gtRegenMPPerSpt As New List(Of Single)
 #End Region
 #Region "Items"
-    Public Const DurabilityCosts_MAX As Integer = 100
+    Public Const DurabilityCosts_MAX As Integer = 300
     Public DurabilityCosts(DurabilityCosts_MAX, 28) As Short
 
     Public SpellItemEnchantments As New Dictionary(Of Integer, TSpellItemEnchantment)

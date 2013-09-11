@@ -192,158 +192,158 @@ Public Module WS_DBCLoad
                     SPELLs(ID).ID = ID
                     SPELLs(ID).School = SpellDBC.Item(i, 1)
                     SPELLs(ID).Category = SpellDBC.Item(i, 2)
-                    SPELLs(ID).DispellType = SpellDBC.Item(i, 3)
-                    SPELLs(ID).Mechanic = SpellDBC.Item(i, 4)
-                    '5 = unk
+                    ' 3 = Not Used
+                    SPELLs(ID).DispellType = SpellDBC.Item(i, 4)
+                    SPELLs(ID).Mechanic = SpellDBC.Item(i, 5)
                     SPELLs(ID).Attributes = SpellDBC.Item(i, 6)
                     SPELLs(ID).AttributesEx = SpellDBC.Item(i, 7)
                     SPELLs(ID).AttributesEx2 = SpellDBC.Item(i, 8)
-                    SPELLs(ID).RequredCasterStance = SpellDBC.Item(i, 9) ' RequiredShapeShift
-                    SPELLs(ID).ShapeshiftExclude = SpellDBC.Item(i, 10)
-                    SPELLs(ID).Target = SpellDBC.Item(i, 11)
-                    SPELLs(ID).TargetCreatureType = SpellDBC.Item(i, 12)
-                    SPELLs(ID).FocusObjectIndex = SpellDBC.Item(i, 13)
-                    SPELLs(ID).CasterAuraState = SpellDBC.Item(i, 14)
-                    SPELLs(ID).TargetAuraState = SpellDBC.Item(i, 15)
-                    SPELLs(ID).SpellCastTimeIndex = SpellDBC.Item(i, 16)
-                    SPELLs(ID).SpellCooldown = SpellDBC.Item(i, 17)
-                    SPELLs(ID).CategoryCooldown = SpellDBC.Item(i, 18)
-                    SPELLs(ID).interruptFlags = SpellDBC.Item(i, 19)
-                    SPELLs(ID).auraInterruptFlags = SpellDBC.Item(i, 20)
-                    SPELLs(ID).channelInterruptFlags = SpellDBC.Item(i, 21)
-                    SPELLs(ID).procFlags = SpellDBC.Item(i, 22)
-                    SPELLs(ID).procChance = SpellDBC.Item(i, 23)
-                    SPELLs(ID).procCharges = SpellDBC.Item(i, 24)
-                    SPELLs(ID).maxLevel = SpellDBC.Item(i, 25)
-                    SPELLs(ID).baseLevel = SpellDBC.Item(i, 26)
-                    SPELLs(ID).spellLevel = SpellDBC.Item(i, 27)
-                    SPELLs(ID).DurationIndex = SpellDBC.Item(i, 28)
-                    SPELLs(ID).powerType = SpellDBC.Item(i, 29)
-                    SPELLs(ID).manaCost = SpellDBC.Item(i, 30)
-                    SPELLs(ID).manaCostPerlevel = SpellDBC.Item(i, 31)
-                    SPELLs(ID).manaPerSecond = SpellDBC.Item(i, 32)
-                    SPELLs(ID).manaPerSecondPerLevel = SpellDBC.Item(i, 33)
-                    SPELLs(ID).rangeIndex = SpellDBC.Item(i, 34)
-                    SPELLs(ID).Speed = SpellDBC.Item(i, 35, DBC.DBCValueType.DBC_FLOAT)
-                    SPELLs(ID).modalNextSpell = SpellDBC.Item(i, 36)
-                    SPELLs(ID).maxStack = SpellDBC.Item(i, 37)
-                    SPELLs(ID).Totem(0) = SpellDBC.Item(i, 38)
-                    SPELLs(ID).Totem(1) = SpellDBC.Item(i, 39)
+                    ' AttributesEx3 = SpellDBC.Item(i, 9)
+                    ' AttributesEx4 = SpellDBC.Item(i, 10)
+                    SPELLs(ID).RequredCasterStance = SpellDBC.Item(i, 11) ' RequiredShapeShift
+                    SPELLs(ID).ShapeshiftExclude = SpellDBC.Item(i, 12)
+                    SPELLs(ID).Target = SpellDBC.Item(i, 13)
+                    SPELLs(ID).TargetCreatureType = SpellDBC.Item(i, 14)
+                    SPELLs(ID).FocusObjectIndex = SpellDBC.Item(i, 15)
+                    SPELLs(ID).CasterAuraState = SpellDBC.Item(i, 16)
+                    SPELLs(ID).TargetAuraState = SpellDBC.Item(i, 17)
+                    SPELLs(ID).SpellCastTimeIndex = SpellDBC.Item(i, 18)
+                    SPELLs(ID).SpellCooldown = SpellDBC.Item(i, 19)
+                    SPELLs(ID).CategoryCooldown = SpellDBC.Item(i, 20)
+                    SPELLs(ID).interruptFlags = SpellDBC.Item(i, 21)
+                    SPELLs(ID).auraInterruptFlags = SpellDBC.Item(i, 22)
+                    SPELLs(ID).channelInterruptFlags = SpellDBC.Item(i, 23)
+                    SPELLs(ID).procFlags = SpellDBC.Item(i, 24)
+                    SPELLs(ID).procChance = SpellDBC.Item(i, 25)
+                    SPELLs(ID).procCharges = SpellDBC.Item(i, 26)
+                    SPELLs(ID).maxLevel = SpellDBC.Item(i, 27)
+                    SPELLs(ID).baseLevel = SpellDBC.Item(i, 28)
+                    SPELLs(ID).spellLevel = SpellDBC.Item(i, 29)
+                    SPELLs(ID).DurationIndex = SpellDBC.Item(i, 30)
+                    SPELLs(ID).powerType = SpellDBC.Item(i, 31)
+                    SPELLs(ID).manaCost = SpellDBC.Item(i, 32)
+                    SPELLs(ID).manaCostPerlevel = SpellDBC.Item(i, 33)
+                    SPELLs(ID).manaPerSecond = SpellDBC.Item(i, 34)
+                    SPELLs(ID).manaPerSecondPerLevel = SpellDBC.Item(i, 35)
+                    SPELLs(ID).rangeIndex = SpellDBC.Item(i, 36)
+                    SPELLs(ID).Speed = SpellDBC.Item(i, 37, DBC.DBCValueType.DBC_FLOAT)
+                    SPELLs(ID).modalNextSpell = SpellDBC.Item(i, 38) ' Not Used
+                    SPELLs(ID).maxStack = SpellDBC.Item(i, 39)
+                    SPELLs(ID).Totem(0) = SpellDBC.Item(i, 40)
+                    SPELLs(ID).Totem(1) = SpellDBC.Item(i, 41)
 
                     '-CORRECT-
-                    SPELLs(ID).Reagents(0) = SpellDBC.Item(i, 40)
-                    SPELLs(ID).Reagents(1) = SpellDBC.Item(i, 41)
-                    SPELLs(ID).Reagents(2) = SpellDBC.Item(i, 42)
-                    SPELLs(ID).Reagents(3) = SpellDBC.Item(i, 43)
-                    SPELLs(ID).Reagents(4) = SpellDBC.Item(i, 44)
-                    SPELLs(ID).Reagents(5) = SpellDBC.Item(i, 45)
-                    SPELLs(ID).Reagents(6) = SpellDBC.Item(i, 46)
-                    SPELLs(ID).Reagents(7) = SpellDBC.Item(i, 47)
+                    SPELLs(ID).Reagents(0) = SpellDBC.Item(i, 42)
+                    SPELLs(ID).Reagents(1) = SpellDBC.Item(i, 43)
+                    SPELLs(ID).Reagents(2) = SpellDBC.Item(i, 44)
+                    SPELLs(ID).Reagents(3) = SpellDBC.Item(i, 45)
+                    SPELLs(ID).Reagents(4) = SpellDBC.Item(i, 46)
+                    SPELLs(ID).Reagents(5) = SpellDBC.Item(i, 47)
+                    SPELLs(ID).Reagents(6) = SpellDBC.Item(i, 48)
+                    SPELLs(ID).Reagents(7) = SpellDBC.Item(i, 49)
 
-                    SPELLs(ID).ReagentsCount(0) = SpellDBC.Item(i, 48)
-                    SPELLs(ID).ReagentsCount(1) = SpellDBC.Item(i, 49)
-                    SPELLs(ID).ReagentsCount(2) = SpellDBC.Item(i, 50)
-                    SPELLs(ID).ReagentsCount(3) = SpellDBC.Item(i, 51)
-                    SPELLs(ID).ReagentsCount(4) = SpellDBC.Item(i, 52)
-                    SPELLs(ID).ReagentsCount(5) = SpellDBC.Item(i, 53)
-                    SPELLs(ID).ReagentsCount(6) = SpellDBC.Item(i, 54)
-                    SPELLs(ID).ReagentsCount(7) = SpellDBC.Item(i, 55)
+                    SPELLs(ID).ReagentsCount(0) = SpellDBC.Item(i, 50)
+                    SPELLs(ID).ReagentsCount(1) = SpellDBC.Item(i, 51)
+                    SPELLs(ID).ReagentsCount(2) = SpellDBC.Item(i, 52)
+                    SPELLs(ID).ReagentsCount(3) = SpellDBC.Item(i, 53)
+                    SPELLs(ID).ReagentsCount(4) = SpellDBC.Item(i, 54)
+                    SPELLs(ID).ReagentsCount(5) = SpellDBC.Item(i, 55)
+                    SPELLs(ID).ReagentsCount(6) = SpellDBC.Item(i, 56)
+                    SPELLs(ID).ReagentsCount(7) = SpellDBC.Item(i, 57)
                     '-/CORRECT-
 
-                    SPELLs(ID).EquippedItemClass = SpellDBC.Item(i, 56)
-                    SPELLs(ID).EquippedItemSubClass = SpellDBC.Item(i, 57) 'Mask
-                    'SPELLs(ID).EquippedItemInventoryType = SpellDBC.Item(i, 58) 'Mask
+                    SPELLs(ID).EquippedItemClass = SpellDBC.Item(i, 58) 'Value
+                    SPELLs(ID).EquippedItemSubClass = SpellDBC.Item(i, 59) 'Mask
+                    SPELLs(ID).EquippedItemInventoryType = SpellDBC.Item(i, 60) 'Mask
 
                     For j As Integer = 0 To 2
-                        If CInt(SpellDBC.Item(i, 58 + j)) <> 0 Then
+                        If CInt(SpellDBC.Item(i, 61 + j)) <> 0 Then
                             SPELLs(ID).SpellEffects(j) = New SpellEffect(SPELLs(ID))
 
-                            SPELLs(ID).SpellEffects(j).ID = SpellDBC.Item(i, 58 + j)
-                            SPELLs(ID).SpellEffects(j).valueDie = SpellDBC.Item(i, 61 + j)
-                            SPELLs(ID).SpellEffects(j).diceBase = SpellDBC.Item(i, 64 + j)
-                            SPELLs(ID).SpellEffects(j).dicePerLevel = SpellDBC.Item(i, 67 + j, DBCValueType.DBC_FLOAT)
-                            SPELLs(ID).SpellEffects(j).valuePerLevel = SpellDBC.Item(i, 70 + j, DBC.DBCValueType.DBC_FLOAT)
-                            SPELLs(ID).SpellEffects(j).valueBase = SpellDBC.Item(i, 73 + j)
-                            SPELLs(ID).SpellEffects(j).mechanic = SpellDBC.Item(i, 76 + j)
-                            SPELLs(ID).SpellEffects(j).implicitTargetA = SpellDBC.Item(i, 79 + j)
-                            SPELLs(ID).SpellEffects(j).implicitTargetB = SpellDBC.Item(i, 82 + j)
-                            SPELLs(ID).SpellEffects(j).RadiusIndex = SpellDBC.Item(i, 85 + j)
-                            SPELLs(ID).SpellEffects(j).ApplyAuraIndex = SpellDBC.Item(i, 88 + j)
-                            SPELLs(ID).SpellEffects(j).Amplitude = SpellDBC.Item(i, 91 + j)
-                            SPELLs(ID).SpellEffects(j).MultipleValue = SpellDBC.Item(i, 94 + j)
-                            SPELLs(ID).SpellEffects(j).ChainTarget = SpellDBC.Item(i, 97 + j)
-                            SPELLs(ID).SpellEffects(j).ItemType = SpellDBC.Item(i, 100 + j)
-                            SPELLs(ID).SpellEffects(j).MiscValue = SpellDBC.Item(i, 103 + j)
-                            SPELLs(ID).SpellEffects(j).TriggerSpell = SpellDBC.Item(i, 106 + j)
-                            SPELLs(ID).SpellEffects(j).valuePerComboPoint = SpellDBC.Item(i, 109 + j)
+                            SPELLs(ID).SpellEffects(j).ID = SpellDBC.Item(i, 61 + j)
+                            SPELLs(ID).SpellEffects(j).valueDie = SpellDBC.Item(i, 64 + j)
+                            SPELLs(ID).SpellEffects(j).diceBase = SpellDBC.Item(i, 67 + j)
+                            SPELLs(ID).SpellEffects(j).dicePerLevel = SpellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT)
+                            SPELLs(ID).SpellEffects(j).valuePerLevel = SpellDBC.Item(i, 73 + j, DBC.DBCValueType.DBC_FLOAT)
+                            SPELLs(ID).SpellEffects(j).valueBase = SpellDBC.Item(i, 76 + j)
+                            SPELLs(ID).SpellEffects(j).Mechanic = SpellDBC.Item(i, 79 + j)
+                            SPELLs(ID).SpellEffects(j).implicitTargetA = SpellDBC.Item(i, 82 + j)
+                            SPELLs(ID).SpellEffects(j).implicitTargetB = SpellDBC.Item(i, 85 + j)
+                            SPELLs(ID).SpellEffects(j).RadiusIndex = SpellDBC.Item(i, 88 + j) ' spellradius.dbc
+                            SPELLs(ID).SpellEffects(j).ApplyAuraIndex = SpellDBC.Item(i, 91 + j)
+                            SPELLs(ID).SpellEffects(j).Amplitude = SpellDBC.Item(i, 94 + j)
+                            SPELLs(ID).SpellEffects(j).MultipleValue = SpellDBC.Item(i, 97 + j)
+                            SPELLs(ID).SpellEffects(j).ChainTarget = SpellDBC.Item(i, 100 + j)
+                            SPELLs(ID).SpellEffects(j).ItemType = SpellDBC.Item(i, 103 + j)
+                            SPELLs(ID).SpellEffects(j).MiscValue = SpellDBC.Item(i, 106 + j)
+                            SPELLs(ID).SpellEffects(j).TriggerSpell = SpellDBC.Item(i, 109 + j)
+                            SPELLs(ID).SpellEffects(j).valuePerComboPoint = SpellDBC.Item(i, 112 + j)
                         Else
                             SPELLs(ID).SpellEffects(j) = Nothing
                         End If
                     Next
 
-                    SPELLs(ID).SpellVisual = SpellDBC.Item(i, 112)
-                    '113 = Always zero?
-                    SPELLs(ID).SpellIconID = SpellDBC.Item(i, 114)
-                    '115 = Some sort of flag? Very rarely set. 90+% are 0.
-                    '116 = 0 or 50?
-                    'SPELLs(ID).Name = SpellDBC.Item(i, 117, DBCValueType.DBC_STRING)
-                    '118 = Always zero?
-                    '119 = Always zero?
-                    '120 = Always zero?
+                    SPELLs(ID).SpellVisual = SpellDBC.Item(i, 115)
+                    '116 = Always zero? - SpellVisual2 - Not Used
+                    SPELLs(ID).SpellIconID = SpellDBC.Item(i, 117)
+                    SPELLs(ID).ActiveIconID = SpellDBC.Item(i, 118)
+                    '119 = spellPriority
+                    SPELLs(ID).Name = SpellDBC.Item(i, 120, DBCValueType.DBC_STRING)
                     '121 = Always zero?
                     '122 = Always zero?
                     '123 = Always zero?
                     '124 = Always zero?
-                    '125 = Some sort of flag with a lot of bits set (Sometimes same as 134, 143 and 152?)
-                    '126 = Rank str
+                    '125 = Always zero?
+                    '126 = Always zero?
                     '127 = Always zero?
                     '128 = Always zero?
-                    '129 = Always zero?
+                    SPELLs(ID).Rank = SpellDBC.Item(i, 129, DBCValueType.DBC_STRING)
                     '130 = Always zero?
                     '131 = Always zero?
                     '132 = Always zero?
                     '133 = Always zero?
-                    '134 = Some sort of flag with a lot of bits set (Sometimes same as 125, 143 and 152?)
-                    '135 = Description
+                    '134 = Always zero?
+                    '135 = Always zero?
                     '136 = Always zero?
-                    '137 = Always zero?
-                    '138 = Always zero?
+                    '137 = RankFlags
+                    '138 = Description - Not Used
                     '139 = Always zero?
                     '140 = Always zero?
                     '141 = Always zero?
                     '142 = Always zero?
-                    '143 = Some sort of flag with a lot of bits set (Sometimes same as 125, 134 and 152?)
-                    '144 = Buff description
+                    '143 = Always zero?
+                    '144 = Always zero?
                     '145 = Always zero?
-                    '146 = Always zero?
-                    '147 = Always zero?
+                    '146 = DescriptionFlags - Not Used
+                    '147 = ToolTip - Not USed
                     '148 = Always zero?
                     '149 = Always zero?
                     '150 = Always zero?
                     '151 = Always zero?
-                    '152 = Some sort of flag with a lot of bits set (Sometimes same as 125, 134 and 143?)
-                    SPELLs(ID).manaCostPercent = SpellDBC.Item(i, 153)
-                    '154 = uint32 StartRecoveryCategory; 154  (133 = Global Cooldown?)
-                    '155 = uint32 StartRecoveryTime; 155 (Global Cooldown = 1500ms?)
-                    SPELLs(ID).AffectedTargetLevel = SpellDBC.Item(i, 156)
-                    SPELLs(ID).SpellFamilyName = SpellDBC.Item(i, 157)
-                    SPELLs(ID).SpellFamilyFlags = SpellDBC.Item(i, 158)
-                    '159 = Always zero?
-                    SPELLs(ID).MaxTargets = SpellDBC.Item(i, 160)
-                    SPELLs(ID).DamageType = SpellDBC.Item(i, 161)
-                    '162 = 0, 1 or 2? Sometimes same as 161
-                    '163 = uint32    DmgClass?
+                    '152 = Always zero?
+                    '153 = Always zero?
+                    '154 = Always zero?
+                    '155 = ToolTipFlags - Not Used
+                    SPELLs(ID).manaCostPercent = SpellDBC.Item(i, 156)
+                    SPELLs(ID).StartRecoveryCategory = SpellDBC.Item(i, 157)
+                    SPELLs(ID).StartRecoveryTime = SpellDBC.Item(i, 158)
+                    SPELLs(ID).AffectedTargetLevel = SpellDBC.Item(i, 159)
+                    SPELLs(ID).SpellFamilyName = SpellDBC.Item(i, 160)
+                    SPELLs(ID).SpellFamilyFlags = SpellDBC.Item(i, 161) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
+                    SPELLs(ID).MaxTargets = SpellDBC.Item(i, 163)
+                    SPELLs(ID).DamageType = SpellDBC.Item(i, 164) ' defenseType
+                    'SPELLs(ID).PreventionType = SpellDBC.Item(i, 165)
+                    '166 = StanceBarOrder - Not Used
 
                     For j As Integer = 0 To 2
                         If SPELLs(ID).SpellEffects(j) IsNot Nothing Then
-                            SPELLs(ID).SpellEffects(j).DamageMultiplier = SpellDBC.Item(i, 164 + j, DBCValueType.DBC_FLOAT)
+                            SPELLs(ID).SpellEffects(j).DamageMultiplier = SpellDBC.Item(i, 167 + j, DBCValueType.DBC_FLOAT)
                         End If
                     Next
 
-                    '167 = Some sort of flag
-                    '168 = Always zero?
-                    '169 = Always zero?
-                    '170 = Always zero?
+                    '170 = MinFactionId - Not Used
+                    '171 = MinReputation - Not Used
+                    '172 = RequiredAuraVision - Not Used
 
                     SPELLs(ID).InitCustomAttributes()
 
@@ -651,11 +651,17 @@ Public Module WS_DBCLoad
                 'areaMapID = tmpDBC.Item(i, 1) ' May be needed in the future
                 areaZone = tmpDBC.Item(i, 2)
                 areaExploreFlag = tmpDBC.Item(i, 3)
-                areaZoneType = tmpDBC.Item(i, 4) ' 312 For Cities
-                'areaEXP = tmpDBC.Item(i, 8) ' May be needed in the future
+                areaZoneType = tmpDBC.Item(i, 4) ' 312 For Cities - Flags
+                ' 5        m_SoundProviderPref
+                ' 6        m_SoundProviderPrefUnderwater
+                ' 7        m_AmbienceID
+                'areaEXP = tmpDBC.Item(i, 8) ' May be needed in the future - m_ZoneMusic
+                ' 9        m_IntroSound
                 areaLevel = tmpDBC.Item(i, 10)
                 'areaName = tmpDBC.Item(i, 11) ' May be needed in the future
+                ' 19 string flags
                 'areaTeam = tmpDBC.Item(i, 20)
+                ' 24 = LiquidTypeOverride
 
                 If areaLevel > 255 Then areaLevel = 255
                 If areaLevel < 0 Then areaLevel = 0
@@ -1065,7 +1071,7 @@ Public Module WS_DBCLoad
             For i = 0 To DBC.Rows - 1
                 ID = DBC.Item(i, 0)
                 Name = DBC.Item(i, 1, DBCValueType.DBC_STRING)
-                ItemID(0) = DBC.Item(i, 10)
+                ItemID(0) = DBC.Item(i, 10) ' 10 - 26
                 ItemID(1) = DBC.Item(i, 11)
                 ItemID(2) = DBC.Item(i, 12)
                 ItemID(3) = DBC.Item(i, 13)
@@ -1073,24 +1079,24 @@ Public Module WS_DBCLoad
                 ItemID(5) = DBC.Item(i, 15)
                 ItemID(6) = DBC.Item(i, 16)
                 ItemID(7) = DBC.Item(i, 17)
-                'SpellID(0) = DBC.Item(i, 66)
-                'SpellID(1) = DBC.Item(i, 67)
-                'SpellID(2) = DBC.Item(i, 68)
-                'SpellID(3) = DBC.Item(i, 69)
-                'SpellID(4) = DBC.Item(i, 70)
-                'SpellID(5) = DBC.Item(i, 71)
-                'SpellID(6) = DBC.Item(i, 72)
-                'SpellID(7) = DBC.Item(i, 73)
-                'ItemCount(0) = DBC.Item(i, 74)
-                'ItemCount(1) = DBC.Item(i, 75)
-                'ItemCount(2) = DBC.Item(i, 76)
-                'ItemCount(3) = DBC.Item(i, 77)
-                'ItemCount(4) = DBC.Item(i, 78)
-                'ItemCount(5) = DBC.Item(i, 79)
-                'ItemCount(6) = DBC.Item(i, 80)
-                'ItemCount(7) = DBC.Item(i, 81)
-                'Required_Skill_ID = DBC.Item(i, 82)
-                'Required_Skill_Value = DBC.Item(i, 83)
+                'SpellID(0) = DBC.Item(i, 27) ' 27 - 34
+                'SpellID(1) = DBC.Item(i, 28)
+                'SpellID(2) = DBC.Item(i, 29)
+                'SpellID(3) = DBC.Item(i, 30)
+                'SpellID(4) = DBC.Item(i, 31)
+                'SpellID(5) = DBC.Item(i, 32)
+                'SpellID(6) = DBC.Item(i, 33)
+                'SpellID(7) = DBC.Item(i, 34)
+                'ItemCount(0) = DBC.Item(i, 35) ' Items To Trigger Spell? 
+                'ItemCount(1) = DBC.Item(i, 36)
+                'ItemCount(2) = DBC.Item(i, 37)
+                'ItemCount(3) = DBC.Item(i, 38)
+                'ItemCount(4) = DBC.Item(i, 39)
+                'ItemCount(5) = DBC.Item(i, 40)
+                'ItemCount(6) = DBC.Item(i, 41)
+                'ItemCount(7) = DBC.Item(i, 42)
+                'Required_Skill_ID = DBC.Item(i, 43)
+                'Required_Skill_Value = DBC.Item(i, 44)
 
                 ItemSet.Add(ID, New TItemSet(Name, ItemID, SpellID, ItemCount, Required_Skill_ID, Required_Skill_Value))
             Next
