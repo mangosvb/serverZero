@@ -1,5 +1,5 @@
-﻿' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -19,10 +19,6 @@
 Imports System.Runtime.InteropServices
 
 Public Module Functions
-
-
-
-
 
     Public Function SearchInFile(ByVal f As System.IO.Stream, ByVal s As String, Optional ByVal o As Integer = 0) As Integer
         f.Seek(0, IO.SeekOrigin.Begin)

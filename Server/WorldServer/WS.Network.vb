@@ -1,5 +1,5 @@
-﻿' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ Imports System.Runtime.Remoting
 Imports System.Runtime.CompilerServices
 Imports System.Collections.Generic
 Imports System.Security.Permissions
-Imports SpuriousZero.Common.BaseWriter
-Imports SpuriousZero.Common
+Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common
 
 
 Public Module WS_Network
@@ -150,14 +150,14 @@ Public Module WS_Network
             Cluster.ClientTransfer(ID, posX, posY, posZ, ori, map)
         End Sub
 
-        Public Sub ClientConnect(ByVal ID As UInteger, ByVal Client As Common.ClientInfo) Implements Common.IWorld.ClientConnect
+        Public Sub ClientConnect(ByVal ID As UInteger, ByVal Client As ClientInfo) Implements IWorld.ClientConnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", ID)
 
             Dim c As New ClientClass(Client)
 
             CLIENTs.Add(ID, c)
         End Sub
-        Public Sub ClientDisconnect(ByVal ID As UInteger) Implements Common.IWorld.ClientDisconnect
+        Public Sub ClientDisconnect(ByVal ID As UInteger) Implements IWorld.ClientDisconnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", ID)
 
             If CLIENTs(ID).Character IsNot Nothing Then
@@ -167,7 +167,7 @@ Public Module WS_Network
             CLIENTs(ID).Delete()
             CLIENTs.Remove(ID)
         End Sub
-        Public Sub ClientLogin(ByVal ID As UInteger, ByVal GUID As ULong) Implements Common.IWorld.ClientLogin
+        Public Sub ClientLogin(ByVal ID As UInteger, ByVal GUID As ULong) Implements IWorld.ClientLogin
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", ID, GUID)
 
             Try
@@ -191,22 +191,22 @@ Public Module WS_Network
                 Log.WriteLine(LogType.FAILED, "Error on login: {0}", e.ToString)
             End Try
         End Sub
-        Public Sub ClientLogout(ByVal ID As UInteger) Implements Common.IWorld.ClientLogout
+        Public Sub ClientLogout(ByVal ID As UInteger) Implements IWorld.ClientLogout
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client logout", ID)
 
             CLIENTs(ID).Character.Logout(Nothing)
         End Sub
-        Public Sub ClientPacket(ByVal ID As UInteger, ByVal Data() As Byte) Implements Common.IWorld.ClientPacket
+        Public Sub ClientPacket(ByVal ID As UInteger, ByVal Data() As Byte) Implements IWorld.ClientPacket
             Dim p As New PacketClass(Data)
 
             CLIENTs(ID).Packets.Enqueue(p)
             ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(ID).OnPacket)
         End Sub
-        Public Function ClientCreateCharacter(ByVal Account As String, ByVal Name As String, ByVal Race As Byte, ByVal Classe As Byte, ByVal Gender As Byte, ByVal Skin As Byte, ByVal Face As Byte, ByVal HairStyle As Byte, ByVal HairColor As Byte, ByVal FacialHair As Byte, ByVal OutfitID As Byte) As Integer Implements Common.IWorld.ClientCreateCharacter
+        Public Function ClientCreateCharacter(ByVal Account As String, ByVal Name As String, ByVal Race As Byte, ByVal Classe As Byte, ByVal Gender As Byte, ByVal Skin As Byte, ByVal Face As Byte, ByVal HairStyle As Byte, ByVal HairColor As Byte, ByVal FacialHair As Byte, ByVal OutfitID As Byte) As Integer Implements IWorld.ClientCreateCharacter
             Return CreateCharacter(Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitID)
         End Function
 
-        Public Function Ping(ByVal Timestamp As Integer, ByVal Latency As Integer) As Integer Implements Common.IWorld.Ping
+        Public Function Ping(ByVal Timestamp As Integer, ByVal Latency As Integer) As Integer Implements IWorld.Ping
             LastPing = timeGetTime
             WC_MsTime = Timestamp + Latency
 
@@ -231,18 +231,18 @@ Public Module WS_Network
             LastCPUTime = Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds
         End Sub
 
-        Public Sub ServerInfo(ByRef CPUUsage As Single, ByRef MemoryUsage As ULong) Implements Common.IWorld.ServerInfo
+        Public Sub ServerInfo(ByRef CPUUsage As Single, ByRef MemoryUsage As ULong) Implements IWorld.ServerInfo
             MemoryUsage = CULng(Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024))
             CPUUsage = UsageCPU
         End Sub
 
-        Public Sub InstanceCreate(ByVal MapID As UInteger) Implements Common.IWorld.InstanceCreate
+        Public Sub InstanceCreate(ByVal MapID As UInteger) Implements IWorld.InstanceCreate
             If Not Maps.ContainsKey(MapID) Then Dim Map As New TMap(MapID)
         End Sub
-        Public Sub InstanceDestroy(ByVal MapID As UInteger) Implements Common.IWorld.InstanceDestroy
+        Public Sub InstanceDestroy(ByVal MapID As UInteger) Implements IWorld.InstanceDestroy
             Maps(MapID).Dispose()
         End Sub
-        Public Function InstanceCanCreate(ByVal Type As Integer) As Boolean Implements Common.IWorld.InstanceCanCreate
+        Public Function InstanceCanCreate(ByVal Type As Integer) As Boolean Implements IWorld.InstanceCanCreate
             Select Case CType(Type, MapTypes)
                 Case MapTypes.MAP_BATTLEGROUND
                     Return Config.CreateBattlegrounds
@@ -255,7 +255,7 @@ Public Module WS_Network
             End Select
         End Function
 
-        Public Sub ClientSetGroup(ByVal ID As UInteger, ByVal GroupID As Long) Implements Common.IWorld.ClientSetGroup
+        Public Sub ClientSetGroup(ByVal ID As UInteger, ByVal GroupID As Long) Implements IWorld.ClientSetGroup
             If Not CLIENTs.ContainsKey(ID) Then Return
 
             If GroupID = -1 Then
@@ -275,7 +275,7 @@ Public Module WS_Network
                 InstanceMapEnter(CLIENTs(ID).Character)
             End If
         End Sub
-        Public Sub GroupUpdate(ByVal GroupID As Long, ByVal GroupType As Byte, ByVal GroupLeader As ULong, ByVal Members() As ULong) Implements Common.IWorld.GroupUpdate
+        Public Sub GroupUpdate(ByVal GroupID As Long, ByVal GroupType As Byte, ByVal GroupLeader As ULong, ByVal Members() As ULong) Implements IWorld.GroupUpdate
             If GROUPs.ContainsKey(GroupID) Then
 
                 Dim list As New List(Of ULong)
@@ -294,7 +294,7 @@ Public Module WS_Network
                 End If
             End If
         End Sub
-        Public Sub GroupUpdateLoot(ByVal GroupID As Long, ByVal Difficulty As Byte, ByVal Method As Byte, ByVal Threshold As Byte, ByVal Master As ULong) Implements Common.IWorld.GroupUpdateLoot
+        Public Sub GroupUpdateLoot(ByVal GroupID As Long, ByVal Difficulty As Byte, ByVal Method As Byte, ByVal Threshold As Byte, ByVal Master As ULong) Implements IWorld.GroupUpdateLoot
             If GROUPs.ContainsKey(GroupID) Then
 
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
@@ -311,14 +311,14 @@ Public Module WS_Network
             End If
         End Sub
 
-        Public Function GroupMemberStats(ByVal GUID As ULong, ByVal Flag As Integer) As Byte() Implements Common.IWorld.GroupMemberStats
+        Public Function GroupMemberStats(ByVal GUID As ULong, ByVal Flag As Integer) As Byte() Implements IWorld.GroupMemberStats
             If Flag = 0 Then Flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL
             Dim p As PacketClass = BuildPartyMemberStats(CHARACTERs(GUID), Flag)
             p.UpdateLength()
             Return p.Data
         End Function
 
-        Public Sub GuildUpdate(ByVal GUID As ULong, ByVal GuildID As UInteger, ByVal GuildRank As Byte) Implements Common.IWorld.GuildUpdate
+        Public Sub GuildUpdate(ByVal GUID As ULong, ByVal GuildID As UInteger, ByVal GuildRank As Byte) Implements IWorld.GuildUpdate
             CHARACTERs(GUID).GuildID = GuildID
             CHARACTERs(GUID).GuildRank = GuildRank
 
@@ -327,16 +327,16 @@ Public Module WS_Network
             CHARACTERs(GUID).SendCharacterUpdate()
         End Sub
 
-        Public Sub BattlefieldCreate(ByVal BattlefieldID As Integer, ByVal BattlefieldMapType As Byte, ByVal Map As UInteger) Implements Common.IWorld.BattlefieldCreate
+        Public Sub BattlefieldCreate(ByVal BattlefieldID As Integer, ByVal BattlefieldMapType As Byte, ByVal Map As UInteger) Implements IWorld.BattlefieldCreate
             Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Battlefield created", BattlefieldID)
         End Sub
-        Public Sub BattlefieldDelete(ByVal BattlefieldID As Integer) Implements Common.IWorld.BattlefieldDelete
+        Public Sub BattlefieldDelete(ByVal BattlefieldID As Integer) Implements IWorld.BattlefieldDelete
             Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Battlefield deleted", BattlefieldID)
         End Sub
-        Public Sub BattlefieldJoin(ByVal BattlefieldID As Integer, ByVal GUID As ULong) Implements Common.IWorld.BattlefieldJoin
+        Public Sub BattlefieldJoin(ByVal BattlefieldID As Integer, ByVal GUID As ULong) Implements IWorld.BattlefieldJoin
             Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Character [0x{1:X}] joined battlefield", BattlefieldID, GUID)
         End Sub
-        Public Sub BattlefieldLeave(ByVal BattlefieldID As Integer, ByVal GUID As ULong) Implements Common.IWorld.BattlefieldLeave
+        Public Sub BattlefieldLeave(ByVal BattlefieldID As Integer, ByVal GUID As ULong) Implements IWorld.BattlefieldLeave
             Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Character [0x{1:X}] left battlefield", BattlefieldID, GUID)
         End Sub
 

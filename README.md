@@ -1,6 +1,6 @@
 serverZero
 ==========
-*MaNGOS Zero* is a full featured server for [World of Warcraft][2], in its vanilla
+*MaNGOSVB Zero* is a full featured server for [World of Warcraft][2], in its vanilla
 version supporting clients from the [patch 1.12][50] branch, specifically patch
 1.12.1, 1.12.2, and 1.12.3.
 

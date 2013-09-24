@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ Imports System.Net
 Imports System.Security.Cryptography
 Imports System.Reflection
 Imports System.Collections.Generic
-Imports SpuriousZero.Common
+Imports mangosVB.Common
 
 Public Module RS_Main
 #Region "Global.Constants"
@@ -106,7 +106,7 @@ Public Module RS_Main
         Public Class XMLConfigFile
         <XmlElement(ElementName:="RSPort")> Public RSPort As Int32 = 3724
         <XmlElement(ElementName:="RSHost")> Public RSHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;SpuriousZero;localhost;3306;SpuriousZero;MySQL"
+        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
     End Class
 
     Public Sub LoadConfig()
@@ -115,7 +115,7 @@ Public Module RS_Main
             If System.IO.File.Exists("RealmServer.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "RealmServer.ini")
-                Console.WriteLine("Please copy the ini files into the same directory as the SpuriousZero exe files.")
+                Console.WriteLine("Please copy the ini files into the same directory as the MangosVBZero exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End
@@ -819,9 +819,31 @@ Public Module RS_Main
         Console.WriteLine([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyCopyrightAttribute), False)(0).Copyright)
         Console.WriteLine()
 
+        Console.ForegroundColor = System.ConsoleColor.Yellow
+
+        Console.WriteLine(" ####       ####            ###     ###   ########    #######     ######## ")
+        Console.WriteLine(" #####     #####            ####    ###  ##########  #########   ##########")
+        Console.WriteLine(" #####     #####            #####   ###  ##########  #########   ##########")
+        Console.WriteLine(" ######   ######            #####   ###  ###        ####   ####  ###       ")
+        Console.WriteLine(" ######   ######    ####    ######  ###  ###        ###     ###  ###       ")
+        Console.WriteLine(" ####### #######   ######   ######  ###  ###  ##### ###     ###  ########  ")
+        Console.WriteLine(" ### ### ### ###   ######   ####### ###  ###  ##### ###     ###  ######### ")
+        Console.WriteLine(" ### ### ### ###  ###  ###  ### ### ###  ###  ##### ###     ###   #########")
+        Console.WriteLine(" ### ####### ###  ###  ###  ###  ######  ###    ### ###     ###        ####")
+        Console.WriteLine(" ### ####### ###  ###  ###  ###  ######  ###    ### ###     ###         ###")
+        Console.WriteLine(" ###  #####  ### ########## ###   #####  ###   #### ####   ####        ####")
+        Console.WriteLine(" ###  #####  ### ########## ###   #####  #########   #########   ##########")
+        Console.WriteLine(" ###  #####  ### ###    ### ###    ####  #########   #########   ######### ")
+        Console.WriteLine(" ###   ###   ### ###    ### ###     ###   #######     #######     #######  ")
+        Console.WriteLine("")
+        Console.WriteLine(" Website: http://www.getmangos.co.uk                         ##  ##  ##### ")
+        Console.WriteLine("                                                             ##  ##  ##  ##")
+        Console.WriteLine("    Wiki: http://github.com/mangoswiki/wiki                  ##  ##  ##### ")
+        Console.WriteLine("                                                              ####   ##  ##")
+        Console.WriteLine("   Forum: http://community.getmangos.co.uk                     ##    ##### ")
+        Console.WriteLine("")
+
         Console.ForegroundColor = System.ConsoleColor.Magenta
-        Console.WriteLine("http://www.spuriousemu.com/")
-        Console.WriteLine()
 
         Console.ForegroundColor = System.ConsoleColor.White
         Console.WriteLine([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyTitleAttribute), False)(0).Title)
@@ -858,17 +880,17 @@ Public Module RS_Main
                             End
                         Case "help", "/help"
                             Console.ForegroundColor = System.ConsoleColor.Blue
-                            Console.WriteLine("'SpuriousZero.RealmServer' Command list:")
+                            Console.WriteLine("'RealmServer' Command list:")
                             Console.ForegroundColor = System.ConsoleColor.White
                             Console.WriteLine("---------------------------------")
                             Console.WriteLine("")
                             Console.WriteLine("")
-                            Console.WriteLine("'help' or '/help' - Brings up the 'SpuriousZero.RealmServer' Command list (this).")
+                            Console.WriteLine("'help' or '/help' - Brings up the 'RealmServer' Command list (this).")
                             Console.WriteLine("")
-                            Console.WriteLine("'/quit' or '/shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'SpuriousZero.RealmServer'.")
+                            Console.WriteLine("'/quit' or '/shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'RealmServer'.")
                         Case Else
                             Console.ForegroundColor = System.ConsoleColor.DarkRed
-                            Console.WriteLine("Error!. Cannot find specified command. Please type 'help' for information on 'SpuriousZero.RealmServer' console commands.")
+                            Console.WriteLine("Error!. Cannot find specified command. Please type 'help' for information on 'RealmServer' console commands.")
                             Console.ForegroundColor = System.ConsoleColor.White
                     End Select
                 End If

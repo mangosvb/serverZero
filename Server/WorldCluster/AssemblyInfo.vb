@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("SpuriousZero.WorldCluster")> 
-<Assembly: AssemblyDescription("World Cluster part of SpuriousZero Server Emulator.")> 
-<Assembly: AssemblyCompany("The SpuriousZero Team")> 
-<Assembly: AssemblyProduct("SpuriousZero Server Pack")> 
-<Assembly: AssemblyCopyright("Copyright © 2011, The SpuriousZero Team")> 
+<Assembly: AssemblyTitle("WorldCluster")> 
+<Assembly: AssemblyDescription("World Cluster part of MangosVBZero Server Emulator.")> 
+<Assembly: AssemblyCompany("The MangosVBZero Team")> 
+<Assembly: AssemblyProduct("MangosVBZero Server Pack")> 
+<Assembly: AssemblyCopyright("Copyright © 2011, The MangosVBZero Team")> 
 <Assembly: AssemblyTrademark("")> 
 <Assembly: CLSCompliant(False)> 
 

@@ -1,7 +1,7 @@
 ﻿Imports System.IO
 Imports MpqLib.Mpq
-Imports SpuriousZero.Common
-Imports SpuriousZero.Common.DBC
+Imports mangosVB.Common
+Imports mangosVB.Common.DBC
 
 Module MainModule
 

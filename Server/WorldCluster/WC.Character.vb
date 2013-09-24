@@ -1,5 +1,5 @@
-﻿' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -15,11 +15,12 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+'
 
 Imports System.Threading
 Imports System.Reflection
-Imports SpuriousZero.Common
-Imports SpuriousZero.Common.BaseWriter
+Imports mangosVB.Common
+Imports mangosVB.Common.BaseWriter
 
 
 Public Module WC_Character
@@ -230,7 +231,7 @@ Public Module WC_Character
 
             'DONE: Server Message Of The Day
             SendMessageMOTD(Client, "Welcome to World of Warcraft.")
-            SendMessageMOTD(Client, String.Format("This server is using {0} v.{1}, svn-revision {2} ({3})", SetColor("[SpuriousZero]", 255, 0, 0), [Assembly].GetExecutingAssembly().GetName().Version, svnRevision, svnDate))
+            SendMessageMOTD(Client, String.Format("This server is using {0} v.{1}, svn-revision {2} ({3})", SetColor("[MangosVBZero]", 255, 0, 0), [Assembly].GetExecutingAssembly().GetName().Version, svnRevision, svnDate))
 
             'DONE: Guild Message Of The Day
             SendGuildMOTD(Me)

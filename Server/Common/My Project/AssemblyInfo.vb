@@ -8,11 +8,11 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("SpuriousZero.Common")> 
-<Assembly: AssemblyDescription("Common functions of SpuriousZero Server Emulator.")> 
-<Assembly: AssemblyCompany("The SpuriousZero Team")> 
-<Assembly: AssemblyProduct("SpuriousZero Server Pack")> 
-<Assembly: AssemblyCopyright("Copyright © 2011, The SpuriousZero Team")> 
+<Assembly: AssemblyTitle("mangosVB.Common")> 
+<Assembly: AssemblyDescription("Common functions of MangosVBZero Server Emulator.")> 
+<Assembly: AssemblyCompany("The MangosVBZero Team")> 
+<Assembly: AssemblyProduct("MangosVBZero Server Pack")> 
+<Assembly: AssemblyCopyright("Copyright © 2013, The MangosVBZero Team")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)> 

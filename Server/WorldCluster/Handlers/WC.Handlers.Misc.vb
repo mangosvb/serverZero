@@ -1,5 +1,5 @@
-﻿' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ Imports System.IO
 Imports System.Net
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
-Imports SpuriousZero.Common.BaseWriter
-Imports SpuriousZero.Common
+Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common
 
 
 Public Module WC_Handlers_Misc

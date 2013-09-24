@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 Imports System.Threading
 Imports System.Reflection
 Imports System.Collections.Generic
-Imports SpuriousZero.Common.BaseWriter
+Imports mangosVB.Common.BaseWriter
 
 
 #Region "WS.Commands.Attributes"
@@ -107,7 +107,7 @@ Public Module WS_Commands
 
                         ChatCommands.Add(UCase(info.cmdName), cmd)
 #If DEBUG Then
-                        Log.WriteLine(SpuriousZero.Common.BaseWriter.LogType.INFORMATION, "Command found: {0}", UCase(info.cmdName))
+                        Log.WriteLine(mangosVB.Common.BaseWriter.LogType.INFORMATION, "Command found: {0}", UCase(info.cmdName))
 #End If
                     Next
                 End If

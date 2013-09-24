@@ -10,9 +10,9 @@ Imports System.Runtime.InteropServices
 
 <Assembly: AssemblyTitle("DBCExtractor")> 
 <Assembly: AssemblyDescription("Extracts DBC files from World of Warcraft.")> 
-<Assembly: AssemblyCompany("VanillaWoW")> 
+<Assembly: AssemblyCompany("MangosVB")> 
 <Assembly: AssemblyProduct("DBCExtractor")> 
-<Assembly: AssemblyCopyright("Copyright © VanillaWoW 2010")> 
+<Assembly: AssemblyCopyright("Copyright © MangosVB 2013")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>

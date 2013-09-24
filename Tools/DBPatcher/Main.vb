@@ -1,5 +1,5 @@
-﻿' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports SpuriousZero.Common
+Imports mangosVB.Common
 Imports System.IO
 Imports System.Reflection
 
@@ -49,7 +49,7 @@ Module Main
             Console.WriteLine()
 
             Console.ForegroundColor = System.ConsoleColor.Magenta
-            Console.WriteLine("http://spuriousemu.com")
+            Console.WriteLine("http://www.getMangos.co.uk")
             Console.WriteLine()
 
             'DONE: Get all the sql info
@@ -79,16 +79,16 @@ Module Main
             If SQLPass = "" Then SQLPass = "root"
 
             Console.ForegroundColor = ConsoleColor.Green
-            Console.Write("SQL Database [vwow]: ")
+            Console.Write("SQL Database [mangosvbzero]: ")
             Console.ForegroundColor = ConsoleColor.Cyan
             Dim SQLSourceDB As String = Console.ReadLine()
-            If SQLSourceDB = "" Then SQLSourceDB = "vwow"
+            If SQLSourceDB = "" Then SQLSourceDB = "mangosvbzero"
 
             Console.ForegroundColor = ConsoleColor.Green
-            Console.Write("Old Database File [vwow.sql]: ")
+            Console.Write("Old Database File [mangosvbzero.sql]: ")
             Console.ForegroundColor = ConsoleColor.Cyan
             Dim DBFile As String = Console.ReadLine()
-            If DBFile = "" Then DBFile = "vwow.sql"
+            If DBFile = "" Then DBFile = "mangosvbzero.sql"
 
             Console.ForegroundColor = ConsoleColor.Green
             Console.Write("Ignore data in tables [account,character,realms]: ")
@@ -143,7 +143,7 @@ Module Main
 
             bw.WriteLine("/*")
             bw.WriteLine("Auto-Generated patch file")
-            bw.WriteLine("Made for SpuriousZero by UniX")
+            bw.WriteLine("Made for MangosVBZero by UniX")
             bw.WriteLine("Date: " & Now)
             bw.WriteLine("*/")
             bw.WriteLine("")

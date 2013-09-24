@@ -11,7 +11,7 @@
     </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>SpuriousZero.Common</AssemblyName>
+    <AssemblyName>Common</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <AssemblyOriginatorKeyMode>None</AssemblyOriginatorKeyMode>
@@ -23,7 +23,7 @@
     <OptionCompare>Binary</OptionCompare>
     <OptionExplicit>On</OptionExplicit>
     <OptionStrict>Off</OptionStrict>
-    <RootNamespace>SpuriousZero.Common</RootNamespace>
+    <RootNamespace>mangosVB.Common</RootNamespace>
     <StartupObject>Spurious.Filebase.%28None%29</StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

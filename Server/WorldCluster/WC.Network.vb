@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ Imports System.Net.Sockets
 Imports System.Runtime.Remoting
 Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
-Imports SpuriousZero.Common.BaseWriter
-Imports SpuriousZero.Common
+Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common
 
 
 Public Module WC_Network
@@ -120,7 +120,7 @@ Public Module WC_Network
         Public Worlds As New Dictionary(Of UInteger, IWorld)
         Public WorldsInfo As New Dictionary(Of UInteger, WorldInfo)
 
-        Public Function Connect(ByVal URI As String, ByVal Maps As System.Collections.ICollection) As Boolean Implements Common.ICluster.Connect
+        Public Function Connect(ByVal URI As String, ByVal Maps As System.Collections.ICollection) As Boolean Implements ICluster.Connect
             Try
                 Disconnect(URI, Maps)
 
@@ -148,7 +148,7 @@ Public Module WC_Network
 
             Return True
         End Function
-        Public Sub Disconnect(ByVal URI As String, ByVal Maps As System.Collections.ICollection) Implements Common.ICluster.Disconnect
+        Public Sub Disconnect(ByVal URI As String, ByVal Maps As System.Collections.ICollection) Implements ICluster.Disconnect
             If Maps.Count = 0 Then Return
 
             'TODO: Unload arenas or battlegrounds that is hosted on this server!
@@ -231,10 +231,10 @@ Public Module WC_Network
             Disconnect("NULL", DeadServers)
         End Sub
 
-        Public Sub ClientSend(ByVal ID As UInteger, ByVal Data() As Byte) Implements Common.ICluster.ClientSend
+        Public Sub ClientSend(ByVal ID As UInteger, ByVal Data() As Byte) Implements ICluster.ClientSend
             If CLIENTs.ContainsKey(ID) Then CLIENTs(ID).Send(Data)
         End Sub
-        Public Sub ClientDrop(ByVal ID As UInteger) Implements Common.ICluster.ClientDrop
+        Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
             Try
                 Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client drop [M{1:0000}]", ID, CLIENTs(ID).Character.Map)
                 CLIENTs(ID).Character.IsInWorld = False
@@ -243,7 +243,7 @@ Public Module WC_Network
                 Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client drop exception: {1}", ID, ex.ToString)
             End Try
         End Sub
-        Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger) Implements Common.ICluster.ClientTransfer
+        Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger) Implements ICluster.ClientTransfer
             Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client transfer [M{1:0000}->M{2:0000}]", ID, CLIENTs(ID).Character.Map, map)
 
             Dim p As New PacketClass(OPCODES.SMSG_NEW_WORLD)
@@ -256,14 +256,14 @@ Public Module WC_Network
 
             CLIENTs(ID).Character.Map = map
         End Sub
-        Public Sub ClientUpdate(ByVal ID As UInteger, ByVal Zone As UInteger, ByVal Level As Byte) Implements Common.ICluster.ClientUpdate
+        Public Sub ClientUpdate(ByVal ID As UInteger, ByVal Zone As UInteger, ByVal Level As Byte) Implements ICluster.ClientUpdate
             If CLIENTs(ID).Character Is Nothing Then Return
             Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client zone update [Z{1:0000}]", ID, Zone)
 
             CLIENTs(ID).Character.Zone = Zone
             CLIENTs(ID).Character.Level = Level
         End Sub
-        Public Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal Flag As Byte) Implements Common.ICluster.ClientSetChatFlag
+        Public Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal Flag As Byte) Implements ICluster.ClientSetChatFlag
             If CLIENTs(ID).Character Is Nothing Then Return
             Log.WriteLine(LogType.DEBUG, "[{0:000000}] Client chat flag update [0x{1:X}]", ID, Flag)
 
@@ -282,7 +282,7 @@ Public Module WC_Network
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
-        Public Sub Broadcast(ByVal Data() As Byte) Implements Common.ICluster.Broadcast
+        Public Sub Broadcast(ByVal Data() As Byte) Implements ICluster.Broadcast
             Dim b As Byte()
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
@@ -295,7 +295,7 @@ Public Module WC_Network
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
-        Public Sub BroadcastGroup(ByVal GroupID As Long, ByVal Data() As Byte) Implements Common.ICluster.BroadcastGroup
+        Public Sub BroadcastGroup(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGroup
             With GROUPs(GroupID)
                 For i As Byte = 0 To .Members.Length - 1
                     If .Members(i) IsNot Nothing Then
@@ -306,7 +306,7 @@ Public Module WC_Network
                 Next
             End With
         End Sub
-        Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements Common.ICluster.BroadcastGuild
+        Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
             With GROUPs(GroupID)
                 For i As Byte = 0 To .Members.Length - 1
                     If .Members(i) IsNot Nothing AndAlso .Members(i).Client IsNot Nothing Then
@@ -317,10 +317,10 @@ Public Module WC_Network
                 Next
             End With
         End Sub
-        Public Sub BroadcastGuild(ByVal GuildID As Long, ByVal Data() As Byte) Implements Common.ICluster.BroadcastGuildOfficers
+        Public Sub BroadcastGuild(ByVal GuildID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuildOfficers
             'TODO: Not implement yet
         End Sub
-        Public Sub BroadcastGuildOfficers(ByVal GuildID As Long, ByVal Data() As Byte) Implements Common.ICluster.BroadcastRaid
+        Public Sub BroadcastGuildOfficers(ByVal GuildID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastRaid
             'TODO: Not implement yet
         End Sub
 
@@ -415,7 +415,7 @@ Public Module WC_Network
             End If
         End Function
 
-        Public Function BattlefieldList(ByVal MapType As Byte) As List(Of Integer) Implements Common.ICluster.BattlefieldList
+        Public Function BattlefieldList(ByVal MapType As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
             Dim tmpList As New List(Of Integer)
 
             BATTLEFIELDs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
@@ -428,11 +428,11 @@ Public Module WC_Network
             BATTLEFIELDs_Lock.ReleaseReaderLock()
             Return tmpList
         End Function
-        Public Sub BattlefieldFinish(ByVal BattlefieldID As Integer) Implements Common.ICluster.BattlefieldFinish
+        Public Sub BattlefieldFinish(ByVal BattlefieldID As Integer) Implements ICluster.BattlefieldFinish
             Log.WriteLine(LogType.INFORMATION, "[B{0:0000}] Battlefield finished", BattlefieldID)
         End Sub
 
-        Public Sub GroupRequestUpdate(ByVal ID As UInteger) Implements Common.ICluster.GroupRequestUpdate
+        Public Sub GroupRequestUpdate(ByVal ID As UInteger) Implements ICluster.GroupRequestUpdate
             If CLIENTs.ContainsKey(ID) AndAlso CLIENTs(ID).Character IsNot Nothing AndAlso CLIENTs(ID).Character.IsInWorld AndAlso CLIENTs(ID).Character.IsInGroup Then
 
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update request", CLIENTs(ID).Character.Group.ID)

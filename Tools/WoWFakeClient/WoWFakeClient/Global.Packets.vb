@@ -1,5 +1,5 @@
-﻿' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriouszero.com/>
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 Imports System.IO
 
 Public Module Packets
-
 
     Public Sub DumpPacket(ByVal data() As Byte)
         '#If DEBUG Then

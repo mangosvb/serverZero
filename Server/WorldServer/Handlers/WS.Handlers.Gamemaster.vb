@@ -1,5 +1,5 @@
-﻿' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 Imports System.Threading
 Imports System.Collections.Generic
-Imports SpuriousZero.Common.BaseWriter
+Imports mangosVB.Common.BaseWriter
 
 
 Public Module WS_Handlers_Gamemaster
@@ -27,7 +27,7 @@ Public Module WS_Handlers_Gamemaster
     Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", Client.IP, Client.Port)
 
-        If Client.Access >= Common.AccessLevel.GameMaster Then
+        If Client.Access >= mangosVB.Common.AccessLevel.GameMaster Then
             packet.GetInt16()
             Dim Time As Integer = packet.GetInt32
             Dim Map As UInteger = packet.GetUInt32

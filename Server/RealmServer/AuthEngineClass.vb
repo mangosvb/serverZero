@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Security.Cryptography
-Imports SpuriousZero.Common
+Imports mangosVB.Common
 
 
 Public Class AuthEngineClass

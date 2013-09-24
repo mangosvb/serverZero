@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ Imports System.IO
 Imports System.Net
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
-Imports SpuriousZero.Common.BaseWriter
-Imports SpuriousZero.Common
+Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common
 
 
 Public Module WorldCluster
@@ -55,11 +55,11 @@ Public Module WorldCluster
         <XmlElement(ElementName:="WCHost")> Public WCHost As String = "127.0.0.1"
         <XmlElement(ElementName:="ServerLimit")> Public ServerLimit As Integer = 10
         <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = SpuriousZero.Common.BaseWriter.LogType.NETWORK
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = mangosVB.Common.BaseWriter.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
-        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;SpuriousZero;localhost;3306;SpuriousZero;MySQL"
-        <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;SpuriousZero;localhost;3306;SpuriousZero;MySQL"
-        <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;SpuriousZero;localhost;3306;SpuriousZero;MySQL"
+        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
+        <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
+        <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
         <XmlElement(ElementName:="ClusterPassword")> Public ClusterPassword As String = ""
         <XmlElement(ElementName:="ClusterListenMethod")> Public ClusterMethod As String = "tcp"
         <XmlElement(ElementName:="ClusterListenHost")> Public ClusterHost As String = "127.0.0.1"
@@ -78,7 +78,7 @@ Public Module WorldCluster
             If System.IO.File.Exists("WorldCluster.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "WorldCluster.ini")
-                Console.WriteLine("Please copy the ini files into the same directory as the SpuriousZero exe files.")
+                Console.WriteLine("Please copy the ini files into the same directory as the MangosVBZero exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End
@@ -139,7 +139,7 @@ Public Module WorldCluster
             End If
 
             'DONE: Creating logger
-            Common.BaseWriter.CreateLog(Config.LogType, Config.LogConfig, Log)
+            BaseWriter.CreateLog(Config.LogType, Config.LogConfig, Log)
             Log.LogLevel = Config.LogLevel
 
             'DONE: Cleaning up the packet log
@@ -199,9 +199,32 @@ Public Module WorldCluster
         Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyCopyrightAttribute), False)(0), AssemblyCopyrightAttribute).Copyright)
         Console.WriteLine()
 
+        Console.ForegroundColor = System.ConsoleColor.Yellow
+
+        Console.WriteLine(" ####       ####            ###     ###   ########    #######     ######## ")
+        Console.WriteLine(" #####     #####            ####    ###  ##########  #########   ##########")
+        Console.WriteLine(" #####     #####            #####   ###  ##########  #########   ##########")
+        Console.WriteLine(" ######   ######            #####   ###  ###        ####   ####  ###       ")
+        Console.WriteLine(" ######   ######    ####    ######  ###  ###        ###     ###  ###       ")
+        Console.WriteLine(" ####### #######   ######   ######  ###  ###  ##### ###     ###  ########  ")
+        Console.WriteLine(" ### ### ### ###   ######   ####### ###  ###  ##### ###     ###  ######### ")
+        Console.WriteLine(" ### ### ### ###  ###  ###  ### ### ###  ###  ##### ###     ###   #########")
+        Console.WriteLine(" ### ####### ###  ###  ###  ###  ######  ###    ### ###     ###        ####")
+        Console.WriteLine(" ### ####### ###  ###  ###  ###  ######  ###    ### ###     ###         ###")
+        Console.WriteLine(" ###  #####  ### ########## ###   #####  ###   #### ####   ####        ####")
+        Console.WriteLine(" ###  #####  ### ########## ###   #####  #########   #########   ##########")
+        Console.WriteLine(" ###  #####  ### ###    ### ###    ####  #########   #########   ######### ")
+        Console.WriteLine(" ###   ###   ### ###    ### ###     ###   #######     #######     #######  ")
+        Console.WriteLine("")
+        Console.WriteLine(" Website: http://www.getmangos.co.uk                         ##  ##  ##### ")
+        Console.WriteLine("                                                             ##  ##  ##  ##")
+        Console.WriteLine("    Wiki: http://github.com/mangoswiki/wiki                  ##  ##  ##### ")
+        Console.WriteLine("                                                              ####   ##  ##")
+        Console.WriteLine("   Forum: http://community.getmangos.co.uk                     ##    ##### ")
+        Console.WriteLine("")
+
+
         Console.ForegroundColor = System.ConsoleColor.Magenta
-        Console.WriteLine("http://www.spuriousemu.com/")
-        Console.WriteLine()
 
         Console.ForegroundColor = System.ConsoleColor.White
         Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title)
@@ -357,12 +380,12 @@ Public Module WorldCluster
                                 Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
                             Case "help", "/help"
                                 Console.ForegroundColor = System.ConsoleColor.Blue
-                                Console.WriteLine("'SpuriousZero.WorldServer' Command list:")
+                                Console.WriteLine("'WorldCluster' Command list:")
                                 Console.ForegroundColor = System.ConsoleColor.White
                                 Console.WriteLine("---------------------------------")
                                 Console.WriteLine("")
                                 Console.WriteLine("")
-                                Console.WriteLine("'help' or '/help' - Brings up the 'SpuriousZero.WorldServer' Command list (this).")
+                                Console.WriteLine("'help' or '/help' - Brings up the 'WorldCluster' Command list (this).")
                                 Console.WriteLine("")
                                 Console.WriteLine("'createaccount <user> <password> <email>' or '/createaccount <user> <password> <email>' - Creates an account with the specified username <user>, password <password>, and email <email>.")
                                 Console.WriteLine("")
@@ -376,14 +399,14 @@ Public Module WorldCluster
                                 Console.WriteLine("")
                                 Console.WriteLine("'db.run' or '/db.run' - Runs and updates database.")
                                 Console.WriteLine("")
-                                Console.WriteLine("'quit' or 'shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'SpuriousZero.WorldServer'.")
+                                Console.WriteLine("'quit' or 'shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'WorldCluster'.")
                                 Console.WriteLine("")
                                 Console.WriteLine("'ban' or 'Ban'- Adds a Ban and IP Ban on an account.")
                                 Console.WriteLine("")
                                 Console.WriteLine("'unban' or 'Unban'- Removes a Ban and IP Ban on an account.")
                             Case Else
                                 Console.ForegroundColor = System.ConsoleColor.Red
-                                Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'SpuriousZero.WorldServer' console commands.")
+                                Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'WorldCluster' console commands.")
                                 Console.ForegroundColor = System.ConsoleColor.White
                         End Select
                         '<<<<<<<<<<</END COMMAND STRUCTURE>>>>>>>>>>>>
@@ -400,7 +423,7 @@ Public Module WorldCluster
         EX = e.ExceptionObject
 
         Log.WriteLine(LogType.CRITICAL, EX.ToString & vbNewLine)
-        Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'Error-yyyy-mmm-d-h-mm.log' file has been created. Please post the file in the BUG SECTION at SpuriousEmu.com (http://spuriousemu.com)!")
+        Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'Error-yyyy-mmm-d-h-mm.log' file has been created. Please post the file in the HELP SECTION at getMangos.com (http://www.getMangos.co.uk)!")
 
         Dim tw As TextWriter
         tw = New StreamWriter(New FileStream(String.Format("Error-{0}.log", Format(Now, "yyyy-MMM-d-H-mm")), FileMode.Create))

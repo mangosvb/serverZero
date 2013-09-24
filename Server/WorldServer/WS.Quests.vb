@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports SpuriousZero.Common.BaseWriter
+Imports mangosVB.Common.BaseWriter
 
 
 Public Module WS_Quests
@@ -39,7 +39,7 @@ Public Module WS_Quests
         DIALOG_STATUS_AVAILABLE = 5             ' Quest available, and your level is enough. - Yellow Quotation ! Mark
         DIALOG_STATUS_REWARD = 6                ' Quest has been finished. - Yellow dot on the minimap
     End Enum
-    Public Enum QuestObjectiveFlag 'These flags are custom and are only used for SpuriousZero
+    Public Enum QuestObjectiveFlag 'These flags are custom and are only used for MangosVBZero
         QUEST_OBJECTIVE_KILL = 1 'You have to kill creatures
         QUEST_OBJECTIVE_EXPLORE = 2 'You have to explore an area
         QUEST_OBJECTIVE_ESCORT = 4 'You have to escort someone

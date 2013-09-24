@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 
 Imports System
 Imports System.IO
-Imports SpuriousZero.Common
-Imports SpuriousZero.Common.BaseWriter
-Imports SpuriousZero.WorldServer
-Imports SpuriousZero.Common.DBC
+Imports mangosVB.Common
+Imports mangosVB.Common.BaseWriter
+Imports WorldServer
+Imports mangosVB.Common.DBC
 
 Public Module WS_DBCLoad
 

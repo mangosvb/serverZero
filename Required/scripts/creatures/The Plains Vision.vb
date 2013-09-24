@@ -1,7 +1,7 @@
 Imports System
 Imports System.Collections.Generic
 Imports System.Threading
-Imports SpuriousZero.WorldServer
+Imports WorldServer
 
 Namespace Scripts
     Public Class CreatureAI

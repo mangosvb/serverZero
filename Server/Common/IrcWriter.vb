@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2011 SpuriousZero <http://www.spuriousemu.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@ Public Class IrcWriter
         AddHandler conn.OnRawMessage, AddressOf OnRawMessage
 #End If
 
-        conn.CtcpVersion = "SpuriousZero Log Bot"
+        conn.CtcpVersion = "MangosVBZero Log Bot"
         conn.Connect(server, port)
-        conn.Login(nick, "SpuriousZero Log Bot")
+        conn.Login(nick, "MangosVBZero Log Bot")
         conn.RfcJoin(channel)
         conn.SendMessage(SendType.Action, channel, " starts logging")
 
