@@ -44,6 +44,8 @@ Public Class ColoredConsoleWriter
                 Console.ForegroundColor = ConsoleColor.Red
             Case LogType.CRITICAL
                 Console.ForegroundColor = ConsoleColor.DarkRed
+            Case LogType.DATABASE
+                Console.ForegroundColor = ConsoleColor.DarkMagenta
         End Select
 
         If arg Is Nothing Then
@@ -74,12 +76,14 @@ Public Class ColoredConsoleWriter
                 Console.ForegroundColor = ConsoleColor.Red
             Case LogType.CRITICAL
                 Console.ForegroundColor = ConsoleColor.DarkRed
+            Case LogType.DATABASE
+                Console.ForegroundColor = ConsoleColor.DarkMagenta
         End Select
 
         If arg Is Nothing Then
-            Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & formatStr)
+            Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr)
         Else
-            Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & formatStr, arg)
+            Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
         End If
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub

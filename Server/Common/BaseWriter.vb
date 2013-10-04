@@ -27,8 +27,9 @@ Public Class BaseWriter
         WARNING                 'Warning
         FAILED                  'Processing Error
         CRITICAL                'Application Error
+        DATABASE               'Database Error
     End Enum
-    Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C"}
+    Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
 
     Public LogLevel As LogType = LogType.NETWORK
 
@@ -53,6 +54,7 @@ Public Class BaseWriter
         WriteLine(LogType.WARNING, "{0}:************************* TEST *************************", 1)
         WriteLine(LogType.FAILED, "{0}:************************* TEST *************************", 1)
         WriteLine(LogType.CRITICAL, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.DATABASE, "{0}:************************* TEST *************************", 1)
     End Sub
     Public Shared Sub CreateLog(ByVal LogType As String, ByVal LogConfig As String, ByRef Log As BaseWriter)
         Try
@@ -75,7 +77,7 @@ Public Class BaseWriter
                     Log = New IrcWriter(server, port, nick, channel)
             End Select
         Catch e As Exception
-            Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "HH:mm:ss"))
+            Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "hh:mm:ss"))
         End Try
     End Sub
 

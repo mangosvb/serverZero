@@ -111,19 +111,24 @@ Public Module WC_Character
             'DONE: Get character info from DB
             Dim MySQLQuery As New DataTable
             CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE char_guid = {0};", GUID), MySQLQuery)
+            If MySQLQuery.Rows.Count > 0 Then
+                Race = CType(MySQLQuery.Rows(0).Item("char_race"), Byte)
+                Classe = CType(MySQLQuery.Rows(0).Item("char_class"), Byte)
+                Gender = CType(MySQLQuery.Rows(0).Item("char_gender"), Byte)
 
-            Race = CType(MySQLQuery.Rows(0).Item("char_race"), Byte)
-            Classe = CType(MySQLQuery.Rows(0).Item("char_class"), Byte)
-            Gender = CType(MySQLQuery.Rows(0).Item("char_gender"), Byte)
+                Name = CType(MySQLQuery.Rows(0).Item("char_name"), String)
+                Level = CType(MySQLQuery.Rows(0).Item("char_level"), Byte)
+                'Access = CType(MySQLQuery.Rows(0).Item("char_access"), Byte)
 
-            Name = CType(MySQLQuery.Rows(0).Item("char_name"), String)
-            Level = CType(MySQLQuery.Rows(0).Item("char_level"), Byte)
+                Zone = CType(MySQLQuery.Rows(0).Item("char_zone_id"), UInteger)
+                Map = CType(MySQLQuery.Rows(0).Item("char_map_id"), UInteger)
 
-            Zone = CType(MySQLQuery.Rows(0).Item("char_zone_id"), UInteger)
-            Map = CType(MySQLQuery.Rows(0).Item("char_map_id"), UInteger)
-
-            PositionX = CType(MySQLQuery.Rows(0).Item("char_positionX"), Single)
-            PositionY = CType(MySQLQuery.Rows(0).Item("char_positionY"), Single)
+                PositionX = CType(MySQLQuery.Rows(0).Item("char_positionX"), Single)
+                PositionY = CType(MySQLQuery.Rows(0).Item("char_positionY"), Single)
+            Else
+                Log.WriteLine(LogType.DATABASE, "Failed to load expected results from:")
+                Log.WriteLine(LogType.DATABASE, String.Format("SELECT * FROM characters WHERE char_guid = {0};", GUID))
+            End If
 
             'DONE: Get guild info
             Dim GuildID As UInteger = CType(MySQLQuery.Rows(0).Item("char_guildId"), UInteger)
