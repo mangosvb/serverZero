@@ -10,19 +10,20 @@ Namespace Scripts
         Private Const SLUMBER_CD As Integer = 10000
         Private Const Healing_Touch_CD As Integer = 20000
         Private Const Lightning_Bolt_CD As Integer = 6000
-        Private Const Thunder_Clap_CD As Integer = 9000
+        Private Const Poison_CD As Integer = 9000
+        Private Const Cobrahn_Serpent_Form_CD As Integer = 5000000 'This should NEVER be recasted.
 
-        Private Const Thunderclap_Spell As Integer = 8147
+        Private Const Cobrahn_Serpent_Form_Spell As Integer = 7965
+        Private Const Poison_Spell As Integer = 744
         Private Const Slumber_Spell As Integer = 8040
         Private Const Healing_Spell As Integer = 23381
         Private Const Spell_Serpent_Form As Integer = 8041 'Not sure how this will work. 
         Private Const Spell_Lightning_Bolt As Integer = 9532
-        Public NextWaypoint As Integer = 0
-        Public NextThunderClap As Integer = 0
+        Public NextPoison As Integer = 0
         Public NextLightningBolt As Integer = 0
         Public NextHealingTouch As Integer = 0
+        Public NextSerpentTransform As Integer = 0 'Unused
         Public NextSlumber As Integer = 0
-        Public CurrentWaypoint As Integer = 0
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
@@ -34,14 +35,16 @@ Namespace Scripts
         End Sub
         Public Overrides Sub OnEnterCombat()
             MyBase.OnEnterCombat()
-            aiCreature.SendChatMessage("The coils of death... Will crush you.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
+            aiCreature.SendChatMessage("You will never wake the dreamer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
         End Sub
         Public Overrides Sub OnThink()
 
             NextLightningBolt -= AI_UPDATE
             NextHealingTouch -= AI_UPDATE
             NextSlumber -= AI_UPDATE
-            NextThunderClap -= AI_UPDATE
+            NextPoison -= AI_UPDATE
+            NextSerpentTransform -= AI_UPDATE
+
 
             If NextLightningBolt <= 0 Then
                 NextLightningBolt = Lightning_Bolt_CD
@@ -51,9 +54,9 @@ Namespace Scripts
                 NextSlumber = SLUMBER_CD
                 aiCreature.CastSpell(Slumber_Spell, aiTarget) ' Not sure if its supposed to take a random target, stays like this for now.
             End If
-            If NextThunderClap <= 0 Then
-                NextThunderClap = Thunder_Clap_CD
-                aiCreature.CastSpell(Thunderclap_Spell, aiTarget) 'TODO: Make this an AoE cast.
+            If NextPoison <= 0 Then
+                NextPoison = Poison_CD
+                aiCreature.CastSpell(Poison_Spell, aiTarget)
             End If
         End Sub
 
@@ -71,12 +74,23 @@ Namespace Scripts
             Next
             aiCreature.CastSpell(Slumber_Spell, aiTarget)
         End Sub
-        Public Sub CastThunderClap()
+        Public Sub CastPoison()
             For i As Integer = 2 To 3
                 Dim target As BaseUnit = aiCreature
                 If target Is Nothing Then Exit Sub
             Next
-            aiCreature.CastSpell(Thunder_Clap_CD, aiTarget)
+            aiCreature.CastSpell(Poison_Spell, aiTarget)
+        End Sub
+        'This may not work, unsure on how to add two health conditions.
+        Public Sub OnHealthChange2(Percent As Integer)
+            MyBase.OnHealthChange(Percent)
+            If Percent <= 45 Then
+                Try
+                    aiCreature.CastSpellOnSelf(Cobrahn_Serpent_Form_Spell)
+                Catch ex As Exception
+
+                End Try
+            End If
         End Sub
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
