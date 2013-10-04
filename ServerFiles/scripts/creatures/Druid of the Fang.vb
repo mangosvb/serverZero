@@ -55,6 +55,7 @@ Namespace Scripts
         End Sub
 
         Public Overrides Sub OnHealthChange(ByVal Percent As Integer)
+            MyBase.OnHealthChange(Percent)
             If Percent <= 30 Then
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Serpent_Form)
