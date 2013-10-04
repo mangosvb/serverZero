@@ -15,12 +15,10 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports System.IO
 Imports mangosVB.Common.BaseWriter
 
 Public Module Packets
-
 
     Public Sub DumpPacket(ByVal data() As Byte, Optional ByRef Client As ClientClass = Nothing)
         '#If DEBUG Then

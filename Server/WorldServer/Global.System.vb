@@ -15,15 +15,12 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.Reflection
 Imports System.CodeDom
 Imports System.CodeDom.Compiler
 Imports mangosVB.Common.BaseWriter
-
-
 
 'NOTE: How to use ScriptedObject as Function
 '   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")
@@ -40,7 +37,7 @@ Public Class ScriptedObject
 
     Public Sub New()
         Dim LastDate As Date
-        Dim AssemblyFile As String = "MangosVBZero.Scripts.dll"
+        Dim AssemblyFile As String = "mangosVB.Scripts.dll"
 
         Dim AssemblySources As String() = System.IO.Directory.GetFiles(System.AppDomain.CurrentDomain.BaseDirectory() & "\Scripts\", "*.vb", SearchOption.AllDirectories)
         For Each Source As String In AssemblySources
@@ -64,7 +61,6 @@ Public Class ScriptedObject
             Dim cParameters As New CompilerParameters
             Dim cResults As CompilerResults
 
-
             For Each Include As String In Config.CompilerInclude
                 cParameters.ReferencedAssemblies.Add(Include)
             Next
@@ -77,8 +73,6 @@ Public Class ScriptedObject
 #Else
             cParameters.IncludeDebugInformation = false
 #End If
-
-
 
             cResults = VBcp.CompileAssemblyFromFile(cParameters, AssemblySources)
 
@@ -123,7 +117,6 @@ Public Class ScriptedObject
             cParameters.IncludeDebugInformation = false
 #End If
 
-
             If AssemblySourceFile.IndexOf(".cs") <> -1 Then
                 cResults = CScp.CompileAssemblyFromFile(cParameters, System.AppDomain.CurrentDomain.BaseDirectory() & AssemblySourceFile)
             ElseIf AssemblySourceFile.IndexOf(".vb") <> -1 Then
@@ -132,7 +125,6 @@ Public Class ScriptedObject
                 WorldServer.Log.WriteLine(LogType.FAILED, "Compiling: Unsupported file type: {0}", AssemblySourceFile)
                 Return
             End If
-
 
             If cResults.Errors.HasErrors = True Then
                 For Each err As System.CodeDom.Compiler.CompilerError In cResults.Errors

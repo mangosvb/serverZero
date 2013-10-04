@@ -15,7 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Public Class BaseWriter
     Implements IDisposable
 
@@ -44,8 +43,6 @@ Public Class BaseWriter
     Public Overridable Function ReadLine() As String
         Return Console.ReadLine()
     End Function
-
-
 
     Public Sub PrintDiagnosticTest()
         WriteLine(LogType.NETWORK, "{0}:************************* TEST *************************", 1)
@@ -81,8 +78,5 @@ Public Class BaseWriter
             Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "HH:mm:ss"))
         End Try
     End Sub
-
-
-
 
 End Class

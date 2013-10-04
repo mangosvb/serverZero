@@ -1,5 +1,5 @@
-' 
-' Copyright (C) 2009 vWoW <http://www.vanilla-wow.com/>
+'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -15,9 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports System.Threading
-Imports vWoW.Common.BaseWriter
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Mail
 
@@ -55,10 +54,8 @@ Public Module WS_Mail
         AUCTION = 2
     End Enum
 
-
 #End Region
 #Region "WS.Mail.Handlers"
-
 
     Public Sub On_CMSG_MAIL_RETURN_TO_SENDER(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub

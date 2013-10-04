@@ -48,7 +48,7 @@ Public Module WC_Stats
 
     Private ThreadsWorker As Integer = 0
     Private ThreadsComletion As Integer = 0
-    Private LastCheck As Date = now
+    Private LastCheck As Date = Now
     Private LastCPUTime As Double = 0
     Private Uptime As TimeSpan
     Private Latency As Long = 0
@@ -131,7 +131,7 @@ Public Module WC_Stats
         f.WriteStartElement("cluster")
 
         f.WriteStartElement("platform")
-        f.WriteValue(String.Format("MangosVBZero rev{0} v{1}", svnRevision, [Assembly].GetExecutingAssembly().GetName().Version))
+        f.WriteValue(String.Format("mangosVB rev{0} v{1}", svnRevision, [Assembly].GetExecutingAssembly().GetName().Version))
         f.WriteEndElement()
 
         f.WriteStartElement("uptime")

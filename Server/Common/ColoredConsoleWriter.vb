@@ -15,10 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports System.Runtime.InteropServices
 Imports System.Runtime.CompilerServices
-
 
 'Using this logging type, all logs are displayed in console.
 'Writting commands is done trought console.
@@ -78,7 +76,6 @@ Public Class ColoredConsoleWriter
                 Console.ForegroundColor = ConsoleColor.DarkRed
         End Select
 
-
         If arg Is Nothing Then
             Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & formatStr)
         Else
@@ -86,7 +83,5 @@ Public Class ColoredConsoleWriter
         End If
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
-
-
 
 End Class

@@ -27,7 +27,7 @@ Public Module WS_Handlers_Gamemaster
     Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", Client.IP, Client.Port)
 
-        If Client.Access >= mangosVB.Common.AccessLevel.GameMaster Then
+        If Client.Access >= Common.AccessLevel.GameMaster Then
             packet.GetInt16()
             Dim Time As Integer = packet.GetInt32
             Dim Map As UInteger = packet.GetUInt32

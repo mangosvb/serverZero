@@ -1,4 +1,4 @@
-The MangosVBZero emulation project is based off of the SpuriousZero project by The Spurious Team.
+The MangosVB Zero emulation project is based off of the SpuriousZero project by The Spurious Team.
 
 Thanks in particular to the following people who I know was involved.
 

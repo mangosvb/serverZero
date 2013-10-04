@@ -15,10 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports System.Runtime.CompilerServices
 Imports System.IO
-
 
 'Using this logging type, all logs are saved in files numbered by date.
 'Writting commands is done trought console.
@@ -57,6 +55,5 @@ Public Class FileWriter
 
         Output.WriteLine(L(type) & ":[" & Format(TimeOfDay, "HH:mm:ss") & "] " & formatStr, arg)
     End Sub
-
 
 End Class

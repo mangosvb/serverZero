@@ -82,7 +82,6 @@ Namespace DBC
             End Get
         End Property
 
-
     End Class
     <Description("DBC wrapper class using buffered stream for file access.")> _
     Public Class BufferedDBC
@@ -110,7 +109,7 @@ Namespace DBC
         End Sub
 
         <Description("Access to item by row and column.")> _
-       Public Overrides ReadOnly Property Item(ByVal Row As Integer, ByVal Column As Integer, Optional ByVal ValueType As DBCValueType = DBCValueType.DBC_INTEGER) As Object
+        Public Overrides ReadOnly Property Item(ByVal Row As Integer, ByVal Column As Integer, Optional ByVal ValueType As DBCValueType = DBCValueType.DBC_INTEGER) As Object
             Get
                 If Row >= Rows Then Throw New ApplicationException("DBC: Row index outside file definition.")
                 If Column >= Columns Then Throw New ApplicationException("DBC: Column index outside file definition.")
@@ -143,7 +142,6 @@ Namespace DBC
             End Get
         End Property
 
-
     End Class
 
     <Description("DBC wrapper class.")> _
@@ -161,7 +159,6 @@ Namespace DBC
 
         Protected buffer(3) As Byte
         Protected tmpOffset As Long = 0
-
 
         'Default Functions
         <Description("Close file and dispose the dbc reader.")> _
@@ -242,11 +239,9 @@ Namespace DBC
         End Property
     End Class
 
-
     Public Enum DBCValueType
         DBC_STRING
         DBC_INTEGER
         DBC_FLOAT
     End Enum
 End Namespace
-

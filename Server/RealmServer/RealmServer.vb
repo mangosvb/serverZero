@@ -15,7 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports System.Threading
 Imports System.Net.Sockets
 Imports System.Xml.Serialization
@@ -24,6 +23,7 @@ Imports System.Net
 Imports System.Security.Cryptography
 Imports System.Reflection
 Imports System.Collections.Generic
+Imports mangosVB.Common.SQL
 Imports mangosVB.Common
 
 Public Module RS_Main
@@ -106,7 +106,7 @@ Public Module RS_Main
         Public Class XMLConfigFile
         <XmlElement(ElementName:="RSPort")> Public RSPort As Int32 = 3724
         <XmlElement(ElementName:="RSHost")> Public RSHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
+        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
     End Class
 
     Public Sub LoadConfig()
@@ -115,7 +115,7 @@ Public Module RS_Main
             If System.IO.File.Exists("RealmServer.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "RealmServer.ini")
-                Console.WriteLine("Please copy the ini files into the same directory as the MangosVBZero exe files.")
+                Console.WriteLine("Please copy the ini files into the same directory as the mangosVB exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End

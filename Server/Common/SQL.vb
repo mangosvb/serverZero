@@ -15,13 +15,12 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports System.Data
 Imports System.ComponentModel
 Imports System.Threading
 Imports System.Data.SqlClient
 Imports MySql.Data.MySqlClient
-Imports System.Data.OracleClient
+'Imports System.Data.OracleClient
 
 <CLSCompliant(True), ComClass(SQL.ClassId, SQL.InterfaceId, SQL.EventsId)> _
 Public Class SQL
@@ -31,7 +30,7 @@ Public Class SQL
     <CLSCompliant(False)> _
     Private MySQLConn As MySqlConnection
     Private MSSQLConn As SqlConnection
-    Private OracleConn As OracleConnection
+    'Private OracleConn As OracleConnection
 #End Region
 
 #Region "Events and event ID's"
@@ -44,17 +43,17 @@ Public Class SQL
 #End Region
 
 #Region "COM GUIDs"
-    ' These  GUIDs provide the COM identity for this class 
-    ' and its COM interfaces. If you change them, existing 
+    ' These  GUIDs provide the COM identity for this class
+    ' and its COM interfaces. If you change them, existing
     ' clients will no longer be able to access the class.
     Public Const ClassId As String = "ECC3DCA3-E394-4D4F-BCC9-FBC3A999B8D3"
     Public Const InterfaceId As String = "4A2A2AF5-39A2-44BA-9881-57AA6D867D33"
     Public Const EventsId As String = "BD50B4A8-D148-4C52-B8FC-469119FBB71D"
 #End Region
 
-    ' A creatable COM class must have a Public Sub New() 
-    ' with no parameters, otherwise, the class will not be 
-    ' registered in the COM registry and cannot be created 
+    ' A creatable COM class must have a Public Sub New()
+    ' with no parameters, otherwise, the class will not be
+    ' registered in the COM registry and cannot be created
     ' via CreateObject.
     Public Sub New()
         MyBase.New()
@@ -194,11 +193,10 @@ Public Class SQL
                     End If
                     RaiseEvent SQLMessage(EMessages.ID_Message, "MS-SQL Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
 
-                Case DB_Type.Oracle
-                    Dim OracleConn As New OracleConnection([String].Format("Host={0};Port={4};User Id={1};Password={2};Data Source={3};", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
-                    OracleConn.Open()
-                    RaiseEvent SQLMessage(EMessages.ID_Message, "Oracle Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
-
+                    'Case DB_Type.Oracle
+                    '    Dim OracleConn As New OracleConnection([String].Format("Host={0};Port={4};User Id={1};Password={2};Data Source={3};", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    '    OracleConn.Open()
+                    '    RaiseEvent SQLMessage(EMessages.ID_Message, "Oracle Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
 
             End Select
 
@@ -206,8 +204,8 @@ Public Class SQL
             RaiseEvent SQLMessage(EMessages.ID_Error, "MySQL Connection Error [" & e.Message & "]")
         Catch e As SqlException
             RaiseEvent SQLMessage(EMessages.ID_Error, "MSSQL Connection Error [" & e.Message & "]")
-        Catch e As OracleException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Connection Error [" & e.Message & "]")
+            'Catch e As OracleException
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Connection Error [" & e.Message & "]")
         End Try
     End Sub
 #End Region
@@ -238,25 +236,25 @@ Public Class SQL
                     Else
                         RaiseEvent SQLMessage(EMessages.ID_Error, "Unable to restart MSSQL connection.")
                     End If
-                Case DB_Type.Oracle
-                    OracleConn.Close()
-                    OracleConn.Dispose()
-                    OracleConn = New OracleConnection([String].Format("Host={0};Port={4};User Id={1};Password={2};Data Source={3};", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
-                    OracleConn.Open()
+                    'Case DB_Type.Oracle
+                    '    OracleConn.Close()
+                    '    OracleConn.Dispose()
+                    '    OracleConn = New OracleConnection([String].Format("Host={0};Port={4};User Id={1};Password={2};Data Source={3};", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    '    OracleConn.Open()
 
-                    If OracleConn.State = ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Message, "Oracle Connection restarted!")
-                    Else
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "Unable to restart Oracle connection.")
-                    End If
+                    '    If OracleConn.State = ConnectionState.Open Then
+                    '        RaiseEvent SQLMessage(EMessages.ID_Message, "Oracle Connection restarted!")
+                    '    Else
+                    '        RaiseEvent SQLMessage(EMessages.ID_Error, "Unable to restart Oracle connection.")
+                    '    End If
             End Select
 
         Catch e As MySqlException
             RaiseEvent SQLMessage(EMessages.ID_Error, "MySQL Connection Error [" & e.Message & "]")
         Catch e As SqlException
             RaiseEvent SQLMessage(EMessages.ID_Error, "MSSQL Connection Error [" & e.Message & "]")
-        Catch e As OracleException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Connection Error [" & e.Message & "]")
+            'Catch e As OracleException
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Connection Error [" & e.Message & "]")
         End Try
     End Sub
 #End Region
@@ -269,9 +267,9 @@ Public Class SQL
             Case DB_Type.MSSQL
                 MSSQLConn.Close()
                 MSSQLConn.Dispose()
-            Case DB_Type.Oracle
-                OracleConn.Close()
-                OracleConn.Dispose()
+                'Case DB_Type.Oracle
+                '    OracleConn.Close()
+                '    OracleConn.Dispose()
         End Select
     End Sub
 #End Region
@@ -339,21 +337,21 @@ Public Class SQL
                         Exit Sub
                     End If
                 End If
-            Case DB_Type.Oracle
-                If OracleConn.State <> ConnectionState.Open Then
-                    Restart()
-                    If OracleConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Database Request Failed!")
-                        Exit Sub
-                    End If
-                End If
+                'Case DB_Type.Oracle
+                '    If OracleConn.State <> ConnectionState.Open Then
+                '        Restart()
+                '        If OracleConn.State <> ConnectionState.Open Then
+                '            RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Database Request Failed!")
+                '            Exit Sub
+                '        End If
+                '    End If
         End Select
 
         Try
             Select Case v_SQLType
                 Case DB_Type.MySQL
                     Monitor.Enter(MySQLConn)
-                    Dim MySQLCommand As New MySQLCommand(sqlquery, MySQLConn)
+                    Dim MySQLCommand As New MySqlCommand(sqlquery, MySQLConn)
                     Dim MySQLAdapter As New MySqlDataAdapter(MySQLCommand)
 
                     If Result Is Nothing Then
@@ -362,7 +360,6 @@ Public Class SQL
                         Result.Clear()
                     End If
                     MySQLAdapter.Fill(Result)
-
 
                 Case DB_Type.MSSQL
                     Monitor.Enter(MSSQLConn)
@@ -376,18 +373,17 @@ Public Class SQL
                     End If
                     MSSQLAdapter.Fill(Result)
 
+                    'Case DB_Type.Oracle
+                    '    Monitor.Enter(OracleConn)
+                    '    Dim OracleCommand As OracleCommand = New OracleCommand(sqlquery, OracleConn)
+                    '    Dim OracleAdapter As New OracleDataAdapter(OracleCommand)
 
-                Case DB_Type.Oracle
-                    Monitor.Enter(OracleConn)
-                    Dim OracleCommand As OracleCommand = New OracleCommand(sqlquery, OracleConn)
-                    Dim OracleAdapter As New OracleDataAdapter(OracleCommand)
-
-                    If Result Is Nothing Then
-                        Result = New DataTable
-                    Else
-                        Result.Clear()
-                    End If
-                    OracleAdapter.Fill(Result)
+                    '    If Result Is Nothing Then
+                    '        Result = New DataTable
+                    '    Else
+                    '        Result.Clear()
+                    '    End If
+                    '    OracleAdapter.Fill(Result)
             End Select
 
         Catch e As MySqlException
@@ -396,17 +392,17 @@ Public Class SQL
         Catch e As SqlException
             RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MSSQL Database " & e.Message)
             RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
-        Catch e As OracleException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
+            'Catch e As OracleException
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
         Finally
             Select Case v_SQLType
                 Case DB_Type.MySQL
                     Monitor.Exit(MySQLConn)
                 Case DB_Type.MSSQL
                     Monitor.Exit(MSSQLConn)
-                Case DB_Type.Oracle
-                    Monitor.Exit(OracleConn)
+                    'Case DB_Type.Oracle
+                    '    Monitor.Exit(OracleConn)
             End Select
         End Try
     End Sub
@@ -430,14 +426,14 @@ Public Class SQL
                         Exit Sub
                     End If
                 End If
-            Case DB_Type.Oracle
-                If OracleConn.State <> ConnectionState.Open Then
-                    Restart()
-                    If OracleConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Database Request Failed!")
-                        Exit Sub
-                    End If
-                End If
+                'Case DB_Type.Oracle
+                '    If OracleConn.State <> ConnectionState.Open Then
+                '        Restart()
+                '        If OracleConn.State <> ConnectionState.Open Then
+                '            RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Database Request Failed!")
+                '            Exit Sub
+                '        End If
+                '    End If
         End Select
 
         Try
@@ -451,7 +447,6 @@ Public Class SQL
                     MySQLTransaction.Commit()
                     Console.WriteLine("transaction completed")
 
-
                 Case DB_Type.MSSQL
                     Monitor.Enter(MSSQLConn)
                     Dim MSSQLTransaction As SqlTransaction = MSSQLConn.BeginTransaction()
@@ -461,15 +456,14 @@ Public Class SQL
                     MSSQLTransaction.Commit()
                     Console.WriteLine("transaction completed")
 
+                    'Case DB_Type.Oracle
+                    '    Monitor.Enter(OracleConn)
+                    '    Dim OracleTransaction As OracleTransaction = OracleConn.BeginTransaction()
+                    '    Dim OracleCommand As New OracleCommand(sqlquery, OracleConn, OracleTransaction)
 
-                Case DB_Type.Oracle
-                    Monitor.Enter(OracleConn)
-                    Dim OracleTransaction As OracleTransaction = OracleConn.BeginTransaction()
-                    Dim OracleCommand As New OracleCommand(sqlquery, OracleConn, OracleTransaction)
-
-                    OracleCommand.ExecuteNonQuery()
-                    OracleTransaction.Commit()
-                    Console.WriteLine("transaction completed")
+                    '    OracleCommand.ExecuteNonQuery()
+                    '    OracleTransaction.Commit()
+                    '    Console.WriteLine("transaction completed")
             End Select
 
         Catch e As MySqlException
@@ -478,17 +472,17 @@ Public Class SQL
         Catch e As SqlException
             RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MSSQL Database " & e.Message)
             RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
-        Catch e As OracleException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
+            'Catch e As OracleException
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
         Finally
             Select Case v_SQLType
                 Case DB_Type.MySQL
                     Monitor.Exit(MySQLConn)
                 Case DB_Type.MSSQL
                     Monitor.Exit(MSSQLConn)
-                Case DB_Type.Oracle
-                    Monitor.Exit(OracleConn)
+                    'Case DB_Type.Oracle
+                    '    Monitor.Exit(OracleConn)
             End Select
         End Try
     End Sub
@@ -512,14 +506,14 @@ Public Class SQL
                         Exit Sub
                     End If
                 End If
-            Case DB_Type.Oracle
-                If OracleConn.State <> ConnectionState.Open Then
-                    Restart()
-                    If OracleConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Database Request Failed!")
-                        Exit Sub
-                    End If
-                End If
+                'Case DB_Type.Oracle
+                '    If OracleConn.State <> ConnectionState.Open Then
+                '        Restart()
+                '        If OracleConn.State <> ConnectionState.Open Then
+                '            RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Database Request Failed!")
+                '            Exit Sub
+                '        End If
+                '    End If
         End Select
 
         Try
@@ -532,7 +526,6 @@ Public Class SQL
                     Dim result As New DataTable
                     MySQLAdapter.Fill(result)
 
-
                 Case DB_Type.MSSQL
                     Monitor.Enter(MSSQLConn)
                     Dim MSSQLCommand As New SqlCommand(sqlquery, MSSQLConn)
@@ -541,14 +534,13 @@ Public Class SQL
                     Dim result As New DataTable
                     MSSQLAdapter.Fill(result)
 
+                    'Case DB_Type.Oracle
+                    '    Monitor.Enter(OracleConn)
+                    '    Dim OracleCommand As New OracleCommand(sqlquery, OracleConn)
+                    '    Dim OracleAdapter As New OracleDataAdapter(OracleCommand)
 
-                Case DB_Type.Oracle
-                    Monitor.Enter(OracleConn)
-                    Dim OracleCommand As New OracleCommand(sqlquery, OracleConn)
-                    Dim OracleAdapter As New OracleDataAdapter(OracleCommand)
-
-                    Dim result As New DataTable
-                    OracleAdapter.Fill(result)
+                    '    Dim result As New DataTable
+                    '    OracleAdapter.Fill(result)
             End Select
 
         Catch e As MySqlException
@@ -557,17 +549,17 @@ Public Class SQL
         Catch e As SqlException
             RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MSSQL Database " & e.Message)
             RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
-        Catch e As OracleException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
+            'Catch e As OracleException
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
+            '    RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
         Finally
             Select Case v_SQLType
                 Case DB_Type.MySQL
                     Monitor.Exit(MySQLConn)
                 Case DB_Type.MSSQL
                     Monitor.Exit(MSSQLConn)
-                Case DB_Type.Oracle
-                    Monitor.Exit(OracleConn)
+                    'Case DB_Type.Oracle
+                    '    Monitor.Exit(OracleConn)
             End Select
         End Try
     End Sub
@@ -575,5 +567,3 @@ Public Class SQL
 #End Region
 
 End Class
-
-

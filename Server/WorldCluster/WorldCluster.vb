@@ -57,9 +57,9 @@ Public Module WorldCluster
         <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
         <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = mangosVB.Common.BaseWriter.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
-        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
-        <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
-        <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;MangosVBZero;localhost;3306;MangosVBZero;MySQL"
+        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
+        <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
+        <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
         <XmlElement(ElementName:="ClusterPassword")> Public ClusterPassword As String = ""
         <XmlElement(ElementName:="ClusterListenMethod")> Public ClusterMethod As String = "tcp"
         <XmlElement(ElementName:="ClusterListenHost")> Public ClusterHost As String = "127.0.0.1"
@@ -78,7 +78,7 @@ Public Module WorldCluster
             If System.IO.File.Exists("WorldCluster.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "WorldCluster.ini")
-                Console.WriteLine("Please copy the ini files into the same directory as the MangosVBZero exe files.")
+                Console.WriteLine("Please copy the ini files into the same directory as the mangosVB exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End

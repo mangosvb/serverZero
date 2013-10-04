@@ -9,10 +9,10 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("mangosVB.Common")> 
-<Assembly: AssemblyDescription("Common functions of MangosVBZero Server Emulator.")> 
-<Assembly: AssemblyCompany("The MangosVBZero Team")> 
-<Assembly: AssemblyProduct("MangosVBZero Server Pack")> 
-<Assembly: AssemblyCopyright("Copyright © 2013, The MangosVBZero Team")> 
+<Assembly: AssemblyDescription("Common functions of mangosVB Server Emulator.")> 
+<Assembly: AssemblyCompany("The mangosVB Team")> 
+<Assembly: AssemblyProduct("mangosVB Server Pack")> 
+<Assembly: AssemblyCopyright("Copyright © 2013, The mangosVB Team")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)> 

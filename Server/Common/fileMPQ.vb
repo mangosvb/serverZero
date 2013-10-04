@@ -15,14 +15,11 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
-'TODO: 
+'TODO:
 '       MpqHuffman
 '       MpqWavCompression
 '       PKDecompress
 '
-
-
 Imports System.Runtime.InteropServices
 Imports System.Collections
 Imports System.IO
@@ -171,7 +168,6 @@ Namespace MPQ
             Return seed1
         End Function
 
-
         'Used for Hash Tables and Block Tables
         Friend Shared Sub DecryptBlock(ByVal Data As Byte(), ByVal Seed1 As Long)
             Dim seed2 As Long = &HEEEEEEEE
@@ -269,11 +265,8 @@ Namespace MPQ
                 Next
             Next
 
-
             Return result
         End Function
-
-
 
 #Region "FileInfoSupport"
         Public Class FileInfo
@@ -307,7 +300,6 @@ Namespace MPQ
                         Else
                             stm = OpenFile("(listfile)")
                         End If
-
 
                         Dim stream2 As Stream = stm
                         Dim reader As StreamReader = New StreamReader(stm)
@@ -345,14 +337,6 @@ Namespace MPQ
         <CLSCompliant(False)> Protected _Files As FileInfo()
 #End Region
 
-
-
-
-
-
-
-
-
         Private mBlocks() As MpqBlock
         Private mBlockSize As Integer
         Private mHashes() As MpqHash
@@ -361,15 +345,7 @@ Namespace MPQ
         Private mStream As Stream
         Private Shared sStormBuffer As Long()
 
-
-
-
-
     End Class
-
-
-
-
 
     <StructLayout(LayoutKind.Sequential)> _
     Friend Structure MpqBlock
@@ -702,7 +678,6 @@ Namespace MPQ
             Return New Byte() {}
         End Function
 
-
         Public Overrides ReadOnly Property CanRead() As Boolean
             Get
                 Return True
@@ -742,8 +717,6 @@ Namespace MPQ
         Private mStream As Stream
     End Class
 
-
-
     <CLSCompliant(False)> _
     Public Enum MpqFileFlags As Long
         MPQ_Changed = 1                     '&H00000001
@@ -760,4 +733,3 @@ Namespace MPQ
     End Enum
 
 End Namespace
-

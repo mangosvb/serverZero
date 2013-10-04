@@ -39,7 +39,7 @@ Public Module WS_Quests
         DIALOG_STATUS_AVAILABLE = 5             ' Quest available, and your level is enough. - Yellow Quotation ! Mark
         DIALOG_STATUS_REWARD = 6                ' Quest has been finished. - Yellow dot on the minimap
     End Enum
-    Public Enum QuestObjectiveFlag 'These flags are custom and are only used for MangosVBZero
+    Public Enum QuestObjectiveFlag 'These flags are custom and are only used for MangosVB
         QUEST_OBJECTIVE_KILL = 1 'You have to kill creatures
         QUEST_OBJECTIVE_EXPLORE = 2 'You have to explore an area
         QUEST_OBJECTIVE_ESCORT = 4 'You have to escort someone

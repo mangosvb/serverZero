@@ -15,10 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports Meebey.SmartIrc4net
 Imports System.Threading
-
 
 Public Class IrcWriter
     Inherits BaseWriter
@@ -39,9 +37,9 @@ Public Class IrcWriter
         AddHandler conn.OnRawMessage, AddressOf OnRawMessage
 #End If
 
-        conn.CtcpVersion = "MangosVBZero Log Bot"
+        conn.CtcpVersion = "MaNGOSvb Log Bot"
         conn.Connect(server, port)
-        conn.Login(nick, "MangosVBZero Log Bot")
+        conn.Login(nick, "MaNGOSvb Log Bot")
         conn.RfcJoin(channel)
         conn.SendMessage(SendType.Action, channel, " starts logging")
 
@@ -51,7 +49,6 @@ Public Class IrcWriter
     Public Overrides Sub Dispose()
         conn.Disconnect()
     End Sub
-
 
     Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
         If LogLevel > type Then Return
