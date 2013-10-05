@@ -121,7 +121,7 @@ Namespace Scripts
                 aiCreature.SpawnCreature(16360, 3267.9F, -3172.1F, 297.42F)
             Next
         End Sub
-        ' Gluth falls under Naxxramas without this. Not perfect but much better than before.
+        ' Gluth falls under Naxxramas without this. Not perfect but much better than before. Please note this was tested on a server with no vmaps/maps and that may be why he falls under Naxxramas.
         Public Overrides Sub OnLeaveCombat(Optional Reset As Boolean = True)
             MyBase.OnLeaveCombat(Reset)
             aiCreature.MoveTo(3304.269, -3136.414, 296.7151, 0.8140599)
