@@ -43,6 +43,7 @@ Namespace Scripts
             'ReinitSpells()
 
             aiCreature.SendChatMessage("Patchwerk want to play!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+            aiCreature.SendPlaySound(8909, True)
         End Sub
 
         Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)
@@ -55,14 +56,13 @@ Namespace Scripts
         End Sub
 
         Public Overrides Sub OnKill(ByRef Victim As BaseUnit)
-            'TODO: Yell
-            'TODO: Send sound (No more play?)!
             aiCreature.SendChatMessage("No more play?", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+            aiCreature.SendPlaySound(8912, True)
         End Sub
 
         Public Overrides Sub OnDeath()
-            'TODO: Yell
-            aiCreature.SendChatMessage("What happened to.. Patch.. aaaahrr..", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+            aiCreature.SendChatMessage("What happened to.. Patch..", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+            aiCreature.SendPlaySound(8911, True)
         End Sub
 
         Public Overrides Sub OnThink()
