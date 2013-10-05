@@ -419,7 +419,7 @@ Public Module WS_Combat
         'http://www.wowwiki.com/Formulas:Parry
 
         If TypeOf c Is CharacterObject Then
-            'NOTE: Must have leaned "Parry" spell, ID=3127
+            'NOTE: Must have learned "Parry" spell, ID=3127
             If CType(c, CharacterObject).combatParry > 0 Then
                 Return CType(c, CharacterObject).combatParry - skillDiference * 0.04F
             End If
@@ -431,7 +431,7 @@ Public Module WS_Combat
         'http://www.wowwiki.com/Formulas:Block
 
         If TypeOf c Is CharacterObject Then
-            'NOTE: Must have leaned "Block" spell, ID=107
+            'NOTE: Must have learned "Block" spell, ID=107
             If CType(c, CharacterObject).combatBlock > 0 Then
                 Return CType(c, CharacterObject).combatBlock - skillDiference * 0.04F
             End If

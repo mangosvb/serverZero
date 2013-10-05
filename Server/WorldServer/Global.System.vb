@@ -47,7 +47,7 @@ Public Class ScriptedObject
         Next
 
         If (Dir(AssemblyFile) <> "") AndAlso (LastDate < FileDateTime(AssemblyFile)) Then
-            'DONE: We have lates source compiled already
+            'DONE: We have latest source compiled already
             LoadAssemblyObject(AssemblyFile)
             Return
         End If
@@ -89,7 +89,7 @@ Public Class ScriptedObject
     End Sub
     Public Sub New(ByVal AssemblySourceFile As String, ByVal AssemblyFile As String, ByVal InMemory As Boolean)
         If (Not InMemory) AndAlso (Dir(AssemblyFile) <> "") AndAlso (FileDateTime(AssemblySourceFile) < FileDateTime(AssemblyFile)) Then
-            'DONE: We have lates source compiled already
+            'DONE: We have latest source compiled already
             LoadAssemblyObject(AssemblyFile)
             'Dim ass As [Assembly] = [Assembly].LoadFrom("test.dll")
             Return

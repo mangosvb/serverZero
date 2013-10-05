@@ -82,6 +82,7 @@ Public Module WS_Main
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="WorldServer")> _
     Public Class XMLConfigFile
+        <XmlElement(ElementName:="CommandCharacter")> Public CommandCharacter As String = "."
         <XmlElement(ElementName:="ServerLimit")> Public ServerLimit As Integer = 10
         <XmlElement(ElementName:="XPRate")> Public XPRate As Single = 1.0
         <XmlElement(ElementName:="ManaRegenerationRate")> Public ManaRegenerationRate As Single = 1.0

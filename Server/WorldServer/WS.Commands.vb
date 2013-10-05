@@ -167,7 +167,7 @@ Public Module WS_Commands
         Else
             Dim cmdList As String = "Listing available commands:" & vbNewLine
             For Each Command As KeyValuePair(Of String, ChatCommand) In ChatCommands
-                If CType(Command.Value, ChatCommand).CommandAccess <= c.Access Then cmdList += UCase(Command.Key) & ", "
+                If CType(Command.Value, ChatCommand).CommandAccess <= c.Access Then cmdList += UCase(Command.Key) & vbNewLine '", "
             Next
             cmdList += vbNewLine + "Use HELP <CMD> for usage information about particular command."
             c.CommandResponse(cmdList)
@@ -1287,7 +1287,7 @@ Public Module WS_Commands
             End Select
 
             WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0};", CType(Race, Integer)), Info)
-            Character.Teleport(Info.Rows(0).Item("positionX"), Info.Rows(0).Item("positionY"), Info.Rows(0).Item("positionZ"), 0, Info.Rows(0).Item("mapID"))
+            Character.Teleport(Info.Rows(0).Item("position_x"), Info.Rows(0).Item("position_y"), Info.Rows(0).Item("position_z"), 0, Info.Rows(0).Item("map"))
             Return True
         End If
 
@@ -1927,6 +1927,7 @@ Public Module WS_Commands
             Dim tmpCreature As New CreatureObject(7385, c.positionX, c.positionY, c.positionZ, c.orientation, c.MapID)
             tmpCreature.CreatedBy = c.GUID
             tmpCreature.CreatedBySpell = 10673
+            tmpCreature.aiScript = New DefaultAI(tmpCreature)
             tmpCreature.AddToWorld()
         Next
 
