@@ -7,13 +7,15 @@ Namespace Scripts
         Inherits BossAI
 
         Private Const AI_UPDATE As Integer = 1000
-        Private Const BERSERK_COOLDOWN As Integer = 20000
-        Private Const FRENZY_COOLDOWN As Integer = 15000
+        Private Const BERSERK_COOLDOWN As Integer = 420000 'Heavy enrage, cuts through raid like butter.
+        Private Const FRENZY_COOLDOWN As Integer = 150000 '"soft" enrage, pops at 5%, no need to be recasted.
         'Private Const SUMMONPLAYER_COOLDOWN As Integer = 6000 'This might be an unoffical spell! Recheck at https://github.com/mangoszero/scripts/blob/master/scripts/eastern_kingdoms/naxxramas/boss_patchwerk.cpp
+        ' Private Const HATEFUL_STRIKE_COOLDOWN As Integer = 1000 'This is by far the biggest group breaker. Won't have this working for a VERY long time.
 
         Private Const BERSERK_SPELL As Integer = 26662
         Private Const FRENZY_SPELL As Integer = 28131
         'Private Const SUMMONPLAYER_SPELL As Integer = 20477
+        'Private Const HATEFUL_STRIKE As Integer = 28308 - See cooldown for more information.
 
 
         Public Phase As Integer = 0
@@ -75,11 +77,11 @@ Namespace Scripts
 
                 If NextBerserk <= 0 Then
                     NextBerserk = BERSERK_COOLDOWN
-                    aiCreature.CastSpell(BERSERK_SPELL, aiTarget) 'Berserk
+                    aiCreature.CastSpellOnSelf(BERSERK_SPELL) 'Berserk
                 End If
                 If NextFrenzy <= 1 Then
                     NextFrenzy = FRENZY_COOLDOWN
-                    aiCreature.CastSpell(FRENZY_SPELL, aiTarget) 'Frenzy
+                    aiCreature.CastSpellOnSelf(FRENZY_SPELL) 'Frenzy
                 End If
                 'If NextSummon <= 0 Then
                 '    NextSummon = SUMMONPLAYER_COOLDOWN
@@ -95,28 +97,22 @@ Namespace Scripts
                 End If
             End If
         End Sub
-        Public Sub CastFrenzy()
-            For i As Integer = 0 To 1
-                Dim Self As BaseUnit = aiCreature
-                If Self Is Nothing Then Exit Sub
-                Try
-                    aiCreature.CastSpellOnSelf(FRENZY_SPELL)
-                Catch Ex As Exception
-                    'Log.WriteLine(BaseWriter.LogType.WARNING, "FRENZY FAILED TO CAST ON PATCHWERK!")
-					aiCreature.SendChatMessage("FRENZY FAILED TO CAST ON PATCHWERK! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
-                End Try
-            Next
+        Public Overrides Sub OnHealthChange(Percent As Integer)
+            MyBase.OnHealthChange(Percent)
+            If Percent <= 5 Then
+                aiCreature.CastSpellOnSelf(FRENZY_SPELL)
+            End If
         End Sub
 
         Public Sub CastBerserk()
-            For i As Integer = 1 To 1
+            For i As Integer = 0 To 1
                 Dim Self As BaseUnit = aiCreature
                 If Self Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpellOnSelf(BERSERK_SPELL)
                 Catch Ex As Exception
                     'Log.WriteLine(BaseWriter.LogType.WARNING, "BERSERK FAILED TO CAST ON PATCHWERK!")
-					aiCreature.SendChatMessage("BERSERK FAILED TO CAST ON PATCHWERK! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+                    aiCreature.SendChatMessage("BERSERK FAILED TO CAST ON PATCHWERK! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
         End Sub
@@ -128,7 +124,7 @@ Namespace Scripts
         '            aiCreature.CastSpell(SUMMONPLAYER_SPELL, theTarget.positionX, theTarget.positionY, theTarget.positionZ)
         '        Catch Ex As Exception
         '            'Log.WriteLine(BaseWriter.LogType.WARNING, "SUMMON FAILED TO CAST ON TARGET!")
-		'			aiCreature.SendChatMessage("SUMMON FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+        '			aiCreature.SendChatMessage("SUMMON FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         '       End Try
         '   Next
         ' End Sub
