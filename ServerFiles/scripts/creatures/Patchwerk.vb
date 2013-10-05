@@ -129,36 +129,33 @@ Namespace Scripts
         '   Next
         ' End Sub
 
-        Public Sub On_Waypoint()
+        Public Sub On_Waypoint() 'Waypoints will definitely need some adjustments, but these should hold for now.
             Select Case CurrentWaypoint
                 Case 0
-                    NextWaypoint = aiCreature.MoveTo(-0.0F, -0.0F, -0.0F, 0.0F, True) 'No Waypoint Coords! Will need to back track from MaNGOS!
+                    NextWaypoint = aiCreature.MoveTo(3261.996582, 3228.5979, 294.063354, 2.53919, True) 'No Waypoint Coords! Will need to back track from MaNGOS!
                 Case 1
                     NextWaypoint = 10000
                     'NextSummon = NextWaypoint
-                    aiCreature.MoveTo(0.0F, -0.0F, -0.0F, 0.0F)
+                    aiCreature.MoveTo(316.822021, 3149.243652, 294.063354, 2.437088)
                 Case 2
                     NextWaypoint = 23000
                 Case 3
                     NextWaypoint = 10000
-                    aiCreature.MoveTo(0.0F, -0.0F, -0.0F, 0.0F)
+                    aiCreature.MoveTo(3130.012695, 3141.432861, 294.063354, 3.364644)
                 Case 4, 6, 8, 10, 12
                     NextWaypoint = 23000
                 Case 5
                     NextWaypoint = 10000
-                    aiCreature.MoveTo(-0.0F, -0.0F, -0.0F, 0.0F)
+                    aiCreature.MoveTo(3162.650635, 3152.284912, 294.063354, 5.952532)
                 Case 7
                     NextWaypoint = 10000
-                    aiCreature.MoveTo(-0.0F, -0.0F, -0.0F, 0.0F)
+                    aiCreature.MoveTo(3248.241211, 3226.086426, 294.063354, 5.571616)
                 Case 9
                     NextWaypoint = 10000
-                    aiCreature.MoveTo(0.0F, -0.0F, -0.0F, 0.0F)
-                Case 11
-                    NextWaypoint = 10000
-                    aiCreature.MoveTo(-0.0F, -0.0F, -0.0F, 0.0F)
+                    aiCreature.MoveTo(3313.826904, 3231.999512, 294.063354, 6.231347)
             End Select
             CurrentWaypoint += 1
-            If CurrentWaypoint > 12 Then CurrentWaypoint = 3
+            If CurrentWaypoint > 11 Then CurrentWaypoint = 3
         End Sub
     End Class
 End Namespace
