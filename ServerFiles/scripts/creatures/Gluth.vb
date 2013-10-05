@@ -12,6 +12,7 @@ Namespace Scripts
         Private Const Decimate_CD As Integer = 110000
         Private Const Frenzy_CD As Integer = 25000
         Private Const Terrifying_Roar_CD As Integer = 15000
+        Private Const Zombie_Chow_CD As Integer = 22000
 
 
 
@@ -118,7 +119,9 @@ Namespace Scripts
 
         Public Sub SpawnZombieChow(ByVal Count As Integer)
             For i As Integer = 1 To Count
-                aiCreature.SpawnCreature(16360, 3267.9F, -3172.1F, 297.42F)
+                If Zombie_Chow_CD <= 0 Then
+                    aiCreature.SpawnCreature(16360, 3267.9F, -3172.1F, 297.42F)
+                End If
             Next
         End Sub
         ' Gluth falls under Naxxramas without this. Not perfect but much better than before. Please note this was tested on a server with no vmaps/maps and that may be why he falls under Naxxramas.
