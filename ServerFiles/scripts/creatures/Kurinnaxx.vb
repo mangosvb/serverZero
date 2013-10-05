@@ -1,6 +1,6 @@
 Imports System
 Imports System.Threading
-Imports WorldServer
+Imports MangosVB.WorldServer
 
 
 'Summon implementation isn't yet supported.
