@@ -89,7 +89,7 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpell(SPELL_SILENCE, aiCreature.GetRandomTarget)
                 Catch ex As Exception
-
+                    aiCreature.SendChatMessage("I was unable to silence my target. Please report this to a developer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             Next
         End Sub
@@ -101,7 +101,11 @@ Namespace Scripts
             End If
 
             If aiCreature.HaveAura(SPELL_ARCANE_BUBBLE) Then 'Workaround for casting detonation.
-                aiCreature.CastSpell(SPELL_DETONATION, aiTarget)
+                Try
+                    aiCreature.CastSpell(SPELL_DETONATION, aiTarget)
+                Catch ex As Exception
+                    aiCreature.SendChatMessage("I was unable to cast Arcane Bubble upon myself. Please report this to a developer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                End Try
                 aiCreature.SendPlaySound(5843, True) 'Should play sound when he says "Burn in righteous fire!"
                 aiCreature.SendChatMessage("Burn in righteous fire!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
             End If
