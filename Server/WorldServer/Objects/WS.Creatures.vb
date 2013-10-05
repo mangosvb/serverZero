@@ -1516,11 +1516,6 @@ Public Module WS_Creatures
                 aiScript.Reset()
             End Try
         End Sub
-
-        Function IsFriendlyTo(NPC_Gluth As Integer) As BaseUnit
-            Throw New NotImplementedException
-        End Function
-
     End Class
 #End Region
 #Region "WS.Creatures.HelperSubs"
