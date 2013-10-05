@@ -24,6 +24,7 @@ Imports mangosVB.Common
 
 Public Class AuthEngineClass
     Implements IDisposable
+    Public Log As New BaseWriter
 
 #Region "AuthEngine.Constructive"
     Shared Sub New()
@@ -41,18 +42,41 @@ Public Class AuthEngineClass
         Me.PublicB = New Byte(32 - 1) {}
         Me.b = New Byte(20 - 1) {}
     End Sub
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_add(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
+    End Function
 
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_bin2bn(ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
+    End Function
 
-    Public Declare Function BN_add Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
-    Public Declare Function BN_bin2bn Lib "LIBEAY32" (ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
-    Public Declare Function BN_bn2bin Lib "LIBEAY32" (ByVal a As IntPtr, ByVal [to] As Byte()) As Integer
-    Public Declare Function BN_CTX_free Lib "LIBEAY32" (ByVal a As IntPtr) As Integer
-    Public Declare Function BN_CTX_new Lib "LIBEAY32" () As IntPtr
-    Public Declare Function BN_mod Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    Public Declare Function BN_mod_exp Lib "LIBEAY32" (ByVal res As IntPtr, ByVal a As IntPtr, ByVal p As IntPtr, ByVal m As IntPtr, ByVal ctx As IntPtr) As IntPtr
-    Public Declare Function BN_mul Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    Public Declare Function BN_new Lib "LIBEAY32" () As IntPtr
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_bn2bin(ByVal a As IntPtr, ByVal [to] As Byte()) As Integer
+    End Function
 
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_CTX_free(ByVal a As IntPtr) As Integer
+    End Function
+
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_CTX_new() As IntPtr
+    End Function
+
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_mod(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
+    End Function
+
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_mod_exp(ByVal res As IntPtr, ByVal a As IntPtr, ByVal p As IntPtr, ByVal m As IntPtr, ByVal ctx As IntPtr) As IntPtr
+    End Function
+
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_mul(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
+    End Function
+
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    Private Shared Function BN_new() As IntPtr
+    End Function
 
     Public Sub Dispose() Implements System.IDisposable.Dispose
     End Sub
@@ -257,7 +281,7 @@ Public Class AuthEngineClass
         Return buffer1
     End Function
 
-    <DllImport("LIBEAY32.DLL")> _
+    <DllImport("LIBEAY32.DLL", CallingConvention:=CallingConvention.Cdecl)> _
     Public Shared Function RAND_bytes(ByVal buf As Byte(), ByVal num As Integer) As Integer
 
     End Function

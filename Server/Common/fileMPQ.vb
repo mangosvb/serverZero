@@ -446,7 +446,8 @@ Namespace MPQ
         End Sub
         Private Shared Function BZip2Decompress(ByVal Data As Stream, ByVal ExpectedLength As Integer) As Byte()
             Dim output As New MemoryStream
-            BZip2.Decompress(Data, output)
+            'BZip2.Decompress(Data, output)
+            BZip2Decompress(Data, ExpectedLength)
             Return output.ToArray
         End Function
         Private Shared Function DecompressMulti(ByVal Input As Byte(), ByVal OutputLength As Integer) As Byte()

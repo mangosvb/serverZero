@@ -25,11 +25,12 @@ Imports System.Reflection
 Imports System.Collections.Generic
 Imports mangosVB.Common.SQL
 Imports mangosVB.Common
+Imports mangosVB.Common.BaseWriter
 
 Public Module RS_Main
 #Region "Global.Constants"
 
-    Dim WS_STATUS() As String = {"ONLINE/G", "ONLINE/R", "OFFLINE ", "ONLINE/GM"}
+    Dim WS_STATUS() As String = {"ONLINE/G", "ONLINE/R", "OFFLINE "}
     Public ConsoleColor As New ConsoleColor
 
 
@@ -79,7 +80,7 @@ Public Module RS_Main
     Const CMD_GRUNT_PROVESESSION As Integer = &H21     'server
     Const CMD_GRUNT_KICK As Integer = &H24             'server
 
-
+    Public Log As New BaseWriter
 
 
     Public Enum AccountState As Byte
@@ -103,7 +104,8 @@ Public Module RS_Main
 #Region "Global.Config"
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="RealmServer")> _
-        Public Class XMLConfigFile
+    Public Class XMLConfigFile
+        'Server Configurations
         <XmlElement(ElementName:="RSPort")> Public RSPort As Int32 = 3724
         <XmlElement(ElementName:="RSHost")> Public RSHost As String = "127.0.0.1"
         <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
@@ -114,14 +116,14 @@ Public Module RS_Main
             'Make sure RealmServer.ini exists
             If System.IO.File.Exists("RealmServer.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "RealmServer.ini")
-                Console.WriteLine("Please copy the ini files into the same directory as the mangosVB exe files.")
+                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "hh:mm:ss"), "RealmServer.ini")
+                Console.WriteLine("Please copy the ini files into the same directory as the MangosVB exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End
             End If
 
-            Console.Write("[{0}] Loading Configuration...", Format(TimeOfDay, "HH:mm:ss"))
+            Console.Write("[{0}] Loading Configuration...", Format(TimeOfDay, "hh:mm:ss"))
 
             Config = New XMLConfigFile
             Console.Write("...")
@@ -136,6 +138,9 @@ Public Module RS_Main
 
             Console.WriteLine(".[done]")
 
+            'DONE: Creating logger
+            'BaseWriter.CreateLog(Config.LogType, Config.LogConfig, Log)
+            'Log.LogLevel = Config.LogLevel
 
             'DONE: Setting SQL Connection
             Dim AccountDBSettings() As String = Split(Config.AccountDatabase, ";")
@@ -174,11 +179,11 @@ Public Module RS_Main
                 RSListenThread.Name = "Realm Server, Listening"
                 RSListenThread.Start()
 
-                Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "HH:mm:ss"), lstHost, Config.RSPort)
+                Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), lstHost, Config.RSPort)
             Catch e As Exception
                 Console.WriteLine()
                 Console.ForegroundColor = System.ConsoleColor.Red
-                Console.WriteLine("[{0}] Error in {2}: {1}.", Format(TimeOfDay, "HH:mm:ss"), e.Message, e.Source)
+                Console.WriteLine("[{0}] Error in {2}: {1}.", Format(TimeOfDay, "hh:mm:ss"), e.Message, e.Source)
                 Console.ForegroundColor = System.ConsoleColor.Gray
             End Try
         End Sub
@@ -211,7 +216,7 @@ Public Module RS_Main
                 Console.ForegroundColor = System.ConsoleColor.DarkGreen
         End Select
 
-        Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & OutBuf)
+        Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & OutBuf)
         Console.ForegroundColor = System.ConsoleColor.Gray
     End Sub
 
@@ -234,8 +239,8 @@ Public Module RS_Main
         Public Account As String = ""
         Public Language As String = "enGB"
         Public UpdateFile As String = ""
-		Public Access As AccessLevel = AccessLevel.Player
-		
+        Public Access As AccessLevel = AccessLevel.Player
+
         Public Sub OnData(ByVal data() As Byte)
             Select Case data(0)
                 Case CMD_AUTH_LOGON_CHALLENGE, CMD_AUTH_RECONNECT_CHALLENGE
@@ -249,7 +254,7 @@ Public Module RS_Main
                     On_RS_REALMLIST(data, Me)
 
                 Case CMD_AUTH_UPDATESRV
-                    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
 
                 Case CMD_XFER_ACCEPT
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
@@ -262,7 +267,7 @@ Public Module RS_Main
                     On_CMD_XFER_CANCEL(data, Me)
                 Case Else
                     Console.ForegroundColor = System.ConsoleColor.Red
-                    Console.WriteLine("[{0}] [{1}:{2}] Unknown Opcode 0x{3}", Format(TimeOfDay, "HH:mm:ss"), IP, Port, data(0))
+                    Console.WriteLine("[{0}] [{1}:{2}] Unknown Opcode 0x{3}", Format(TimeOfDay, "hh:mm:ss"), IP, Port, data(0))
                     Console.ForegroundColor = System.ConsoleColor.Gray
                     DumpPacket(data, Me)
             End Select
@@ -289,8 +294,8 @@ Public Module RS_Main
             Dim bytes As Integer
 
             Console.ForegroundColor = System.ConsoleColor.DarkGray
-            Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
-            Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+            Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+            Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
             Console.ForegroundColor = System.ConsoleColor.Gray
             If Not Database.QuerySQL("SELECT ip FROM bans WHERE ip = """ & IP.ToString & """;") Then
 
@@ -310,14 +315,14 @@ Public Module RS_Main
 
             Else
                 Console.ForegroundColor = System.ConsoleColor.Red
-                Console.WriteLine("[{0}] [{1}:{2}] This ip is banned.", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                Console.WriteLine("[{0}] [{1}:{2}] This ip is banned.", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                 Console.ForegroundColor = System.ConsoleColor.Gray
             End If
 
             Socket.Close()
 
             Console.ForegroundColor = System.ConsoleColor.DarkGray
-            Console.WriteLine("[{0}] Connection from [{1}:{2}] closed", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+            Console.WriteLine("[{0}] Connection from [{1}:{2}] closed", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
             Console.ForegroundColor = System.ConsoleColor.Gray
 
             Me.Dispose()
@@ -328,12 +333,12 @@ Public Module RS_Main
 
 #If DEBUG Then
                 Console.ForegroundColor = System.ConsoleColor.DarkGray
-                Console.WriteLine("[{0}] [{1}:{2}] Data sent, result code={3}", Format(TimeOfDay, "HH:mm:ss"), IP, Port, i)
+                Console.WriteLine("[{0}] [{1}:{2}] Data sent, result code={3}", Format(TimeOfDay, "hh:mm:ss"), IP, Port, i)
                 Console.ForegroundColor = System.ConsoleColor.Gray
 #End If
             Catch Err As Exception
                 Console.ForegroundColor = System.ConsoleColor.Red
-                Console.WriteLine("[{0}] Connection from [{1}:{2}] do not exist - ERROR!!!", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                Console.WriteLine("[{0}] Connection from [{1}:{2}] do not exist - ERROR!!!", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                 Console.ForegroundColor = System.ConsoleColor.Gray
                 Socket.Close()
             End Try
@@ -399,7 +404,7 @@ Public Module RS_Main
             'DONE: Send results to client
             Select Case acc_state
                 Case AccountState.LOGIN_OK
-                    Console.WriteLine("[{0}] [{1}:{2}] Account found [{3}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Console.WriteLine("[{0}] [{1}:{2}] Account found [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
 
                     Dim account(data(33) - 1) As Byte
                     Array.Copy(data, 34, account, 0, data(33))
@@ -412,7 +417,14 @@ Public Module RS_Main
                     Next
 
                     Client.Language = ClientLanguage
-                    Client.AuthEngine = New AuthEngineClass
+                    Client.Expansion = result.Rows(0).Item("expansion")
+                    Try
+                        Client.AuthEngine = New AuthEngineClass
+                    Catch ex As Exception
+                        Console.ForegroundColor = System.ConsoleColor.Red
+                        Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, vbNewLine, ex)
+                        Console.ForegroundColor = System.ConsoleColor.White
+                    End Try
                     Client.AuthEngine.CalculateX(account, Hash)
 
                     Dim data_response(118) As Byte
@@ -430,15 +442,15 @@ Public Module RS_Main
                     Client.Send(data_response)
                     Exit Sub
                 Case AccountState.LOGIN_UNKNOWN_ACCOUNT
-                    Console.WriteLine("[{0}] [{1}:{2}] Account not found [{3}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Console.WriteLine("[{0}] [{1}:{2}] Account not found [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                 Case AccountState.LOGIN_BANNED
-                    Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                 Case AccountState.LOGIN_NOTIME
-                    Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                 Case AccountState.LOGIN_ALREADYONLINE
-                    Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                 Case Else
-                    Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
             End Select
             Dim data_response_error(1) As Byte
             data_response_error(0) = CMD_AUTH_LOGON_PROOF
@@ -450,7 +462,7 @@ Public Module RS_Main
                 'Send UPDATE_MPQ
                 Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_INITIATE [" & Chr(data(6)) & Chr(data(5)) & Chr(data(4)) & " " & data(8) & "." & data(9) & "." & data(10) & "." & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & " " _
                     & Chr(data(15)) & Chr(data(14)) & Chr(data(13)) & " " & Chr(data(19)) & Chr(data(18)) & Chr(data(17)) & " " & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & "]" _
-                    , Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+                                  , Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
 
                 Client.UpdateFile = "Updates/wow-patch-" & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & "-" & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & ".mpq"
                 Dim data_response(30) As Byte
@@ -480,7 +492,7 @@ Public Module RS_Main
                 'Send BAD_VERSION
                 Console.WriteLine("[{0}] [{1}:{2}] WRONG_VERSION [" & Chr(data(6)) & Chr(data(5)) & Chr(data(4)) & " " & data(8) & "." & data(9) & "." & data(10) & "." & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & " " _
                                     & Chr(data(15)) & Chr(data(14)) & Chr(data(13)) & " " & Chr(data(19)) & Chr(data(18)) & Chr(data(17)) & " " & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & "]" _
-                                    , Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+                                  , Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
                 Dim data_response(1) As Byte
                 data_response(0) = CMD_AUTH_LOGON_PROOF
                 data_response(1) = AccountState.LOGIN_BADVERSION
@@ -489,7 +501,7 @@ Public Module RS_Main
         End If
     End Sub
     Public Sub On_RS_LOGON_PROOF(ByRef data() As Byte, ByRef Client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_PROOF", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Dim A(31) As Byte
         Array.Copy(data, 1, A, 0, 32)
         Dim M1(19) As Byte
@@ -539,10 +551,10 @@ Public Module RS_Main
             Next
             Database.Update([String].Format("UPDATE accounts SET last_sshash = '{1}', last_ip='{2}', last_login='{3}' WHERE account = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
 
-            Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, Client.Account, sshash)
+            Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, Client.Account, sshash)
         Else
             'Wrong pass
-            Console.WriteLine("[{0}] [{1}:{2}] Wrong password for user {3}.", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, Client.Account)
+            Console.WriteLine("[{0}] [{1}:{2}] Wrong password for user {3}.", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, Client.Account)
             Dim data_response(1) As Byte
             data_response(0) = CMD_AUTH_LOGON_PROOF
             data_response(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
@@ -550,7 +562,7 @@ Public Module RS_Main
         End If
     End Sub
     Public Sub On_RS_REALMLIST(ByRef data() As Byte, ByRef Client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_REALM_LIST", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_REALM_LIST", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
 
         Dim packet_len As Integer = 0
         Dim result As DataTable = Nothing
@@ -658,11 +670,11 @@ Public Module RS_Main
 
     End Sub
     Public Sub On_CMD_XFER_CANCEL(ByRef data() As Byte, ByRef Client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Client.Socket.Close()
     End Sub
     Public Sub On_CMD_XFER_ACCEPT(ByRef data() As Byte, ByRef Client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Dim tmp As Integer = 1
         Dim buffer() As Byte
         Dim file_len As Integer = FileLen(Client.UpdateFile)
@@ -705,7 +717,7 @@ Public Module RS_Main
         'Client.Socket.Close()
     End Sub
     Public Sub On_CMD_XFER_RESUME(ByRef data() As Byte, ByRef Client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Dim tmp As Integer = 1
         Dim buffer() As Byte
         Dim file_len As Integer = FileLen(Client.UpdateFile)
@@ -756,13 +768,10 @@ Public Module RS_Main
         Dim j As Integer
         Dim buffer As String = ""
         If Client Is Nothing Then
-            buffer = buffer + [String].Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "HH:mm:ss"), vbNewLine)
+            buffer = buffer + [String].Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "hh:mm:ss"), vbNewLine)
         Else
-            buffer = buffer + [String].Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, vbNewLine)
+            buffer = buffer + [String].Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, vbNewLine)
         End If
-
-
-
 
         If data.Length Mod 16 = 0 Then
             For j = 0 To data.Length - 1 Step 16
@@ -792,13 +801,41 @@ Public Module RS_Main
 
     Sub WS_Status_Report()
         Dim result1 As DataTable = New DataTable
-        Database.Query([String].Format("SELECT * FROM realms WHERE gmonly !='1';"), result1)
+        Dim ReturnValues As Integer
+        ReturnValues = Database.Query([String].Format("SELECT * FROM realms WHERE gmonly !='1';"), result1)
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
+
         Dim result2 As DataTable = New DataTable
-        Database.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly != '1';"), result2)
+        ReturnValues = Database.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly != '1';"), result2)
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
+
         Dim result3 As DataTable = New DataTable
-        Database.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly = '1';"), result3)
+        ReturnValues = Database.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly = '1';"), result3)
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
+
         Console.WriteLine()
-        Console.WriteLine("[{0}] Known World Servers are {1}, Online World Servers are {2}", Format(TimeOfDay, "HH:mm:ss"), result1.Rows.Count, result2.Rows.Count)
+        Console.WriteLine("[{0}] Known World Servers are {1}, Online World Servers are {2}", Format(TimeOfDay, "hh:mm:ss"), result1.Rows.Count, result2.Rows.Count)
         Console.WriteLine("[{0}] GM Only World Servers are {1}", Format(TimeOfDay, "HH:mm:ss"), result3.Rows.Count)
 
         Console.ForegroundColor = System.ConsoleColor.DarkGreen
@@ -813,11 +850,6 @@ Public Module RS_Main
     End Sub
     Sub Main()
         Console.Title = String.Format("{0} v{1}", [Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyTitleAttribute), False)(0).Title, [Assembly].GetExecutingAssembly().GetName().Version)
-
-        Console.ForegroundColor = System.ConsoleColor.Yellow
-        Console.WriteLine([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyProductAttribute), False)(0).Product)
-        Console.WriteLine([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyCopyrightAttribute), False)(0).Copyright)
-        Console.WriteLine()
 
         Console.ForegroundColor = System.ConsoleColor.Yellow
 
@@ -846,15 +878,20 @@ Public Module RS_Main
         Console.ForegroundColor = System.ConsoleColor.Magenta
 
         Console.ForegroundColor = System.ConsoleColor.White
-        Console.WriteLine([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyTitleAttribute), False)(0).Title)
-        Console.WriteLine("version {0}", [Assembly].GetExecutingAssembly().GetName().Version)
-        Console.WriteLine("svn-reversion {0} ({1})", svnRevision, svnDate)
+        Console.Write([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyTitleAttribute), False)(0).Title)
+        Console.WriteLine(" version {0}", [Assembly].GetExecutingAssembly().GetName().Version)
         Console.WriteLine()
         Console.ForegroundColor = System.ConsoleColor.Gray
 
-        Console.WriteLine("[{0}] Realm Server Starting...", Format(TimeOfDay, "HH:mm:ss"))
-
+        Console.WriteLine("[{0}] Realm Server Starting...", Format(TimeOfDay, "hh:mm:ss"))
         LoadConfig()
+
+#If DEBUG Then
+        Console.ForegroundColor = System.ConsoleColor.Yellow
+        Log.WriteLine(LogType.INFORMATION, "Running from: {0}", System.AppDomain.CurrentDomain.BaseDirectory)
+        Console.ForegroundColor = System.ConsoleColor.Gray
+#End If
+
         AddHandler Database.SQLMessage, AddressOf SLQEventHandler
         Database.Connect()
 
@@ -885,7 +922,7 @@ Public Module RS_Main
                             Console.WriteLine("---------------------------------")
                             Console.WriteLine("")
                             Console.WriteLine("")
-                            Console.WriteLine("'help' or '/help' - Brings up the 'RealmServer' Command list (this).")
+                            Console.WriteLine("'help' or '/help' - Brings up the RealmServer' Command list (this).")
                             Console.WriteLine("")
                             Console.WriteLine("'/quit' or '/shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'RealmServer'.")
                         Case Else

@@ -1,6 +1,11 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.Generic
 
+Public Enum ExpansionLevel As Byte
+    NORMAL = 0          'WoW
+    'EXPANSION_1 = 1     'WoW: Burning Crusade
+End Enum
+
 Public Enum AccessLevel As Byte
     Trial = 0
     Player = 1
@@ -123,7 +128,6 @@ Public Interface IWorld
 
 End Interface
 
-
 <Serializable()> _
 Public Class ClientInfo
     Public Index As UInteger
@@ -131,7 +135,5 @@ Public Class ClientInfo
     Public Port As UInteger
     Public Account As String
     Public Access As AccessLevel = AccessLevel.Player
+    Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
 End Class
-
-
-

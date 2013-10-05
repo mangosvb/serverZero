@@ -170,7 +170,11 @@ Public Module Functions
     End Function
 
     Public Function CapitalizeName(ByRef Name As String) As String
-        Return UCase(Left(Name, 1)) & LCase(Right(Name, Name.Length - 1))
+        If Name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
+            Return UCase(Left(Name, 1)) & LCase(Right(Name, Name.Length - 1))
+        Else
+            Return UCase(Name)
+        End If
     End Function
 
     Private Regex_AZ As Regex = New Regex("^[a-zA-Z]+$")

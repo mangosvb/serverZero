@@ -53,7 +53,7 @@ Public Class FileWriter
         If LogLevel > type Then Return
         If LastDate <> Now.Date Then CreateNewFile()
 
-        Output.WriteLine(L(type) & ":[" & Format(TimeOfDay, "HH:mm:ss") & "] " & formatStr, arg)
+        Output.WriteLine(L(type) & ":[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
     End Sub
 
 End Class

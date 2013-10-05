@@ -53,7 +53,7 @@ Public Class TelnetWriter
         If socket Is Nothing Then Return
 
         Try
-            socket.Send(System.Text.Encoding.UTF8.GetBytes(String.Format(L(type) & ":" & "[" & Format(TimeOfDay, "HH:mm:ss") & "] " & formatStr & vbNewLine, arg).ToCharArray))
+            socket.Send(System.Text.Encoding.UTF8.GetBytes(String.Format(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr & vbNewLine, arg).ToCharArray))
         Catch
             socket = Nothing
         End Try

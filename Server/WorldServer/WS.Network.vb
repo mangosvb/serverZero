@@ -207,6 +207,7 @@ Public Module WS_Network
         End Function
 
         Public Function Ping(ByVal Timestamp As Integer, ByVal Latency As Integer) As Integer Implements IWorld.Ping
+            Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime - Timestamp)
             LastPing = timeGetTime
             WC_MsTime = Timestamp + Latency
 
