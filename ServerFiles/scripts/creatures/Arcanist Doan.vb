@@ -9,7 +9,7 @@ Namespace Scripts
         Private Const AI_UPDATE As Integer = 1000
         Private Const ARCANE_BUBBLE_CD As Integer = 500000 'This should never be recasted.
         Private Const DETONATION_CD As Integer = 500000 'This should never be recasted.
-        Private Const Arcane_Explosion_CD As Integer = 6000
+        'Private Const Arcane_Explosion_CD As Integer = 6000
         Private Const Silence_CD As Integer = 9000
         Private Const Polymorph_CD As Integer = 15000
 
@@ -17,11 +17,11 @@ Namespace Scripts
         Private Const SPELL_SILENCE As Integer = 8988
         Private Const SPELL_DETONATION As Integer = 9435
         Private Const SPELL_ARCANE_BUBBLE As Integer = 9438
-        Private Const SPELL_ARCANE_EXPLOSION As Integer = 34517
+        'Private Const SPELL_ARCANE_EXPLOSION As Integer = 34517 'SPELL UNSUPPORTED, CAUSES CRASHES
 
         Public NextDetonation As Integer = 0 'Again, this should never be reused.
         Public NextArcaneBubble As Integer = 0 'Again, this should never be reused.
-        Public NextExplosion As Integer = 0
+        'Public NextExplosion As Integer = 0
         Public NextPolymorph As Integer = 0
         Public NextSilence As Integer = 0
         Public NextWaypoint As Integer = 0
@@ -38,16 +38,16 @@ Namespace Scripts
         End Sub
         Public Overrides Sub OnThink()
 
-            NextExplosion -= AI_UPDATE
+            'NextExplosion -= AI_UPDATE
             NextPolymorph -= AI_UPDATE
             NextSilence -= AI_UPDATE
             NextArcaneBubble -= AI_UPDATE
             NextDetonation -= AI_UPDATE
 
-            If NextExplosion <= 0 Then  'Need to implement better AoE handling. This may be the reason for lack of boss casts with AoE spells.
-                NextExplosion = Arcane_Explosion_CD
-                aiCreature.CastSpell(SPELL_ARCANE_EXPLOSION, aiTarget)
-            End If
+            'If NextExplosion <= 0 Then  'Need to implement better AoE handling. This may be the reason for lack of boss casts with AoE spells.
+            '   NextExplosion = Arcane_Explosion_CD
+            '  aiCreature.CastSpell(SPELL_ARCANE_EXPLOSION, aiTarget)
+            'End If
 
             If NextPolymorph <= 0 Then
                 NextPolymorph = Polymorph_CD
@@ -60,17 +60,17 @@ Namespace Scripts
             End If
             'No need to handle Detonation or Bubble here.
         End Sub
-        Public Sub CastExplosion()
-            For i As Integer = 0 To 2
-                Dim Target As BaseUnit = aiCreature
-                If Target Is Nothing Then Exit Sub
-                Try
-                    aiCreature.CastSpell(SPELL_ARCANE_EXPLOSION, aiTarget)
-                Catch ex As Exception
-                    aiCreature.SendChatMessage("Failed to cast Arcane Explosion. Please report this to a developer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
-                End Try
-            Next
-        End Sub
+        'Public Sub CastExplosion()
+        '    For i As Integer = 0 To 2
+        '        Dim Target As BaseUnit = aiCreature
+        '        If Target Is Nothing Then Exit Sub
+        '        Try
+        '            aiCreature.CastSpell(SPELL_ARCANE_EXPLOSION, aiTarget)
+        '        Catch ex As Exception
+        '            aiCreature.SendChatMessage("Failed to cast Arcane Explosion. Please report this to a developer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+        '       End Try
+        '   Next
+        'End Sub
         Public Sub CastPolymorph()
             For i As Integer = 1 To 2
                 Dim target As BaseUnit = aiCreature.GetRandomTarget 'Finally learned how random target functions work. 
