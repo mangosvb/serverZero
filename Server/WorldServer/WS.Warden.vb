@@ -114,7 +114,11 @@ Public Module WS_Warden
 
             Log.WriteLine(BaseWriter.LogType.SUCCESS, "[WARDEN] Successfully prepaired Warden Module.")
 
+		Try
             If Not InitModule() Then Return False
+		Catch ex As Exception
+			Log.WriteLine(BaseWriter.LogType.CRITICAL, "[WARDEN] InitModule Failed.")
+        End Try
 
             Return True
         End Function
@@ -455,8 +459,12 @@ Public Module WS_Warden
             ppFuncList = VarPtr(pFuncList)
 
             Console.WriteLine("Initializing module")
+		Try
+            Log.WriteLine(BaseWriter.LogType.SUCCESS, "[WARDEN] Successfully Initialized Module.")
             init = CType(Marshal.GetDelegateForFunctionPointer(New IntPtr(InitPointer), GetType(InitializeModule)), InitializeModule)
-            m_ModMem = init.Invoke(ppFuncList)
+		Catch ex As Exception
+                Log.WriteLine(BaseWriter.LogType.CRITICAL, "[WARDEN] Failed to Initialize Module.")
+        End Try
 
             pWardenList = Marshal.ReadInt32(New IntPtr(m_ModMem))
             myWardenList = Marshal.PtrToStructure(New IntPtr(pWardenList), GetType(WardenFuncList))
