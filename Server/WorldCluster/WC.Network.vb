@@ -618,11 +618,13 @@ Public Module WC_Network
                         Array.Copy(SocketBuffer, PacketLen, SocketBuffer, 0, SocketBytes)
 
                     End While
-
+					
+					If SocketBuffer.Length > 1 Then
                     Socket.BeginReceive(SocketBuffer, 0, SocketBuffer.Length, SocketFlags.None, AddressOf OnData, Nothing)
 
                     If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
                 End If
+			End If
             Catch Err As Exception
 #If DEBUG Then
                 'NOTE: If it's a error here it means the connection is closed?
