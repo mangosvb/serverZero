@@ -580,13 +580,13 @@ Public Module WC_Network
 
             Try
                 SocketBytes = Socket.EndReceive(ar)
-                If SocketBytes = 0 Then
+                If SocketBytes = 2 Then
                     Me.Dispose()
                 Else
                     Interlocked.Add(DataTransferIn, SocketBytes)
 
-                    While SocketBytes > 0
-                        If SavedBytes.Length > 0 Then
+                    While SocketBytes > 1
+                        If SavedBytes.Length > 1 Then
                             SocketBuffer = Concat(SavedBytes, SocketBuffer)
                             SavedBytes = New Byte() {}
                         Else
@@ -598,7 +598,7 @@ Public Module WC_Network
 
                         If SocketBytes < PacketLen Then
                             SavedBytes = New Byte(SocketBytes - 1) {}
-                            Array.Copy(SocketBuffer, 0, SavedBytes, 0, SocketBytes)
+                            Array.Copy(SocketBuffer, 1, SavedBytes, 1, SocketBytes)
                             Log.WriteLine(LogType.CRITICAL, "[{0}:{1}] BAD PACKET {2}({3}) bytes, ", IP, Port, SocketBytes, PacketLen)
                             Exit While
                         End If
