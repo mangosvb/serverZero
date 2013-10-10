@@ -11,4 +11,5 @@ Database:
 
 W@WAdict - Project Leader.
 Unix (Again for his work on the VanillaWoW database).
+Haruhi2013 - Database Support
 
