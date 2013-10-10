@@ -498,8 +498,8 @@ Public Module WC_Network
         Trial = 0
         Player = 1
         GameMaster = 2
-        Admin = 3
-        Developer = 4
+        Developer = 3
+        Admin = 4
     End Enum
 
     Public LastConnections As New Dictionary(Of UInteger, Date)
