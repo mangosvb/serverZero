@@ -106,8 +106,8 @@ Public Module RS_Main
     <XmlRoot(ElementName:="RealmServer")> _
     Public Class XMLConfigFile
         'Server Configurations
-        <XmlElement(ElementName:="RSPort")> Public RSPort As Int32 = 3724
-        <XmlElement(ElementName:="RSHost")> Public RSHost As String = "127.0.0.1"
+        <XmlElement(ElementName:="RealmServerPort")> Public RealmServerPort As Int32 = 3724
+        <XmlElement(ElementName:="RealmServerAddress")> Public RealmServerAddress As String = "127.0.0.1"
         <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
     End Class
 
@@ -166,20 +166,20 @@ Public Module RS_Main
     Public RS As RealmServerClass
     Class RealmServerClass
         Public _flagStopListen As Boolean = False
-        Private lstHost As Net.IPAddress = Net.IPAddress.Parse(Config.RSHost)
+        Private lstHost As Net.IPAddress = Net.IPAddress.Parse(Config.RealmServerAddress)
         Private lstConnection As TcpListener
         'Private lstThreadPool As ThreadPool
 
         Public Sub New()
             Try
-                lstConnection = New TcpListener(lstHost, Config.RSPort)
+                lstConnection = New TcpListener(lstHost, Config.RealmServerPort)
                 lstConnection.Start()
                 Dim RSListenThread As Thread
                 RSListenThread = New Thread(AddressOf AcceptConnection)
                 RSListenThread.Name = "Realm Server, Listening"
                 RSListenThread.Start()
 
-                Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), lstHost, Config.RSPort)
+                Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), lstHost, Config.RealmServerPort)
             Catch e As Exception
                 Console.WriteLine()
                 Console.ForegroundColor = System.ConsoleColor.Red

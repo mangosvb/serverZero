@@ -63,16 +63,16 @@ Public Module WS_Network
 
         Public Sub New()
             Try
-                m_RemoteURI = String.Format("{0}://{1}:{2}/Cluster.rem", Config.ClusterMethod, Config.ClusterHost, Config.ClusterPort)
-                m_LocalURI = String.Format("{0}://{1}:{2}/WorldServer.rem", Config.ClusterMethod, Config.LocalHost, Config.LocalPort)
+                m_RemoteURI = String.Format("{0}://{1}:{2}/Cluster.rem", Config.ClusterConnectMethod, Config.ClusterConnectHost, Config.ClusterConnectPort)
+                m_LocalURI = String.Format("{0}://{1}:{2}/WorldServer.rem", Config.ClusterConnectMethod, Config.LocalConnectHost, Config.LocalConnectPort)
                 Cluster = Nothing
 
                 'Create Remoting Channel
-                Select Case Config.ClusterMethod
+                Select Case Config.ClusterConnectMethod
                     Case "ipc"
-                        m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.LocalHost, Config.LocalPort))
+                        m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.LocalConnectHost, Config.LocalConnectPort))
                     Case "tcp"
-                        m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.LocalPort)
+                        m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.LocalConnectPort)
                 End Select
 
                 Channels.ChannelServices.RegisterChannel(m_RemoteChannel, False)
