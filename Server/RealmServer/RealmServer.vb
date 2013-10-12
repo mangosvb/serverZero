@@ -238,7 +238,6 @@ Public Module RS_Main
         Public AuthEngine As AuthEngineClass
         Public Account As String = ""
         Public Language As String = "enGB"
-        Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
         Public UpdateFile As String = ""
         Public Access As AccessLevel = AccessLevel.Player
 
