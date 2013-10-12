@@ -238,6 +238,7 @@ Public Module RS_Main
         Public AuthEngine As AuthEngineClass
         Public Account As String = ""
         Public Language As String = "enGB"
+		Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
         Public UpdateFile As String = ""
         Public Access As AccessLevel = AccessLevel.Player
 
@@ -417,6 +418,7 @@ Public Module RS_Main
                     Next
 
                     Client.Language = ClientLanguage
+					Client.Expansion = result.Rows(0).Item("expansion")
                     Try
                         Client.AuthEngine = New AuthEngineClass
                     Catch ex As Exception
