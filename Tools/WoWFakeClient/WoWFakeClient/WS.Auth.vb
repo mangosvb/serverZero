@@ -65,7 +65,7 @@ Public Module WS_Auth
 
         Select Case ErrorCode
             Case &HC
-                Console.WriteLine("[{0}][World] Auth succeded.", Format(TimeOfDay, "HH:mm:ss"))
+                Console.WriteLine("[{0}][World] Auth succeeded.", Format(TimeOfDay, "HH:mm:ss"))
 
                 Dim Response As New PacketClass(OPCODES.CMSG_CHAR_ENUM)
                 Send(Response)
