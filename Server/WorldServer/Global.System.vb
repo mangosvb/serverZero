@@ -52,7 +52,7 @@ Public Class ScriptedObject
             Return
         End If
 
-        WorldServer.Log.WriteLine(LogType.SUCCESS, "Compiling: \Scripts\*.*")
+        Log.WriteLine(LogType.SUCCESS, "Compiling: \Scripts\*.*")
 
         Try
             Dim VBcp As New Microsoft.VisualBasic.VBCodeProvider
@@ -78,13 +78,13 @@ Public Class ScriptedObject
 
             If cResults.Errors.HasErrors = True Then
                 For Each err As System.CodeDom.Compiler.CompilerError In cResults.Errors
-                    WorldServer.Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1} in {3}:{0}{2}", vbNewLine, err.Line, err.ErrorText, err.FileName)
+                    Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1} in {3}:{0}{2}", vbNewLine, err.Line, err.ErrorText, err.FileName)
                 Next
             Else
                 ass = cResults.CompiledAssembly
             End If
         Catch e As Exception
-            WorldServer.Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, vbNewLine)
         End Try
     End Sub
     Public Sub New(ByVal AssemblySourceFile As String, ByVal AssemblyFile As String, ByVal InMemory As Boolean)
@@ -95,7 +95,7 @@ Public Class ScriptedObject
             Return
         End If
 
-        WorldServer.Log.WriteLine(LogType.SUCCESS, "Compiling: {0}", AssemblySourceFile)
+        Log.WriteLine(LogType.SUCCESS, "Compiling: {0}", AssemblySourceFile)
 
         Try
             Dim VBcp As New Microsoft.VisualBasic.VBCodeProvider
@@ -122,19 +122,19 @@ Public Class ScriptedObject
             ElseIf AssemblySourceFile.IndexOf(".vb") <> -1 Then
                 cResults = VBcp.CompileAssemblyFromFile(cParameters, System.AppDomain.CurrentDomain.BaseDirectory() & AssemblySourceFile)
             Else
-                WorldServer.Log.WriteLine(LogType.FAILED, "Compiling: Unsupported file type: {0}", AssemblySourceFile)
+                Log.WriteLine(LogType.FAILED, "Compiling: Unsupported file type: {0}", AssemblySourceFile)
                 Return
             End If
 
             If cResults.Errors.HasErrors = True Then
                 For Each err As System.CodeDom.Compiler.CompilerError In cResults.Errors
-                    WorldServer.Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1}:{0}{2}", vbNewLine, err.Line, err.ErrorText)
+                    Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1}:{0}{2}", vbNewLine, err.Line, err.ErrorText)
                 Next
             Else
                 ass = cResults.CompiledAssembly
             End If
         Catch e As Exception
-            WorldServer.Log.WriteLine(LogType.FAILED, "Unable to compile script [{0}]. {2}{1}", AssemblySourceFile, e.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Unable to compile script [{0}]. {2}{1}", AssemblySourceFile, e.ToString, vbNewLine)
         End Try
     End Sub
     Public Sub InvokeFunction(ByVal MyModule As String, ByVal MyMethod As String, Optional ByVal Parameters As Object = Nothing)
@@ -143,9 +143,9 @@ Public Class ScriptedObject
             Dim mi As MethodInfo = ty.GetMethod(MyMethod)
             mi.Invoke(Nothing, Parameters)
         Catch e As TargetInvocationException
-            WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
         Catch e As Exception
-            WorldServer.Log.WriteLine(LogType.FAILED, "Script Method [{0}] not found in [Scripts.{1}]!", MyMethod, MyModule)
+            Log.WriteLine(LogType.FAILED, "Script Method [{0}] not found in [Scripts.{1}]!", MyMethod, MyModule)
         End Try
     End Sub
     Public Function InvokeConstructor(ByVal MyBaseClass As String, Optional ByVal Parameters As Object = Nothing) As Object
@@ -155,9 +155,9 @@ Public Class ScriptedObject
 
             Return ci(0).Invoke(Parameters)
         Catch e As NullReferenceException
-            WorldServer.Log.WriteLine(LogType.FAILED, "Scripted Class [{0}] not found in [Scripts]!", MyBaseClass)
+            Log.WriteLine(LogType.FAILED, "Scripted Class [{0}] not found in [Scripts]!", MyBaseClass)
         Catch e As Exception
-            WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
         End Try
         Return Nothing
     End Function
@@ -168,9 +168,9 @@ Public Class ScriptedObject
 
             Return pi.GetValue(Nothing, Nothing)
         Catch e As NullReferenceException
-            WorldServer.Log.WriteLine(LogType.FAILED, "Scripted Property [{1}] not found in [Scripts.{1}]!", MyModule, MyProperty)
+            Log.WriteLine(LogType.FAILED, "Scripted Property [{1}] not found in [Scripts.{1}]!", MyModule, MyProperty)
         Catch e As Exception
-            WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
         End Try
         Return Nothing
     End Function
@@ -181,9 +181,9 @@ Public Class ScriptedObject
 
             Return fi.GetValue(Nothing)
         Catch e As NullReferenceException
-            WorldServer.Log.WriteLine(LogType.FAILED, "Scripted Field [{1}] not found in [Scripts.{0}]!", MyModule, MyField)
+            Log.WriteLine(LogType.FAILED, "Scripted Field [{1}] not found in [Scripts.{0}]!", MyModule, MyField)
         Catch e As Exception
-            WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
         End Try
         Return Nothing
     End Function
@@ -198,11 +198,11 @@ Public Class ScriptedObject
         Try
             ass = [Assembly].LoadFrom(dllLocation)
         Catch fnfe As FileNotFoundException
-            WorldServer.Log.WriteLine(LogType.FAILED, "DLL not found error:{1}{0}", fnfe.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "DLL not found error:{1}{0}", fnfe.GetBaseException.ToString, vbNewLine)
         Catch ane As ArgumentNullException
-            WorldServer.Log.WriteLine(LogType.FAILED, "DLL NULL error:{1}{0}", ane.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "DLL NULL error:{1}{0}", ane.GetBaseException.ToString, vbNewLine)
         Catch bife As BadImageFormatException
-            WorldServer.Log.WriteLine(LogType.FAILED, "DLL not a valid assembly error:{1}{0}", bife.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "DLL not a valid assembly error:{1}{0}", bife.GetBaseException.ToString, vbNewLine)
         End Try
     End Sub
 

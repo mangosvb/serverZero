@@ -50,7 +50,7 @@ Public Module WS_Group
 
         Public Sub Broadcast(ByVal p As PacketClass)
             p.UpdateLength()
-            WS.Cluster.BroadcastGroup(ID, p.Data)
+            WorldServer.Cluster.BroadcastGroup(ID, p.Data)
         End Sub
 
 

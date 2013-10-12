@@ -84,7 +84,7 @@ Public Module WC_Stats
         CountPlayersHorde = 0
         CountPlayersAlliance = 0
         CountGMs = 0
-		Latency = 0
+        Latency = 0
 
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
         For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
@@ -108,7 +108,7 @@ Public Module WC_Stats
         End If
 
 
-        For Each c As KeyValuePair(Of UInteger, WorldInfo) In WS.WorldsInfo
+        For Each c As KeyValuePair(Of UInteger, WorldInfo) In WorldServer.WorldsInfo
             If Not w.ContainsKey(c.Value) Then
                 w.Add(c.Value, New List(Of String))
             End If

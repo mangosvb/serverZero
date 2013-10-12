@@ -30,7 +30,7 @@ Imports mangosVB.Common.BaseWriter
 Public Module RS_Main
 #Region "Global.Constants"
 
-    Dim WS_STATUS() As String = {"ONLINE/G", "ONLINE/R", "OFFLINE "}
+    Dim WorldServer_STATUS() As String = {"ONLINE/G", "ONLINE/R", "OFFLINE "}
     Public ConsoleColor As New ConsoleColor
 
 
@@ -145,12 +145,12 @@ Public Module RS_Main
             'DONE: Setting SQL Connection
             Dim AccountDBSettings() As String = Split(Config.AccountDatabase, ";")
             If AccountDBSettings.Length = 6 Then
-                Database.SQLDBName = AccountDBSettings(4)
-                Database.SQLHost = AccountDBSettings(2)
-                Database.SQLPort = AccountDBSettings(3)
-                Database.SQLUser = AccountDBSettings(0)
-                Database.SQLPass = AccountDBSettings(1)
-                Database.SQLTypeServer = CType([Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5)), SQL.DB_Type)
+                AccountDatabase.SQLDBName = AccountDBSettings(4)
+                AccountDatabase.SQLHost = AccountDBSettings(2)
+                AccountDatabase.SQLPort = AccountDBSettings(3)
+                AccountDatabase.SQLUser = AccountDBSettings(0)
+                AccountDatabase.SQLPass = AccountDBSettings(1)
+                AccountDatabase.SQLTypeServer = CType([Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5)), SQL.DB_Type)
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
@@ -163,7 +163,7 @@ Public Module RS_Main
 
 #Region "RS.Sockets"
     Public LastConnections As New Dictionary(Of UInteger, Date)
-    Public RS As RealmServerClass
+    Public RealmServer As RealmServerClass
     Class RealmServerClass
         Public _flagStopListen As Boolean = False
         Private lstHost As Net.IPAddress = Net.IPAddress.Parse(Config.RealmServerAddress)
@@ -207,7 +207,7 @@ Public Module RS_Main
     End Class
 #End Region
 #Region "RS.Data Access"
-    Public Database As New SQL
+    Public AccountDatabase As New SQL
     Public Sub SLQEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
@@ -298,9 +298,9 @@ Public Module RS_Main
             Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
             Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
             Console.ForegroundColor = System.ConsoleColor.Gray
-            If Not Database.QuerySQL("SELECT ip FROM bans WHERE ip = """ & IP.ToString & """;") Then
+            If Not AccountDatabase.QuerySQL("SELECT ip FROM bans WHERE ip = """ & IP.ToString & """;") Then
 
-                While Not RS._flagStopListen
+                While Not RealmServer._flagStopListen
                     Thread.Sleep(CONNETION_SLEEP_TIME)
                     If Socket.Available > 0 Then
                         If Socket.Available > 500 Then 'DONE: Data flood protection
@@ -389,7 +389,7 @@ Public Module RS_Main
             Dim result As DataTable = Nothing
             Try
                 'Get Account info
-                Database.Query([String].Format("SELECT * FROM accounts WHERE account = ""{0}"";", packet_account), result)
+                AccountDatabase.Query([String].Format("SELECT * FROM accounts WHERE account = ""{0}"";", packet_account), result)
 
                 'Check Account state
                 If result.Rows.Count > 0 Then
@@ -550,7 +550,7 @@ Public Module RS_Main
                     sshash = sshash + Hex(Client.AuthEngine.SS_Hash(i))
                 End If
             Next
-            Database.Update([String].Format("UPDATE accounts SET last_sshash = '{1}', last_ip='{2}', last_login='{3}' WHERE account = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
+            AccountDatabase.Update([String].Format("UPDATE accounts SET last_sshash = '{1}', last_ip='{2}', last_login='{3}' WHERE account = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, Client.Account, sshash)
         Else
@@ -569,10 +569,10 @@ Public Module RS_Main
         Dim result As DataTable = Nothing
         If Client.Access < AccessLevel.GameMaster Then
             'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
-            Database.Query([String].Format("SELECT * FROM realms WHERE gmonly = '0';"), result)
+            AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE gmonly = '0';"), result)
         Else
             'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
-            Database.Query([String].Format("SELECT * FROM realms;"), result)
+            AccountDatabase.Query([String].Format("SELECT * FROM realms;"), result)
         End If
 
         For Each Row As System.Data.DataRow In result.Rows
@@ -800,10 +800,10 @@ Public Module RS_Main
 #End Region
 
 
-    Sub WS_Status_Report()
+    Sub WorldServer_Status_Report()
         Dim result1 As DataTable = New DataTable
         Dim ReturnValues As Integer
-        ReturnValues = Database.Query([String].Format("SELECT * FROM realms WHERE gmonly !='1';"), result1)
+        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE gmonly !='1';"), result1)
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -814,7 +814,7 @@ Public Module RS_Main
         End If
 
         Dim result2 As DataTable = New DataTable
-        ReturnValues = Database.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly != '1';"), result2)
+        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly != '1';"), result2)
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -825,7 +825,7 @@ Public Module RS_Main
         End If
 
         Dim result3 As DataTable = New DataTable
-        ReturnValues = Database.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly = '1';"), result3)
+        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly = '1';"), result3)
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -841,11 +841,11 @@ Public Module RS_Main
 
         Console.ForegroundColor = System.ConsoleColor.DarkGreen
         For Each Row As System.Data.DataRow In result1.Rows
-            Console.WriteLine("           {3} [{1}] at {0}:{2}", Row.Item("ws_host").PadRight(20), Row.Item("ws_name").PadRight(20), Format(Row.Item("ws_port")).PadRight(6), WS_STATUS(Int(Row.Item("ws_status"))).PadRight(10))
+            Console.WriteLine("           {3} [{1}] at {0}:{2}", Row.Item("ws_host").PadRight(20), Row.Item("ws_name").PadRight(20), Format(Row.Item("ws_port")).PadRight(6), WorldServer_STATUS(Int(Row.Item("ws_status"))).PadRight(10))
         Next
         Console.ForegroundColor = System.ConsoleColor.Yellow
         For Each Row As System.Data.DataRow In result3.Rows
-            Console.WriteLine("           {3} [{1}] at {0}           :{2}", Row.Item("ws_host").PadRight(6), Row.Item("ws_name").PadRight(20), Format(Row.Item("ws_port")), WS_STATUS(Int("3")).PadRight(10))
+            Console.WriteLine("           {3} [{1}] at {0}           :{2}", Row.Item("ws_host").PadRight(6), Row.Item("ws_name").PadRight(20), Format(Row.Item("ws_port")), WorldServer_STATUS(Int("3")).PadRight(10))
         Next
         Console.ForegroundColor = System.ConsoleColor.Gray
     End Sub
@@ -893,12 +893,12 @@ Public Module RS_Main
         Console.ForegroundColor = System.ConsoleColor.Gray
 #End If
 
-        AddHandler Database.SQLMessage, AddressOf SLQEventHandler
-        Database.Connect()
+        AddHandler AccountDatabase.SQLMessage, AddressOf SLQEventHandler
+        AccountDatabase.Connect()
 
-        RS = New RealmServerClass
+        RealmServer = New RealmServerClass
 
-        WS_Status_Report()
+        WorldServer_Status_Report()
 
         Dim tmp As String, CommandList() As String, cmd() As String
         Dim varList As Integer

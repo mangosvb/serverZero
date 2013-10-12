@@ -2043,10 +2043,10 @@ Public Module WS_CharManagment
             Set(ByVal Value As Boolean)
                 If Value Then
                     cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_AFK
-                    WS.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_AFK)
+                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_AFK)
                 Else
                     cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_AFK)
-                    WS.Cluster.ClientSetChatFlag(Client.Index, 0)
+                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, 0)
                 End If
             End Set
         End Property
@@ -2057,10 +2057,10 @@ Public Module WS_CharManagment
             Set(ByVal Value As Boolean)
                 If Value Then
                     cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_DND
-                    WS.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_DND)
+                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_DND)
                 Else
                     cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_DND)
-                    WS.Cluster.ClientSetChatFlag(Client.Index, 0)
+                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, 0)
                 End If
             End Set
         End Property
@@ -2071,10 +2071,10 @@ Public Module WS_CharManagment
             Set(ByVal Value As Boolean)
                 If Value Then
                     cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_GM
-                    WS.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_GM)
+                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_GM)
                 Else
                     cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_GM)
-                    WS.Cluster.ClientSetChatFlag(Client.Index, 0)
+                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, 0)
                 End If
             End Set
         End Property
@@ -2476,7 +2476,7 @@ CheckXPAgain:
                     GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL
 
                     'DONE: Send update to cluster
-                    WS.Cluster.ClientUpdate(Client.Index, ZoneID, Level)
+                    WorldServer.Cluster.ClientUpdate(Client.Index, ZoneID, Level)
 
                     Dim oldLife As Integer = Life.Maximum
                     Dim oldMana As Integer = Mana.Maximum
@@ -4028,7 +4028,7 @@ CheckXPAgain:
             Client.Character.Save()
 
             'Do global transfer
-            WS.ClientTransfer(Client.Index, posX, posY, posZ, ori, map)
+            WorldServer.ClientTransfer(Client.Index, posX, posY, posZ, ori, map)
         End Sub
         Public Sub ZoneCheck()
             Dim ZoneFlag As Integer = GetAreaFlag(positionX, positionY, MapID)

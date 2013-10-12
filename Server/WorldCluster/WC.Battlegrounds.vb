@@ -212,7 +212,7 @@ Public Module WC_Battlegrounds
         'DONE: Create new if not found any
         If Battlefield Is Nothing Then
             Dim Map As UInteger = Battlegrounds(MapType).Map
-            If WS.BattlefieldCheck(Map) Then
+            If WorldServer.BattlefieldCheck(Map) Then
                 Battlefield = New Battlefield(MapType, Level, Map)
             Else
                 Return Nothing

@@ -270,7 +270,7 @@ Public Module WorldCluster
 #End If
         InitializeInternalDatabase()
         IntializePacketHandlers()
-        WS = New WorldServerClass
+        WorldServer = New WorldServerClass
         GC.Collect()
 
         Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High
@@ -287,7 +287,7 @@ Public Module WorldCluster
         Dim tmp As String = "", CommandList() As String, cmds() As String
         Dim cmd() As String = {}
         Dim varList As Integer
-        While Not WS.m_flagStopListen
+        While Not WorldServer.m_flagStopListen
             Try
                 tmp = Log.ReadLine()
                 CommandList = tmp.Split(";")
@@ -300,7 +300,7 @@ Public Module WorldCluster
                         Select Case cmds(0).ToLower
                             Case "quit", "shutdown", "off", "kill", "/quit", "/shutdown", "/off", "/kill"
                                 Log.WriteLine(LogType.WARNING, "Server shutting down...")
-                                WS.m_flagStopListen = True
+                                WorldServer.m_flagStopListen = True
                             Case "createaccount", "/createaccount"
                                 If cmd.Length <> 3 Then
                                     Console.ForegroundColor = System.ConsoleColor.Yellow

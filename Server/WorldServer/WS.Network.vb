@@ -388,11 +388,11 @@ Public Module WS_Network
         Public Sub Send(ByRef data() As Byte)
             SyncLock Me
                 Try
-                    WS.Cluster.ClientSend(Index, data)
+                    WorldServer.Cluster.ClientSend(Index, data)
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
-                    WS.Cluster = Nothing
+                    WorldServer.Cluster = Nothing
                     Me.Delete()
                 End Try
             End SyncLock
@@ -404,12 +404,12 @@ Public Module WS_Network
                     If packet.OpCode = OPCODES.SMSG_UPDATE_OBJECT Then packet.CompressUpdatePacket()
                     packet.UpdateLength()
 
-                    WS.Cluster.ClientSend(Index, packet.Data)
+                    WorldServer.Cluster.ClientSend(Index, packet.Data)
                     packet.Dispose()
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
-                    WS.Cluster = Nothing
+                    WorldServer.Cluster = Nothing
                     Me.Delete()
                 End Try
             End SyncLock
@@ -422,12 +422,12 @@ Public Module WS_Network
                     packet.UpdateLength()
 
                     Dim data() As Byte = packet.Data.Clone
-                    WS.Cluster.ClientSend(Index, data)
+                    WorldServer.Cluster.ClientSend(Index, data)
 
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
-                    WS.Cluster = Nothing
+                    WorldServer.Cluster = Nothing
                     Me.Delete()
                 End Try
             End SyncLock
@@ -436,7 +436,7 @@ Public Module WS_Network
         Private Sub Dispose() Implements System.IDisposable.Dispose
             Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
 
-            WS.Cluster.ClientDrop(Index)
+            WorldServer.Cluster.ClientDrop(Index)
             CLIENTs.Remove(Index)
             If Not Me.Character Is Nothing Then
                 Me.Character.Client = Nothing
