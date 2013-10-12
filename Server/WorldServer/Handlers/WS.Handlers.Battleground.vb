@@ -21,7 +21,7 @@ Imports mangosVB.Common.BaseWriter
 Public Module WS_Handlers_Battleground
 
 
-    
+
 
     Public Sub On_CMSG_BATTLEMASTER_HELLO(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
@@ -51,7 +51,7 @@ Public Module WS_Handlers_Battleground
             response.AddInt8(5)     'Unk
             response.AddInt32(0)    'Unk
         Else
-            Dim Battlegrounds As List(Of Integer) = WS.Cluster.BattlefieldList(BGType)
+            Dim Battlegrounds As List(Of Integer) = WorldServer.Cluster.BattlefieldList(BGType)
             response.AddInt8(0)                     'Unk
             response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
 

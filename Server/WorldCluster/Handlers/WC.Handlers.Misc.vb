@@ -79,7 +79,7 @@ Public Module WC_Handlers_Misc
             Try
                 Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
             Catch
-                WS.Disconnect("NULL", New Integer() {Client.Character.Map})
+                WorldServer.Disconnect("NULL", New Integer() {Client.Character.Map})
             End Try
         End If
     End Sub
@@ -94,7 +94,7 @@ Public Module WC_Handlers_Misc
         Try
             Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
         Catch
-            WS.Disconnect("NULL", New Integer() {Client.Character.Map})
+            WorldServer.Disconnect("NULL", New Integer() {Client.Character.Map})
             Exit Sub
         End Try
 
@@ -116,7 +116,7 @@ Public Module WC_Handlers_Misc
             Try
                 Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
             Catch
-                WS.Disconnect("NULL", New Integer() {Client.Character.Map})
+                WorldServer.Disconnect("NULL", New Integer() {Client.Character.Map})
             End Try
         Else
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_TRADE", Client.IP, Client.Port)

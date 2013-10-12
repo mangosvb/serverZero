@@ -33,7 +33,7 @@ Public Module WC_Network
 #Region "WS.Sockets"
 
 
-    Public WS As WorldServerClass
+    Public WorldServer As WorldServerClass
     Public Authenticator As Authenticator
 
     Class WorldServerClass
@@ -326,7 +326,7 @@ Public Module WC_Network
 
 
         Public Function InstanceCheck(ByVal Client As ClientClass, ByVal MapID As UInteger) As Boolean
-            If (Not WS.Worlds.ContainsKey(MapID)) Then
+            If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
                 'We don't create new continents
                 If IsContinentMap(MapID) Then
                     Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested instance map [{1}] is a continent", Client.Index, MapID)
@@ -344,18 +344,18 @@ Public Module WC_Network
                 Dim ParentMapInfo As WorldInfo = Nothing
 
                 'Check if we got parent map
-                If WS.Worlds.ContainsKey(Maps(MapID).ParentMap) AndAlso WS.Worlds(Maps(MapID).ParentMap).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(Maps(MapID).ParentMap)
-                    ParentMapInfo = WS.WorldsInfo(Maps(MapID).ParentMap)
-                ElseIf WS.Worlds.ContainsKey(0) AndAlso WS.Worlds(0).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(0)
-                    ParentMapInfo = WS.WorldsInfo(0)
-                ElseIf WS.Worlds.ContainsKey(1) AndAlso WS.Worlds(1).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(1)
-                    ParentMapInfo = WS.WorldsInfo(1)
-                ElseIf WS.Worlds.ContainsKey(530) AndAlso WS.Worlds(530).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(530)
-                    ParentMapInfo = WS.WorldsInfo(530)
+                If WorldServer.Worlds.ContainsKey(Maps(MapID).ParentMap) AndAlso WorldServer.Worlds(Maps(MapID).ParentMap).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(Maps(MapID).ParentMap)
+                    ParentMapInfo = WorldServer.WorldsInfo(Maps(MapID).ParentMap)
+                ElseIf WorldServer.Worlds.ContainsKey(0) AndAlso WorldServer.Worlds(0).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(0)
+                    ParentMapInfo = WorldServer.WorldsInfo(0)
+                ElseIf WorldServer.Worlds.ContainsKey(1) AndAlso WorldServer.Worlds(1).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(1)
+                    ParentMapInfo = WorldServer.WorldsInfo(1)
+                ElseIf WorldServer.Worlds.ContainsKey(530) AndAlso WorldServer.Worlds(530).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(530)
+                    ParentMapInfo = WorldServer.WorldsInfo(530)
                 End If
 
                 If ParentMap Is Nothing Then
@@ -370,8 +370,8 @@ Public Module WC_Network
                 End If
 
                 ParentMap.InstanceCreate(MapID)
-                WS.Worlds.Add(MapID, ParentMap)
-                WS.WorldsInfo.Add(MapID, ParentMapInfo)
+                WorldServer.Worlds.Add(MapID, ParentMap)
+                WorldServer.WorldsInfo.Add(MapID, ParentMapInfo)
                 Return True
             Else
                 Return True
@@ -380,25 +380,25 @@ Public Module WC_Network
         End Function
         Public Function BattlefieldCheck(ByVal MapID As UInteger) As Boolean
             'Create map
-            If (Not WS.Worlds.ContainsKey(MapID)) Then
+            If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
 
                 Log.WriteLine(LogType.INFORMATION, "[SERVER] Requesting battlefield map [{0}]", MapID)
                 Dim ParentMap As IWorld = Nothing
                 Dim ParentMapInfo As WorldInfo = Nothing
 
                 'Check if we got parent map
-                If WS.Worlds.ContainsKey(Maps(MapID).ParentMap) AndAlso WS.Worlds(Maps(MapID).ParentMap).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(Maps(MapID).ParentMap)
-                    ParentMapInfo = WS.WorldsInfo(Maps(MapID).ParentMap)
-                ElseIf WS.Worlds.ContainsKey(0) AndAlso WS.Worlds(0).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(0)
-                    ParentMapInfo = WS.WorldsInfo(0)
-                ElseIf WS.Worlds.ContainsKey(1) AndAlso WS.Worlds(1).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(1)
-                    ParentMapInfo = WS.WorldsInfo(1)
-                ElseIf WS.Worlds.ContainsKey(530) AndAlso WS.Worlds(530).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WS.Worlds(530)
-                    ParentMapInfo = WS.WorldsInfo(530)
+                If WorldServer.Worlds.ContainsKey(Maps(MapID).ParentMap) AndAlso WorldServer.Worlds(Maps(MapID).ParentMap).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(Maps(MapID).ParentMap)
+                    ParentMapInfo = WorldServer.WorldsInfo(Maps(MapID).ParentMap)
+                ElseIf WorldServer.Worlds.ContainsKey(0) AndAlso WorldServer.Worlds(0).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(0)
+                    ParentMapInfo = WorldServer.WorldsInfo(0)
+                ElseIf WorldServer.Worlds.ContainsKey(1) AndAlso WorldServer.Worlds(1).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(1)
+                    ParentMapInfo = WorldServer.WorldsInfo(1)
+                ElseIf WorldServer.Worlds.ContainsKey(530) AndAlso WorldServer.Worlds(530).InstanceCanCreate(Maps(MapID).Type) Then
+                    ParentMap = WorldServer.Worlds(530)
+                    ParentMapInfo = WorldServer.WorldsInfo(530)
                 End If
 
                 If ParentMap Is Nothing Then
@@ -407,8 +407,8 @@ Public Module WC_Network
                 End If
 
                 ParentMap.InstanceCreate(MapID)
-                WS.Worlds.Add(MapID, ParentMap)
-                WS.WorldsInfo.Add(MapID, ParentMapInfo)
+                WorldServer.Worlds.Add(MapID, ParentMap)
+                WorldServer.WorldsInfo.Add(MapID, ParentMapInfo)
                 Return True
             Else
                 Return True
@@ -441,7 +441,7 @@ Public Module WC_Network
                     CLIENTs(ID).Character.GetWorld.GroupUpdate(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.Type, CLIENTs(ID).Character.Group.GetLeader.GUID, CLIENTs(ID).Character.Group.GetMembers)
                     CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.GUID)
                 Catch
-                    WS.Disconnect("NULL", New Integer() {CLIENTs(ID).Character.Map})
+                    WorldServer.Disconnect("NULL", New Integer() {CLIENTs(ID).Character.Map})
                 End Try
             End If
         End Sub
@@ -576,7 +576,7 @@ Public Module WC_Network
         End Sub
         Public Sub OnData(ByVal ar As IAsyncResult)
             If Not Socket.Connected Then Return
-            If WS.m_flagStopListen Then Return
+            If WorldServer.m_flagStopListen Then Return
 
             Try
                 SocketBytes = Socket.EndReceive(ar)
@@ -658,7 +658,7 @@ Public Module WC_Network
                         Try
                             Character.GetWorld.ClientPacket(Index, p.Data)
                         Catch
-                            WS.Disconnect("NULL", New Integer() {Character.Map})
+                            WorldServer.Disconnect("NULL", New Integer() {Character.Map})
                         End Try
                     End If
 

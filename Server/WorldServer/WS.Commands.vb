@@ -24,7 +24,7 @@ Imports mangosVB.Common.BaseWriter
 
 #Region "WS.Commands.Attributes"
 <AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)> _
-    Public Class ChatCommandAttribute
+Public Class ChatCommandAttribute
     Inherits System.Attribute
 
     Private Command As String = ""
@@ -394,7 +394,7 @@ Public Module WS_Commands
             c.Save()
             c.CommandResponse(String.Format("Character {0} saved.", c.Name))
         End If
-        
+
         Return True
     End Function
     <ChatCommandAttribute("AddWardenToParty", "This command will add the command bot to you group.", AccessLevel.Developer)> _
@@ -515,7 +515,7 @@ Public Module WS_Commands
         packet.AddInt8(0)
 
         packet.UpdateLength()
-        WS.Cluster.Broadcast(packet.Data)
+        WorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
         Return True
     End Function
@@ -539,7 +539,7 @@ Public Module WS_Commands
         packet.AddString(Text)
 
         packet.UpdateLength()
-        WS.Cluster.Broadcast(packet.Data)
+        WorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
 
         Return True
@@ -553,7 +553,7 @@ Public Module WS_Commands
         packet.AddString(Text)
 
         packet.UpdateLength()
-        WS.Cluster.Broadcast(packet.Data)
+        WorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
 
         Return True
@@ -863,7 +863,7 @@ Public Module WS_Commands
     End Function
 
     <ChatCommandAttribute("StartCheck", "STARTCHECK - Initialize Warden anti-cheat engine for selected character.", AccessLevel.Developer)> _
-   Public Function cmdStartCheck(ByRef c As CharacterObject, ByVal Message As String) As Boolean
+    Public Function cmdStartCheck(ByRef c As CharacterObject, ByVal Message As String) As Boolean
 #If WARDEN Then
         If c.TargetGUID <> 0 AndAlso GuidIsPlayer(c.TargetGUID) AndAlso CHARACTERs.ContainsKey(c.TargetGUID) Then
             MaievInit(CHARACTERs(c.TargetGUID))
@@ -877,7 +877,7 @@ Public Module WS_Commands
         Return True
     End Function
     <ChatCommandAttribute("SendCheck", "SENDCHECK - Sends a Warden anti-cheat check packet to the selected character.", AccessLevel.Developer)> _
-   Public Function cmdSendCheck(ByRef c As CharacterObject, ByVal Message As String) As Boolean
+    Public Function cmdSendCheck(ByRef c As CharacterObject, ByVal Message As String) As Boolean
 #If WARDEN Then
         If c.TargetGUID <> 0 AndAlso GuidIsPlayer(c.TargetGUID) AndAlso CHARACTERs.ContainsKey(c.TargetGUID) Then
             MaievSendCheck(CHARACTERs(c.TargetGUID))
@@ -2131,7 +2131,7 @@ Public Module WS_Commands
         Dim packet As PacketClass = BuildChatMessage(0, "System Message: " & Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
 
         packet.UpdateLength()
-        WS.Cluster.Broadcast(packet.Data)
+        WorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
     End Sub
     Public Function SetUpdateValue(ByVal GUID As ULong, ByVal Index As Integer, ByVal Value As Integer, ByVal Client As ClientClass) As Boolean

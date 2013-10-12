@@ -89,7 +89,7 @@ Public Module WC_Group
             Next
             packet.Dispose()
 
-            WS.GroupSendUpdate(ID)
+            WorldServer.GroupSendUpdate(ID)
             GROUPs.Remove(ID)
         End Sub
 
@@ -103,7 +103,7 @@ Public Module WC_Group
                 End If
             Next
 
-            WS.GroupSendUpdate(ID)
+            WorldServer.GroupSendUpdate(ID)
 
             c.GetWorld.ClientSetGroup(c.Client.Index, ID)
 
@@ -139,7 +139,7 @@ Public Module WC_Group
                 End If
             Next
 
-            WS.GroupSendUpdate(ID)
+            WorldServer.GroupSendUpdate(ID)
 
             c.GetWorld.ClientSetGroup(c.Client.Index, -1)
 
@@ -174,7 +174,7 @@ Public Module WC_Group
                 Broadcast(response)
                 response.Dispose()
 
-                WS.GroupSendUpdate(ID)
+                WorldServer.GroupSendUpdate(ID)
             End If
         End Sub
 
@@ -210,7 +210,7 @@ Public Module WC_Group
             Broadcast(packet)
             packet.Dispose()
 
-            WS.GroupSendUpdate(ID)
+            WorldServer.GroupSendUpdate(ID)
 
             SendGroupList()
         End Sub

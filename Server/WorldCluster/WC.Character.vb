@@ -103,7 +103,7 @@ Public Module WC_Character
 
         Public ReadOnly Property GetWorld() As IWorld
             Get
-                Return WS.Worlds(Map)
+                Return WorldServer.Worlds(Map)
             End Get
         End Property
 
@@ -207,7 +207,7 @@ Public Module WC_Character
                                           Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), map, GUID))
 
             'Do global transfer
-            WS.ClientTransfer(Client.Index, posX, posY, posZ, ori, map)
+            WorldServer.ClientTransfer(Client.Index, posX, posY, posZ, ori, map)
         End Sub
 
 

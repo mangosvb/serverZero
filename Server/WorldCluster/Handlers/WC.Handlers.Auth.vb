@@ -564,12 +564,12 @@ Public Module WC_Handlers_Auth
 
         'Try to pass the packet to one of World Servers
         Try
-            If WS.Worlds.ContainsKey(0) Then
-                result = WS.Worlds(0).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
-            ElseIf WS.Worlds.ContainsKey(1) Then
-                result = WS.Worlds(1).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
-            ElseIf WS.Worlds.ContainsKey(530) Then
-                result = WS.Worlds(530).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
+            If WorldServer.Worlds.ContainsKey(0) Then
+                result = WorldServer.Worlds(0).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
+            ElseIf WorldServer.Worlds.ContainsKey(1) Then
+                result = WorldServer.Worlds(1).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
+            ElseIf WorldServer.Worlds.ContainsKey(530) Then
+                result = WorldServer.Worlds(530).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
             End If
         Catch ex As Exception
             result = AuthResponseCodes.CHAR_CREATE_ERROR
@@ -600,7 +600,7 @@ Public Module WC_Handlers_Auth
             End If
 
 
-            If WS.InstanceCheck(Client, Client.Character.Map) Then
+            If WorldServer.InstanceCheck(Client, Client.Character.Map) Then
                 Client.Character.GetWorld.ClientConnect(Client.Index, Client.GetClientInfo)
                 Client.Character.IsInWorld = True
                 Client.Character.GetWorld.ClientLogin(Client.Index, Client.Character.GUID)
@@ -645,7 +645,7 @@ Public Module WC_Handlers_Auth
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MOVE_WORLDPORT_ACK", Client.IP, Client.Port)
 
         Try
-            If Not WS.InstanceCheck(Client, Client.Character.Map) Then Exit Sub
+            If Not WorldServer.InstanceCheck(Client, Client.Character.Map) Then Exit Sub
 
 
             If Client.Character.IsInWorld Then

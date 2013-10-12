@@ -73,7 +73,7 @@ Public Module WS_Main
     Public AI As ScriptedObject
     'Public CharacterCreation As ScriptedObject
 
-    Public WS As WorldServerClass
+    Public WorldServer As WorldServerClass
 
     Public Const SERVERSEED As Integer = &HDE133700
 
@@ -330,7 +330,7 @@ Public Module WS_Main
         Maiev.InitWarden()
 #End If
 
-        WS = New WorldServerClass
+        WorldServer = New WorldServerClass
         GC.Collect()
 
         If Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High Then
@@ -353,7 +353,7 @@ Public Module WS_Main
         Dim tmp As String = "", CommandList() As String, cmds() As String
         Dim cmd() As String = {}
         Dim varList As Integer
-        While Not WS._flagStopListen
+        While Not WorldServer._flagStopListen
             Try
                 tmp = Log.ReadLine()
                 CommandList = tmp.Split(";")
@@ -366,7 +366,7 @@ Public Module WS_Main
                         Select Case cmds(0).ToLower
                             Case "quit", "shutdown", "off", "kill", "/quit", "/shutdown", "/off", "/kill"
                                 Log.WriteLine(LogType.WARNING, "Server shutting down...")
-                                WS._flagStopListen = True
+                                WorldServer._flagStopListen = True
                             Case "debug", "/debug"
                                 Dim conn As New ClientClass
                                 conn.DEBUG_CONNECTION = True

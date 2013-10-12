@@ -254,7 +254,7 @@ Public Module WC_Handlers_Group
             Client.Character.Group.ConvertToRaid()
             Client.Character.Group.SendGroupList()
 
-            WS.GroupSendUpdate(Client.Character.Group.ID)
+            WorldServer.GroupSendUpdate(Client.Character.Group.ID)
         End If
     End Sub
     Public Sub On_CMSG_GROUP_CHANGE_SUB_GROUP(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -343,7 +343,7 @@ Public Module WC_Handlers_Group
         Client.Character.Group.LootThreshold = Threshold
         Client.Character.Group.SendGroupList()
 
-        WS.GroupSendUpdateLoot(Client.Character.Group.ID)
+        WorldServer.GroupSendUpdateLoot(Client.Character.Group.ID)
     End Sub
 
     Public Sub On_MSG_MINIMAP_PING(ByRef packet As PacketClass, ByRef Client As ClientClass)

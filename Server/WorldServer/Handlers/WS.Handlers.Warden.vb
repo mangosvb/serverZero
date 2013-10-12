@@ -97,7 +97,7 @@ Public Module WS_Handlers_Warden
     End Sub
 
     Public Sub MaievInit(ByRef c As CharacterObject)
-        Dim k As Byte() = WS.Cluster.ClientGetCryptKey(c.Client.Index)
+        Dim k As Byte() = WorldServer.Cluster.ClientGetCryptKey(c.Client.Index)
         Dim m As New MaievData(k)
         Dim seedOut As Byte() = m.GetBytes(16)
         Dim seedIn As Byte() = m.GetBytes(16)
