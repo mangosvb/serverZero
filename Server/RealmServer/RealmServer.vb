@@ -32,23 +32,9 @@ Public Module RS_Main
 
     Dim WorldServer_STATUS() As String = {"ONLINE/G", "ONLINE/R", "OFFLINE "}
     Public ConsoleColor As New ConsoleColor
-
-
-    '1.10.2 - 5302
-    '1.11.0 - 5428
-    '1.11.2 - 5464
-    '1.12.0 - 5595
     '1.12.1 - 5875
     '1.12.2 - 6005
-    '2.00.1 - 6180
-    '2.00.3 - 6299
-    '2.00.4 - 6314
-    '2.00.5 - 6320
-    '2.00.6 - 6337
-    '2.00.7 - 6383
-    '2.00.8 - 6403
-    '2.00.10 - 6448
-    '2.00.12 - 6546
+
     Const REQUIRED_VERSION_1 As Integer = 1
     Const REQUIRED_VERSION_2 As Integer = 12
     Const REQUIRED_VERSION_3 As Integer = 1
@@ -569,14 +555,14 @@ Public Module RS_Main
         Dim result As DataTable = Nothing
         If Client.Access < AccessLevel.GameMaster Then
             'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
-            AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE gmonly = '0';"), result)
+            AccountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE security = '0';"), result)
         Else
             'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
-            AccountDatabase.Query([String].Format("SELECT * FROM realms;"), result)
+            AccountDatabase.Query([String].Format("SELECT * FROM realmlist;"), result)
         End If
 
         For Each Row As System.Data.DataRow In result.Rows
-            packet_len = packet_len + Len(Row.Item("ws_host")) + Len(Row.Item("ws_name")) + 1 + Len(Format(Row.Item("ws_port"), "0")) + 14
+            packet_len = packet_len + Len(Row.Item("address")) + Len(Row.Item("name")) + 1 + Len(Format(Row.Item("port"), "0")) + 14
         Next
 
         Dim tmp As Integer = 8
@@ -601,7 +587,7 @@ Public Module RS_Main
         For Each Host As System.Data.DataRow In result.Rows
             '(uint8) Realm Icon
             '	0 -> Normal; 1 -> PvP; 6 -> RP; 8 -> RPPvP;
-            Converter.ToBytes(CType(Host.Item("ws_type"), Byte), data_response, tmp)
+            Converter.ToBytes(CType(Host.Item("icon"), Byte), data_response, tmp)
             '(uint8) IsLocked
             '	0 -> none; 1 -> locked
             Converter.ToBytes(CType(0, Byte), data_response, tmp)
@@ -611,12 +597,12 @@ Public Module RS_Main
             Converter.ToBytes(CType(0, Byte), data_response, tmp)
             '(uint8) Realm Color 
             '   0 -> Green; 1 -> Red; 2 -> Offline;
-            Converter.ToBytes(CType(Host.Item("ws_status"), Byte), data_response, tmp)
+            Converter.ToBytes(CType(Host.Item("flags"), Byte), data_response, tmp)
             '(string) Realm Name (zero terminated)
-            Converter.ToBytes(CType(Host.Item("ws_name"), String), data_response, tmp)
+            Converter.ToBytes(CType(Host.Item("name"), String), data_response, tmp)
             Converter.ToBytes(CType(0, Byte), data_response, tmp) '\0
             '(string) Realm Address ("ip:port", zero terminated)
-            Converter.ToBytes(CType(Host.Item("ws_host") & ":" & Host.Item("ws_port"), String), data_response, tmp)
+            Converter.ToBytes(CType(Host.Item("address") & ":" & Host.Item("port"), String), data_response, tmp)
             Converter.ToBytes(CType(0, Byte), data_response, tmp) '\0
             '(float) Population 
             '   400F -> Full; 5F -> Medium; 1.6F -> Low; 200F -> New; 2F -> High
@@ -624,7 +610,7 @@ Public Module RS_Main
             '   00 00 C8 43 -> Full
             '   9C C4 C0 3F -> Low
             '   BC 74 B3 3F -> Low
-            Converter.ToBytes(CType(Host.Item("ws_population"), Single), data_response, tmp)
+            Converter.ToBytes(CType(Host.Item("population"), Single), data_response, tmp)
             '(byte) Number of character at this realm for this account
             Converter.ToBytes(CType(1, Byte), data_response, tmp)
             '(byte) Timezone 
@@ -658,8 +644,7 @@ Public Module RS_Main
             '   0x1C - QA Server
             '   0x1D - CN9
             '   0x1E - Test Server 2
-            '     >  - off the list :)
-            Converter.ToBytes(CType(Host.Item("ws_timezone"), Byte), data_response, tmp)
+            Converter.ToBytes(CType(Host.Item("timezone"), Byte), data_response, tmp)
             '(byte) Unknown (may be 2 -> TestRealm, / 6 -> ?)
             Converter.ToBytes(CType(0, Byte), data_response, tmp)
         Next
@@ -803,7 +788,7 @@ Public Module RS_Main
     Sub WorldServer_Status_Report()
         Dim result1 As DataTable = New DataTable
         Dim ReturnValues As Integer
-        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE gmonly !='1';"), result1)
+        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE security !='1';"), result1)
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -814,7 +799,7 @@ Public Module RS_Main
         End If
 
         Dim result2 As DataTable = New DataTable
-        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly != '1';"), result2)
+        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE flags < 2 && security != '1';"), result2)
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -825,7 +810,7 @@ Public Module RS_Main
         End If
 
         Dim result3 As DataTable = New DataTable
-        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realms WHERE ws_status < 2 && gmonly = '1';"), result3)
+        ReturnValues = AccountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE flags < 2 && security = '1';"), result3)
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -841,11 +826,11 @@ Public Module RS_Main
 
         Console.ForegroundColor = System.ConsoleColor.DarkGreen
         For Each Row As System.Data.DataRow In result1.Rows
-            Console.WriteLine("           {3} [{1}] at {0}:{2}", Row.Item("ws_host").PadRight(20), Row.Item("ws_name").PadRight(20), Format(Row.Item("ws_port")).PadRight(6), WorldServer_STATUS(Int(Row.Item("ws_status"))).PadRight(10))
+            Console.WriteLine("           {3} [{1}] at {0}:{2}", Row.Item("address").PadRight(20), Row.Item("name").PadRight(20), Format(Row.Item("port")).PadRight(6), WorldServer_STATUS(Int(Row.Item("flags"))).PadRight(10))
         Next
         Console.ForegroundColor = System.ConsoleColor.Yellow
         For Each Row As System.Data.DataRow In result3.Rows
-            Console.WriteLine("           {3} [{1}] at {0}           :{2}", Row.Item("ws_host").PadRight(6), Row.Item("ws_name").PadRight(20), Format(Row.Item("ws_port")), WorldServer_STATUS(Int("3")).PadRight(10))
+            Console.WriteLine("           {3} [{1}] at {0}           :{2}", Row.Item("address").PadRight(6), Row.Item("name").PadRight(20), Format(Row.Item("port")), WorldServer_STATUS(Int("3")).PadRight(10))
         Next
         Console.ForegroundColor = System.ConsoleColor.Gray
     End Sub
