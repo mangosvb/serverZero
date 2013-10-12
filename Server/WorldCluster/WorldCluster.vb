@@ -51,23 +51,31 @@ Public Module WorldCluster
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="WorldCluster")> _
     Public Class XMLConfigFile
-        <XmlElement(ElementName:="WCPort")> Public WCPort As Integer = 8085
-        <XmlElement(ElementName:="WCHost")> Public WCHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="ServerLimit")> Public ServerLimit As Integer = 10
-        <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = mangosVB.Common.BaseWriter.LogType.NETWORK
-        <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
+        <XmlElement(ElementName:="WorldClusterPort")> Public WorldClusterPort As Integer = 8085
+        <XmlElement(ElementName:="WorldClusterAddress")> Public WorldClusterAddress As String = "127.0.0.1"
+        <XmlElement(ElementName:="ServerPlayerLimit")> Public ServerPlayerLimit As Integer = 10
+
+        'Database Settings
         <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
         <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
         <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
+
+        'Cluster Settings
         <XmlElement(ElementName:="ClusterPassword")> Public ClusterPassword As String = ""
-        <XmlElement(ElementName:="ClusterListenMethod")> Public ClusterMethod As String = "tcp"
-        <XmlElement(ElementName:="ClusterListenHost")> Public ClusterHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="ClusterListenPort")> Public ClusterPort As Integer = 50001
+        <XmlElement(ElementName:="ClusterListenMethod")> Public ClusterListenMethod As String = "tcp"
+        <XmlElement(ElementName:="ClusterListenAddress")> Public ClusterListenAddress As String = "127.0.0.1"
+        <XmlElement(ElementName:="ClusterListenPort")> Public ClusterListenPort As Integer = 50001
         <XmlArray(ElementName:="ClusterFirewall"), XmlArrayItem(GetType(String), ElementName:="IP")> Public Firewall As New ArrayList
+
+        'Stats Settings
         <XmlElement(ElementName:="StatsEnabled")> Public StatsEnabled As Boolean = True
         <XmlElement(ElementName:="StatsTimer")> Public StatsTimer As Integer = 120000
         <XmlElement(ElementName:="StatsLocation")> Public StatsLocation As String = "stats.xml"
+
+        'Logging Settings
+        <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = mangosVB.Common.BaseWriter.LogType.NETWORK
+        <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
         <XmlElement(ElementName:="PacketLogging")> Public PacketLogging As Boolean = False
         <XmlElement(ElementName:="GMLogging")> Public GMLogging As Boolean = False
     End Class

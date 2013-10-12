@@ -128,7 +128,7 @@ Public Module WC_Handlers_Auth
         'Next
 
         'DONE: If server full then queue, If GM/Admin let in
-        If CLIENTs.Count > Config.ServerLimit And Client.Access <= AccessLevel.Player Then
+        If CLIENTs.Count > Config.ServerPlayerLimit And Client.Access <= AccessLevel.Player Then
             ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf Client.EnQueue))
         Else
             SendLoginOK(Client)
