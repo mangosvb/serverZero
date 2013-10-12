@@ -418,7 +418,9 @@ Public Module RS_Main
                     Next
 
                     Client.Language = ClientLanguage
-                    Client.Expansion = result.Rows(0).Item("expansion")
+                    ' Set Client Expansion Level to Normal 0 for now.
+                    ' Since this is Classic Wow and there are no expansions.
+                    Client.Expansion = ExpansionLevel.NORMAL
                     Try
                         Client.AuthEngine = New AuthEngineClass
                     Catch ex As Exception
