@@ -54,18 +54,18 @@ Public Module WC_Network
             Try
 
                 m_Socket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                m_Socket.Bind(New IPEndPoint(Net.IPAddress.Parse(Config.WCHost), Config.WCPort))
+                m_Socket.Bind(New IPEndPoint(Net.IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort))
                 m_Socket.Listen(5)
                 m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-                Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", Net.IPAddress.Parse(Config.WCHost), Config.WCPort)
+                Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", Net.IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
 
                 'Create Remoting Channel
-                Select Case Config.ClusterMethod
+                Select Case Config.ClusterListenMethod
                     Case "ipc"
-                        m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.ClusterHost, Config.ClusterPort))
+                        m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.ClusterListenAddress, Config.ClusterListenPort))
                     Case "tcp"
-                        m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.ClusterPort)
+                        m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.ClusterListenPort)
                 End Select
                 Channels.ChannelServices.RegisterChannel(m_RemoteChannel, False)
 
@@ -76,7 +76,7 @@ Public Module WC_Network
                 Authenticator = New Authenticator(Me, Config.ClusterPassword)
 
                 RemotingServices.Marshal(CType(Authenticator, Authenticator), "Cluster.rem")
-                Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", Config.ClusterMethod, Config.ClusterHost, Config.ClusterPort)
+                Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", Config.ClusterListenMethod, Config.ClusterListenAddress, Config.ClusterListenPort)
 
                 'Creating ping timer
                 m_TimerPing = New Timer(AddressOf Ping, Nothing, 0, 15000)
@@ -779,15 +779,15 @@ Public Module WC_Network
         End Sub
 
         Public Sub EnQueue(ByVal state As Object)
-            While CHARACTERS.Count > Config.ServerLimit
+            While CHARACTERs.Count > Config.ServerPlayerLimit
                 If Not Me.Socket.Connected Then Exit Sub
 
                 Dim response_full As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
                 response_full.AddInt8(AuthResponseCodes.AUTH_WAIT_QUEUE)
-                response_full.AddInt32(CLIENTs.Count - CHARACTERS.Count)            'amount of players in queue
+                response_full.AddInt32(CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
                 Me.Send(response_full)
 
-                Log.WriteLine(LogType.INFORMATION, "[{1}:{2}] AUTH_WAIT_QUEUE: Server limit reached!", Me.IP, Me.Port)
+                Log.WriteLine(LogType.INFORMATION, "[{1}:{2}] AUTH_WAIT_QUEUE: Server player limit reached!", Me.IP, Me.Port)
                 Thread.Sleep(6000)
             End While
             SendLoginOK(Me)

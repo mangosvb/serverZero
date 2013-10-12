@@ -82,8 +82,14 @@ Public Module WS_Main
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="WorldServer")> _
     Public Class XMLConfigFile
+        'Database Settings
+        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
+        <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
+        <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
+
+        'Server Settings
+        <XmlElement(ElementName:="ServerPlayerLimit")> Public ServerPlayerLimit As Integer = 10
         <XmlElement(ElementName:="CommandCharacter")> Public CommandCharacter As String = "."
-        <XmlElement(ElementName:="ServerLimit")> Public ServerLimit As Integer = 10
         <XmlElement(ElementName:="XPRate")> Public XPRate As Single = 1.0
         <XmlElement(ElementName:="ManaRegenerationRate")> Public ManaRegenerationRate As Single = 1.0
         <XmlElement(ElementName:="HealthRegenerationRate")> Public HealthRegenerationRate As Single = 1.0
@@ -91,28 +97,33 @@ Public Module WS_Main
         <XmlElement(ElementName:="SaveTimer")> Public SaveTimer As Integer = 120000
         <XmlElement(ElementName:="WeatherTimer")> Public WeatherTimer As Integer = 600000
         <XmlElement(ElementName:="MapResolution")> Public MapResolution As Integer = 64
+        <XmlArray(ElementName:="HandledMaps"), XmlArrayItem(GetType(String), ElementName:="Map")> Public Maps As New ArrayList
+
+        'VMap Settings
         <XmlElement(ElementName:="VMaps")> Public VMapsEnabled As Boolean = False
         <XmlElement(ElementName:="VMapLineOfSightCalc")> Public LineOfSightEnabled As Boolean = False
         <XmlElement(ElementName:="VMapHeightCalc")> Public HeightCalcEnabled As Boolean = False
+
+        'Logging Settings
         <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
         <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = mangosVB.Common.BaseWriter.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
-        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-        <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-        <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
+
+        'Other Settings
         <XmlArray(ElementName:="ScriptsCompiler"), XmlArrayItem(GetType(String), ElementName:="Include")> Public CompilerInclude As New ArrayList
-        <XmlArray(ElementName:="HandledMaps"), XmlArrayItem(GetType(String), ElementName:="Map")> Public Maps As New ArrayList
         <XmlElement(ElementName:="CreatePartyInstances")> Public CreatePartyInstances As Boolean = False
         <XmlElement(ElementName:="CreateRaidInstances")> Public CreateRaidInstances As Boolean = False
         <XmlElement(ElementName:="CreateBattlegrounds")> Public CreateBattlegrounds As Boolean = False
         <XmlElement(ElementName:="CreateArenas")> Public CreateArenas As Boolean = False
         <XmlElement(ElementName:="CreateOther")> Public CreateOther As Boolean = False
+
+        'Cluster Settings
         <XmlElement(ElementName:="ClusterPassword")> Public ClusterPassword As String = ""
-        <XmlElement(ElementName:="ClusterConnectMethod")> Public ClusterMethod As String = "tcp"
-        <XmlElement(ElementName:="ClusterConnectHost")> Public ClusterHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="ClusterConnectPort")> Public ClusterPort As Integer = 50001
-        <XmlElement(ElementName:="LocalConnectHost")> Public LocalHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="LocalConnectPort")> Public LocalPort As Integer = 50002
+        <XmlElement(ElementName:="ClusterConnectMethod")> Public ClusterConnectMethod As String = "tcp"
+        <XmlElement(ElementName:="ClusterConnectHost")> Public ClusterConnectHost As String = "127.0.0.1"
+        <XmlElement(ElementName:="ClusterConnectPort")> Public ClusterConnectPort As Integer = 50001
+        <XmlElement(ElementName:="LocalConnectHost")> Public LocalConnectHost As String = "127.0.0.1"
+        <XmlElement(ElementName:="LocalConnectPort")> Public LocalConnectPort As Integer = 50002
     End Class
 
     Public Sub LoadConfig()
