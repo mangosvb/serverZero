@@ -3,7 +3,6 @@ Imports System.Collections.Generic
 
 Public Enum ExpansionLevel As Byte
     NORMAL = 0          'WoW
-    'EXPANSION_1 = 1     'WoW: Burning Crusade
 End Enum
 
 Public Enum AccessLevel As Byte

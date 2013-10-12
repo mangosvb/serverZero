@@ -417,7 +417,6 @@ Public Module RS_Main
                     Next
 
                     Client.Language = ClientLanguage
-                    Client.Expansion = result.Rows(0).Item("expansion")
                     Try
                         Client.AuthEngine = New AuthEngineClass
                     Catch ex As Exception
