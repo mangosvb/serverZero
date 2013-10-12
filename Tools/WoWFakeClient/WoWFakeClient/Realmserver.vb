@@ -34,9 +34,9 @@ Module Realmserver
     Public Account As String = "test"
     Public Password As String = "test"
     Public VersionA As Byte = 1
-    Public VersionB As Byte = 11
-    Public VersionC As Byte = 2
-    Public Revision As UShort = 5464
+    Public VersionB As Byte = 12
+    Public VersionC As Byte = 1
+    Public Revision As UShort = 5875 ' 5875 = 1.12.1, 6005 = 1.12.2, 6141 = 1.12.3
 
     Public RealmIP As String = "127.0.0.1"
     Public RealmPort As Integer = 3724
@@ -205,6 +205,7 @@ Module Realmserver
                         LogonProof.AddByteArray(PublicA)
                         LogonProof.AddByteArray(M1)
                         LogonProof.AddByteArray(CrcHash)
+                        LogonProof.AddInt8(0) ' Added in 1.12.x client branch? Security Flags (&H0...&H4)?
                         SendR(LogonProof)
                         LogonProof.Dispose()
                     Case 4, 5 'Bad user
