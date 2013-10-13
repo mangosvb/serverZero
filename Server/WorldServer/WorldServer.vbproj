@@ -153,9 +153,9 @@
     <Compile Include="AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Gossip\WS.Guard.Gossip.vb" />
     <Compile Include="Global.BigInteger.vb" />
     <Compile Include="Global.Constants.vb" />
+    <Compile Include="Gossip\WS.GuardGossip.vb" />
     <Compile Include="Handlers\WS.Handlers.Warden.vb" />
     <Compile Include="Objects\WS.Transports.vb" />
     <Compile Include="Revision.vb" />

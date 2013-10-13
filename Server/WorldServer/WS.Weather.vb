@@ -211,15 +211,15 @@ Public Module WS_Weather
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", vbNewLine, ex.ToString)
                 Finally
                     CHARACTERs_Lock.ReleaseReaderLock()
                 End Try
 
             Catch ex As ApplicationException
-                Log.WriteLine(LogType.WARNING, "Update: AI Manager timed out")
+                Log.WriteLine(LogType.WARNING, "Update: Weather Manager timed out")
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", vbNewLine, ex.ToString)
             End Try
 
             SMSG_WEATHER.Dispose()

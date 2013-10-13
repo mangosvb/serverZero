@@ -396,53 +396,89 @@ Public Module RS_Main
                     Dim account(data(33) - 1) As Byte
                     Array.Copy(data, 34, account, 0, data(33))
                     Dim pwHash As String = result.Rows(0).Item("password")
-                    Client.Access = result.Rows(0).Item("plevel")
+                    If pwHash.Length = 40 Then   'Invalid password type, should always be 40 characters
 
-                    Dim Hash() As Byte = New Byte(19) {}
-                    For i = 0 To 39 Step 2
-                        Hash(i \ 2) = CInt("&H" & pwHash.Substring(i, 2))
-                    Next
+                        Client.Access = result.Rows(0).Item("plevel")
 
-                    Client.Language = ClientLanguage
-                    Client.Expansion = ExpansionLevel.NORMAL
-                    Try
-                        Client.AuthEngine = New AuthEngineClass
-                    Catch ex As Exception
+                        Dim Hash() As Byte = New Byte(19) {}
+                        For i = 0 To 39 Step 2
+                            Hash(i \ 2) = CInt("&H" & pwHash.Substring(i, 2))
+                        Next
+
+                        Client.Language = ClientLanguage
+                        ' Set Client Expansion Level to Normal 0 for now.
+                        ' Since this is Classic Wow and there are no expansions.
+                        Client.Expansion = ExpansionLevel.NORMAL
+                        Try
+                            Client.AuthEngine = New AuthEngineClass
+                            Client.AuthEngine.CalculateX(account, Hash)
+
+                            Dim data_response(118) As Byte
+                            data_response(0) = CMD_AUTH_LOGON_CHALLENGE
+                            data_response(1) = AccountState.LOGIN_OK
+                            data_response(2) = Val("&H00")
+                            Array.Copy(Client.AuthEngine.PublicB, 0, data_response, 3, 32)
+                            data_response(35) = Client.AuthEngine.g.Length
+                            data_response(36) = Client.AuthEngine.g(0)
+                            data_response(37) = 32
+                            Array.Copy(Client.AuthEngine.N, 0, data_response, 38, 32)
+                            Array.Copy(Client.AuthEngine.salt, 0, data_response, 70, 32)
+                            Array.Copy(AuthEngineClass.CrcSalt, 0, data_response, 102, 16)
+                            data_response(118) = 0 ' Added in 1.12.x client branch? Security Flags (&H0...&H4)?
+                            Client.Send(data_response)
+                        Catch ex As Exception
+                            Console.ForegroundColor = System.ConsoleColor.Red
+                            Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, vbNewLine, ex)
+                            Console.ForegroundColor = System.ConsoleColor.White
+                        End Try
+                    Else 'Bail out with something meaningful
                         Console.ForegroundColor = System.ConsoleColor.Red
-                        Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, vbNewLine, ex)
+                        Console.WriteLine("[{0}] [{1}:{2}] Not a valid SHA1 password for account: '{3}' SHA1 Hash: '{4}'", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account, pwHash)
                         Console.ForegroundColor = System.ConsoleColor.White
-                    End Try
-                    Client.AuthEngine.CalculateX(account, Hash)
+                        Dim data_response(1) As Byte
+                        data_response(0) = CMD_AUTH_LOGON_PROOF
+                        data_response(1) = AccountState.LOGIN_BAD_PASS
+                        Client.Send(data_response)
+                    End If
 
-                    Dim data_response(118) As Byte
-                    data_response(0) = CMD_AUTH_LOGON_CHALLENGE
-                    data_response(1) = AccountState.LOGIN_OK
-                    data_response(2) = Val("&H00")
-                    Array.Copy(Client.AuthEngine.PublicB, 0, data_response, 3, 32)
-                    data_response(35) = Client.AuthEngine.g.Length
-                    data_response(36) = Client.AuthEngine.g(0)
-                    data_response(37) = 32
-                    Array.Copy(Client.AuthEngine.N, 0, data_response, 38, 32)
-                    Array.Copy(Client.AuthEngine.salt, 0, data_response, 70, 32)
-                    Array.Copy(AuthEngineClass.CrcSalt, 0, data_response, 102, 16)
-                    data_response(118) = 0 ' Added in 1.12.x client branch? Security Flags (&H0...&H4)?
-                    Client.Send(data_response)
                     Exit Sub
                 Case AccountState.LOGIN_UNKNOWN_ACCOUNT
                     Console.WriteLine("[{0}] [{1}:{2}] Account not found [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Dim data_response(1) As Byte
+                    data_response(0) = CMD_AUTH_LOGON_PROOF
+                    data_response(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
+                    Client.Send(data_response)
+                    Exit Sub
                 Case AccountState.LOGIN_BANNED
                     Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Dim data_response(1) As Byte
+                    data_response(0) = CMD_AUTH_LOGON_PROOF
+                    data_response(1) = AccountState.LOGIN_BANNED
+                    Client.Send(data_response)
+                    Exit Sub
                 Case AccountState.LOGIN_NOTIME
                     Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Dim data_response(1) As Byte
+                    data_response(0) = CMD_AUTH_LOGON_PROOF
+                    data_response(1) = AccountState.LOGIN_NOTIME
+                    Client.Send(data_response)
+                    Exit Sub
                 Case AccountState.LOGIN_ALREADYONLINE
                     Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Dim data_response(1) As Byte
+                    data_response(0) = CMD_AUTH_LOGON_PROOF
+                    data_response(1) = AccountState.LOGIN_ALREADYONLINE
+                    Client.Send(data_response)
+                    Exit Sub
                 Case Else
                     Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                    Dim data_response(1) As Byte
+                    data_response(0) = CMD_AUTH_LOGON_PROOF
+                    data_response(1) = AccountState.LOGIN_FAILED
+                    Client.Send(data_response)
+                    Exit Sub
             End Select
-            Dim data_response_error(1) As Byte
-            data_response_error(0) = CMD_AUTH_LOGON_PROOF
-            data_response_error(1) = acc_state
-            Client.Send(data_response_error)
+
 
         Else
             If Dir("Updates/wow-patch-" & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & "-" & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & ".mpq") <> "" Then
