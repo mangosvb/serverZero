@@ -219,7 +219,7 @@ Public Module RS_Main
         Implements IDisposable
 
         Public Socket As Socket
-        Public IP As Net.IPAddress = Net.IPAddress.Parse("0.0.0.0")
+        Public IP As Net.IPAddress = Net.IPAddress.Parse("127.0.0.1")
         Public Port As Int32 = 0
         Public AuthEngine As AuthEngineClass
         Public Account As String = ""
@@ -314,13 +314,13 @@ Public Module RS_Main
 
             Me.Dispose()
         End Sub
-        Public Sub Send(ByVal data() As Byte)
+        Public Sub Send(ByVal data() As Byte, ByVal PacketName As String)
             Try
                 Dim i As Integer = Socket.Send(data, 0, data.Length, SocketFlags.None)
 
 #If DEBUG Then
                 Console.ForegroundColor = System.ConsoleColor.DarkGray
-                Console.WriteLine("[{0}] [{1}:{2}] Data sent, result code={3}", Format(TimeOfDay, "hh:mm:ss"), IP, Port, i)
+                Console.WriteLine("[{0}] [{1}:{2}] ({4}) Data sent, result code={3}", Format(TimeOfDay, "hh:mm:ss"), IP, Port, i, PacketName)
                 Console.ForegroundColor = System.ConsoleColor.Gray
 #End If
             Catch Err As Exception
@@ -425,7 +425,7 @@ Public Module RS_Main
                             Array.Copy(Client.AuthEngine.salt, 0, data_response, 70, 32)
                             Array.Copy(AuthEngineClass.CrcSalt, 0, data_response, 102, 16)
                             data_response(118) = 0 ' Added in 1.12.x client branch? Security Flags (&H0...&H4)?
-                            Client.Send(data_response)
+                            Client.Send(data_response, "RS_LOGON_CHALLENGE")
                         Catch ex As Exception
                             Console.ForegroundColor = System.ConsoleColor.Red
                             Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, vbNewLine, ex)
@@ -438,7 +438,7 @@ Public Module RS_Main
                         Dim data_response(1) As Byte
                         data_response(0) = CMD_AUTH_LOGON_PROOF
                         data_response(1) = AccountState.LOGIN_BAD_PASS
-                        Client.Send(data_response)
+                        Client.Send(data_response, "RS_LOGON_CHALLENGE-FAIL-BADPWFORMAT")
                     End If
 
                     Exit Sub
@@ -447,35 +447,35 @@ Public Module RS_Main
                     Dim data_response(1) As Byte
                     data_response(0) = CMD_AUTH_LOGON_PROOF
                     data_response(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
-                    Client.Send(data_response)
+                    Client.Send(data_response, "RS_LOGON_CHALLENGE-UNKNOWN_ACCOUNT")
                     Exit Sub
                 Case AccountState.LOGIN_BANNED
                     Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                     Dim data_response(1) As Byte
                     data_response(0) = CMD_AUTH_LOGON_PROOF
                     data_response(1) = AccountState.LOGIN_BANNED
-                    Client.Send(data_response)
+                    Client.Send(data_response, "RS_LOGON_CHALLENGE-BANNED")
                     Exit Sub
                 Case AccountState.LOGIN_NOTIME
                     Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                     Dim data_response(1) As Byte
                     data_response(0) = CMD_AUTH_LOGON_PROOF
                     data_response(1) = AccountState.LOGIN_NOTIME
-                    Client.Send(data_response)
+                    Client.Send(data_response, "RS_LOGON_CHALLENGE-NOTIME")
                     Exit Sub
                 Case AccountState.LOGIN_ALREADYONLINE
                     Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                     Dim data_response(1) As Byte
                     data_response(0) = CMD_AUTH_LOGON_PROOF
                     data_response(1) = AccountState.LOGIN_ALREADYONLINE
-                    Client.Send(data_response)
+                    Client.Send(data_response, "RS_LOGON_CHALLENGE-ALREADYONLINE")
                     Exit Sub
                 Case Else
                     Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
                     Dim data_response(1) As Byte
                     data_response(0) = CMD_AUTH_LOGON_PROOF
                     data_response(1) = AccountState.LOGIN_FAILED
-                    Client.Send(data_response)
+                    Client.Send(data_response, "RS_LOGON_CHALLENGE-FAILED")
                     Exit Sub
             End Select
 
@@ -510,7 +510,7 @@ Public Module RS_Main
                 fs.Close()
                 Dim result As Byte() = md5.ComputeHash(buffer)
                 Array.Copy(result, 0, data_response, 15, 16)
-                Client.Send(data_response)
+                Client.Send(data_response, "RS_LOGON_CHALLENGE-CMD-XFER-INITIATE")
             Else
                 'Send BAD_VERSION
                 Console.WriteLine("[{0}] [{1}:{2}] WRONG_VERSION [" & Chr(data(6)) & Chr(data(5)) & Chr(data(4)) & " " & data(8) & "." & data(9) & "." & data(10) & "." & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & " " _
@@ -519,7 +519,7 @@ Public Module RS_Main
                 Dim data_response(1) As Byte
                 data_response(0) = CMD_AUTH_LOGON_PROOF
                 data_response(1) = AccountState.LOGIN_BADVERSION
-                Client.Send(data_response)
+                Client.Send(data_response, "RS_LOGON_CHALLENGE-WRONG-VERSION")
             End If
         End If
     End Sub
@@ -561,7 +561,7 @@ Public Module RS_Main
             data_response(24) = 0
             data_response(25) = 0
 
-            Client.Send(data_response)
+            Client.Send(data_response, "RS_LOGON_PROOF-OK")
             'Set SSHash in DB
             Dim sshash As String = ""
             'For i = 0 To Client.AuthEngine.SS_Hash.Length - 1
@@ -581,7 +581,7 @@ Public Module RS_Main
             Dim data_response(1) As Byte
             data_response(0) = CMD_AUTH_LOGON_PROOF
             data_response(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
-            Client.Send(data_response)
+            Client.Send(data_response, "RS_LOGON_PROOF-WRONGPASS")
         End If
     End Sub
     Public Sub On_RS_REALMLIST(ByRef data() As Byte, ByRef Client As ClientClass)
@@ -688,7 +688,7 @@ Public Module RS_Main
         data_response(tmp) = 2 '2=list of realms 0=wizard
         data_response(tmp + 1) = 0
 
-        Client.Send(data_response)
+        Client.Send(data_response, "RS-REALMLIST")
 
     End Sub
     Public Sub On_CMD_XFER_CANCEL(ByRef data() As Byte, ByRef Client As ClientClass)
@@ -720,21 +720,21 @@ Public Module RS_Main
                 Array.Copy(buffer, file_offset, data_response, 3, MAX_UPDATE_PACKET_SIZE)
                 file_len = file_len - MAX_UPDATE_PACKET_SIZE
                 file_offset = file_offset + MAX_UPDATE_PACKET_SIZE
-                Client.Send(data_response)
+                Client.Send(data_response, "CMD-XFER-ACCEPT-1")
             End While
             tmp = 1
             ReDim data_response(file_len + 2)
             data_response(0) = CMD_XFER_DATA
             Converter.ToBytes(CType(file_len, Short), data_response, tmp)
             Array.Copy(buffer, file_offset, data_response, 3, file_len)
-            Client.Send(data_response)
+            Client.Send(data_response, "CMD-XFER-ACCEPT-2")
         Else
             tmp = 1
             Dim data_response(file_len + 2) As Byte
             data_response(0) = CMD_XFER_DATA
             Converter.ToBytes(CType(file_len, Short), data_response, tmp)
             Array.Copy(buffer, 0, data_response, 3, file_len)
-            Client.Send(data_response)
+            Client.Send(data_response, "CMD-XFER-ACCEPT-3")
         End If
         'Client.Socket.Close()
     End Sub
@@ -768,21 +768,21 @@ Public Module RS_Main
                 Array.Copy(buffer, file_offset, data_response, 3, MAX_UPDATE_PACKET_SIZE)
                 file_len = file_len - MAX_UPDATE_PACKET_SIZE
                 file_offset = file_offset + MAX_UPDATE_PACKET_SIZE
-                Client.Send(data_response)
+                Client.Send(data_response, "XFER-RESUME")
             End While
             tmp = 1
             ReDim data_response(file_len + 2)
             data_response(0) = CMD_XFER_DATA
             Converter.ToBytes(CType(file_len, Short), data_response, tmp)
             Array.Copy(buffer, file_offset, data_response, 3, file_len)
-            Client.Send(data_response)
+            Client.Send(data_response, "XFER-RESUME-XFER-DATALARGER")
         Else
             tmp = 1
             Dim data_response(file_len + 2) As Byte
             data_response(0) = CMD_XFER_DATA
             Converter.ToBytes(CType(file_len, Short), data_response, tmp)
             Array.Copy(buffer, 0, data_response, 3, file_len)
-            Client.Send(data_response)
+            Client.Send(data_response, "XFER-RESUME-XFER-DATA")
         End If
         'Client.Socket.Close()
     End Sub
