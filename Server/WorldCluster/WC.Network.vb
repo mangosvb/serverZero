@@ -353,9 +353,6 @@ Public Module WC_Network
                 ElseIf WorldServer.Worlds.ContainsKey(1) AndAlso WorldServer.Worlds(1).InstanceCanCreate(Maps(MapID).Type) Then
                     ParentMap = WorldServer.Worlds(1)
                     ParentMapInfo = WorldServer.WorldsInfo(1)
-                ElseIf WorldServer.Worlds.ContainsKey(530) AndAlso WorldServer.Worlds(530).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WorldServer.Worlds(530)
-                    ParentMapInfo = WorldServer.WorldsInfo(530)
                 End If
 
                 If ParentMap Is Nothing Then
@@ -396,9 +393,6 @@ Public Module WC_Network
                 ElseIf WorldServer.Worlds.ContainsKey(1) AndAlso WorldServer.Worlds(1).InstanceCanCreate(Maps(MapID).Type) Then
                     ParentMap = WorldServer.Worlds(1)
                     ParentMapInfo = WorldServer.WorldsInfo(1)
-                ElseIf WorldServer.Worlds.ContainsKey(530) AndAlso WorldServer.Worlds(530).InstanceCanCreate(Maps(MapID).Type) Then
-                    ParentMap = WorldServer.Worlds(530)
-                    ParentMapInfo = WorldServer.WorldsInfo(530)
                 End If
 
                 If ParentMap Is Nothing Then

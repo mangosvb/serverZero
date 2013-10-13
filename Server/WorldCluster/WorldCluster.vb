@@ -191,10 +191,6 @@ Public Module WorldCluster
     End Sub
 #End Region
 
-
-
-
-
     <System.MTAThreadAttribute()> _
     Sub Main()
         timeBeginPeriod(1)  'Set timeGetTime to a accuracy of 1ms
