@@ -304,7 +304,7 @@ Public Module Functions
     End Function
     Public Function IsContinentMap(ByVal Map As Integer) As Boolean
         Select Case Map
-            Case 0, 1, 530
+            Case 0, 1
                 Return True
             Case Else
                 Return False
