@@ -53,9 +53,27 @@ Public Module WS_Channels
         Public Muted As New List(Of ULong)
         Public Owner As ULong = 0
 
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            CHAT_CHANNELs.Remove(ChannelName.ToUpper)
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                CHAT_CHANNELs.Remove(ChannelName.ToUpper)
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub New(ByVal Name As String)
             ID = GetNexyChatChannelID()
             ChannelIndex = 0

@@ -66,32 +66,51 @@ Public Module WC_Group
 
             c.GetWorld.ClientSetGroup(c.Client.Index, ID)
         End Sub
-        Public Sub Dispose() Implements IDisposable.Dispose
-            Dim packet As PacketClass
 
-            If Type = GroupType.RAID Then
-                packet = New PacketClass(OPCODES.SMSG_GROUP_LIST)
-                packet.AddInt16(0)          'GroupType 0:Party 1:Raid
-                packet.AddInt32(0)          'GroupCount
-            Else
-                packet = New PacketClass(OPCODES.SMSG_GROUP_DESTROYED)
-            End If
 
-            For i As Byte = 0 To Members.Length - 1
-                If Not Members(i) Is Nothing Then
-                    Members(i).Group = Nothing
-                    If Not Members(i).Client Is Nothing Then
-                        Members(i).Client.SendMultiplyPackets(packet)
-                        Members(i).GetWorld.ClientSetGroup(Members(i).Client.Index, -1)
-                    End If
-                    Members(i) = Nothing
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Dim packet As PacketClass
+
+                If Type = GroupType.RAID Then
+                    packet = New PacketClass(OPCODES.SMSG_GROUP_LIST)
+                    packet.AddInt16(0)          'GroupType 0:Party 1:Raid
+                    packet.AddInt32(0)          'GroupCount
+                Else
+                    packet = New PacketClass(OPCODES.SMSG_GROUP_DESTROYED)
                 End If
-            Next
-            packet.Dispose()
 
-            WorldServer.GroupSendUpdate(ID)
-            GROUPs.Remove(ID)
+                For i As Byte = 0 To Members.Length - 1
+                    If Not Members(i) Is Nothing Then
+                        Members(i).Group = Nothing
+                        If Not Members(i).Client Is Nothing Then
+                            Members(i).Client.SendMultiplyPackets(packet)
+                            Members(i).GetWorld.ClientSetGroup(Members(i).Client.Index, -1)
+                        End If
+                        Members(i) = Nothing
+                    End If
+                Next
+                packet.Dispose()
+
+                WorldServer.GroupSendUpdate(ID)
+                GROUPs.Remove(ID)
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
 
         Public Sub Join(ByRef c As CharacterObject)
             For i As Byte = 0 To Members.Length - 1

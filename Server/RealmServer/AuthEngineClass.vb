@@ -78,8 +78,28 @@ Public Class AuthEngineClass
     Private Shared Function BN_new() As IntPtr
     End Function
 
-    Public Sub Dispose() Implements System.IDisposable.Dispose
+
+#Region "IDisposable Support"
+    Private disposedValue As Boolean ' To detect redundant calls
+
+    ' IDisposable
+    Protected Overridable Sub Dispose(disposing As Boolean)
+        If Not Me.disposedValue Then
+            ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+            ' TODO: set large fields to null.
+            Log.Dispose()
+        End If
+        Me.disposedValue = True
     End Sub
+
+    ' This code added by Visual Basic to correctly implement the disposable pattern.
+    Public Sub Dispose() Implements IDisposable.Dispose
+        ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+        Dispose(True)
+        GC.SuppressFinalize(Me)
+    End Sub
+
+#End Region
 #End Region
 
 #Region "AuthEngine.Calculations"
@@ -282,7 +302,7 @@ Public Class AuthEngineClass
     End Function
 
     <DllImport("LIBEAY32.DLL", CallingConvention:=CallingConvention.Cdecl)> _
-    Public Shared Function RAND_bytes(ByVal buf As Byte(), ByVal num As Integer) As Integer
+    Private Shared Function RAND_bytes(ByVal buf As Byte(), ByVal num As Integer) As Integer
 
     End Function
 

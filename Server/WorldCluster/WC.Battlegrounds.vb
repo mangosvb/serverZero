@@ -46,7 +46,7 @@ Public Module WC_Battlegrounds
         Public MaxPlayersPerTeam As Integer = 10
         Public MinPlayersPerTeam As Integer = 10
 
-        Public Timer As Timer
+        Public bfTimer As Timer
 
         Public Sub New(ByVal rMapType As BattlefieldMapType, ByVal rLevel As Byte, ByVal rMap As UInteger)
             ID = Interlocked.Increment(BATTLEFIELDs_Counter)
@@ -61,13 +61,34 @@ Public Module WC_Battlegrounds
             BATTLEFIELDs.Add(ID, Me)
             BATTLEFIELDs_Lock.ReleaseWriterLock()
 
-            Timer = New Timer(AddressOf Update, Nothing, 20000, 20000)
+            bfTimer = New Timer(AddressOf Update, Nothing, 20000, 20000)
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            BATTLEFIELDs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-            BATTLEFIELDs.Remove(ID)
-            BATTLEFIELDs_Lock.ReleaseWriterLock()
+
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                BATTLEFIELDs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                BATTLEFIELDs.Remove(ID)
+                BATTLEFIELDs_Lock.ReleaseWriterLock()
+                bfTimer.Dispose()
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub Update(ByVal State As Object)
 
             'DONE: Adding members from queue

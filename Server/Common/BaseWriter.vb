@@ -35,8 +35,27 @@ Public Class BaseWriter
 
     Public Sub New()
     End Sub
-    Public Overridable Sub Dispose() Implements System.IDisposable.Dispose
+
+#Region "IDisposable Support"
+    Private disposedValue As Boolean ' To detect redundant calls
+
+    ' IDisposable
+    Protected Overridable Sub Dispose(disposing As Boolean)
+        If Not Me.disposedValue Then
+            ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+            ' TODO: set large fields to null.
+        End If
+        Me.disposedValue = True
     End Sub
+
+    ' This code added by Visual Basic to correctly implement the disposable pattern.
+    Public Sub Dispose() Implements IDisposable.Dispose
+        ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+        Dispose(True)
+        GC.SuppressFinalize(Me)
+    End Sub
+#End Region
+
     Public Overridable Sub Write(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)
     End Sub
     Public Overridable Sub WriteLine(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)

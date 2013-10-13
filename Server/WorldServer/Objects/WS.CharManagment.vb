@@ -464,11 +464,29 @@ Public Module WS_CharManagment
             Character.StartMirrorTimer(MirrorTimer.DROWNING, 70000)
             DrowningTimer = New Threading.Timer(AddressOf Character.HandleDrowning, Nothing, 2000, 1000)
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            DrowningTimer.dispose()
-            DrowningTimer = Nothing
-            If CHARACTERs.ContainsKey(CharacterGUID) Then CHARACTERs(CharacterGUID).StopMirrorTimer(1)
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                DrowningTimer.Dispose()
+                DrowningTimer = Nothing
+                If CHARACTERs.ContainsKey(CharacterGUID) Then CHARACTERs(CharacterGUID).StopMirrorTimer(1)
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
     Public Class TRepopTimer
         Implements IDisposable

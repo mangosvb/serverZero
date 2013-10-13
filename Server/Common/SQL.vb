@@ -268,21 +268,39 @@ Public Class SQL
         End Try
     End Sub
 #End Region
-#Region "Dispose()                  MySQL|MSSQL|Oracle Supported"
-    Public Sub Dispose() Implements System.IDisposable.Dispose
-        Select Case v_SQLType
-            Case DB_Type.MySQL
-                MySQLConn.Close()
-                MySQLConn.Dispose()
-            Case DB_Type.MSSQL
-                MSSQLConn.Close()
-                MSSQLConn.Dispose()
-                'Case DB_Type.Oracle
-                '    OracleConn.Close()
-                '    OracleConn.Dispose()
-        End Select
+
+#Region "IDisposable Support"
+    Private disposedValue As Boolean ' To detect redundant calls
+
+    ' IDisposable
+    <Description("Close file and dispose the wdb reader.")> _
+    Protected Overridable Sub Dispose(disposing As Boolean)
+        If Not Me.disposedValue Then
+            ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+            ' TODO: set large fields to null.
+            Select Case v_SQLType
+                Case DB_Type.MySQL
+                    MySQLConn.Close()
+                    MySQLConn.Dispose()
+                Case DB_Type.MSSQL
+                    MSSQLConn.Close()
+                    MSSQLConn.Dispose()
+                    'Case DB_Type.Oracle
+                    '    OracleConn.Close()
+                    '    OracleConn.Dispose()
+            End Select
+        End If
+        Me.disposedValue = True
+    End Sub
+
+    ' This code added by Visual Basic to correctly implement the disposable pattern.
+    Public Sub Dispose() Implements IDisposable.Dispose
+        ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+        Dispose(True)
+        GC.SuppressFinalize(Me)
     End Sub
 #End Region
+
 #End Region
 #End Region
 

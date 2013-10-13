@@ -86,6 +86,7 @@ Namespace DBC
     <Description("DBC wrapper class using buffered stream for file access.")> _
     Public Class BufferedDBC
         Inherits BaseDBC
+        Implements IDisposable
 
         Protected bs As BufferedStream
 
@@ -102,10 +103,20 @@ Namespace DBC
             bs = New BufferedStream(fs)
         End Sub
         <Description("Close file and dispose the dbc reader.")> _
-        Public Shadows Sub Dispose()
-            bs.Close()
+        Private disposedValue As Boolean ' To detect redundant calls
 
-            MyBase.Dispose()
+        ' IDisposable
+        Protected Overrides Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                fs.Close()
+                bs.Close()
+                bs.Dispose()
+
+                '                MyBase.Dispose()
+            End If
+            Me.disposedValue = True
         End Sub
 
         <Description("Access to item by row and column.")> _
@@ -160,11 +171,31 @@ Namespace DBC
         Protected buffer(3) As Byte
         Protected tmpOffset As Long = 0
 
+
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
         'Default Functions
         <Description("Close file and dispose the dbc reader.")> _
-        Public Overridable Sub Dispose() Implements System.IDisposable.Dispose
-            fs.Close()
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                fs.Close()
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         <Description("Open filename for reading and initialize internals.")> _
         Public Sub New(ByVal FileName As String)
             fs = New FileStream(FileName, FileMode.Open, FileAccess.Read)
