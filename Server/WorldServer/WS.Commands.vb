@@ -2105,7 +2105,7 @@ Public Module WS_Commands
                 c.CommandResponse("You cannot set access levels to accounts with the same or a higher access level than yourself.")
             Else
                 AccountDatabase.Update(String.Format("UPDATE accounts SET plevel={0} WHERE account_id={1}", CByte(newLevel), result.Rows(0).Item("account_id")))
-                c.CommandResponse(String.Format("Account [{0}] now has access level [{1}].", newLevel))
+                c.CommandResponse(String.Format("Account [{0}] now has access level [{1}].", aName, newLevel))
             End If
         End If
         Return True

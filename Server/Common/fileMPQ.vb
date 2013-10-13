@@ -47,11 +47,29 @@ Namespace MPQ
             mStream = File.Open(Filename, FileMode.Open, FileAccess.Read, FileShare.Read)
             Init()
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            If (Not mStream Is Nothing) Then
-                mStream.Close()
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                If (Not mStream Is Nothing) Then
+                    mStream.Close()
+                End If
             End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
 
         Private Sub Init()
             If Not LocateMpqHeader() Then
@@ -324,7 +342,7 @@ Namespace MPQ
                         _Files = filesList.ToArray(GetType(FileInfo))
 
                         reader.Close()
-                        stream2.Close()
+                        '                        stream2.Close()
 
                     Catch e As FileNotFoundException
                         Throw New NotSupportedException("Error: the archive contains no listfile")

@@ -106,12 +106,34 @@ Public Module WC_Network
 
             ThreadPool.QueueUserWorkItem(New System.Threading.WaitCallback(AddressOf m_Client.OnConnect))
         End Sub
-        Public Sub Dispose() Implements IDisposable.Dispose
-            Channels.ChannelServices.UnregisterChannel(m_RemoteChannel)
 
-            m_flagStopListen = True
-            m_Socket.Close()
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Channels.ChannelServices.UnregisterChannel(m_RemoteChannel)
+
+                m_flagStopListen = True
+                m_Socket.Close()
+                m_TimerPing.Dispose()
+                m_TimerStats.Dispose()
+                m_TimerCPU.Dispose()
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         <SecurityPermissionAttribute(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)> _
         Public Overrides Function InitializeLifetimeService() As Object
             Return Nothing
@@ -721,30 +743,48 @@ Public Module WC_Network
             End If
         End Sub
 
-        Private Sub Dispose() Implements System.IDisposable.Dispose
-            'Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
 
-            On Error Resume Next
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
 
-            If Not Socket Is Nothing Then Socket.Close()
-            Socket = Nothing
+                '                On Error Resume Next
+                'May have to trap and use exception handler rather than the on error resume next rubbish
 
-            SyncLock CType(CLIENTs, ICollection).SyncRoot
-                CLIENTs.Remove(Me.Index)
-            End SyncLock
+                If Not Socket Is Nothing Then Socket.Close()
+                Socket = Nothing
 
-            If Not Character Is Nothing Then
-                If Character.IsInWorld Then
-                    Character.IsInWorld = False
-                    Character.GetWorld.ClientDisconnect(Index)
+                SyncLock CType(CLIENTs, ICollection).SyncRoot
+                    CLIENTs.Remove(Me.Index)
+                End SyncLock
+
+                If Not Character Is Nothing Then
+                    If Character.IsInWorld Then
+                        Character.IsInWorld = False
+                        Character.GetWorld.ClientDisconnect(Index)
+                    End If
+                    Character.Dispose()
                 End If
-                Character.Dispose()
+
+                Character = Nothing
+
+                ConnectionsDecrement()
             End If
-
-            Character = Nothing
-
-            ConnectionsDecrement()
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub Delete()
             On Error Resume Next
             Me.Socket.Close()

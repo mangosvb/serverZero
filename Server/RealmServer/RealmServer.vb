@@ -330,11 +330,26 @@ Public Module RS_Main
                 Socket.Close()
             End Try
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            'Console.ForegroundColor = System.ConsoleColor.DarkGray
-            'Console.WriteLine("[{0}] Connection from [{1}:{2}] deleted", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
-            'Console.ForegroundColor = System.ConsoleColor.Gray
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
 
 #End Region
@@ -507,7 +522,7 @@ Public Module RS_Main
                 Dim r As BinaryReader = New BinaryReader(fs)
                 buffer = r.ReadBytes(FileLen(Client.UpdateFile))
                 r.Close()
-                fs.Close()
+                '                fs.Close()
                 Dim result As Byte() = md5.ComputeHash(buffer)
                 Array.Copy(result, 0, data_response, 15, 16)
                 Client.Send(data_response, "RS_LOGON_CHALLENGE-CMD-XFER-INITIATE")
@@ -705,7 +720,7 @@ Public Module RS_Main
         Dim r As BinaryReader = New BinaryReader(fs)
         buffer = r.ReadBytes(file_len)
         r.Close()
-        fs.Close()
+        ' fs.Close()
 
         Const MAX_UPDATE_PACKET_SIZE As Integer = 1500
 
@@ -752,7 +767,7 @@ Public Module RS_Main
         r.ReadBytes(file_offset)
         buffer = r.ReadBytes(file_len)
         r.Close()
-        fs.Close()
+        '        fs.Close()
         file_offset = 0
 
         Const MAX_UPDATE_PACKET_SIZE As Integer = 1500

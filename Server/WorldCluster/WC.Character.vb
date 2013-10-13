@@ -153,45 +153,63 @@ Public Module WC_Character
             CHARACTERs.Add(GUID, Me)
             CHARACTERs_Lock.ReleaseWriterLock()
         End Sub
-        Public Sub Dispose() Implements IDisposable.Dispose
-            Client = Nothing
 
-            'DONE: Update character status in database
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_online = 0, char_logouttime = '{1}' WHERE char_guid = '{0}';", GUID, GetTimestamp(Now)))
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
 
-            'NOTE: Don't leave group on normal disconnect, only on logout
-            If IsInGroup Then
-                'DONE: Tell the group the member is offline
-                Dim response As PacketClass = BuildPartyMemberStatsOffline(GUID)
-                Group.Broadcast(response)
-                response.Dispose()
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Client = Nothing
 
-                'DONE: Set new leader and loot master
-                Group.NewLeader(Me)
-                Group.SendGroupList()
-            End If
+                'DONE: Update character status in database
+                CharacterDatabase.Update(String.Format("UPDATE characters SET char_online = 0, char_logouttime = '{1}' WHERE char_guid = '{0}';", GUID, GetTimestamp(Now)))
 
-            'DONE: Notify friends for logout
-            NotifyFriendStatus(Me, FriendResult.FRIEND_OFFLINE)
+                'NOTE: Don't leave group on normal disconnect, only on logout
+                If IsInGroup Then
+                    'DONE: Tell the group the member is offline
+                    Dim response As PacketClass = BuildPartyMemberStatsOffline(GUID)
+                    Group.Broadcast(response)
+                    response.Dispose()
 
-            'DONE: Notify guild for logout
-            If IsInGuild Then
-                NotifyGuildStatus(Me, GuildEvent.SIGNED_OFF)
-            End If
-
-            'DONE: Leave chat
-            While JoinedChannels.Count > 0
-                If CHAT_CHANNELs.ContainsKey(JoinedChannels(0)) Then
-                    CHAT_CHANNELs(JoinedChannels(0)).Part(Me)
-                Else
-                    JoinedChannels.RemoveAt(0)
+                    'DONE: Set new leader and loot master
+                    Group.NewLeader(Me)
+                    Group.SendGroupList()
                 End If
-            End While
 
-            CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-            CHARACTERs.Remove(GUID)
-            CHARACTERs_Lock.ReleaseWriterLock()
+                'DONE: Notify friends for logout
+                NotifyFriendStatus(Me, FriendResult.FRIEND_OFFLINE)
+
+                'DONE: Notify guild for logout
+                If IsInGuild Then
+                    NotifyGuildStatus(Me, GuildEvent.SIGNED_OFF)
+                End If
+
+                'DONE: Leave chat
+                While JoinedChannels.Count > 0
+                    If CHAT_CHANNELs.ContainsKey(JoinedChannels(0)) Then
+                        CHAT_CHANNELs(JoinedChannels(0)).Part(Me)
+                    Else
+                        JoinedChannels.RemoveAt(0)
+                    End If
+                End While
+
+                CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                CHARACTERs.Remove(GUID)
+                CHARACTERs_Lock.ReleaseWriterLock()
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
 
         Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
             Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)

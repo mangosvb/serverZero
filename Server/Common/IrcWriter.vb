@@ -46,8 +46,17 @@ Public Class IrcWriter
         Dim t As New Thread(AddressOf conn.Listen)
         t.Start()
     End Sub
-    Public Overrides Sub Dispose()
-        conn.Disconnect()
+
+    Private disposedValue As Boolean ' To detect redundant calls
+
+    ' IDisposable
+    Protected Overrides Sub Dispose(disposing As Boolean)
+        If Not Me.disposedValue Then
+            ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+            ' TODO: set large fields to null.
+            conn.Disconnect()
+        End If
+        Me.disposedValue = True
     End Sub
 
     Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)

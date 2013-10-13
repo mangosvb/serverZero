@@ -725,10 +725,28 @@ Public Module WS_Combat
         Private TimeLeftMainHand As Integer = -1
         Private TimeLeftOffHand As Integer = -1
 
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            NextAttackTimer.Dispose()
-            NextAttackTimer = Nothing
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                NextAttackTimer.Dispose()
+                NextAttackTimer = Nothing
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub New(ByRef Victim_ As BaseObject, ByRef Character_ As CharacterObject)
             NextAttackTimer = New Threading.Timer(AddressOf DoAttack, Nothing, 1000, Timeout.Infinite)
             Victim = Victim_

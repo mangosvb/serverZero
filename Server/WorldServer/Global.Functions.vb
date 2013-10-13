@@ -160,8 +160,8 @@ Public Module Functions
         Return 0
     End Function
 #Else
-    Public Declare Function timeGetTime Lib "winmm.dll" () As Integer
-    Public Declare Function timeBeginPeriod Lib "winmm.dll" (ByVal uPeriod As Integer) As Integer
+    Friend Declare Function timeGetTime Lib "winmm.dll" () As Integer
+    Friend Declare Function timeBeginPeriod Lib "winmm.dll" (ByVal uPeriod As Integer) As Integer
 #End If
 
 
