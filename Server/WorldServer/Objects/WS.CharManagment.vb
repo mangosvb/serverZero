@@ -503,10 +503,28 @@ Public Module WS_CharManagment
             Character.repopTimer = Nothing
             Me.Dispose()
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            RepopTimer.dispose()
-            RepopTimer = Nothing
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                RepopTimer.Dispose()
+                RepopTimer = Nothing
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
 #End Region
 #Region "WS.CharMangment.CharacterHelpingSubs"
@@ -4816,55 +4834,76 @@ CheckXPAgain:
             If HaveSpell(7738) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_FISHING_POLE)
             SendProficiency(Client, ITEM_CLASS.ITEM_CLASS_WEAPON, ProficiencyFlags)
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            'WARNING: Do not save character here!!!
 
-            'DONE: Remove buyback items when logged out
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = {0} AND item_slot >= {1} AND item_slot <= {2}", GUID, BUYBACK_SLOT_START, BUYBACK_SLOT_END - 1))
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
 
-            If Not underWaterTimer Is Nothing Then underWaterTimer.Dispose()
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                'WARNING: Do not save character here!!!
 
-            'DONE: Spawn corpse and remove repop timer if present
-            If repopTimer IsNot Nothing Then
-                repopTimer.Dispose()
-                repopTimer = Nothing
-                'DONE: Spawn Corpse
-                Dim myCorpse As New CorpseObject(Me)
-                myCorpse.Save()
-                myCorpse.AddToWorld()
-            End If
+                'DONE: Remove buyback items when logged out
+                CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = {0} AND item_slot >= {1} AND item_slot <= {2}", GUID, BUYBACK_SLOT_START, BUYBACK_SLOT_END - 1))
 
-            'DONE: Remove non-combat pets
-            If NonCombatPet IsNot Nothing Then NonCombatPet.Destroy()
+                If Not underWaterTimer Is Nothing Then underWaterTimer.Dispose()
 
-            'DONE: Leave local group
-            If IsInGroup Then
-                Group.LocalMembers.Remove(GUID)
-                If Group.LocalMembers.Count = 0 Then
-                    Group.Dispose()
-                    Group = Nothing
+                'DONE: Spawn corpse and remove repop timer if present
+                If repopTimer IsNot Nothing Then
+                    repopTimer.Dispose()
+                    repopTimer = Nothing
+                    'DONE: Spawn Corpse
+                    Dim myCorpse As New CorpseObject(Me)
+                    myCorpse.Save()
+                    myCorpse.AddToWorld()
                 End If
+
+                'DONE: Remove non-combat pets
+                If NonCombatPet IsNot Nothing Then NonCombatPet.Destroy()
+
+                'DONE: Leave local group
+                If IsInGroup Then
+                    Group.LocalMembers.Remove(GUID)
+                    If Group.LocalMembers.Count = 0 Then
+                        Group.Dispose()
+                        Group = Nothing
+                    End If
+                End If
+
+                CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                CHARACTERs.Remove(GUID)
+                CHARACTERs_Lock.ReleaseWriterLock()
+
+                If FullyLoggedIn Then RemoveFromWorld(Me)
+
+                Log.WriteLine(LogType.USER, "Character {0} disposed.", Name)
+
+                For Each Item As KeyValuePair(Of Byte, ItemObject) In Items
+                    'DONE: Dispose items in bags (done in Item.Dispose)
+                    Item.Value.Dispose()
+                Next
+
+                attackState.Dispose()
+
+                If Not Client Is Nothing Then Client.Character = Nothing
+                If Not LogoutTimer Is Nothing Then CType(LogoutTimer, Threading.Timer).Dispose()
+                LogoutTimer = Nothing
+
+                GC.Collect()
             End If
-
-            CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-            CHARACTERs.Remove(GUID)
-            CHARACTERs_Lock.ReleaseWriterLock()
-
-            If FullyLoggedIn Then RemoveFromWorld(Me)
-
-            Log.WriteLine(LogType.USER, "Character {0} disposed.", Name)
-
-            For Each Item As KeyValuePair(Of Byte, ItemObject) In Items
-                'DONE: Dispose items in bags (done in Item.Dispose)
-                Item.Value.Dispose()
-            Next
-
-            If Not Client Is Nothing Then Client.Character = Nothing
-            If Not LogoutTimer Is Nothing Then CType(LogoutTimer, Threading.Timer).Dispose()
-            LogoutTimer = Nothing
-
-            GC.Collect()
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub Initialize()
             Me.CanSeeInvisibility_Stealth = 0
             Me.CanSeeInvisibility_Invisibility = 0
