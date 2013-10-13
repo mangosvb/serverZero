@@ -254,8 +254,6 @@ Public Module Functions
                 GetRaceName = "Dwarf"
             Case Races.RACE_GNOME
                 GetRaceName = "Gnome"
-            Case Races.RACE_GOBLIN
-                GetRaceName = "Goblin"
             Case Races.RACE_HUMAN
                 GetRaceName = "Human"
             Case Races.RACE_NIGHT_ELF
