@@ -166,17 +166,23 @@ Public Class NativeMethods
         Return LoadLibrary(lpLibFileName)
     End Function
 
+    '    Private Declare Function GetProcAddress Lib "kernel32.dll" (ByVal hModule As Integer, ByVal lpProcName As String) As Integer
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Unicode, ExactSpelling:=True)> _
+    Private Shared Function GetProcAddress(ByVal hModule As IntPtr, ByVal procName As String) As UIntPtr
+    End Function
 
-    Private Declare Function GetProcAddress Lib "kernel32.dll" (ByVal hModule As Integer, ByVal lpProcName As String) As Integer
-
-    Public Shared Function GetProcAddress(ByVal hModule As Integer, ByVal lpProcName As String, Optional ByVal dummy As String = "") As Integer
+    Public Shared Function GetProcAddress(ByVal hModule As IntPtr, ByVal lpProcName As String, Optional ByVal dummy As String = "") As UIntPtr
         Return GetProcAddress(hModule, lpProcName)
     End Function
 
 
-    Private Declare Function CloseHandle Lib "kernel32.dll" (ByVal hObject As Integer) As Integer
+    <DllImport("kernel32.dll", SetLastError:=True)> _
+    Private Shared Function CloseHandle(ByVal hObject As IntPtr) As <MarshalAs(UnmanagedType.Bool)> Boolean
+    End Function
 
-    Public Shared Function CloseHandle(ByVal hObject As Integer, Optional ByVal dummy As String = "") As Integer
+    'Declare Function CloseHandle Lib "kernel32" Alias "CloseHandle" (ByVal hObject As Integer) As Integer
+
+    Public Shared Function CloseHandle(ByVal hObject As IntPtr, Optional ByVal dummy As String = "") As Integer
         Return CloseHandle(hObject)
     End Function
 
