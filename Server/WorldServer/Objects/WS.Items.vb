@@ -1254,7 +1254,7 @@ Public Module WS_Items
                         Item.Value.Dispose()
                     Next
                 End If
-                Loot.Dispose()
+                If Not IsNothing(Loot) Then Loot.Dispose()
             End If
             Me.disposedValue = True
         End Sub

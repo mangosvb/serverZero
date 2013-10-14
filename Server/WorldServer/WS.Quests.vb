@@ -1478,76 +1478,76 @@ Public Module WS_Quests
     Public Function GetQuestgiverStatus(ByVal c As CharacterObject, ByVal cGUID As ULong) As QuestgiverStatus
         'DONE: Invoke scripted quest status
         Dim Status As QuestgiverStatus = QuestgiverStatus.DIALOG_STATUS_NONE
-
-        If GuidIsCreature(cGUID) Then
-            If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Return QuestgiverStatus.DIALOG_STATUS_NONE
-            If WORLD_CREATUREs(cGUID).CreatureInfo.TalkScript IsNot Nothing Then Status = WORLD_CREATUREs(cGUID).CreatureInfo.TalkScript.OnQuestStatus(c, cGUID)
-        ElseIf GuidIsGameObject(cGUID) Then
-            If WORLD_GAMEOBJECTs.ContainsKey(cGUID) = False Then Return QuestgiverStatus.DIALOG_STATUS_NONE
-        Else
-            Return QuestgiverStatus.DIALOG_STATUS_NONE
-        End If
-
         'DONE: Do search for completed quests or in progress
         Dim i As Integer
         Dim alreadyHave As New List(Of Integer)
-        For i = 0 To QUEST_SLOTS
-            If c.TalkQuests(i) IsNot Nothing Then
-                alreadyHave.Add(c.TalkQuests(i).ID)
-                If GuidIsCreature(cGUID) Then
-                    If CreatureQuestFinishers.ContainsKey(WORLD_CREATUREs(cGUID).ID) AndAlso CreatureQuestFinishers(WORLD_CREATUREs(cGUID).ID).Contains(c.TalkQuests(i).ID) Then
-                        If c.TalkQuests(i).Complete Then
-                            Return QuestgiverStatus.DIALOG_STATUS_REWARD
+        Try
+            If GuidIsCreature(cGUID) Then
+                If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Return QuestgiverStatus.DIALOG_STATUS_NONE
+                If WORLD_CREATUREs(cGUID).CreatureInfo.TalkScript IsNot Nothing Then Status = WORLD_CREATUREs(cGUID).CreatureInfo.TalkScript.OnQuestStatus(c, cGUID)
+            ElseIf GuidIsGameObject(cGUID) Then
+                If WORLD_GAMEOBJECTs.ContainsKey(cGUID) = False Then Return QuestgiverStatus.DIALOG_STATUS_NONE
+            Else
+                Return QuestgiverStatus.DIALOG_STATUS_NONE
+            End If
+
+            For i = 0 To QUEST_SLOTS
+                If c.TalkQuests(i) IsNot Nothing Then
+                    alreadyHave.Add(c.TalkQuests(i).ID)
+                    If GuidIsCreature(cGUID) Then
+                        If CreatureQuestFinishers.ContainsKey(WORLD_CREATUREs(cGUID).ID) AndAlso CreatureQuestFinishers(WORLD_CREATUREs(cGUID).ID).Contains(c.TalkQuests(i).ID) Then
+                            If c.TalkQuests(i).Complete Then
+                                Return QuestgiverStatus.DIALOG_STATUS_REWARD
+                            End If
+                            Status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE
                         End If
-                        Status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE
+                    Else
+                        If GameobjectQuestFinishers.ContainsKey(WORLD_GAMEOBJECTs(cGUID).ID) AndAlso GameobjectQuestFinishers(WORLD_GAMEOBJECTs(cGUID).ID).Contains(c.TalkQuests(i).ID) Then
+                            If c.TalkQuests(i).Complete Then
+                                Return QuestgiverStatus.DIALOG_STATUS_REWARD
+                            End If
+                            Status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE
+                        End If
+                    End If
+                End If
+            Next
+        Catch ex As Exception
+            If Status = QuestgiverStatus.DIALOG_STATUS_NONE OrElse Status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE Then
+                Dim questList As List(Of Integer) = Nothing
+                If GuidIsCreature(cGUID) Then
+                    Dim CreatureEntry As Integer = WORLD_CREATUREs(cGUID).ID
+                    If CreatureQuestStarters.ContainsKey(CreatureEntry) Then
+                        questList = CreatureQuestStarters(CreatureEntry)
                     End If
                 Else
-                    If GameobjectQuestFinishers.ContainsKey(WORLD_GAMEOBJECTs(cGUID).ID) AndAlso GameobjectQuestFinishers(WORLD_GAMEOBJECTs(cGUID).ID).Contains(c.TalkQuests(i).ID) Then
-                        If c.TalkQuests(i).Complete Then
-                            Return QuestgiverStatus.DIALOG_STATUS_REWARD
-                        End If
-                        Status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE
+                    Dim GOEntry As Integer = WORLD_GAMEOBJECTs(cGUID).ID
+                    If GameobjectQuestStarters.ContainsKey(GOEntry) Then
+                        questList = GameobjectQuestStarters(GOEntry)
                     End If
                 End If
-            End If
-        Next
 
-        If Status = QuestgiverStatus.DIALOG_STATUS_NONE OrElse Status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE Then
-            Dim questList As List(Of Integer) = Nothing
-            If GuidIsCreature(cGUID) Then
-                Dim CreatureEntry As Integer = WORLD_CREATUREs(cGUID).ID
-                If CreatureQuestStarters.ContainsKey(CreatureEntry) Then
-                    questList = CreatureQuestStarters(CreatureEntry)
-                End If
-            Else
-                Dim GOEntry As Integer = WORLD_GAMEOBJECTs(cGUID).ID
-                If GameobjectQuestStarters.ContainsKey(GOEntry) Then
-                    questList = GameobjectQuestStarters(GOEntry)
-                End If
-            End If
+                If questList IsNot Nothing Then
+                    For Each QuestID As Integer In questList
+                        If alreadyHave.Contains(QuestID) Then Continue For
+                        'If QUESTs.ContainsKey(QuestID) = False Then Dim tmpQuest As New QuestInfo(QuestID)
 
-            If questList IsNot Nothing Then
-                For Each QuestID As Integer In questList
-                    If alreadyHave.Contains(QuestID) Then Continue For
-                    If QUESTs.ContainsKey(QuestID) = False Then Dim tmpQuest As New QuestInfo(QuestID)
-
-                    If QUESTs(QuestID).CanSeeQuest(c) Then
-                        If QUESTs(QuestID).SatisfyQuestLevel(c) Then
-                            If QUESTs(QuestID).Level_Normal = -1 OrElse c.Level < (QUESTs(QuestID).Level_Normal + 6) Then
-                                Return QuestgiverStatus.DIALOG_STATUS_AVAILABLE
-                            Else
-                                If Status = QuestgiverStatus.DIALOG_STATUS_NONE Then
-                                    Status = QuestgiverStatus.DIALOG_STATUS_CHAT
+                        If QUESTs(QuestID).CanSeeQuest(c) Then
+                            If QUESTs(QuestID).SatisfyQuestLevel(c) Then
+                                If QUESTs(QuestID).Level_Normal = -1 OrElse c.Level < (QUESTs(QuestID).Level_Normal + 6) Then
+                                    Return QuestgiverStatus.DIALOG_STATUS_AVAILABLE
+                                Else
+                                    If Status = QuestgiverStatus.DIALOG_STATUS_NONE Then
+                                        Status = QuestgiverStatus.DIALOG_STATUS_CHAT
+                                    End If
                                 End If
+                            Else
+                                Status = QuestgiverStatus.DIALOG_STATUS_UNAVAILABLE
                             End If
-                        Else
-                            Status = QuestgiverStatus.DIALOG_STATUS_UNAVAILABLE
                         End If
-                    End If
-                Next
+                    Next
+                End If
             End If
-        End If
-
+        End Try
         Return Status
     End Function
     Public Sub On_CMSG_QUESTGIVER_STATUS_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -1555,6 +1555,7 @@ Public Module WS_Quests
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64()
+
             Dim status As QuestgiverStatus = GetQuestgiverStatus(Client.Character, GUID)
 
             Dim response As New PacketClass(OPCODES.SMSG_QUESTGIVER_STATUS)
