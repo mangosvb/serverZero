@@ -384,8 +384,8 @@ Public Module WS_Main
                                     Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                                     Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                                    AccountDatabase.InsertSQL([String].Format("INSERT INTO accounts (account, password, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
-                                    If AccountDatabase.QuerySQL("SELECT * FROM accounts WHERE account = """ & cmd(0) & """;") Then
+                                    AccountDatabase.InsertSQL([String].Format("INSERT INTO accounts (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+                                    If AccountDatabase.QuerySQL("SELECT * FROM accounts WHERE username = """ & cmd(0) & """;") Then
                                         Console.ForegroundColor = System.ConsoleColor.DarkGreen
                                         Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
                                         Console.ForegroundColor = System.ConsoleColor.Gray
@@ -408,8 +408,8 @@ Public Module WS_Main
                                 aName = Console.ReadLine
                                 Dim result As New DataTable
                                 Dim result1 As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & aName & """;", result)
-                                AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result1)
+                                AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & aName & """;", result)
+                                AccountDatabase.Query("SELECT last_ip FROM accounts WHERE username = """ & aName & """;", result1)
                                 Dim IP As String
                                 IP = result1.Rows(0).Item("last_ip")
                                 If result.Rows.Count > 0 Then
@@ -424,10 +424,10 @@ Public Module WS_Main
                                     ElseIf IP = "0.0.0.0" Then
                                         Console.WriteLine("[{1}] Account [{0}] does not have an IP Address.", aName, Format(TimeOfDay, "HH:mm:ss"))
                                     Else
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result)
+                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE username = """ & aName & """;", result)
                                         Dim IP1 As String
                                         IP1 = result.Rows(0).Item("last_ip")
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE account = """ & aName & """;")
+                                        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE username = """ & aName & """;")
                                         Console.WriteLine(String.Format("[{1}] IP Address [{0}] is now banned.", IP, Format(TimeOfDay, "HH:mm:ss")))
                                         AccountDatabase.Update(String.Format("INSERT INTO `bans` VALUES ('{0}', '{1}', '{2}', '{3}');", IP1, Format(Now, "yyyy-MM-dd"), "No Reason Specified.", aName))
                                         Console.WriteLine(String.Format("[{1}] Account [{0}] is now banned.", aName, Format(TimeOfDay, "HH:mm:ss")))
@@ -443,7 +443,7 @@ Public Module WS_Main
                                 Console.ForegroundColor = System.ConsoleColor.Magenta
                                 aName = Console.ReadLine
                                 Dim result As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & aName & """;", result)
+                                AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & aName & """;", result)
 
                                 If result.Rows.Count > 0 Then
                                     If result.Rows(0).Item("banned") = 0 Then
@@ -451,8 +451,8 @@ Public Module WS_Main
                                         Console.WriteLine(String.Format("[{1}] Account [{0}] is not banned.", aName, Format(TimeOfDay, "HH:mm:ss")))
                                     Else
                                         Console.ForegroundColor = System.ConsoleColor.Red
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE account = """ & aName & """;")
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result)
+                                        AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE username = """ & aName & """;")
+                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE username = """ & aName & """;", result)
                                         Dim IP As String
                                         IP = result.Rows(0).Item("last_ip")
                                         AccountDatabase.Update([String].Format("DELETE FROM `bans` WHERE `ip` = '{0}';", IP))

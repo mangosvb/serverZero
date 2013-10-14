@@ -6083,7 +6083,7 @@ DoneAmmo:
 
 
         'DONE: Query Access Level and Account ID
-        AccountDatabase.Query(String.Format("SELECT account_id, plevel FROM accounts WHERE account = ""{0}"";", Account), MySQLQuery)
+        AccountDatabase.Query(String.Format("SELECT account_id, plevel FROM accounts WHERE username = ""{0}"";", Account), MySQLQuery)
         Dim Account_ID As Integer = CType(MySQLQuery.Rows(0).Item("account_id"), Integer)
         Dim Account_Access As AccessLevel = CType(MySQLQuery.Rows(0).Item("plevel"), AccessLevel)
         Character.Access = Account_Access
