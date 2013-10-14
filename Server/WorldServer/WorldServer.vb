@@ -349,7 +349,6 @@ Public Module WS_Main
         AreaTriggers.Dispose()
     End Sub
 
-
     Public Sub WaitConsoleCommand()
         Dim tmp As String = "", CommandList() As String, cmds() As String
         Dim cmd() As String = {}
@@ -384,8 +383,8 @@ Public Module WS_Main
                                     Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                                     Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                                    AccountDatabase.InsertSQL([String].Format("INSERT INTO accounts (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
-                                    If AccountDatabase.QuerySQL("SELECT * FROM accounts WHERE username = """ & cmd(0) & """;") Then
+                                    AccountDatabase.InsertSQL([String].Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+                                    If AccountDatabase.QuerySQL("SELECT id FROM account WHERE username = """ & cmd(0) & """;") Then
                                         Console.ForegroundColor = System.ConsoleColor.DarkGreen
                                         Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
                                         Console.ForegroundColor = System.ConsoleColor.Gray
@@ -402,18 +401,21 @@ Public Module WS_Main
                             Case "gccollect"
                                 GC.Collect()
                             Case "ban", "Ban", "Ban Account", "acct ban"
+                                'TODO: We need to fix this so ip and account could be banned separately
+                                'Also, allow for a reason for ban to be given, and an UnBan Date if needed
+                                'Looks like it is inserting the account name as the person who banned them (banned by themselves?)
                                 Console.ForegroundColor = System.ConsoleColor.DarkYellow
                                 Console.WriteLine("[{0}] Specify the Account Name :", Format(TimeOfDay, "HH:mm:ss"))
                                 Dim aName As String
                                 aName = Console.ReadLine
                                 Dim result As New DataTable
                                 Dim result1 As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & aName & """;", result)
-                                AccountDatabase.Query("SELECT last_ip FROM accounts WHERE username = """ & aName & """;", result1)
+                                AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & aName & """;", result)
+                                AccountDatabase.Query("SELECT active FROM account_banned WHERE id = '" & result.Rows(0).Item("id").ToString() & "';", result1)
                                 Dim IP As String
-                                IP = result1.Rows(0).Item("last_ip")
                                 If result.Rows.Count > 0 Then
-                                    If result.Rows(0).Item("banned") = 1 Then
+                                    IP = result.Rows(0).Item("last_ip")
+                                    If CInt(result1.Rows(0).Item("active")) = 1 Then
                                         Console.ForegroundColor = System.ConsoleColor.Green
                                         Console.WriteLine(String.Format("[{1}] Account [{0}] is already banned.", aName, Format(TimeOfDay, "HH:mm:ss")))
 
@@ -424,12 +426,10 @@ Public Module WS_Main
                                     ElseIf IP = "0.0.0.0" Then
                                         Console.WriteLine("[{1}] Account [{0}] does not have an IP Address.", aName, Format(TimeOfDay, "HH:mm:ss"))
                                     Else
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE username = """ & aName & """;", result)
-                                        Dim IP1 As String
-                                        IP1 = result.Rows(0).Item("last_ip")
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE username = """ & aName & """;")
+                                        Dim ID As Integer = result.Rows(0).Item("id")
+                                        AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}', active = 1);", ID, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", aName, "No Reason Specified."))
                                         Console.WriteLine(String.Format("[{1}] IP Address [{0}] is now banned.", IP, Format(TimeOfDay, "HH:mm:ss")))
-                                        AccountDatabase.Update(String.Format("INSERT INTO `bans` VALUES ('{0}', '{1}', '{2}', '{3}');", IP1, Format(Now, "yyyy-MM-dd"), "No Reason Specified.", aName))
+                                        AccountDatabase.Update(String.Format("INSERT INTO `ip_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}');", IP, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", aName, "No Reason Specified."))
                                         Console.WriteLine(String.Format("[{1}] Account [{0}] is now banned.", aName, Format(TimeOfDay, "HH:mm:ss")))
                                     End If
                                 Else
@@ -437,63 +437,66 @@ Public Module WS_Main
                                     Console.WriteLine(String.Format("[{1}] Account [{0}] is not found.", aName, Format(TimeOfDay, "HH:mm:ss")))
                                 End If
                             Case "unban", "Unban", "UnBan", "acct unban", "Unban Account"
+                                'TODO: We need to fix this to handle accounts and ip's correctly
+                                'Do we want to update the account_banned, ip_banned tables or DELETE the records?
                                 Console.ForegroundColor = System.ConsoleColor.DarkCyan
                                 Console.WriteLine("[{0}] Account Name?", Format(TimeOfDay, "HH:mm:ss"))
                                 Dim aName As String
                                 Console.ForegroundColor = System.ConsoleColor.Magenta
                                 aName = Console.ReadLine
                                 Dim result As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & aName & """;", result)
-
+                                Dim result1 As New DataTable
+                                AccountDatabase.Query("SELECT id, last_ip FROM account WHERE account = """ & aName & """;", result)
+                                AccountDatabase.Query("SELECT active FROM account_banned WHERE id = '" & result.Rows(0).Item("id").ToString() & "';", result1)
+                                Dim IP As String
                                 If result.Rows.Count > 0 Then
-                                    If result.Rows(0).Item("banned") = 0 Then
-                                        Console.ForegroundColor = System.ConsoleColor.Green
-                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is not banned.", aName, Format(TimeOfDay, "HH:mm:ss")))
-                                    Else
-                                        Console.ForegroundColor = System.ConsoleColor.Red
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE username = """ & aName & """;")
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE username = """ & aName & """;", result)
-                                        Dim IP As String
-                                        IP = result.Rows(0).Item("last_ip")
-                                        AccountDatabase.Update([String].Format("DELETE FROM `bans` WHERE `ip` = '{0}';", IP))
-                                        Console.WriteLine(String.Format("[{1}] Account [{0}] has been unbanned.", aName, Format(TimeOfDay, "HH:mm:ss")))
-
+                                    If result1.Rows.Count > 0 Then
+                                        If CInt(result1.Rows(0).Item("active")) = 0 Then
+                                            Console.ForegroundColor = System.ConsoleColor.Green
+                                            Console.WriteLine(String.Format("[{1}] Account [{0}] is not banned.", aName, Format(TimeOfDay, "HH:mm:ss")))
+                                        Else
+                                            Console.ForegroundColor = System.ConsoleColor.Red
+                                            AccountDatabase.Update("UPDATE account_banned SET active = 0 WHERE id = '" & result.Rows(0).Item("id") & "';")
+                                            IP = result.Rows(0).Item("last_ip")
+                                            AccountDatabase.Update([String].Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
+                                            Console.WriteLine(String.Format("[{1}] Account [{0}] has been unbanned.", aName, Format(TimeOfDay, "HH:mm:ss")))
+                                        End If
                                     End If
                                 Else
                                     Console.WriteLine(String.Format("[{1}] Account [{0}] is not found.", aName, Format(TimeOfDay, "HH:mm:ss")))
                                 End If
                             Case "info", "/info"
-                                Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
+                                    Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
                             Case "help", "/help"
-                                Console.ForegroundColor = System.ConsoleColor.Blue
-                                Console.WriteLine("'WorldServer' Command list:")
-                                Console.ForegroundColor = System.ConsoleColor.White
-                                Console.WriteLine("---------------------------------")
-                                Console.WriteLine("")
-                                Console.WriteLine("")
-                                Console.WriteLine("'help' or '/help' - Brings up the 'WorldServer' Command list (this).")
-                                Console.WriteLine("")
-                                Console.WriteLine("'createaccount <user> <password> <email>' or '/createaccount <user> <password> <email>' - Creates an account with the specified username <user>, password <password>, and email <email>.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'debug' or '/debug' - Creates a 'test' character.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'info' or '/info' - Brings up a context menu showing server information (such as memory used).")
-                                Console.WriteLine("")
-                                Console.WriteLine("'exec' or '/exec' - Executes script files.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'db.restart' or '/db.restart' - Reloads the database.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'db.run' or '/db.run' - Runs and updates database.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'quit' or 'shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'WorldServer'.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'ban' or 'Ban'- Adds a Ban and IP Ban on an account.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'unban' or 'Unban'- Removes a Ban and IP Ban on an account.")
+                                    Console.ForegroundColor = System.ConsoleColor.Blue
+                                    Console.WriteLine("'WorldServer' Command list:")
+                                    Console.ForegroundColor = System.ConsoleColor.White
+                                    Console.WriteLine("---------------------------------")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'help' or '/help' - Brings up the 'WorldServer' Command list (this).")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'createaccount <user> <password> <email>' or '/createaccount <user> <password> <email>' - Creates an account with the specified username <user>, password <password>, and email <email>.")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'debug' or '/debug' - Creates a 'test' character.")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'info' or '/info' - Brings up a context menu showing server information (such as memory used).")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'exec' or '/exec' - Executes script files.")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'db.restart' or '/db.restart' - Reloads the database.")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'db.run' or '/db.run' - Runs and updates database.")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'quit' or 'shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'WorldServer'.")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'ban' or 'Ban'- Adds a Ban and IP Ban on an account.")
+                                    Console.WriteLine("")
+                                    Console.WriteLine("'unban' or 'Unban'- Removes a Ban and IP Ban on an account.")
                             Case Else
-                                Console.ForegroundColor = System.ConsoleColor.DarkRed
-                                Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'WorldServer' console commands.")
-                                Console.ForegroundColor = System.ConsoleColor.Gray
+                                    Console.ForegroundColor = System.ConsoleColor.DarkRed
+                                    Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'WorldServer' console commands.")
+                                    Console.ForegroundColor = System.ConsoleColor.Gray
                         End Select
                         '<<<<<<<<<<</END COMMAND STRUCTURE>>>>>>>>>>>>
                     End If
@@ -503,7 +506,6 @@ Public Module WS_Main
             End Try
         End While
     End Sub
-
     Private Sub GenericExceptionHandler(ByVal sender As Object, ByVal e As UnhandledExceptionEventArgs)
         Dim EX As Exception
         EX = e.ExceptionObject
