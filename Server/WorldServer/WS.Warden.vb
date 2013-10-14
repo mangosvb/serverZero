@@ -841,7 +841,7 @@ Public Module WS_Warden
 
             Dim tmpData() As Byte = ms.ToArray
             ms.Close()
-            ms.Dispose()
+            'ms.Dispose()
             ms = Nothing
             bw = Nothing
             Return tmpData

@@ -194,8 +194,8 @@ Public Module WS_Maps
                     Next y
                 Next x
                 b.Close()
-                f.Close()
-                f.Dispose()
+                '                f.Close()
+                '                f.Dispose()
             End If
 
 
@@ -287,10 +287,26 @@ Public Module WS_Maps
         End Sub
 #End If
 
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            'Done: Remove spawns
-            UnloadSpawns(CellX, CellY, CellMap)
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                UnloadSpawns(CellX, CellY, CellMap)
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
 
     Public Class TMap
@@ -471,15 +487,33 @@ Public Module WS_Maps
                 Console.ForegroundColor = System.ConsoleColor.Gray
             End Try
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            For i As Integer = 0 To 63
-                For j As Integer = 0 To 63
-                    If Not Tiles(i, j) Is Nothing Then Tiles(i, j).Dispose()
-                Next
-            Next
 
-            Maps.Remove(ID)
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                For i As Integer = 0 To 63
+                    For j As Integer = 0 To 63
+                        If Not Tiles(i, j) Is Nothing Then Tiles(i, j).Dispose()
+                    Next
+                Next
+
+                Maps.Remove(ID)
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
 
     Public Maps As New Collections.Generic.Dictionary(Of UInteger, TMap)

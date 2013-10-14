@@ -185,10 +185,28 @@ Public Module WS_TimerBasedEvents
             End Try
             RegenerationWorking = False
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            RegenerationTimer.Dispose()
-            RegenerationTimer = Nothing
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                RegenerationTimer.Dispose()
+                RegenerationTimer = Nothing
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
 
 
@@ -258,10 +276,28 @@ Public Module WS_TimerBasedEvents
 
             SpellManagerWorking = False
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            SpellManagerTimer.Dispose()
-            SpellManagerTimer = Nothing
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                SpellManagerTimer.Dispose()
+                SpellManagerTimer = Nothing
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
 
         Private Sub UpdateSpells(ByRef c As BaseUnit)
 
@@ -400,14 +436,32 @@ Public Module WS_TimerBasedEvents
             End Try
             AIManagerWorking = False
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            AIManagerTimer.Dispose()
-            AIManagerTimer = Nothing
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                AIManagerTimer.Dispose()
+                AIManagerTimer = Nothing
+            End If
+            Me.disposedValue = True
         End Sub
 
-        Protected Overrides Sub Finalize()
-            MyBase.Finalize()
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
         End Sub
+#End Region
+
+        'Protected Overrides Sub Finalize()
+        '    MyBase.Finalize()
+        'End Sub
     End Class
 
 
@@ -445,10 +499,29 @@ Public Module WS_TimerBasedEvents
 
             CharacterSaverWorking = False
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            CharacterSaverTimer.Dispose()
-            CharacterSaverTimer = Nothing
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                CharacterSaverTimer.Dispose()
+                CharacterSaverTimer = Nothing
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
     End Class
 
 
@@ -477,10 +550,28 @@ Public Module WS_TimerBasedEvents
 
             WeatherWorking = False
         End Sub
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            WeatherTimer.Dispose()
-            WeatherTimer = Nothing
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                WeatherTimer.Dispose()
+                WeatherTimer = Nothing
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
 
     'TODO: Timer for kicking not connected players (ping timeout)
