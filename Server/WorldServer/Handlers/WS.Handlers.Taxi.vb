@@ -21,6 +21,7 @@ Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.NativeMethods
 
 
 Public Module WS_Handlers_Taxi

@@ -18,6 +18,7 @@
 
 Imports System.Threading
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Spells
 #Region "WS.Skills.Constants"

@@ -189,6 +189,7 @@
     <Compile Include="FileWriter.vb" />
     <Compile Include="IrcWriter.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="NativeMethods.vb" />
     <Compile Include="SQL.vb" />
     <Compile Include="TelnetWriter.vb" />
   </ItemGroup>

@@ -152,19 +152,6 @@ Public Module Functions
         End If
     End Function
 
-#If LINUX Then
-    Public Function timeGetTime() As Integer
-        Return System.Environment.TickCount()
-    End Function
-    Public Function timeBeginPeriod(ByVal uPeriod As Integer) As Integer
-        Return 0
-    End Function
-#Else
-    Friend Declare Function timeGetTime Lib "winmm.dll" () As Integer
-    Friend Declare Function timeBeginPeriod Lib "winmm.dll" (ByVal uPeriod As Integer) As Integer
-#End If
-
-
     Public Function EscapeString(ByVal s As String) As String
         Return s.Replace("""", "").Replace("'", "")
     End Function

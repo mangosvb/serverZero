@@ -1,21 +1,6 @@
-﻿Public Class BigInteger
-    Private Declare Function BN_add Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
-    Private Declare Function BN_sub Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
-    Private Declare Function BN_bin2bn Lib "LIBEAY32" (ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
-    Private Declare Function BN_bn2bin Lib "LIBEAY32" (ByVal a As IntPtr, ByVal [to] As Byte()) As Integer
-    Private Declare Sub BN_CTX_free Lib "LIBEAY32" (ByVal a As IntPtr)
-    Private Declare Function BN_CTX_new Lib "LIBEAY32" () As IntPtr
-    Private Declare Function BN_mod Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    Private Declare Function BN_mod_exp Lib "LIBEAY32" (ByVal res As IntPtr, ByVal a As IntPtr, ByVal p As IntPtr, ByVal m As IntPtr, ByVal ctx As IntPtr) As Integer
-    Private Declare Function BN_mul Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    Private Declare Function BN_div Lib "LIBEAY32" (ByVal dv As IntPtr, ByVal remainder As IntPtr, ByVal a As IntPtr, ByVal d As IntPtr, ByVal ctx As IntPtr) As Integer
-    Private Declare Function BN_sqr Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal ctx As IntPtr) As Integer
-    Private Declare Function BN_exp Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal p As IntPtr, ByVal ctx As IntPtr) As Integer
-    Private Declare Function BN_lshift Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal n As Integer) As Integer
-    Private Declare Function BN_rshift Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal n As Integer) As Integer
-    Private Declare Function BN_num_bits Lib "LIBEAY32" (ByVal a As IntPtr) As Integer
-    Private Declare Function BN_new Lib "LIBEAY32" () As IntPtr
+﻿Imports mangosVB.Common.NativeMethods
 
+Public Class BigInteger
     Private bigint As IntPtr = IntPtr.Zero
     Private Shared ctx As IntPtr = BN_CTX_new()
 
