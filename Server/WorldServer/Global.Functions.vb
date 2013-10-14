@@ -201,7 +201,7 @@ Public Module Functions
 
 
     Public Sub Ban_Account(ByVal Name As String, ByVal Reason As String)
-        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE account = """ & Name & """;")
+        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE username = """ & Name & """;")
 
         Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
     End Sub
@@ -241,8 +241,6 @@ Public Module Functions
                 GetRaceName = "Dwarf"
             Case Races.RACE_GNOME
                 GetRaceName = "Gnome"
-            Case Races.RACE_GOBLIN
-                GetRaceName = "Goblin"
             Case Races.RACE_HUMAN
                 GetRaceName = "Human"
             Case Races.RACE_NIGHT_ELF
@@ -355,7 +353,7 @@ Public Module Functions
     Public Sub SendAccountMD5(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim FoundData As Boolean = False
         Dim AccData As New DataTable
-        AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE account = ""{0}"";", Client.Account), AccData)
+        AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
         If AccData.Rows.Count > 0 Then
             Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
 

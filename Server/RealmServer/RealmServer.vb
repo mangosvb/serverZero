@@ -173,6 +173,7 @@ Public Module RS_Main
                 Console.ForegroundColor = System.ConsoleColor.Gray
             End Try
         End Sub
+
         Protected Sub AcceptConnection()
             Do While Not _flagStopListen
                 Thread.Sleep(CONNETION_SLEEP_TIME)
@@ -186,12 +187,14 @@ Public Module RS_Main
                 End If
             Loop
         End Sub
+
         Protected Overloads Sub Dispose(ByVal disposing As Boolean)
             _flagStopListen = True
             lstConnection.Stop()
         End Sub
     End Class
 #End Region
+
 #Region "RS.Data Access"
     Public AccountDatabase As New SQL
     Public Sub SLQEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
@@ -207,6 +210,7 @@ Public Module RS_Main
     End Sub
 
 #End Region
+
 #Region "RS.Analyzer"
 
     Public Enum WoWLanguage As Byte
@@ -259,6 +263,7 @@ Public Module RS_Main
                     DumpPacket(data, Me)
             End Select
         End Sub
+
         Public Sub Process()
             IP = CType(Socket.RemoteEndPoint, IPEndPoint).Address
             Port = CType(Socket.RemoteEndPoint, IPEndPoint).Port
@@ -314,6 +319,7 @@ Public Module RS_Main
 
             Me.Dispose()
         End Sub
+
         Public Sub Send(ByVal data() As Byte, ByVal PacketName As String)
             Try
                 Dim i As Integer = Socket.Send(data, 0, data.Length, SocketFlags.None)
@@ -390,7 +396,7 @@ Public Module RS_Main
             Dim result As DataTable = Nothing
             Try
                 'Get Account info
-                AccountDatabase.Query([String].Format("SELECT * FROM accounts WHERE account = ""{0}"";", packet_account), result)
+                AccountDatabase.Query([String].Format("SELECT * FROM accounts WHERE username = ""{0}"";", packet_account), result)
 
                 'Check Account state
                 If result.Rows.Count > 0 Then
@@ -410,7 +416,7 @@ Public Module RS_Main
 
                     Dim account(data(33) - 1) As Byte
                     Array.Copy(data, 34, account, 0, data(33))
-                    Dim pwHash As String = result.Rows(0).Item("password")
+                    Dim pwHash As String = result.Rows(0).Item("sha_pass_hash")
                     If pwHash.Length = 40 Then   'Invalid password type, should always be 40 characters
 
                         Client.Access = result.Rows(0).Item("plevel")
@@ -538,6 +544,7 @@ Public Module RS_Main
             End If
         End If
     End Sub
+
     Public Sub On_RS_LOGON_PROOF(ByRef data() As Byte, ByRef Client As ClientClass)
         Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Dim A(31) As Byte
@@ -587,7 +594,7 @@ Public Module RS_Main
                     sshash = sshash + Hex(Client.AuthEngine.SS_Hash(i))
                 End If
             Next
-            AccountDatabase.Update([String].Format("UPDATE accounts SET last_sshash = '{1}', last_ip='{2}', last_login='{3}' WHERE account = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
+            AccountDatabase.Update([String].Format("UPDATE accounts SET last_sshash = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, Client.Account, sshash)
         Else
@@ -599,6 +606,7 @@ Public Module RS_Main
             Client.Send(data_response, "RS_LOGON_PROOF-WRONGPASS")
         End If
     End Sub
+
     Public Sub On_RS_REALMLIST(ByRef data() As Byte, ByRef Client As ClientClass)
         Console.WriteLine("[{0}] [{1}:{2}] CMD_REALM_LIST", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
 
@@ -710,6 +718,7 @@ Public Module RS_Main
         Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Client.Socket.Close()
     End Sub
+
     Public Sub On_CMD_XFER_ACCEPT(ByRef data() As Byte, ByRef Client As ClientClass)
         Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Dim tmp As Integer = 1
@@ -753,6 +762,7 @@ Public Module RS_Main
         End If
         'Client.Socket.Close()
     End Sub
+
     Public Sub On_CMD_XFER_RESUME(ByRef data() As Byte, ByRef Client As ClientClass)
         Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port)
         Dim tmp As Integer = 1
@@ -801,6 +811,7 @@ Public Module RS_Main
         End If
         'Client.Socket.Close()
     End Sub
+
     Public Sub DumpPacket(ByRef data() As Byte, ByRef Client As ClientClass)
         Dim j As Integer
         Dim buffer As String = ""
@@ -877,14 +888,15 @@ Public Module RS_Main
 
         Console.ForegroundColor = System.ConsoleColor.DarkGreen
         For Each Row As System.Data.DataRow In result1.Rows
-            Console.WriteLine("           {3} [{1}] at {0}:{2}", Row.Item("address").PadRight(20), Row.Item("name").PadRight(20), Format(Row.Item("port")).PadRight(6), WorldServer_STATUS(Int(Row.Item("flags"))).PadRight(10))
+            Console.WriteLine("           {3} [{1}] at {0}:{2}", Row.Item("address").PadRight(6), Row.Item("name").PadRight(6), Format(Row.Item("port")).PadRight(6), WorldServer_STATUS(Int(Row.Item("flags"))).PadRight(6))
         Next
         Console.ForegroundColor = System.ConsoleColor.Yellow
         For Each Row As System.Data.DataRow In result3.Rows
-            Console.WriteLine("           {3} [{1}] at {0}           :{2}", Row.Item("address").PadRight(6), Row.Item("name").PadRight(20), Format(Row.Item("port")), WorldServer_STATUS(Int("3")).PadRight(10))
+            Console.WriteLine("           {3} [{1}] at {0}:{2}", Row.Item("address").PadRight(6), Row.Item("name").PadRight(20), Format(Row.Item("port")), WorldServer_STATUS(Int("3")).PadRight(10))
         Next
         Console.ForegroundColor = System.ConsoleColor.Gray
     End Sub
+
     Sub Main()
         Console.Title = String.Format("{0} v{1}", [Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyTitleAttribute), False)(0).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 
@@ -935,41 +947,6 @@ Public Module RS_Main
         RealmServer = New RealmServerClass
 
         WorldServer_Status_Report()
-
-        Dim tmp As String, CommandList() As String, cmd() As String
-        Dim varList As Integer
-        While True
-            tmp = Console.ReadLine()
-            CommandList = tmp.Split(";")
-
-            For varList = LBound(CommandList) To UBound(CommandList)
-                cmd = CommandList(varList).Split(" ")
-                If CommandList(varList).Length > 0 Then
-                    Select Case cmd(0).ToLower
-                        Case "/quit", "/shutdown", "/off", "/kill", "/exit", "quit", "shutdown", "off", "kill"
-                            Console.ForegroundColor = System.ConsoleColor.DarkGreen
-                            Console.WriteLine("Server shutting down...")
-                            Console.ForegroundColor = System.ConsoleColor.Gray
-                            Thread.Sleep(1000)
-                            End
-                        Case "help", "/help"
-                            Console.ForegroundColor = System.ConsoleColor.Blue
-                            Console.WriteLine("'RealmServer' Command list:")
-                            Console.ForegroundColor = System.ConsoleColor.White
-                            Console.WriteLine("---------------------------------")
-                            Console.WriteLine("")
-                            Console.WriteLine("")
-                            Console.WriteLine("'help' or '/help' - Brings up the RealmServer' Command list (this).")
-                            Console.WriteLine("")
-                            Console.WriteLine("'/quit' or '/shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'RealmServer'.")
-                        Case Else
-                            Console.ForegroundColor = System.ConsoleColor.DarkRed
-                            Console.WriteLine("Error!. Cannot find specified command. Please type 'help' for information on 'RealmServer' console commands.")
-                            Console.ForegroundColor = System.ConsoleColor.White
-                    End Select
-                End If
-            Next
-        End While
     End Sub
 
     Function IP2Int(ByVal IP As String) As UInteger

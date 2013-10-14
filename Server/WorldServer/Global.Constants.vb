@@ -329,7 +329,6 @@ Public Enum Races As Byte
     RACE_TAUREN = 6
     RACE_GNOME = 7
     RACE_TROLL = 8
-    RACE_GOBLIN = 9
 End Enum
 <Flags()> _
 Public Enum PlayerFlags As Integer
@@ -565,7 +564,6 @@ Public Enum LANGUAGES As Integer
     LANG_COMMON = 7
     LANG_DEMONIC = 8
     LANG_TITAN = 9
-    LANG_THALASSIAN = 10
     LANG_DRACONIC = 11
     LANG_KALIMAG = 12
     LANG_GNOMISH = 13
