@@ -396,7 +396,7 @@ Public Module RS_Main
             Dim result As DataTable = Nothing
             Try
                 'Get Account info
-                AccountDatabase.Query([String].Format("SELECT * FROM accounts WHERE account = ""{0}"";", packet_account), result)
+                AccountDatabase.Query([String].Format("SELECT * FROM accounts WHERE username = ""{0}"";", packet_account), result)
 
                 'Check Account state
                 If result.Rows.Count > 0 Then
@@ -416,7 +416,7 @@ Public Module RS_Main
 
                     Dim account(data(33) - 1) As Byte
                     Array.Copy(data, 34, account, 0, data(33))
-                    Dim pwHash As String = result.Rows(0).Item("password")
+                    Dim pwHash As String = result.Rows(0).Item("sha_pass_hash")
                     If pwHash.Length = 40 Then   'Invalid password type, should always be 40 characters
 
                         Client.Access = result.Rows(0).Item("plevel")
@@ -594,7 +594,7 @@ Public Module RS_Main
                     sshash = sshash + Hex(Client.AuthEngine.SS_Hash(i))
                 End If
             Next
-            AccountDatabase.Update([String].Format("UPDATE accounts SET last_sshash = '{1}', last_ip='{2}', last_login='{3}' WHERE account = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
+            AccountDatabase.Update([String].Format("UPDATE accounts SET last_sshash = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, Client.Account, sshash)
         Else
@@ -947,41 +947,6 @@ Public Module RS_Main
         RealmServer = New RealmServerClass
 
         WorldServer_Status_Report()
-
-        Dim tmp As String, CommandList() As String, cmd() As String
-        Dim varList As Integer
-        While True
-            tmp = Console.ReadLine()
-            CommandList = tmp.Split(";")
-
-            For varList = LBound(CommandList) To UBound(CommandList)
-                cmd = CommandList(varList).Split(" ")
-                If CommandList(varList).Length > 0 Then
-                    Select Case cmd(0).ToLower
-                        Case "/quit", "/shutdown", "/off", "/kill", "/exit", "quit", "shutdown", "off", "kill"
-                            Console.ForegroundColor = System.ConsoleColor.DarkGreen
-                            Console.WriteLine("Server shutting down...")
-                            Console.ForegroundColor = System.ConsoleColor.Gray
-                            Thread.Sleep(1000)
-                            End
-                        Case "help", "/help"
-                            Console.ForegroundColor = System.ConsoleColor.Blue
-                            Console.WriteLine("'RealmServer' Command list:")
-                            Console.ForegroundColor = System.ConsoleColor.White
-                            Console.WriteLine("---------------------------------")
-                            Console.WriteLine("")
-                            Console.WriteLine("")
-                            Console.WriteLine("'help' or '/help' - Brings up the RealmServer' Command list (this).")
-                            Console.WriteLine("")
-                            Console.WriteLine("'/quit' or '/shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'RealmServer'.")
-                        Case Else
-                            Console.ForegroundColor = System.ConsoleColor.DarkRed
-                            Console.WriteLine("Error!. Cannot find specified command. Please type 'help' for information on 'RealmServer' console commands.")
-                            Console.ForegroundColor = System.ConsoleColor.White
-                    End Select
-                End If
-            Next
-        End While
     End Sub
 
     Function IP2Int(ByVal IP As String) As UInteger
