@@ -100,12 +100,33 @@ Public Module WS_Network
                 Log.WriteLine(LogType.FAILED, "Error in {1}: {0}.", e.Message, e.Source)
             End Try
         End Sub
-        Public Sub Dispose() Implements IDisposable.Dispose
-            ClusterDisconnect()
 
-            Channels.ChannelServices.UnregisterChannel(m_RemoteChannel)
-            _flagStopListen = True
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                ClusterDisconnect()
+
+                Channels.ChannelServices.UnregisterChannel(m_RemoteChannel)
+                _flagStopListen = True
+                m_TimerCPU.Dispose()
+                m_Connection.Dispose()
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         <SecurityPermissionAttribute(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)> _
         Public Overrides Function InitializeLifetimeService() As Object
             Return Nothing
@@ -433,16 +454,34 @@ Public Module WS_Network
             End SyncLock
         End Sub
 
-        Private Sub Dispose() Implements System.IDisposable.Dispose
-            Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
 
-            WorldServer.Cluster.ClientDrop(Index)
-            CLIENTs.Remove(Index)
-            If Not Me.Character Is Nothing Then
-                Me.Character.Client = Nothing
-                Me.Character.Dispose()
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
+
+                WorldServer.Cluster.ClientDrop(Index)
+                CLIENTs.Remove(Index)
+                If Not Me.Character Is Nothing Then
+                    Me.Character.Client = Nothing
+                    Me.Character.Dispose()
+                End If
             End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub Delete()
             On Error Resume Next
 
