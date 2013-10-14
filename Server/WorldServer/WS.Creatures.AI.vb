@@ -157,7 +157,7 @@ Public Module WS_Creatures_AI
             aiTarget = Nothing
         End Sub
         Public Overrides Function IsMoving() As Boolean
-            If (timeGetTime - aiCreature.LastMove) < aiTimer Then
+            If (timeGetTime("") - aiCreature.LastMove) < aiTimer Then
                 Select Case Me.State
                     Case AIState.AI_MOVE_FOR_ATTACK
                         Return True
@@ -653,7 +653,7 @@ Public Module WS_Creatures_AI
             aiTarget = Nothing
         End Sub
         Public Overrides Function IsMoving() As Boolean
-            If (timeGetTime - aiCreature.LastMove) < aiTimer Then
+            If (timeGetTime("") - aiCreature.LastMove) < aiTimer Then
                 Select Case Me.State
                     Case AIState.AI_MOVE_FOR_ATTACK
                         Return True

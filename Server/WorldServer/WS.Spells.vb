@@ -4616,7 +4616,7 @@ SkipShapeShift:
         SMSG_MONSTER_MOVE.AddSingle(Caster.positionX)
         SMSG_MONSTER_MOVE.AddSingle(Caster.positionY)
         SMSG_MONSTER_MOVE.AddSingle(Caster.positionZ)
-        SMSG_MONSTER_MOVE.AddInt32(timeGetTime)         'Sequence/MSTime?
+        SMSG_MONSTER_MOVE.AddInt32(timeGetTime(""))         'Sequence/MSTime?
         SMSG_MONSTER_MOVE.AddInt8(0)
         SMSG_MONSTER_MOVE.AddInt32(&H100)
         SMSG_MONSTER_MOVE.AddInt32(TimeToMove)  'Time

@@ -34,7 +34,7 @@ Public Module WC_Handlers_Misc
     Public Sub On_CMSG_QUERY_TIME(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUERY_TIME", Client.IP, Client.Port)
         Dim response As New PacketClass(OPCODES.SMSG_QUERY_TIME_RESPONSE)
-        response.AddInt32(timeGetTime) 'GetTimestamp(Now))
+        response.AddInt32(timeGetTime("")) 'GetTimestamp(Now))
         Client.Send(response)
         response.Dispose()
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUERY_TIME_RESPONSE", Client.IP, Client.Port)

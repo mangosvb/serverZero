@@ -68,7 +68,7 @@ Public Module WC_Handlers_Tickets
         SMSG_GMTICKET_GETTICKET.Dispose()
 
         Dim SMSG_QUERY_TIME_RESPONSE As New PacketClass(OPCODES.SMSG_QUERY_TIME_RESPONSE)
-        SMSG_QUERY_TIME_RESPONSE.AddInt32(timeGetTime) 'GetTimestamp(Now))
+        SMSG_QUERY_TIME_RESPONSE.AddInt32(timeGetTime("")) 'GetTimestamp(Now))
         Client.Send(SMSG_QUERY_TIME_RESPONSE)
         SMSG_QUERY_TIME_RESPONSE.Dispose()
     End Sub

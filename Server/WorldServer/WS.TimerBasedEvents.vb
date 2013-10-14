@@ -397,7 +397,7 @@ Public Module WS_TimerBasedEvents
                 Exit Sub
             End If
 
-            Dim StartTime As Integer = timeGetTime
+            Dim StartTime As Integer = timeGetTime("")
             AIManagerWorking = True
 
             'First transports

@@ -1338,13 +1338,13 @@ Public Module WS_CharManagment
 
         Public ReadOnly Property IsInCombat() As Boolean
             Get
-                Return (inCombatWith.Count > 0 OrElse (timeGetTime - lastPvpAction) < DEFAULT_PVP_COMBAT_TIME)
+                Return (inCombatWith.Count > 0 OrElse (timeGetTime("") - lastPvpAction) < DEFAULT_PVP_COMBAT_TIME)
             End Get
         End Property
 
         Public Sub AddToCombat(ByVal Unit As BaseUnit)
             If TypeOf Unit Is CharacterObject Then
-                lastPvpAction = timeGetTime
+                lastPvpAction = timeGetTime("")
             Else
                 If inCombatWith.Contains(Unit.GUID) Then Exit Sub
 

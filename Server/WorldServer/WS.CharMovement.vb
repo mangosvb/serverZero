@@ -717,7 +717,7 @@ Module WS_CharMovement
         End If
     End Sub
     Public Sub UpdateCell(ByRef Character As CharacterObject)
-        'Dim start As Integer = timeGetTime
+        'Dim start As Integer = timeGetTime("")
         Dim list() As ULong
 
         'DONE: Remove players,creatures,objects if dist is >
@@ -888,7 +888,7 @@ Module WS_CharMovement
         End If
 
         Character.SendOutOfRangeUpdate()
-        'Log.WriteLine(LogType.DEBUG, "Update: {0}ms", timeGetTime - start)
+        'Log.WriteLine(LogType.DEBUG, "Update: {0}ms", timeGetTime("") - start)
     End Sub
 
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _

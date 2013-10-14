@@ -194,7 +194,7 @@ Public Module WorldCluster
 
     <System.MTAThreadAttribute()> _
     Sub Main()
-        timeBeginPeriod(1)  'Set timeGetTime to a accuracy of 1ms
+        timeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
 
         Console.BackgroundColor = System.ConsoleColor.Black
         Console.Title = String.Format("{0} v{1}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title, [Assembly].GetExecutingAssembly().GetName().Version)

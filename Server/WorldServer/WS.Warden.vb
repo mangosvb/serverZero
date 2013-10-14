@@ -115,11 +115,11 @@ Public Module WS_Warden
 
             Log.WriteLine(BaseWriter.LogType.SUCCESS, "[WARDEN] Successfully prepaired Warden Module.")
 
-		Try
-            If Not InitModule() Then Return False
-		Catch ex As Exception
-			Log.WriteLine(BaseWriter.LogType.CRITICAL, "[WARDEN] InitModule Failed.")
-        End Try
+            Try
+                If Not InitModule() Then Return False
+            Catch ex As Exception
+                Log.WriteLine(BaseWriter.LogType.CRITICAL, "[WARDEN] InitModule Failed.")
+            End Try
 
             Return True
         End Function
@@ -276,7 +276,7 @@ Public Module WS_Warden
                             Dim procLib As String = Marshal.PtrToStringAnsi(New IntPtr(m_Mod + pLibraryTable.dwFileName))
 
                             Log.WriteLine(BaseWriter.LogType.DEBUG, "    Library: {0}", procLib)
-                            Dim hModule As Integer = LoadLibrary(procLib)
+                            Dim hModule As Integer = LoadLibrary(procLib, "")
                             If hModule Then
                                 Dim dwImports As Integer = m_Mod + pLibraryTable.dwImports
                                 Dim dwCurrent As Integer = Marshal.ReadInt32(New IntPtr(dwImports))
@@ -285,7 +285,7 @@ Public Module WS_Warden
                                     dwCurrent = Marshal.ReadInt32(New IntPtr(dwImports))
                                     If dwCurrent <= 0 Then
                                         dwCurrent = (dwCurrent And &H7FFFFFFF)
-                                        procAddr = GetProcAddress(hModule, Convert.ToString(New IntPtr(dwCurrent)))
+                                        procAddr = GetProcAddress(hModule, Convert.ToString(New IntPtr(dwCurrent)), "")
 
                                         Log.WriteLine(BaseWriter.LogType.DEBUG, "        Ordinary: 0x{0:X8}", dwCurrent)
                                     Else
@@ -293,7 +293,7 @@ Public Module WS_Warden
                                         Dim procRedirector As Reflection.MethodInfo = GetType(ApiRedirector).GetMethod("my" + procFunc)
                                         Dim procDelegate As Type = GetType(ApiRedirector).GetNestedType("d" + procFunc)
                                         If procRedirector Is Nothing OrElse procDelegate Is Nothing Then
-                                            procAddr = GetProcAddress(hModule, procFunc)
+                                            procAddr = GetProcAddress(hModule, procFunc, "")
                                             Log.WriteLine(BaseWriter.LogType.DEBUG, "        Function: {0} @ 0x{1:X8}", procFunc, procAddr)
                                         Else
                                             delegateCache.Add(procFunc, [Delegate].CreateDelegate(procDelegate, procRedirector))
@@ -319,9 +319,9 @@ Public Module WS_Warden
                             Dim dwSize As Integer = Marshal.ReadInt32(New IntPtr(pdwChunk2 + 4))
                             Dim flNewProtect As Integer = Marshal.ReadInt32(New IntPtr(pdwChunk2 + 8))
 
-                            VirtualProtect(lpAddress, dwSize, flNewProtect, dwOldProtect)
+                            VirtualProtect(lpAddress, dwSize, flNewProtect, dwOldProtect, "")
                             If (flNewProtect And &HF0) Then
-                                FlushInstructionCache(GetCurrentProcess(), lpAddress, dwSize)
+                                FlushInstructionCache(GetCurrentProcess(""), lpAddress, dwSize, "")
                             End If
 
                             dwIndex += 1
@@ -331,7 +331,7 @@ Public Module WS_Warden
                         If Header.dwSizeOfCode < dwModuleSize Then
                             Dim dwOffset As Integer = ((Header.dwSizeOfCode + &HFFF) And &HFFFFF000)
                             If dwOffset >= Header.dwSizeOfCode AndAlso dwOffset > dwModuleSize Then
-                                VirtualFree(m_Mod + dwOffset, dwModuleSize - dwOffset, &H4000)
+                                VirtualFree(m_Mod + dwOffset, dwModuleSize - dwOffset, &H4000, "")
                             End If
 
                             bUnload = False
@@ -452,12 +452,12 @@ Public Module WS_Warden
             ppFuncList = VarPtr(pFuncList)
 
             Console.WriteLine("Initializing module")
-		Try
-            Log.WriteLine(BaseWriter.LogType.SUCCESS, "[WARDEN] Successfully Initialized Module.")
-            init = CType(Marshal.GetDelegateForFunctionPointer(New IntPtr(InitPointer), GetType(InitializeModule)), InitializeModule)
-		Catch ex As Exception
+            Try
+                Log.WriteLine(BaseWriter.LogType.SUCCESS, "[WARDEN] Successfully Initialized Module.")
+                init = CType(Marshal.GetDelegateForFunctionPointer(New IntPtr(InitPointer), GetType(InitializeModule)), InitializeModule)
+            Catch ex As Exception
                 Log.WriteLine(BaseWriter.LogType.CRITICAL, "[WARDEN] Failed to Initialize Module.")
-        End Try
+            End Try
 
             pWardenList = Marshal.ReadInt32(New IntPtr(m_ModMem))
             myWardenList = Marshal.PtrToStructure(New IntPtr(pWardenList), GetType(WardenFuncList))
@@ -492,17 +492,17 @@ Public Module WS_Warden
             <FieldOffset(&H0)> _
             Public fpSendPacket As Integer
             <FieldOffset(&H4)> _
-           Public fpCheckModule As Integer
+            Public fpCheckModule As Integer
             <FieldOffset(&H8)> _
-           Public fpLoadModule As Integer
+            Public fpLoadModule As Integer
             <FieldOffset(&HC)> _
-           Public fpAllocateMemory As Integer
+            Public fpAllocateMemory As Integer
             <FieldOffset(&H10)> _
-           Public fpReleaseMemory As Integer
+            Public fpReleaseMemory As Integer
             <FieldOffset(&H14)> _
-           Public fpSetRC4Data As Integer
+            Public fpSetRC4Data As Integer
             <FieldOffset(&H18)> _
-           Public fpGetRC4Data As Integer
+            Public fpGetRC4Data As Integer
         End Structure
 
         <StructLayout(LayoutKind.Explicit, Size:=&H10)> _
@@ -858,14 +858,14 @@ Public Module WS_Warden
 
     Private Function malloc(ByVal length As Integer) As Integer
         Dim tmpHandle As Integer = Marshal.AllocHGlobal(length + 4).ToInt32()
-        Dim lockedHandle As Integer = GlobalLock(tmpHandle) + 4
+        Dim lockedHandle As Integer = GlobalLock(tmpHandle, "") + 4
         Marshal.WriteInt32(New IntPtr(lockedHandle - 4), tmpHandle)
         Return lockedHandle
     End Function
 
     Private Sub free(ByVal ptr As Integer)
         Dim tmpHandle As Integer = Marshal.ReadInt32(New IntPtr(ptr - 4))
-        GlobalUnlock(tmpHandle)
+        GlobalUnlock(tmpHandle, "")
         Marshal.FreeHGlobal(New IntPtr(tmpHandle))
     End Sub
 #End Region

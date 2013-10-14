@@ -226,9 +226,9 @@ Public Module WC_Network
                         If SentPingTo.ContainsKey(WorldsInfo(w.Key)) Then
                             Log.WriteLine(LogType.NETWORK, "World [M{0:0000}] ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
                         Else
-                            MyTime = timeGetTime
+                            MyTime = timeGetTime("")
                             ServerTime = w.Value.Ping(MyTime, WorldsInfo(w.Key).Latency)
-                            Latency = Math.Abs(MyTime - timeGetTime)
+                            Latency = Math.Abs(MyTime - timeGetTime(""))
 
                             WorldsInfo(w.Key).Latency = Latency
                             SentPingTo(WorldsInfo(w.Key)) = Latency
