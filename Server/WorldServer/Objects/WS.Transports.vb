@@ -147,159 +147,169 @@ Public Module WS_Transports
             Dim MapsUsed As Integer = 0
             Dim MapChange As Integer = 0
             Dim PathPoints As New List(Of TransportMove)
+            Dim t As Integer = 0
 
-            For i As Integer = 0 To TaxiPathNodes(PathID).Count - 2
-                If MapChange = 0 Then
-                    If TaxiPathNodes(PathID)(i).MapID = TaxiPathNodes(PathID)(i + 1).MapID Then
-                        PathPoints.Add(New TransportMove(TaxiPathNodes(PathID)(i).x, TaxiPathNodes(PathID)(i).y, TaxiPathNodes(PathID)(i).z, TaxiPathNodes(PathID)(i).MapID, TaxiPathNodes(PathID)(i).action, TaxiPathNodes(PathID)(i).waittime))
+            If TaxiPathNodes.ContainsKey(PathID) = True Then
+                For i As Integer = 0 To (TaxiPathNodes(PathID).Count - 2)
+                    If MapChange = 0 Then
+                        If TaxiPathNodes(PathID).ContainsKey(i) = True And TaxiPathNodes(PathID).ContainsKey(i + 1) = True Then
+                            If TaxiPathNodes(PathID)(i).MapID = TaxiPathNodes(PathID)(i + 1).MapID Then
+                                PathPoints.Add(New TransportMove(TaxiPathNodes(PathID)(i).x, TaxiPathNodes(PathID)(i).y, TaxiPathNodes(PathID)(i).z, TaxiPathNodes(PathID)(i).MapID, TaxiPathNodes(PathID)(i).action, TaxiPathNodes(PathID)(i).waittime))
 
-                        If Maps.ContainsKey(TaxiPathNodes(PathID)(i).MapID) Then
-                            MapsUsed += 1
+                                If Maps.ContainsKey(TaxiPathNodes(PathID)(i).MapID) Then
+                                    MapsUsed += 1
+                                End If
+                            End If
+                        Else
+                            MapChange = 1
                         End If
                     Else
-                        MapChange = 1
+                        MapChange = 0
                     End If
-                Else
-                    MapChange = 0
-                End If
-            Next
-            If MapsUsed = 0 Then Return False 'No maps for this transport is used on this server
+                Next
 
-            PathPoints(0).DistFromPrev = 0.0F
-            If PathPoints(0).ActionFlag = 2 Then
-                LastStop = 0
+                If MapsUsed = 0 Then Return False 'No maps for this transport is used on this server
+
+                PathPoints(0).DistFromPrev = 0.0F
+                If PathPoints(0).ActionFlag = 2 Then
+                    LastStop = 0
+                End If
+
+                For i As Integer = 1 To PathPoints.Count - 1
+                    If PathPoints(i).ActionFlag = 1 OrElse PathPoints(i).MapID <> PathPoints(i - 1).MapID Then
+                        PathPoints(i).DistFromPrev = 0.0F
+                    Else
+                        PathPoints(i).DistFromPrev = GetDistance(PathPoints(i).X, PathPoints(i - 1).X, PathPoints(i).Y, PathPoints(i - 1).Y, PathPoints(i).Z, PathPoints(i - 1).Z)
+                    End If
+                    If PathPoints(i).ActionFlag = 2 Then
+                        If FirstStop = -1 Then
+                            FirstStop = i
+                        End If
+                        LastStop = i
+                    End If
+                Next
+
+                Dim tmpDist As Single = 0.0F
+                Dim j As Integer = 0
+                For i As Integer = 0 To PathPoints.Count - 1
+                    j = (i + LastStop) Mod PathPoints.Count
+                    If j >= 0 Then
+                        If PathPoints(j).ActionFlag = 2 Then
+                            tmpDist = 0.0F
+                        Else
+                            tmpDist += PathPoints(j).DistFromPrev
+                        End If
+                        PathPoints(j).DistSinceStop = tmpDist
+                    End If
+                Next
+
+                For i As Integer = PathPoints.Count - 1 To 0 Step -1
+                    j = (i + (FirstStop + 1)) Mod PathPoints.Count
+                    tmpDist += PathPoints((j + 1) Mod PathPoints.Count).DistFromPrev
+                    PathPoints(j).DistUntilStop = tmpDist
+                    If PathPoints(j).ActionFlag = 2 Then tmpDist = 0.0F
+                Next
+
+                For i As Integer = 0 To PathPoints.Count - 1
+                    If PathPoints(i).DistSinceStop < (30.0F * 30.0F * 0.5F) Then
+                        PathPoints(i).tFrom = Math.Sqrt(2.0F * PathPoints(i).DistSinceStop)
+                    Else
+                        PathPoints(i).tFrom = ((PathPoints(i).DistSinceStop - (30.0F * 30.0F * 0.5F)) / 30.0F) + 30.0F
+                    End If
+
+                    If PathPoints(i).DistUntilStop < (30.0F * 30.0F * 0.5F) Then
+                        PathPoints(i).tTo = Math.Sqrt(2.0F * PathPoints(i).DistUntilStop)
+                    Else
+                        PathPoints(i).tTo = ((PathPoints(i).DistUntilStop - (30.0F * 30.0F * 0.5F)) / 30.0F) + 30.0F
+                    End If
+
+                    PathPoints(i).tFrom *= 1000.0F
+                    PathPoints(i).tTo *= 1000.0F
+                Next
+
+                Dim teleport As Boolean = False
+                If PathPoints(PathPoints.Count - 1).MapID <> PathPoints(0).MapID Then teleport = True
+
+                Waypoints.Add(New TransportWP(0, 0, PathPoints(0).X, PathPoints(0).Y, PathPoints(0).Z, PathPoints(0).MapID, teleport))
+                t += PathPoints(0).Delay * 1000
+
+                Dim cM As UInteger = PathPoints(0).MapID
+                For i As Integer = 0 To PathPoints.Count - 2
+                    Dim d As Single = 0.0F
+                    Dim tFrom As Single = PathPoints(i).tFrom
+                    Dim tTo As Single = PathPoints(i).tTo
+
+                    If d < PathPoints(i + 1).DistFromPrev AndAlso tTo > 0 Then
+                        Do While d < PathPoints(i + 1).DistFromPrev AndAlso tTo > 0
+                            tFrom += 100.0F
+                            tTo -= 100.0F
+
+                            If d > 0 Then
+                                Dim newX As Single = PathPoints(i).X + (PathPoints(i + 1).X - PathPoints(i).X) * d / PathPoints(i + 1).DistFromPrev
+                                Dim newY As Single = PathPoints(i).Y + (PathPoints(i + 1).Y - PathPoints(i).Y) * d / PathPoints(i + 1).DistFromPrev
+                                Dim newZ As Single = PathPoints(i).Z + (PathPoints(i + 1).Z - PathPoints(i).Z) * d / PathPoints(i + 1).DistFromPrev
+
+                                teleport = False
+                                If PathPoints(i).MapID <> cM Then
+                                    teleport = True
+                                    cM = PathPoints(i).MapID
+                                End If
+
+                                If teleport Then
+                                    Waypoints.Add(New TransportWP(i, t, newX, newY, newZ, PathPoints(i).MapID, teleport))
+                                End If
+                            End If
+
+                            If tFrom < tTo Then
+                                If tFrom <= 30000.0F Then
+                                    d = 0.5F * (tFrom / 1000.0F) * (tFrom / 1000.0F)
+                                Else
+                                    d = 0.5F * 30.0F * 30.0F + 30.0F * ((tFrom - 30000.0F) / 1000.0F)
+                                End If
+                                d = d - PathPoints(i).DistSinceStop
+                            Else
+                                If tTo <= 30000.0F Then
+                                    d = 0.5F * (tTo / 1000.0F) * (tTo / 1000.0F)
+                                Else
+                                    d = 0.5F * 30.0F * 30.0F + 30.0F * ((tTo - 30000.0F) / 1000.0F)
+                                End If
+                                d = PathPoints(i).DistUntilStop - d
+                            End If
+
+                            t += 100
+                        Loop
+                        t -= 100
+                    End If
+
+                    If PathPoints(i + 1).tFrom > PathPoints(i + 1).tTo Then
+                        t += 100 - (CLng(Fix(PathPoints(i + 1).tTo)) Mod 100)
+                    Else
+                        t += CLng(Fix(PathPoints(i + 1).tTo)) Mod 100
+                    End If
+
+                    teleport = False
+                    If PathPoints(i + 1).ActionFlag = 1 OrElse PathPoints(i + 1).MapID <> PathPoints(i).MapID Then
+                        teleport = True
+                        cM = PathPoints(i + 1).MapID
+                    End If
+
+                    Waypoints.Add(New TransportWP(i, t, PathPoints(i + 1).X, PathPoints(i + 1).Y, PathPoints(i + 1).Z, PathPoints(i + 1).MapID, teleport))
+
+                    t += PathPoints(i + 1).Delay * 1000
+                Next
+
+                CurrentWaypoint = 0
+                CurrentWaypoint = GetNextWaypoint()
+                NextWaypoint = GetNextWaypoint()
+                PathTime = t
+
+                NextNodeTime = Waypoints(CurrentWaypoint).Time
+
+                Return True
+            Else
+                Return False
             End If
 
-            For i As Integer = 1 To PathPoints.Count - 1
-                If PathPoints(i).ActionFlag = 1 OrElse PathPoints(i).MapID <> PathPoints(i - 1).MapID Then
-                    PathPoints(i).DistFromPrev = 0.0F
-                Else
-                    PathPoints(i).DistFromPrev = GetDistance(PathPoints(i).X, PathPoints(i - 1).X, PathPoints(i).Y, PathPoints(i - 1).Y, PathPoints(i).Z, PathPoints(i - 1).Z)
-                End If
-                If PathPoints(i).ActionFlag = 2 Then
-                    If FirstStop = -1 Then
-                        FirstStop = i
-                    End If
-                    LastStop = i
-                End If
-            Next
-
-            Dim tmpDist As Single = 0.0F
-            Dim j As Integer = 0
-            For i As Integer = 0 To PathPoints.Count - 1
-                j = (i + LastStop) Mod PathPoints.Count
-                If PathPoints(j).ActionFlag = 2 Then
-                    tmpDist = 0.0F
-                Else
-                    tmpDist += PathPoints(j).DistFromPrev
-                End If
-                PathPoints(j).DistSinceStop = tmpDist
-            Next
-
-            For i As Integer = PathPoints.Count - 1 To 0 Step -1
-                j = (i + (FirstStop + 1)) Mod PathPoints.Count
-                tmpDist += PathPoints((j + 1) Mod PathPoints.Count).DistFromPrev
-                PathPoints(j).DistUntilStop = tmpDist
-                If PathPoints(j).ActionFlag = 2 Then tmpDist = 0.0F
-            Next
-
-            For i As Integer = 0 To PathPoints.Count - 1
-                If PathPoints(i).DistSinceStop < (30.0F * 30.0F * 0.5F) Then
-                    PathPoints(i).tFrom = Math.Sqrt(2.0F * PathPoints(i).DistSinceStop)
-                Else
-                    PathPoints(i).tFrom = ((PathPoints(i).DistSinceStop - (30.0F * 30.0F * 0.5F)) / 30.0F) + 30.0F
-                End If
-
-                If PathPoints(i).DistUntilStop < (30.0F * 30.0F * 0.5F) Then
-                    PathPoints(i).tTo = Math.Sqrt(2.0F * PathPoints(i).DistUntilStop)
-                Else
-                    PathPoints(i).tTo = ((PathPoints(i).DistUntilStop - (30.0F * 30.0F * 0.5F)) / 30.0F) + 30.0F
-                End If
-
-                PathPoints(i).tFrom *= 1000.0F
-                PathPoints(i).tTo *= 1000.0F
-            Next
-
-            Dim t As Integer = 0
-            Dim teleport As Boolean = False
-            If PathPoints(PathPoints.Count - 1).MapID <> PathPoints(0).MapID Then teleport = True
-
-            Waypoints.Add(New TransportWP(0, 0, PathPoints(0).X, PathPoints(0).Y, PathPoints(0).Z, PathPoints(0).MapID, teleport))
-            t += PathPoints(0).Delay * 1000
-
-            Dim cM As UInteger = PathPoints(0).MapID
-            For i As Integer = 0 To PathPoints.Count - 2
-                Dim d As Single = 0.0F
-                Dim tFrom As Single = PathPoints(i).tFrom
-                Dim tTo As Single = PathPoints(i).tTo
-
-                If d < PathPoints(i + 1).DistFromPrev AndAlso tTo > 0 Then
-                    Do While d < PathPoints(i + 1).DistFromPrev AndAlso tTo > 0
-                        tFrom += 100.0F
-                        tTo -= 100.0F
-
-                        If d > 0 Then
-                            Dim newX As Single = PathPoints(i).X + (PathPoints(i + 1).X - PathPoints(i).X) * d / PathPoints(i + 1).DistFromPrev
-                            Dim newY As Single = PathPoints(i).Y + (PathPoints(i + 1).Y - PathPoints(i).Y) * d / PathPoints(i + 1).DistFromPrev
-                            Dim newZ As Single = PathPoints(i).Z + (PathPoints(i + 1).Z - PathPoints(i).Z) * d / PathPoints(i + 1).DistFromPrev
-
-                            teleport = False
-                            If PathPoints(i).MapID <> cM Then
-                                teleport = True
-                                cM = PathPoints(i).MapID
-                            End If
-
-                            If teleport Then
-                                Waypoints.Add(New TransportWP(i, t, newX, newY, newZ, PathPoints(i).MapID, teleport))
-                            End If
-                        End If
-
-                        If tFrom < tTo Then
-                            If tFrom <= 30000.0F Then
-                                d = 0.5F * (tFrom / 1000.0F) * (tFrom / 1000.0F)
-                            Else
-                                d = 0.5F * 30.0F * 30.0F + 30.0F * ((tFrom - 30000.0F) / 1000.0F)
-                            End If
-                            d = d - PathPoints(i).DistSinceStop
-                        Else
-                            If tTo <= 30000.0F Then
-                                d = 0.5F * (tTo / 1000.0F) * (tTo / 1000.0F)
-                            Else
-                                d = 0.5F * 30.0F * 30.0F + 30.0F * ((tTo - 30000.0F) / 1000.0F)
-                            End If
-                            d = PathPoints(i).DistUntilStop - d
-                        End If
-
-                        t += 100
-                    Loop
-                    t -= 100
-                End If
-
-                If PathPoints(i + 1).tFrom > PathPoints(i + 1).tTo Then
-                    t += 100 - (CLng(Fix(PathPoints(i + 1).tTo)) Mod 100)
-                Else
-                    t += CLng(Fix(PathPoints(i + 1).tTo)) Mod 100
-                End If
-
-                teleport = False
-                If PathPoints(i + 1).ActionFlag = 1 OrElse PathPoints(i + 1).MapID <> PathPoints(i).MapID Then
-                    teleport = True
-                    cM = PathPoints(i + 1).MapID
-                End If
-
-                Waypoints.Add(New TransportWP(i, t, PathPoints(i + 1).X, PathPoints(i + 1).Y, PathPoints(i + 1).Z, PathPoints(i + 1).MapID, teleport))
-
-                t += PathPoints(i + 1).Delay * 1000
-            Next
-
-            CurrentWaypoint = 0
-            CurrentWaypoint = GetNextWaypoint()
-            NextWaypoint = GetNextWaypoint()
-            PathTime = t
-
-            NextNodeTime = Waypoints(CurrentWaypoint).Time
-
-            Return True
         End Function
 
         Public Function GetNextWaypoint() As Integer

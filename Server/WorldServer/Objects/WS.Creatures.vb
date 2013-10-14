@@ -153,9 +153,26 @@ Public Module WS_Creatures
             Damage.Maximum = (1.2F * BaseAttackTime / 1000.0F) * (LevelMax * 10.0F)
         End Sub
 
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            CREATURESDatabase.Remove(Id)
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                CREATURESDatabase.Remove(Id)
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
 
         Public ReadOnly Property Life() As Integer
             Get
@@ -1359,19 +1376,39 @@ Public Module WS_Creatures
             Catch
             End Try
         End Sub
-        Private Sub Dispose() Implements System.IDisposable.Dispose
-            If Me.aiScript IsNot Nothing Then Me.aiScript.Dispose()
 
-            Me.RemoveFromWorld()
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
 
-            Try
-                WORLD_CREATUREs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                WORLD_CREATUREs.Remove(GUID)
-                WORLD_CREATUREsKeys.Remove(GUID)
-                WORLD_CREATUREs_Lock.ReleaseWriterLock()
-            Catch
-            End Try
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                If Me.aiScript IsNot Nothing Then Me.aiScript.Dispose()
+
+                Me.RemoveFromWorld()
+
+                Try
+                    WORLD_CREATUREs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_CREATUREs.Remove(GUID)
+                    WORLD_CREATUREsKeys.Remove(GUID)
+                    WORLD_CREATUREs_Lock.ReleaseWriterLock()
+                    ExpireTimer.Dispose()
+                Catch
+                End Try
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub Destroy(Optional ByVal state As Object = Nothing)
             'TODO: Remove pets also
             If SummonedBy > 0 Then

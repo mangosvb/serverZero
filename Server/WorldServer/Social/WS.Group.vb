@@ -27,7 +27,6 @@ Public Module WS_Group
     Public Class Group
         Implements IDisposable
 
-
         Public ID As Long
         Public Type As GroupType = GroupType.PARTY
         Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
@@ -43,10 +42,27 @@ Public Module WS_Group
             ID = GroupID
             GROUPs.Add(ID, Me)
         End Sub
-        Public Sub Dispose() Implements IDisposable.Dispose
-            GROUPs.Remove(ID)
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                GROUPs.Remove(ID)
+            End If
+            Me.disposedValue = True
         End Sub
 
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
 
         Public Sub Broadcast(ByVal p As PacketClass)
             p.UpdateLength()

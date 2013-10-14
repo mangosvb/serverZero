@@ -735,6 +735,9 @@ Public Module WS_Combat
                 ' TODO: set large fields to null.
                 NextAttackTimer.Dispose()
                 NextAttackTimer = Nothing
+
+                combatNextAttack.Dispose()
+
             End If
             Me.disposedValue = True
         End Sub
