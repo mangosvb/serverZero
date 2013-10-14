@@ -28,6 +28,7 @@ Imports System.Runtime.CompilerServices
 Imports System.Collections.Generic
 Imports System.Security.Permissions
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
 
 

@@ -24,6 +24,7 @@ Imports System.Net
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
 
 

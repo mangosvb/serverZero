@@ -20,7 +20,7 @@ Imports System.Threading
 Imports System.Reflection
 Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
-
+Imports mangosVB.Common.NativeMethods
 
 #Region "WS.Commands.Attributes"
 <AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)> _

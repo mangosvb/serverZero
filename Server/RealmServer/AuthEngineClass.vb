@@ -20,7 +20,7 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Security.Cryptography
 Imports mangosVB.Common
-
+Imports mangosVB.Common.NativeMethods
 
 Public Class AuthEngineClass
     Implements IDisposable
@@ -29,7 +29,7 @@ Public Class AuthEngineClass
 #Region "AuthEngine.Constructive"
     Shared Sub New()
         AuthEngineClass.CrcSalt = New Byte(16 - 1) {}
-        AuthEngineClass.RAND_bytes(CrcSalt, 16)
+        RAND_bytes(CrcSalt, 16)
 
     End Sub
     Public Sub New()
@@ -42,41 +42,7 @@ Public Class AuthEngineClass
         Me.PublicB = New Byte(32 - 1) {}
         Me.b = New Byte(20 - 1) {}
     End Sub
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_add(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_bin2bn(ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_bn2bin(ByVal a As IntPtr, ByVal [to] As Byte()) As Integer
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_CTX_free(ByVal a As IntPtr) As Integer
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_CTX_new() As IntPtr
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_mod(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_mod_exp(ByVal res As IntPtr, ByVal a As IntPtr, ByVal p As IntPtr, ByVal m As IntPtr, ByVal ctx As IntPtr) As IntPtr
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_mul(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    End Function
-
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function BN_new() As IntPtr
-    End Function
+    
 
 
 #Region "IDisposable Support"
@@ -105,21 +71,21 @@ Public Class AuthEngineClass
 #Region "AuthEngine.Calculations"
     Private Sub CalculateB()
         Dim encoding1 As New UTF7Encoding
-        AuthEngineClass.RAND_bytes(Me.b, 20)
-        Dim ptr1 As IntPtr = AuthEngineClass.BN_New
-        Dim ptr2 As IntPtr = AuthEngineClass.BN_New
-        Dim ptr3 As IntPtr = AuthEngineClass.BN_New
-        Dim ptr4 As IntPtr = AuthEngineClass.BN_New
-        Me.BNPublicB = AuthEngineClass.BN_New
-        Dim ptr5 As IntPtr = AuthEngineClass.BN_ctx_new
+        RAND_bytes(Me.b, 20)
+        Dim ptr1 As IntPtr = BN_new()
+        Dim ptr2 As IntPtr = BN_new()
+        Dim ptr3 As IntPtr = BN_new()
+        Dim ptr4 As IntPtr = BN_new()
+        Me.BNPublicB = BN_new()
+        Dim ptr5 As IntPtr = BN_ctx_new
         Array.Reverse(Me.b)
-        Me.BNb = AuthEngineClass.BN_Bin2BN(Me.b, Me.b.Length, IntPtr.Zero)
+        Me.BNb = BN_bin2bn(Me.b, Me.b.Length, IntPtr.Zero)
         Array.Reverse(Me.b)
-        AuthEngineClass.BN_mod_exp(ptr1, Me.BNg, Me.BNb, Me.BNn, ptr5)
-        AuthEngineClass.BN_mul(ptr2, Me.BNk, Me.BNv, ptr5)
-        AuthEngineClass.BN_add(ptr3, ptr1, ptr2)
-        AuthEngineClass.BN_Mod(Me.BNPublicB, ptr3, Me.BNn, ptr5)
-        AuthEngineClass.BN_bn2bin(Me.BNPublicB, Me.PublicB)
+        BN_mod_exp(ptr1, Me.BNg, Me.BNb, Me.BNn, ptr5)
+        BN_mul(ptr2, Me.BNk, Me.BNv, ptr5)
+        BN_Add(ptr3, ptr1, ptr2)
+        BN_Mod(Me.BNPublicB, ptr3, Me.BNn, ptr5)
+        BN_bn2bin(Me.BNPublicB, Me.PublicB)
         Array.Reverse(Me.PublicB)
     End Sub
     Private Sub CalculateK()
@@ -139,17 +105,17 @@ Public Class AuthEngineClass
         Me.M2 = algorithm1.ComputeHash(buffer1)
     End Sub
     Private Sub CalculateS()
-        Dim ptr1 As IntPtr = AuthEngineClass.BN_New
-        Dim ptr2 As IntPtr = AuthEngineClass.BN_New
-        Dim ptr3 As IntPtr = AuthEngineClass.BN_New
-        Dim ptr4 As IntPtr = AuthEngineClass.BN_New
-        Me.BNS = AuthEngineClass.BN_New
-        Dim ptr5 As IntPtr = AuthEngineClass.BN_ctx_new
+        Dim ptr1 As IntPtr = BN_new()
+        Dim ptr2 As IntPtr = BN_new()
+        Dim ptr3 As IntPtr = BN_new()
+        Dim ptr4 As IntPtr = BN_new()
+        Me.BNS = BN_new()
+        Dim ptr5 As IntPtr = BN_CTX_new()
         Me.S = New Byte(32 - 1) {}
-        AuthEngineClass.BN_mod_exp(ptr1, Me.BNv, Me.BNU, Me.BNn, ptr5)
-        AuthEngineClass.BN_mul(ptr2, Me.BNA, ptr1, ptr5)
-        AuthEngineClass.BN_mod_exp(Me.BNS, ptr2, Me.BNb, Me.BNn, ptr5)
-        AuthEngineClass.BN_bn2bin(Me.BNS, Me.S)
+        BN_mod_exp(ptr1, Me.BNv, Me.BNU, Me.BNn, ptr5)
+        BN_mul(ptr2, Me.BNA, ptr1, ptr5)
+        BN_mod_exp(Me.BNS, ptr2, Me.BNb, Me.BNn, ptr5)
+        BN_bn2bin(Me.BNS, Me.S)
         Array.Reverse(Me.S)
         Me.CalculateK()
     End Sub
@@ -161,17 +127,17 @@ Public Class AuthEngineClass
         Buffer.BlockCopy(Me.PublicB, 0, buffer1, a.Length, Me.PublicB.Length)
         Me.U = algorithm1.ComputeHash(buffer1)
         Array.Reverse(Me.U)
-        Me.BNU = AuthEngineClass.BN_Bin2BN(Me.U, Me.U.Length, IntPtr.Zero)
+        Me.BNU = BN_bin2bn(Me.U, Me.U.Length, IntPtr.Zero)
         Array.Reverse(Me.U)
         Array.Reverse(Me.A)
-        Me.BNA = AuthEngineClass.BN_Bin2BN(Me.A, Me.A.Length, IntPtr.Zero)
+        Me.BNA = BN_bin2bn(Me.A, Me.A.Length, IntPtr.Zero)
         Array.Reverse(Me.A)
         Me.CalculateS()
     End Sub
     Private Sub CalculateV()
-        Me.BNv = AuthEngineClass.BN_New
-        Dim ptr1 As IntPtr = AuthEngineClass.BN_ctx_new
-        AuthEngineClass.BN_mod_exp(Me.BNv, Me.BNg, Me.BNx, Me.BNn, ptr1)
+        Me.BNv = BN_new()
+        Dim ptr1 As IntPtr = BN_CTX_new()
+        BN_mod_exp(Me.BNv, Me.BNg, Me.BNx, Me.BNn, ptr1)
         Me.CalculateB()
     End Sub
     Public Sub CalculateX(ByVal username As Byte(), ByVal pwHash As Byte())
@@ -185,15 +151,15 @@ Public Class AuthEngineClass
         Buffer.BlockCopy(Me.salt, 0, buffer5, 0, Me.salt.Length)
         buffer3 = algorithm1.ComputeHash(buffer5)
         Array.Reverse(buffer3)
-        Me.BNx = AuthEngineClass.BN_bin2bn(buffer3, buffer3.Length, IntPtr.Zero)
+        Me.BNx = BN_bin2bn(buffer3, buffer3.Length, IntPtr.Zero)
         Array.Reverse(Me.g)
-        Me.BNg = AuthEngineClass.BN_bin2bn(Me.g, Me.g.Length, IntPtr.Zero)
+        Me.BNg = BN_bin2bn(Me.g, Me.g.Length, IntPtr.Zero)
         Array.Reverse(Me.g)
         Array.Reverse(Me.k)
-        Me.BNk = AuthEngineClass.BN_bin2bn(Me.k, Me.k.Length, IntPtr.Zero)
+        Me.BNk = BN_bin2bn(Me.k, Me.k.Length, IntPtr.Zero)
         Array.Reverse(Me.k)
         Array.Reverse(Me.N)
-        Me.BNn = AuthEngineClass.BN_bin2bn(Me.N, Me.N.Length, IntPtr.Zero)
+        Me.BNn = BN_bin2bn(Me.N, Me.N.Length, IntPtr.Zero)
         Array.Reverse(Me.N)
         Me.CalculateV()
     End Sub
@@ -301,10 +267,6 @@ Public Class AuthEngineClass
         Return buffer1
     End Function
 
-    <DllImport("LIBEAY32.DLL", CallingConvention:=CallingConvention.Cdecl)> _
-    Private Shared Function RAND_bytes(ByVal buf As Byte(), ByVal num As Integer) As Integer
-
-    End Function
 
     Private Shared Function Split(ByVal bo As Byte()) As ArrayList
         Dim buffer1 As Byte() = New Byte((bo.Length - 1) - 1) {}

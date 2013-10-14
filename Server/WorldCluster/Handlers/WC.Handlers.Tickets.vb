@@ -17,6 +17,7 @@
 '
 
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
 
 
