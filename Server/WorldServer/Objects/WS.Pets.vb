@@ -234,7 +234,7 @@ Public Module WS_Pets
         Dim response As New PacketClass(OPCODES.SMSG_PET_NAME_QUERY_RESPONSE)
         response.AddInt32(PetNumber)
         response.AddString(CType(WORLD_CREATUREs(PetGUID), PetObject).PetName) 'Pet name
-        response.AddInt32(timeGetTime) 'Pet name timestamp
+        response.AddInt32(timeGetTime("")) 'Pet name timestamp
         Client.Send(response)
         response.Dispose()
     End Sub

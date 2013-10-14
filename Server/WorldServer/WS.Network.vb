@@ -40,8 +40,8 @@ Public Module WS_Network
     Public WC_MsTime As Integer = 0
 
     Public Function msTime() As Integer
-        'DONE: Calculate the clusters timeGetTime
-        Return WC_MsTime + (timeGetTime - LastPing)
+        'DONE: Calculate the clusters timeGetTime("")
+        Return WC_MsTime + (timeGetTime("") - LastPing)
     End Function
 
     Public Class WorldServerClass
@@ -91,7 +91,7 @@ Public Module WS_Network
                 ClusterConnect()
 
                 'Creating connection timer
-                LastPing = timeGetTime
+                LastPing = timeGetTime("")
                 m_Connection = New Timer(AddressOf CheckConnection, Nothing, 10000, 10000)
 
                 'Creating CPU check timer
@@ -229,21 +229,21 @@ Public Module WS_Network
         End Function
 
         Public Function Ping(ByVal Timestamp As Integer, ByVal Latency As Integer) As Integer Implements IWorld.Ping
-            Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime - Timestamp)
-            LastPing = timeGetTime
+            Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime("") - Timestamp)
+            LastPing = timeGetTime("")
             WC_MsTime = Timestamp + Latency
 
-            Return timeGetTime
+            Return timeGetTime("")
         End Function
 
         Public Sub CheckConnection(ByVal State As Object)
-            If (timeGetTime - LastPing) > 40000 Then
+            If (timeGetTime("") - LastPing) > 40000 Then
                 If Cluster IsNot Nothing Then
                     Log.WriteLine(LogType.FAILED, "Cluster timed out. Reconnecting")
                     ClusterDisconnect()
                 End If
                 ClusterConnect()
-                LastPing = timeGetTime
+                LastPing = timeGetTime("")
             End If
         End Sub
 
@@ -380,15 +380,15 @@ Public Module WS_Network
 
                 While Packets.Count > 0
                     Dim p As PacketClass = Packets.Dequeue
-                    Dim start As Integer = timeGetTime
+                    Dim start As Integer = timeGetTime("")
 
                     Dim OpCode As OPCODES = p.OpCode
                     If PacketHandlers.ContainsKey(OpCode) = True Then
                         Try
                             PacketHandlers(OpCode).Invoke(p, Me)
 
-                            If timeGetTime - start > 100 Then
-                                Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime - start)
+                            If timeGetTime("") - start > 100 Then
+                                Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
                             End If
                         Catch e As Exception 'TargetInvocationException
                             Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, CType(p.OpCode, OPCODES))

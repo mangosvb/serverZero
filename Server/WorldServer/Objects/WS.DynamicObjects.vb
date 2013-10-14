@@ -71,7 +71,7 @@ Public Module WS_DynamicObjects
             Duration = Duration_
             Radius = Radius_
 
-            CastTime = timeGetTime
+            CastTime = timeGetTime("")
         End Sub
 
         Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)

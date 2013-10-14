@@ -567,7 +567,7 @@ Public Module WS_Creatures
                 Dim packet As New PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
                 packet.AddPackGUID(GUID)
                 packet.AddInt32(0) 'Movementflags
-                packet.AddInt32(timeGetTime)
+                packet.AddInt32(timeGetTime(""))
                 packet.AddSingle(positionX)
                 packet.AddSingle(positionY)
                 packet.AddSingle(positionZ)
@@ -592,7 +592,7 @@ Public Module WS_Creatures
             If aiScript Is Nothing Then Exit Sub
             If Forced = False AndAlso aiScript.State = TBaseAI.AIState.AI_MOVING_TO_SPAWN Then Exit Sub
 
-            Dim timeDiff As Integer = timeGetTime - LastMove
+            Dim timeDiff As Integer = timeGetTime("") - LastMove
             If (Forced OrElse aiScript.IsMoving) AndAlso LastMove > 0 AndAlso timeDiff < LastMove_Time Then
                 Dim distance As Single
 
@@ -662,7 +662,7 @@ Public Module WS_Creatures
             OldX = positionX
             OldY = positionY
             OldZ = positionZ
-            LastMove = timeGetTime
+            LastMove = timeGetTime("")
             LastMove_Time = TimeToMove
             PositionUpdated = False
             positionX = x
@@ -712,7 +712,7 @@ Public Module WS_Creatures
                     Dim packet As New PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
                     packet.AddPackGUID(GUID)
                     packet.AddInt32(0) 'Movementflags
-                    packet.AddInt32(timeGetTime)
+                    packet.AddInt32(timeGetTime(""))
                     packet.AddSingle(positionX)
                     packet.AddSingle(positionY)
                     packet.AddSingle(positionZ)

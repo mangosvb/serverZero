@@ -785,10 +785,10 @@ Public Module WS_Combat
             End If
 
             Dim AttackSpeed As Integer = GetAttackTime(Character, False)
-            If (timeGetTime - LastAttack) >= AttackSpeed Then
+            If (timeGetTime("") - LastAttack) >= AttackSpeed Then
                 DoAttack(Nothing)
             Else
-                NextAttackTimer.Change((timeGetTime - LastAttack), Timeout.Infinite)
+                NextAttackTimer.Change((timeGetTime("") - LastAttack), Timeout.Infinite)
             End If
         End Sub
         Public Sub DoAttack(ByVal Status As Object)
@@ -799,7 +799,7 @@ Public Module WS_Combat
                 Exit Sub
             End If
 
-            LastAttack = timeGetTime
+            LastAttack = timeGetTime("")
             Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_START_ATTACK)
             Try
                 If Ranged Then

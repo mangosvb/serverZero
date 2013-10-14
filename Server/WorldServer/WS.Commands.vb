@@ -1342,7 +1342,7 @@ Public Module WS_Commands
                 End If
             End If
 
-            Dim timeStart As Integer = timeGetTime
+            Dim timeStart As Integer = timeGetTime("")
 
             Dim height As Single = GetVMapHeight(c.MapID, c.positionX, c.positionY, c.positionZ + 2.0F)
 
@@ -1351,7 +1351,7 @@ Public Module WS_Commands
                 isInLOS = IsInLineOfSight(c, target)
             End If
 
-            Dim timeTaken As Integer = timeGetTime - timeStart
+            Dim timeTaken As Integer = timeGetTime("") - timeStart
 
             If height = VMAP_INVALID_HEIGHT_VALUE Then
                 c.CommandResponse(String.Format("Unable to retrieve VMap height for your location."))

@@ -381,7 +381,7 @@ Public Module WS_Handlers_Taxi
                 SMSG_MONSTER_MOVE.AddSingle(Character.positionX)
                 SMSG_MONSTER_MOVE.AddSingle(Character.positionY)
                 SMSG_MONSTER_MOVE.AddSingle(Character.positionZ)
-                SMSG_MONSTER_MOVE.AddInt32(timeGetTime)
+                SMSG_MONSTER_MOVE.AddInt32(timeGetTime(""))
                 SMSG_MONSTER_MOVE.AddInt8(0)
                 SMSG_MONSTER_MOVE.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
                 SMSG_MONSTER_MOVE.AddInt32(Fix(TotalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
@@ -408,7 +408,7 @@ Public Module WS_Handlers_Taxi
                     p.AddSingle(Character.positionX)
                     p.AddSingle(Character.positionY)
                     p.AddSingle(Character.positionZ)
-                    p.AddInt32(timeGetTime)
+                    p.AddInt32(timeGetTime(""))
                     p.AddInt8(0)
                     p.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
                     p.AddInt32(Fix(TotalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
