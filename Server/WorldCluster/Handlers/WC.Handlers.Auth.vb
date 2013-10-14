@@ -83,7 +83,7 @@ Public Module WC_Handlers_Auth
         'DONE: Set Client.SS_Hash
         Dim result As New DataTable
         Dim query As String
-        query = "SELECT * FROM accounts WHERE username = '" & Client.Account & "';"
+        query = "SELECT * FROM accounts WHERE account = '" & Client.Account & "';"
         AccountDatabase.Query(query, result)
         If result.Rows.Count > 0 Then
             tmp = result.Rows(0).Item("last_sshash")
@@ -210,7 +210,7 @@ Public Module WC_Handlers_Auth
             If DataID > 7 Then Exit Sub
 
             Dim AccData As New DataTable
-            AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
+            AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE account = ""{0}"";", Client.Account), AccData)
             If AccData.Rows.Count = 0 Then
                 Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Account ID not found]", Client.IP, Client.Port)
                 Exit Sub
@@ -258,7 +258,7 @@ Public Module WC_Handlers_Auth
 
         Dim FoundData As Boolean = False
         Dim AccData As New DataTable
-        AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
+        AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE account = ""{0}"";", Client.Account), AccData)
         If AccData.Rows.Count > 0 Then
             Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
 
@@ -345,7 +345,7 @@ Public Module WC_Handlers_Auth
         Dim Account_ID As Integer
 
         Try
-            AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = '{0}';", Client.Account), MySQLQuery)
+            AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE account = '{0}';", Client.Account), MySQLQuery)
             Account_ID = CType(MySQLQuery.Rows(0).Item("account_id"), Integer)
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE account_id = '{0}' ORDER BY char_guid;", Account_ID), MySQLQuery)

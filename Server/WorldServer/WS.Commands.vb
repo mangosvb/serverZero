@@ -1673,12 +1673,12 @@ Public Module WS_Commands
         If Name = "" Then Return False
 
         Dim result As New DataTable
-        AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & Name & """;", result)
+        AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & Name & """;", result)
         If result.Rows.Count > 0 Then
             If result.Rows(0).Item("banned") = 1 Then
                 c.CommandResponse(String.Format("Account [{0}] already banned.", Name))
             Else
-                AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE username = """ & Name & """;")
+                AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE account = """ & Name & """;")
                 c.CommandResponse(String.Format("Account [{0}] banned.", Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] banned by [{2}].", c.Client.IP.ToString, c.Client.Port, c.Name, Name)
             End If
@@ -1693,12 +1693,12 @@ Public Module WS_Commands
         If Name = "" Then Return False
 
         Dim result As New DataTable
-        AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & Name & """;", result)
+        AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & Name & """;", result)
         If result.Rows.Count > 0 Then
             If result.Rows(0).Item("banned") = 0 Then
                 c.CommandResponse(String.Format("Account [{0}] is not banned.", Name))
             Else
-                AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE username = """ & Name & """;")
+                AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE account = """ & Name & """;")
                 c.CommandResponse(String.Format("Account [{0}] unbanned.", Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] unbanned by [{2}].", c.Client.IP.ToString, c.Client.Port, c.Name, Name)
             End If
@@ -2031,7 +2031,7 @@ Public Module WS_Commands
         Dim aName As String = acct(0)
         Dim aPassword As String = acct(1)
         Dim aEmail As String = acct(2)
-        AccountDatabase.Query("SELECT account FROM accounts WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query("SELECT account FROM accounts WHERE account = """ & aName & """;", result)
         If result.Rows.Count > 0 Then
             c.CommandResponse(String.Format("Account [{0}] already exists.", aName))
         Else
@@ -2039,7 +2039,7 @@ Public Module WS_Commands
             Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
             Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-            AccountDatabase.Insert(String.Format("INSERT INTO accounts (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+            AccountDatabase.Insert(String.Format("INSERT INTO accounts (account, password, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
             c.CommandResponse(String.Format("Account [{0}] has been created.", aName))
         End If
         Return True
@@ -2055,7 +2055,7 @@ Public Module WS_Commands
         Dim aName As String = acct(0)
         Dim aPassword As String = acct(1)
 
-        AccountDatabase.Query("SELECT account_id, plevel FROM accounts WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query("SELECT account_id, plevel FROM accounts WHERE account = """ & aName & """;", result)
         If result.Rows.Count = 0 Then
             c.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else
@@ -2096,7 +2096,7 @@ Public Module WS_Commands
             Return True
         End If
 
-        AccountDatabase.Query("SELECT account_id, plevel FROM accounts WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query("SELECT account_id, plevel FROM accounts WHERE account = """ & aName & """;", result)
         If result.Rows.Count = 0 Then
             c.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else

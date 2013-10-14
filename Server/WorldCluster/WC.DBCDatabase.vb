@@ -23,7 +23,7 @@ Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WS_DBCDatabase
-
+ 
 
 #Region "Maps"
 
