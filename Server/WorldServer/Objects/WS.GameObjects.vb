@@ -67,9 +67,26 @@ Public Module WS_GameObjects
             ScriptName = MySQLQuery.Rows(0).Item("ScriptName")
         End Sub
 
-        Public Sub Dispose() Implements System.IDisposable.Dispose
-            GAMEOBJECTSDatabase.Remove(ID)
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                GAMEOBJECTSDatabase.Remove(ID)
+            End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
     End Class
     'WARNING: Use only with WORLD_GAMEOBJECTs()
     Public Class GameObjectObject
@@ -247,17 +264,37 @@ Public Module WS_GameObjects
             Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 3, Rotations(3))
             'Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_TIMESTAMP, msTime) ' Changed in 1.12.x client branch?
         End Sub
-        Private Sub Dispose() Implements System.IDisposable.Dispose
-            Me.RemoveFromWorld()
-            If Not Loot Is Nothing AndAlso Type <> GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then Loot.Dispose()
-            If TypeOf Me Is TransportObject Then
-                WORLD_TRANSPORTs_Lock.AcquireWriterLock(Timeout.Infinite)
-                WORLD_TRANSPORTs.Remove(GUID)
-                WORLD_TRANSPORTs_Lock.ReleaseWriterLock()
-            Else
-                WORLD_GAMEOBJECTs.Remove(GUID)
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Me.RemoveFromWorld()
+                If Not Loot Is Nothing AndAlso Type <> GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then Loot.Dispose()
+                If TypeOf Me Is TransportObject Then
+                    WORLD_TRANSPORTs_Lock.AcquireWriterLock(Timeout.Infinite)
+                    WORLD_TRANSPORTs.Remove(GUID)
+                    WORLD_TRANSPORTs_Lock.ReleaseWriterLock()
+                    RespawnTimer.Dispose()
+                Else
+                    WORLD_GAMEOBJECTs.Remove(GUID)
+                End If
             End If
+            Me.disposedValue = True
         End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
         Public Sub New(ByVal ID_ As Integer)
             'WARNING: Use only for spawning new object
             If Not GAMEOBJECTSDatabase.ContainsKey(ID_) Then
