@@ -20,7 +20,7 @@ Imports System.Threading
 Imports System.Reflection
 Imports System.Text.RegularExpressions
 Imports mangosVB.Common.BaseWriter
-
+Imports mangosVB.Common.NativeMethods
 
 
 Public Module WS_CharManagment

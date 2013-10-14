@@ -20,6 +20,7 @@ Imports System.IO
 Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
 Imports mangosVB.Common
+Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Warden
 
@@ -170,14 +171,6 @@ Public Module WS_Warden
 #End Region
 
 #Region "Prepare Module"
-        Private Declare Function LoadLibrary Lib "kernel32.dll" Alias "LoadLibraryA" (ByVal lpLibFileName As String) As Integer
-        Private Declare Function GetProcAddress Lib "kernel32.dll" (ByVal hModule As Integer, ByVal lpProcName As String) As Integer
-        Private Declare Function CloseHandle Lib "kernel32.dll" (ByVal hObject As Integer) As Integer
-        Private Declare Function VirtualProtect Lib "kernel32.dll" (ByVal lpAddress As Integer, ByVal dwSize As Integer, ByVal flNewProtect As Integer, ByRef lpflOldProtect As Integer) As Integer
-        Private Declare Function FlushInstructionCache Lib "kernel32.dll" (ByVal hProcess As Integer, ByVal lpBaseAddress As Integer, ByVal dwSize As Integer) As Integer
-        Private Declare Function GetCurrentProcess Lib "kernel32.dll" () As Integer
-        Private Declare Function VirtualFree Lib "kernel32.dll" (ByVal lpAddress As Integer, ByVal dwSize As Integer, ByVal dwFreeType As Integer) As Integer
-
         <StructLayout(LayoutKind.Explicit, Size:=&H8)> _
         Public Structure CLibraryEntry
             <FieldOffset(&H0)> _
@@ -851,8 +844,6 @@ Public Module WS_Warden
 #End Region
 
 #Region "Other functions"
-    Private Declare Function GlobalLock Lib "kernel32.dll" (ByVal hMem As Integer) As Integer
-    Private Declare Function GlobalUnlock Lib "kernel32.dll" (ByVal hMem As Integer) As Integer
 
     Private Function VarPtr(ByRef obj As Object) As Integer
         Dim gc As GCHandle = GCHandle.Alloc(obj, GCHandleType.Pinned)
