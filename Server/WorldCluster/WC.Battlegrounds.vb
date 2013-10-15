@@ -43,7 +43,7 @@ Public Module WC_Battlegrounds
         Public Type As BattlefieldType
         Public LevelMin As Byte
         Public LevelMax As Byte
-        Public MaxPlayersPerTeam As Integer = 10
+        Public MaxPlayersPerTeam As Integer = 10 'Is this right
         Public MinPlayersPerTeam As Integer = 10
 
         Public bfTimer As Timer
@@ -51,7 +51,7 @@ Public Module WC_Battlegrounds
         Public Sub New(ByVal rMapType As BattlefieldMapType, ByVal rLevel As Byte, ByVal rMap As UInteger)
             ID = Interlocked.Increment(BATTLEFIELDs_Counter)
             LevelMin = 0
-            LevelMax = 70
+            LevelMax = 60
             MapType = rMapType
             Map = rMap
             MaxPlayersPerTeam = Battlegrounds(rMapType).MaxPlayersPerTeam
@@ -133,10 +133,10 @@ Public Module WC_Battlegrounds
                 With WorldSafeLocs(Battlegrounds(MapType).AllianceStartLoc)
                     'TODO: WTF? characters_locations table? when?
                     'Dim q As New DataTable
-                    'Database.Query(String.Format("SELECT char_guid FROM characters_locations WHERE char_guid = {0};", c.GUID), q)
+                    'CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters_locations WHERE char_guid = {0};", c.GUID), q)
                     'If q.Rows.Count = 0 Then
                     '    'Save only first BG location
-                    '    Database.Update(String.Format("INSERT INTO characters_locations(char_guid, char_positionX, char_positionY, char_positionZ, char_zone_id, char_map_id, char_orientation) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});", _
+                    '    CharacterDatabase.Update(String.Format("INSERT INTO characters_locations(char_guid, char_positionX, char_positionY, char_positionZ, char_zone_id, char_map_id, char_orientation) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});", _
                     '                                                    c.GUID, Trim(Str(c.PositionX)), Trim(Str(c.PositionY)), Trim(Str(c.PositionZ)), c.Zone, c.Map, 0))
                     'End If
                     c.Transfer(.x, .y, .z, Battlegrounds(MapType).AllianceStartO, .map)
@@ -154,7 +154,7 @@ Public Module WC_Battlegrounds
 
                 'TODO: Still.. characters_locations, doesn't exist?
                 'Dim q As New DataTable
-                'Database.Query(String.Format("SELECT * FROM characters_locations WHERE char_guid = {0};", c.GUID), q)
+                'CharacterDatabase.Query(String.Format("SELECT * FROM characters_locations WHERE char_guid = {0};", c.GUID), q)
                 'If q.Rows.Count = 0 Then
                 '    SendMessageSystem(c.Client, "You don't have location saved!")
                 'Else
