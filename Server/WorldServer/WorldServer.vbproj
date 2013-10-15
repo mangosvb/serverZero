@@ -173,9 +173,6 @@
     <Compile Include="Global.System.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Global.Zip.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="WorldServer.vb">
       <SubType>Code</SubType>
     </Compile>

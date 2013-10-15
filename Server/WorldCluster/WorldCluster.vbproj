@@ -159,9 +159,6 @@
     <Compile Include="..\WorldServer\Global.Functions.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="..\WorldServer\Global.Zip.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Revision.vb" />
     <Compile Include="WC.Battlegrounds.vb" />
     <Compile Include="Global.Packets.vb" />
