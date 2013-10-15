@@ -74,7 +74,7 @@ Public Module WS_Mail
         'B = A - B '3-2=1
         'A = A - B '3-1=2
 
-        Dim MailTime As Integer = GetTimestamp(Now) + (DAY * 30) 'Set expiredate to today + 30 days
+        Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 30) 'Set expiredate to today + 30 days
         CharacterDatabase.Update(String.Format("UPDATE characters_mail SET mail_time = {1}, mail_read = 0, mail_receiver = (mail_receiver + mail_sender), mail_sender = (mail_receiver - mail_sender), mail_receiver = (mail_receiver - mail_sender) WHERE mail_id = {0};", MailID, MailTime))
 
         Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
@@ -108,7 +108,7 @@ Public Module WS_Mail
         Dim MailID As Integer = packet.GetInt32
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_MARK_AS_READ [MailID={2}]", Client.IP, Client.Port, MailID)
-        Dim MailTime As Integer = GetTimestamp(Now) + (DAY * 3) 'Set expiredate to today + 3 days
+        Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 3) 'Set expiredate to today + 3 days
         CharacterDatabase.Update(String.Format("UPDATE characters_mail SET mail_read = 1, mail_time = {1} WHERE mail_id = {0} AND mail_read < 2;", MailID, MailTime))
     End Sub
     Public Sub On_MSG_QUERY_NEXT_MAIL_TIME(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -208,7 +208,7 @@ Public Module WS_Mail
                     response.AddUInt32(CUInt(MySQLQuery.Rows(i).Item("mail_money")))    'Money on delivery
                     response.AddUInt32(CUInt(MySQLQuery.Rows(i).Item("mail_COD")))      'Money as COD
                     response.AddInt32(CInt(MySQLQuery.Rows(i).Item("mail_read")))
-                    response.AddSingle(((CType(MySQLQuery.Rows(i).Item("mail_time"), UInteger) - GetTimestamp(Now)) / DAY))
+                    response.AddSingle(((CType(MySQLQuery.Rows(i).Item("mail_time"), UInteger) - GetTimestamp(Now)) / mangosVB.Common.Constants.DAY))
                     response.AddInt32(0) 'Mail template ID
                 Next
             End If
@@ -259,7 +259,7 @@ Public Module WS_Mail
 
                     'DONE: Send COD to sender
                     'TODO: Edit text to be more blizzlike
-                    Dim MailTime As Integer = GetTimestamp(Now) + (DAY * 30) 'Set expiredate to today + 30 days
+                    Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 30) 'Set expiredate to today + 30 days
                     CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body,  mail_item_guid, mail_money, mail_COD, mail_time, mail_read, mail_type) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},{9});", Client.Character.GUID, MySQLQuery.Rows(0).Item("mail_sender"), "", "", 0, MySQLQuery.Rows(0).Item("mail_cod"), 0, MailTime, MailReadInfo.COD, 0))
                 End If
             End If
@@ -456,7 +456,7 @@ Public Module WS_Mail
             Client.Character.Copper -= 30 + Money
             Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
 
-            Dim MailTime As Integer = GetTimestamp(Now) + (DAY * 30) 'Add 30 days to the current date/time
+            Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 30) 'Add 30 days to the current date/time
             CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, mail_type, mail_stationary, item_guid) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},41,'{9}');", Client.Character.GUID, ReceiverGUID, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), 0, ItemGUID - GUID_ITEM))
 
             If ItemGUID > 0 Then Client.Character.ItemREMOVE(ItemGUID, False, True)

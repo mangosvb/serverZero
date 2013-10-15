@@ -21,6 +21,7 @@ Imports System.Reflection
 Imports System.Text.RegularExpressions
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
+Imports mangosVB.Common.Authenticator
 
 
 Public Module WS_CharManagment

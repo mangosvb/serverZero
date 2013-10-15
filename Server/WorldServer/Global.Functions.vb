@@ -16,11 +16,13 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Reflection
 Imports System.Text.RegularExpressions
 Imports mangosVB.Common.BaseWriter
-Imports System.Security.Cryptography
+Imports mangosVB.Common.Races
+Imports mangosVB.Common.Classes
+Imports mangosVB.Common
+
+
 
 Public Module Functions
 
@@ -194,7 +196,8 @@ Public Module Functions
             If (bannedAccount.Rows.Count > 0) Then
                 AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accID & "';")
             Else
-                AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", Name, Reason))
+                Dim tempBanDate As String = FormatDateTime(DateTime.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(DateTime.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
+                AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, tempBanDate, "0000-00-00 00:00:00", Name, Reason))
             End If
             Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
         Else
@@ -207,23 +210,23 @@ Public Module Functions
 
     Public Function GetClassName(ByRef Classe As Integer) As String
         Select Case Classe
-            Case Classes.CLASS_DRUID
+            Case CLASS_DRUID
                 GetClassName = "Druid"
-            Case Classes.CLASS_HUNTER
+            Case CLASS_HUNTER
                 GetClassName = "Hunter"
-            Case Classes.CLASS_MAGE
+            Case mangosVB.Common.Classes.CLASS_MAGE
                 GetClassName = "Mage"
-            Case Classes.CLASS_PALADIN
+            Case CLASS_PALADIN
                 GetClassName = "Paladin"
-            Case Classes.CLASS_PRIEST
+            Case CLASS_PRIEST
                 GetClassName = "Priest"
-            Case Classes.CLASS_ROGUE
+            Case CLASS_ROGUE
                 GetClassName = "Rogue"
-            Case Classes.CLASS_SHAMAN
+            Case CLASS_SHAMAN
                 GetClassName = "Shaman"
-            Case Classes.CLASS_WARLOCK
+            Case CLASS_WARLOCK
                 GetClassName = "Warlock"
-            Case Classes.CLASS_WARRIOR
+            Case CLASS_WARRIOR
                 GetClassName = "Warrior"
             Case Else
                 GetClassName = "Unknown Class"
@@ -231,43 +234,43 @@ Public Module Functions
     End Function
     Public Function GetRaceName(ByRef Race As Integer) As String
         Select Case Race
-            Case Races.RACE_DWARF
+            Case RACE_DWARF
                 GetRaceName = "Dwarf"
-            Case Races.RACE_GNOME
+            Case RACE_GNOME
                 GetRaceName = "Gnome"
-            Case Races.RACE_HUMAN
+            Case RACE_HUMAN
                 GetRaceName = "Human"
-            Case Races.RACE_NIGHT_ELF
+            Case RACE_NIGHT_ELF
                 GetRaceName = "Night Elf"
-            Case Races.RACE_ORC
+            Case RACE_ORC
                 GetRaceName = "Orc"
-            Case Races.RACE_TAUREN
+            Case RACE_TAUREN
                 GetRaceName = "Tauren"
-            Case Races.RACE_TROLL
+            Case RACE_TROLL
                 GetRaceName = "Troll"
-            Case Races.RACE_UNDEAD
+            Case RACE_UNDEAD
                 GetRaceName = "Undead"
             Case Else
                 GetRaceName = "Unknown Race"
         End Select
     End Function
-    Public Function GetRaceModel(ByVal Race As Races, ByVal Gender As Integer) As Integer
+    Public Function GetRaceModel(ByVal Race As mangosVB.Common.Races, ByVal Gender As Integer) As Integer
         Select Case Race
-            Case Races.RACE_HUMAN
+            Case RACE_HUMAN
                 Return 49 + Gender
-            Case Races.RACE_ORC
+            Case RACE_ORC
                 Return 51 + Gender
-            Case Races.RACE_DWARF
+            Case RACE_DWARF
                 Return 53 + Gender
-            Case Races.RACE_NIGHT_ELF
+            Case RACE_NIGHT_ELF
                 Return 55 + Gender
-            Case Races.RACE_UNDEAD
+            Case RACE_UNDEAD
                 Return 57 + Gender
-            Case Races.RACE_TAUREN
+            Case RACE_TAUREN
                 Return 59 + Gender
-            Case Races.RACE_GNOME
+            Case RACE_GNOME
                 Return 1563 + Gender
-            Case Races.RACE_TROLL
+            Case RACE_TROLL
                 Return 1478 + Gender
             Case Else
                 Return 16358                    'PinkPig
@@ -275,7 +278,7 @@ Public Module Functions
     End Function
     Public Function GetCharacterSide(ByVal Race As Byte) As Boolean
         Select Case Race
-            Case Races.RACE_DWARF, Races.RACE_GNOME, Races.RACE_HUMAN, Races.RACE_NIGHT_ELF
+            Case RACE_DWARF, RACE_GNOME, RACE_HUMAN, RACE_NIGHT_ELF
                 Return False
             Case Else
                 Return True

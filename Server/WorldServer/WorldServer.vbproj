@@ -154,7 +154,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Global.BigInteger.vb" />
-    <Compile Include="Global.Constants.vb" />
     <Compile Include="Gossip\WS.GuardGossip.vb" />
     <Compile Include="Handlers\WS.Handlers.Warden.vb" />
     <Compile Include="Objects\WS.Transports.vb" />
@@ -164,9 +163,6 @@
     <Compile Include="Objects\WS.Totems.vb" />
     <Compile Include="Objects\WS.DynamicObjects.vb" />
     <Compile Include="Global.Functions.vb" />
-    <Compile Include="Global.Opcodes.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Global.Packets.vb">
       <SubType>Code</SubType>
     </Compile>
