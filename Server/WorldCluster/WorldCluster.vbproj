@@ -150,16 +150,7 @@
     <Compile Include="AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="..\WorldServer\Global.Opcodes.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="..\WorldServer\Global.Constants.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="..\WorldServer\Global.Functions.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="..\WorldServer\Global.Zip.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Revision.vb" />

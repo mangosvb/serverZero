@@ -187,6 +187,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FileWriter.vb" />
+    <Compile Include="Global.Constants.vb" />
+    <Compile Include="Global.Converter.vb" />
+    <Compile Include="Global.Opcodes.vb" />
+    <Compile Include="Global.Zip.vb" />
     <Compile Include="IrcWriter.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="NativeMethods.vb" />

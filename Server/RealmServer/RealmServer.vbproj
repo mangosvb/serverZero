@@ -162,9 +162,6 @@
     <Compile Include="AuthEngineClass.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Global.Converter.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="RealmServer.vb">
       <SubType>Code</SubType>
     </Compile>

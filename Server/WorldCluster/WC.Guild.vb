@@ -1,4 +1,6 @@
-﻿'
+﻿Imports mangosVB.Common
+
+'
 ' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -265,7 +267,7 @@ Public Module WC_Guild
                 response.AddInt32(Members.Rows(i).Item("char_zone_id"))
                 '0 = < 1 hour / 0.1 = 2.4 hours / 1 = 24 hours (1 day)
                 '(Time logged out / 86400) = Days offline
-                Dim DaysOffline As Single = (GetTimestamp(Now) - CUInt(Members.Rows(i).Item("char_logouttime"))) / DAY
+                Dim DaysOffline As Single = (GetTimestamp(Now) - CUInt(Members.Rows(i).Item("char_logouttime"))) / DateInterval.Day
                 response.AddSingle(DaysOffline) 'Days offline
                 response.AddString(Members.Rows(i).Item("char_guildPNote"))
                 If Officer Then
