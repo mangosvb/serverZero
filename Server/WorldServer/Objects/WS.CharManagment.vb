@@ -6069,7 +6069,6 @@ DoneAmmo:
         Dim Character As New CharacterObject
         Dim MySQLQuery As New DataTable
 
-
         'DONE: Make name capitalized as on official
         Character.Name = CapitalizeName(Name)
         Character.Race = Race
@@ -6081,11 +6080,10 @@ DoneAmmo:
         Character.HairColor = HairColor
         Character.FacialHair = FacialHair
 
-
         'DONE: Query Access Level and Account ID
-        AccountDatabase.Query(String.Format("SELECT account_id, plevel FROM accounts WHERE username = ""{0}"";", Account), MySQLQuery)
-        Dim Account_ID As Integer = CType(MySQLQuery.Rows(0).Item("account_id"), Integer)
-        Dim Account_Access As AccessLevel = CType(MySQLQuery.Rows(0).Item("plevel"), AccessLevel)
+        AccountDatabase.Query(String.Format("SELECT id, gmlevel FROM account WHERE username = ""{0}"";", Account), MySQLQuery)
+        Dim Account_ID As Integer = CType(MySQLQuery.Rows(0).Item("id"), Integer)
+        Dim Account_Access As AccessLevel = CType(MySQLQuery.Rows(0).Item("gmlevel"), AccessLevel)
         Character.Access = Account_Access
 
         If Not ValidateName(Character.Name) Then

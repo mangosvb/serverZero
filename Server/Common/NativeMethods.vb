@@ -93,7 +93,7 @@ Public Class NativeMethods
     End Function
 
     Public Shared Function BN_new(ByVal dummy As String) As IntPtr
-        Return BN_new("")
+        Return BN_new()
     End Function
 
     <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _

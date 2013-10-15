@@ -43,8 +43,6 @@ Public Class AuthEngineClass
         Me.b = New Byte(20 - 1) {}
     End Sub
     
-
-
 #Region "IDisposable Support"
     Private disposedValue As Boolean ' To detect redundant calls
 
@@ -163,8 +161,6 @@ Public Class AuthEngineClass
         Array.Reverse(Me.N)
         Me.CalculateV()
     End Sub
-
-
     Public Sub CalculateM1()
         Dim algorithm1 As New SHA1Managed
         Dim N_Hash As Byte() = New Byte(20 - 1) {}
@@ -266,8 +262,6 @@ Public Class AuthEngineClass
         Next num2
         Return buffer1
     End Function
-
-
     Private Shared Function Split(ByVal bo As Byte()) As ArrayList
         Dim buffer1 As Byte() = New Byte((bo.Length - 1) - 1) {}
         If (((bo.Length Mod 2) <> 0) AndAlso (bo.Length > 2)) Then
@@ -297,8 +291,6 @@ Public Class AuthEngineClass
 #End Region
 
 #Region "AuthEngine.Variables"
-
-
     Private A As Byte()
     Private b As Byte()
     Public PublicB As Byte()

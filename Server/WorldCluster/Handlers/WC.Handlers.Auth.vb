@@ -83,11 +83,11 @@ Public Module WC_Handlers_Auth
         'DONE: Set Client.SS_Hash
         Dim result As New DataTable
         Dim query As String
-        query = "SELECT * FROM accounts WHERE username = '" & Client.Account & "';"
+        query = "SELECT sessionkey, gmlevel FROM account WHERE username = '" & Client.Account & "';"
         AccountDatabase.Query(query, result)
         If result.Rows.Count > 0 Then
-            tmp = result.Rows(0).Item("last_sshash")
-            Client.Access = result.Rows(0).Item("plevel")
+            tmp = result.Rows(0).Item("sessionkey")
+            Client.Access = result.Rows(0).Item("gmlevel")
         Else
             Log.WriteLine(LogType.USER, "[{0}:{1}] AUTH_UNKNOWN_ACCOUNT: Account not in DB!", Client.IP, Client.Port)
             Dim response_no_acc As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
@@ -209,41 +209,42 @@ Public Module WC_Handlers_Auth
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [ID={2} Size={3}]", Client.IP, Client.Port, DataID, UncompressedSize)
             If DataID > 7 Then Exit Sub
 
-            Dim AccData As New DataTable
-            AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
-            If AccData.Rows.Count = 0 Then
-                Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Account ID not found]", Client.IP, Client.Port)
-                Exit Sub
-            End If
+            'TODO: How does Mangos Zero Handle the Account Data For the Character?
+            'Dim AccData As New DataTable
+            'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
+            'If AccData.Rows.Count = 0 Then
+            '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Account ID not found]", Client.IP, Client.Port)
+            '    Exit Sub
+            'End If
 
-            Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
-            AccData.Clear()
+            'Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
+            'AccData.Clear()
 
             'DONE: Clear the entry
-            If UncompressedSize = 0 Then
-                AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`='' WHERE `account_id`={1}", DataID, AccID))
-                Exit Sub
-            End If
+            'If UncompressedSize = 0 Then
+            '    AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`='' WHERE `account_id`={1}", DataID, AccID))
+            '    Exit Sub
+            'End If
 
             'DONE: Can not handle more than 65534 bytes
-            If UncompressedSize >= 65534 Then
-                Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Invalid uncompressed size]", Client.IP, Client.Port)
-                Exit Sub
-            End If
+            'If UncompressedSize >= 65534 Then
+            '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Invalid uncompressed size]", Client.IP, Client.Port)
+            '    Exit Sub
+            'End If
 
             Dim ReceivedPacketSize As Integer = packet.Data.Length - packet.Offset
-            Dim dataStr As String
+            'Dim dataStr As String
             'DONE: Check if it's compressed, if so, decompress it
-            If UncompressedSize > ReceivedPacketSize Then
-                Dim compressedBuffer(ReceivedPacketSize - 1) As Byte
-                Array.Copy(packet.Data, packet.Offset, compressedBuffer, 0, compressedBuffer.Length)
+            'If UncompressedSize > ReceivedPacketSize Then
+            '    Dim compressedBuffer(ReceivedPacketSize - 1) As Byte
+            '    Array.Copy(packet.Data, packet.Offset, compressedBuffer, 0, compressedBuffer.Length)
+            '
+            '    dataStr = ToHex(DeCompress(compressedBuffer))
+            'Else
+            '    dataStr = ToHex(packet.Data, packet.Offset)
+            'End If
 
-                dataStr = ToHex(DeCompress(compressedBuffer))
-            Else
-                dataStr = ToHex(packet.Data, packet.Offset)
-            End If
-
-            AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`={2} WHERE `account_id`={1};", DataID, AccID, dataStr))
+            'AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`={2} WHERE `account_id`={1};", DataID, AccID, dataStr))
 
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error while updating account data.{0}", vbNewLine & e.ToString)
@@ -257,41 +258,40 @@ Public Module WC_Handlers_Auth
         If DataID > 7 Then Exit Sub
 
         Dim FoundData As Boolean = False
-        Dim AccData As New DataTable
-        AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
-        If AccData.Rows.Count > 0 Then
-            Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
-
-            AccData.Clear()
-            AccountDatabase.Query(String.Format("SELECT `account_data{1}` FROM account_data WHERE account_id = {0}", AccID, DataID), AccData)
-            If AccData.Rows.Count > 0 Then FoundData = True
-        End If
+        'Dim AccData As New DataTable
+        'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
+        'If AccData.Rows.Count > 0 Then
+        '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
+        '
+        '    AccData.Clear()
+        '    AccountDatabase.Query(String.Format("SELECT `account_data{1}` FROM account_data WHERE account_id = {0}", AccID, DataID), AccData)
+        '    If AccData.Rows.Count > 0 Then FoundData = True
+        'End If
 
         Dim response As New PacketClass(OPCODES.SMSG_UPDATE_ACCOUNT_DATA)
         response.AddUInt32(DataID)
 
-        If FoundData = False Then
-            response.AddInt32(0) 'Uncompressed buffer length
-        Else
-            Dim AccountData() As Byte = AccData.Rows(0).Item("account_data" & DataID)
-            If AccountData.Length > 0 Then
-                response.AddInt32(AccountData.Length) 'Uncompressed buffer length
-                'DONE: Compress buffer if it's longer than 200 bytes
-                If AccountData.Length > 200 Then
-                    Dim CompressedBuffer() As Byte = Compress(AccountData, 0, AccountData.Length)
-                    response.AddByteArray(CompressedBuffer)
-                Else
-                    response.AddByteArray(AccountData)
-                End If
-            Else
-                response.AddInt32(0) 'Uncompressed buffer length
-            End If
-        End If
+        'If FoundData = False Then
+        response.AddInt32(0) 'Uncompressed buffer length
+        'Else
+        'Dim AccountData() As Byte = AccData.Rows(0).Item("account_data" & DataID)
+        'If AccountData.Length > 0 Then
+        '    response.AddInt32(AccountData.Length) 'Uncompressed buffer length
+        'DONE: Compress buffer if it's longer than 200 bytes
+        'If AccountData.Length > 200 Then
+        '    Dim CompressedBuffer() As Byte = Compress(AccountData, 0, AccountData.Length)
+        '    response.AddByteArray(CompressedBuffer)
+        'Else
+        '    response.AddByteArray(AccountData)
+        'End If
+        'Else
+        '    response.AddInt32(0) 'Uncompressed buffer length
+        'End If
+        'End If
+
         Client.Send(response)
         response.Dispose()
     End Sub
-
-
 
     <Flags()> _
     Private Enum CharacterFlagState
@@ -345,8 +345,8 @@ Public Module WC_Handlers_Auth
         Dim Account_ID As Integer
 
         Try
-            AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = '{0}';", Client.Account), MySQLQuery)
-            Account_ID = CType(MySQLQuery.Rows(0).Item("account_id"), Integer)
+            AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = '{0}';", Client.Account), MySQLQuery)
+            Account_ID = CType(MySQLQuery.Rows(0).Item("id"), Integer)
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE account_id = '{0}' ORDER BY char_guid;", Account_ID), MySQLQuery)
 

@@ -304,8 +304,8 @@ Public Module WorldCluster
                                     Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                                     Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                                    AccountDatabase.InsertSQL([String].Format("INSERT INTO accounts (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
-                                    If AccountDatabase.QuerySQL("SELECT * FROM accounts WHERE username = """ & cmd(0) & """;") Then
+                                    AccountDatabase.InsertSQL([String].Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+                                    If AccountDatabase.QuerySQL("SELECT id FROM account WHERE username = """ & cmd(0) & """;") Then
                                         Console.ForegroundColor = System.ConsoleColor.Green
                                         Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
                                         Console.ForegroundColor = System.ConsoleColor.Gray

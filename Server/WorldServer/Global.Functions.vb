@@ -22,12 +22,9 @@ Imports System.Text.RegularExpressions
 Imports mangosVB.Common.BaseWriter
 Imports System.Security.Cryptography
 
-
 Public Module Functions
 
-
 #Region "System"
-
 
     Public Function ToInteger(ByVal Value As Boolean) As Integer
         If Value Then
@@ -36,7 +33,6 @@ Public Module Functions
             Return 0
         End If
     End Function
-
     Public Function ToHex(ByVal bBytes() As Byte, Optional ByVal start As Integer = 0) As String
         If bBytes.Length = 0 Then Return "''"
         Dim tmpStr As String = "0x"
@@ -49,7 +45,6 @@ Public Module Functions
         Next
         Return tmpStr
     End Function
-
     Public Function ByteToCharArray(ByVal bBytes() As Byte) As Char()
         If bBytes.Length = 0 Then Return New Char() {}
         Dim bChar(bBytes.Length - 1) As Char
@@ -58,7 +53,6 @@ Public Module Functions
         Next
         Return bChar
     End Function
-
     Public Function ByteToIntArray(ByVal bBytes() As Byte) As Integer()
         If bBytes.Length = 0 Then Return New Integer() {}
         Dim bInt(((bBytes.Length - 1) \ 4)) As Integer
@@ -67,7 +61,6 @@ Public Module Functions
         Next
         Return bInt
     End Function
-
     Public Function IntToByteArray(ByVal bInt() As Integer) As Byte()
         If bInt.Length = 0 Then Return New Byte() {}
         Dim bBytes((bInt.Length * 4) - 1) As Byte
@@ -77,7 +70,6 @@ Public Module Functions
         Next
         Return bBytes
     End Function
-
     Public Function Concat(ByVal a As Byte(), ByVal b As Byte()) As Byte()
         Dim buffer1 As Byte() = New Byte((a.Length + b.Length) - 1) {}
         Dim num1 As Integer
@@ -90,7 +82,6 @@ Public Module Functions
         Next num2
         Return buffer1
     End Function
-
     Public Function HaveFlag(ByVal value As UInteger, ByVal flagPos As Byte) As Boolean
         value = value >> CUInt(flagPos)
         value = value Mod 2
@@ -111,7 +102,6 @@ Public Module Functions
             value = (value And ((&H0UI << CUInt(flagPos)) And &HFFFFFFFFUI))
         End If
     End Sub
-
     Public Function GetNextDay(ByVal iDay As DayOfWeek, Optional ByVal Hour As Integer = 0) As DateTime
         Dim iDiff As Integer = CInt(iDay) - CInt(Today.DayOfWeek)
         If iDiff <= 0 Then iDiff += 7
@@ -151,11 +141,9 @@ Public Module Functions
             Return (seconds \ 86400) & "d " & ((seconds \ 3600) Mod 24) & "h " & ((seconds \ 60) Mod 60) & "m " & (seconds Mod 60) & "s"
         End If
     End Function
-
     Public Function EscapeString(ByVal s As String) As String
         Return s.Replace("""", "").Replace("'", "")
     End Function
-
     Public Function CapitalizeName(ByRef Name As String) As String
         If Name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
             Return UCase(Left(Name, 1)) & LCase(Right(Name, Name.Length - 1))
@@ -175,12 +163,9 @@ Public Module Functions
         If strName.Length < 2 OrElse strName.Length > 16 Then Return False
         Return Regex_Guild.IsMatch(strName)
     End Function
-
     Public Function FixName(ByVal strName As String) As String
         Return strName.Replace("""", "'").Replace("<", "").Replace(">", "").Replace("*", "").Replace("/", "").Replace("\", "").Replace(":", "").Replace("|", "").Replace("?", "")
     End Function
-
-
     Public Sub RAND_bytes(ByRef bBytes() As Byte, ByVal length As Integer)
         If length = 0 Then Exit Sub
         bBytes = New Byte(length - 1) {}
@@ -191,7 +176,6 @@ Public Module Functions
             bBytes(i) = rnd.Next(0, 256)
         Next
     End Sub
-
     Public Function MathLerp(ByVal value1 As Single, ByVal value2 As Single, ByVal amount As Single) As Single
         Return value1 + (value2 - value1) * amount
     End Function
@@ -199,17 +183,27 @@ Public Module Functions
 #End Region
 #Region "Database"
 
-
     Public Sub Ban_Account(ByVal Name As String, ByVal Reason As String)
-        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE username = """ & Name & """;")
+        Dim account As New DataTable
+        Dim bannedAccount As New DataTable
+        AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", Name), account)
+        If (account.Rows.Count > 0) Then
+            Dim accID As Integer = account.Rows(0).Item("id")
+            AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accID), bannedAccount)
 
-        Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
+            If (bannedAccount.Rows.Count > 0) Then
+                AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accID & "';")
+            Else
+                AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", Name, Reason))
+            End If
+            Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
+        Else
+            Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", Name)
+        End If
     End Sub
-
 
 #End Region
 #Region "Game"
-
 
     Public Function GetClassName(ByRef Classe As Integer) As String
         Select Case Classe
@@ -295,7 +289,6 @@ Public Module Functions
                 Return False
         End Select
     End Function
-
     Public Function SetColor(ByVal Message As String, ByVal Red As Byte, ByVal Green As Byte, ByVal Blue As Byte) As String
         SetColor = "|cFF"
         If Red < 16 Then
@@ -317,15 +310,12 @@ Public Module Functions
 
         'SetColor = String.Format("|cff{0:x}{1:x}{2:x}{3}|r", Red, Green, Blue, Message)
     End Function
-
     Public Function RollChance(ByVal Chance As Single) As Boolean
         Return (Chance >= (Rnd.NextDouble() * 100.0F))
     End Function
 
-
 #End Region
 #Region "Packets"
-
 
     Public Sub SendMessageMOTD(ByRef Client As ClientClass, ByVal Message As String)
         Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
@@ -349,42 +339,43 @@ Public Module Functions
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
     End Sub
-
     Public Sub SendAccountMD5(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim FoundData As Boolean = False
-        Dim AccData As New DataTable
-        AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
-        If AccData.Rows.Count > 0 Then
-            Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
 
-            AccData.Clear()
-            AccountDatabase.Query(String.Format("SELECT * FROM account_data WHERE account_id = {0}", AccID), AccData)
-            If AccData.Rows.Count > 0 Then
-                FoundData = True
-            Else
-                AccountDatabase.Update(String.Format("INSERT INTO account_data VALUES({0}, '', '', '', '', '', '', '', '')", AccID))
-            End If
-        End If
+        'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
+        'Dim AccData As New DataTable
+        'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE account = ""{0}"";", Client.Account), AccData)
+        'If AccData.Rows.Count > 0 Then
+        '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
+
+        '    AccData.Clear()
+        '    AccountDatabase.Query(String.Format("SELECT * FROM account_data WHERE account_id = {0}", AccID), AccData)
+        '    If AccData.Rows.Count > 0 Then
+        '        FoundData = True
+        '    Else
+        '        AccountDatabase.Update(String.Format("INSERT INTO account_data VALUES({0}, '', '', '', '', '', '', '', '')", AccID))
+        '    End If
+        'End If
 
         Dim SMSG_ACCOUNT_DATA_TIMES As New PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
 
-        Dim md5hash As MD5 = MD5.Create()
+        'Dim md5hash As MD5 = MD5.Create()
         For i As Integer = 0 To 7
             If FoundData Then
-                Dim tmpBytes() As Byte = AccData.Rows(0).Item("account_data" & i)
-                If tmpBytes.Length = 0 Then
-                    SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-                    SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-                Else
-                    SMSG_ACCOUNT_DATA_TIMES.AddByteArray(md5hash.ComputeHash(tmpBytes))
-                End If
+                'Dim tmpBytes() As Byte = AccData.Rows(0).Item("account_data" & i)
+                'If tmpBytes.Length = 0 Then
+                'SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                'SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                'Else
+                'SMSG_ACCOUNT_DATA_TIMES.AddByteArray(md5hash.ComputeHash(tmpBytes))
+                'End If
             Else
-                SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-                SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+            SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+            SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
             End If
         Next
-        md5hash.Clear()
-        md5hash = Nothing
+        'md5hash.Clear()
+        'md5hash = Nothing
 
         Client.Send(SMSG_ACCOUNT_DATA_TIMES)
         SMSG_ACCOUNT_DATA_TIMES.Dispose()
@@ -445,7 +436,6 @@ Public Module Functions
         packet.Dispose()
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", Client.IP, Client.Port, Seconds)
     End Sub
-
     Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
         Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
 
@@ -483,6 +473,7 @@ Public Module Functions
         STATUS_CORPSE = &H8
         STATUS_DEAD = &H10
     End Enum
+
     Public Enum PartyMemberStatsBits As Byte
         FIELD_STATUS = 0
         FIELD_LIFE_CURRENT = 1
@@ -494,6 +485,7 @@ Public Module Functions
         FIELD_ZONEID = 7
         FIELD_POSXPOSY = 8
     End Enum
+
     Public Enum PartyMemberStatsFlag As UInteger
         GROUP_UPDATE_FLAG_NONE = &H0 'nothing
         GROUP_UPDATE_FLAG_STATUS = &H1 'uint16, flags
@@ -527,6 +519,7 @@ Public Module Functions
         GROUP_UPDATE_FULL_PET = GROUP_UPDATE_FULL Or GROUP_UPDATE_PET
         GROUP_UPDATE_FULL_REQUEST_REPLY = &H7FFC0BFF
     End Enum
+
     Function BuildPartyMemberStatsOffline(ByVal GUID As ULong) As PacketClass
         Dim packet As New PacketClass(OPCODES.SMSG_PARTY_MEMBER_STATS_FULL)
         packet.AddPackGUID(GUID)
@@ -536,7 +529,6 @@ Public Module Functions
     End Function
 
 #End Region
-
 
 End Module
 

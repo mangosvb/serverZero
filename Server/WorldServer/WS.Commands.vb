@@ -1670,15 +1670,23 @@ Public Module WS_Commands
 
     <ChatCommandAttribute("Ban", "BAN <ACCOUNT> - Ban specified account from server.")> _
     Public Function cmdBan(ByRef c As CharacterObject, ByVal Name As String) As Boolean
+        'TODO: Allow Reason For BAN to be Specified, and Inserted.
         If Name = "" Then Return False
 
+        Dim account As New DataTable
+        AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
+        Dim accountID As ULong = account.Rows(0).Item("id")
+        Dim IP As Integer = account.Rows(0).Item("last_ip")
+
         Dim result As New DataTable
-        AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & Name & """;", result)
+        AccountDatabase.Query("SELECT active FROM account_banned WHERE id = " & accountID & ";", result)
         If result.Rows.Count > 0 Then
-            If result.Rows(0).Item("banned") = 1 Then
+            If result.Rows(0).Item("active") = 1 Then
                 c.CommandResponse(String.Format("Account [{0}] already banned.", Name))
             Else
-                AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE username = """ & Name & """;")
+                'TODO: We May Want To Allow Account and IP to be Banned Separately
+                AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}', active = 1);", accountID, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", c.Name, "No Reason Specified."))
+                AccountDatabase.Update(String.Format("INSERT INTO `ip_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}');", IP, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", c.Name, "No Reason Specified."))
                 c.CommandResponse(String.Format("Account [{0}] banned.", Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] banned by [{2}].", c.Client.IP.ToString, c.Client.Port, c.Name, Name)
             End If
@@ -1692,13 +1700,20 @@ Public Module WS_Commands
     Public Function cmdUnBan(ByRef c As CharacterObject, ByVal Name As String) As Boolean
         If Name = "" Then Return False
 
+        Dim account As New DataTable
+        AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
+        Dim accountID As ULong = account.Rows(0).Item("id")
+        Dim IP As Integer = account.Rows(0).Item("last_ip")
+
         Dim result As New DataTable
-        AccountDatabase.Query("SELECT banned FROM accounts WHERE username = """ & Name & """;", result)
+        AccountDatabase.Query("SELECT active FROM account_banned WHERE id = '" & accountID & "';", result)
         If result.Rows.Count > 0 Then
-            If result.Rows(0).Item("banned") = 0 Then
+            If result.Rows(0).Item("active") = 0 Then
                 c.CommandResponse(String.Format("Account [{0}] is not banned.", Name))
             Else
-                AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE username = """ & Name & """;")
+                'TODO: Do we want to update the account_banned, ip_banned tables or DELETE the records?
+                AccountDatabase.Update("UPDATE account_banned SET active = 0 WHERE id = '" & accountID & "';")
+                AccountDatabase.Update(String.Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
                 c.CommandResponse(String.Format("Account [{0}] unbanned.", Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] unbanned by [{2}].", c.Client.IP.ToString, c.Client.Port, c.Name, Name)
             End If
@@ -2031,7 +2046,7 @@ Public Module WS_Commands
         Dim aName As String = acct(0)
         Dim aPassword As String = acct(1)
         Dim aEmail As String = acct(2)
-        AccountDatabase.Query("SELECT account FROM accounts WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query("SELECT username FROM account WHERE username = """ & aName & """;", result)
         If result.Rows.Count > 0 Then
             c.CommandResponse(String.Format("Account [{0}] already exists.", aName))
         Else
@@ -2039,7 +2054,7 @@ Public Module WS_Commands
             Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
             Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-            AccountDatabase.Insert(String.Format("INSERT INTO accounts (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+            AccountDatabase.Insert(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
             c.CommandResponse(String.Format("Account [{0}] has been created.", aName))
         End If
         Return True
@@ -2055,11 +2070,11 @@ Public Module WS_Commands
         Dim aName As String = acct(0)
         Dim aPassword As String = acct(1)
 
-        AccountDatabase.Query("SELECT account_id, plevel FROM accounts WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
         If result.Rows.Count = 0 Then
             c.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else
-            Dim targetLevel As AccessLevel = CType(result.Rows(0).Item("plevel"), AccessLevel)
+            Dim targetLevel As AccessLevel = CType(result.Rows(0).Item("gmlevel"), AccessLevel)
             If targetLevel >= c.Access Then
                 c.CommandResponse("You cannot change password for accounts with the same or a higher access level than yourself.")
             Else
@@ -2067,7 +2082,7 @@ Public Module WS_Commands
                 Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                 Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                AccountDatabase.Update(String.Format("UPDATE accounts SET password='{0}' WHERE account_id={1}", hashStr, result.Rows(0).Item("account_id")))
+                AccountDatabase.Update(String.Format("UPDATE account SET password='{0}' WHERE id={1}", hashStr, result.Rows(0).Item("id")))
                 c.CommandResponse(String.Format("Account [{0}] now has a new password [{1}].", aName, aPassword))
             End If
         End If
@@ -2096,22 +2111,20 @@ Public Module WS_Commands
             Return True
         End If
 
-        AccountDatabase.Query("SELECT account_id, plevel FROM accounts WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
         If result.Rows.Count = 0 Then
             c.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else
-            Dim targetLevel As AccessLevel = CType(result.Rows(0).Item("plevel"), AccessLevel)
+            Dim targetLevel As AccessLevel = CType(result.Rows(0).Item("gmlevel"), AccessLevel)
             If targetLevel >= c.Access Then
                 c.CommandResponse("You cannot set access levels to accounts with the same or a higher access level than yourself.")
             Else
-                AccountDatabase.Update(String.Format("UPDATE accounts SET plevel={0} WHERE account_id={1}", CByte(newLevel), result.Rows(0).Item("account_id")))
+                AccountDatabase.Update(String.Format("UPDATE account SET gmlevel={0} WHERE id={1}", CByte(newLevel), result.Rows(0).Item("id")))
                 c.CommandResponse(String.Format("Account [{0}] now has access level [{1}].", aName, newLevel))
             End If
         End If
         Return True
     End Function
-
-
 
 #End Region
 #Region "WS.Commands.InternalCommands.HelperSubs"

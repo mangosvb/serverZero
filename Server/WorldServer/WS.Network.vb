@@ -177,8 +177,12 @@ Public Module WS_Network
 
             Dim c As New ClientClass(Client)
 
+            If CLIENTs.ContainsKey(ID) = True Then  'Ooops, the character is already loaded, remove it
+                CLIENTs.Remove(ID)
+            End If
             CLIENTs.Add(ID, c)
         End Sub
+
         Public Sub ClientDisconnect(ByVal ID As UInteger) Implements IWorld.ClientDisconnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", ID)
 
