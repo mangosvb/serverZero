@@ -22,6 +22,7 @@ Imports System.Text.RegularExpressions
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common.Authenticator
+Imports mangosVB.WorldServer.WS_Quests
 
 
 Public Module WS_CharManagment
@@ -2686,7 +2687,8 @@ CheckXPAgain:
                 'DONE: Fire quest event to check for if this item is required for quest
                 'TODO: This needs to be fired BEFORE the client has the item in the bag...
                 'NOTE: Not only quest items are needed for quests
-                OnQuestItemAdd(Me, tmpEntry, tmpCount)
+                Dim questSystem As New WS_Quests()
+                questSystem.OnQuestItemAdd(Me, tmpEntry, tmpCount)
 
                 Return True
             End If
@@ -5194,7 +5196,8 @@ DoneAmmo:
             Me.HonorLoad()
 
             'DONE: Load quests in progress
-            LoadQuests(Me)
+            Dim questSystem As New WS_Quests()
+            questSystem.LoadQuests(Me)
 
             'DONE: Initialize Internal fields
             Me.Initialize()
@@ -5600,7 +5603,8 @@ DoneAmmo:
             For i = 0 To QUEST_SLOTS
                 If TalkQuests(i) Is Nothing Then
                     'DONE: Initialize quest info
-                    CreateQuest(TalkQuests(i), Quest)
+                    Dim questSystem As New WS_Quests()
+                    questSystem.CreateQuest(TalkQuests(i), Quest)
 
                     'DONE: Initialize quest
                     If TypeOf TalkQuests(i) Is BaseQuestScripted Then

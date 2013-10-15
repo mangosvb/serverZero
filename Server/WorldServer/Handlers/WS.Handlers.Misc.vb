@@ -220,7 +220,8 @@ Public Module WS_Handlers_Misc
 
         If GuidIsCreature(GUID) AndAlso WORLD_CREATUREs.ContainsKey(GUID) Then
             'DONE: Some quests needs emotes being done
-            OnQuestDoEmote(Client.Character, WORLD_CREATUREs(GUID), TextEmote)
+            Dim questSystem As New WS_Quests()
+            questSystem.OnQuestDoEmote(Client.Character, WORLD_CREATUREs(GUID), TextEmote)
 
             'DONE: Doing emotes to guards
             If WORLD_CREATUREs(GUID).aiScript IsNot Nothing AndAlso (TypeOf WORLD_CREATUREs(GUID).aiScript Is GuardAI) Then

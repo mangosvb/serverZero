@@ -1860,7 +1860,8 @@ Public Module WS_Items
                 If Client.Character.Items.ContainsKey(srcSlot) = False Then Exit Sub
                 'DONE: Fire quest event to check for if this item is required for quest
                 'NOTE: Not only quest items are needed for quests
-                OnQuestItemRemove(Client.Character, Client.Character.Items(srcSlot).ItemEntry, Count)
+                Dim questSystem As New WS_Quests()
+                questSystem.OnQuestItemRemove(Client.Character, Client.Character.Items(srcSlot).ItemEntry, Count)
 
                 If Count = 0 Or Count >= Client.Character.Items(srcSlot).StackCount Then
                     If srcSlot < INVENTORY_SLOT_BAG_END Then Client.Character.UpdateRemoveItemStats(Client.Character.Items(srcSlot), srcSlot)
@@ -1876,7 +1877,8 @@ Public Module WS_Items
                 If Client.Character.Items(srcBag).Items.ContainsKey(srcSlot) = False Then Exit Sub
                 'DONE: Fire quest event to check for if this item is required for quest
                 'NOTE: Not only quest items are needed for quests
-                OnQuestItemRemove(Client.Character, Client.Character.Items(srcBag).Items(srcSlot).ItemEntry, Count)
+                Dim questSystem As New WS_Quests()
+                questSystem.OnQuestItemRemove(Client.Character, Client.Character.Items(srcBag).Items(srcSlot).ItemEntry, Count)
 
                 If Count = 0 Or Count >= Client.Character.Items(srcBag).Items(srcSlot).StackCount Then
                     Client.Character.ItemREMOVE(srcBag, srcSlot, True, True)

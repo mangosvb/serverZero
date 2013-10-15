@@ -422,7 +422,11 @@ Public Module RS_Main
                         Next
 
                         Client.Language = ClientLanguage
-                        Client.Expansion = result.Rows(0).Item("expansion")
+                        If Not IsDBNull(result.Rows(0).Item("expansion")) Then
+                            Client.Expansion = result.Rows(0).Item("expansion")
+                        Else
+                            Client.Expansion = ExpansionLevel.NORMAL
+                        End If
 
                         Try
                             Client.AuthEngine = New AuthEngineClass
@@ -456,42 +460,42 @@ Public Module RS_Main
                         Client.Send(data_response, "RS_LOGON_CHALLENGE-FAIL-BADPWFORMAT")
                     End If
 
-                    Exit Sub
+                        Exit Sub
                 Case AccountState.LOGIN_UNKNOWN_ACCOUNT
-                    Console.WriteLine("[{0}] [{1}:{2}] Account not found [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
-                    Dim data_response(1) As Byte
-                    data_response(0) = CMD_AUTH_LOGON_PROOF
-                    data_response(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
-                    Client.Send(data_response, "RS_LOGON_CHALLENGE-UNKNOWN_ACCOUNT")
-                    Exit Sub
+                        Console.WriteLine("[{0}] [{1}:{2}] Account not found [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                        Dim data_response(1) As Byte
+                        data_response(0) = CMD_AUTH_LOGON_PROOF
+                        data_response(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
+                        Client.Send(data_response, "RS_LOGON_CHALLENGE-UNKNOWN_ACCOUNT")
+                        Exit Sub
                 Case AccountState.LOGIN_BANNED
-                    Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
-                    Dim data_response(1) As Byte
-                    data_response(0) = CMD_AUTH_LOGON_PROOF
-                    data_response(1) = AccountState.LOGIN_BANNED
-                    Client.Send(data_response, "RS_LOGON_CHALLENGE-BANNED")
-                    Exit Sub
+                        Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                        Dim data_response(1) As Byte
+                        data_response(0) = CMD_AUTH_LOGON_PROOF
+                        data_response(1) = AccountState.LOGIN_BANNED
+                        Client.Send(data_response, "RS_LOGON_CHALLENGE-BANNED")
+                        Exit Sub
                 Case AccountState.LOGIN_NOTIME
-                    Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
-                    Dim data_response(1) As Byte
-                    data_response(0) = CMD_AUTH_LOGON_PROOF
-                    data_response(1) = AccountState.LOGIN_NOTIME
-                    Client.Send(data_response, "RS_LOGON_CHALLENGE-NOTIME")
-                    Exit Sub
+                        Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                        Dim data_response(1) As Byte
+                        data_response(0) = CMD_AUTH_LOGON_PROOF
+                        data_response(1) = AccountState.LOGIN_NOTIME
+                        Client.Send(data_response, "RS_LOGON_CHALLENGE-NOTIME")
+                        Exit Sub
                 Case AccountState.LOGIN_ALREADYONLINE
-                    Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
-                    Dim data_response(1) As Byte
-                    data_response(0) = CMD_AUTH_LOGON_PROOF
-                    data_response(1) = AccountState.LOGIN_ALREADYONLINE
-                    Client.Send(data_response, "RS_LOGON_CHALLENGE-ALREADYONLINE")
-                    Exit Sub
+                        Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                        Dim data_response(1) As Byte
+                        data_response(0) = CMD_AUTH_LOGON_PROOF
+                        data_response(1) = AccountState.LOGIN_ALREADYONLINE
+                        Client.Send(data_response, "RS_LOGON_CHALLENGE-ALREADYONLINE")
+                        Exit Sub
                 Case Else
-                    Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
-                    Dim data_response(1) As Byte
-                    data_response(0) = CMD_AUTH_LOGON_PROOF
-                    data_response(1) = AccountState.LOGIN_FAILED
-                    Client.Send(data_response, "RS_LOGON_CHALLENGE-FAILED")
-                    Exit Sub
+                        Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), Client.IP, Client.Port, packet_account)
+                        Dim data_response(1) As Byte
+                        data_response(0) = CMD_AUTH_LOGON_PROOF
+                        data_response(1) = AccountState.LOGIN_FAILED
+                        Client.Send(data_response, "RS_LOGON_CHALLENGE-FAILED")
+                        Exit Sub
             End Select
         Else
             If Dir("Updates/wow-patch-" & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & "-" & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & ".mpq") <> "" Then

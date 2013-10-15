@@ -19,13 +19,15 @@
 Imports mangosVB.Common.BaseWriter
 
 
-Public Module WS_Quests
+Public Class WS_Quests
     Const QUEST_OBJECTIVES_COUNT As Integer = 3
     Const QUEST_REWARD_CHOICES_COUNT As Integer = 5
     Const QUEST_REWARDS_COUNT As Integer = 3
     Const QUEST_DEPLINK_COUNT As Integer = 9
 
     Public Const QUEST_SLOTS As Integer = 24
+
+    Const QUEST_SHARING_DISTANCE As Integer = 10
 
     '-QUEST TYPE-
     '81 = Burn ?
@@ -229,7 +231,8 @@ Public Module WS_Quests
             PreQuests = New List(Of Integer)
             Dim MySQLQuery As New DataTable
 
-            QUESTs.Add(ID, Me)
+            Dim questSystem As New WS_Quests()
+            questSystem.QUESTs.Add(ID, Me)
 
             WorldDatabase.Query(String.Format("SELECT * FROM quests WHERE entry = {0};", QuestID), MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Throw New ApplicationException("Quest " & QuestID & " not found in database.")
@@ -395,19 +398,20 @@ Public Module WS_Quests
         ''' Initializes the quest.
         ''' </summary>
         Private Sub InitQuest()
+            Dim questSystem As New WS_Quests()
             If NextQuestInChain > 0 Then
-                If QUESTs.ContainsKey(NextQuestInChain) = False Then Dim tmpQuest As New QuestInfo(NextQuestInChain)
-                If QUESTs(NextQuestInChain).PreQuests.Contains(ID) = False Then
+                If questSystem.QUESTs.ContainsKey(NextQuestInChain) = False Then Dim tmpQuest As New QuestInfo(NextQuestInChain)
+                If questSystem.QUESTs(NextQuestInChain).PreQuests.Contains(ID) = False Then
                     Log.WriteLine(LogType.DEBUG, "Added [{0}] to quest [{1}] prequests.", ID, NextQuestInChain)
-                    QUESTs(NextQuestInChain).PreQuests.Add(ID)
+                    questSystem.QUESTs(NextQuestInChain).PreQuests.Add(ID)
                 End If
             End If
             If NextQuest <> 0 Then
                 Dim unsignedNextQuest As Integer = Math.Abs(NextQuest)
                 Dim signedQuestID As Integer = If((NextQuest < 0), -ID, ID)
-                If QUESTs.ContainsKey(unsignedNextQuest) = False Then Dim tmpQuest As New QuestInfo(unsignedNextQuest)
-                If QUESTs(unsignedNextQuest).PreQuests.Contains(signedQuestID) = False Then
-                    QUESTs(unsignedNextQuest).PreQuests.Add(signedQuestID)
+                If questSystem.QUESTs.ContainsKey(unsignedNextQuest) = False Then Dim tmpQuest As New QuestInfo(unsignedNextQuest)
+                If questSystem.QUESTs(unsignedNextQuest).PreQuests.Contains(signedQuestID) = False Then
+                    questSystem.QUESTs(unsignedNextQuest).PreQuests.Add(signedQuestID)
                 End If
             End If
         End Sub
@@ -418,32 +422,37 @@ Public Module WS_Quests
         ''' <param name="objChar">The objChar.</param>
         ''' <returns></returns>
         Public Function CanSeeQuest(ByRef objChar As CharacterObject) As Boolean
-            If (CInt(objChar.Level) + 6) < Level_Start Then Return False
-            If RequiredClass > 0 AndAlso RequiredClass <> objChar.Classe Then Return False
-            If ZoneOrSort < 0 Then
-                Dim reqSort As Byte = ClassByQuestSort(-ZoneOrSort)
-                If reqSort > 0 AndAlso reqSort <> objChar.Classe Then Return False
-            End If
-            If RequiredRace <> 0 AndAlso (RequiredRace And objChar.RaceMask) = 0 Then Return False
-            If RequiredTradeSkill > 0 Then
-                If objChar.Skills.ContainsKey(RequiredTradeSkill) = False Then Return False
-                If objChar.Skills(RequiredTradeSkill).Current < RequiredTradeSkillValue Then Return False
-            End If
-            If RequiredMinReputation_Faction > 0 AndAlso objChar.GetReputationValue(RequiredMinReputation_Faction) < RequiredMinReputation Then Return False
-            If RequiredMaxReputation_Faction > 0 AndAlso objChar.GetReputationValue(RequiredMaxReputation_Faction) >= RequiredMaxReputation Then Return False
-            Dim mysqlQuery As New DataTable
-            If PreQuests.Count > 0 Then
-                'Check if we have done the prequest
-                For Each QuestID As Integer In PreQuests
-                    If QuestID > 0 Then 'If we haven't done this prequest we can't do this quest
-                        If objChar.QuestsCompleted.Contains(QuestID) = False Then Return False
-                    ElseIf QuestID < 0 Then 'If we have done this prequest we can't do this quest
-                        If objChar.QuestsCompleted.Contains(QuestID) Then Return False
-                    End If
-                Next
-            End If
-            If objChar.QuestsCompleted.Contains(ID) Then Return False 'We have already completed this quest
-            Return True
+            Try
+                If (CInt(objChar.Level) + 6) < Level_Start Then Return False
+                If RequiredClass > 0 AndAlso RequiredClass <> objChar.Classe Then Return False
+                If ZoneOrSort < 0 Then
+                    Dim questSystem As New WS_Quests()
+                    Dim reqSort As Byte = questSystem.ClassByQuestSort(-ZoneOrSort)
+                    If reqSort > 0 AndAlso reqSort <> objChar.Classe Then Return False
+                End If
+                If RequiredRace <> 0 AndAlso (RequiredRace And objChar.RaceMask) = 0 Then Return False
+                If RequiredTradeSkill > 0 Then
+                    If objChar.Skills.ContainsKey(RequiredTradeSkill) = False Then Return False
+                    If objChar.Skills(RequiredTradeSkill).Current < RequiredTradeSkillValue Then Return False
+                End If
+                If RequiredMinReputation_Faction > 0 AndAlso objChar.GetReputationValue(RequiredMinReputation_Faction) < RequiredMinReputation Then Return False
+                If RequiredMaxReputation_Faction > 0 AndAlso objChar.GetReputationValue(RequiredMaxReputation_Faction) >= RequiredMaxReputation Then Return False
+                Dim mysqlQuery As New DataTable
+                If PreQuests.Count > 0 Then
+                    'Check if we have done the prequest
+                    For Each QuestID As Integer In PreQuests
+                        If QuestID > 0 Then 'If we haven't done this prequest we can't do this quest
+                            If objChar.QuestsCompleted.Contains(QuestID) = False Then Return False
+                        ElseIf QuestID < 0 Then 'If we have done this prequest we can't do this quest
+                            If objChar.QuestsCompleted.Contains(QuestID) Then Return False
+                        End If
+                    Next
+                End If
+                If objChar.QuestsCompleted.Contains(ID) Then Return False 'We have already completed this quest
+                Return True
+            Catch ex As Exception
+                Stop
+            End Try
         End Function
 
         ''' <summary>
@@ -500,6 +509,7 @@ Public Module WS_Quests
             ObjectivesType = {0, 0, 0, 0}
             ObjectivesItemCount = {0, 0, 0, 0}
             ObjectivesCount = {0, 0, 0, 0}
+            ObjectivesObject = {0, 0, 0, 0}
             Explored = True
             Progress = {0, 0, 0, 0}
             ProgressItem = {0, 0, 0, 0}
@@ -710,7 +720,8 @@ Public Module WS_Quests
             IsCompleted()
             objChar.TalkUpdateQuest(Slot)
 
-            SendQuestMessageAddKill(objChar.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+            Dim questSystem As New WS_Quests()
+            questSystem.SendQuestMessageAddKill(objChar.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
         End Sub
 
         ''' <summary>
@@ -724,7 +735,8 @@ Public Module WS_Quests
             IsCompleted()
             objChar.TalkUpdateQuest(Slot)
 
-            SendQuestMessageAddKill(objChar.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+            Dim questSystem As New WS_Quests()
+            questSystem.SendQuestMessageAddKill(objChar.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
         End Sub
 
         ''' <summary>
@@ -736,7 +748,8 @@ Public Module WS_Quests
             IsCompleted()
             objChar.TalkUpdateQuest(Slot)
 
-            SendQuestMessageComplete(objChar.Client, ID)
+            Dim questSystem As New WS_Quests()
+            questSystem.SendQuestMessageComplete(objChar.Client, ID)
         End Sub
 
         ''' <summary>
@@ -749,7 +762,8 @@ Public Module WS_Quests
             IsCompleted()
             objChar.TalkUpdateQuest(Slot)
 
-            SendQuestMessageComplete(objChar.Client, ID)
+            Dim questSystem As New WS_Quests()
+            questSystem.SendQuestMessageComplete(objChar.Client, ID)
         End Sub
 
         ''' <summary>
@@ -766,7 +780,8 @@ Public Module WS_Quests
 
             'TODO: When item quest event is fired as it should, remove -1 here.
             Dim ItemCount As Integer = Count - 1
-            SendQuestMessageAddItem(objChar.Client, ObjectivesItem(index), ItemCount)
+            Dim questSystem As New WS_Quests()
+            questSystem.SendQuestMessageAddItem(objChar.Client, ObjectivesItem(index), ItemCount)
         End Sub
 
         ''' <summary>
@@ -838,10 +853,21 @@ Public Module WS_Quests
         If CreatureQuestStarters.ContainsKey(CreatureEntry) Then
             For Each QuestID As Integer In CreatureQuestStarters(CreatureEntry)
                 If alreadyHave.Contains(QuestID) Then Continue For
-                If Not QUESTs.ContainsKey(QuestID) Then Dim tmpQuest As New QuestInfo(QuestID)
-                If QUESTs(QuestID).CanSeeQuest(objChar) Then
-                    If QUESTs(QuestID).SatisfyQuestLevel(objChar) Then
-                        QuestMenu.AddMenu(QUESTs(QuestID).Title, QuestID, QUESTs(QuestID).Level_Normal, QuestgiverStatus.DIALOG_STATUS_AVAILABLE)
+                If Not QUESTs.ContainsKey(QuestID) Then
+                    Try 'Sometimes Initialising Questinfo triggers an exception
+                        Dim tmpQuest As New QuestInfo(QuestID)
+                        If tmpQuest.CanSeeQuest(objChar) Then
+                            If tmpQuest.SatisfyQuestLevel(objChar) Then
+                                QuestMenu.AddMenu(tmpQuest.Title, QuestID, tmpQuest.Level_Normal, QuestgiverStatus.DIALOG_STATUS_AVAILABLE)
+                            End If
+                        End If
+                    Catch ex As Exception
+                    End Try
+                Else
+                    If QUESTs(QuestID).CanSeeQuest(objChar) Then
+                        If QUESTs(QuestID).SatisfyQuestLevel(objChar) Then
+                            QuestMenu.AddMenu(QUESTs(QuestID).Title, QuestID, QUESTs(QuestID).Level_Normal, QuestgiverStatus.DIALOG_STATUS_AVAILABLE)
+                        End If
                     End If
                 End If
             Next
@@ -2176,9 +2202,6 @@ Public Module WS_Quests
         End Try
     End Sub
 
-
-
-    Const QUEST_SHARING_DISTANCE As Integer = 10
     Public Sub On_CMSG_PUSHQUESTTOPARTY(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
@@ -2253,7 +2276,4 @@ Public Module WS_Quests
 
 
 #End Region
-
-
-
-End Module
+End Class
