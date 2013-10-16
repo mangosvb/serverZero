@@ -388,13 +388,17 @@ Public Module WS_Maps
 
         Public Function IsInLineOfSight(ByVal pos1 As Vector3, ByVal pos2 As Vector3) As Boolean
             Dim result As Boolean = True
-            Dim maxDist As Single = (pos2 - pos1).Magnitude()
+            Try
+                Dim maxDist As Single = (pos2 - pos1).Magnitude()
 
-            Dim ray As New Ray(pos1, (pos2 - pos1) / maxDist)
-            Dim resultDist As Single = GetIntersectionTime(ray, maxDist, True)
-            If resultDist < maxDist Then
-                result = False
-            End If
+                Dim ray As New Ray(pos1, (pos2 - pos1) / maxDist)
+                Dim resultDist As Single = GetIntersectionTime(ray, maxDist, True)
+                If resultDist < maxDist Then
+                    result = False
+                End If
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "Trapped Exception in WS.MAPS.IsInLineOfSight")
+            End Try
 
             Return result
         End Function
@@ -443,13 +447,18 @@ Public Module WS_Maps
         Public Function GetIntersectionTime(ByVal pRay As Ray, ByVal pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) As Single
             Dim firstDistance As Single = Single.PositiveInfinity
             Dim t As Single = pMaxDist
-            iTree.IntersectRay(pRay, t, pStopAtFirstHit, False)
+            Try
+                iTree.IntersectRay(pRay, t, pStopAtFirstHit, False)
 #If VMAPS_DEBUG Then
             Log.WriteLine(LogType.DEBUG, "GetIntersectionTime: {0}", t)
 #End If
-            If t > 0 AndAlso t < Single.PositiveInfinity AndAlso pMaxDist > t Then
-                firstDistance = t
-            End If
+                If t > 0 AndAlso t < Single.PositiveInfinity AndAlso pMaxDist > t Then
+                    firstDistance = t
+                End If
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "Trapped Exception in WS.MAPS.GetIntersectionTime")
+            End Try
+
             Return firstDistance
         End Function
 #End If
