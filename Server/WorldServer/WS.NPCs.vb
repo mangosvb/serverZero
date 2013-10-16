@@ -17,6 +17,7 @@
 '
 
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.WorldServer.WS_Quests
 
 Public Module WS_NPCs
 
@@ -927,163 +928,168 @@ Public Module WS_NPCs
             c.TalkMenuTypes.Clear()
 
             Dim CreatureInfo As CreatureInfo = WORLD_CREATUREs(cGUID).CreatureInfo
-
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) OrElse (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) Then
-                npcMenu.AddMenu("Let me browse your goods.", MenuIcon.MENUICON_VENDOR)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_VENDOR)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TAXIVENDOR) Then
-                npcMenu.AddMenu("I want to continue my journey.", MenuIcon.MENUICON_TAXI)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TAXIVENDOR)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TRAINER) Then
-                If CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_CLASS Then
-                    If CreatureInfo.Classe <> c.Classe Then
-                        Select Case CreatureInfo.Classe
-                            Case Classes.CLASS_DRUID
-                                TextID = 4913
-                            Case Classes.CLASS_HUNTER
-                                TextID = 10090
-                            Case Classes.CLASS_MAGE
-                                TextID = 328
-                            Case Classes.CLASS_PALADIN
-                                TextID = 1635
-                            Case Classes.CLASS_PRIEST
-                                TextID = 4436
-                            Case Classes.CLASS_ROGUE
-                                TextID = 4797
-                            Case Classes.CLASS_SHAMAN
-                                TextID = 5003
-                            Case Classes.CLASS_WARLOCK
-                                TextID = 5836
-                            Case Classes.CLASS_WARRIOR
-                                TextID = 4985
-                        End Select
-
-                        c.SendGossip(cGUID, TextID)
-                        Exit Sub
-                    Else
-                        npcMenu.AddMenu("I am interested in " & GetClassName(c.Classe) & " training.", MenuIcon.MENUICON_TRAINER)
-                        c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
-                        If c.Level >= 10 Then
-                            npcMenu.AddMenu("I want to unlearn all my talents.", MenuIcon.MENUICON_GOSSIP)
-                            c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TALENTWIPE)
-                        End If
-                    End If
-                ElseIf CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_MOUNTS Then
-                    If CreatureInfo.Race > 0 AndAlso CreatureInfo.Race <> c.Race AndAlso c.GetReputation(CreatureInfo.Faction) < ReputationRank.Exalted Then
-                        Select Case CreatureInfo.Race
-                            Case Races.RACE_DWARF
-                                TextID = 5865
-                            Case Races.RACE_GNOME
-                                TextID = 4881
-                            Case Races.RACE_HUMAN
-                                TextID = 5861
-                            Case Races.RACE_NIGHT_ELF
-                                TextID = 5862
-                            Case Races.RACE_ORC
-                                TextID = 5863
-                            Case Races.RACE_TAUREN
-                                TextID = 5864
-                            Case Races.RACE_TROLL
-                                TextID = 5816
-                            Case Races.RACE_UNDEAD
-                                TextID = 624
-                        End Select
-
-                        c.SendGossip(cGUID, TextID)
-                        Exit Sub
-                    Else
-                        npcMenu.AddMenu("I am interested in mount training.", MenuIcon.MENUICON_TRAINER)
-                        c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
-                    End If
-                ElseIf CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_TRADESKILLS Then
-                    If CreatureInfo.TrainerSpell > 0 AndAlso c.HaveSpell(CreatureInfo.TrainerSpell) = False Then
-                        TextID = 11031
-                        c.SendGossip(cGUID, TextID)
-                        Exit Sub
-                    Else
-                        npcMenu.AddMenu("I am interested in professions training.", MenuIcon.MENUICON_TRAINER)
-                        c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
-                    End If
-                ElseIf CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_PETS Then
-                    If c.Classe <> Classes.CLASS_HUNTER Then
-                        TextID = 3620
-                        c.SendGossip(cGUID, TextID)
-                        Exit Sub
-                    Else
-                        npcMenu.AddMenu("I am interested in pet training.", MenuIcon.MENUICON_TRAINER)
-                        c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
-                    End If
+            Try
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) OrElse (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) Then
+                    npcMenu.AddMenu("Let me browse your goods.", MenuIcon.MENUICON_VENDOR)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_VENDOR)
                 End If
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_SPIRITHEALER) Then
-                TextID = 580
-                npcMenu.AddMenu("Return me to life", MenuIcon.MENUICON_GOSSIP)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_SPIRITHEALER)
-            End If
-            'UNIT_NPC_FLAG_GUARD
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_INNKEEPER) Then
-                npcMenu.AddMenu("Make this inn your home.", MenuIcon.MENUICON_BINDER)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_INNKEEPER)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BANKER) Then
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BANKER)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_PETITIONER) Then
-                npcMenu.AddMenu("I am interested in guilds.", MenuIcon.MENUICON_PETITION)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_ARENACHARTER)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TABARDVENDOR) Then
-                npcMenu.AddMenu("I want to purchase a tabard.", MenuIcon.MENUICON_TABARD)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TABARDVENDOR)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BATTLEFIELDPERSON) Then
-                npcMenu.AddMenu("My blood hungers for battle.", MenuIcon.MENUICON_BATTLEMASTER)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BATTLEFIELD)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_AUCTIONEER) Then
-                npcMenu.AddMenu("Wanna auction something?", MenuIcon.MENUICON_AUCTIONER)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_AUCTIONEER)
-            End If
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_STABLE) Then
-                npcMenu.AddMenu("Let me check my pet.", MenuIcon.MENUICON_VENDOR)
-                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_STABLEPET)
-            End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TAXIVENDOR) Then
+                    npcMenu.AddMenu("I want to continue my journey.", MenuIcon.MENUICON_TAXI)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TAXIVENDOR)
+                End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TRAINER) Then
+                    If CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_CLASS Then
+                        If CreatureInfo.Classe <> c.Classe Then
+                            Select Case CreatureInfo.Classe
+                                Case Classes.CLASS_DRUID
+                                    TextID = 4913
+                                Case Classes.CLASS_HUNTER
+                                    TextID = 10090
+                                Case Classes.CLASS_MAGE
+                                    TextID = 328
+                                Case Classes.CLASS_PALADIN
+                                    TextID = 1635
+                                Case Classes.CLASS_PRIEST
+                                    TextID = 4436
+                                Case Classes.CLASS_ROGUE
+                                    TextID = 4797
+                                Case Classes.CLASS_SHAMAN
+                                    TextID = 5003
+                                Case Classes.CLASS_WARLOCK
+                                    TextID = 5836
+                                Case Classes.CLASS_WARRIOR
+                                    TextID = 4985
+                            End Select
 
-            If TextID = 0 Then TextID = WORLD_CREATUREs(cGUID).NPCTextID
-
-            If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_QUESTGIVER) = NPCFlags.UNIT_NPC_FLAG_QUESTGIVER Then
-                Dim qMenu As QuestMenu = GetQuestMenu(c, cGUID)
-                If qMenu.IDs.Count = 0 AndAlso npcMenu.Menus.Count = 0 Then Exit Sub
-
-                If npcMenu.Menus.Count = 0 Then ' If we only have quests to list
-                    If qMenu.IDs.Count = 1 Then ' If we only have one quest to list, we direct the client directly to it
-                        Dim QuestID As Integer = CType(qMenu.IDs(0), Integer)
-                        If Not QUESTs.ContainsKey(QuestID) Then Dim tmpQuest As New QuestInfo(QuestID)
-                        Dim status As QuestgiverStatus = CType(qMenu.Icons(0), QuestgiverStatus)
-                        If status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE Then
-                            For i As Integer = 0 To QUEST_SLOTS
-                                If c.TalkQuests(i) IsNot Nothing AndAlso c.TalkQuests(i).ID = QuestID Then
-                                    'Load quest data
-                                    c.TalkCurrentQuest = QUESTs(QuestID)
-                                    SendQuestRequireItems(c.Client, c.TalkCurrentQuest, cGUID, c.TalkQuests(i))
-                                    Exit For
-                                End If
-                            Next
+                            c.SendGossip(cGUID, TextID)
+                            Exit Sub
                         Else
-                            c.TalkCurrentQuest = QUESTs(QuestID)
-                            SendQuestDetails(c.Client, c.TalkCurrentQuest, cGUID, True)
+                            npcMenu.AddMenu("I am interested in " & GetClassName(c.Classe) & " training.", MenuIcon.MENUICON_TRAINER)
+                            c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                            If c.Level >= 10 Then
+                                npcMenu.AddMenu("I want to unlearn all my talents.", MenuIcon.MENUICON_GOSSIP)
+                                c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TALENTWIPE)
+                            End If
                         End If
-                    Else ' There were more than one quest to list
-                        SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
+                    ElseIf CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_MOUNTS Then
+                        If CreatureInfo.Race > 0 AndAlso CreatureInfo.Race <> c.Race AndAlso c.GetReputation(CreatureInfo.Faction) < ReputationRank.Exalted Then
+                            Select Case CreatureInfo.Race
+                                Case Races.RACE_DWARF
+                                    TextID = 5865
+                                Case Races.RACE_GNOME
+                                    TextID = 4881
+                                Case Races.RACE_HUMAN
+                                    TextID = 5861
+                                Case Races.RACE_NIGHT_ELF
+                                    TextID = 5862
+                                Case Races.RACE_ORC
+                                    TextID = 5863
+                                Case Races.RACE_TAUREN
+                                    TextID = 5864
+                                Case Races.RACE_TROLL
+                                    TextID = 5816
+                                Case Races.RACE_UNDEAD
+                                    TextID = 624
+                            End Select
+
+                            c.SendGossip(cGUID, TextID)
+                            Exit Sub
+                        Else
+                            npcMenu.AddMenu("I am interested in mount training.", MenuIcon.MENUICON_TRAINER)
+                            c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                        End If
+                    ElseIf CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_TRADESKILLS Then
+                        If CreatureInfo.TrainerSpell > 0 AndAlso c.HaveSpell(CreatureInfo.TrainerSpell) = False Then
+                            TextID = 11031
+                            c.SendGossip(cGUID, TextID)
+                            Exit Sub
+                        Else
+                            npcMenu.AddMenu("I am interested in professions training.", MenuIcon.MENUICON_TRAINER)
+                            c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                        End If
+                    ElseIf CreatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_PETS Then
+                        If c.Classe <> Classes.CLASS_HUNTER Then
+                            TextID = 3620
+                            c.SendGossip(cGUID, TextID)
+                            Exit Sub
+                        Else
+                            npcMenu.AddMenu("I am interested in pet training.", MenuIcon.MENUICON_TRAINER)
+                            c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                        End If
                     End If
-                Else ' We have to list both gossip options and quests
-                    c.SendGossip(cGUID, TextID, npcMenu, qMenu)
                 End If
-            Else
-                c.SendGossip(cGUID, TextID, npcMenu)
-            End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_SPIRITHEALER) Then
+                    TextID = 580
+                    npcMenu.AddMenu("Return me to life", MenuIcon.MENUICON_GOSSIP)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_SPIRITHEALER)
+                End If
+                'UNIT_NPC_FLAG_GUARD
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_INNKEEPER) Then
+                    npcMenu.AddMenu("Make this inn your home.", MenuIcon.MENUICON_BINDER)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_INNKEEPER)
+                End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BANKER) Then
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BANKER)
+                End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_PETITIONER) Then
+                    npcMenu.AddMenu("I am interested in guilds.", MenuIcon.MENUICON_PETITION)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_ARENACHARTER)
+                End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TABARDVENDOR) Then
+                    npcMenu.AddMenu("I want to purchase a tabard.", MenuIcon.MENUICON_TABARD)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TABARDVENDOR)
+                End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BATTLEFIELDPERSON) Then
+                    npcMenu.AddMenu("My blood hungers for battle.", MenuIcon.MENUICON_BATTLEMASTER)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BATTLEFIELD)
+                End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_AUCTIONEER) Then
+                    npcMenu.AddMenu("Wanna auction something?", MenuIcon.MENUICON_AUCTIONER)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_AUCTIONEER)
+                End If
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_STABLE) Then
+                    npcMenu.AddMenu("Let me check my pet.", MenuIcon.MENUICON_VENDOR)
+                    c.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_STABLEPET)
+                End If
+
+                If TextID = 0 Then TextID = WORLD_CREATUREs(cGUID).NPCTextID
+
+                If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_QUESTGIVER) = NPCFlags.UNIT_NPC_FLAG_QUESTGIVER Then
+                    Dim questSystem As New WS_Quests()
+                    Dim qMenu As QuestMenu = questSystem.GetQuestMenu(c, cGUID)
+                    If qMenu.IDs.Count = 0 AndAlso npcMenu.Menus.Count = 0 Then Exit Sub
+
+                    If npcMenu.Menus.Count = 0 Then ' If we only have quests to list
+                        If qMenu.IDs.Count = 1 Then ' If we only have one quest to list, we direct the client directly to it
+                            Dim QuestID As Integer = CType(qMenu.IDs(0), Integer)
+                            If Not questSystem.QUESTs.ContainsKey(QuestID) Then Dim tmpQuest As New QuestInfo(QuestID)
+                            Dim status As QuestgiverStatus = CType(qMenu.Icons(0), QuestgiverStatus)
+                            If status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE Then
+                                For i As Integer = 0 To QUEST_SLOTS
+                                    If c.TalkQuests(i) IsNot Nothing AndAlso c.TalkQuests(i).ID = QuestID Then
+                                        'Load quest data
+                                        c.TalkCurrentQuest = questSystem.QUESTs(QuestID)
+                                        questSystem.SendQuestRequireItems(c.Client, c.TalkCurrentQuest, cGUID, c.TalkQuests(i))
+                                        Exit For
+                                    End If
+                                Next
+                            Else
+                                c.TalkCurrentQuest = questSystem.QUESTs(QuestID)
+                                questSystem.SendQuestDetails(c.Client, c.TalkCurrentQuest, cGUID, True)
+                            End If
+                        Else ' There were more than one quest to list
+                            questSystem.SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
+                        End If
+                    Else ' We have to list both gossip options and quests
+                        c.SendGossip(cGUID, TextID, npcMenu, qMenu)
+                    End If
+                Else
+                    c.SendGossip(cGUID, TextID, npcMenu)
+                End If
+
+            Catch ex As Exception
+                Stop
+            End Try
         End Sub
         Public Overrides Sub OnGossipSelect(ByRef c As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
             Select Case CType(c.TalkMenuTypes(Selected), Gossip_Option)
@@ -1119,8 +1125,9 @@ Public Module WS_NPCs
                     c.SendTalking(WORLD_CREATUREs(cGUID).NPCTextID)
                 Case Gossip_Option.GOSSIP_OPTION_QUESTGIVER
                     'NOTE: This may stay unused
-                    Dim qMenu As QuestMenu = GetQuestMenu(c, cGUID)
-                    SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
+                    Dim questSystem As New WS_Quests()
+                    Dim qMenu As QuestMenu = questSystem.GetQuestMenu(c, cGUID)
+                    questSystem.SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
             End Select
             ''c.SendGossipComplete()
         End Sub

@@ -169,7 +169,8 @@ Module WS_CharMovement
                     Client.Character.AddXP(GainedXP, 0, 0, True)
 
                     'DONE: Fire quest event to check for if this area is used in explore area quest
-                    OnQuestExplore(Client.Character, exploreFlag)
+                    Dim questSystem As New WS_Quests()
+                    questSystem.OnQuestExplore(Client.Character, exploreFlag)
                 End If
             End If
         End If
@@ -371,7 +372,8 @@ Module WS_CharMovement
             q.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_involvedrelation WHERE id = {0};", triggerID), q)
             If q.Rows.Count > 0 Then
-                OnQuestExplore(Client.Character, triggerID)
+                Dim questSystem As New WS_Quests()
+                questSystem.OnQuestExplore(Client.Character, triggerID)
                 Exit Sub
             End If
 

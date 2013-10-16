@@ -20,6 +20,8 @@ Imports System.Threading
 Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
+Imports mangosVB.WorldServer.WS_Quests
+
 
 Public Module WS_Creatures
 
@@ -779,7 +781,8 @@ Public Module WS_Creatures
                 End If
 
                 'DONE: Fire quest event to check for if this monster is required for quest
-                OnQuestKill(Attacker, Me)
+                Dim questSystem As New WS_Quests()
+                questSystem.OnQuestKill(Attacker, Me)
             End If
         End Sub
         Public Overrides Sub DealDamage(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)

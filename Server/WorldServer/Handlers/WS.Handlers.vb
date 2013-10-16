@@ -27,16 +27,16 @@ Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 
+
 Public Module WS_Handlers
 
 
     Public Sub IntializePacketHandlers()
         'NOTE: These opcodes are not used in any way
-        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_ROOT_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_UNROOT_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_MOVE_WATER_WALK_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
-        PacketHandlers(OPCODES.MSG_MOVE_TELEPORT_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
-
+        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_ROOT_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_UNROOT_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_MOVE_WATER_WALK_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
+        PacketHandlers(OPCODES.MSG_MOVE_TELEPORT_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
 
 
         'NOTE: These opcodes below must be exluded form Cluster
@@ -175,17 +175,18 @@ Public Module WS_Handlers
 
         PacketHandlers(OPCODES.CMSG_TOGGLE_PVP) = CType(AddressOf On_CMSG_TOGGLE_PVP, HandlePacket)
 
-        PacketHandlers(OPCODES.CMSG_QUESTGIVER_STATUS_QUERY) = CType(AddressOf On_CMSG_QUESTGIVER_STATUS_QUERY, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUESTGIVER_HELLO) = CType(AddressOf On_CMSG_QUESTGIVER_HELLO, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUESTGIVER_QUERY_QUEST) = CType(AddressOf On_CMSG_QUESTGIVER_QUERY_QUEST, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUESTGIVER_ACCEPT_QUEST) = CType(AddressOf On_CMSG_QUESTGIVER_ACCEPT_QUEST, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUESTLOG_REMOVE_QUEST) = CType(AddressOf On_CMSG_QUESTLOG_REMOVE_QUEST, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUEST_QUERY) = CType(AddressOf On_CMSG_QUEST_QUERY, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUESTGIVER_COMPLETE_QUEST) = CType(AddressOf On_CMSG_QUESTGIVER_COMPLETE_QUEST, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUESTGIVER_REQUEST_REWARD) = CType(AddressOf On_CMSG_QUESTGIVER_REQUEST_REWARD, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_QUESTGIVER_CHOOSE_REWARD) = CType(AddressOf On_CMSG_QUESTGIVER_CHOOSE_REWARD, HandlePacket)
-        PacketHandlers(OPCODES.MSG_QUEST_PUSH_RESULT) = CType(AddressOf On_MSG_QUEST_PUSH_RESULT, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_PUSHQUESTTOPARTY) = CType(AddressOf On_CMSG_PUSHQUESTTOPARTY, HandlePacket)
+        Dim questSystem As New WS_Quests()
+        PacketHandlers(OPCODES.CMSG_QUESTGIVER_STATUS_QUERY) = CType(AddressOf questSystem.On_CMSG_QUESTGIVER_STATUS_QUERY, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUESTGIVER_HELLO) = CType(AddressOf questSystem.On_CMSG_QUESTGIVER_HELLO, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUESTGIVER_QUERY_QUEST) = CType(AddressOf questSystem.On_CMSG_QUESTGIVER_QUERY_QUEST, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUESTGIVER_ACCEPT_QUEST) = CType(AddressOf questSystem.On_CMSG_QUESTGIVER_ACCEPT_QUEST, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUESTLOG_REMOVE_QUEST) = CType(AddressOf questSystem.On_CMSG_QUESTLOG_REMOVE_QUEST, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUEST_QUERY) = CType(AddressOf questSystem.On_CMSG_QUEST_QUERY, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUESTGIVER_COMPLETE_QUEST) = CType(AddressOf questSystem.On_CMSG_QUESTGIVER_COMPLETE_QUEST, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUESTGIVER_REQUEST_REWARD) = CType(AddressOf questSystem.On_CMSG_QUESTGIVER_REQUEST_REWARD, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUESTGIVER_CHOOSE_REWARD) = CType(AddressOf questSystem.On_CMSG_QUESTGIVER_CHOOSE_REWARD, HandlePacket)
+        PacketHandlers(OPCODES.MSG_QUEST_PUSH_RESULT) = CType(AddressOf questSystem.On_MSG_QUEST_PUSH_RESULT, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_PUSHQUESTTOPARTY) = CType(AddressOf questSystem.On_CMSG_PUSHQUESTTOPARTY, HandlePacket)
 
         PacketHandlers(OPCODES.CMSG_BINDER_ACTIVATE) = CType(AddressOf On_CMSG_BINDER_ACTIVATE, HandlePacket)
         PacketHandlers(OPCODES.CMSG_BANKER_ACTIVATE) = CType(AddressOf On_CMSG_BANKER_ACTIVATE, HandlePacket)
