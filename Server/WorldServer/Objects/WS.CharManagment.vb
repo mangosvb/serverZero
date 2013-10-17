@@ -6166,6 +6166,7 @@ DoneAmmo:
         Dim CreateInfoBars As New DataTable
         Dim CreateInfoSkills As New DataTable
         Dim LevelStats As New DataTable
+        Dim ClassLevelStats As New DataTable
 
         Dim ButtonPos As Integer = 0
 
@@ -6185,6 +6186,10 @@ DoneAmmo:
         WorldDatabase.Query(String.Format("SELECT * FROM player_levelstats WHERE race = {0} AND class = {1} AND level = {2};", CType(c.Race, Integer), CType(c.Classe, Integer), CType(c.Level, Integer)), LevelStats)
         If LevelStats.Rows.Count <= 0 Then
             Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for race={0}, class={1}, level={2}", c.Race, c.Classe, c.Level)
+        End If
+        WorldDatabase.Query(String.Format("SELECT * FROM player_classlevelstats WHERE class = {0} AND level = {1};", CType(c.Classe, Integer), CType(c.Level, Integer)), ClassLevelStats)
+        If ClassLevelStats.Rows.Count <= 0 Then
+            Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for class={0}, level={1}", c.Classe, c.Level)
         End If
 
         ' Initialize Character Variables
@@ -6218,20 +6223,20 @@ DoneAmmo:
         c.Strength.Base = LevelStats.Rows(0).Item("str")
         c.Agility.Base = LevelStats.Rows(0).Item("agi")
         c.Stamina.Base = LevelStats.Rows(0).Item("sta")
-        c.Intellect.Base = LevelStats.Rows(0).Item("int")
+        c.Intellect.Base = LevelStats.Rows(0).Item("inte")
         c.Spirit.Base = LevelStats.Rows(0).Item("spi")
-        c.Life.Base = LevelStats.Rows(0).Item("hp")
+        c.Life.Base = ClassLevelStats.Rows(0).Item("basehp")
         c.Life.Current = c.Life.Maximum
 
         Select Case c.ManaType
             Case ManaTypes.TYPE_MANA
-                c.Mana.Base = LevelStats.Rows(0).Item("mana")
+                c.Mana.Base = ClassLevelStats.Rows(0).Item("basemana")
                 c.Mana.Current = c.Mana.Maximum
             Case ManaTypes.TYPE_RAGE
-                c.Rage.Base = LevelStats.Rows(0).Item("mana")
+                c.Rage.Base = ClassLevelStats.Rows(0).Item("basemana")
                 c.Rage.Current = 0
             Case ManaTypes.TYPE_ENERGY
-                c.Energy.Base = LevelStats.Rows(0).Item("mana")
+                c.Energy.Base = ClassLevelStats.Rows(0).Item("basemana")
                 c.Energy.Current = 0
         End Select
 
