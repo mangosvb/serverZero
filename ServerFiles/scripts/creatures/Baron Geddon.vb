@@ -40,7 +40,7 @@ Namespace Scripts
 
             If NextInferno <= 0 Then
                 NextInferno = Inferno_CD
-                aiCreature.CastSpell(Spell_Inferno, aiTarget) 'Earthborer Acid
+                aiCreature.CastSpell(Spell_Inferno, aiTarget) 
             End If
 
             If NextIgnite <= 0 Then
