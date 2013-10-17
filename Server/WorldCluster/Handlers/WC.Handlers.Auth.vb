@@ -614,6 +614,8 @@ Public Module WC_Handlers_Auth
 
                 Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
                 r.AddInt8(AuthLoginCodes.CHAR_LOGIN_NO_WORLD)
+                r.AddInt8(AuthResponseCodes.REALM_LIST_REALM_NOT_FOUND)
+                r.AddInt8(AuthResponseCodes.CHAR_LIST_RETRIEVED)
                 Client.Send(r)
                 r.Dispose()
             End If
@@ -628,7 +630,7 @@ Public Module WC_Handlers_Auth
             r.AddInt8(AuthResponseCodes.CHAR_LOGIN_FAILED)
             Client.Send(r)
             r.Dispose()
-        End Try
+            End Try
 
     End Sub
     Public Sub On_CMSG_PLAYER_LOGOUT(ByRef packet As PacketClass, ByRef Client As ClientClass)
