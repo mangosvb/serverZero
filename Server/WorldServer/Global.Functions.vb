@@ -313,8 +313,11 @@ Public Module Functions
 
         'SetColor = String.Format("|cff{0:x}{1:x}{2:x}{3}|r", Red, Green, Blue, Message)
     End Function
+
     Public Function RollChance(ByVal Chance As Single) As Boolean
-        Return (Chance >= (Rnd.NextDouble() * 100.0F))
+        Dim nChance As Integer = Chance * 100
+        If Rnd.Next(1, 10001) <= nChance Then Return True
+        Return False
     End Function
 
 #End Region
