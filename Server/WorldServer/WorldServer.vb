@@ -37,6 +37,7 @@ Public Module WS_Main
     Public CLIENTs As New Dictionary(Of UInteger, ClientClass)
     Public CHARACTERs As New Dictionary(Of ULong, CharacterObject)
     Public CHARACTERs_Lock As New ReaderWriterLock ' ReaderWriterLock_Debug("CHARACTERS")
+    Public AllGraveYards As New WS_GraveYards
 
     'Worlds containers
     Public WORLD_CREATUREs_Lock As New ReaderWriterLock ' ReaderWriterLock_Debug("CREATURES")
@@ -330,6 +331,8 @@ Public Module WS_Main
 #If WARDEN Then
         Maiev.InitWarden()
 #End If
+
+        AllGraveYards.InitializeGraveyards()
 
         WorldServer = New WorldServerClass
         GC.Collect()

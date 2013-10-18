@@ -156,6 +156,7 @@
     <Compile Include="Global.BigInteger.vb" />
     <Compile Include="Gossip\WS.GuardGossip.vb" />
     <Compile Include="Handlers\WS.Handlers.Warden.vb" />
+    <Compile Include="Maps\WS_GraveYards.vb" />
     <Compile Include="Objects\WS.Transports.vb" />
     <Compile Include="Revision.vb" />
     <Compile Include="Handlers\WS.Handlers.Battleground.vb" />
@@ -226,7 +227,7 @@
     <Compile Include="Social\WS.Mail.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Maps.vb" />
+    <Compile Include="Maps\WS.Maps.vb" />
     <Compile Include="WS.Network.vb" />
     <Compile Include="WS.NPCs.vb">
       <SubType>Code</SubType>
@@ -246,7 +247,7 @@
     <Compile Include="WS.TimerBasedEvents.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.VMaps.vb" />
+    <Compile Include="Maps\WS.VMaps.vb" />
     <Compile Include="WS.Warden.vb" />
     <Compile Include="WS.Weather.vb" />
   </ItemGroup>

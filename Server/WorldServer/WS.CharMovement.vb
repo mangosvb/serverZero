@@ -63,7 +63,7 @@ Module WS_CharMovement
 
         'DONE: If character is falling below the world
         If Client.Character.positionZ < -500.0F Then
-            GoToNearestGraveyard(Client.Character, False, True)
+            AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
             Exit Sub
         End If
 
@@ -395,7 +395,7 @@ Module WS_CharMovement
                     If Client.Character.corpseMapID = q.Rows(0).Item("target_map") Then
                         CharacterResurrect(Client.Character)
                     Else
-                        GoToNearestGraveyard(Client.Character, False, True)
+                        AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
                         Exit Sub
                     End If
                 End If

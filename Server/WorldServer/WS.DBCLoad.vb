@@ -487,39 +487,6 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
-#Region "GraveYards"
-    Public Sub InitializeGraveyards()
-        Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\WorldSafeLocs.dbc")
-
-            Dim locationPosX As Single
-            Dim locationPosY As Single
-            Dim locationPosZ As Single
-            Dim locationMapID As Integer
-            Dim locationIndex As Integer
-
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
-                locationIndex = tmpDBC.Item(i, 0)
-                locationMapID = tmpDBC.Item(i, 1)
-                locationPosX = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
-                locationPosY = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_FLOAT)
-                locationPosZ = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_FLOAT)
-
-                If Config.Maps.Contains(locationMapID.ToString) Then
-                    Graveyards.Add(locationIndex, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
-                End If
-            Next i
-
-            tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : WorldSafeLocs missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
-        End Try
-    End Sub
-#End Region
 #Region "Skills"
     Public Sub InitializeSkillLines()
         Try

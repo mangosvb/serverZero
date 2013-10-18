@@ -364,7 +364,7 @@ Public Module WS_Handlers_Misc
             Client.Character.SendCharacterUpdate()
 
             'DONE: Get closest graveyard
-            GoToNearestGraveyard(Client.Character)
+            AllGraveYards.GoToNearestGraveyard(Client.Character)
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error on repop: {0}", e.ToString)
         End Try

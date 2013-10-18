@@ -1088,7 +1088,7 @@ Public Module WS_NPCs
                 End If
 
             Catch ex As Exception
-                Stop
+                ' Stop
             End Try
         End Sub
         Public Overrides Sub OnGossipSelect(ByRef c As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)

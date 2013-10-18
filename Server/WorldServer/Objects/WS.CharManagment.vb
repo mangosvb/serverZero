@@ -4792,7 +4792,7 @@ CheckXPAgain:
                     End If
                 Else
                     Log.WriteLine(LogType.CRITICAL, "Character logging in on non-existant transport [{0}].", TransportGUID - GUID_MO_TRANSPORT)
-                    GoToNearestGraveyard(Me, True, False)
+                    AllGraveYards.GoToNearestGraveyard(Me, True, False)
                     OnTransport = Nothing
                 End If
             Else
@@ -5217,7 +5217,7 @@ DoneAmmo:
 
                 'DONE: If you logout before releasing your corpse you will now go to the graveyard
                 If positionX = corpsePositionX AndAlso positionY = corpsePositionY AndAlso positionZ = corpsePositionZ AndAlso MapID = corpseMapID Then
-                    GoToNearestGraveyard(Me, False, False)
+                    AllGraveYards.GoToNearestGraveyard(Me, False, False)
                 End If
 
                 'DONE: Make Dead

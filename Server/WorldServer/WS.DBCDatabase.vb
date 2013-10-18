@@ -1899,40 +1899,55 @@ Public Module WS_DBCDatabase
             CharacterSaver = New TCharacterSaver
             WeatherChanger = New TWeatherChanger
 
-            Log.WriteLine(LogType.INFORMATION, "World: Loading Maps and Spawns....")
+            Log.WriteLine(LogType.FAILED, "World: Loading Maps and Spawns....")
 
             'DONE: Initializing Counters
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT MAX(item_guid) FROM characters_inventory;"), MySQLQuery)
-            If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                ItemGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_ITEM
-            Else
-                ItemGUIDCounter = 0 + GUID_ITEM
-            End If
+            Try
+                CharacterDatabase.Query(String.Format("SELECT MAX(item_guid) FROM characters_inventory;"), MySQLQuery)
+                If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
+                    ItemGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_ITEM
+                Else
+                    ItemGUIDCounter = 0 + GUID_ITEM
+                End If
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, "World: Failed loading characters_inventory....")
+            End Try
+            MySQLQuery = New DataTable
+            Try
+                WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_creatures;"), MySQLQuery)
+                If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
+                    CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_UNIT
+                Else
+                    CreatureGUIDCounter = 0 + GUID_UNIT
+                End If
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, "World: Failed loading spawns_creatures....")
+            End Try
 
             MySQLQuery = New DataTable
-            WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_creatures;"), MySQLQuery)
-            If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_UNIT
-            Else
-                CreatureGUIDCounter = 0 + GUID_UNIT
-            End If
+            Try
+                WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_gameobjects;"), MySQLQuery)
+                If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
+                    GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_GAMEOBJECT
+                Else
+                    GameObjectsGUIDCounter = 0 + GUID_GAMEOBJECT
+                End If
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, "World: Failed loading spawn_gameobjects....")
+            End Try
 
             MySQLQuery = New DataTable
-            WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_gameobjects;"), MySQLQuery)
-            If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_GAMEOBJECT
-            Else
-                GameObjectsGUIDCounter = 0 + GUID_GAMEOBJECT
-            End If
-
-            MySQLQuery = New DataTable
-            CharacterDatabase.Query(String.Format("SELECT MAX(corpse_guid) FROM tmpspawnedcorpses"), MySQLQuery)
-            If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_CORPSE
-            Else
-                CorpseGUIDCounter = 0 + GUID_CORPSE
-            End If
+            Try
+                CharacterDatabase.Query(String.Format("SELECT MAX(corpse_guid) FROM tmpspawnedcorpses"), MySQLQuery)
+                If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
+                    CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_CORPSE
+                Else
+                    CorpseGUIDCounter = 0 + GUID_CORPSE
+                End If
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, "World: Failed loading tmpspawnedcorpses....")
+            End Try
 
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
@@ -1953,7 +1968,7 @@ Public Module WS_DBCDatabase
         InitializeSkillLines()
         InitializeSkillLineAbility()
         InitializeLocks()
-        InitializeGraveyards()
+        'InitializeGraveyards()
         InitializeTaxiNodes()
         InitializeTaxiPaths()
         InitializeTaxiPathNodes()

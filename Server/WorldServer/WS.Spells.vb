@@ -4119,7 +4119,7 @@ SkipShapeShift:
 
         For Each Unit As BaseUnit In Infected
             If TypeOf Unit Is CharacterObject Then
-                GoToNearestGraveyard(CType(Unit, CharacterObject))
+                AllGraveYards.GoToNearestGraveyard(CType(Unit, CharacterObject))
             End If
         Next
 
