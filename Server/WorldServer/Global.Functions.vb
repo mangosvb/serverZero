@@ -347,7 +347,7 @@ Public Module Functions
 
         'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
         'Dim AccData As New DataTable
-        'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE account = ""{0}"";", Client.Account), AccData)
+        'AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", Client.Account), AccData)
         'If AccData.Rows.Count > 0 Then
         '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
 
@@ -373,8 +373,8 @@ Public Module Functions
                 'SMSG_ACCOUNT_DATA_TIMES.AddByteArray(md5hash.ComputeHash(tmpBytes))
                 'End If
             Else
-            SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-            SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
             End If
         Next
         'md5hash.Clear()
@@ -534,5 +534,4 @@ Public Module Functions
 #End Region
 
 End Module
-
 
