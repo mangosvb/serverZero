@@ -238,6 +238,27 @@ Public Module VMAP_Module
     End Interface
 
     Public Class AABSPTree(Of T)
+        Implements IDisposable
+
+#Region "IDisposable Support"
+        Private disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If Not Me.disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+            End If
+            Me.disposedValue = True
+        End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
 
         Private Shared Function ComputeBounds(ByRef point As List(Of BaseCollision), ByVal beginIndex As Integer, ByVal endIndex As Integer) As AABox
             Dim lo As Vector3 = Vector3.MaxInf()

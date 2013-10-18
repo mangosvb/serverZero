@@ -289,7 +289,9 @@ Public Module WS_Combat
 
         'DONE: Calculating the damage
         GetDamage(Attacker, DualWield, result)
-        If Effect IsNot Nothing Then result.Damage += Effect.GetValue(Attacker.Level)
+        If Effect IsNot Nothing Then
+            result.Damage += Effect.GetValue(Attacker.Level)
+        End If
 
         'DONE: Damage reduction
         Dim DamageReduction As Single = Victim.GetDamageReduction(Attacker, result.DamageType, result.Damage)

@@ -15,15 +15,10 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
-Imports System.Threading
-Imports System.IO
-Imports System.Runtime.InteropServices
-Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
+Imports System.Collections.Generic
+Imports System.IO
 Imports mangosVB.Common
-
-
 Public Module WS_Maps
 #Region "Zones"
     Public AreaTable As New Dictionary(Of Integer, TArea)
@@ -249,7 +244,7 @@ Public Module WS_Maps
             If Not File.Exists("vmaps\" & fileName) Then
                 Log.WriteLine(LogType.WARNING, "VMap file [{0}] not found", fileName)
             Else
-                Dim map As TMap = Maps(CellMap)
+                Dim thisTmap As TMap = Maps(CellMap)
                 fileName = Trim(File.ReadAllText("vmaps\" & fileName))
                 Dim fileNames() As String = fileName.Split(New String() {vbLf}, StringSplitOptions.RemoveEmptyEntries)
 
@@ -261,11 +256,11 @@ Public Module WS_Maps
                 Dim newModelLoaded As Boolean = False
                 If fileName.Length > 0 AndAlso File.Exists("vmaps\" & fileName) Then
                     Dim mc As ModelContainer
-                    If Not map.ContainsModelContainer(fileName) Then
+                    If Not thisTmap.ContainsModelContainer(fileName) Then
                         mc = New ModelContainer()
                         If mc.ReadFile(fileName) Then
-                            If Not map.ContainsModelContainer(fileName) Then
-                                map.AddModelContainer(fileName, mc)
+                            If Not thisTmap.ContainsModelContainer(fileName) Then
+                                thisTmap.AddModelContainer(fileName, mc)
                                 newModelLoaded = True
                             Else
                                 'Already loaded? :/ Dispose it
@@ -281,7 +276,7 @@ Public Module WS_Maps
                 End If
 
                 If newModelLoaded Then
-                    map.BalanceTree()
+                    thisTmap.BalanceTree()
                 End If
             End If
         End Sub
@@ -512,6 +507,7 @@ Public Module WS_Maps
                 Next
 
                 Maps.Remove(ID)
+                iTree.Dispose()
             End If
             Me.disposedValue = True
         End Sub
@@ -1121,6 +1117,7 @@ Public Module WS_Maps
 
 
 #End Region
+
 
 
 

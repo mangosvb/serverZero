@@ -379,7 +379,7 @@ Public Module WS_Network
 
         Public DEBUG_CONNECTION As Boolean = False
 
-        Public Sub OnPacket()
+        Public Sub OnPacket(state As Object)
             Try
 
                 While Packets.Count > 0

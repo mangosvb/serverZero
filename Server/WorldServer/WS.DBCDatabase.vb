@@ -1899,7 +1899,7 @@ Public Module WS_DBCDatabase
             CharacterSaver = New TCharacterSaver
             WeatherChanger = New TWeatherChanger
 
-            Log.WriteLine(LogType.FAILED, "World: Loading Maps and Spawns....")
+            Log.WriteLine(LogType.INFORMATION, "World: Loading Maps and Spawns....")
 
             'DONE: Initializing Counters
             Dim MySQLQuery As New DataTable
@@ -1968,7 +1968,7 @@ Public Module WS_DBCDatabase
         InitializeSkillLines()
         InitializeSkillLineAbility()
         InitializeLocks()
-        'InitializeGraveyards()
+        'AllGraveYards.InitializeGraveyards()
         InitializeTaxiNodes()
         InitializeTaxiPaths()
         InitializeTaxiPathNodes()
