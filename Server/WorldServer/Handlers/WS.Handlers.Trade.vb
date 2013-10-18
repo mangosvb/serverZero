@@ -80,99 +80,105 @@ Public Module WS_Handlers_Trade
             If Trader Is Nothing Then Exit Sub
 
             Dim packet As New PacketClass(OPCODES.SMSG_TRADE_STATUS_EXTENDED)
-            packet.AddInt8(1)               'giving(0x00) or receiving(0x01) 
-            packet.AddInt32(7)              'Slots for Character 1
-            packet.AddInt32(7)              'Slots for Character 2
-            packet.AddUInt32(TargetGold)     'Gold
-            packet.AddInt32(0)
+            Try
+                packet.AddInt8(1)               'giving(0x00) or receiving(0x01) 
+                packet.AddInt32(7)              'Slots for Character 1
+                packet.AddInt32(7)              'Slots for Character 2
+                packet.AddUInt32(TargetGold)     'Gold
+                packet.AddInt32(0)
 
-            Dim i As Integer
-            For i = 0 To 6
-                packet.AddInt8(i)
-                If TargetSlots(i) > 0 Then
-                    Dim mySlot As Byte = TargetSlots(i) And &HFF
-                    Dim myBag As Byte = TargetSlots(i) >> 8
-                    Dim myItem As ItemObject = Nothing
+                Dim i As Integer
+                For i = 0 To 6
+                    packet.AddInt8(i)
+                    If TargetSlots(i) > 0 Then
+                        Dim mySlot As Byte = TargetSlots(i) And &HFF
+                        Dim myBag As Byte = TargetSlots(i) >> 8
+                        Dim myItem As ItemObject = Nothing
 
-                    If myBag = 0 Then myItem = Target.Items(mySlot) Else myItem = Target.Items(myBag).Items(mySlot)
+                        If myBag = 0 Then myItem = Target.Items(mySlot) Else myItem = Target.Items(myBag).Items(mySlot)
 
-                    packet.AddInt32(myItem.ItemEntry)
-                    packet.AddInt32(myItem.ItemInfo.Model)
-                    packet.AddInt32(myItem.StackCount)              'ITEM_FIELD_STACK_COUNT
-                    packet.AddInt32(0)                              'Unk.. probably gift=1, created_by=0?
-                    packet.AddUInt64(myItem.GiftCreatorGUID)        'ITEM_FIELD_GIFTCREATOR
-                    If myItem.Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_PERM) Then
-                        packet.AddInt32(myItem.Enchantments(EnchantSlots.ENCHANTMENT_PERM).ID)
+                        packet.AddInt32(myItem.ItemEntry)
+                        packet.AddInt32(myItem.ItemInfo.Model)
+                        packet.AddInt32(myItem.StackCount)              'ITEM_FIELD_STACK_COUNT
+                        packet.AddInt32(0)                              'Unk.. probably gift=1, created_by=0?
+                        packet.AddUInt64(myItem.GiftCreatorGUID)        'ITEM_FIELD_GIFTCREATOR
+                        If myItem.Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_PERM) Then
+                            packet.AddInt32(myItem.Enchantments(EnchantSlots.ENCHANTMENT_PERM).ID)
+                        Else
+                            packet.AddInt32(0)                          'ITEM_FIELD_ENCHANTMENT
+                        End If
+                        packet.AddUInt64(myItem.CreatorGUID)            'ITEM_FIELD_CREATOR
+                        packet.AddInt32(myItem.ChargesLeft)             'ITEM_FIELD_SPELL_CHARGES
+                        packet.AddInt32(0)                              'ITEM_FIELD_PROPERTY_SEED
+                        packet.AddInt32(myItem.RandomProperties)        'ITEM_FIELD_RANDOM_PROPERTIES_ID 
+                        packet.AddInt32(myItem.ItemInfo.Flags)          'ITEM_FIELD_FLAGS 
+                        packet.AddInt32(myItem.ItemInfo.Durability)     'ITEM_FIELD_MAXDURABILITY 
+                        packet.AddInt32(myItem.Durability)              'ITEM_FIELD_DURABILITY 
                     Else
-                        packet.AddInt32(0)                          'ITEM_FIELD_ENCHANTMENT
+                        Dim j As Integer
+                        For j = 0 To 14
+                            packet.AddInt32(0)
+                        Next j
                     End If
-                    packet.AddUInt64(myItem.CreatorGUID)            'ITEM_FIELD_CREATOR
-                    packet.AddInt32(myItem.ChargesLeft)             'ITEM_FIELD_SPELL_CHARGES
-                    packet.AddInt32(0)                              'ITEM_FIELD_PROPERTY_SEED
-                    packet.AddInt32(myItem.RandomProperties)        'ITEM_FIELD_RANDOM_PROPERTIES_ID 
-                    packet.AddInt32(myItem.ItemInfo.Flags)          'ITEM_FIELD_FLAGS 
-                    packet.AddInt32(myItem.ItemInfo.Durability)     'ITEM_FIELD_MAXDURABILITY 
-                    packet.AddInt32(myItem.Durability)              'ITEM_FIELD_DURABILITY 
-                Else
-                    Dim j As Integer
-                    For j = 0 To 14
-                        packet.AddInt32(0)
-                    Next j
-                End If
-            Next i
+                Next i
 
 
-            Trader.Client.Send(packet)
-            packet.Dispose()
+                Trader.Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub SendTradeUpdateToTarget()
             If Target Is Nothing Then Exit Sub
 
             Dim packet As New PacketClass(OPCODES.SMSG_TRADE_STATUS_EXTENDED)
-            packet.AddInt8(1)               'giving(0x00) or receiving(0x01) 
-            packet.AddInt32(7)              'Slots for Character 1
-            packet.AddInt32(7)              'Slots for Character 2
-            packet.AddUInt32(TraderGold)     'Gold
-            packet.AddInt32(0)
+            Try
+                packet.AddInt8(1)               'giving(0x00) or receiving(0x01) 
+                packet.AddInt32(7)              'Slots for Character 1
+                packet.AddInt32(7)              'Slots for Character 2
+                packet.AddUInt32(TraderGold)     'Gold
+                packet.AddInt32(0)
 
-            Dim i As Integer
-            For i = 0 To 6
-                packet.AddInt8(i)
-                If TraderSlots(i) > 0 Then
-                    Dim mySlot As Byte = TraderSlots(i) And &HFF
-                    Dim myBag As Byte = TraderSlots(i) >> 8
-                    Dim myItem As ItemObject = Nothing
+                Dim i As Integer
+                For i = 0 To 6
+                    packet.AddInt8(i)
+                    If TraderSlots(i) > 0 Then
+                        Dim mySlot As Byte = TraderSlots(i) And &HFF
+                        Dim myBag As Byte = TraderSlots(i) >> 8
+                        Dim myItem As ItemObject = Nothing
 
-                    If myBag = 0 Then myItem = Trader.Items(mySlot) Else myItem = Trader.Items(myBag).Items(mySlot)
+                        If myBag = 0 Then myItem = Trader.Items(mySlot) Else myItem = Trader.Items(myBag).Items(mySlot)
 
-                    packet.AddInt32(myItem.ItemEntry)
-                    packet.AddInt32(myItem.ItemInfo.Model)
-                    packet.AddInt32(myItem.StackCount)              'ITEM_FIELD_STACK_COUNT
-                    packet.AddInt32(0)                              'Unk.. probably gift=1, created_by=0?
-                    packet.AddUInt64(myItem.GiftCreatorGUID)        'ITEM_FIELD_GIFTCREATOR
-                    If myItem.Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_PERM) Then
-                        packet.AddInt32(myItem.Enchantments(EnchantSlots.ENCHANTMENT_PERM).ID)
+                        packet.AddInt32(myItem.ItemEntry)
+                        packet.AddInt32(myItem.ItemInfo.Model)
+                        packet.AddInt32(myItem.StackCount)              'ITEM_FIELD_STACK_COUNT
+                        packet.AddInt32(0)                              'Unk.. probably gift=1, created_by=0?
+                        packet.AddUInt64(myItem.GiftCreatorGUID)        'ITEM_FIELD_GIFTCREATOR
+                        If myItem.Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_PERM) Then
+                            packet.AddInt32(myItem.Enchantments(EnchantSlots.ENCHANTMENT_PERM).ID)
+                        Else
+                            packet.AddInt32(0)                          'ITEM_FIELD_ENCHANTMENT
+                        End If
+                        packet.AddUInt64(myItem.CreatorGUID)            'ITEM_FIELD_CREATOR
+                        packet.AddInt32(myItem.ChargesLeft)             'ITEM_FIELD_SPELL_CHARGES
+                        packet.AddInt32(0)                              'ITEM_FIELD_PROPERTY_SEED
+                        packet.AddInt32(myItem.RandomProperties)        'ITEM_FIELD_RANDOM_PROPERTIES_ID 
+                        packet.AddInt32(myItem.ItemInfo.Flags)          'ITEM_FIELD_FLAGS 
+                        packet.AddInt32(myItem.ItemInfo.Durability)     'ITEM_FIELD_MAXDURABILITY 
+                        packet.AddInt32(myItem.Durability)              'ITEM_FIELD_DURABILITY 
                     Else
-                        packet.AddInt32(0)                          'ITEM_FIELD_ENCHANTMENT
+                        Dim j As Integer
+                        For j = 0 To 14
+                            packet.AddInt32(0)
+                        Next j
                     End If
-                    packet.AddUInt64(myItem.CreatorGUID)            'ITEM_FIELD_CREATOR
-                    packet.AddInt32(myItem.ChargesLeft)             'ITEM_FIELD_SPELL_CHARGES
-                    packet.AddInt32(0)                              'ITEM_FIELD_PROPERTY_SEED
-                    packet.AddInt32(myItem.RandomProperties)        'ITEM_FIELD_RANDOM_PROPERTIES_ID 
-                    packet.AddInt32(myItem.ItemInfo.Flags)          'ITEM_FIELD_FLAGS 
-                    packet.AddInt32(myItem.ItemInfo.Durability)     'ITEM_FIELD_MAXDURABILITY 
-                    packet.AddInt32(myItem.Durability)              'ITEM_FIELD_DURABILITY 
-                Else
-                    Dim j As Integer
-                    For j = 0 To 14
-                        packet.AddInt32(0)
-                    Next j
-                End If
-            Next i
+                Next i
 
 
-            Target.Client.Send(packet)
-            packet.Dispose()
+                Target.Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub DoTrade(ByRef Who As CharacterObject)
 

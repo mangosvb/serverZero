@@ -66,39 +66,48 @@ Public Module WS_Handlers_Misc
 
             'RESERVED For Warden Bot
             If GUID = WardenGUID Then
-                SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                SMSG_NAME_QUERY_RESPONSE.AddString(WardenNAME)
-                SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
-                SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
-                SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
-                Client.Send(SMSG_NAME_QUERY_RESPONSE)
-                SMSG_NAME_QUERY_RESPONSE.Dispose()
+                Try
+                    SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
+                    SMSG_NAME_QUERY_RESPONSE.AddString(WardenNAME)
+                    SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
+                    SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
+                    SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
+                    Client.Send(SMSG_NAME_QUERY_RESPONSE)
+                Finally
+                    SMSG_NAME_QUERY_RESPONSE.Dispose()
+                End Try
                 Exit Sub
             End If
 
             'Asking for player name
             If GuidIsPlayer(GUID) Then
                 If CHARACTERs.ContainsKey(GUID) = True Then
-                    SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                    SMSG_NAME_QUERY_RESPONSE.AddString(CHARACTERs(GUID).Name)
-                    SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Race)
-                    SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Gender)
-                    SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Classe)
-                    Client.Send(SMSG_NAME_QUERY_RESPONSE)
-                    SMSG_NAME_QUERY_RESPONSE.Dispose()
+                    Try
+                        SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
+                        SMSG_NAME_QUERY_RESPONSE.AddString(CHARACTERs(GUID).Name)
+                        SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Race)
+                        SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Gender)
+                        SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Classe)
+                        Client.Send(SMSG_NAME_QUERY_RESPONSE)
+                    Finally
+                        SMSG_NAME_QUERY_RESPONSE.Dispose()
+                    End Try
                     Exit Sub
                 Else
                     Dim MySQLQuery As New DataTable
                     CharacterDatabase.Query(String.Format("SELECT char_name, char_race, char_class, char_gender FROM characters WHERE char_guid = ""{0}"";", GUID), MySQLQuery)
 
                     If MySQLQuery.Rows.Count > 0 Then
-                        SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                        SMSG_NAME_QUERY_RESPONSE.AddString(CType(MySQLQuery.Rows(0).Item("char_name"), String))
-                        SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_race"), Integer))
-                        SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_gender"), Integer))
-                        SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_class"), Integer))
-                        Client.Send(SMSG_NAME_QUERY_RESPONSE)
-                        SMSG_NAME_QUERY_RESPONSE.Dispose()
+                        Try
+                            SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
+                            SMSG_NAME_QUERY_RESPONSE.AddString(CType(MySQLQuery.Rows(0).Item("char_name"), String))
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_race"), Integer))
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_gender"), Integer))
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_class"), Integer))
+                            Client.Send(SMSG_NAME_QUERY_RESPONSE)
+                        Finally
+                            SMSG_NAME_QUERY_RESPONSE.Dispose()
+                        End Try
                     Else
                         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_NAME_QUERY_RESPONSE [Character GUID={2:X} not found]", Client.IP, Client.Port, GUID)
                     End If
@@ -111,13 +120,16 @@ Public Module WS_Handlers_Misc
             'Asking for creature name (only used in quests?)
             If GuidIsCreature(GUID) Then
                 If WORLD_CREATUREs.ContainsKey(GUID) Then
-                    SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                    SMSG_NAME_QUERY_RESPONSE.AddString(CType(WORLD_CREATUREs(GUID), CreatureObject).Name)
-                    SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
-                    SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
-                    SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
-                    Client.Send(SMSG_NAME_QUERY_RESPONSE)
-                    SMSG_NAME_QUERY_RESPONSE.Dispose()
+                    Try
+                        SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
+                        SMSG_NAME_QUERY_RESPONSE.AddString(CType(WORLD_CREATUREs(GUID), CreatureObject).Name)
+                        SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
+                        SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
+                        SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
+                        Client.Send(SMSG_NAME_QUERY_RESPONSE)
+                    Finally
+                        SMSG_NAME_QUERY_RESPONSE.Dispose()
+                    End Try
                 Else
                     Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_NAME_QUERY_RESPONSE [Creature GUID={2:X} not found]", Client.IP, Client.Port, GUID)
                 End If
@@ -193,9 +205,12 @@ Public Module WS_Handlers_Misc
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOUNTSPECIAL_ANIM", Client.IP, Client.Port)
 
         Dim response As New PacketClass(OPCODES.SMSG_MOUNTSPECIAL_ANIM)
-        response.AddPackGUID(Client.Character.GUID)
-        Client.Character.SendToNearPlayers(response)
-        response.Dispose()
+        Try
+            response.AddPackGUID(Client.Character.GUID)
+            Client.Character.SendToNearPlayers(response)
+        Finally
+            response.Dispose()
+        End Try
     End Sub
     Public Sub On_CMSG_EMOTE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
@@ -204,10 +219,13 @@ Public Module WS_Handlers_Misc
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_EMOTE [{2}]", Client.IP, Client.Port, emoteID)
 
         Dim response As New PacketClass(OPCODES.SMSG_EMOTE)
-        response.AddInt32(emoteID)
-        response.AddUInt64(Client.Character.GUID)
-        Client.Character.SendToNearPlayers(response)
-        response.Dispose()
+        Try
+            response.AddInt32(emoteID)
+            response.AddUInt64(Client.Character.GUID)
+            Client.Character.SendToNearPlayers(response)
+        Finally
+            response.Dispose()
+        End Try
     End Sub
     Public Sub On_CMSG_TEXT_EMOTE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
@@ -251,14 +269,16 @@ Public Module WS_Handlers_Misc
         End If
 
         Dim SMSG_TEXT_EMOTE As New PacketClass(OPCODES.SMSG_TEXT_EMOTE)
-        SMSG_TEXT_EMOTE.AddUInt64(Client.Character.GUID)
-        SMSG_TEXT_EMOTE.AddInt32(TextEmote)
-        SMSG_TEXT_EMOTE.AddInt32(&HFF)
-        SMSG_TEXT_EMOTE.AddInt32(secondName.Length + 1)
-        SMSG_TEXT_EMOTE.AddString(secondName)
-        Client.Character.SendToNearPlayers(SMSG_TEXT_EMOTE)
-
-        SMSG_TEXT_EMOTE.Dispose()
+        Try
+            SMSG_TEXT_EMOTE.AddUInt64(Client.Character.GUID)
+            SMSG_TEXT_EMOTE.AddInt32(TextEmote)
+            SMSG_TEXT_EMOTE.AddInt32(&HFF)
+            SMSG_TEXT_EMOTE.AddInt32(secondName.Length + 1)
+            SMSG_TEXT_EMOTE.AddString(secondName)
+            Client.Character.SendToNearPlayers(SMSG_TEXT_EMOTE)
+        Finally
+            SMSG_TEXT_EMOTE.Dispose()
+        End Try
     End Sub
 
     Public Sub On_MSG_CORPSE_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -268,30 +288,36 @@ Public Module WS_Handlers_Misc
 
         'DONE: Send corpse coords
         Dim MSG_CORPSE_QUERY As New PacketClass(OPCODES.MSG_CORPSE_QUERY)
-        MSG_CORPSE_QUERY.AddInt8(1)
-        ''MSG_CORPSE_QUERY.AddInt32(Client.Character.corpseMapID)
-        MSG_CORPSE_QUERY.AddInt32(Client.Character.MapID) ' Without changing this from the above line, the corpse pointer on the minimap did not show
-        ' when I was on a different map at least.
-        MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionX)
-        MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionY)
-        MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionZ)
-        ''If Client.Character.corpseMapID <> Client.Character.MapID Then
-        ''    MSG_CORPSE_QUERY.AddInt32(0)                '1-Normal 0-Corpse in instance
-        ''Else
-        ''    MSG_CORPSE_QUERY.AddInt32(1)                '1-Normal 0-Corpse in instance
-        ''End If
-        MSG_CORPSE_QUERY.AddInt32(Client.Character.corpseMapID) ' This change from the above lines, gets rid of the "You must enter the instance to recover your corpse."
-        ' message when you did not die in an instance, although I did not see it when I did die in the instance either, but I did rez upon reentrance into the instance.
-        Client.Send(MSG_CORPSE_QUERY)
-        MSG_CORPSE_QUERY.Dispose()
+        Try
+            MSG_CORPSE_QUERY.AddInt8(1)
+            ''MSG_CORPSE_QUERY.AddInt32(Client.Character.corpseMapID)
+            MSG_CORPSE_QUERY.AddInt32(Client.Character.MapID) ' Without changing this from the above line, the corpse pointer on the minimap did not show
+            ' when I was on a different map at least.
+            MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionX)
+            MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionY)
+            MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionZ)
+            ''If Client.Character.corpseMapID <> Client.Character.MapID Then
+            ''    MSG_CORPSE_QUERY.AddInt32(0)                '1-Normal 0-Corpse in instance
+            ''Else
+            ''    MSG_CORPSE_QUERY.AddInt32(1)                '1-Normal 0-Corpse in instance
+            ''End If
+            MSG_CORPSE_QUERY.AddInt32(Client.Character.corpseMapID) ' This change from the above lines, gets rid of the "You must enter the instance to recover your corpse."
+            ' message when you did not die in an instance, although I did not see it when I did die in the instance either, but I did rez upon reentrance into the instance.
+            Client.Send(MSG_CORPSE_QUERY)
+        Finally
+            MSG_CORPSE_QUERY.Dispose()
+        End Try
 
         'DONE: Send ping on minimap
         Dim MSG_MINIMAP_PING As New PacketClass(OPCODES.MSG_MINIMAP_PING)
-        MSG_MINIMAP_PING.AddUInt64(Client.Character.corpseGUID)
-        MSG_MINIMAP_PING.AddSingle(Client.Character.corpsePositionX)
-        MSG_MINIMAP_PING.AddSingle(Client.Character.corpsePositionY)
-        Client.Send(MSG_MINIMAP_PING)
-        MSG_MINIMAP_PING.Dispose()
+        Try
+            MSG_MINIMAP_PING.AddUInt64(Client.Character.corpseGUID)
+            MSG_MINIMAP_PING.AddSingle(Client.Character.corpsePositionX)
+            MSG_MINIMAP_PING.AddSingle(Client.Character.corpsePositionY)
+            Client.Send(MSG_MINIMAP_PING)
+        Finally
+            MSG_MINIMAP_PING.Dispose()
+        End Try
     End Sub
     Public Sub On_CMSG_REPOP_REQUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPOP_REQUEST [GUID={2:X}]", Client.IP, Client.Port, Client.Character.GUID)
@@ -439,25 +465,28 @@ Public Module WS_Handlers_Misc
         If CHARACTERs.ContainsKey(GUID) = False Then Exit Sub
 
         Dim response As New PacketClass(OPCODES.MSG_INSPECT_HONOR_STATS)
-        response.AddUInt64(GUID)
+        Try
+            response.AddUInt64(GUID)
 
-        CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-        response.AddInt8(CHARACTERs(GUID).HonorRank)                                                            'Highest Rank
-        response.AddInt32(CHARACTERs(GUID).HonorKillsToday + CInt(CHARACTERs(GUID).DishonorKillsToday) << 16)   'PLAYER_FIELD_SESSION_KILLS                - Today Honorable and Dishonorable Kills
-        response.AddInt32(CHARACTERs(GUID).HonorKillsYesterday)                                                 'PLAYER_FIELD_YESTERDAY_KILLS              - Yesterday Honorable Kills
-        response.AddInt32(CHARACTERs(GUID).HonorKillsLastWeek)                                                  'PLAYER_FIELD_LAST_WEEK_KILLS              - Last Week Honorable Kills
-        response.AddInt32(CHARACTERs(GUID).HonorKillsThisWeek)                                                  'PLAYER_FIELD_THIS_WEEK_KILLS              - This Week Honorable kills
-        response.AddInt32(CHARACTERs(GUID).HonorKillsLifeTime)                                                  'PLAYER_FIELD_LIFETIME_HONORABLE_KILLS     - Lifetime Honorable Kills
-        response.AddInt32(CHARACTERs(GUID).DishonorKillsLifeTime)                                               'PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS  - Lifetime Dishonorable Kills
-        response.AddInt32(CHARACTERs(GUID).HonorPointsYesterday)                                                'PLAYER_FIELD_YESTERDAY_CONTRIBUTION       - Yesterday Honor
-        response.AddInt32(CHARACTERs(GUID).HonorPointsLastWeek)                                                 'PLAYER_FIELD_LAST_WEEK_CONTRIBUTION       - Last Week Honor
-        response.AddInt32(CHARACTERs(GUID).HonorPointsThisWeek)                                                 'PLAYER_FIELD_THIS_WEEK_CONTRIBUTION       - This Week Honor
-        response.AddInt32(CHARACTERs(GUID).StandingLastWeek)                                                    'PLAYER_FIELD_LAST_WEEK_RANK               - Last Week Standing
-        response.AddInt8(CHARACTERs(GUID).HonorHighestRank)                                                     '?!
-        CHARACTERs_Lock.ReleaseReaderLock()
+            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            response.AddInt8(CHARACTERs(GUID).HonorRank)                                                            'Highest Rank
+            response.AddInt32(CHARACTERs(GUID).HonorKillsToday + CInt(CHARACTERs(GUID).DishonorKillsToday) << 16)   'PLAYER_FIELD_SESSION_KILLS                - Today Honorable and Dishonorable Kills
+            response.AddInt32(CHARACTERs(GUID).HonorKillsYesterday)                                                 'PLAYER_FIELD_YESTERDAY_KILLS              - Yesterday Honorable Kills
+            response.AddInt32(CHARACTERs(GUID).HonorKillsLastWeek)                                                  'PLAYER_FIELD_LAST_WEEK_KILLS              - Last Week Honorable Kills
+            response.AddInt32(CHARACTERs(GUID).HonorKillsThisWeek)                                                  'PLAYER_FIELD_THIS_WEEK_KILLS              - This Week Honorable kills
+            response.AddInt32(CHARACTERs(GUID).HonorKillsLifeTime)                                                  'PLAYER_FIELD_LIFETIME_HONORABLE_KILLS     - Lifetime Honorable Kills
+            response.AddInt32(CHARACTERs(GUID).DishonorKillsLifeTime)                                               'PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS  - Lifetime Dishonorable Kills
+            response.AddInt32(CHARACTERs(GUID).HonorPointsYesterday)                                                'PLAYER_FIELD_YESTERDAY_CONTRIBUTION       - Yesterday Honor
+            response.AddInt32(CHARACTERs(GUID).HonorPointsLastWeek)                                                 'PLAYER_FIELD_LAST_WEEK_CONTRIBUTION       - Last Week Honor
+            response.AddInt32(CHARACTERs(GUID).HonorPointsThisWeek)                                                 'PLAYER_FIELD_THIS_WEEK_CONTRIBUTION       - This Week Honor
+            response.AddInt32(CHARACTERs(GUID).StandingLastWeek)                                                    'PLAYER_FIELD_LAST_WEEK_RANK               - Last Week Standing
+            response.AddInt8(CHARACTERs(GUID).HonorHighestRank)                                                     '?!
+            CHARACTERs_Lock.ReleaseReaderLock()
 
-        Client.Send(response)
-        response.Dispose()
+            Client.Send(response)
+        Finally
+            response.Dispose()
+        End Try
     End Sub
 
     Public Sub On_CMSG_MOVE_FALL_RESET(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -490,11 +519,14 @@ Public Module WS_Handlers_Misc
         End If
 
         Dim response As New PacketClass(OPCODES.SMSG_SET_FACTION_STANDING)
-        response.AddInt32(Client.Character.Reputation(faction).Flags)
-        response.AddInt32(faction)
-        response.AddInt32(Client.Character.Reputation(faction).Value)
-        Client.Send(response)
-        response.Dispose()
+        Try
+            response.AddInt32(Client.Character.Reputation(faction).Flags)
+            response.AddInt32(faction)
+            response.AddInt32(Client.Character.Reputation(faction).Value)
+            Client.Send(response)
+        Finally
+            response.Dispose()
+        End Try
     End Sub
     Public Sub On_CMSG_SET_FACTION_INACTIVE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()

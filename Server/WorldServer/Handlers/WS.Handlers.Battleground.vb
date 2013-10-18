@@ -19,10 +19,6 @@
 Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Battleground
-
-
-
-
     Public Sub On_CMSG_BATTLEMASTER_HELLO(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -44,27 +40,28 @@ Public Module WS_Handlers_Battleground
 
         'DONE: Send list
         Dim response As New PacketClass(OPCODES.SMSG_BATTLEFIELD_LIST)
-        response.AddUInt64(Client.Character.GUID)
-        response.AddInt32(BGType)
+        Try
+            response.AddUInt64(Client.Character.GUID)
+            response.AddInt32(BGType)
 
-        If BGType = 6 Then          'Arenas
-            response.AddInt8(5)     'Unk
-            response.AddInt32(0)    'Unk
-        Else
-            Dim Battlegrounds As List(Of Integer) = WorldServer.Cluster.BattlefieldList(BGType)
-            response.AddInt8(0)                     'Unk
-            response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
+            If BGType = 6 Then          'Arenas
+                response.AddInt8(5)     'Unk
+                response.AddInt32(0)    'Unk
+            Else
+                Dim Battlegrounds As List(Of Integer) = WorldServer.Cluster.BattlefieldList(BGType)
+                response.AddInt8(0)                     'Unk
+                response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
 
-            For Each Instance As Integer In Battlegrounds
-                response.AddInt32(Instance)
-            Next
-        End If
+                For Each Instance As Integer In Battlegrounds
+                    response.AddInt32(Instance)
+                Next
+            End If
 
-        Client.Send(response)
-        response.Dispose()
+            Client.Send(response)
+        Finally
+            response.Dispose()
+        End Try
     End Sub
-
-
 
     'Not Implement:
     'MSG_BATTLEGROUND_PLAYER_POSITIONS

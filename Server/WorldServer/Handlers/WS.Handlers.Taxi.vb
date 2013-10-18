@@ -48,9 +48,12 @@ Public Module WS_Handlers_Taxi
     End Enum
     Private Sub SendActivateTaxiReply(ByRef Client As ClientClass, ByVal Reply As ActivateTaxiReplies)
         Dim TaxiFailed As New PacketClass(OPCODES.SMSG_ACTIVATETAXIREPLY)
-        TaxiFailed.AddInt32(Reply)
-        Client.Send(TaxiFailed)
-        TaxiFailed.Dispose()
+        Try
+            TaxiFailed.AddInt32(Reply)
+            Client.Send(TaxiFailed)
+        Finally
+            TaxiFailed.Dispose()
+        End Try
     End Sub
 
     Public Sub SendTaxiStatus(ByRef c As CharacterObject, ByVal cGUID As ULong)
@@ -59,10 +62,13 @@ Public Module WS_Handlers_Taxi
         Dim currentTaxi As Integer = GetNearestTaxi(WORLD_CREATUREs(cGUID).positionX, WORLD_CREATUREs(cGUID).positionY, WORLD_CREATUREs(cGUID).MapID)
 
         Dim SMSG_TAXINODE_STATUS As New PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
-        SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
-        If c.TaxiZones.Item(currentTaxi) = False Then SMSG_TAXINODE_STATUS.AddInt8(0) Else SMSG_TAXINODE_STATUS.AddInt8(1)
-        c.Client.Send(SMSG_TAXINODE_STATUS)
-        SMSG_TAXINODE_STATUS.Dispose()
+        Try
+            SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
+            If c.TaxiZones.Item(currentTaxi) = False Then SMSG_TAXINODE_STATUS.AddInt8(0) Else SMSG_TAXINODE_STATUS.AddInt8(1)
+            c.Client.Send(SMSG_TAXINODE_STATUS)
+        Finally
+            SMSG_TAXINODE_STATUS.Dispose()
+        End Try
     End Sub
 
     Public Sub SendTaxiMenu(ByRef c As CharacterObject, ByVal cGUID As ULong)
@@ -74,25 +80,34 @@ Public Module WS_Handlers_Taxi
             c.TaxiZones.Set(currentTaxi, True)
 
             Dim SMSG_NEW_TAXI_PATH As New PacketClass(OPCODES.SMSG_NEW_TAXI_PATH)
-            c.Client.Send(SMSG_NEW_TAXI_PATH)
-            SMSG_NEW_TAXI_PATH.Dispose()
+            Try
+                c.Client.Send(SMSG_NEW_TAXI_PATH)
+            Finally
+                SMSG_NEW_TAXI_PATH.Dispose()
+            End Try
 
             Dim SMSG_TAXINODE_STATUS As New PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
-            SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
-            SMSG_TAXINODE_STATUS.AddInt8(1)
-            c.Client.Send(SMSG_TAXINODE_STATUS)
-            SMSG_TAXINODE_STATUS.Dispose()
+            Try
+                SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
+                SMSG_TAXINODE_STATUS.AddInt8(1)
+                c.Client.Send(SMSG_TAXINODE_STATUS)
+            Finally
+                SMSG_TAXINODE_STATUS.Dispose()
+            End Try
             Exit Sub
         End If
 
 
         Dim SMSG_SHOWTAXINODES As New PacketClass(OPCODES.SMSG_SHOWTAXINODES)
-        SMSG_SHOWTAXINODES.AddInt32(1)
-        SMSG_SHOWTAXINODES.AddUInt64(cGUID)
-        SMSG_SHOWTAXINODES.AddInt32(currentTaxi)
-        SMSG_SHOWTAXINODES.AddBitArray(c.TaxiZones, 8 * 4)
-        c.Client.Send(SMSG_SHOWTAXINODES)
-        SMSG_SHOWTAXINODES.Dispose()
+        Try
+            SMSG_SHOWTAXINODES.AddInt32(1)
+            SMSG_SHOWTAXINODES.AddUInt64(cGUID)
+            SMSG_SHOWTAXINODES.AddInt32(currentTaxi)
+            SMSG_SHOWTAXINODES.AddBitArray(c.TaxiZones, 8 * 4)
+            c.Client.Send(SMSG_SHOWTAXINODES)
+        Finally
+            SMSG_SHOWTAXINODES.Dispose()
+        End Try
     End Sub
 
     Public Sub On_CMSG_TAXINODE_STATUS_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -381,23 +396,25 @@ Public Module WS_Handlers_Taxi
 
                 'Send move packet for player
                 Dim SMSG_MONSTER_MOVE As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
-                SMSG_MONSTER_MOVE.AddPackGUID(Character.GUID)
-                SMSG_MONSTER_MOVE.AddSingle(Character.positionX)
-                SMSG_MONSTER_MOVE.AddSingle(Character.positionY)
-                SMSG_MONSTER_MOVE.AddSingle(Character.positionZ)
-                SMSG_MONSTER_MOVE.AddInt32(timeGetTime(""))
-                SMSG_MONSTER_MOVE.AddInt8(0)
-                SMSG_MONSTER_MOVE.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
-                SMSG_MONSTER_MOVE.AddInt32(Fix(TotalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
-                SMSG_MONSTER_MOVE.AddInt32(WaypointNodes.Count)             'Points Count
-                For j As Integer = 0 To WaypointNodes.Count - 1
-                    SMSG_MONSTER_MOVE.AddSingle(WaypointNodes(j).x)         'First Point X
-                    SMSG_MONSTER_MOVE.AddSingle(WaypointNodes(j).y)         'First Point Y
-                    SMSG_MONSTER_MOVE.AddSingle(WaypointNodes(j).z)         'First Point Z
-                Next
-                Character.Client.Send(SMSG_MONSTER_MOVE)
-                SMSG_MONSTER_MOVE.Dispose()
-
+                Try
+                    SMSG_MONSTER_MOVE.AddPackGUID(Character.GUID)
+                    SMSG_MONSTER_MOVE.AddSingle(Character.positionX)
+                    SMSG_MONSTER_MOVE.AddSingle(Character.positionY)
+                    SMSG_MONSTER_MOVE.AddSingle(Character.positionZ)
+                    SMSG_MONSTER_MOVE.AddInt32(timeGetTime(""))
+                    SMSG_MONSTER_MOVE.AddInt8(0)
+                    SMSG_MONSTER_MOVE.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
+                    SMSG_MONSTER_MOVE.AddInt32(Fix(TotalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
+                    SMSG_MONSTER_MOVE.AddInt32(WaypointNodes.Count)             'Points Count
+                    For j As Integer = 0 To WaypointNodes.Count - 1
+                        SMSG_MONSTER_MOVE.AddSingle(WaypointNodes(j).x)         'First Point X
+                        SMSG_MONSTER_MOVE.AddSingle(WaypointNodes(j).y)         'First Point Y
+                        SMSG_MONSTER_MOVE.AddSingle(WaypointNodes(j).z)         'First Point Z
+                    Next
+                    Character.Client.Send(SMSG_MONSTER_MOVE)
+                Finally
+                    SMSG_MONSTER_MOVE.Dispose()
+                End Try
 
                 For i As Integer = 0 To WaypointNodes.Count - 1
                     MoveDistance = GetDistance(LastX, WaypointNodes(i).x, LastY, WaypointNodes(i).y, LastZ, WaypointNodes(i).z)
@@ -408,22 +425,25 @@ Public Module WS_Handlers_Taxi
 
                     'Send move packet for other players
                     Dim p As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
-                    p.AddPackGUID(Character.GUID)
-                    p.AddSingle(Character.positionX)
-                    p.AddSingle(Character.positionY)
-                    p.AddSingle(Character.positionZ)
-                    p.AddInt32(timeGetTime(""))
-                    p.AddInt8(0)
-                    p.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
-                    p.AddInt32(Fix(TotalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
-                    p.AddInt32(WaypointNodes.Count)             'Points Count
-                    For j As Integer = i To WaypointNodes.Count - 1
-                        p.AddSingle(WaypointNodes(j).x)         'First Point X
-                        p.AddSingle(WaypointNodes(j).y)         'First Point Y
-                        p.AddSingle(WaypointNodes(j).z)         'First Point Z
-                    Next
-                    Character.SendToNearPlayers(p, , False)
-                    p.Dispose()
+                    Try
+                        p.AddPackGUID(Character.GUID)
+                        p.AddSingle(Character.positionX)
+                        p.AddSingle(Character.positionY)
+                        p.AddSingle(Character.positionZ)
+                        p.AddInt32(timeGetTime(""))
+                        p.AddInt8(0)
+                        p.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
+                        p.AddInt32(Fix(TotalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
+                        p.AddInt32(WaypointNodes.Count)             'Points Count
+                        For j As Integer = i To WaypointNodes.Count - 1
+                            p.AddSingle(WaypointNodes(j).x)         'First Point X
+                            p.AddSingle(WaypointNodes(j).y)         'First Point Y
+                            p.AddSingle(WaypointNodes(j).z)         'First Point Z
+                        Next
+                        Character.SendToNearPlayers(p, , False)
+                    Finally
+                        p.Dispose()
+                    End Try
 
                     'Wait move to complete
                     Thread.Sleep(Fix(MoveDistance / UNIT_NORMAL_TAXI_SPEED * 1000))

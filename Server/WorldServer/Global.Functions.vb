@@ -329,14 +329,20 @@ Public Module Functions
     End Sub
     Public Sub SendMessageNotification(ByRef Client As ClientClass, ByVal Message As String)
         Dim packet As New PacketClass(OPCODES.SMSG_NOTIFICATION)
-        packet.AddString(Message)
-        Client.Send(packet)
-        packet.Dispose()
+        Try
+            packet.AddString(Message)
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
     End Sub
     Public Sub SendMessageSystem(ByVal c As ClientClass, ByVal Message As String)
         Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
-        c.Send(packet)
-        packet.Dispose()
+        Try
+            c.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
     End Sub
     Public Sub Broadcast(ByVal Message As String)
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
@@ -364,41 +370,45 @@ Public Module Functions
         'End If
 
         Dim SMSG_ACCOUNT_DATA_TIMES As New PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
+        Try
+            'Dim md5hash As MD5 = MD5.Create()
+            For i As Integer = 0 To 7
+                If FoundData Then
+                    'Dim tmpBytes() As Byte = AccData.Rows(0).Item("account_data" & i)
+                    'If tmpBytes.Length = 0 Then
+                    'SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                    'SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                    'Else
+                    'SMSG_ACCOUNT_DATA_TIMES.AddByteArray(md5hash.ComputeHash(tmpBytes))
+                    'End If
+                Else
+                    SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                    SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                End If
+            Next
+            'md5hash.Clear()
+            'md5hash = Nothing
 
-        'Dim md5hash As MD5 = MD5.Create()
-        For i As Integer = 0 To 7
-            If FoundData Then
-                'Dim tmpBytes() As Byte = AccData.Rows(0).Item("account_data" & i)
-                'If tmpBytes.Length = 0 Then
-                'SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-                'SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-                'Else
-                'SMSG_ACCOUNT_DATA_TIMES.AddByteArray(md5hash.ComputeHash(tmpBytes))
-                'End If
-            Else
-                SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-                SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-            End If
-        Next
-        'md5hash.Clear()
-        'md5hash = Nothing
-
-        Client.Send(SMSG_ACCOUNT_DATA_TIMES)
-        SMSG_ACCOUNT_DATA_TIMES.Dispose()
-
+            Client.Send(SMSG_ACCOUNT_DATA_TIMES)
+        Finally
+            SMSG_ACCOUNT_DATA_TIMES.Dispose()
+        End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", Client.IP, Client.Port)
     End Sub
     Public Sub SendTrigerCinematic(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
-        If CharRaces.ContainsKey(Character.Race) Then
-            packet.AddInt32(CharRaces(Character.Race).CinematicID)
-        Else
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", Client.IP, Client.Port, Character.Race, Character.Classe)
-            Exit Sub
-        End If
+        Try
+            If CharRaces.ContainsKey(Character.Race) Then
+                packet.AddInt32(CharRaces(Character.Race).CinematicID)
+            Else
+                Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", Client.IP, Client.Port, Character.Race, Character.Classe)
+                Exit Sub
+            End If
 
-        Client.Send(packet)
-        packet.Dispose()
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", Client.IP, Client.Port)
     End Sub
     Public Sub SendTimeSyncReq(ByRef Client As ClientClass)
@@ -408,67 +418,76 @@ Public Module Functions
     End Sub
     Public Sub SendGameTime(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_LOGIN_SETTIMESPEED As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
+        Try
+            Dim time As DateTime = DateTime.Now
+            Dim Year As Integer = time.Year - 2000
+            Dim Month As Integer = time.Month - 1
+            Dim Day As Integer = time.Day - 1
+            Dim DayOfWeek As Integer = CType(time.DayOfWeek, Integer)
+            Dim Hour As Integer = time.Hour
+            Dim Minute As Integer = time.Minute
 
-        Dim time As DateTime = DateTime.Now
-        Dim Year As Integer = time.Year - 2000
-        Dim Month As Integer = time.Month - 1
-        Dim Day As Integer = time.Day - 1
-        Dim DayOfWeek As Integer = CType(time.DayOfWeek, Integer)
-        Dim Hour As Integer = time.Hour
-        Dim Minute As Integer = time.Minute
+            'SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Year << 18)) + (Month << 20)), Integer))
+            SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Month << 20)) + (Year << 24)), Integer))
+            SMSG_LOGIN_SETTIMESPEED.AddSingle(0.01666667F)
 
-        'SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Year << 18)) + (Month << 20)), Integer))
-        SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Month << 20)) + (Year << 24)), Integer))
-        SMSG_LOGIN_SETTIMESPEED.AddSingle(0.01666667F)
-
-        Client.Send(SMSG_LOGIN_SETTIMESPEED)
-        SMSG_LOGIN_SETTIMESPEED.Dispose()
-
+            Client.Send(SMSG_LOGIN_SETTIMESPEED)
+        Finally
+            SMSG_LOGIN_SETTIMESPEED.Dispose()
+        End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", Client.IP, Client.Port)
     End Sub
     Public Sub SendProficiency(ByRef Client As ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
         Dim packet As New PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
-        packet.AddInt8(ProficiencyType)
-        packet.AddInt32(ProficiencyFlags)
+        Try
+            packet.AddInt8(ProficiencyType)
+            packet.AddInt32(ProficiencyFlags)
 
-        Client.Send(packet)
-        packet.Dispose()
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", Client.IP, Client.Port)
     End Sub
     Public Sub SendCorpseReclaimDelay(ByRef Client As ClientClass, ByRef Character As CharacterObject, Optional ByVal Seconds As Integer = 30)
         Dim packet As New PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
-        packet.AddInt32(Seconds * 1000)
-        Client.Send(packet)
-        packet.Dispose()
+        Try
+            packet.AddInt32(Seconds * 1000)
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", Client.IP, Client.Port, Seconds)
     End Sub
     Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
         Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
+        Try
+            packet.AddInt8(msgType)
+            packet.AddInt32(msgLanguage)
 
-        packet.AddInt8(msgType)
-        packet.AddInt32(msgLanguage)
+            Select Case msgType
+                Case ChatMsg.CHAT_MSG_CHANNEL
+                    packet.AddString(msgChannel)
+                    packet.AddUInt32(0)
+                    packet.AddUInt64(SenderGUID)
+                Case ChatMsg.CHAT_MSG_YELL, ChatMsg.CHAT_MSG_SAY, ChatMsg.CHAT_MSG_PARTY
+                    packet.AddUInt64(SenderGUID)
+                    packet.AddUInt64(SenderGUID)
+                Case ChatMsg.CHAT_MSG_SYSTEM, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_IGNORED, ChatMsg.CHAT_MSG_SKILL, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_OFFICER, ChatMsg.CHAT_MSG_RAID, ChatMsg.CHAT_MSG_WHISPER_INFORM, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_WHISPER, ChatMsg.CHAT_MSG_AFK, ChatMsg.CHAT_MSG_DND, ChatMsg.CHAT_MSG_RAID_LEADER, ChatMsg.CHAT_MSG_RAID_WARNING
+                    packet.AddUInt64(SenderGUID)
+                Case ChatMsg.CHAT_MSG_MONSTER_SAY, ChatMsg.CHAT_MSG_MONSTER_EMOTE, ChatMsg.CHAT_MSG_MONSTER_YELL
+                    Log.WriteLine(LogType.WARNING, "Use Creature.SendChatMessage() for this message type - {0}!", msgType)
+                Case Else
+                    Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
+            End Select
 
-        Select Case msgType
-            Case ChatMsg.CHAT_MSG_CHANNEL
-                packet.AddString(msgChannel)
-                packet.AddUInt32(0)
-                packet.AddUInt64(SenderGUID)
-            Case ChatMsg.CHAT_MSG_YELL, ChatMsg.CHAT_MSG_SAY, ChatMsg.CHAT_MSG_PARTY
-                packet.AddUInt64(SenderGUID)
-                packet.AddUInt64(SenderGUID)
-            Case ChatMsg.CHAT_MSG_SYSTEM, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_IGNORED, ChatMsg.CHAT_MSG_SKILL, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_OFFICER, ChatMsg.CHAT_MSG_RAID, ChatMsg.CHAT_MSG_WHISPER_INFORM, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_WHISPER, ChatMsg.CHAT_MSG_AFK, ChatMsg.CHAT_MSG_DND, ChatMsg.CHAT_MSG_RAID_LEADER, ChatMsg.CHAT_MSG_RAID_WARNING
-                packet.AddUInt64(SenderGUID)
-            Case ChatMsg.CHAT_MSG_MONSTER_SAY, ChatMsg.CHAT_MSG_MONSTER_EMOTE, ChatMsg.CHAT_MSG_MONSTER_YELL
-                Log.WriteLine(LogType.WARNING, "Use Creature.SendChatMessage() for this message type - {0}!", msgType)
-            Case Else
-                Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
-        End Select
+            packet.AddUInt32(System.Text.Encoding.UTF8.GetByteCount(Message) + 1)
+            packet.AddString(Message)
 
-        packet.AddUInt32(System.Text.Encoding.UTF8.GetByteCount(Message) + 1)
-        packet.AddString(Message)
-
-        packet.AddInt8(Flag)
-
+            packet.AddInt8(Flag)
+        Catch ex As Exception
+            Log.WriteLine(LogType.FAILED, "failed chat message type - {0}!", msgType)
+        End Try
         Return packet
     End Function
 
