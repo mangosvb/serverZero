@@ -23,6 +23,7 @@ Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common.Authenticator
 Imports mangosVB.WorldServer.WS_Quests
+Imports mangosVB.WorldServer.WS_QuestSystem
 
 
 Public Module WS_CharManagment
@@ -2742,8 +2743,7 @@ CheckXPAgain:
                 'DONE: Fire quest event to check for if this item is required for quest
                 'TODO: This needs to be fired BEFORE the client has the item in the bag...
                 'NOTE: Not only quest items are needed for quests
-                Dim questSystem As New WS_Quests()
-                questSystem.OnQuestItemAdd(Me, tmpEntry, tmpCount)
+                ALLQUESTS.OnQuestItemAdd(Me, tmpEntry, tmpCount)
 
                 Return True
             End If
@@ -5331,8 +5331,7 @@ DoneAmmo:
             Me.HonorLoad()
 
             'DONE: Load quests in progress
-            Dim questSystem As New WS_Quests()
-            questSystem.LoadQuests(Me)
+            ALLQUESTS.LoadQuests(Me)
 
             'DONE: Initialize Internal fields
             Me.Initialize()
@@ -5730,20 +5729,19 @@ DoneAmmo:
 
         'NPC Talking and Quests
         Public TalkMenuTypes As New ArrayList
-        Public TalkQuests(QUEST_SLOTS) As BaseQuest
+        Public TalkQuests(QUEST_SLOTS) As WS_QuestsBase
         Public QuestsCompleted As New List(Of Integer)
-        Public TalkCurrentQuest As QuestInfo = Nothing
-        Public Function TalkAddQuest(ByRef Quest As QuestInfo) As Boolean
+        Public TalkCurrentQuest As WS_QuestInfo = Nothing
+        Public Function TalkAddQuest(ByRef Quest As WS_QuestInfo) As Boolean
             Dim i As Integer
             For i = 0 To QUEST_SLOTS
                 If TalkQuests(i) Is Nothing Then
                     'DONE: Initialize quest info
-                    Dim questSystem As New WS_Quests()
-                    questSystem.CreateQuest(TalkQuests(i), Quest)
+                    ALLQUESTS.CreateQuest(TalkQuests(i), Quest)
 
                     'DONE: Initialize quest
-                    If TypeOf TalkQuests(i) Is BaseQuestScripted Then
-                        CType(TalkQuests(i), BaseQuestScripted).OnQuestStart(Me)
+                    If TypeOf TalkQuests(i) Is WS_QuestsBaseScripted Then
+                        CType(TalkQuests(i), WS_QuestsBaseScripted).OnQuestStart(Me)
                     Else
                         TalkQuests(i).Initialize(Me)
                     End If
@@ -5771,7 +5769,7 @@ DoneAmmo:
             If TalkQuests(QuestSlot) Is Nothing Then
                 Return False
             Else
-                If TypeOf TalkQuests(QuestSlot) Is BaseQuestScripted Then CType(TalkQuests(QuestSlot), BaseQuestScripted).OnQuestCancel(Me)
+                If TypeOf TalkQuests(QuestSlot) Is WS_QuestsBaseScripted Then CType(TalkQuests(QuestSlot), WS_QuestsBaseScripted).OnQuestCancel(Me)
 
                 Dim updateDataCount As Integer = UpdateData.Count
 
@@ -5790,7 +5788,7 @@ DoneAmmo:
             If TalkQuests(QuestSlot) Is Nothing Then
                 Return False
             Else
-                If TypeOf TalkQuests(QuestSlot) Is BaseQuestScripted Then CType(TalkQuests(QuestSlot), BaseQuestScripted).OnQuestComplete(Me)
+                If TypeOf TalkQuests(QuestSlot) Is WS_QuestsBaseScripted Then CType(TalkQuests(QuestSlot), WS_QuestsBaseScripted).OnQuestComplete(Me)
                 Dim updateDataCount As Integer = UpdateData.Count
 
                 SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_1 + QuestSlot * 3, 0)
@@ -5823,7 +5821,7 @@ DoneAmmo:
                 Return True
             End If
         End Function
-        Public Function TalkCanAccept(ByRef Quest As QuestInfo) As Boolean
+        Public Function TalkCanAccept(ByRef Quest As WS_QuestInfo) As Boolean
 
             Dim DBResult As New DataTable
             CharacterDatabase.Query(String.Format("SELECT quest_status FROM characters_quests WHERE char_guid = {0} AND quest_id = {1} LIMIT 1;", GUID, Quest.ID), DBResult)

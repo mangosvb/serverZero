@@ -18,6 +18,7 @@
 
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.WorldServer.WS_Quests
+Imports mangosVB.WorldServer.WS_QuestSystem
 
 Public Module WS_NPCs
 
@@ -1055,30 +1056,30 @@ Public Module WS_NPCs
                 If TextID = 0 Then TextID = WORLD_CREATUREs(cGUID).NPCTextID
 
                 If (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_QUESTGIVER) = NPCFlags.UNIT_NPC_FLAG_QUESTGIVER Then
-                    Dim questSystem As New WS_Quests()
-                    Dim qMenu As QuestMenu = questSystem.GetQuestMenu(c, cGUID)
+
+                    Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(c, cGUID)
                     If qMenu.IDs.Count = 0 AndAlso npcMenu.Menus.Count = 0 Then Exit Sub
 
                     If npcMenu.Menus.Count = 0 Then ' If we only have quests to list
                         If qMenu.IDs.Count = 1 Then ' If we only have one quest to list, we direct the client directly to it
                             Dim QuestID As Integer = CType(qMenu.IDs(0), Integer)
-                            If Not questSystem.QUESTs.ContainsKey(QuestID) Then Dim tmpQuest As New QuestInfo(QuestID)
-                            Dim status As QuestgiverStatus = CType(qMenu.Icons(0), QuestgiverStatus)
-                            If status = QuestgiverStatus.DIALOG_STATUS_INCOMPLETE Then
+                            If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
+                            Dim status As QuestgiverStatusFlag = CType(qMenu.Icons(0), QuestgiverStatusFlag)
+                            If status = QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE Then
                                 For i As Integer = 0 To QUEST_SLOTS
                                     If c.TalkQuests(i) IsNot Nothing AndAlso c.TalkQuests(i).ID = QuestID Then
                                         'Load quest data
-                                        c.TalkCurrentQuest = questSystem.QUESTs(QuestID)
-                                        questSystem.SendQuestRequireItems(c.Client, c.TalkCurrentQuest, cGUID, c.TalkQuests(i))
+                                        c.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                                        ALLQUESTS.SendQuestRequireItems(c.Client, c.TalkCurrentQuest, cGUID, c.TalkQuests(i))
                                         Exit For
                                     End If
                                 Next
                             Else
-                                c.TalkCurrentQuest = questSystem.QUESTs(QuestID)
-                                questSystem.SendQuestDetails(c.Client, c.TalkCurrentQuest, cGUID, True)
+                                c.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                                ALLQUESTS.SendQuestDetails(c.Client, c.TalkCurrentQuest, cGUID, True)
                             End If
                         Else ' There were more than one quest to list
-                            questSystem.SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
+                            ALLQUESTS.SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
                         End If
                     Else ' We have to list both gossip options and quests
                         c.SendGossip(cGUID, TextID, npcMenu, qMenu)
@@ -1125,9 +1126,8 @@ Public Module WS_NPCs
                     c.SendTalking(WORLD_CREATUREs(cGUID).NPCTextID)
                 Case Gossip_Option.GOSSIP_OPTION_QUESTGIVER
                     'NOTE: This may stay unused
-                    Dim questSystem As New WS_Quests()
-                    Dim qMenu As QuestMenu = questSystem.GetQuestMenu(c, cGUID)
-                    questSystem.SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
+                    Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(c, cGUID)
+                    ALLQUESTS.SendQuestMenu(c, cGUID, "I have some tasks for you, $N.", qMenu)
             End Select
             ''c.SendGossipComplete()
         End Sub

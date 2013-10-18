@@ -1319,12 +1319,10 @@ Public Module WS_Spells
 
                         'DONE: Check if the spell was needed for a quest
                         If Not (Targets.unitTarget Is Nothing) AndAlso TypeOf Targets.unitTarget Is CreatureObject Then
-                            Dim questSystem As New WS_Quests()
-                            questSystem.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.unitTarget, CreatureObject), ID)
+                            ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.unitTarget, CreatureObject), ID)
                         End If
                         If Not (Targets.goTarget Is Nothing) Then
-                            Dim questSystem As New WS_Quests()
-                            questSystem.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.goTarget, GameObjectObject), ID)
+                            ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.goTarget, GameObjectObject), ID)
                         End If
                     End With
 
@@ -4733,8 +4731,7 @@ SkipShapeShift:
 
         For Each Unit As BaseUnit In Infected
             If TypeOf Unit Is CharacterObject Then
-                Dim questSystem As New WS_Quests()
-                questSystem.CompleteQuest(CType(Unit, CharacterObject), SpellInfo.MiscValue, Caster.GUID)
+                ALLQUESTS.CompleteQuest(CType(Unit, CharacterObject), SpellInfo.MiscValue, Caster.GUID)
             End If
         Next
 

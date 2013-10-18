@@ -1876,12 +1876,6 @@ Public Module WS_DBCDatabase
         End Sub
     End Class
 #End Region
-#Region "Quests"
-    Public CreatureQuestStarters As New Dictionary(Of Integer, List(Of Integer))
-    Public CreatureQuestFinishers As New Dictionary(Of Integer, List(Of Integer))
-    Public GameobjectQuestStarters As New Dictionary(Of Integer, List(Of Integer))
-    Public GameobjectQuestFinishers As New Dictionary(Of Integer, List(Of Integer))
-#End Region
 #Region "Other"
 
     Public Sub InitializeInternalDatabase()

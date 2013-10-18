@@ -238,8 +238,7 @@ Public Module WS_Handlers_Misc
 
         If GuidIsCreature(GUID) AndAlso WORLD_CREATUREs.ContainsKey(GUID) Then
             'DONE: Some quests needs emotes being done
-            Dim questSystem As New WS_Quests()
-            questSystem.OnQuestDoEmote(Client.Character, WORLD_CREATUREs(GUID), TextEmote)
+            ALLQUESTS.OnQuestDoEmote(Client.Character, WORLD_CREATUREs(GUID), TextEmote)
 
             'DONE: Doing emotes to guards
             If WORLD_CREATUREs(GUID).aiScript IsNot Nothing AndAlso (TypeOf WORLD_CREATUREs(GUID).aiScript Is GuardAI) Then
@@ -338,14 +337,16 @@ Public Module WS_Handlers_Misc
     Public Sub CharacterRepop(ByRef Client As ClientClass)
         Try
             'DONE: Make really dead
-            Client.Character.Mana.Current = 0
-            Client.Character.Rage.Current = 0
-            Client.Character.Energy.Current = 0
-            Client.Character.Life.Current = 1
-            Client.Character.DEAD = True
-            Client.Character.cUnitFlags = &H8
-            Client.Character.cDynamicFlags = 0
-            Client.Character.cPlayerFlags = Client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_DEAD
+            With Client.Character
+                .Mana.Current = 0
+                .Rage.Current = 0
+                .Energy.Current = 0
+                .Life.Current = 1
+                .DEAD = True
+                .cUnitFlags = &H8
+                .cDynamicFlags = 0
+                .cPlayerFlags = Client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_DEAD
+            End With
             SendCorpseReclaimDelay(Client, Client.Character, 30)
 
             'DONE: Clear some things like spells, flags and timers

@@ -158,6 +158,9 @@
     <Compile Include="Handlers\WS.Handlers.Warden.vb" />
     <Compile Include="Maps\WS_GraveYards.vb" />
     <Compile Include="Objects\WS.Transports.vb" />
+    <Compile Include="Quests\WS_Quests.vb" />
+    <Compile Include="Quests\WS_QuestsBase.vb" />
+    <Compile Include="Quests\WS_QuestInfo.vb" />
     <Compile Include="Revision.vb" />
     <Compile Include="Handlers\WS.Handlers.Battleground.vb" />
     <Compile Include="WS.LockDebug.vb" />
@@ -238,9 +241,6 @@
     <Compile Include="Objects\WS.Pets.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Quests.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="WS.Spells.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -250,6 +250,8 @@
     <Compile Include="Maps\WS.VMaps.vb" />
     <Compile Include="WS.Warden.vb" />
     <Compile Include="WS.Weather.vb" />
+    <Compile Include="Quests\WS_QuestsBaseScripted.vb" />
+    <Compile Include="Quests\WS_QuestSystem.vb" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

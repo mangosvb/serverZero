@@ -37,7 +37,13 @@ Public Module WS_Main
     Public CLIENTs As New Dictionary(Of UInteger, ClientClass)
     Public CHARACTERs As New Dictionary(Of ULong, CharacterObject)
     Public CHARACTERs_Lock As New ReaderWriterLock ' ReaderWriterLock_Debug("CHARACTERS")
+    Public ALLQUESTS As New WS_Quests
     Public AllGraveYards As New WS_GraveYards
+
+    Public CreatureQuestStarters As New Dictionary(Of Integer, List(Of Integer))
+    Public CreatureQuestFinishers As New Dictionary(Of Integer, List(Of Integer))
+    Public GameobjectQuestStarters As New Dictionary(Of Integer, List(Of Integer))
+    Public GameobjectQuestFinishers As New Dictionary(Of Integer, List(Of Integer))
 
     'Worlds containers
     Public WORLD_CREATUREs_Lock As New ReaderWriterLock ' ReaderWriterLock_Debug("CREATURES")
@@ -332,7 +338,12 @@ Public Module WS_Main
         Maiev.InitWarden()
 #End If
 
+        'Log.WriteLine(LogType.WARNING, "Loading Quests...")
+        ALLQUESTS.LoadAllQuests()
+        'Log.WriteLine(LogType.WARNING, "Loading Quests...Complete")
+
         AllGraveYards.InitializeGraveyards()
+
 
         WorldServer = New WorldServerClass
         GC.Collect()

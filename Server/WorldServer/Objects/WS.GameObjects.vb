@@ -238,8 +238,8 @@ Public Module WS_GameObjects
             'DynFlags = Activate a game object (Chest = 9, Goober = 1)
             Dim DynFlags As Integer = 0
             If Type = GameObjectType.GAMEOBJECT_TYPE_CHEST Then
-                Dim questSystem As New WS_Quests()
-                Dim UsedForQuest As Byte = questSystem.IsGameObjectUsedForQuest(Me, Character)
+
+                Dim UsedForQuest As Byte = ALLQUESTS.IsGameObjectUsedForQuest(Me, Character)
                 If UsedForQuest > 0 Then
                     Flags = Flags Or 4
                     If UsedForQuest = 2 Then
@@ -923,9 +923,9 @@ Public Module WS_GameObjects
                 packetACK.Dispose()
 
             Case GameObjectType.GAMEOBJECT_TYPE_QUESTGIVER
-                Dim questSystem As New WS_Quests()
-                Dim qm As QuestMenu = questSystem.GetQuestMenuGO(Client.Character, GameObjectGUID)
-                questSystem.SendQuestMenu(Client.Character, GameObjectGUID, , qm)
+
+                Dim qm As QuestMenu = ALLQUESTS.GetQuestMenuGO(Client.Character, GameObjectGUID)
+                ALLQUESTS.SendQuestMenu(Client.Character, GameObjectGUID, , qm)
 
             Case GameObjectType.GAMEOBJECT_TYPE_CAMERA
                 Dim cinematicPacket As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
