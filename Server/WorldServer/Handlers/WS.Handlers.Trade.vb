@@ -183,15 +183,18 @@ Public Module WS_Handlers_Trade
         Public Sub DoTrade(ByRef Who As CharacterObject)
 
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_STATUS_COMPLETE)
-            If Trader Is Who Then
-                Target.Client.SendMultiplyPackets(response)
-                TraderAccept = True
-            Else
-                Trader.Client.SendMultiplyPackets(response)
-                TargetAccept = True
-            End If
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_STATUS_COMPLETE)
+                If Trader Is Who Then
+                    Target.Client.SendMultiplyPackets(response)
+                    TraderAccept = True
+                Else
+                    Trader.Client.SendMultiplyPackets(response)
+                    TargetAccept = True
+                End If
+            Finally
+                response.Dispose()
+            End Try
 
             If TargetAccept AndAlso TraderAccept Then DoTrade()
         End Sub
@@ -209,39 +212,51 @@ Public Module WS_Handlers_Trade
                 'DONE: Check free slots
                 If Target.ItemFREESLOTS < TargetReqItems Then
                     Dim responseUnAccept As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-                    responseUnAccept.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
-                    Target.Client.SendMultiplyPackets(responseUnAccept)
-                    TraderAccept = False
-                    Trader.Client.SendMultiplyPackets(responseUnAccept)
-                    TraderAccept = False
-                    responseUnAccept.Dispose()
+                    Try
+                        responseUnAccept.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
+                        Target.Client.SendMultiplyPackets(responseUnAccept)
+                        TraderAccept = False
+                        Trader.Client.SendMultiplyPackets(responseUnAccept)
+                        TraderAccept = False
+                    Finally
+                        responseUnAccept.Dispose()
+                    End Try
 
                     Dim responseNoSlot As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-                    responseNoSlot.AddInt8(InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL)
-                    responseNoSlot.AddUInt64(0)
-                    responseNoSlot.AddUInt64(0)
-                    responseNoSlot.AddInt8(0)
-                    Target.Client.Send(responseNoSlot)
-                    responseNoSlot.Dispose()
+                    Try
+                        responseNoSlot.AddInt8(InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL)
+                        responseNoSlot.AddUInt64(0)
+                        responseNoSlot.AddUInt64(0)
+                        responseNoSlot.AddInt8(0)
+                        Target.Client.Send(responseNoSlot)
+                    Finally
+                        responseNoSlot.Dispose()
+                    End Try
                     Exit Sub
                 End If
 
                 If Trader.ItemFREESLOTS < TraderReqItems Then
                     Dim responseUnAccept As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-                    responseUnAccept.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
-                    Target.Client.SendMultiplyPackets(responseUnAccept)
-                    TraderAccept = False
-                    Trader.Client.SendMultiplyPackets(responseUnAccept)
-                    TargetAccept = False
-                    responseUnAccept.Dispose()
+                    Try
+                        responseUnAccept.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
+                        Target.Client.SendMultiplyPackets(responseUnAccept)
+                        TraderAccept = False
+                        Trader.Client.SendMultiplyPackets(responseUnAccept)
+                        TargetAccept = False
+                    Finally
+                        responseUnAccept.Dispose()
+                    End Try
 
                     Dim responseNoSlot As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-                    responseNoSlot.AddInt8(InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL)
-                    responseNoSlot.AddUInt64(0)
-                    responseNoSlot.AddUInt64(0)
-                    responseNoSlot.AddInt8(0)
-                    Trader.Client.Send(responseNoSlot)
-                    responseNoSlot.Dispose()
+                    Try
+                        responseNoSlot.AddInt8(InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL)
+                        responseNoSlot.AddUInt64(0)
+                        responseNoSlot.AddUInt64(0)
+                        responseNoSlot.AddInt8(0)
+                        Trader.Client.Send(responseNoSlot)
+                    Finally
+                        responseNoSlot.Dispose()
+                    End Try
                     Exit Sub
                 End If
 
@@ -292,11 +307,14 @@ Public Module WS_Handlers_Trade
                 Target.SendCharacterUpdate(True)
 
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-                response.AddInt32(TradeStatus.TRADE_COMPLETE)
-                Target.Client.SendMultiplyPackets(response)
-                Trader.Client.SendMultiplyPackets(response)
-                response.Dispose()
-                Me.Dispose()
+                Try
+                    response.AddInt32(TradeStatus.TRADE_COMPLETE)
+                    Target.Client.SendMultiplyPackets(response)
+                    Trader.Client.SendMultiplyPackets(response)
+                Finally
+                    response.Dispose()
+                    Me.Dispose()
+                End Try
 
             Catch e As Exception
                 Log.WriteLine(LogType.FAILED, "Error doing trade: {0}{1}", vbNewLine, e.ToString)
@@ -337,10 +355,13 @@ Public Module WS_Handlers_Trade
 
         If Client.Character.tradeInfo IsNot Nothing Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_STATUS_CANCELED)
-            If Client.Character.tradeInfo.Target IsNot Nothing Then Client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
-            If Client.Character.tradeInfo.Trader IsNot Nothing Then Client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_STATUS_CANCELED)
+                If Client.Character.tradeInfo.Target IsNot Nothing Then Client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
+                If Client.Character.tradeInfo.Trader IsNot Nothing Then Client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
+            Finally
+                response.Dispose()
+            End Try
 
             Client.Character.tradeInfo.Dispose()
         End If
@@ -399,103 +420,145 @@ Public Module WS_Handlers_Trade
 
         If Client.Character.DEAD = True Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_DEAD)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_DEAD)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         ElseIf Client.Character.LogoutTimer IsNot Nothing Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_LOGOUT)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_LOGOUT)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         ElseIf (Client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_STUNNED)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_STUNNED)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
 
         If CHARACTERs.ContainsKey(targetGUID) = False Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TARGET_MISSING)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TARGET_MISSING)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         ElseIf CHARACTERs(targetGUID).DEAD = True Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TARGET_DEAD)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TARGET_DEAD)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         ElseIf CHARACTERs(targetGUID).LogoutTimer IsNot Nothing Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TARGET_LOGOUT)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TARGET_LOGOUT)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         ElseIf (CHARACTERs(targetGUID).cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_STUNNED)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_STUNNED)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
 
         If Not Client.Character.tradeInfo Is Nothing Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TARGET_UNAVIABLE)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TARGET_UNAVIABLE)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
 
         If Not CType(CHARACTERs(targetGUID), CharacterObject).tradeInfo Is Nothing Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TARGET_UNAVIABLE2)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TARGET_UNAVIABLE2)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
 
         If CType(CHARACTERs(targetGUID), CharacterObject).Side <> Client.Character.Side Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TARGET_DIFF_FACTION)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TARGET_DIFF_FACTION)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
 
         If GetDistance(CType(Client.Character, CharacterObject), CHARACTERs(targetGUID)) > 30.0F Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TARGET_TOO_FAR)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TARGET_TOO_FAR)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
 
         If Client.Character.Access = AccessLevel.Trial Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TRIAL_ACCOUNT)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TRIAL_ACCOUNT)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
         If CHARACTERs(targetGUID).Access = AccessLevel.Trial Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-            response.AddInt32(TradeStatus.TRADE_TRIAL_ACCOUNT)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt32(TradeStatus.TRADE_TRIAL_ACCOUNT)
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
             Exit Sub
         End If
 
         Dim tmpTradeInfo As New TTradeInfo(Client.Character, CHARACTERs(targetGUID))
         Dim response_ok As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-        response_ok.AddInt32(TradeStatus.TRADE_STATUS_OK)
-        response_ok.AddUInt64(Client.Character.GUID)
-        Client.Character.tradeInfo.Target.Client.Send(response_ok)
-        response_ok.Dispose()
+        Try
+            response_ok.AddInt32(TradeStatus.TRADE_STATUS_OK)
+            response_ok.AddUInt64(Client.Character.GUID)
+            Client.Character.tradeInfo.Target.Client.Send(response_ok)
+        Finally
+            response_ok.Dispose()
+        End Try
     End Sub
 
     Public Sub On_CMSG_BEGIN_TRADE(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -504,25 +567,31 @@ Public Module WS_Handlers_Trade
         Client.Character.tradeInfo.ID += 1
 
         Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-        response.AddInt32(TradeStatus.TRADE_TRADE_WINDOW_OPEN)
-        response.AddInt32(Client.Character.tradeInfo.ID)
-        Client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
-        Client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
-        response.Dispose()
+        Try
+            response.AddInt32(TradeStatus.TRADE_TRADE_WINDOW_OPEN)
+            response.AddInt32(Client.Character.tradeInfo.ID)
+            Client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
+            Client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
+        Finally
+            response.Dispose()
+        End Try
     End Sub
     Public Sub On_CMSG_UNACCEPT_TRADE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UNACCEPT_TRADE", Client.IP, Client.Port)
 
         Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
-        response.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
-        If Client.Character.tradeInfo.Trader Is Client.Character Then
-            Client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
-            Client.Character.tradeInfo.TraderAccept = False
-        Else
-            Client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
-            Client.Character.tradeInfo.TargetAccept = False
-        End If
-        response.Dispose()
+        Try
+            response.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
+            If Client.Character.tradeInfo.Trader Is Client.Character Then
+                Client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
+                Client.Character.tradeInfo.TraderAccept = False
+            Else
+                Client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
+                Client.Character.tradeInfo.TargetAccept = False
+            End If
+        Finally
+            response.Dispose()
+        End Try
     End Sub
     Public Sub On_CMSG_ACCEPT_TRADE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ACCEPT_TRADE", Client.IP, Client.Port)

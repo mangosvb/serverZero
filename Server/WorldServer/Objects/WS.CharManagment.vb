@@ -533,57 +533,70 @@ Public Module WS_CharManagment
 
     Public Sub SendBindPointUpdate(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_BINDPOINTUPDATE As New PacketClass(OPCODES.SMSG_BINDPOINTUPDATE)
-        SMSG_BINDPOINTUPDATE.AddSingle(Character.bindpoint_positionX)
-        SMSG_BINDPOINTUPDATE.AddSingle(Character.bindpoint_positionY)
-        SMSG_BINDPOINTUPDATE.AddSingle(Character.bindpoint_positionZ)
-        SMSG_BINDPOINTUPDATE.AddInt32(Character.bindpoint_map_id)
-        SMSG_BINDPOINTUPDATE.AddInt32(Character.bindpoint_zone_id)
-        Client.Send(SMSG_BINDPOINTUPDATE)
-        SMSG_BINDPOINTUPDATE.Dispose()
+        Try
+            SMSG_BINDPOINTUPDATE.AddSingle(Character.bindpoint_positionX)
+            SMSG_BINDPOINTUPDATE.AddSingle(Character.bindpoint_positionY)
+            SMSG_BINDPOINTUPDATE.AddSingle(Character.bindpoint_positionZ)
+            SMSG_BINDPOINTUPDATE.AddInt32(Character.bindpoint_map_id)
+            SMSG_BINDPOINTUPDATE.AddInt32(Character.bindpoint_zone_id)
+            Client.Send(SMSG_BINDPOINTUPDATE)
+        Finally
+            SMSG_BINDPOINTUPDATE.Dispose()
+        End Try
     End Sub
     Public Sub Send_SMSG_SET_REST_START(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_SET_REST_START As New PacketClass(OPCODES.SMSG_SET_REST_START)
-        SMSG_SET_REST_START.AddInt32(msTime)
-        Client.Send(SMSG_SET_REST_START)
-        SMSG_SET_REST_START.Dispose()
+        Try
+            SMSG_SET_REST_START.AddInt32(msTime)
+            Client.Send(SMSG_SET_REST_START)
+        Finally
+            SMSG_SET_REST_START.Dispose()
+        End Try
     End Sub
     Public Sub SendTutorialFlags(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_TUTORIAL_FLAGS As New PacketClass(OPCODES.SMSG_TUTORIAL_FLAGS)
-        '[8*Int32] or [32 Bytes] or [256 Bits Flags] Total!!!
-        'SMSG_TUTORIAL_FLAGS.AddInt8(0)
-        'SMSG_TUTORIAL_FLAGS.AddInt8(Character.TutorialFlags.Length)
-        SMSG_TUTORIAL_FLAGS.AddByteArray(Character.TutorialFlags)
-        Client.Send(SMSG_TUTORIAL_FLAGS)
-        SMSG_TUTORIAL_FLAGS.Dispose()
+        Try
+            '[8*Int32] or [32 Bytes] or [256 Bits Flags] Total!!!
+            'SMSG_TUTORIAL_FLAGS.AddInt8(0)
+            'SMSG_TUTORIAL_FLAGS.AddInt8(Character.TutorialFlags.Length)
+            SMSG_TUTORIAL_FLAGS.AddByteArray(Character.TutorialFlags)
+            Client.Send(SMSG_TUTORIAL_FLAGS)
+        Finally
+            SMSG_TUTORIAL_FLAGS.Dispose()
+        End Try
     End Sub
     Public Sub SendFactions(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_INITIALIZE_FACTIONS)
+        Try
+            packet.AddInt32(64)
+            For i As Byte = 0 To 63
+                packet.AddInt8(Character.Reputation(i).Flags)                               'Flags
+                packet.AddInt32(Character.Reputation(i).Value)                              'Standing
+            Next i
 
-        packet.AddInt32(64)
-        For i As Byte = 0 To 63
-            packet.AddInt8(Character.Reputation(i).Flags)                               'Flags
-            packet.AddInt32(Character.Reputation(i).Value)                              'Standing
-        Next i
-
-        Client.Send(packet)
-        packet.Dispose()
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
     End Sub
     Public Sub SendActionButtons(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_ACTION_BUTTONS)
+        Try
+            Dim i As Byte
+            For i = 0 To 119    'or 480 ?
+                If Character.ActionButtons.ContainsKey(i) Then
+                    packet.AddUInt16(Character.ActionButtons(i).Action)
+                    packet.AddInt8(Character.ActionButtons(i).ActionType)
+                    packet.AddInt8(Character.ActionButtons(i).ActionMisc)
+                Else
+                    packet.AddInt32(0)
+                End If
+            Next
 
-        Dim i As Byte
-        For i = 0 To 119    'or 480 ?
-            If Character.ActionButtons.ContainsKey(i) Then
-                packet.AddUInt16(Character.ActionButtons(i).Action)
-                packet.AddInt8(Character.ActionButtons(i).ActionType)
-                packet.AddInt8(Character.ActionButtons(i).ActionMisc)
-            Else
-                packet.AddInt32(0)
-            End If
-        Next
-
-        Client.Send(packet)
-        packet.Dispose()
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
     End Sub
     Public Sub SendInitWorldStates(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Character.ZoneCheck()
@@ -612,134 +625,140 @@ Public Module WS_CharManagment
         End Select
 
         Dim packet As New PacketClass(OPCODES.SMSG_INIT_WORLD_STATES)
-        packet.AddUInt32(Character.MapID)
-        packet.AddInt32(Character.ZoneID)
-        packet.AddInt32(Character.AreaID)
-        packet.AddUInt16(NumberOfFields)
-        packet.AddUInt32(&H8D8)
-        packet.AddUInt32(&H0)
-        packet.AddUInt32(&H8D7)
-        packet.AddUInt32(&H0)
-        packet.AddUInt32(&H8D6)
-        packet.AddUInt32(&H0)
-        packet.AddUInt32(&H8D5)
-        packet.AddUInt32(&H0)
-        packet.AddUInt32(&H8D4)
-        packet.AddUInt32(&H0)
-        packet.AddUInt32(&H8D3)
-        packet.AddUInt32(&H0)
-        If Character.MapID = 530 Then 'Outlands
-            packet.AddUInt32(&H9BF)
+        Try
+            packet.AddUInt32(Character.MapID)
+            packet.AddInt32(Character.ZoneID)
+            packet.AddInt32(Character.AreaID)
+            packet.AddUInt16(NumberOfFields)
+            packet.AddUInt32(&H8D8)
             packet.AddUInt32(&H0)
-            packet.AddUInt32(&H9BD)
-            packet.AddUInt32(&HF)
-            packet.AddUInt32(&H9BB)
-            packet.AddUInt32(&HF)
-        End If
-        Select Case Character.ZoneID
-            Case 1, 11, 12, 38, 40, 51, 1519, 1537, 2257
-                Exit Select
-            Case 2597 'AV
-                'TODO
-            Case 3277 'WSG
-                'TODO
-            Case 3358 'AB
-                'TODO
-            Case 3820 'Eye of the Storm
-                'TODO
-            Case 3483 'Hellfire Peninsula
-                'TODO
-            Case 3519 'Terokkar Forest
-                'TODO
-            Case 3521 'Zangarmarch
-                'TODO
-            Case 3698 'Nagrand Arena
-                packet.AddUInt32(&HA0F)
+            packet.AddUInt32(&H8D7)
+            packet.AddUInt32(&H0)
+            packet.AddUInt32(&H8D6)
+            packet.AddUInt32(&H0)
+            packet.AddUInt32(&H8D5)
+            packet.AddUInt32(&H0)
+            packet.AddUInt32(&H8D4)
+            packet.AddUInt32(&H0)
+            packet.AddUInt32(&H8D3)
+            packet.AddUInt32(&H0)
+            If Character.MapID = 530 Then 'Outlands
+                packet.AddUInt32(&H9BF)
                 packet.AddUInt32(&H0)
-                packet.AddUInt32(&HA10)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&HA11)
-                packet.AddUInt32(&H0)
-            Case 3702 'Blade's Edge Arena
-                packet.AddUInt32(&H9F0)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&H9F1)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&H9F3)
-                packet.AddUInt32(&H0)
-            Case 3968 'Ruins of Lordaeron Arena
-                packet.AddUInt32(&HBB8)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&HBB9)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&HBBA)
-                packet.AddUInt32(&H0)
-            Case 3703 'Shattrath
-                Exit Select
-            Case Else
-                packet.AddUInt32(&H914)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&H913)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&H912)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&H915)
-                packet.AddUInt32(&H0)
-        End Select
-        Client.Send(packet)
-        packet.Dispose()
+                packet.AddUInt32(&H9BD)
+                packet.AddUInt32(&HF)
+                packet.AddUInt32(&H9BB)
+                packet.AddUInt32(&HF)
+            End If
+            Select Case Character.ZoneID
+                Case 1, 11, 12, 38, 40, 51, 1519, 1537, 2257
+                    Exit Select
+                Case 2597 'AV
+                    'TODO
+                Case 3277 'WSG
+                    'TODO
+                Case 3358 'AB
+                    'TODO
+                Case 3820 'Eye of the Storm
+                    'TODO
+                Case 3483 'Hellfire Peninsula
+                    'TODO
+                Case 3519 'Terokkar Forest
+                    'TODO
+                Case 3521 'Zangarmarch
+                    'TODO
+                Case 3698 'Nagrand Arena
+                    packet.AddUInt32(&HA0F)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&HA10)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&HA11)
+                    packet.AddUInt32(&H0)
+                Case 3702 'Blade's Edge Arena
+                    packet.AddUInt32(&H9F0)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&H9F1)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&H9F3)
+                    packet.AddUInt32(&H0)
+                Case 3968 'Ruins of Lordaeron Arena
+                    packet.AddUInt32(&HBB8)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&HBB9)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&HBBA)
+                    packet.AddUInt32(&H0)
+                Case 3703 'Shattrath
+                    Exit Select
+                Case Else
+                    packet.AddUInt32(&H914)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&H913)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&H912)
+                    packet.AddUInt32(&H0)
+                    packet.AddUInt32(&H915)
+                    packet.AddUInt32(&H0)
+            End Select
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
     End Sub
     Public Sub SendInitialSpells(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_INITIAL_SPELLS)
-        packet.AddInt8(0)
-        Dim countPos As Integer = packet.Data.Length
-        packet.AddInt16(0) 'Updated later
+        Try
+            packet.AddInt8(0)
+            Dim countPos As Integer = packet.Data.Length
+            packet.AddInt16(0) 'Updated later
 
-        Dim spellCount As Integer = 0
-        Dim spellCooldowns As New Dictionary(Of Integer, KeyValuePair(Of UInteger, Integer))
-        For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In Character.Spells
-            If Spell.Value.Active = 1 Then
-                packet.AddUInt16(Spell.Key) 'SpellID
-                packet.AddInt16(0) 'Unknown
-                spellCount += 1
+            Dim spellCount As Integer = 0
+            Dim spellCooldowns As New Dictionary(Of Integer, KeyValuePair(Of UInteger, Integer))
+            For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In Character.Spells
+                If Spell.Value.Active = 1 Then
+                    packet.AddUInt16(Spell.Key) 'SpellID
+                    packet.AddInt16(0) 'Unknown
+                    spellCount += 1
 
-                If Spell.Value.Cooldown > 0UI Then
-                    spellCooldowns.Add(Spell.Key, New KeyValuePair(Of UInteger, Integer)(Spell.Value.Cooldown, 0))
+                    If Spell.Value.Cooldown > 0UI Then
+                        spellCooldowns.Add(Spell.Key, New KeyValuePair(Of UInteger, Integer)(Spell.Value.Cooldown, 0))
+                    End If
                 End If
-            End If
-        Next
-        packet.AddInt16(spellCount, countPos)
+            Next
+            packet.AddInt16(spellCount, countPos)
 
-        spellCount = 0
-        countPos = packet.Data.Length
-        packet.AddInt16(0) 'Updated later
+            spellCount = 0
+            countPos = packet.Data.Length
+            packet.AddInt16(0) 'Updated later
 
-        For Each Cooldown As KeyValuePair(Of Integer, KeyValuePair(Of UInteger, Integer)) In spellCooldowns
-            If SPELLs.ContainsKey(Cooldown.Key) = False Then Continue For
+            For Each Cooldown As KeyValuePair(Of Integer, KeyValuePair(Of UInteger, Integer)) In spellCooldowns
+                If SPELLs.ContainsKey(Cooldown.Key) = False Then Continue For
 
-            packet.AddUInt16(Cooldown.Key) 'SpellID
+                packet.AddUInt16(Cooldown.Key) 'SpellID
 
-            Dim timeLeft As Integer = 0
-            If Cooldown.Value.Key > GetTimestamp(Now) Then
-                timeLeft = (Cooldown.Value.Key - GetTimestamp(Now)) * 1000
-            End If
+                Dim timeLeft As Integer = 0
+                If Cooldown.Value.Key > GetTimestamp(Now) Then
+                    timeLeft = (Cooldown.Value.Key - GetTimestamp(Now)) * 1000
+                End If
 
-            packet.AddUInt16(Cooldown.Value.Value) 'CastItemID
-            packet.AddUInt16(SPELLs(Cooldown.Key).Category) 'SpellCategory
-            If SPELLs(Cooldown.Key).CategoryCooldown > 0 Then
-                packet.AddInt32(0) 'SpellCooldown
-                packet.AddInt32(timeLeft) 'CategoryCooldown
-            Else
-                packet.AddInt32(timeLeft) 'SpellCooldown
-                packet.AddInt32(0) 'CategoryCooldown
-            End If
+                packet.AddUInt16(Cooldown.Value.Value) 'CastItemID
+                packet.AddUInt16(SPELLs(Cooldown.Key).Category) 'SpellCategory
+                If SPELLs(Cooldown.Key).CategoryCooldown > 0 Then
+                    packet.AddInt32(0) 'SpellCooldown
+                    packet.AddInt32(timeLeft) 'CategoryCooldown
+                Else
+                    packet.AddInt32(timeLeft) 'SpellCooldown
+                    packet.AddInt32(0) 'CategoryCooldown
+                End If
 
-            spellCount += 1
-        Next
-        packet.AddInt16(spellCount, countPos)
+                spellCount += 1
+            Next
+            packet.AddInt16(spellCount, countPos)
 
-        Client.Send(packet)
-        packet.Dispose()
+            Client.Send(packet)
+        Finally
+            packet.Dispose()
+        End Try
     End Sub
 
 
@@ -1175,11 +1194,14 @@ Public Module WS_CharManagment
             'GUID <>0 : %p dies, honorable kill Rank: %r (Estimated Honor Points: %h)
 
             Dim packet As New PacketClass(OPCODES.SMSG_PVP_CREDIT)
-            packet.AddInt32(honorPoints)
-            packet.AddUInt64(victimGUID)
-            packet.AddInt32(victimRank)
-            Client.Send(packet)
-            packet.Dispose()
+            Try
+                packet.AddInt32(honorPoints)
+                packet.AddUInt64(victimGUID)
+                packet.AddInt32(victimRank)
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
 
 
@@ -1474,17 +1496,20 @@ Public Module WS_CharManagment
 
             If GUIDs.Length > 0 Then
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                packet.AddInt32(1)      'Operations.Count
-                packet.AddInt8(0)
-                packet.AddInt8(ObjectUpdateType.UPDATETYPE_OUT_OF_RANGE_OBJECTS)
-                packet.AddInt32(GUIDs.Length)
+                Try
+                    packet.AddInt32(1)      'Operations.Count
+                    packet.AddInt8(0)
+                    packet.AddInt8(ObjectUpdateType.UPDATETYPE_OUT_OF_RANGE_OBJECTS)
+                    packet.AddInt32(GUIDs.Length)
 
-                For Each g As ULong In GUIDs
-                    packet.AddPackGUID(g)
-                Next
+                    For Each g As ULong In GUIDs
+                        packet.AddPackGUID(g)
+                    Next
 
-                Client.Send(packet)
-                packet.Dispose()
+                    Client.Send(packet)
+                Finally
+                    packet.Dispose()
+                End Try
             End If
         End Sub
         Public Sub SendUpdate()
@@ -1492,38 +1517,40 @@ Public Module WS_CharManagment
             If OnTransport IsNot Nothing Then updateCount += 1
 
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(updateCount)
-            packet.AddInt8(0)
+            Try
+                packet.AddInt32(updateCount)
+                packet.AddInt8(0)
 
-            'DONE: If character is on a transport, create the transport right here
-            If OnTransport IsNot Nothing Then
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
-                OnTransport.FillAllUpdateFlags(tmpUpdate, Me)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, OnTransport)
-                tmpUpdate.Dispose()
+                'DONE: If character is on a transport, create the transport right here
+                If OnTransport IsNot Nothing Then
+                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                    OnTransport.FillAllUpdateFlags(tmpUpdate, Me)
+                    tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, OnTransport)
+                    tmpUpdate.Dispose()
 
-                gameObjectsNear.Add(OnTransport.GUID)
-                OnTransport.SeenBy.Add(Me.GUID)
-            End If
-
-            Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
-
-            For Each tmpItem As KeyValuePair(Of Byte, ItemObject) In Items
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
-                tmpItem.Value.FillAllUpdateFlags(tmpUpdate)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpItem.Value, ItemObject))
-                tmpUpdate.Dispose()
-
-                'DONE: Update Items In bag
-                If tmpItem.Value.ItemInfo.IsContainer Then
-                    tmpItem.Value.SendContainedItemsUpdate(Client, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT)
+                    gameObjectsNear.Add(OnTransport.GUID)
+                    OnTransport.SeenBy.Add(Me.GUID)
                 End If
-            Next
 
-            packet.CompressUpdatePacket()
-            Client.Send(packet)
-            packet.Dispose()
+                Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
 
+                For Each tmpItem As KeyValuePair(Of Byte, ItemObject) In Items
+                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                    tmpItem.Value.FillAllUpdateFlags(tmpUpdate)
+                    tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpItem.Value, ItemObject))
+                    tmpUpdate.Dispose()
+
+                    'DONE: Update Items In bag
+                    If tmpItem.Value.ItemInfo.IsContainer Then
+                        tmpItem.Value.SendContainedItemsUpdate(Client, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT)
+                    End If
+                Next
+
+                packet.CompressUpdatePacket()
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
             'DONE: Create everyone on the transport if we are located on one
             If (OnTransport IsNot Nothing) AndAlso (TypeOf OnTransport Is TransportObject) Then
                 CType(OnTransport, TransportObject).CreateEveryoneOnTransport(Me)
@@ -1531,85 +1558,92 @@ Public Module WS_CharManagment
         End Sub
         Public Sub SendItemUpdate(ByVal Item As ItemObject)
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(1)      'Operations.Count
-            packet.AddInt8(0)
+            Try
+                packet.AddInt32(1)      'Operations.Count
+                packet.AddInt8(0)
 
-            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
-            Item.FillAllUpdateFlags(tmpUpdate)
-            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Item)
-            tmpUpdate.Dispose()
+                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Item.FillAllUpdateFlags(tmpUpdate)
+                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Item)
+                tmpUpdate.Dispose()
 
-            Client.Send(packet)
-            packet.Dispose()
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub SendInventoryUpdate()
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(1)      'Operations.Count
-            packet.AddInt8(0)
+            Try
+                packet.AddInt32(1)      'Operations.Count
+                packet.AddInt8(0)
 
-            Dim i As Byte
-            For i = 0 To INVENTORY_SLOT_ITEM_END - 1
-                If Items.ContainsKey(i) Then
-                    SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
-                    If i < EQUIPMENT_SLOT_END Then
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
+                Dim i As Byte
+                For i = 0 To INVENTORY_SLOT_ITEM_END - 1
+                    If Items.ContainsKey(i) Then
+                        SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
+                        If i < EQUIPMENT_SLOT_END Then
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
-                        'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_1 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT
-                        'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_2 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 3
-                        'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_3 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 6
-                        'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_4 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 9
-                        'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_5 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 12
-                        'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_6 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 15
-                        'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_7 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 18
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
+                            'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_1 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT
+                            'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_2 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 3
+                            'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_3 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 6
+                            'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_4 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 9
+                            'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_5 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 12
+                            'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_6 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 15
+                            'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_7 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 18
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
+                        End If
+                    Else
+                        SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, Long))
+                        If i < EQUIPMENT_SLOT_END Then
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                        End If
                     End If
-                Else
-                    SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, Long))
-                    If i < EQUIPMENT_SLOT_END Then
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
-                    End If
-                End If
-            Next
+                Next
 
-            Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_VALUES)
+                Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_VALUES)
 
-            Client.Send(packet)
-            packet.Dispose()
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub SendItemAndCharacterUpdate(ByVal Item As ItemObject, Optional ByVal UPDATETYPE As Integer = ObjectUpdateType.UPDATETYPE_VALUES)
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(2)      'Operations.Count
-            packet.AddInt8(0)
-
-            'DONE: Send to self
             Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
-            Item.FillAllUpdateFlags(tmpUpdate)
-            tmpUpdate.AddToPacket(packet, UPDATETYPE, Item)
+            Try
+                packet.AddInt32(2)      'Operations.Count
+                packet.AddInt8(0)
 
-            Dim i As Byte
-            For i = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
-                If Items.ContainsKey(i) Then
-                    SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
-                    If i < EQUIPMENT_SLOT_END Then
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
+                'DONE: Send to self
+                Item.FillAllUpdateFlags(tmpUpdate)
+                tmpUpdate.AddToPacket(packet, UPDATETYPE, Item)
+
+                For i As Byte = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
+                    If Items.ContainsKey(i) Then
+                        SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
+                        If i < EQUIPMENT_SLOT_END Then
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
+                        End If
+                    Else
+                        SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, ULong))
+                        If i < EQUIPMENT_SLOT_END Then
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                        End If
                     End If
-                Else
-                    SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, ULong))
-                    If i < EQUIPMENT_SLOT_END Then
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
-                    End If
-                End If
-            Next
+                Next
 
-            Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_VALUES)
+                Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_VALUES)
 
-            Client.Send(packet)
-            packet.Dispose()
-            tmpUpdate.Dispose()
-
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+                tmpUpdate.Dispose()
+            End Try
             'DONE: Send to others
-            For i = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
+            For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
                 If Items.ContainsKey(i) Then
                     SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
                     SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
@@ -1629,22 +1663,28 @@ Public Module WS_CharManagment
                 forOthers.UpdateMask = UpdateMask.Clone
 
                 Dim packetForOthers As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                packetForOthers.AddInt32(1)       'Operations.Count
-                packetForOthers.AddInt8(0)
-                forOthers.AddToPacket(packetForOthers, ObjectUpdateType.UPDATETYPE_VALUES, Me)
-                SendToNearPlayers(packetForOthers)
-                packetForOthers.Dispose()
+                Try
+                    packetForOthers.AddInt32(1)       'Operations.Count
+                    packetForOthers.AddInt8(0)
+                    forOthers.AddToPacket(packetForOthers, ObjectUpdateType.UPDATETYPE_VALUES, Me)
+                    SendToNearPlayers(packetForOthers)
+                Finally
+                    packetForOthers.Dispose()
+                End Try
             End If
             If notMe Then Exit Sub
             If Client Is Nothing Then Exit Sub
 
             'DONE: Send to me
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(1)       'Operations.Count
-            packet.AddInt8(0)
-            Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_VALUES)
-            Client.Send(packet)
-            packet.Dispose()
+            Try
+                packet.AddInt32(1)       'Operations.Count
+                packet.AddInt8(0)
+                Me.PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_VALUES)
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub                                      'Sends update for character to him and near players
         Public Sub FillStatsUpdateFlags()
             SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Life.Maximum, Integer))
@@ -2172,23 +2212,26 @@ Public Module WS_CharManagment
         End Sub
         Public Sub ProhibitSpellSchool(ByVal School As Integer, ByVal Time As Integer)
             Dim packet As New PacketClass(OPCODES.SMSG_SPELL_COOLDOWN)
-            packet.AddInt32(GUID)
+            Try
+                packet.AddInt32(GUID)
 
-            Dim curTime As UInteger = GetTimestamp(Now)
-            For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In Spells
-                Dim SpellInfo As SpellInfo = WS_Spells.SPELLs(Spell.Key)
+                Dim curTime As UInteger = GetTimestamp(Now)
+                For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In Spells
+                    Dim SpellInfo As SpellInfo = WS_Spells.SPELLs(Spell.Key)
 
-                If SpellInfo.School = School AndAlso (Spell.Value.Cooldown < curTime OrElse (Spell.Value.Cooldown - curTime) < Time) Then
-                    packet.AddInt32(Spell.Key)
-                    packet.AddInt32(Time)
+                    If SpellInfo.School = School AndAlso (Spell.Value.Cooldown < curTime OrElse (Spell.Value.Cooldown - curTime) < Time) Then
+                        packet.AddInt32(Spell.Key)
+                        packet.AddInt32(Time)
 
-                    Spell.Value.Cooldown = curTime + Time
-                    Spell.Value.CooldownItem = 0
-                End If
-            Next
+                        Spell.Value.Cooldown = curTime + Time
+                        Spell.Value.CooldownItem = 0
+                    End If
+                Next
 
-            Client.Send(packet)
-            packet.Dispose()
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Function FinishAllSpells(Optional ByVal OK As Boolean = False) As Boolean
             Dim result1 As Boolean = FinishSpell(CurrentSpellTypes.CURRENT_AUTOREPEAT_SPELL, OK)
@@ -2253,9 +2296,12 @@ Public Module WS_CharManagment
 
             If Client Is Nothing Then Exit Sub
             Dim SMSG_LEARNED_SPELL As New PacketClass(OPCODES.SMSG_LEARNED_SPELL)
-            SMSG_LEARNED_SPELL.AddInt32(SpellID)
-            Client.Send(SMSG_LEARNED_SPELL)
-            SMSG_LEARNED_SPELL.Dispose()
+            Try
+                SMSG_LEARNED_SPELL.AddInt32(SpellID)
+                Client.Send(SMSG_LEARNED_SPELL)
+            Finally
+                SMSG_LEARNED_SPELL.Dispose()
+            End Try
 
             Dim t As New SpellTargets
             t.SetTarget_SELF(Me)
@@ -2277,10 +2323,13 @@ Public Module WS_CharManagment
                         CharacterDatabase.Update(String.Format("UPDATE characters_spells SET active=0 WHERE guid={0} AND spellid={1};", GUID, SpellID))
 
                         Dim packet As New PacketClass(OPCODES.SMSG_SUPERCEDED_SPELL)
-                        packet.AddInt32(SpellChains(SpellID))
-                        packet.AddInt32(SpellID)
-                        Client.Send(packet)
-                        packet.Dispose()
+                        Try
+                            packet.AddInt32(SpellChains(SpellID))
+                            packet.AddInt32(SpellID)
+                            Client.Send(packet)
+                        Finally
+                            packet.Dispose()
+                        End Try
                     End If
                 End If
             End If
@@ -2415,9 +2464,12 @@ Public Module WS_CharManagment
             CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid={0} AND spellid={1};", GUID, SpellID))
 
             Dim SMSG_REMOVED_SPELL As New PacketClass(OPCODES.SMSG_REMOVED_SPELL)
-            SMSG_REMOVED_SPELL.AddInt32(SpellID)
-            Client.Send(SMSG_REMOVED_SPELL)
-            SMSG_REMOVED_SPELL.Dispose()
+            Try
+                SMSG_REMOVED_SPELL.AddInt32(SpellID)
+                Client.Send(SMSG_REMOVED_SPELL)
+            Finally
+                SMSG_REMOVED_SPELL.Dispose()
+            End Try
 
             'DONE: Remove Aura by this spell
             Client.Character.RemoveAuraBySpell(SpellID)
@@ -2525,22 +2577,25 @@ CheckXPAgain:
                     Dim oldSpirit As Integer = Spirit.Base
                     CalculateOnLevelUP(Me)
                     Dim SMSG_LEVELUP_INFO As New PacketClass(OPCODES.SMSG_LEVELUP_INFO)
-                    SMSG_LEVELUP_INFO.AddInt32(Level)
-                    SMSG_LEVELUP_INFO.AddInt32(Life.Maximum - oldLife)
-                    SMSG_LEVELUP_INFO.AddInt32(Mana.Maximum - oldMana)
-                    SMSG_LEVELUP_INFO.AddInt32(0)
-                    SMSG_LEVELUP_INFO.AddInt32(0)
-                    SMSG_LEVELUP_INFO.AddInt32(0)
-                    SMSG_LEVELUP_INFO.AddInt32(0)
-                    SMSG_LEVELUP_INFO.AddInt32(0)
-                    SMSG_LEVELUP_INFO.AddInt32(0)
-                    SMSG_LEVELUP_INFO.AddInt32(Strength.Base - oldStrength)
-                    SMSG_LEVELUP_INFO.AddInt32(Agility.Base - oldAgility)
-                    SMSG_LEVELUP_INFO.AddInt32(Stamina.Base - oldStamina)
-                    SMSG_LEVELUP_INFO.AddInt32(Intellect.Base - oldIntellect)
-                    SMSG_LEVELUP_INFO.AddInt32(Spirit.Base - oldSpirit)
-                    If Client IsNot Nothing Then Client.Send(SMSG_LEVELUP_INFO)
-                    SMSG_LEVELUP_INFO.Dispose()
+                    Try
+                        SMSG_LEVELUP_INFO.AddInt32(Level)
+                        SMSG_LEVELUP_INFO.AddInt32(Life.Maximum - oldLife)
+                        SMSG_LEVELUP_INFO.AddInt32(Mana.Maximum - oldMana)
+                        SMSG_LEVELUP_INFO.AddInt32(0)
+                        SMSG_LEVELUP_INFO.AddInt32(0)
+                        SMSG_LEVELUP_INFO.AddInt32(0)
+                        SMSG_LEVELUP_INFO.AddInt32(0)
+                        SMSG_LEVELUP_INFO.AddInt32(0)
+                        SMSG_LEVELUP_INFO.AddInt32(0)
+                        SMSG_LEVELUP_INFO.AddInt32(Strength.Base - oldStrength)
+                        SMSG_LEVELUP_INFO.AddInt32(Agility.Base - oldAgility)
+                        SMSG_LEVELUP_INFO.AddInt32(Stamina.Base - oldStamina)
+                        SMSG_LEVELUP_INFO.AddInt32(Intellect.Base - oldIntellect)
+                        SMSG_LEVELUP_INFO.AddInt32(Spirit.Base - oldSpirit)
+                        If Client IsNot Nothing Then Client.Send(SMSG_LEVELUP_INFO)
+                    Finally
+                        SMSG_LEVELUP_INFO.Dispose()
+                    End Try
 
                     Life.Current = Life.Maximum
                     Mana.Current = Mana.Maximum
@@ -3338,24 +3393,30 @@ CheckXPAgain:
             If srcBag = 0 Then
                 If Not Client.Character.Items.ContainsKey(srcSlot) Then
                     Dim EQUIP_ERR_ITEM_NOT_FOUND As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(0)
-                    Client.Send(EQUIP_ERR_ITEM_NOT_FOUND)
-                    EQUIP_ERR_ITEM_NOT_FOUND.Dispose()
+                    Try
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND)
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(0)
+                        Client.Send(EQUIP_ERR_ITEM_NOT_FOUND)
+                    Finally
+                        EQUIP_ERR_ITEM_NOT_FOUND.Dispose()
+                    End Try
                     Exit Sub
                 End If
                 srcItem = Items(srcSlot)
             Else
                 If Not Client.Character.Items(srcBag).Items.ContainsKey(srcSlot) Then
                     Dim EQUIP_ERR_ITEM_NOT_FOUND As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
-                    EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(0)
-                    Client.Send(EQUIP_ERR_ITEM_NOT_FOUND)
-                    EQUIP_ERR_ITEM_NOT_FOUND.Dispose()
+                    Try
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND)
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
+                        EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(0)
+                        Client.Send(EQUIP_ERR_ITEM_NOT_FOUND)
+                    Finally
+                        EQUIP_ERR_ITEM_NOT_FOUND.Dispose()
+                    End Try
                     Exit Sub
                 End If
                 srcItem = Items(srcBag).Items(srcSlot)
@@ -3370,12 +3431,15 @@ CheckXPAgain:
 
             If dstSlot = 255 Then
                 Dim notHandledYet As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-                notHandledYet.AddInt8(InventoryChangeFailure.EQUIP_ERR_COULDNT_SPLIT_ITEMS)
-                notHandledYet.AddUInt64(srcItem.GUID)
-                notHandledYet.AddUInt64(dstItem.GUID)
-                notHandledYet.AddInt8(0)
-                Client.Send(notHandledYet)
-                notHandledYet.Dispose()
+                Try
+                    notHandledYet.AddInt8(InventoryChangeFailure.EQUIP_ERR_COULDNT_SPLIT_ITEMS)
+                    notHandledYet.AddUInt64(srcItem.GUID)
+                    notHandledYet.AddUInt64(dstItem.GUID)
+                    notHandledYet.AddInt8(0)
+                    Client.Send(notHandledYet)
+                Finally
+                    notHandledYet.Dispose()
+                End Try
                 Exit Sub
             End If
 
@@ -3386,12 +3450,15 @@ CheckXPAgain:
 
             If Count > srcItem.StackCount Then
                 Dim EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-                EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddInt8(InventoryChangeFailure.EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT)
-                EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddUInt64(srcItem.GUID)
-                EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddUInt64(0)
-                EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddInt8(0)
-                Client.Send(EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT)
-                EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.Dispose()
+                Try
+                    EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddInt8(InventoryChangeFailure.EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT)
+                    EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddUInt64(srcItem.GUID)
+                    EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddUInt64(0)
+                    EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddInt8(0)
+                    Client.Send(EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT)
+                Finally
+                    EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.Dispose()
+                End Try
                 Exit Sub
             End If
 
@@ -3407,12 +3474,14 @@ CheckXPAgain:
 
                 Dim SMSG_UPDATE_OBJECT As New UpdatePacketClass
                 Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
-                tmpItem.FillAllUpdateFlags(tmpUpdate)
-                tmpUpdate.AddToPacket(CType(SMSG_UPDATE_OBJECT, UpdatePacketClass), ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, tmpItem)
-                Client.Send(CType(SMSG_UPDATE_OBJECT, UpdatePacketClass))
-                SMSG_UPDATE_OBJECT.Dispose()
-                tmpUpdate.Dispose()
-
+                Try
+                    tmpItem.FillAllUpdateFlags(tmpUpdate)
+                    tmpUpdate.AddToPacket(CType(SMSG_UPDATE_OBJECT, UpdatePacketClass), ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, tmpItem)
+                    Client.Send(CType(SMSG_UPDATE_OBJECT, UpdatePacketClass))
+                Finally
+                    SMSG_UPDATE_OBJECT.Dispose()
+                    tmpUpdate.Dispose()
+                End Try
                 SendItemUpdate(srcItem)
                 SendItemUpdate(dstItem)
                 If srcBag <> 0 Then
@@ -3448,24 +3517,30 @@ CheckXPAgain:
                     dstItem.Save(False)
 
                     Dim EQUIP_ERR_OK As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-                    EQUIP_ERR_OK.AddInt8(InventoryChangeFailure.EQUIP_ERR_OK)
-                    EQUIP_ERR_OK.AddUInt64(srcItem.GUID)
-                    EQUIP_ERR_OK.AddUInt64(dstItem.GUID)
-                    EQUIP_ERR_OK.AddInt8(0)
-                    Client.Send(EQUIP_ERR_OK)
-                    EQUIP_ERR_OK.Dispose()
+                    Try
+                        EQUIP_ERR_OK.AddInt8(InventoryChangeFailure.EQUIP_ERR_OK)
+                        EQUIP_ERR_OK.AddUInt64(srcItem.GUID)
+                        EQUIP_ERR_OK.AddUInt64(dstItem.GUID)
+                        EQUIP_ERR_OK.AddInt8(0)
+                        Client.Send(EQUIP_ERR_OK)
+                    Finally
+                        EQUIP_ERR_OK.Dispose()
+                    End Try
                     Exit Sub
                 End If
             End If
 
 
             Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
-            response.AddInt8(InventoryChangeFailure.EQUIP_ERR_COULDNT_SPLIT_ITEMS)
-            response.AddUInt64(srcItem.GUID)
-            response.AddUInt64(dstItem.GUID)
-            response.AddInt8(0)
-            Client.Send(response)
-            response.Dispose()
+            Try
+                response.AddInt8(InventoryChangeFailure.EQUIP_ERR_COULDNT_SPLIT_ITEMS)
+                response.AddUInt64(srcItem.GUID)
+                response.AddUInt64(dstItem.GUID)
+                response.AddInt8(0)
+                Client.Send(response)
+            Catch
+                response.Dispose()
+            End Try
         End Sub
         Public Sub ItemSWAP(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal dstBag As Byte, ByVal dstSlot As Byte)
             'DONE: Disable when dead, attackTarget<>0
@@ -3797,10 +3872,13 @@ CheckXPAgain:
                         ElseIf Item.ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE Then
                             'DONE: Show item cooldown when equipped
                             Dim cooldown As New PacketClass(OPCODES.SMSG_ITEM_COOLDOWN)
-                            cooldown.AddUInt64(Item.GUID)
-                            cooldown.AddInt32(Item.ItemInfo.Spells(i).SpellID)
-                            Client.Send(cooldown)
-                            cooldown.Dispose()
+                            Try
+                                cooldown.AddUInt64(Item.GUID)
+                                cooldown.AddInt32(Item.ItemInfo.Spells(i).SpellID)
+                                Client.Send(cooldown)
+                            Finally
+                                cooldown.Dispose()
+                            End Try
                         End If
                     End If
                 End If
@@ -3896,54 +3974,63 @@ CheckXPAgain:
         'Creature Interactions
         Public Sub SendGossip(ByVal cGUID As ULong, ByVal cTextID As Integer, Optional ByRef Menu As GossipMenu = Nothing, Optional ByRef qMenu As QuestMenu = Nothing)
             Dim SMSG_GOSSIP_MESSAGE As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_MESSAGE)
-            SMSG_GOSSIP_MESSAGE.AddUInt64(cGUID)
-            SMSG_GOSSIP_MESSAGE.AddInt32(cTextID)
-            If Menu Is Nothing Then
-                SMSG_GOSSIP_MESSAGE.AddInt32(0)
-            Else
-                SMSG_GOSSIP_MESSAGE.AddInt32(Menu.Menus.Count)
-                Dim index As Integer = 0
-                While index < Menu.Menus.Count
-                    SMSG_GOSSIP_MESSAGE.AddInt32(index)
-                    SMSG_GOSSIP_MESSAGE.AddInt8(Menu.Icons(index))
-                    SMSG_GOSSIP_MESSAGE.AddInt8(Menu.Coded(index))
-                    SMSG_GOSSIP_MESSAGE.AddString(Menu.Menus(index))
-                    index += 1
-                End While
-            End If
+            Try
+                SMSG_GOSSIP_MESSAGE.AddUInt64(cGUID)
+                SMSG_GOSSIP_MESSAGE.AddInt32(cTextID)
+                If Menu Is Nothing Then
+                    SMSG_GOSSIP_MESSAGE.AddInt32(0)
+                Else
+                    SMSG_GOSSIP_MESSAGE.AddInt32(Menu.Menus.Count)
+                    Dim index As Integer = 0
+                    While index < Menu.Menus.Count
+                        SMSG_GOSSIP_MESSAGE.AddInt32(index)
+                        SMSG_GOSSIP_MESSAGE.AddInt8(Menu.Icons(index))
+                        SMSG_GOSSIP_MESSAGE.AddInt8(Menu.Coded(index))
+                        SMSG_GOSSIP_MESSAGE.AddString(Menu.Menus(index))
+                        index += 1
+                    End While
+                End If
 
-            If qMenu Is Nothing Then
-                SMSG_GOSSIP_MESSAGE.AddInt32(0)
-            Else
-                SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.Names.Count)
-                Dim index As Integer = 0
-                While index < qMenu.Names.Count
-                    SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.IDs(index))
-                    SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.Icons(index))
-                    SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.Levels(index))
-                    SMSG_GOSSIP_MESSAGE.AddString(qMenu.Names(index))
-                    index += 1
-                End While
-            End If
+                If qMenu Is Nothing Then
+                    SMSG_GOSSIP_MESSAGE.AddInt32(0)
+                Else
+                    SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.Names.Count)
+                    Dim index As Integer = 0
+                    While index < qMenu.Names.Count
+                        SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.IDs(index))
+                        SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.Icons(index))
+                        SMSG_GOSSIP_MESSAGE.AddInt32(qMenu.Levels(index))
+                        SMSG_GOSSIP_MESSAGE.AddString(qMenu.Names(index))
+                        index += 1
+                    End While
+                End If
 
-            Client.Send(SMSG_GOSSIP_MESSAGE)
-            SMSG_GOSSIP_MESSAGE.Dispose()
+                Client.Send(SMSG_GOSSIP_MESSAGE)
+            Finally
+                SMSG_GOSSIP_MESSAGE.Dispose()
+            End Try
         End Sub
         Public Sub SendGossipComplete()
             Dim SMSG_GOSSIP_COMPLETE As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_COMPLETE)
-            Client.Send(SMSG_GOSSIP_COMPLETE)
-            SMSG_GOSSIP_COMPLETE.Dispose()
+            Try
+                Client.Send(SMSG_GOSSIP_COMPLETE)
+            Finally
+                SMSG_GOSSIP_COMPLETE.Dispose()
+            End Try
         End Sub
         Public Sub SendPointOfInterest(ByVal x As Single, ByVal y As Single, ByVal icon As Integer, ByVal flags As Integer, ByVal data As Integer, ByVal name As String)
             Dim SMSG_GOSSIP_POI As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_POI)
-            SMSG_GOSSIP_POI.AddInt32(flags)
-            SMSG_GOSSIP_POI.AddSingle(x)
-            SMSG_GOSSIP_POI.AddSingle(y)
-            SMSG_GOSSIP_POI.AddInt32(icon)
-            SMSG_GOSSIP_POI.AddInt32(data)
-            SMSG_GOSSIP_POI.AddString(name)
-            Client.Send(SMSG_GOSSIP_POI)
-            SMSG_GOSSIP_POI.Dispose()
+            Try
+                SMSG_GOSSIP_POI.AddInt32(flags)
+                SMSG_GOSSIP_POI.AddSingle(x)
+                SMSG_GOSSIP_POI.AddSingle(y)
+                SMSG_GOSSIP_POI.AddInt32(icon)
+                SMSG_GOSSIP_POI.AddInt32(data)
+                SMSG_GOSSIP_POI.AddString(name)
+                Client.Send(SMSG_GOSSIP_POI)
+            Finally
+                SMSG_GOSSIP_POI.Dispose()
+            End Try
         End Sub
         Public Sub SendTalking(ByVal TextID As Integer)
 
@@ -3953,33 +4040,36 @@ CheckXPAgain:
 
             'DONE: Load TextID
             Dim response As New PacketClass(OPCODES.SMSG_NPC_TEXT_UPDATE)
-            response.AddInt32(TextID)
+            Try
+                response.AddInt32(TextID)
 
-            If NPCTexts(TextID).Count = 0 Then
-                response.AddInt32(0)
-                response.AddString(NPCTexts(TextID).TextLine1(0))
-                response.AddString(NPCTexts(TextID).TextLine2(0))
-            Else
-                For i As Integer = 0 To 7
-                    response.AddSingle(NPCTexts(TextID).Probability(i))     'Probability
-                    response.AddString(NPCTexts(TextID).TextLine1(i))       'Text1
-                    If NPCTexts(TextID).TextLine2(i) = "" Then
-                        response.AddString(NPCTexts(TextID).TextLine1(i))   'Text2
-                    Else
-                        response.AddString(NPCTexts(TextID).TextLine2(i))   'Text2
-                    End If
-                    response.AddInt32(NPCTexts(TextID).Language(i))         'Language
-                    response.AddInt32(NPCTexts(TextID).EmoteDelay1(i))      'Emote1.Delay
-                    response.AddInt32(NPCTexts(TextID).Emote1(i))           'Emote1.Emote
-                    response.AddInt32(NPCTexts(TextID).EmoteDelay2(i))      'Emote2.Delay
-                    response.AddInt32(NPCTexts(TextID).Emote2(i))           'Emote2.Emote
-                    response.AddInt32(NPCTexts(TextID).EmoteDelay3(i))      'Emote3.Delay
-                    response.AddInt32(NPCTexts(TextID).Emote3(i))           'Emote3.Emote
-                Next
-            End If
+                If NPCTexts(TextID).Count = 0 Then
+                    response.AddInt32(0)
+                    response.AddString(NPCTexts(TextID).TextLine1(0))
+                    response.AddString(NPCTexts(TextID).TextLine2(0))
+                Else
+                    For i As Integer = 0 To 7
+                        response.AddSingle(NPCTexts(TextID).Probability(i))     'Probability
+                        response.AddString(NPCTexts(TextID).TextLine1(i))       'Text1
+                        If NPCTexts(TextID).TextLine2(i) = "" Then
+                            response.AddString(NPCTexts(TextID).TextLine1(i))   'Text2
+                        Else
+                            response.AddString(NPCTexts(TextID).TextLine2(i))   'Text2
+                        End If
+                        response.AddInt32(NPCTexts(TextID).Language(i))         'Language
+                        response.AddInt32(NPCTexts(TextID).EmoteDelay1(i))      'Emote1.Delay
+                        response.AddInt32(NPCTexts(TextID).Emote1(i))           'Emote1.Emote
+                        response.AddInt32(NPCTexts(TextID).EmoteDelay2(i))      'Emote2.Delay
+                        response.AddInt32(NPCTexts(TextID).Emote2(i))           'Emote2.Emote
+                        response.AddInt32(NPCTexts(TextID).EmoteDelay3(i))      'Emote3.Delay
+                        response.AddInt32(NPCTexts(TextID).Emote3(i))           'Emote3.Emote
+                    Next
+                End If
 
-            Client.Send(response)
-            response.Dispose()
+                Client.Send(response)
+            Finally
+                response.Dispose()
+            End Try
         End Sub
         Public Sub BindPlayer(ByVal cGUID As ULong)
             bindpoint_positionX = positionX
@@ -3990,19 +4080,25 @@ CheckXPAgain:
             SaveCharacter()
 
             Dim SMSG_BINDPOINTUPDATE As New PacketClass(OPCODES.SMSG_BINDPOINTUPDATE)
-            SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionX)
-            SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionY)
-            SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionZ)
-            SMSG_BINDPOINTUPDATE.AddInt32(bindpoint_map_id)
-            SMSG_BINDPOINTUPDATE.AddInt32(bindpoint_zone_id)
-            Client.Send(SMSG_BINDPOINTUPDATE)
-            SMSG_BINDPOINTUPDATE.Dispose()
+            Try
+                SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionX)
+                SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionY)
+                SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionZ)
+                SMSG_BINDPOINTUPDATE.AddInt32(bindpoint_map_id)
+                SMSG_BINDPOINTUPDATE.AddInt32(bindpoint_zone_id)
+                Client.Send(SMSG_BINDPOINTUPDATE)
+            Finally
+                SMSG_BINDPOINTUPDATE.Dispose()
+            End Try
 
             Dim SMSG_PLAYERBOUND As New PacketClass(OPCODES.SMSG_PLAYERBOUND)
-            SMSG_PLAYERBOUND.AddUInt64(cGUID)
-            SMSG_PLAYERBOUND.AddInt32(bindpoint_zone_id)
-            Client.Send(SMSG_PLAYERBOUND)
-            SMSG_PLAYERBOUND.Dispose()
+            Try
+                SMSG_PLAYERBOUND.AddUInt64(cGUID)
+                SMSG_PLAYERBOUND.AddInt32(bindpoint_zone_id)
+                Client.Send(SMSG_PLAYERBOUND)
+            Finally
+                SMSG_PLAYERBOUND.Dispose()
+            End Try
         End Sub
 
         'Character Movement
@@ -4017,17 +4113,20 @@ CheckXPAgain:
             movementFlags = 0
 
             Dim packet As New PacketClass(OPCODES.MSG_MOVE_TELEPORT_ACK)
-            packet.AddPackGUID(GUID)
-            packet.AddInt32(0)              'Counter
-            packet.AddInt32(0)              'Movement flags
-            packet.AddInt32(msTime)
-            packet.AddSingle(posX)
-            packet.AddSingle(posY)
-            packet.AddSingle(posZ)
-            packet.AddSingle(ori)
-            packet.AddInt32(0)
-            Client.Send(packet)
-            packet.Dispose()
+            Try
+                packet.AddPackGUID(GUID)
+                packet.AddInt32(0)              'Counter
+                packet.AddInt32(0)              'Movement flags
+                packet.AddInt32(msTime)
+                packet.AddSingle(posX)
+                packet.AddSingle(posY)
+                packet.AddSingle(posZ)
+                packet.AddSingle(ori)
+                packet.AddInt32(0)
+                Client.Send(packet)
+            Finally
+                packet.Dispose()
+            End Try
 
             positionX = posX
             positionY = posY
@@ -4043,14 +4142,16 @@ CheckXPAgain:
             Log.WriteLine(LogType.INFORMATION, "World: Player Transfer: X[{0}], Y[{1}], Z[{2}], O[{3}], MAP[{4}]", posX, posY, posZ, ori, map)
 
             Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
-            p.AddInt32(map)
-            If OnTransport IsNot Nothing Then
-                p.AddInt32(OnTransport.ID)     'Only if on transport
-                p.AddInt32(OnTransport.MapID)       'Only if on transport
-            End If
-            Client.Send(p)
-            p.Dispose()
-
+            Try
+                p.AddInt32(map)
+                If OnTransport IsNot Nothing Then
+                    p.AddInt32(OnTransport.ID)     'Only if on transport
+                    p.AddInt32(OnTransport.MapID)       'Only if on transport
+                End If
+                Client.Send(p)
+            Finally
+                p.Dispose()
+            End Try
             'Actions Here
             RemoveFromWorld(Me)
 
@@ -4155,130 +4256,153 @@ CheckXPAgain:
         End Enum
         Public Sub ChangeSpeed(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
             Dim packet As PacketClass = Nothing
-            Select Case Type
-                Case ChangeSpeedType.RUN
-                    RunSpeed = NewSpeed
-                    packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_SPEED)
-                Case ChangeSpeedType.RUNBACK
-                    RunBackSpeed = NewSpeed
-                    packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_BACK_SPEED)
-                Case ChangeSpeedType.SWIM
-                    SwimSpeed = NewSpeed
-                    packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_SPEED)
-                Case ChangeSpeedType.SWIMBACK
-                    SwimSpeed = NewSpeed
-                    packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_BACK_SPEED)
-                Case ChangeSpeedType.TURNRATE
-                    TurnRate = NewSpeed
-                    packet = New PacketClass(OPCODES.MSG_MOVE_SET_TURN_RATE)
-            End Select
+            Try
+                Select Case Type
+                    Case ChangeSpeedType.RUN
+                        RunSpeed = NewSpeed
+                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_SPEED)
+                    Case ChangeSpeedType.RUNBACK
+                        RunBackSpeed = NewSpeed
+                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_BACK_SPEED)
+                    Case ChangeSpeedType.SWIM
+                        SwimSpeed = NewSpeed
+                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_SPEED)
+                    Case ChangeSpeedType.SWIMBACK
+                        SwimSpeed = NewSpeed
+                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_BACK_SPEED)
+                    Case ChangeSpeedType.TURNRATE
+                        TurnRate = NewSpeed
+                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_TURN_RATE)
+                End Select
 
-            'DONE: Send to nearby players
-            packet.AddPackGUID(Client.Character.GUID)
-            packet.AddInt32(0) 'Movement flags
-            packet.AddInt32(msTime)
-            packet.AddSingle(positionX)
-            packet.AddSingle(positionY)
-            packet.AddSingle(positionZ)
-            packet.AddSingle(orientation)
-            packet.AddInt32(0) 'Unk flag
-            packet.AddSingle(NewSpeed)
-            Client.Character.SendToNearPlayers(packet)
-            packet.Dispose()
+                'DONE: Send to nearby players
+                packet.AddPackGUID(Client.Character.GUID)
+                packet.AddInt32(0) 'Movement flags
+                packet.AddInt32(msTime)
+                packet.AddSingle(positionX)
+                packet.AddSingle(positionY)
+                packet.AddSingle(positionZ)
+                packet.AddSingle(orientation)
+                packet.AddInt32(0) 'Unk flag
+                packet.AddSingle(NewSpeed)
+                Client.Character.SendToNearPlayers(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub ChangeSpeedForced(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
             antiHackSpeedChanged_ += 1
             Dim packet As PacketClass = Nothing
-
-            Select Case Type
-                Case ChangeSpeedType.RUN
-                    packet = New PacketClass(OPCODES.SMSG_FORCE_RUN_SPEED_CHANGE)
-                    RunSpeed = NewSpeed
-                Case ChangeSpeedType.RUNBACK
-                    packet = New PacketClass(OPCODES.SMSG_FORCE_RUN_BACK_SPEED_CHANGE)
-                    RunBackSpeed = NewSpeed
-                Case ChangeSpeedType.SWIM
-                    packet = New PacketClass(OPCODES.SMSG_FORCE_SWIM_SPEED_CHANGE)
-                    SwimSpeed = NewSpeed
-                Case ChangeSpeedType.SWIMBACK
-                    packet = New PacketClass(OPCODES.SMSG_FORCE_SWIM_BACK_SPEED_CHANGE)
-                    SwimBackSpeed = NewSpeed
-                Case ChangeSpeedType.TURNRATE
-                    packet = New PacketClass(OPCODES.SMSG_FORCE_TURN_RATE_CHANGE)
-                    TurnRate = NewSpeed
-                Case Else
-                    Exit Sub
-            End Select
-            packet.AddPackGUID(GUID)
-            packet.AddInt32(antiHackSpeedChanged_)
-            packet.AddSingle(NewSpeed)
-            Client.Character.SendToNearPlayers(packet)
-            packet.Dispose()
+            Try
+                Select Case Type
+                    Case ChangeSpeedType.RUN
+                        packet = New PacketClass(OPCODES.SMSG_FORCE_RUN_SPEED_CHANGE)
+                        RunSpeed = NewSpeed
+                    Case ChangeSpeedType.RUNBACK
+                        packet = New PacketClass(OPCODES.SMSG_FORCE_RUN_BACK_SPEED_CHANGE)
+                        RunBackSpeed = NewSpeed
+                    Case ChangeSpeedType.SWIM
+                        packet = New PacketClass(OPCODES.SMSG_FORCE_SWIM_SPEED_CHANGE)
+                        SwimSpeed = NewSpeed
+                    Case ChangeSpeedType.SWIMBACK
+                        packet = New PacketClass(OPCODES.SMSG_FORCE_SWIM_BACK_SPEED_CHANGE)
+                        SwimBackSpeed = NewSpeed
+                    Case ChangeSpeedType.TURNRATE
+                        packet = New PacketClass(OPCODES.SMSG_FORCE_TURN_RATE_CHANGE)
+                        TurnRate = NewSpeed
+                    Case Else
+                        Exit Sub
+                End Select
+                packet.AddPackGUID(GUID)
+                packet.AddInt32(antiHackSpeedChanged_)
+                packet.AddSingle(NewSpeed)
+                Client.Character.SendToNearPlayers(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub SetWaterWalk()
             Dim SMSG_MOVE_WATER_WALK As New PacketClass(OPCODES.SMSG_MOVE_WATER_WALK)
-            SMSG_MOVE_WATER_WALK.AddPackGUID(GUID)
-            SMSG_MOVE_WATER_WALK.AddInt32(0)
-            SendToNearPlayers(SMSG_MOVE_WATER_WALK)
-            SMSG_MOVE_WATER_WALK.Dispose()
+            Try
+                SMSG_MOVE_WATER_WALK.AddPackGUID(GUID)
+                SMSG_MOVE_WATER_WALK.AddInt32(0)
+                SendToNearPlayers(SMSG_MOVE_WATER_WALK)
+            Finally
+                SMSG_MOVE_WATER_WALK.Dispose()
+            End Try
         End Sub
         Public Sub SetLandWalk()
             Dim SMSG_MOVE_LAND_WALK As New PacketClass(OPCODES.SMSG_MOVE_LAND_WALK)
-            SMSG_MOVE_LAND_WALK.AddPackGUID(GUID)
-            SMSG_MOVE_LAND_WALK.AddInt32(0)
-            SendToNearPlayers(SMSG_MOVE_LAND_WALK)
-            SMSG_MOVE_LAND_WALK.Dispose()
+            Try
+                SMSG_MOVE_LAND_WALK.AddPackGUID(GUID)
+                SMSG_MOVE_LAND_WALK.AddInt32(0)
+                SendToNearPlayers(SMSG_MOVE_LAND_WALK)
+            Finally
+                SMSG_MOVE_LAND_WALK.Dispose()
+            End Try
         End Sub
         Public Sub SetMoveRoot()
             Dim SMSG_FORCE_MOVE_ROOT As New PacketClass(OPCODES.SMSG_FORCE_MOVE_ROOT)
-            SMSG_FORCE_MOVE_ROOT.AddPackGUID(GUID)
-            SMSG_FORCE_MOVE_ROOT.AddInt32(0)
-            Client.Send(SMSG_FORCE_MOVE_ROOT)
-            SMSG_FORCE_MOVE_ROOT.Dispose()
-
+            Try
+                SMSG_FORCE_MOVE_ROOT.AddPackGUID(GUID)
+                SMSG_FORCE_MOVE_ROOT.AddInt32(0)
+                Client.Send(SMSG_FORCE_MOVE_ROOT)
+            Finally
+                SMSG_FORCE_MOVE_ROOT.Dispose()
+            End Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_ROOT", Client.IP, Client.Port)
         End Sub
         Public Sub SetMoveUnroot()
             Dim SMSG_FORCE_MOVE_UNROOT As New PacketClass(OPCODES.SMSG_FORCE_MOVE_UNROOT)
-            SMSG_FORCE_MOVE_UNROOT.AddPackGUID(GUID)
-            SMSG_FORCE_MOVE_UNROOT.AddInt32(0)
-            SendToNearPlayers(SMSG_FORCE_MOVE_UNROOT)
-            SMSG_FORCE_MOVE_UNROOT.Dispose()
-
+            Try
+                SMSG_FORCE_MOVE_UNROOT.AddPackGUID(GUID)
+                SMSG_FORCE_MOVE_UNROOT.AddInt32(0)
+                SendToNearPlayers(SMSG_FORCE_MOVE_UNROOT)
+            Finally
+                SMSG_FORCE_MOVE_UNROOT.Dispose()
+            End Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_UNROOT", Client.IP, Client.Port)
         End Sub
         Public Sub StartMirrorTimer(ByVal Type As MirrorTimer, ByVal MaxValue As Integer)
             Dim SMSG_START_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
-            SMSG_START_MIRROR_TIMER.AddInt32(Type)
-            SMSG_START_MIRROR_TIMER.AddInt32(MaxValue)
-            SMSG_START_MIRROR_TIMER.AddInt32(MaxValue)
-            SMSG_START_MIRROR_TIMER.AddInt32(-1)
-            SMSG_START_MIRROR_TIMER.AddInt32(0)
-            SMSG_START_MIRROR_TIMER.AddInt8(0)
+            Try
+                SMSG_START_MIRROR_TIMER.AddInt32(Type)
+                SMSG_START_MIRROR_TIMER.AddInt32(MaxValue)
+                SMSG_START_MIRROR_TIMER.AddInt32(MaxValue)
+                SMSG_START_MIRROR_TIMER.AddInt32(-1)
+                SMSG_START_MIRROR_TIMER.AddInt32(0)
+                SMSG_START_MIRROR_TIMER.AddInt8(0)
 
-            Client.Send(SMSG_START_MIRROR_TIMER)
-            SMSG_START_MIRROR_TIMER.Dispose()
+                Client.Send(SMSG_START_MIRROR_TIMER)
+            Finally
+                SMSG_START_MIRROR_TIMER.Dispose()
+            End Try
         End Sub
         Public Sub ModifyMirrorTimer(ByVal Type As MirrorTimer, ByVal MaxValue As Integer, ByVal CurrentValue As Integer, ByVal Regen As Integer)
             'TYPE: 0 = fartigua 1 = breath 2 = fire
             Dim SMSG_START_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
-            SMSG_START_MIRROR_TIMER.AddInt32(Type)
-            SMSG_START_MIRROR_TIMER.AddInt32(CurrentValue)
-            SMSG_START_MIRROR_TIMER.AddInt32(MaxValue)
-            SMSG_START_MIRROR_TIMER.AddInt32(Regen)
-            SMSG_START_MIRROR_TIMER.AddInt32(0)
-            SMSG_START_MIRROR_TIMER.AddInt8(0)
+            Try
+                SMSG_START_MIRROR_TIMER.AddInt32(Type)
+                SMSG_START_MIRROR_TIMER.AddInt32(CurrentValue)
+                SMSG_START_MIRROR_TIMER.AddInt32(MaxValue)
+                SMSG_START_MIRROR_TIMER.AddInt32(Regen)
+                SMSG_START_MIRROR_TIMER.AddInt32(0)
+                SMSG_START_MIRROR_TIMER.AddInt8(0)
 
-            Client.Send(SMSG_START_MIRROR_TIMER)
-            SMSG_START_MIRROR_TIMER.Dispose()
+                Client.Send(SMSG_START_MIRROR_TIMER)
+            Finally
+                SMSG_START_MIRROR_TIMER.Dispose()
+            End Try
         End Sub
         Public Sub StopMirrorTimer(ByVal Type As MirrorTimer)
             Dim SMSG_STOP_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_STOP_MIRROR_TIMER)
-            SMSG_STOP_MIRROR_TIMER.AddInt32(Type)
+            Try
+                SMSG_STOP_MIRROR_TIMER.AddInt32(Type)
 
-            Client.Send(SMSG_STOP_MIRROR_TIMER)
-            SMSG_STOP_MIRROR_TIMER.Dispose()
-
+                Client.Send(SMSG_STOP_MIRROR_TIMER)
+            Finally
+                SMSG_STOP_MIRROR_TIMER.Dispose()
+            End Try
             'If Type = 1 And (Not (underWaterTimer Is Nothing)) Then
             '    underWaterTimer.Dispose()
             '    underWaterTimer = Nothing
@@ -4441,11 +4565,14 @@ CheckXPAgain:
 
             If Not Client Is Nothing Then
                 Dim packet As New PacketClass(OPCODES.SMSG_SET_FACTION_STANDING)
-                packet.AddInt32(Reputation(FactionInfo(FactionID).VisibleID).Flags)
-                packet.AddInt32(FactionInfo(FactionID).VisibleID)
-                packet.AddInt32(Reputation(FactionInfo(FactionID).VisibleID).Value)
-                Client.Send(packet)
-                packet.Dispose()
+                Try
+                    packet.AddInt32(Reputation(FactionInfo(FactionID).VisibleID).Flags)
+                    packet.AddInt32(FactionInfo(FactionID).VisibleID)
+                    packet.AddInt32(Reputation(FactionInfo(FactionID).VisibleID).Value)
+                    Client.Send(packet)
+                Finally
+                    packet.Dispose()
+                End Try
             End If
         End Sub
         Public Function GetDiscountMod(ByVal FactionID As Integer) As Single
@@ -4506,8 +4633,11 @@ CheckXPAgain:
                     If Items.ContainsKey(i) Then Items(i).ModifyDurability(0.1F, Client)
                 Next
                 Dim SMSG_DURABILITY_DAMAGE_DEATH As New PacketClass(OPCODES.SMSG_DURABILITY_DAMAGE_DEATH)
-                Client.Send(SMSG_DURABILITY_DAMAGE_DEATH)
-                SMSG_DURABILITY_DAMAGE_DEATH.Dispose()
+                Try
+                    Client.Send(SMSG_DURABILITY_DAMAGE_DEATH)
+                Finally
+                    SMSG_DURABILITY_DAMAGE_DEATH.Dispose()
+                End Try
             End If
 
             'DONE: Save the character
@@ -4666,17 +4796,19 @@ CheckXPAgain:
 
             'DONE: Disconnect the client
             Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-            Client.Send(SMSG_LOGOUT_COMPLETE)
-            SMSG_LOGOUT_COMPLETE.Dispose()
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_COMPLETE", Client.IP, Client.Port)
+            Try
+                Client.Send(SMSG_LOGOUT_COMPLETE)
+                SMSG_LOGOUT_COMPLETE.Dispose()
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_COMPLETE", Client.IP, Client.Port)
 
-            Client.Character = Nothing
-            Log.WriteLine(LogType.USER, "Character {0} logged off.", Name)
+                Client.Character = Nothing
+                Log.WriteLine(LogType.USER, "Character {0} logged off.", Name)
 
-            Client.Delete()
-            Client = Nothing
-
-            Me.Dispose()
+                Client.Delete()
+                Client = Nothing
+            Finally
+                Me.Dispose()
+            End Try
         End Sub
         Public Sub Login()
             'DONE: Setting instance ID
@@ -4745,10 +4877,13 @@ CheckXPAgain:
             For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
                     Dim SMSG_UPDATE_AURA_DURATION As New PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
-                    SMSG_UPDATE_AURA_DURATION.AddInt8(CByte(i))
-                    SMSG_UPDATE_AURA_DURATION.AddInt32(ActiveSpells(i).SpellDuration)
-                    Client.Send(SMSG_UPDATE_AURA_DURATION)
-                    SMSG_UPDATE_AURA_DURATION.Dispose()
+                    Try
+                        SMSG_UPDATE_AURA_DURATION.AddInt8(CByte(i))
+                        SMSG_UPDATE_AURA_DURATION.AddInt32(ActiveSpells(i).SpellDuration)
+                        Client.Send(SMSG_UPDATE_AURA_DURATION)
+                    Finally
+                        SMSG_UPDATE_AURA_DURATION.Dispose()
+                    End Try
                 End If
             Next i
         End Sub
@@ -5697,41 +5832,56 @@ DoneAmmo:
 
                 If status = -1 Then ' Quest is completed
                     Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
-                    packet.AddInt32(QuestInvalidError.INVALIDREASON_COMPLETED_QUEST)
-                    Client.Send(packet)
-                    packet.Dispose()
+                    Try
+                        packet.AddInt32(QuestInvalidError.INVALIDREASON_COMPLETED_QUEST)
+                        Client.Send(packet)
+                    Finally
+                        packet.Dispose()
+                    End Try
                 Else
                     Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
-                    packet.AddInt32(QuestInvalidError.INVALIDREASON_HAVE_QUEST)
-                    Client.Send(packet)
-                    packet.Dispose()
+                    Try
+                        packet.AddInt32(QuestInvalidError.INVALIDREASON_HAVE_QUEST)
+                        Client.Send(packet)
+                    Finally
+                        packet.Dispose()
+                    End Try
                 End If
                 Return False
             End If
 
             If Quest.RequiredRace <> 0 AndAlso (Quest.RequiredRace And (1 << (Race - 1))) = 0 Then
                 Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
-                packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_RACE)
-                Client.Send(packet)
-                packet.Dispose()
+                Try
+                    packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_RACE)
+                    Client.Send(packet)
+                Finally
+                    packet.Dispose()
+                End Try
                 Return False
             End If
 
             If Quest.RequiredClass <> 0 AndAlso (Quest.RequiredClass And (1 << (Classe - 1))) = 0 Then
                 'TODO: Find constant for INVALIDREASON_DONT_HAVE_CLASS if exists
                 Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
-                packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ)
-                Client.Send(packet)
-                packet.Dispose()
+                Try
+                    packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ)
+                    Client.Send(packet)
+                Finally
+                    packet.Dispose()
+                End Try
                 Return False
             End If
 
             If Quest.RequiredTradeSkill <> 0 AndAlso Not Skills.ContainsKey(Quest.RequiredTradeSkill) Then
                 'TODO: Find constant for INVALIDREASON_DONT_HAVE_SKILL if exists
                 Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
-                packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ)
-                Client.Send(packet)
-                packet.Dispose()
+                Try
+                    packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ)
+                    Client.Send(packet)
+                Finally
+                    packet.Dispose()
+                End Try
                 Return False
             End If
 
@@ -5760,67 +5910,79 @@ DoneAmmo:
         'Helper Funtions
         Public Sub LogXPGain(ByVal Ammount As Integer, ByVal Rested As Integer, ByVal VictimGUID As ULong, ByVal Group As Single)
             Dim SMSG_LOG_XPGAIN As New PacketClass(OPCODES.SMSG_LOG_XPGAIN)
-            SMSG_LOG_XPGAIN.AddUInt64(VictimGUID)
+            Try
+                SMSG_LOG_XPGAIN.AddUInt64(VictimGUID)
 
-            'Total XP
-            SMSG_LOG_XPGAIN.AddInt32(Ammount)
+                'Total XP
+                SMSG_LOG_XPGAIN.AddInt32(Ammount)
 
-            If VictimGUID <> 0 Then
-                'XP from kill
-                SMSG_LOG_XPGAIN.AddInt8(0)
-            Else
-                'XP from other source
-                SMSG_LOG_XPGAIN.AddInt8(1)
-            End If
+                If VictimGUID <> 0 Then
+                    'XP from kill
+                    SMSG_LOG_XPGAIN.AddInt8(0)
+                Else
+                    'XP from other source
+                    SMSG_LOG_XPGAIN.AddInt8(1)
+                End If
 
-            'Rested XP
-            SMSG_LOG_XPGAIN.AddInt32(Ammount - Rested)
+                'Rested XP
+                SMSG_LOG_XPGAIN.AddInt32(Ammount - Rested)
 
-            'Group bonus percent, 100% for none (1.0F)
-            SMSG_LOG_XPGAIN.AddSingle(Group)
+                'Group bonus percent, 100% for none (1.0F)
+                SMSG_LOG_XPGAIN.AddSingle(Group)
 
-            Client.Send(SMSG_LOG_XPGAIN)
-            SMSG_LOG_XPGAIN.Dispose()
+                Client.Send(SMSG_LOG_XPGAIN)
+            Finally
+                SMSG_LOG_XPGAIN.Dispose()
+            End Try
         End Sub
         Public Sub LogHonorGain(ByVal Ammount As Integer, Optional ByVal VictimGUID As ULong = 0, Optional ByVal VictimRANK As Byte = 0)
             Dim SMSG_PVP_CREDIT As New PacketClass(OPCODES.SMSG_PVP_CREDIT)
-            SMSG_PVP_CREDIT.AddInt32(Ammount)
-            SMSG_PVP_CREDIT.AddUInt64(VictimGUID)
-            SMSG_PVP_CREDIT.AddInt32(VictimRANK)
-            Client.Send(SMSG_PVP_CREDIT)
-            SMSG_PVP_CREDIT.Dispose()
+            Try
+                SMSG_PVP_CREDIT.AddInt32(Ammount)
+                SMSG_PVP_CREDIT.AddUInt64(VictimGUID)
+                SMSG_PVP_CREDIT.AddInt32(VictimRANK)
+                Client.Send(SMSG_PVP_CREDIT)
+            Finally
+                SMSG_PVP_CREDIT.Dispose()
+            End Try
         End Sub
         Public Sub LogLootItem(ByVal Item As ItemObject, ByVal ItemCount As Byte, ByVal Recieved As Boolean, ByVal Created As Boolean)
             Dim response As New PacketClass(OPCODES.SMSG_ITEM_PUSH_RESULT)
-            response.AddUInt64(GUID)
-            response.AddInt32(Recieved) '0 = Looted, 1 = From NPC?
-            response.AddInt32(Created) '0 = Recieved, 1 = Created
-            response.AddInt32(1) 'Unk, always 1
-            response.AddInt8(Item.GetBagSlot)
-            If Item.StackCount = ItemCount Then
-                response.AddInt32(Item.GetSlot) 'Item Slot (When added to stack: 0xFFFFFFFF)
-            Else 'Added to stack
-                response.AddInt32(&HFFFFFFFF)
-            End If
-            response.AddInt32(Item.ItemEntry)
-            response.AddInt32(Item.SuffixFactor)
-            response.AddInt32(Item.RandomProperties)
-            response.AddInt32(ItemCount) 'Count of items
-            response.AddInt32(Me.ItemCOUNT(Item.ItemEntry)) 'Count of items in inventory
-            Client.SendMultiplyPackets(response)
-            If IsInGroup Then Group.Broadcast(response)
-            response.Dispose()
+            Try
+                response.AddUInt64(GUID)
+                response.AddInt32(Recieved) '0 = Looted, 1 = From NPC?
+                response.AddInt32(Created) '0 = Recieved, 1 = Created
+                response.AddInt32(1) 'Unk, always 1
+                response.AddInt8(Item.GetBagSlot)
+                If Item.StackCount = ItemCount Then
+                    response.AddInt32(Item.GetSlot) 'Item Slot (When added to stack: 0xFFFFFFFF)
+                Else 'Added to stack
+                    response.AddInt32(&HFFFFFFFF)
+                End If
+                response.AddInt32(Item.ItemEntry)
+                response.AddInt32(Item.SuffixFactor)
+                response.AddInt32(Item.RandomProperties)
+                response.AddInt32(ItemCount) 'Count of items
+                response.AddInt32(Me.ItemCOUNT(Item.ItemEntry)) 'Count of items in inventory
+                Client.SendMultiplyPackets(response)
+                If IsInGroup Then Group.Broadcast(response)
+            Finally
+                response.Dispose()
+            End Try
         End Sub
         Public Sub LogEnvironmentalDamage(ByVal dmgType As DamageTypes, ByVal Damage As Integer)
             Dim SMSG_ENVIRONMENTALDAMAGELOG As New PacketClass(OPCODES.SMSG_ENVIRONMENTALDAMAGELOG)
-            SMSG_ENVIRONMENTALDAMAGELOG.AddUInt64(GUID)
-            SMSG_ENVIRONMENTALDAMAGELOG.AddInt8(dmgType)
-            SMSG_ENVIRONMENTALDAMAGELOG.AddInt32(Damage)
-            SMSG_ENVIRONMENTALDAMAGELOG.AddInt32(0)
-            SMSG_ENVIRONMENTALDAMAGELOG.AddInt32(0)
+            Try
+                SMSG_ENVIRONMENTALDAMAGELOG.AddUInt64(GUID)
+                SMSG_ENVIRONMENTALDAMAGELOG.AddInt8(dmgType)
+                SMSG_ENVIRONMENTALDAMAGELOG.AddInt32(Damage)
+                SMSG_ENVIRONMENTALDAMAGELOG.AddInt32(0)
+                SMSG_ENVIRONMENTALDAMAGELOG.AddInt32(0)
 
-            SendToNearPlayers(SMSG_ENVIRONMENTALDAMAGELOG)
-            SMSG_ENVIRONMENTALDAMAGELOG.Dispose()
+                SendToNearPlayers(SMSG_ENVIRONMENTALDAMAGELOG)
+            Finally
+                SMSG_ENVIRONMENTALDAMAGELOG.Dispose()
+            End Try
         End Sub
         Public ReadOnly Property Side() As Boolean
             Get
@@ -5900,10 +6062,13 @@ DoneAmmo:
         'DONE: Can't log out in combat
         If Client.Character.IsInCombat Then
             Dim LOGOUT_RESPONSE_DENIED As New PacketClass(OPCODES.SMSG_LOGOUT_RESPONSE)
-            LOGOUT_RESPONSE_DENIED.AddInt32(0)
-            LOGOUT_RESPONSE_DENIED.AddInt8(LogoutResponseCode.LOGOUT_RESPONSE_DENIED)
-            Client.Send(LOGOUT_RESPONSE_DENIED)
-            LOGOUT_RESPONSE_DENIED.Dispose()
+            Try
+                LOGOUT_RESPONSE_DENIED.AddInt32(0)
+                LOGOUT_RESPONSE_DENIED.AddInt8(LogoutResponseCode.LOGOUT_RESPONSE_DENIED)
+                Client.Send(LOGOUT_RESPONSE_DENIED)
+            Finally
+                LOGOUT_RESPONSE_DENIED.Dispose()
+            End Try
             Exit Sub
         End If
 
@@ -5911,25 +6076,31 @@ DoneAmmo:
             'DONE: Initialize packet
             Dim UpdateData As New UpdateClass
             Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
-            SMSG_UPDATE_OBJECT.AddInt8(0)
+            Try
+                SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
+                SMSG_UPDATE_OBJECT.AddInt8(0)
 
-            'DONE: Disable Turn
-            Client.Character.cUnitFlags = Client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
-            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
-            'DONE: StandState -> Sit
-            Client.Character.StandState = StandStates.STANDSTATE_SIT
-            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
+                'DONE: Disable Turn
+                Client.Character.cUnitFlags = Client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
+                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
+                'DONE: StandState -> Sit
+                Client.Character.StandState = StandStates.STANDSTATE_SIT
+                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
 
-            'DONE: Send packet
-            UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, CType(Client.Character, CharacterObject))
-            Client.Character.SendToNearPlayers(SMSG_UPDATE_OBJECT)
-            SMSG_UPDATE_OBJECT.Dispose()
+                'DONE: Send packet
+                UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, CType(Client.Character, CharacterObject))
+                Client.Character.SendToNearPlayers(SMSG_UPDATE_OBJECT)
+            Finally
+                SMSG_UPDATE_OBJECT.Dispose()
+            End Try
 
             Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
-            packetACK.AddInt8(StandStates.STANDSTATE_SIT)
-            Client.Send(packetACK)
-            packetACK.Dispose()
+            Try
+                packetACK.AddInt8(StandStates.STANDSTATE_SIT)
+                Client.Send(packetACK)
+            Finally
+                packetACK.Dispose()
+            End Try
         End If
 
 
@@ -5937,10 +6108,13 @@ DoneAmmo:
 
         'DONE: Let the client to exit
         Dim SMSG_LOGOUT_RESPONSE As New PacketClass(OPCODES.SMSG_LOGOUT_RESPONSE)
-        SMSG_LOGOUT_RESPONSE.AddInt32(0)
-        SMSG_LOGOUT_RESPONSE.AddInt8(LogoutResponseCode.LOGOUT_RESPONSE_ACCEPTED)     'Logout Accepted
-        Client.Send(SMSG_LOGOUT_RESPONSE)
-        SMSG_LOGOUT_RESPONSE.Dispose()
+        Try
+            SMSG_LOGOUT_RESPONSE.AddInt32(0)
+            SMSG_LOGOUT_RESPONSE.AddInt8(LogoutResponseCode.LOGOUT_RESPONSE_ACCEPTED)     'Logout Accepted
+            Client.Send(SMSG_LOGOUT_RESPONSE)
+        Finally
+            SMSG_LOGOUT_RESPONSE.Dispose()
+        End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_RESPONSE", Client.IP, Client.Port)
 
         'DONE: While logout, the player can't move
@@ -5971,32 +6145,39 @@ DoneAmmo:
             'DONE: Initialize packet
             Dim UpdateData As New UpdateClass
             Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
-            SMSG_UPDATE_OBJECT.AddInt8(0)
+            Try
+                SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
+                SMSG_UPDATE_OBJECT.AddInt8(0)
 
-            'DONE: Enable turn
-            Client.Character.cUnitFlags = Client.Character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_STUNTED)
-            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
-            'DONE: StandState -> Stand
-            Client.Character.StandState = StandStates.STANDSTATE_STAND
-            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
+                'DONE: Enable turn
+                Client.Character.cUnitFlags = Client.Character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_STUNTED)
+                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
+                'DONE: StandState -> Stand
+                Client.Character.StandState = StandStates.STANDSTATE_STAND
+                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
 
-            'DONE: Send packet
-            UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, CType(Client.Character, CharacterObject))
-            Client.Send(SMSG_UPDATE_OBJECT)
-            SMSG_UPDATE_OBJECT.Dispose()
+                'DONE: Send packet
+                UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, CType(Client.Character, CharacterObject))
+                Client.Send(SMSG_UPDATE_OBJECT)
+            Finally
+                SMSG_UPDATE_OBJECT.Dispose()
+            End Try
 
             Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
-            packetACK.AddInt8(StandStates.STANDSTATE_STAND)
-            Client.Send(packetACK)
-            packetACK.Dispose()
-
-
+            Try
+                packetACK.AddInt8(StandStates.STANDSTATE_STAND)
+                Client.Send(packetACK)
+            Finally
+                packetACK.Dispose()
+            End Try
 
             'DONE: Stop client logout
             Dim SMSG_LOGOUT_CANCEL_ACK As New PacketClass(OPCODES.SMSG_LOGOUT_CANCEL_ACK)
-            Client.Send(SMSG_LOGOUT_CANCEL_ACK)
-            SMSG_LOGOUT_CANCEL_ACK.Dispose()
+            Try
+                Client.Send(SMSG_LOGOUT_CANCEL_ACK)
+            Finally
+                SMSG_LOGOUT_CANCEL_ACK.Dispose()
+            End Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_CANCEL_ACK", Client.IP, Client.Port)
 
             'DONE: Enable moving
@@ -6021,10 +6202,12 @@ DoneAmmo:
         Client.Character.SendCharacterUpdate()
 
         Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
-        packetACK.AddInt8(StandState)
-        Client.Send(packetACK)
-        packetACK.Dispose()
-
+        Try
+            packetACK.AddInt8(StandState)
+            Client.Send(packetACK)
+        Finally
+            packetACK.Dispose()
+        End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_STANDSTATECHANGE [{2}]", Client.IP, Client.Port, Client.Character.StandState)
     End Sub
 
@@ -6333,5 +6516,3 @@ NextItem:
 
 
 End Module
-
-

@@ -1109,10 +1109,13 @@ Public Module WS_Maps
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRANSFER_ABORTED [{2}:{3}]", Client.IP, Client.Port, Map, Reason)
 
         Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_ABORTED)
-        p.AddInt32(Map)
-        p.AddInt16(Reason)
-        Client.Send(p)
-        p.Dispose()
+        Try
+            p.AddInt32(Map)
+            p.AddInt16(Reason)
+            Client.Send(p)
+        Finally
+            p.Dispose()
+        End Try
     End Sub
 
 

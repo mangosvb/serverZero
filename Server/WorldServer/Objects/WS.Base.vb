@@ -71,14 +71,17 @@ Public Module WS_Base
 
         Public Sub SendPlaySound(ByVal SoundID As Integer, Optional ByVal OnlyToSelf As Boolean = False)
             Dim packet As New PacketClass(OPCODES.SMSG_PLAY_OBJECT_SOUND)
-            packet.AddInt32(SoundID)
-            packet.AddUInt64(GUID)
-            If OnlyToSelf AndAlso (TypeOf Me Is CharacterObject) Then
-                CType(Me, CharacterObject).Client.Send(packet)
-            Else
-                SendToNearPlayers(packet)
-            End If
-            packet.Dispose()
+            Try
+                packet.AddInt32(SoundID)
+                packet.AddUInt64(GUID)
+                If OnlyToSelf AndAlso (TypeOf Me Is CharacterObject) Then
+                    CType(Me, CharacterObject).Client.Send(packet)
+                Else
+                    SendToNearPlayers(packet)
+                End If
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
 
         Public Sub SendToNearPlayers(ByRef packet As PacketClass, Optional ByVal NotTo As ULong = 0, Optional ByVal ToSelf As Boolean = True)
@@ -304,21 +307,27 @@ Public Module WS_Base
                     CType(Me, CharacterObject).SendCharacterUpdate(True)
 
                     Dim SMSG_UPDATE_AURA_DURATION As New PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
-                    SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
-                    SMSG_UPDATE_AURA_DURATION.AddInt32(Duration)
-                    CType(Me, CharacterObject).Client.Send(SMSG_UPDATE_AURA_DURATION)
-                    SMSG_UPDATE_AURA_DURATION.Dispose()
+                    Try
+                        SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
+                        SMSG_UPDATE_AURA_DURATION.AddInt32(Duration)
+                        CType(Me, CharacterObject).Client.Send(SMSG_UPDATE_AURA_DURATION)
+                    Finally
+                        SMSG_UPDATE_AURA_DURATION.Dispose()
+                    End Try
                 Else
                     Dim tmpUpdate As New UpdateClass
                     Dim tmpPacket As New UpdatePacketClass
-                    tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + Slot, SpellID)
-                    tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + AuraFlag_Slot, ActiveSpells_Flags(AuraFlag_Slot))
-                    tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraLevel_Slot, ActiveSpells_Count(AuraLevel_Slot))
-                    tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + AuraLevel_Slot, ActiveSpells_Level(AuraLevel_Slot))
-                    tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, CreatureObject))
-                    SendToNearPlayers(tmpPacket)
-                    tmpPacket.Dispose()
-                    tmpUpdate.Dispose()
+                    Try
+                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + Slot, SpellID)
+                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + AuraFlag_Slot, ActiveSpells_Flags(AuraFlag_Slot))
+                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraLevel_Slot, ActiveSpells_Count(AuraLevel_Slot))
+                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + AuraLevel_Slot, ActiveSpells_Level(AuraLevel_Slot))
+                        tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, CreatureObject))
+                        SendToNearPlayers(tmpPacket)
+                    Finally
+                        tmpPacket.Dispose()
+                        tmpUpdate.Dispose()
+                    End Try
                 End If
             End If
         End Sub
@@ -545,27 +554,36 @@ Public Module WS_Base
                 CType(Me, CharacterObject).SendCharacterUpdate(True)
 
                 Dim SMSG_UPDATE_AURA_DURATION As New PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
-                SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
-                SMSG_UPDATE_AURA_DURATION.AddInt32(ActiveSpells(Slot).SpellDuration)
-                CType(Me, CharacterObject).Client.Send(SMSG_UPDATE_AURA_DURATION)
-                SMSG_UPDATE_AURA_DURATION.Dispose()
+                Try
+                    SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
+                    SMSG_UPDATE_AURA_DURATION.AddInt32(ActiveSpells(Slot).SpellDuration)
+                    CType(Me, CharacterObject).Client.Send(SMSG_UPDATE_AURA_DURATION)
+                Finally
+                    SMSG_UPDATE_AURA_DURATION.Dispose()
+                End Try
             Else
                 Dim tmpUpdate As New UpdateClass
                 Dim tmpPacket As New UpdatePacketClass
-                tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraFlag_Slot, ActiveSpells_Count(AuraFlag_Slot))
-                tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, CreatureObject))
-                SendToNearPlayers(tmpPacket)
-                tmpPacket.Dispose()
-                tmpUpdate.Dispose()
+                Try
+                    tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraFlag_Slot, ActiveSpells_Count(AuraFlag_Slot))
+                    tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, CreatureObject))
+                    SendToNearPlayers(tmpPacket)
+                Finally
+                    tmpPacket.Dispose()
+                    tmpUpdate.Dispose()
+                End Try
             End If
         End Sub
 
         Public Sub DoEmote(ByVal EmoteID As Integer)
             Dim packet As New PacketClass(OPCODES.SMSG_EMOTE)
-            packet.AddInt32(EmoteID)
-            packet.AddUInt64(GUID)
-            SendToNearPlayers(packet)
-            packet.Dispose()
+            Try
+                packet.AddInt32(EmoteID)
+                packet.AddUInt64(GUID)
+                SendToNearPlayers(packet)
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
 
         Public Function DealSpellDamage(ByRef Caster As BaseUnit, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal DamageType As DamageTypes, ByVal SpellType As SpellType) As Integer

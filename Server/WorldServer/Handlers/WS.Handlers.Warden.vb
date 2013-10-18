@@ -166,19 +166,25 @@ Public Module WS_Handlers_Warden
     End Sub
     Public Sub MaievSendUnk(ByRef c As CharacterObject)
         Dim unk As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
-        unk.AddInt8(MaievOpcode.MAIEV_MODULE_UNK)
-        unk.AddByteArray(New Byte() {&H14, &H0, &H60, &HD0, &HFE, &H2C, &H1, &H0, &H2, &H0, &H20, &H1A, &H36, &H0, &HC0, &HE3, &H35, &H0, &H50, &HF1, &H35, &H0, &HC0, &HF5, &H35, &H0, &H3, &H8, &H0, &H77, &H6C, &H93, &HA9, &H4, &H0, &H0, &H60, &HA8, &H40, &H0, &H1, &H3, &H8, &H0, &H36, &H85, &HEA, &HF0, &H1, &H1, &H0, &H90, &HF4, &H45, &H0, &H1})
+        Try
+            unk.AddInt8(MaievOpcode.MAIEV_MODULE_UNK)
+            unk.AddByteArray(New Byte() {&H14, &H0, &H60, &HD0, &HFE, &H2C, &H1, &H0, &H2, &H0, &H20, &H1A, &H36, &H0, &HC0, &HE3, &H35, &H0, &H50, &HF1, &H35, &H0, &HC0, &HF5, &H35, &H0, &H3, &H8, &H0, &H77, &H6C, &H93, &HA9, &H4, &H0, &H0, &H60, &HA8, &H40, &H0, &H1, &H3, &H8, &H0, &H36, &H85, &HEA, &HF0, &H1, &H1, &H0, &H90, &HF4, &H45, &H0, &H1})
 
-        SendWardenPacket(c, unk)
-        unk.Dispose()
+            SendWardenPacket(c, unk)
+        Finally
+            unk.Dispose()
+        End Try
     End Sub
     Public Sub MaievSendCheck(ByRef c As CharacterObject)
         If Not c.WardenData.Ready Then Throw New ApplicationException("Maiev.mod not ready!")
 
         c.WardenData.Scan.Do_TIMING_CHECK()
         Dim packet As PacketClass = c.WardenData.Scan.GetPacket()
-        SendWardenPacket(c, packet)
-        packet.Dispose()
+        Try
+            SendWardenPacket(c, packet)
+        Finally
+            packet.Dispose()
+        End Try
     End Sub
     Public Sub MaievSendSeed(ByRef c As CharacterObject)
         Dim r As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
