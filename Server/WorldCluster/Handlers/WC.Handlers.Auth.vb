@@ -568,8 +568,6 @@ Public Module WC_Handlers_Auth
                 result = WorldServer.Worlds(0).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
             ElseIf WorldServer.Worlds.ContainsKey(1) Then
                 result = WorldServer.Worlds(1).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
-            ElseIf WorldServer.Worlds.ContainsKey(530) Then
-                result = WorldServer.Worlds(530).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
             End If
         Catch ex As Exception
             result = AuthResponseCodes.CHAR_CREATE_ERROR
@@ -613,11 +611,12 @@ Public Module WC_Handlers_Auth
                 Client.Character = Nothing
 
                 Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
-                r.AddInt8(AuthLoginCodes.CHAR_LOGIN_NO_WORLD)
-                r.AddInt8(AuthResponseCodes.REALM_LIST_REALM_NOT_FOUND)
-                r.AddInt8(AuthResponseCodes.CHAR_LIST_RETRIEVED)
-                Client.Send(r)
-                r.Dispose()
+                Try
+                    r.AddInt8(AuthLoginCodes.CHAR_LOGIN_NO_WORLD)
+                    Client.Send(r)
+                Finally
+                    r.Dispose()
+                End Try
             End If
 
         Catch ex As Exception
@@ -631,8 +630,8 @@ Public Module WC_Handlers_Auth
             Client.Send(r)
             r.Dispose()
             End Try
-
     End Sub
+
     Public Sub On_CMSG_PLAYER_LOGOUT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGOUT", Client.IP, Client.Port)
 
@@ -664,9 +663,6 @@ Public Module WC_Handlers_Auth
         Catch ex As Exception
             Log.WriteLine(LogType.CRITICAL, "{0}", ex.ToString)
         End Try
-
-
     End Sub
-
 
 End Module
