@@ -44,6 +44,7 @@ Public Module WC_Handlers_Auth
         response.AddUInt32(0) 'BillingTimeRested
         Client.Send(response)
     End Sub
+
     Public Sub On_CMSG_AUTH_SESSION(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Dim i As Integer
         'Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
@@ -183,6 +184,7 @@ Public Module WC_Handlers_Auth
         Client.Send(addOnsEnable)
         addOnsEnable.Dispose()
     End Sub
+
     Public Sub On_CMSG_PING(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
@@ -197,7 +199,6 @@ Public Module WC_Handlers_Auth
 
         'Log.WriteLine(LogType.NETWORK, "[{0}:{1}] SMSG_PONG [{2}]", Client.IP, Client.Port, Client.Character.Latency)
     End Sub
-
 
     Public Sub On_CMSG_UPDATE_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Try
@@ -250,6 +251,7 @@ Public Module WC_Handlers_Auth
             Log.WriteLine(LogType.FAILED, "Error while updating account data.{0}", vbNewLine & e.ToString)
         End Try
     End Sub
+
     Public Sub On_CMSG_REQUEST_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
@@ -336,6 +338,7 @@ Public Module WC_Handlers_Auth
         RESTRICT_HIDECLOAK = &H8
         RESTRICT_HIDEHELM = &H10
     End Enum
+
     Public Sub On_CMSG_CHAR_ENUM(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_ENUM", Client.IP, Client.Port)
 
@@ -453,6 +456,7 @@ Public Module WC_Handlers_Auth
         Client.Send(response)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_ENUM", Client.IP, Client.Port)
     End Sub
+
     Public Sub On_CMSG_CHAR_DELETE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_DELETE", Client.IP, Client.Port)
 
@@ -517,6 +521,7 @@ Public Module WC_Handlers_Auth
         Client.Send(response)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_DELETE [{2:X}]", Client.IP, Client.Port, guid)
     End Sub
+
     Public Sub On_CMSG_CHAR_RENAME(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim GUID As Long = packet.GetInt64()
@@ -543,6 +548,7 @@ Public Module WC_Handlers_Auth
 
         On_CMSG_CHAR_ENUM(Nothing, Client)
     End Sub
+
     Public Sub On_CMSG_CHAR_CREATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
 
@@ -609,7 +615,6 @@ Public Module WC_Handlers_Auth
 
                 Client.Character.Dispose()
                 Client.Character = Nothing
-
                 Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
                 Try
                     r.AddInt8(AuthLoginCodes.CHAR_LOGIN_NO_WORLD)
@@ -626,18 +631,22 @@ Public Module WC_Handlers_Auth
             Client.Character = Nothing
 
             Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
-            r.AddInt8(AuthResponseCodes.CHAR_LOGIN_FAILED)
-            Client.Send(r)
-            r.Dispose()
+            Try
+                r.AddInt8(AuthResponseCodes.CHAR_LOGIN_FAILED)
+                Client.Send(r)
+            Finally
+                r.Dispose()
             End Try
+        End Try
     End Sub
 
+    'Leak is with in this code. Needs a rewrite to correct the leak. This only effects the CPU Usage.
+    'Happens when the client disconnects from the server.
     Public Sub On_CMSG_PLAYER_LOGOUT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGOUT", Client.IP, Client.Port)
-
         Client.Character.OnLogout()
 
-        Client.Character.GetWorld.ClientDisconnect(Client.Index)
+        Client.Character.GetWorld.ClientDisconnect(Client.Index) 'Likely the cause of it
         Client.Character.Dispose()
         Client.Character = Nothing
     End Sub
