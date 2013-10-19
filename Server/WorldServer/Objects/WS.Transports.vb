@@ -392,6 +392,8 @@ Public Module WS_Transports
                 End If
 
                 NextNodeTime = Waypoints(CurrentWaypoint).Time
+                'TODO: This line aborts the infinite loop sometimes created, all 8 transports wil need to be checked
+                If CurrentWaypoint = 0 Then Exit While
             End While
         End Sub
 
@@ -501,7 +503,7 @@ Public Module WS_Transports
                                         Try
                                             FillAllUpdateFlags(tmpUpdate, CHARACTERs(plGUID))
                                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
-                                    Finally
+                                        Finally
                                             tmpUpdate.Dispose()
                                         End Try
                                         CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
