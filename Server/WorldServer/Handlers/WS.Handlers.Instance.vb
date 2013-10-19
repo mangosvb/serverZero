@@ -95,7 +95,7 @@ Public Module WS_Handlers_Instance
                                 If WORLD_CREATUREs(GUID).instance = Instance Then WORLD_CREATUREs(GUID).Destroy()
                             Next
                             For Each GUID As ULong In Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
-                                If WORLD_GAMEOBJECTs(GUID).instance = Instance Then WORLD_GAMEOBJECTs(GUID).Destroy()
+                                If WORLD_GAMEOBJECTs(GUID).instance = Instance Then WORLD_GAMEOBJECTs(GUID).Destroy(WORLD_GAMEOBJECTs(GUID))
                             Next
                             For Each GUID As ULong In Maps(Map).Tiles(x, y).CorpseObjectsHere.ToArray
                                 If WORLD_CORPSEOBJECTs(GUID).instance = Instance Then WORLD_CORPSEOBJECTs(GUID).Destroy()
@@ -120,7 +120,7 @@ Public Module WS_Handlers_Instance
                                 If WORLD_CREATUREs(GUID).instance = Instance Then WORLD_CREATUREs(GUID).Respawn()
                             Next
                             For Each GUID As ULong In Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
-                                If WORLD_GAMEOBJECTs(GUID).instance = Instance Then WORLD_GAMEOBJECTs(GUID).Respawn()
+                                If WORLD_GAMEOBJECTs(GUID).instance = Instance Then WORLD_GAMEOBJECTs(GUID).Respawn(WORLD_GAMEOBJECTs(GUID))
                             Next
                         End If
                     Next

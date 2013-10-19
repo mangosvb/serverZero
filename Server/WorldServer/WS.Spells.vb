@@ -7402,7 +7402,7 @@ SkipShapeShift:
         Loser.attackState.AttackStop()
 
         'DONE: Clear duel things
-        If WORLD_GAMEOBJECTs.ContainsKey(Winner.DuelArbiter) Then WORLD_GAMEOBJECTs(Winner.DuelArbiter).Destroy()
+        If WORLD_GAMEOBJECTs.ContainsKey(Winner.DuelArbiter) Then WORLD_GAMEOBJECTs(Winner.DuelArbiter).Destroy(WORLD_GAMEOBJECTs(Winner.DuelArbiter))
 
         Winner.DuelOutOfBounds = DUEL_COUNTER_DISABLED
         Winner.DuelArbiter = 0

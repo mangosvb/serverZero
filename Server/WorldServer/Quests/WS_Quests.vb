@@ -1474,7 +1474,7 @@ Public Class WS_Quests
 
             'DONE: Follow-up quests (no requirements checked?)
             If Client.Character.TalkCurrentQuest.NextQuest <> 0 Then
-                If Not ALLQUESTS.IsValidQuest(Client.Character.TalkCurrentQuest.NextQuest) Then Dim tmpQuest As New WS_QuestInfo(Client.Character.TalkCurrentQuest.NextQuest)
+                'If Not ALLQUESTS.IsValidQuest(Client.Character.TalkCurrentQuest.NextQuest) Then Dim tmpQuest As New WS_QuestInfo(Client.Character.TalkCurrentQuest.NextQuest)
                 Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(Client.Character.TalkCurrentQuest.NextQuest)
                 SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
             End If

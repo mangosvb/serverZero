@@ -1077,7 +1077,7 @@ Public Module WS_Maps
 
         For Each Gameobject As KeyValuePair(Of ULong, GameObjectObject) In WORLD_GAMEOBJECTs
             If CType(Gameobject.Value, GameObjectObject).MapID = TileMap AndAlso CType(Gameobject.Value, GameObjectObject).positionX >= MinX AndAlso CType(Gameobject.Value, GameObjectObject).positionX <= MaxX AndAlso CType(Gameobject.Value, GameObjectObject).positionY >= MinY AndAlso CType(Gameobject.Value, GameObjectObject).positionY <= MaxY Then
-                CType(Gameobject.Value, GameObjectObject).Destroy()
+                CType(Gameobject.Value, GameObjectObject).Destroy(Gameobject)
             End If
         Next
 

@@ -1880,7 +1880,7 @@ Public Module WS_Commands
                 Return True
             End If
 
-            WORLD_GAMEOBJECTs(c.TargetGUID).Destroy()
+            WORLD_GAMEOBJECTs(c.TargetGUID).Destroy(WORLD_GAMEOBJECTs(c.TargetGUID))
             c.CommandResponse("Game object deleted.")
 
         End If

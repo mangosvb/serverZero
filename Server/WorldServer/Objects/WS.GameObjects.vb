@@ -501,16 +501,17 @@ Public Module WS_GameObjects
             SendToNearPlayers(packet)
             packet.Dispose()
         End Sub
-        Public Sub CloseDoor()
+  
+        Public Sub CloseDoor(state As Object, timedOut As Boolean)
             Flags = Flags And (Not GameObjectFlags.GO_FLAG_IN_USE)
-            State = GameObjectLootState.DOOR_CLOSED
+            state = GameObjectLootState.DOOR_CLOSED
 
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             packet.AddInt32(1)
             packet.AddInt8(0)
             Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
             tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
-            tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, State)
+            tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, state)
             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
             tmpUpdate.Dispose()
             SendToNearPlayers(packet)
@@ -559,11 +560,11 @@ Public Module WS_GameObjects
 
             State = GameObjectLootState.DOOR_CLOSED
         End Sub
+  
+        Public Sub SetFishHooked(state As Object, timedOut As Boolean)
+            If state <> GameObjectLootState.DOOR_CLOSED Then Exit Sub
 
-        Public Sub SetFishHooked()
-            If State <> GameObjectLootState.DOOR_CLOSED Then Exit Sub
-
-            State = GameObjectLootState.DOOR_OPEN
+            state = GameObjectLootState.DOOR_OPEN
             Flags = GameObjectFlags.GO_FLAG_NODESPAWN
 
             Loot = New LootObject(GUID, LootType.LOOTTYPE_FISHING)
@@ -582,7 +583,7 @@ Public Module WS_GameObjects
             packet.AddInt8(0)
             Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
             tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
-            tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, State)
+            tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, state)
             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
             tmpUpdate.Dispose()
             SendToNearPlayers(packet)
@@ -597,11 +598,11 @@ Public Module WS_GameObjects
             Dim FishEscapeTime As Integer = 2000
             ThreadPool.RegisterWaitForSingleObject(New AutoResetEvent(False), New WaitOrTimerCallback(AddressOf SetFishEscaped), Nothing, FishEscapeTime, True)
         End Sub
+  
+        Public Sub SetFishEscaped(state As Object, timedOut As Boolean)
+            If state <> GameObjectLootState.DOOR_OPEN Then Exit Sub
 
-        Public Sub SetFishEscaped()
-            If State <> GameObjectLootState.DOOR_OPEN Then Exit Sub
-
-            State = GameObjectLootState.DOOR_CLOSED
+            state = GameObjectLootState.DOOR_CLOSED
             Flags = GameObjectFlags.GO_FLAG_LOCKED
 
             If Loot IsNot Nothing Then
@@ -638,7 +639,8 @@ Public Module WS_GameObjects
             SendToNearPlayers(packet)
             packet.Dispose()
         End Sub
-        Public Sub Respawn()
+
+        Public Sub Respawn(state As Object)
             Log.WriteLine(LogType.DEBUG, "Gameobject {0:X} respawning.", GUID)
 
             'DONE: Remove the timer
@@ -679,7 +681,8 @@ Public Module WS_GameObjects
                 RespawnTimer = New Threading.Timer(New TimerCallback(AddressOf Destroy), Nothing, Delay, Timeout.Infinite)
             End If
         End Sub
-        Public Sub Destroy()
+  
+        Public Sub Destroy(state As Object)
             'DONE: Remove the timer
             If RespawnTimer IsNot Nothing Then
                 RespawnTimer.Dispose()

@@ -2306,7 +2306,7 @@ Public Module WS_CharManagment
                 Dim GameObjects() As GameObjectObject = Client.Character.gameObjects.ToArray()
                 For Each tmpGO As GameObjectObject In GameObjects
                     If tmpGO.CreatedBySpell = SpellID Then
-                        tmpGO.Destroy()
+                        tmpGO.Destroy(tmpGO)
                         Client.Character.gameObjects.Remove(tmpGO)
                         Exit For
                     End If
@@ -4837,7 +4837,7 @@ CheckXPAgain:
                 If DuelPartner.DuelArbiter = DuelArbiter Then
                     DuelComplete(DuelPartner, Me)
                 ElseIf WORLD_GAMEOBJECTs.ContainsKey(DuelArbiter) Then
-                    WORLD_GAMEOBJECTs(DuelArbiter).Destroy()
+                    WORLD_GAMEOBJECTs(DuelArbiter).Destroy(WORLD_GAMEOBJECTs(DuelArbiter))
                 End If
             End If
 

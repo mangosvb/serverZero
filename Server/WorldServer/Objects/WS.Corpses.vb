@@ -138,10 +138,12 @@ Public Module WS_Corpses
         End Sub
         Public Sub Destroy()
             Dim packet As New PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
-            packet.AddUInt64(GUID)
-            SendToNearPlayers(packet)
-            packet.Dispose()
-
+            Try
+                packet.AddUInt64(GUID)
+                SendToNearPlayers(packet)
+            Finally
+                packet.Dispose()
+            End Try
             Me.Dispose()
         End Sub
 

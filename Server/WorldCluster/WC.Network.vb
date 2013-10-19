@@ -650,8 +650,9 @@ Public Module WC_Network
                 Me.Dispose()
             End Try
         End Sub
+  
         <MethodImplAttribute(MethodImplOptions.Synchronized)> _
-        Public Sub OnPacket()
+        Public Sub OnPacket(state As Object)
             HandingPackets = True
             While Queue.Count > 0
                 Dim p As PacketClass
