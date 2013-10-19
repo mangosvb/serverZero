@@ -71,7 +71,7 @@ Public Module WS_GameObjects
         Private disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
             If Not Me.disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -270,7 +270,7 @@ Public Module WS_GameObjects
         Private disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
             If Not Me.disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -911,16 +911,22 @@ Public Module WS_GameObjects
 
             Case GameObjectType.GAMEOBJECT_TYPE_CHAIR
                 'DONE: Chair sitting again
-                Client.Character.Teleport(GO.positionX, GO.positionY, GO.positionZ, GO.orientation, GO.MapID)
-
-                'STATE_SITTINGCHAIRLOW = 4
-                'STATE_SITTINGCHAIRMEDIUM = 5
-                'STATE_SITTINGCHAIRHIGH = 6
+                Dim StandState As New PacketClass(OPCODES.CMSG_STANDSTATECHANGE)
+                Try
+                    StandState.AddInt8(4 + CType(WORLD_GAMEOBJECTs(GameObjectGUID), GameObjectObject).Sound(1))
+                    Client.Character.Teleport(GO.positionX, GO.positionY, GO.positionZ, GO.orientation, GO.MapID)
+                    Client.Send(StandState)
+                Finally
+                    StandState.Dispose()
+                End Try
 
                 Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
-                packetACK.AddInt8(4 + GO.Sound(1))
-                Client.Send(packetACK)
-                packetACK.Dispose()
+                Try
+                    packetACK.AddInt8(4 + GO.Sound(1))
+                    Client.Send(packetACK)
+                Finally
+                    packetACK.Dispose()
+                End Try
 
             Case GameObjectType.GAMEOBJECT_TYPE_QUESTGIVER
 

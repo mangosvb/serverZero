@@ -43,7 +43,7 @@ Public Module WS_Handlers
         PacketHandlers(OPCODES.CMSG_WARDEN_DATA) = CType(AddressOf On_CMSG_WARDEN_DATA, HandlePacket)
         PacketHandlers(OPCODES.CMSG_NAME_QUERY) = CType(AddressOf On_CMSG_NAME_QUERY, HandlePacket)
         PacketHandlers(OPCODES.CMSG_MESSAGECHAT) = CType(AddressOf On_CMSG_MESSAGECHAT, HandlePacket)
-       
+
         PacketHandlers(OPCODES.CMSG_LOGOUT_REQUEST) = CType(AddressOf On_CMSG_LOGOUT_REQUEST, HandlePacket)
         PacketHandlers(OPCODES.CMSG_LOGOUT_CANCEL) = CType(AddressOf On_CMSG_LOGOUT_CANCEL, HandlePacket)
         PacketHandlers(OPCODES.CMSG_CANCEL_TRADE) = CType(AddressOf On_CMSG_CANCEL_TRADE, HandlePacket)
