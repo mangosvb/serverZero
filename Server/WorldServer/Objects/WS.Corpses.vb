@@ -73,20 +73,25 @@ Public Module WS_Corpses
             Next
 
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(1)
-            packet.AddInt8(0)
-            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
-            tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_OWNER, 0)
-            tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_FLAGS, 5)
-            For i = 0 To EQUIPMENT_SLOT_END - 1
-                tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_ITEM + i, 0)
-            Next
-            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
+            Try
+                packet.AddInt32(1)
+                packet.AddInt8(0)
+                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
+                Try
+                    tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_OWNER, 0)
+                    tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_FLAGS, 5)
+                    For i = 0 To EQUIPMENT_SLOT_END - 1
+                        tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_ITEM + i, 0)
+                    Next
+                    tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
 
-            SendToNearPlayers(packet)
-
-            tmpUpdate.Dispose()
-            packet.Dispose()
+                    SendToNearPlayers(packet)
+                Finally
+                    tmpUpdate.Dispose()
+                End Try
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub Save()
             'Only for creating New Character
@@ -241,31 +246,36 @@ Public Module WS_Corpses
             Dim list() As ULong
             'DONE: Sending to players in nearby cells
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(1)
-            packet.AddInt8(0)
-            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
-            FillAllUpdateFlags(tmpUpdate)
-            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
-            tmpUpdate.Dispose()
+            Try
+                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
+                Try
+                    packet.AddInt32(1)
+                    packet.AddInt8(0)
+                    FillAllUpdateFlags(tmpUpdate)
+                    tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
+                Finally
+                    tmpUpdate.Dispose()
+                End Try
 
-            For i As Short = -1 To 1
-                For j As Short = -1 To 1
-                    If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
-                        With Maps(MapID).Tiles(CellX + i, CellY + j)
-                            list = .PlayersHere.ToArray
-                            For Each plGUID As ULong In list
-                                If CHARACTERs.ContainsKey(plGUID) AndAlso CHARACTERs(plGUID).CanSee(Me) Then
-                                    CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
-                                    CHARACTERs(plGUID).corpseObjectsNear.Add(GUID)
-                                    SeenBy.Add(plGUID)
-                                End If
-                            Next
-                        End With
-                    End If
+                For i As Short = -1 To 1
+                    For j As Short = -1 To 1
+                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
+                            With Maps(MapID).Tiles(CellX + i, CellY + j)
+                                list = .PlayersHere.ToArray
+                                For Each plGUID As ULong In list
+                                    If CHARACTERs.ContainsKey(plGUID) AndAlso CHARACTERs(plGUID).CanSee(Me) Then
+                                        CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                        CHARACTERs(plGUID).corpseObjectsNear.Add(GUID)
+                                        SeenBy.Add(plGUID)
+                                    End If
+                                Next
+                            End With
+                        End If
+                    Next
                 Next
-            Next
-
-            packet.Dispose()
+            Finally
+                packet.Dispose()
+            End Try
         End Sub
         Public Sub RemoveFromWorld()
             GetMapTile(positionX, positionY, CellX, CellY)

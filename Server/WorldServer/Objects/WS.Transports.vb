@@ -413,14 +413,17 @@ Public Module WS_Transports
                 If TypeOf tmpUnit Is CharacterObject Then 'If the passenger is a player
                     If Character.CanSee(tmpUnit) Then 'If you can see player
                         Dim myPacket As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                        myPacket.AddInt32(1)
-                        myPacket.AddInt8(0)
-                        Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
-                        CType(tmpUnit, CharacterObject).FillAllUpdateFlags(myTmpUpdate)
-                        myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CharacterObject))
-                        myTmpUpdate.Dispose()
-                        Character.Client.Send(myPacket)
-                        myPacket.Dispose()
+                        Try
+                            myPacket.AddInt32(1)
+                            myPacket.AddInt8(0)
+                            Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
+                            CType(tmpUnit, CharacterObject).FillAllUpdateFlags(myTmpUpdate)
+                            myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CharacterObject))
+                            myTmpUpdate.Dispose()
+                            Character.Client.Send(myPacket)
+                        Finally
+                            myPacket.Dispose()
+                        End Try
 
                         CType(tmpUnit, CharacterObject).SeenBy.Add(Character.GUID)
                         Character.playersNear.Add(tmpUnit.GUID)
@@ -434,14 +437,17 @@ Public Module WS_Transports
                 ElseIf TypeOf tmpUnit Is CreatureObject Then 'If the passenger is a creature
                     If Character.CanSee(tmpUnit) Then 'If you can see creature
                         Dim myPacket As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                        myPacket.AddInt32(1)
-                        myPacket.AddInt8(0)
-                        Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
-                        CType(tmpUnit, CreatureObject).FillAllUpdateFlags(myTmpUpdate)
-                        myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CreatureObject))
-                        myTmpUpdate.Dispose()
-                        Character.Client.Send(myPacket)
-                        myPacket.Dispose()
+                        Try
+                            myPacket.AddInt32(1)
+                            myPacket.AddInt8(0)
+                            Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
+                            CType(tmpUnit, CreatureObject).FillAllUpdateFlags(myTmpUpdate)
+                            myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CreatureObject))
+                            myTmpUpdate.Dispose()
+                            Character.Client.Send(myPacket)
+                        Finally
+                            myPacket.Dispose()
+                        End Try
 
                         CType(tmpUnit, CharacterObject).SeenBy.Add(Character.GUID)
                         Character.creaturesNear.Add(tmpUnit.GUID)
@@ -488,18 +494,22 @@ Public Module WS_Transports
                             For Each plGUID As ULong In list
                                 If CHARACTERs.ContainsKey(plGUID) AndAlso CHARACTERs(plGUID).CanSee(Me) Then
                                     Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                                    packet.AddInt32(1)
-                                    packet.AddInt8(0)
-                                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
-                                    FillAllUpdateFlags(tmpUpdate, CHARACTERs(plGUID))
-                                    tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
-                                    tmpUpdate.Dispose()
-
-                                    CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
-                                    CHARACTERs(plGUID).gameObjectsNear.Add(GUID)
-                                    SeenBy.Add(plGUID)
-
-                                    packet.Dispose()
+                                    Try
+                                        packet.AddInt32(1)
+                                        packet.AddInt8(0)
+                                        Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                                        Try
+                                            FillAllUpdateFlags(tmpUpdate, CHARACTERs(plGUID))
+                                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
+                                    Finally
+                                            tmpUpdate.Dispose()
+                                        End Try
+                                        CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                        CHARACTERs(plGUID).gameObjectsNear.Add(GUID)
+                                        SeenBy.Add(plGUID)
+                                    Finally
+                                        packet.Dispose()
+                                    End Try
                                 End If
                             Next
                         End With

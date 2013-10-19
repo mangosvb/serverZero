@@ -634,57 +634,60 @@ Public Module WS_Creatures
             Dim TimeToMove As Integer = 1
 
             Dim SMSG_MONSTER_MOVE As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
-            SMSG_MONSTER_MOVE.AddPackGUID(GUID)
-            SMSG_MONSTER_MOVE.AddSingle(positionX)
-            SMSG_MONSTER_MOVE.AddSingle(positionY)
-            SMSG_MONSTER_MOVE.AddSingle(positionZ)
-            SMSG_MONSTER_MOVE.AddInt32(msTime)         'Sequence/MSTime?
+            Try
+                SMSG_MONSTER_MOVE.AddPackGUID(GUID)
+                SMSG_MONSTER_MOVE.AddSingle(positionX)
+                SMSG_MONSTER_MOVE.AddSingle(positionY)
+                SMSG_MONSTER_MOVE.AddSingle(positionZ)
+                SMSG_MONSTER_MOVE.AddInt32(msTime)         'Sequence/MSTime?
 
-            If o = 0.0F Then
-                SMSG_MONSTER_MOVE.AddInt8(0)                    'Type [If type is 1 then the packet ends here]
-            Else
-                SMSG_MONSTER_MOVE.AddInt8(4)
-                SMSG_MONSTER_MOVE.AddSingle(o)
-            End If
+                If o = 0.0F Then
+                    SMSG_MONSTER_MOVE.AddInt8(0)                    'Type [If type is 1 then the packet ends here]
+                Else
+                    SMSG_MONSTER_MOVE.AddInt8(4)
+                    SMSG_MONSTER_MOVE.AddSingle(o)
+                End If
 
-            Dim moveDist As Single = GetDistance(positionX, x, positionY, y, positionZ, z)
-            If Flying Then
-                SMSG_MONSTER_MOVE.AddInt32(&H300)           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
-                TimeToMove = CType(moveDist / (CreatureInfo.RunSpeed * SpeedMod) * 1000 + 0.5F, Integer)
-            Else
-                If Running Then
-                    SMSG_MONSTER_MOVE.AddInt32(&H100)           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
+                Dim moveDist As Single = GetDistance(positionX, x, positionY, y, positionZ, z)
+                If Flying Then
+                    SMSG_MONSTER_MOVE.AddInt32(&H300)           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
                     TimeToMove = CType(moveDist / (CreatureInfo.RunSpeed * SpeedMod) * 1000 + 0.5F, Integer)
                 Else
-                    SMSG_MONSTER_MOVE.AddInt32(0)
-                    TimeToMove = CType(moveDist / (CreatureInfo.WalkSpeed * SpeedMod) * 1000 + 0.5F, Integer)
+                    If Running Then
+                        SMSG_MONSTER_MOVE.AddInt32(&H100)           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
+                        TimeToMove = CType(moveDist / (CreatureInfo.RunSpeed * SpeedMod) * 1000 + 0.5F, Integer)
+                    Else
+                        SMSG_MONSTER_MOVE.AddInt32(0)
+                        TimeToMove = CType(moveDist / (CreatureInfo.WalkSpeed * SpeedMod) * 1000 + 0.5F, Integer)
+                    End If
                 End If
-            End If
 
-            orientation = GetOrientation(positionX, x, positionY, y)
-            OldX = positionX
-            OldY = positionY
-            OldZ = positionZ
-            LastMove = timeGetTime("")
-            LastMove_Time = TimeToMove
-            PositionUpdated = False
-            positionX = x
-            positionY = y
-            positionZ = z
-            MoveX = x
-            MoveY = y
-            MoveZ = z
+                orientation = GetOrientation(positionX, x, positionY, y)
+                OldX = positionX
+                OldY = positionY
+                OldZ = positionZ
+                LastMove = timeGetTime("")
+                LastMove_Time = TimeToMove
+                PositionUpdated = False
+                positionX = x
+                positionY = y
+                positionZ = z
+                MoveX = x
+                MoveY = y
+                MoveZ = z
 
-            SMSG_MONSTER_MOVE.AddInt32(TimeToMove)  'Time
-            SMSG_MONSTER_MOVE.AddInt32(1)           'Points Count
-            SMSG_MONSTER_MOVE.AddSingle(x)          'First Point X
-            SMSG_MONSTER_MOVE.AddSingle(y)          'First Point Y
-            SMSG_MONSTER_MOVE.AddSingle(z)          'First Point Z
+                SMSG_MONSTER_MOVE.AddInt32(TimeToMove)  'Time
+                SMSG_MONSTER_MOVE.AddInt32(1)           'Points Count
+                SMSG_MONSTER_MOVE.AddSingle(x)          'First Point X
+                SMSG_MONSTER_MOVE.AddSingle(y)          'First Point Y
+                SMSG_MONSTER_MOVE.AddSingle(z)          'First Point Z
 
-            'The points after that are in the same format only if flag 0x200 is set, else they are compressed in 1 uint32
+                'The points after that are in the same format only if flag 0x200 is set, else they are compressed in 1 uint32
 
-            SendToNearPlayers(SMSG_MONSTER_MOVE)
-            SMSG_MONSTER_MOVE.Dispose()
+                SendToNearPlayers(SMSG_MONSTER_MOVE)
+            Finally
+                SMSG_MONSTER_MOVE.Dispose()
+            End Try
 
             MoveCell()
             Return TimeToMove
@@ -713,17 +716,20 @@ Public Module WS_Creatures
             If SeenBy.Count > 0 Then
                 If aiScript Is Nothing OrElse aiScript.IsMoving() = False Then
                     Dim packet As New PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
-                    packet.AddPackGUID(GUID)
-                    packet.AddInt32(0) 'Movementflags
-                    packet.AddInt32(timeGetTime(""))
-                    packet.AddSingle(positionX)
-                    packet.AddSingle(positionY)
-                    packet.AddSingle(positionZ)
-                    packet.AddSingle(orientation)
-                    packet.AddInt32(0)
+                    Try
+                        packet.AddPackGUID(GUID)
+                        packet.AddInt32(0) 'Movementflags
+                        packet.AddInt32(timeGetTime(""))
+                        packet.AddSingle(positionX)
+                        packet.AddSingle(positionY)
+                        packet.AddSingle(positionZ)
+                        packet.AddSingle(orientation)
+                        packet.AddInt32(0)
 
-                    SendToNearPlayers(packet)
-                    packet.Dispose()
+                        SendToNearPlayers(packet)
+                    Finally
+                        packet.Dispose()
+                    End Try
                 End If
             End If
         End Sub
