@@ -344,6 +344,8 @@ Public Module WS_Main
 
         AllGraveYards.InitializeGraveyards()
 
+        LoadTransports()
+
 
         WorldServer = New WorldServerClass
         GC.Collect()

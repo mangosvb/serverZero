@@ -1998,7 +1998,7 @@ Public Module WS_DBCDatabase
         LoadCreatureModelInfo()
         LoadQuestStartersAndFinishers()
 
-        LoadTransports()
+        'LoadTransports()
 
     End Sub
 

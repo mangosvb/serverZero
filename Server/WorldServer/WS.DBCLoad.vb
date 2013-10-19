@@ -1290,28 +1290,7 @@ Public Module WS_DBCLoad
         questFinishers.Clear()
     End Sub
 #End Region
-#Region "Transports"
-    Public Sub LoadTransports()
-        Try
-            Dim TransportQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM transports", TransportQuery)
 
-            For Each Transport As DataRow In TransportQuery.Rows
-                Dim TransportEntry As Integer = Transport.Item("entry")
-                Dim TransportName As String = Transport.Item("name")
-                Dim TransportPeriod As Integer = Transport.Item("period")
-
-                Dim newTransport As New TransportObject(TransportEntry, TransportName, TransportPeriod)
-            Next
-
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} Transports initialized.", TransportQuery.Rows.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
-            Console.WriteLine("Database : TransportQuery missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
-        End Try
-    End Sub
-#End Region
 #Region "Loot"
     Public Sub LoadLootStores()
         LootTemplates_Creature = New LootStore("creature_loot")
