@@ -28,8 +28,6 @@ Imports mangosVB.WorldServer.WS_QuestSystem
 
 Public Module WS_CharManagment
 
-
-
 #Region "WS.CharMangment.CharacterInitializators"
     Enum ManaTypes As Integer
         TYPE_MANA = 0
@@ -65,6 +63,7 @@ Public Module WS_CharManagment
             Return baseLIFE + 10 * (c.Stamina.Base - 20)
         End If
     End Function
+
     Public Function CalculateStartingMANA(ByRef c As CharacterObject, ByVal baseMANA As Integer) As Integer
         If (c.Intellect.Base < 20) Then
             Return baseMANA + (c.Intellect.Base - 20)
@@ -76,6 +75,7 @@ Public Module WS_CharManagment
         Return CType(System.Math.Round(a3 * level * level * level + a2 * level * level + a1 * level + a0), Integer) - _
                 CType(System.Math.Round(a3 * (level - 1) * (level - 1) * (level - 1) + a2 * (level - 1) * (level - 1) + a1 * (level - 1) + a0), Integer)
     End Function
+
     Public Sub CalculateOnLevelUP(ByRef c As CharacterObject)
         Dim baseInt As Integer = c.Intellect.Base
         'Dim baseStr As Integer = c.Strength.Base
@@ -240,6 +240,7 @@ Public Module WS_CharManagment
             End If
         Next
     End Sub
+
     Public Function GetClassManaType(ByVal Classe As Classes) As ManaTypes
         Select Case Classe
             Case Classes.CLASS_DRUID, Classes.CLASS_HUNTER, Classes.CLASS_MAGE, Classes.CLASS_PALADIN, Classes.CLASS_PRIEST, Classes.CLASS_SHAMAN, Classes.CLASS_WARLOCK
@@ -274,6 +275,7 @@ Public Module WS_CharManagment
         Next
     End Sub
 #End Region
+
 #Region "WS.CharMangment.CharacterHelpingTypes"
     Public Class TSkill
         Private _Current As Int16 = 0
@@ -283,6 +285,7 @@ Public Module WS_CharManagment
             Current = CurrentVal
             Base = MaximumVal
         End Sub
+
         Public Sub Increment(Optional ByVal Incrementator As Int16 = 1)
             If (Current + Incrementator) < Base Then
                 Current = Current + Incrementator
@@ -290,16 +293,19 @@ Public Module WS_CharManagment
                 Current = Base
             End If
         End Sub
+
         Public ReadOnly Property Maximum() As Integer
             Get
                 Return Base
             End Get
         End Property
+
         Public ReadOnly Property MaximumWithBonus() As Integer
             Get
                 Return Base + Bonus
             End Get
         End Property
+
         Public Property Current() As Int16
             Get
                 Return _Current
@@ -308,6 +314,7 @@ Public Module WS_CharManagment
                 If Value <= Maximum Then _Current = Value
             End Set
         End Property
+
         Public ReadOnly Property CurrentWithBonus() As Int16
             Get
                 Return _Current + Bonus
@@ -320,6 +327,7 @@ Public Module WS_CharManagment
             End Get
         End Property
     End Class
+
     Public Class TStatBar
         Private _Current As Integer = 0
         Public Bonus As Integer = 0
@@ -332,16 +340,19 @@ Public Module WS_CharManagment
                 Current = Maximum
             End If
         End Sub
+
         Public Sub New(ByVal CurrentVal As Integer, ByVal BaseVal As Integer, ByVal BonusVal As Integer)
             _Current = CurrentVal
             Bonus = BonusVal
             Base = BaseVal
         End Sub
+
         Public ReadOnly Property Maximum() As Integer
             Get
                 Return (Bonus + Base) * Modifier
             End Get
         End Property
+
         Public Property Current() As Integer
             Get
                 Return _Current * Modifier
@@ -352,6 +363,7 @@ Public Module WS_CharManagment
             End Set
         End Property
     End Class
+
     Public Class TStat
         Public Base As Short = 0
         Public PositiveBonus As Short = 0
@@ -375,6 +387,7 @@ Public Module WS_CharManagment
             PositiveBonus = NegValue
         End Sub
     End Class
+
     Public Class TDamageBonus
         Public PositiveBonus As Integer = 0
         Public NegativeBonus As Integer = 0
@@ -390,6 +403,7 @@ Public Module WS_CharManagment
             PositiveBonus = NegValue
         End Sub
     End Class
+
     Public Class THonor
         Public CharGUID As ULong = 0
         Public HonorPounts As Short = 0                 '! MAX=1000 ?
@@ -431,19 +445,23 @@ Public Module WS_CharManagment
             tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", CharGUID)
             CharacterDatabase.Update(tmp)
         End Sub
+
         Public Sub Load(ByVal GUID As ULong)
 
         End Sub
+
         Public Sub SaveAsNew(ByVal GUID As ULong)
 
         End Sub
     End Class
+
     Public Class TReputation
         '1:"AtWar" clickable but not checked
         '3:"AtWar" clickable and checked
         Public Flags As Integer = 0
         Public Value As Integer = 0
     End Class
+
     Public Class TActionButton
         Public ActionType As Byte = 0
         Public ActionMisc As Byte = 0
@@ -454,6 +472,7 @@ Public Module WS_CharManagment
             Action = Action_
         End Sub
     End Class
+
     Public Class TDrowningTimer
         Implements IDisposable
 
@@ -472,7 +491,7 @@ Public Module WS_CharManagment
         Private disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
             If Not Me.disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -491,6 +510,7 @@ Public Module WS_CharManagment
         End Sub
 #End Region
     End Class
+
     Public Class TRepopTimer
         Implements IDisposable
 
@@ -511,7 +531,7 @@ Public Module WS_CharManagment
         Private disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
             If Not Me.disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -530,6 +550,7 @@ Public Module WS_CharManagment
 #End Region
     End Class
 #End Region
+
 #Region "WS.CharMangment.CharacterHelpingSubs"
 
     Public Sub SendBindPointUpdate(ByRef Client As ClientClass, ByRef Character As CharacterObject)
@@ -545,6 +566,7 @@ Public Module WS_CharManagment
             SMSG_BINDPOINTUPDATE.Dispose()
         End Try
     End Sub
+
     Public Sub Send_SMSG_SET_REST_START(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_SET_REST_START As New PacketClass(OPCODES.SMSG_SET_REST_START)
         Try
@@ -554,6 +576,7 @@ Public Module WS_CharManagment
             SMSG_SET_REST_START.Dispose()
         End Try
     End Sub
+
     Public Sub SendTutorialFlags(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_TUTORIAL_FLAGS As New PacketClass(OPCODES.SMSG_TUTORIAL_FLAGS)
         Try
@@ -566,6 +589,7 @@ Public Module WS_CharManagment
             SMSG_TUTORIAL_FLAGS.Dispose()
         End Try
     End Sub
+
     Public Sub SendFactions(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_INITIALIZE_FACTIONS)
         Try
@@ -580,6 +604,7 @@ Public Module WS_CharManagment
             packet.Dispose()
         End Try
     End Sub
+
     Public Sub SendActionButtons(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_ACTION_BUTTONS)
         Try
@@ -599,6 +624,7 @@ Public Module WS_CharManagment
             packet.Dispose()
         End Try
     End Sub
+
     Public Sub SendInitWorldStates(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Character.ZoneCheck()
         Dim NumberOfFields As UShort = 0
@@ -643,14 +669,6 @@ Public Module WS_CharManagment
             packet.AddUInt32(&H0)
             packet.AddUInt32(&H8D3)
             packet.AddUInt32(&H0)
-            If Character.MapID = 530 Then 'Outlands
-                packet.AddUInt32(&H9BF)
-                packet.AddUInt32(&H0)
-                packet.AddUInt32(&H9BD)
-                packet.AddUInt32(&HF)
-                packet.AddUInt32(&H9BB)
-                packet.AddUInt32(&HF)
-            End If
             Select Case Character.ZoneID
                 Case 1, 11, 12, 38, 40, 51, 1519, 1537, 2257
                     Exit Select
@@ -662,26 +680,6 @@ Public Module WS_CharManagment
                     'TODO
                 Case 3820 'Eye of the Storm
                     'TODO
-                Case 3483 'Hellfire Peninsula
-                    'TODO
-                Case 3519 'Terokkar Forest
-                    'TODO
-                Case 3521 'Zangarmarch
-                    'TODO
-                Case 3698 'Nagrand Arena
-                    packet.AddUInt32(&HA0F)
-                    packet.AddUInt32(&H0)
-                    packet.AddUInt32(&HA10)
-                    packet.AddUInt32(&H0)
-                    packet.AddUInt32(&HA11)
-                    packet.AddUInt32(&H0)
-                Case 3702 'Blade's Edge Arena
-                    packet.AddUInt32(&H9F0)
-                    packet.AddUInt32(&H0)
-                    packet.AddUInt32(&H9F1)
-                    packet.AddUInt32(&H0)
-                    packet.AddUInt32(&H9F3)
-                    packet.AddUInt32(&H0)
                 Case 3968 'Ruins of Lordaeron Arena
                     packet.AddUInt32(&HBB8)
                     packet.AddUInt32(&H0)
@@ -689,7 +687,6 @@ Public Module WS_CharManagment
                     packet.AddUInt32(&H0)
                     packet.AddUInt32(&HBBA)
                     packet.AddUInt32(&H0)
-                Case 3703 'Shattrath
                     Exit Select
                 Case Else
                     packet.AddUInt32(&H914)
@@ -706,6 +703,7 @@ Public Module WS_CharManagment
             packet.Dispose()
         End Try
     End Sub
+
     Public Sub SendInitialSpells(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_INITIAL_SPELLS)
         Try
@@ -761,7 +759,6 @@ Public Module WS_CharManagment
             packet.Dispose()
         End Try
     End Sub
-
 
     Public Sub InitializeTalentSpells(ByVal c As CharacterObject)
         Dim t As New SpellTargets
@@ -821,6 +818,7 @@ Public Module WS_CharManagment
                 cPlayerBytes = ((cPlayerBytes And &HFFFFFF) Or (CInt(value) << 24))
             End Set
         End Property
+
         Public Property HairStyle() As Byte
             Get
                 Return (cPlayerBytes And &HFF0000) >> 16
@@ -829,6 +827,7 @@ Public Module WS_CharManagment
                 cPlayerBytes = ((cPlayerBytes And &HFF00FFFF) Or (CInt(value) << 16))
             End Set
         End Property
+
         Public Property Face() As Byte
             Get
                 Return (cPlayerBytes And &HFF00) >> 8
@@ -837,6 +836,7 @@ Public Module WS_CharManagment
                 cPlayerBytes = ((cPlayerBytes And &HFFFF00FF) Or (CInt(value) << 8))
             End Set
         End Property
+
         Public Property Skin() As Byte
             Get
                 Return (cPlayerBytes And &HFF) >> 0
@@ -856,6 +856,7 @@ Public Module WS_CharManagment
                 cPlayerBytes2 = ((cPlayerBytes2 And &HFFFFFF) Or (CInt(value) << 24))
             End Set
         End Property
+
         Public Property Items_AvailableBankSlots() As Byte
             Get
                 Return (cPlayerBytes2 And &HFF0000) >> 16
@@ -864,6 +865,7 @@ Public Module WS_CharManagment
                 cPlayerBytes2 = ((cPlayerBytes2 And &HFF00FFFF) Or (CInt(value) << 16))
             End Set
         End Property
+
         Public Property FacialHair() As Byte
             Get
                 Return (cPlayerBytes2 And &HFF) >> 0
@@ -884,6 +886,7 @@ Public Module WS_CharManagment
                 cPlayerBytes3 = ((cPlayerBytes3 And &HFFFFFF00) Or (CInt(value) << 0))
             End Set
         End Property
+
         Public Property HonorRank() As PlayerHonorRank
             Get
                 Return (cPlayerBytes3 And &HFF000000) >> 24
@@ -892,7 +895,6 @@ Public Module WS_CharManagment
                 cPlayerBytes3 = ((cPlayerBytes3 And &HFFFFFF) Or (CInt(value) << 24))
             End Set
         End Property
-
 
         'cPlayerFieldBytes subfields
         Public Property HonorHighestRank() As PlayerHonorRank
@@ -913,7 +915,6 @@ Public Module WS_CharManagment
                 cPlayerFieldBytes2 = ((cPlayerFieldBytes2 And &HFFFFFF00) Or (CInt(value) << 0))
             End Set
         End Property
-
 
         Public Rage As New TStatBar(1, 1, 0)
         Public Energy As New TStatBar(1, 1, 0)
@@ -992,6 +993,7 @@ Public Module WS_CharManagment
 
             End Get
         End Property
+
         Public spellCasted() As CastSpellParameters = {Nothing, Nothing, Nothing, Nothing}
         Public spellCastManaRegeneration As Byte = 0
         Public spellCanDualWeild As Boolean = False
@@ -1012,11 +1014,13 @@ Public Module WS_CharManagment
                 Return (AttackPower + AttackPowerMods) * 0.071428571428571425
             End Get
         End Property
+
         Public ReadOnly Property BaseRangedDamage() As Integer
             Get
                 Return (AttackPowerRanged + AttackPowerModsRanged) * 0.071428571428571425
             End Get
         End Property
+
         Public ReadOnly Property AttackPower() As Integer
             ' From http://www.wowwiki.com/Attack_power
             Get
@@ -1042,6 +1046,7 @@ Public Module WS_CharManagment
                 End Select
             End Get
         End Property
+
         Public ReadOnly Property AttackPowerRanged() As Integer
             ' From http://www.wowwiki.com/Attack_power
             Get
@@ -1061,11 +1066,13 @@ Public Module WS_CharManagment
                 End Select
             End Get
         End Property
+
         Public ReadOnly Property AttackTime(ByVal index As WeaponAttackType) As Short
             Get
                 Return Fix(AttackTimeBase(index) * AttackTimeMods(index))
             End Get
         End Property
+
         Public AttackTimeBase() As Short = {2000, 0, 0}
         Public AttackTimeMods() As Single = {1.0F, 1.0F, 1.0F}
 
@@ -1150,6 +1157,7 @@ Public Module WS_CharManagment
         Public Sub HonorSaveAsNew()
             CharacterDatabase.Update("INSERT INTO characters_honor (char_guid)  VALUES (" & GUID & ");")
         End Sub
+
         Public Sub HonorSave()
             Dim tmp As String = "UPDATE characters_honor SET"
 
@@ -1165,6 +1173,7 @@ Public Module WS_CharManagment
             tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
             CharacterDatabase.Update(tmp)
         End Sub
+
         Public Sub HonorLoad()
             Dim MySQLQuery As New DataTable
             CharacterDatabase.Query(String.Format("SELECT * FROM characters_honor WHERE char_guid = {0};", GUID), MySQLQuery)
@@ -1190,6 +1199,7 @@ Public Module WS_CharManagment
 
             MySQLQuery.Dispose()
         End Sub
+
         Public Sub HonorLog(ByVal honorPoints As Integer, ByVal victimGUID As ULong, ByVal victimRank As Integer)
             'GUID = 0 : You have been awarded %h honor points.
             'GUID <>0 : %p dies, honorable kill Rank: %r (Estimated Honor Points: %h)
@@ -1204,7 +1214,6 @@ Public Module WS_CharManagment
                 packet.Dispose()
             End Try
         End Sub
-
 
         Public Copper As UInteger = 0
         Public Name As String = ""
@@ -1235,6 +1244,7 @@ Public Module WS_CharManagment
                 Return (1 << Classe - 1)
             End Get
         End Property
+
         Public ReadOnly Property RaceMask() As UInteger
             Get
                 Return (1 << Race - 1)
@@ -1246,21 +1256,25 @@ Public Module WS_CharManagment
                 Return DEAD
             End Get
         End Property
+
         Public ReadOnly Property isMoving() As Boolean
             Get
                 Return (movementFlagsMask And movementFlags)
             End Get
         End Property
+
         Public ReadOnly Property isTurning() As Boolean
             Get
                 Return (TurningFlagsMask And movementFlags)
             End Get
         End Property
+
         Public ReadOnly Property isMovingOrTurning() As Boolean
             Get
                 Return (movementOrTurningFlagsMask And movementFlags)
             End Get
         End Property
+
         Public Property isPvP() As Boolean
             Get
                 Return (cUnitFlags And UnitFlags.UNIT_FLAG_PVP)
@@ -1273,6 +1287,7 @@ Public Module WS_CharManagment
                 End If
             End Set
         End Property
+
         Public ReadOnly Property isResting() As Boolean
             Get
                 Return (cPlayerFlags And PlayerFlags.PLAYER_FLAG_RESTING)
@@ -1466,22 +1481,26 @@ Public Module WS_CharManagment
             UpdateMask.Set(pos, True)
             UpdateData(pos) = (CType(value, Integer))
         End Sub
+
         Public Sub SetUpdateFlag(ByVal pos As Integer, ByVal value As UInteger)
             UpdateMask.Set(pos, True)
             UpdateData(pos) = (CType(value, UInteger))
         End Sub
+
         Public Sub SetUpdateFlag(ByVal pos As Integer, ByVal value As Long)
             UpdateMask.Set(pos, True)
             UpdateMask.Set(pos + 1, True)
             UpdateData(pos) = (CType((value And UInteger.MaxValue), Integer))
             UpdateData(pos + 1) = (CType(((value >> 32) And UInteger.MaxValue), Integer))
         End Sub
+
         Public Sub SetUpdateFlag(ByVal pos As Integer, ByVal value As ULong)
             UpdateMask.Set(pos, True)
             UpdateMask.Set(pos + 1, True)
             UpdateData(pos) = (CType((value And UInteger.MaxValue), UInteger))
             UpdateData(pos + 1) = (CType(((value >> 32) And UInteger.MaxValue), UInteger))
         End Sub
+
         Public Sub SetUpdateFlag(ByVal pos As Integer, ByVal value As Single)
             UpdateMask.Set(pos, True)
             UpdateData(pos) = (CType(value, Single))
@@ -1513,6 +1532,7 @@ Public Module WS_CharManagment
                 End Try
             End If
         End Sub
+
         Public Sub SendUpdate()
             Dim updateCount As Integer = 1 + Items.Count
             If OnTransport IsNot Nothing Then updateCount += 1
@@ -1557,6 +1577,7 @@ Public Module WS_CharManagment
                 CType(OnTransport, TransportObject).CreateEveryoneOnTransport(Me)
             End If
         End Sub
+
         Public Sub SendItemUpdate(ByVal Item As ItemObject)
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             Try
@@ -1573,6 +1594,7 @@ Public Module WS_CharManagment
                 packet.Dispose()
             End Try
         End Sub
+
         Public Sub SendInventoryUpdate()
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             Try
@@ -1610,6 +1632,7 @@ Public Module WS_CharManagment
                 packet.Dispose()
             End Try
         End Sub
+
         Public Sub SendItemAndCharacterUpdate(ByVal Item As ItemObject, Optional ByVal UPDATETYPE As Integer = ObjectUpdateType.UPDATETYPE_VALUES)
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
@@ -1654,6 +1677,7 @@ Public Module WS_CharManagment
             Next
             SendCharacterUpdate(True, True)
         End Sub
+
         Public Sub SendCharacterUpdate(Optional ByVal toNear As Boolean = True, Optional ByVal notMe As Boolean = False)
             If UpdateData.Count = 0 Then Exit Sub
 
@@ -1687,6 +1711,7 @@ Public Module WS_CharManagment
                 packet.Dispose()
             End Try
         End Sub                                      'Sends update for character to him and near players
+
         Public Sub FillStatsUpdateFlags()
             SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Life.Maximum, Integer))
             SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1, CType(Mana.Maximum, Integer))
@@ -1752,6 +1777,7 @@ Public Module WS_CharManagment
             'SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + DamageTypes.DMG_SHADOW, Resistances(DamageTypes.DMG_SHADOW).NegativeBonus)
             'SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + DamageTypes.DMG_ARCANE, Resistances(DamageTypes.DMG_ARCANE).NegativeBonus)
         End Sub                                     'Used for this player's stats updates
+
         Public Sub FillAllUpdateFlags()
             Dim i As Byte
 
@@ -1961,6 +1987,7 @@ Public Module WS_CharManagment
             Next
 
         End Sub                                       'Used for this player's update packets
+
         Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)
             Dim i As Byte
 
@@ -2043,6 +2070,7 @@ Public Module WS_CharManagment
             Next
 
         End Sub                                       'Used for other players' update packets
+
         Public Sub PrepareUpdate(ByRef packet As PacketClass, Optional ByVal UPDATETYPE As Integer = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT)
             packet.AddInt8(UPDATETYPE)
             packet.AddPackGUID(Me.GUID)
@@ -4138,6 +4166,7 @@ CheckXPAgain:
 
             Client.Character.ZoneID = AreaTable(GetAreaFlag(posX, posY, Client.Character.MapID)).Zone
         End Sub
+
         Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
             Log.WriteLine(LogType.INFORMATION, "World: Player Transfer: X[{0}], Y[{1}], Z[{2}], O[{3}], MAP[{4}]", posX, posY, posZ, ori, map)
 
@@ -4170,6 +4199,7 @@ CheckXPAgain:
             'Do global transfer
             WorldServer.ClientTransfer(Client.Index, posX, posY, posZ, ori, map)
         End Sub
+
         Public Sub ZoneCheck()
             Dim ZoneFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
             If AreaTable.ContainsKey(ZoneFlag) = False Then
@@ -4247,6 +4277,7 @@ CheckXPAgain:
                 End If
             End If
         End Sub
+
         Public Enum ChangeSpeedType As Byte
             RUN
             RUNBACK
@@ -4254,6 +4285,7 @@ CheckXPAgain:
             SWIMBACK
             TURNRATE
         End Enum
+
         Public Sub ChangeSpeed(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
             Dim packet As PacketClass = Nothing
             Try
@@ -4321,6 +4353,7 @@ CheckXPAgain:
                 packet.Dispose()
             End Try
         End Sub
+
         Public Sub SetWaterWalk()
             Dim SMSG_MOVE_WATER_WALK As New PacketClass(OPCODES.SMSG_MOVE_WATER_WALK)
             Try
@@ -4331,6 +4364,7 @@ CheckXPAgain:
                 SMSG_MOVE_WATER_WALK.Dispose()
             End Try
         End Sub
+
         Public Sub SetLandWalk()
             Dim SMSG_MOVE_LAND_WALK As New PacketClass(OPCODES.SMSG_MOVE_LAND_WALK)
             Try
@@ -4341,6 +4375,7 @@ CheckXPAgain:
                 SMSG_MOVE_LAND_WALK.Dispose()
             End Try
         End Sub
+
         Public Sub SetMoveRoot()
             Dim SMSG_FORCE_MOVE_ROOT As New PacketClass(OPCODES.SMSG_FORCE_MOVE_ROOT)
             Try
@@ -4352,6 +4387,7 @@ CheckXPAgain:
             End Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_ROOT", Client.IP, Client.Port)
         End Sub
+
         Public Sub SetMoveUnroot()
             Dim SMSG_FORCE_MOVE_UNROOT As New PacketClass(OPCODES.SMSG_FORCE_MOVE_UNROOT)
             Try
@@ -4363,6 +4399,7 @@ CheckXPAgain:
             End Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_UNROOT", Client.IP, Client.Port)
         End Sub
+
         Public Sub StartMirrorTimer(ByVal Type As MirrorTimer, ByVal MaxValue As Integer)
             Dim SMSG_START_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
             Try
@@ -4378,6 +4415,7 @@ CheckXPAgain:
                 SMSG_START_MIRROR_TIMER.Dispose()
             End Try
         End Sub
+
         Public Sub ModifyMirrorTimer(ByVal Type As MirrorTimer, ByVal MaxValue As Integer, ByVal CurrentValue As Integer, ByVal Regen As Integer)
             'TYPE: 0 = fartigua 1 = breath 2 = fire
             Dim SMSG_START_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
@@ -4394,6 +4432,7 @@ CheckXPAgain:
                 SMSG_START_MIRROR_TIMER.Dispose()
             End Try
         End Sub
+
         Public Sub StopMirrorTimer(ByVal Type As MirrorTimer)
             Dim SMSG_STOP_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_STOP_MIRROR_TIMER)
             Try
@@ -4408,6 +4447,7 @@ CheckXPAgain:
             '    underWaterTimer = Nothing
             'End If
         End Sub
+
         Public Sub HandleDrowning(ByVal state As Object)
             Try
                 If positionZ > (GetWaterLevel(positionX, positionY, MapID) - 1.6) Then
@@ -4446,6 +4486,7 @@ CheckXPAgain:
                 End If
             End If
         End Sub
+
         Public Function GetReaction(ByVal FactionID As Integer) As TReaction
             If FactionTemplatesInfo.ContainsKey(FactionID) = False OrElse FactionTemplatesInfo.ContainsKey(Faction) = False Then Return TReaction.NEUTRAL
 
@@ -4488,6 +4529,7 @@ CheckXPAgain:
                 Return TReaction.NEUTRAL
             End If
         End Function
+
         Public Function GetReputationValue(ByVal FactionTemplateID As Integer) As Integer
             If Not FactionTemplatesInfo.ContainsKey(FactionTemplateID) Then Return ReputationRank.Neutral
             Dim FactionID As Integer = FactionTemplatesInfo(FactionTemplateID).FactionID
@@ -4512,6 +4554,7 @@ CheckXPAgain:
             End If
             Return points
         End Function
+
         Public Function GetReputation(ByVal FactionTemplateID As Integer) As ReputationRank
             If Not FactionTemplatesInfo.ContainsKey(FactionTemplateID) Then Return ReputationRank.Neutral
             Dim FactionID As Integer = FactionTemplatesInfo(FactionTemplateID).FactionID
@@ -4554,6 +4597,7 @@ CheckXPAgain:
                     Return ReputationRank.Hated
             End Select
         End Function
+
         Public Sub SetReputation(ByVal FactionID As Integer, ByVal Value As Integer)
             If FactionInfo(FactionID).VisibleID = -1 Then Exit Sub
 
@@ -4575,6 +4619,7 @@ CheckXPAgain:
                 End Try
             End If
         End Sub
+
         Public Function GetDiscountMod(ByVal FactionID As Integer) As Single
             Dim Rank As ReputationRank = GetReputation(FactionID)
             If Rank >= ReputationRank.Honored Then Return 0.9F
@@ -4643,6 +4688,7 @@ CheckXPAgain:
             'DONE: Save the character
             Save()
         End Sub
+
         Public Sub SendDeathReleaseLoc(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal MapID As Integer)
             'Show spirit healer position on minimap
             'Dim p As New PacketClass(OPCODES.SMSG_DEATH_RELEASE_LOC)
@@ -4718,6 +4764,7 @@ CheckXPAgain:
                 SendCharacterUpdate(True)
             End If
         End Sub
+
         Public Overrides Sub Heal(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
             If DEAD Then Exit Sub
 
@@ -4810,6 +4857,7 @@ CheckXPAgain:
                 Me.Dispose()
             End Try
         End Sub
+
         Public Sub Login()
             'DONE: Setting instance ID
             InstanceMapEnter(Me)
@@ -4873,6 +4921,7 @@ CheckXPAgain:
             FullyLoggedIn = True
             UpdateManaRegen()
         End Sub
+
         Public Sub UpdateAuraDurations()
             For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
@@ -4887,6 +4936,7 @@ CheckXPAgain:
                 End If
             Next i
         End Sub
+
         Public Sub SetOnTransport()
             If LoginTransport = 0UL Then Exit Sub
 
@@ -4934,6 +4984,7 @@ CheckXPAgain:
                 OnTransport = Nothing
             End If
         End Sub
+
         Public Sub SendProficiencies()
             Dim ProficiencyFlags As Integer = 0
             If HaveSpell(9125) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_MISC) 'Here using spell "Generic"
@@ -4977,7 +5028,7 @@ CheckXPAgain:
         Private disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
             If Not Me.disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -5092,6 +5143,7 @@ CheckXPAgain:
 DoneAmmo:
             End If
         End Sub
+
         Public Sub New()
             MyBase.New()
             Level = 1
@@ -5103,6 +5155,7 @@ DoneAmmo:
             Next
 
         End Sub
+
         Public Sub New(ByRef ClientVal As ClientClass, ByVal GuidVal As ULong)
             Dim i As Integer
 
@@ -5523,6 +5576,7 @@ DoneAmmo:
 
             HonorSaveAsNew()
         End Sub
+
         Public Sub Save()
             Me.SaveCharacter()
 
@@ -5530,6 +5584,7 @@ DoneAmmo:
                 Item.Value.Save()
             Next
         End Sub
+
         Public Sub SaveCharacter()
             Dim tmp As String = "UPDATE characters SET"
 
@@ -5652,6 +5707,7 @@ DoneAmmo:
             tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
             CharacterDatabase.Update(tmp)
         End Sub
+
         Public Sub SavePosition()
             Dim tmp As String = "UPDATE characters SET"
 
@@ -5672,16 +5728,19 @@ DoneAmmo:
                 Return (Group IsNot Nothing)
             End Get
         End Property
+
         Public ReadOnly Property IsInRaid() As Boolean
             Get
                 Return ((Group IsNot Nothing) AndAlso (Group.Type = GroupType.RAID))
             End Get
         End Property
+
         Public ReadOnly Property IsGroupLeader() As Boolean
             Get
                 Return (Group.Leader = GUID)
             End Get
         End Property
+
         Public Sub GroupUpdate()
             If Group Is Nothing Then Exit Sub
             If GroupUpdateFlag = 0 Then Exit Sub
@@ -5689,6 +5748,7 @@ DoneAmmo:
             GroupUpdateFlag = 0
             If Not Packet Is Nothing Then Group.Broadcast(Packet)
         End Sub
+
         Public Sub GroupUpdate(ByVal Flag As Integer)
             If Group Is Nothing Then Exit Sub
             Dim Packet As PacketClass = BuildPartyMemberStats(Me, Flag)
@@ -5715,6 +5775,7 @@ DoneAmmo:
                 Return (Not (DuelPartner Is Nothing))
             End Get
         End Property
+
         Public Sub StartDuel()
             Thread.Sleep(DUEL_COUNTDOWN)
             If DuelArbiter = 0 Then Exit Sub
@@ -5765,6 +5826,7 @@ DoneAmmo:
 
             Return False
         End Function
+
         Public Function TalkDeleteQuest(ByVal QuestSlot As Byte) As Boolean
             If TalkQuests(QuestSlot) Is Nothing Then
                 Return False
@@ -5803,6 +5865,7 @@ DoneAmmo:
                 Return True
             End If
         End Function
+
         Public Function TalkUpdateQuest(ByVal QuestSlot As Byte) As Boolean
             If TalkQuests(QuestSlot) Is Nothing Then
                 Return False
@@ -5821,6 +5884,7 @@ DoneAmmo:
                 Return True
             End If
         End Function
+
         Public Function TalkCanAccept(ByRef Quest As WS_QuestInfo) As Boolean
 
             Dim DBResult As New DataTable
@@ -5888,12 +5952,14 @@ DoneAmmo:
 
             Return True
         End Function
+
         Public Function IsQuestCompleted(ByVal QuestID As Integer) As Boolean
             Dim q As New DataTable
             CharacterDatabase.Query(String.Format("SELECT quest_id FROM characters_quests WHERE char_guid = {0} AND quest_status = -1 AND quest_id = {1};", GUID, QuestID), q)
 
             Return q.Rows.Count <> 0
         End Function
+
         Public Function IsQuestInProgress(ByVal QuestID As Integer) As Boolean
             Dim i As Integer
             For i = 0 To QUEST_SLOTS
@@ -5933,6 +5999,7 @@ DoneAmmo:
                 SMSG_LOG_XPGAIN.Dispose()
             End Try
         End Sub
+
         Public Sub LogHonorGain(ByVal Ammount As Integer, Optional ByVal VictimGUID As ULong = 0, Optional ByVal VictimRANK As Byte = 0)
             Dim SMSG_PVP_CREDIT As New PacketClass(OPCODES.SMSG_PVP_CREDIT)
             Try
@@ -5944,6 +6011,7 @@ DoneAmmo:
                 SMSG_PVP_CREDIT.Dispose()
             End Try
         End Sub
+
         Public Sub LogLootItem(ByVal Item As ItemObject, ByVal ItemCount As Byte, ByVal Recieved As Boolean, ByVal Created As Boolean)
             Dim response As New PacketClass(OPCODES.SMSG_ITEM_PUSH_RESULT)
             Try
@@ -5968,6 +6036,7 @@ DoneAmmo:
                 response.Dispose()
             End Try
         End Sub
+
         Public Sub LogEnvironmentalDamage(ByVal dmgType As DamageTypes, ByVal Damage As Integer)
             Dim SMSG_ENVIRONMENTALDAMAGELOG As New PacketClass(OPCODES.SMSG_ENVIRONMENTALDAMAGELOG)
             Try
@@ -5982,6 +6051,7 @@ DoneAmmo:
                 SMSG_ENVIRONMENTALDAMAGELOG.Dispose()
             End Try
         End Sub
+
         Public ReadOnly Property Side() As Boolean
             Get
                 Select Case Race
@@ -5992,6 +6062,7 @@ DoneAmmo:
                 End Select
             End Get
         End Property
+
         Public ReadOnly Property Team() As Integer
             Get
                 Select Case Race
@@ -6002,6 +6073,7 @@ DoneAmmo:
                 End Select
             End Get
         End Property
+
         Public Function GetStealthDistance(ByRef c As BaseUnit) As Single
             Dim VisibleDistance As Single = 10.5 - (Me.Invisibility_Value / 100)
             VisibleDistance += CInt(c.Level) - CInt(Me.Level)
@@ -6051,6 +6123,7 @@ DoneAmmo:
         LOGOUT_RESPONSE_ACCEPTED = &H0
         LOGOUT_RESPONSE_DENIED = &HC
     End Enum
+
     Public Sub On_CMSG_LOGOUT_REQUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_REQUEST", Client.IP, Client.Port)
         Client.Character.Save()
@@ -6101,9 +6174,6 @@ DoneAmmo:
             End Try
         End If
 
-
-
-
         'DONE: Let the client to exit
         Dim SMSG_LOGOUT_RESPONSE As New PacketClass(OPCODES.SMSG_LOGOUT_RESPONSE)
         Try
@@ -6126,6 +6196,7 @@ DoneAmmo:
             Client.Character.LogoutTimer = New Threading.Timer(AddressOf Client.Character.Logout, Nothing, 20000, Timeout.Infinite)
         End If
     End Sub
+
     Public Sub On_CMSG_LOGOUT_CANCEL(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_CANCEL", Client.IP, Client.Port)
@@ -6138,8 +6209,6 @@ DoneAmmo:
             Catch
             End Try
 
-
-
             'DONE: Initialize packet
             Dim UpdateData As New UpdateClass
             Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
@@ -6150,6 +6219,7 @@ DoneAmmo:
                 'DONE: Enable turn
                 Client.Character.cUnitFlags = Client.Character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_STUNTED)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
+
                 'DONE: StandState -> Stand
                 Client.Character.StandState = StandStates.STANDSTATE_STAND
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
@@ -6246,7 +6316,6 @@ DoneAmmo:
         Return True
     End Function
 
-
 #End Region
 
 #Region "WS.CharMangment.CreateCharacter"
@@ -6342,6 +6411,7 @@ DoneAmmo:
 
         Return AuthResponseCodes.CHAR_CREATE_SUCCESS
     End Function
+
     Public Sub CreateCharacter(ByRef c As CharacterObject)
         Dim CreateInfo As New DataTable
         Dim CreateInfoBars As New DataTable
@@ -6446,6 +6516,7 @@ DoneAmmo:
         Next
 
     End Sub
+
     Public Sub CreateCharacterSpells(ByRef c As CharacterObject)
         Dim CreateInfoSpells As New DataTable
 
@@ -6459,6 +6530,7 @@ DoneAmmo:
             c.LearnSpell(SpellRow.Item("Spell"))
         Next
     End Sub
+
     Public Sub CreateCharacterItems(ByRef c As CharacterObject)
 
         Dim CreateInfoItems As New DataTable
@@ -6511,6 +6583,5 @@ NextItem:
     End Sub
 
 #End Region
-
 
 End Module

@@ -412,6 +412,7 @@ Public Enum SpellLogTypes As Integer
     NON_MELEE = 0
 
 End Enum
+
 Public Enum StandStates As Byte
     STANDSTATE_STAND = 0
     STANDSTATE_SIT = 1
@@ -423,6 +424,7 @@ Public Enum StandStates As Byte
     STANDSTATE_DEAD = 7
     STANDSTATE_KNEEL = 8
 End Enum
+
 Public Enum HonorRank As Byte
     NoRank = 0
     Pariah = 1
@@ -445,10 +447,12 @@ Public Enum HonorRank As Byte
     GrandMarshal = 18
     Leader = 19
 End Enum
+
 Public Enum XPSTATE As Byte
     Normal = 2
     Rested = 1
 End Enum
+
 Public Enum ReputationRank As Byte
     Hated = 0
     Hostile = 1
@@ -459,6 +463,7 @@ Public Enum ReputationRank As Byte
     Revered = 6
     Exalted = 7
 End Enum
+
 Public Enum ReputationPoints
     MIN = Integer.MinValue
     Hated = -42000
@@ -524,6 +529,7 @@ Public Enum GroupType As Byte
     PARTY = 0
     RAID = 1
 End Enum
+
 <Flags()> _
 Public Enum GroupMemberOnlineStatus
     MEMBER_STATUS_OFFLINE = &H0
@@ -536,10 +542,12 @@ Public Enum GroupMemberOnlineStatus
     MEMBER_STATUS_UNK4 = &H40           ' appears with dead and ghost flags
     MEMBER_STATUS_UNK5 = &H80           ' never seen
 End Enum
+
 Public Enum GroupDungeonDifficulty As Byte
     DIFFICULTY_NORMAL = 0
     DIFFICULTY_HEROIC = 1
 End Enum
+
 Public Enum GroupLootMethod As Byte
     LOOT_FREE_FOR_ALL = 0
     LOOT_ROUND_ROBIN = 1
@@ -547,6 +555,7 @@ Public Enum GroupLootMethod As Byte
     LOOT_GROUP = 3
     LOOT_NEED_BEFORE_GREED = 4
 End Enum
+
 Public Enum GroupLootThreshold As Byte
     Uncommon = 2
     Rare = 3
@@ -572,6 +581,7 @@ Public Enum LANGUAGES As Integer
     LANG_TROLL = 14
     LANG_GUTTERSPEAK = 33
 End Enum
+
 Public Enum ChatMsg As Integer
     CHAT_MSG_SAY = &H0
     CHAT_MSG_PARTY = &H1
@@ -601,6 +611,7 @@ Public Enum ChatMsg As Integer
     CHAT_MSG_RAID_LEADER = &H57
     CHAT_MSG_RAID_WARNING = &H58
 End Enum
+
 <Flags()> _
 Public Enum ChatFlag As Byte
     FLAG_NONE = 0
@@ -626,6 +637,7 @@ Public Enum DynamicFlags   'Dynamic flags for units
     'Unit falls on the ground and shows like dead
     UNIT_DYNFLAG_DEAD = &H20
 End Enum
+
 Public Enum UnitFlags   'Flags for units
     UNIT_FLAG_NONE = &H0
     UNIT_FLAG_UNK1 = &H1
@@ -663,6 +675,7 @@ Public Enum UnitFlags   'Flags for units
     UNIT_FLAG_SPIRITHEALER = UNIT_FLAG_UNK21 + UNIT_FLAG_NOT_ATTACKABLE + UNIT_FLAG_DISABLE_MOVE + UNIT_FLAG_RESTING + UNIT_FLAG_UNK5
     UNIT_FLAG_SHEATHE = &H40000000
 End Enum
+
 Public Enum NPCFlags
     UNIT_NPC_FLAG_NONE = &H0
     UNIT_NPC_FLAG_GOSSIP = &H1
@@ -704,6 +717,7 @@ Public Enum UNIT_TYPE
     MECHANICAL = 9
     MOUNT = 10
 End Enum
+
 Public Enum CREATURE_FAMILY As Integer
     NONE = 0
     WOLF = 1
@@ -729,6 +743,7 @@ Public Enum CREATURE_FAMILY As Integer
     OWL = 26
     WIND_SERPENT = 27
 End Enum
+
 Public Enum CREATURE_ELITE As Integer
     NORMAL = 0
     ELITE = 1
@@ -752,6 +767,7 @@ Public Enum InvalidReason
     ReadyHaveThatQuest = 13
     ReadyHaveTimedQuest = 12
 End Enum
+
 Public Enum Attributes
     Agility = 3
     Health = 1
@@ -761,6 +777,7 @@ Public Enum Attributes
     Stamina = 7
     Strenght = 4
 End Enum
+
 Public Enum Slots
     ' Fields
     Back = 14
@@ -799,6 +816,7 @@ Public Enum Slots
     Waist = 5
     Wrists = 8
 End Enum
+
 Public Enum EnviromentalDamage
     DAMAGE_EXHAUSTED = 0
     DAMAGE_DROWNING = 1
@@ -808,16 +826,17 @@ Public Enum EnviromentalDamage
     DAMAGE_FIRE = 5
 End Enum
 
-
 Public Enum MapTypes As Integer
     MAP_COMMON = 0
     MAP_INSTANCE = 1
     MAP_RAID = 2
     MAP_BATTLEGROUND = 3
 End Enum
+
 Public Enum BattlefieldType
     TYPE_BATTLEGROUND = 3
 End Enum
+
 Public Enum BattlefieldMapType As Byte
     BATTLEGROUND_AlteracValley = 1
     BATTLEGROUND_WarsongGulch = 2

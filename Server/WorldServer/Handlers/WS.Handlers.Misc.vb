@@ -53,9 +53,6 @@ Public Module WS_Handlers_Misc
 
     End Function
 
-
-
-
     Public Sub On_CMSG_NAME_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Try
             If (packet.Data.Length - 1) < 13 Then Exit Sub
@@ -148,6 +145,7 @@ Public Module WS_Handlers_Misc
         Client.Character.TutorialFlags((Flag \ 8)) = Client.Character.TutorialFlags((Flag \ 8)) + (1 << 7 - (Flag Mod 8))
         Client.Character.SaveCharacter()
     End Sub
+
     Public Sub On_CMSG_TUTORIAL_CLEAR(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_CLEAR", Client.IP, Client.Port)
 
@@ -157,6 +155,7 @@ Public Module WS_Handlers_Misc
         Next
         Client.Character.SaveCharacter()
     End Sub
+
     Public Sub On_CMSG_TUTORIAL_RESET(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_RESET", Client.IP, Client.Port)
 
@@ -166,6 +165,7 @@ Public Module WS_Handlers_Misc
         Next
         Client.Character.SaveCharacter()
     End Sub
+
     Public Sub On_CMSG_TOGGLE_HELM(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_HELM", Client.IP, Client.Port)
 
@@ -178,6 +178,7 @@ Public Module WS_Handlers_Misc
         Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, Client.Character.cPlayerFlags)
         Client.Character.SendCharacterUpdate(True)
     End Sub
+
     Public Sub On_CMSG_TOGGLE_CLOAK(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_CLOAK", Client.IP, Client.Port)
 
@@ -190,6 +191,7 @@ Public Module WS_Handlers_Misc
         Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, Client.Character.cPlayerFlags)
         Client.Character.SendCharacterUpdate(True)
     End Sub
+
     Public Sub On_CMSG_SET_ACTIONBAR_TOGGLES(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ActionBar As Byte = packet.GetInt8
@@ -201,6 +203,7 @@ Public Module WS_Handlers_Misc
         Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BYTES, Client.Character.cPlayerFieldBytes)
         Client.Character.SendCharacterUpdate(True)
     End Sub
+
     Public Sub On_CMSG_MOUNTSPECIAL_ANIM(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOUNTSPECIAL_ANIM", Client.IP, Client.Port)
 
@@ -212,6 +215,7 @@ Public Module WS_Handlers_Misc
             response.Dispose()
         End Try
     End Sub
+
     Public Sub On_CMSG_EMOTE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
@@ -227,6 +231,7 @@ Public Module WS_Handlers_Misc
             response.Dispose()
         End Try
     End Sub
+
     Public Sub On_CMSG_TEXT_EMOTE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
@@ -318,6 +323,7 @@ Public Module WS_Handlers_Misc
             MSG_MINIMAP_PING.Dispose()
         End Try
     End Sub
+
     Public Sub On_CMSG_REPOP_REQUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPOP_REQUEST [GUID={2:X}]", Client.IP, Client.Port, Client.Character.GUID)
         If Client.Character.repopTimer IsNot Nothing Then
@@ -326,6 +332,7 @@ Public Module WS_Handlers_Misc
         End If
         CharacterRepop(Client)
     End Sub
+
     Public Sub On_CMSG_RECLAIM_CORPSE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -334,6 +341,7 @@ Public Module WS_Handlers_Misc
 
         CharacterResurrect(Client.Character)
     End Sub
+
     Public Sub CharacterRepop(ByRef Client As ClientClass)
         Try
             'DONE: Make really dead
@@ -396,6 +404,7 @@ Public Module WS_Handlers_Misc
             Log.WriteLine(LogType.FAILED, "Error on repop: {0}", e.ToString)
         End Try
     End Sub
+
     Public Sub CharacterResurrect(ByRef Character As CharacterObject)
         If Character.repopTimer IsNot Nothing Then
             Character.repopTimer.Dispose()
