@@ -23,9 +23,7 @@ Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Combat
 
-
 #Region "WS.Combat.Constants"
-
 
     Public Enum ProcFlags
         PROC_FLAG_NONE = &H0                            ' None
@@ -70,8 +68,8 @@ Public Module WS_Combat
     End Enum
 
 #End Region
-#Region "WS.Combat.Calculations"
 
+#Region "WS.Combat.Calculations"
 
     Public Sub DoEmote(ByVal AnimationID As Integer, ByRef Unit As BaseObject)
         'EMOTE_ONESHOT_WOUNDCRITICAL
@@ -85,6 +83,7 @@ Public Module WS_Combat
         Unit.SendToNearPlayers(packet)
         packet.Dispose()
     End Sub
+
     Public Function GetWeaponDmg(ByRef c As CharacterObject, ByVal AttackType As WeaponAttackType, ByVal MaxDmg As Boolean) As Single
         Dim WepSlot As Byte
         Select Case AttackType
@@ -97,6 +96,7 @@ Public Module WS_Combat
             Case Else
                 Return 0
         End Select
+
         If c.Items.ContainsKey(WepSlot) = False OrElse c.Items(WepSlot).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON OrElse c.Items(WepSlot).IsBroken Then Return 0.0F
 
         Dim Dmg As Single = 0
@@ -109,6 +109,7 @@ Public Module WS_Combat
         Next
         Return Dmg
     End Function
+
     Public Function GetAPMultiplier(ByRef c As BaseUnit, ByVal AttackType As WeaponAttackType, ByVal Normalized As Boolean) As Single
         If Normalized = False OrElse (Not TypeOf c Is CharacterObject) Then
             Select Case AttackType
@@ -135,6 +136,7 @@ Public Module WS_Combat
             Case Else
                 Return 0.0F
         End Select
+
         If Weapon Is Nothing OrElse Weapon.ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON Then
             If AttackType = WeaponAttackType.RANGED_ATTACK Then Return 0.0F
             Return 2.4F
@@ -150,6 +152,7 @@ Public Module WS_Combat
                 Return 2.4F
         End Select
     End Function
+
     Public Sub CalculateMinMaxDamage(ByRef c As CharacterObject, ByVal AttackType As WeaponAttackType)
         Dim AttSpeed As Single = GetAPMultiplier(c, AttackType, True)
         Dim BaseValue As Single = 0
@@ -199,6 +202,7 @@ Public Module WS_Combat
                 c.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXRANGEDDAMAGE, c.RangedDamage.Maximum)
         End Select
     End Sub
+
     Public Function CalculateDamage(ByRef Attacker As BaseUnit, ByRef Victim As BaseUnit, ByVal DualWield As Boolean, ByVal Ranged As Boolean, Optional ByVal Ability As SpellInfo = Nothing, Optional ByVal Effect As SpellEffect = Nothing) As DamageInfo
         Dim result As DamageInfo
 
@@ -418,6 +422,7 @@ Public Module WS_Combat
 
         Return 0
     End Function
+
     Public Function GetBasePercentParry(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
         'http://www.wowwiki.com/Formulas:Parry
 
@@ -430,6 +435,7 @@ Public Module WS_Combat
 
         Return 0
     End Function
+
     Public Function GetBasePercentBlock(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
         'http://www.wowwiki.com/Formulas:Block
 
@@ -442,6 +448,7 @@ Public Module WS_Combat
 
         Return 0
     End Function
+
     Public Function GetBasePercentMiss(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
         'http://www.wowwiki.com/Miss
 
@@ -476,6 +483,7 @@ Public Module WS_Combat
         'Base Miss chance
         Return 5 - skillDiference * 0.04F
     End Function
+
     Public Function GetBasePercentCrit(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
         '5% base critical chance
 
@@ -512,15 +520,19 @@ Public Module WS_Combat
     Public Function GetDistance(ByVal Object1 As BaseObject, ByVal Object2 As BaseObject) As Single
         Return GetDistance(Object1.positionX, Object2.positionX, Object1.positionY, Object2.positionY, Object1.positionZ, Object2.positionZ)
     End Function
+
     Public Function GetDistance(ByVal Object1 As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Single
         Return GetDistance(Object1.positionX, x2, Object1.positionY, y2, Object1.positionZ, z2)
     End Function
+
     Public Function GetDistance(ByVal x1 As Single, ByVal x2 As Single, ByVal y1 As Single, ByVal y2 As Single, ByVal z1 As Single, ByVal z2 As Single) As Single
         Return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2))
     End Function
+
     Public Function GetDistance(ByVal x1 As Single, ByVal x2 As Single, ByVal y1 As Single, ByVal y2 As Single) As Single
         Return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
     End Function
+
     Public Function GetOrientation(ByVal x1 As Single, ByVal x2 As Single, ByVal y1 As Single, ByVal y2 As Single) As Single
         Dim angle As Single = Math.Atan2(y2 - y1, x2 - x1)
 
@@ -529,9 +541,11 @@ Public Module WS_Combat
         End If
         Return angle
     End Function
+
     Public Function IsInFrontOf(ByRef Object1 As BaseObject, ByRef Object2 As BaseObject) As Boolean
         Return IsInFrontOf(Object1, Object2.positionX, Object2.positionY)
     End Function
+
     Public Function IsInFrontOf(ByRef Object1 As BaseObject, ByVal x2 As Single, ByVal y2 As Single) As Boolean
         Dim angle2 As Single = GetOrientation(Object1.positionX, x2, Object1.positionY, y2)
         Dim lowAngle As Single = Object1.orientation - 1.04719758F
@@ -542,9 +556,11 @@ Public Module WS_Combat
         End If
         Return (angle2 >= lowAngle) And (angle2 <= hiAngle)
     End Function
+
     Public Function IsInBackOf(ByRef Object1 As BaseObject, ByRef Object2 As BaseObject) As Boolean
         Return IsInBackOf(Object1, Object2.positionX, Object2.positionY)
     End Function
+
     Public Function IsInBackOf(ByRef Object1 As BaseObject, ByVal x2 As Single, ByVal y2 As Single) As Boolean
         Dim angle2 As Single = GetOrientation(x2, Object1.positionX, y2, Object1.positionY)
         Dim lowAngle As Single = Object1.orientation - 1.04719758F
@@ -589,6 +605,7 @@ Public Module WS_Combat
 
         Return CInt(c.Level) * 5
     End Function
+
     Public Function GetSkillDefence(ByRef c As BaseUnit) As Integer
         If TypeOf c Is CharacterObject Then
             CType(c, CharacterObject).UpdateSkill(SKILL_IDs.SKILL_DEFENSE, 0.01)
@@ -596,6 +613,7 @@ Public Module WS_Combat
         End If
         Return CInt(c.Level) * 5
     End Function
+
     Public Function GetAttackTime(ByRef c As CharacterObject, ByRef combatDualWield As Boolean) As Integer
         Select Case c.attackSheathState
             Case SHEATHE_SLOT.SHEATHE_NONE
@@ -612,6 +630,7 @@ Public Module WS_Combat
                 Return c.AttackTime(2)
         End Select
     End Function
+
     Public Sub GetDamage(ByRef c As BaseUnit, ByVal DualWield As Boolean, ByRef result As DamageInfo)
         If TypeOf c Is CharacterObject Then
             With CType(c, CharacterObject)
@@ -645,8 +664,8 @@ Public Module WS_Combat
         End If
     End Sub
 
-
 #End Region
+
 #Region "WS.Combat.Framework"
 
     Public Enum SwingTypes As Byte
@@ -654,6 +673,7 @@ Public Module WS_Combat
         SINGLEHANDEDSWING = 1
         TWOHANDEDSWING = 2
     End Enum
+
     Public Enum AttackVictimState As Integer
         VICTIMSTATE_UNKNOWN1 = 0
         VICTIMSTATE_NORMAL = 1
@@ -665,6 +685,7 @@ Public Module WS_Combat
         VICTIMSTATE_IS_IMMUNE = 7
         VICTIMSTATE_DEFLECTS = 8
     End Enum
+
     Public Enum AttackHitState As Integer
 
         HIT_UNARMED = HITINFO_NORMALSWING
@@ -696,6 +717,7 @@ Public Module WS_Combat
         HITINFO_NOACTION = &H10000
         HITINFO_SWINGNOHITSOUND = &H80000
     End Enum
+
     Structure DamageInfo
         Public Damage As Integer
         Public DamageType As DamageTypes
@@ -758,6 +780,7 @@ Public Module WS_Combat
             Victim = Victim_
             Character = Character_
         End Sub
+
         Public Sub New(ByRef Character_ As CharacterObject)
             NextAttackTimer = New Threading.Timer(AddressOf DoAttack, Nothing, Timeout.Infinite, Timeout.Infinite)
             Character = Character_
@@ -771,6 +794,7 @@ Public Module WS_Combat
             Victim = Nothing
             Ranged = False
         End Sub
+
         Public Sub AttackStart(Optional ByVal Victim_ As BaseUnit = Nothing)
             If Victim Is Nothing Then
                 Victim = Victim_
@@ -793,6 +817,7 @@ Public Module WS_Combat
                 NextAttackTimer.Change((timeGetTime("") - LastAttack), Timeout.Infinite)
             End If
         End Sub
+
         Public Sub DoAttack(ByVal Status As Object)
             'DONE: Stop attacking when there's no victim
             If Victim Is Nothing Then
@@ -813,6 +838,7 @@ Public Module WS_Combat
                 Log.WriteLine(LogType.CRITICAL, "Error doing attack.{0}{1}", vbNewLine, ex.ToString)
             End Try
         End Sub
+
         Public Sub DoMeleeAttack(ByVal Status As Object)
             If Victim Is Nothing Then
                 Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
@@ -1057,6 +1083,7 @@ Public Module WS_Combat
             Victim.DealDamage(damageInfo.GetDamage, Character)
             If Victim Is Nothing OrElse Victim.isDead Then AttackStop()
         End Sub
+
         Public Sub DoRangedDamage()
             Dim Targets As New SpellTargets
             Targets.SetTarget_UNIT(Victim)
@@ -1109,6 +1136,7 @@ Public Module WS_Combat
                 Character.SendCharacterUpdate(True)
             End If
         End Sub
+
         Public combatNextAttack As New AutoResetEvent(False)
         Public combatNextAttackSpell As Boolean = False
 
@@ -1121,6 +1149,7 @@ Public Module WS_Combat
 
         c.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT)
     End Sub
+
     Public Sub SetPlayerOutOfCombat(ByRef c As CharacterObject)
         c.cUnitFlags = c.cUnitFlags And (Not UnitFlags.UNIT_FLAG_IN_COMBAT)
         c.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, c.cUnitFlags)
@@ -1128,6 +1157,7 @@ Public Module WS_Combat
     End Sub
 
 #End Region
+
 #Region "WS.Combat.Handlers"
 
     Public Sub On_CMSG_SET_SELECTION(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -1137,6 +1167,7 @@ Public Module WS_Combat
         Client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, Client.Character.TargetGUID)
         Client.Character.SendCharacterUpdate()
     End Sub
+
     Public Sub On_CMSG_ATTACKSWING(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -1162,6 +1193,7 @@ Public Module WS_Combat
             SendAttackStop(Client.Character.GUID, GUID, Client)
         End If
     End Sub
+
     Public Sub On_CMSG_ATTACKSTOP(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Try
             packet.GetInt16()
@@ -1173,6 +1205,7 @@ Public Module WS_Combat
             Log.WriteLine(LogType.FAILED, "Error stopping attack: {0}", e.ToString)
         End Try
     End Sub
+
     Public Sub On_CMSG_SET_AMMO(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
@@ -1301,6 +1334,7 @@ Public Module WS_Combat
         Client.Character.SendToNearPlayers(SMSG_ATTACKSTOP)
         SMSG_ATTACKSTOP.Dispose()
     End Sub
+
     Public Sub SendAttackStart(ByVal attackerGUID As ULong, ByVal victimGUID As ULong, Optional ByRef Client As ClientClass = Nothing)
         Dim SMSG_ATTACKSTART As New PacketClass(OPCODES.SMSG_ATTACKSTART)
         SMSG_ATTACKSTART.AddUInt64(attackerGUID)
@@ -1344,8 +1378,6 @@ Public Module WS_Combat
         packet.Dispose()
     End Sub
 
-
 #End Region
-
 
 End Module
