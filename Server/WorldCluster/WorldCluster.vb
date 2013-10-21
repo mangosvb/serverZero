@@ -252,11 +252,39 @@ Public Module WorldCluster
         AddHandler AccountDatabase.SQLMessage, AddressOf AccountSQLEventHandler
         AddHandler CharacterDatabase.SQLMessage, AddressOf CharacterSQLEventHandler
         AddHandler WorldDatabase.SQLMessage, AddressOf WorldSQLEventHandler
-        AccountDatabase.Connect()
+
+        Dim ReturnValues As Integer
+        ReturnValues = AccountDatabase.Connect()
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
         AccountDatabase.Update("SET NAMES 'utf8';")
-        CharacterDatabase.Connect()
+
+        ReturnValues = CharacterDatabase.Connect()
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
         CharacterDatabase.Update("SET NAMES 'utf8';")
-        WorldDatabase.Connect()
+
+        ReturnValues = WorldDatabase.Connect()
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
         WorldDatabase.Update("SET NAMES 'utf8';")
 
 #If DEBUG Then
@@ -270,8 +298,11 @@ Public Module WorldCluster
         WorldServer = New WorldServerClass
         GC.Collect()
 
-        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High
-        Log.WriteLine(LogType.WARNING, "Setting Process Priority to HIGH..[done]")
+        If Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High Then
+            Log.WriteLine(LogType.WARNING, "Setting Process Priority to HIGH..[done]")
+        Else
+            Log.WriteLine(LogType.WARNING, "Setting Process Priority to NORMAL..[done]")
+        End If
 
         Log.WriteLine(LogType.INFORMATION, "Load Time: {0}", Format(DateDiff(DateInterval.Second, dateTimeStarted, Now), "0 seconds"))
         Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))

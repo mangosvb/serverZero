@@ -318,14 +318,45 @@ Public Module WS_Main
         AddHandler AccountDatabase.SQLMessage, AddressOf AccountSQLEventHandler
         AddHandler CharacterDatabase.SQLMessage, AddressOf CharacterSQLEventHandler
         AddHandler WorldDatabase.SQLMessage, AddressOf WorldSQLEventHandler
-        AccountDatabase.Connect()
+
+        Dim ReturnValues As Integer
+        ReturnValues = AccountDatabase.Connect()
+        If ReturnValues > Common.SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
         AccountDatabase.Update("SET NAMES 'utf8';")
-        CharacterDatabase.Connect()
+
+        ReturnValues = CharacterDatabase.Connect()
+        If ReturnValues > Common.SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
         CharacterDatabase.Update("SET NAMES 'utf8';")
-        WorldDatabase.Connect()
+
+        ReturnValues = WorldDatabase.Connect()
+        If ReturnValues > Common.SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
         WorldDatabase.Update("SET NAMES 'utf8';")
 
 #If DEBUG Then
+        Console.ForegroundColor = System.ConsoleColor.White
+        Log.WriteLine(LogType.INFORMATION, "Running from: {0}", System.AppDomain.CurrentDomain.BaseDirectory)
+        Console.ForegroundColor = System.ConsoleColor.Gray
         Log.WriteLine(LogType.DEBUG, "Setting MySQL into debug mode..[done]")
         AccountDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
         CharacterDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
@@ -357,7 +388,7 @@ Public Module WS_Main
         End If
 
         Log.WriteLine(LogType.INFORMATION, " Load Time:   {0}", Format(DateDiff(DateInterval.Second, dateTimeStarted, Now), "0 seconds"))
-        Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
+        Log.WriteLine(LogType.INFORMATION, " Used Memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
 
         WaitConsoleCommand()
 
