@@ -12,7 +12,6 @@ Namespace Scripts
         Private Const Serpent_Form_CD As Integer = 40000
         Private Const Lightning_Bolt_CD As Integer = 6000
 
-
         ' Private Const Slumber_Spell As Integer = 8040
         Private Const Healing_Spell As Integer = 23381
         Private Const Spell_Serpent_Form As Integer = 8041 'Not sure how this will work. 
@@ -26,10 +25,8 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
         Public Overrides Sub OnThink()

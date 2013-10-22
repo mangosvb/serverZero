@@ -13,7 +13,6 @@ Namespace Scripts
         Private Const Ignite_CD As Integer = 30000
         Private Const Living_Bomb_CD As Integer = 35000
 
-
         Private Const Spell_Inferno As Integer = 19695
         Private Const Spell_Ignite As Integer = 19659 'Drains a random targets mana.
         Private Const Spell_Living_Bomb As Integer = 20475
@@ -24,7 +23,6 @@ Namespace Scripts
         Public NextInferno As Integer = 0
         Public NextIgnite As Integer = 0
         Public NextLivingBomb As Integer = 0
-
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)

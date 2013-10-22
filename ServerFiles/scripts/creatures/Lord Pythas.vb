@@ -26,10 +26,8 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
         Public Overrides Sub OnEnterCombat()
@@ -49,7 +47,7 @@ Namespace Scripts
             End If
             If NextSlumber <= 0 Then
                 NextSlumber = SLUMBER_CD
-                aiCreature.CastSpell(Slumber_Spell, aiTarget) ' Not sure if its supposed to take a random target, stays like this for now.
+                aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget) ' Not sure if its supposed to take a random target, stays like this for now.
             End If
             If NextThunderClap <= 0 Then
                 NextThunderClap = Thunder_Clap_CD
@@ -66,10 +64,10 @@ Namespace Scripts
         End Sub
         Public Sub CastSlumber()
             For i As Integer = 1 To 3
-                Dim target As BaseUnit = aiCreature
+                Dim target As BaseUnit = aiCreature.GetRandomTarget
                 If target Is Nothing Then Exit Sub
             Next
-            aiCreature.CastSpell(Slumber_Spell, aiTarget)
+            aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget)
         End Sub
         Public Sub CastThunderClap()
             For i As Integer = 2 To 3

@@ -8,7 +8,6 @@ Namespace Scripts
 
         Private Const AI_UPDATE As Integer = 1000
         Private Const ACID_COOLDOWN As Integer = 10000
-
         Private Const ACID_SPELL As Integer = 18070
 
         Public NextWaypoint As Integer = 0
@@ -17,14 +16,11 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
         Public Overrides Sub OnThink()
-
             NextAcid -= AI_UPDATE
 
             If NextAcid <= 0 Then
@@ -32,7 +28,7 @@ Namespace Scripts
                 aiCreature.CastSpell(ACID_SPELL, aiTarget) 'Earthborer Acid
             End If
         End Sub
-
+		
         Public Sub CastAcid()
             For i As Integer = 0 To 3
                 Dim Target As BaseUnit = aiCreature

@@ -16,10 +16,8 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
         Public Overrides Sub OnThink()

@@ -12,6 +12,7 @@ Namespace Scripts
 
         Private Const Spell_Knockdown As Integer = 16790 'The spell is defined here. This is the equivilent of a MaNGOS C++ enumerator. This should work for NPCs and healing spells too.
         Private Const Frost_Armor As Integer = 7302 'Self buff.
+		
         Public NextWaypoint As Integer = 0
         Public NextKnockdown As Integer = 0 'This will be called later, this is only needed along with the CD if you plan to have it recasted.
         Public CurrentWaypoint As Integer = 0

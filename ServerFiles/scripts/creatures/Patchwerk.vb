@@ -27,33 +27,27 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             Phase = 0
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
 
         Public Overrides Sub OnEnterCombat()
             If Phase > 1 Then Exit Sub
             MyBase.OnEnterCombat()
-
             aiCreature.Flying = False
             AllowedAttack = True
             Phase = 1
             'ReinitSpells()
-
             aiCreature.SendChatMessage("Patchwerk want to play!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
             aiCreature.SendPlaySound(8909, True)
         End Sub
 
         Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)
             MyBase.OnLeaveCombat(Reset)
-
             AllowedAttack = True
             Phase = 0
-
             aiCreature.SendChatMessage("LEAVING COMBAT!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         End Sub
 
@@ -79,10 +73,12 @@ Namespace Scripts
                     NextBerserk = BERSERK_COOLDOWN
                     aiCreature.CastSpellOnSelf(BERSERK_SPELL) 'Berserk
                 End If
+				
                 If NextFrenzy <= 1 Then
                     NextFrenzy = FRENZY_COOLDOWN
                     aiCreature.CastSpellOnSelf(FRENZY_SPELL) 'Frenzy
                 End If
+				
                 'If NextSummon <= 0 Then
                 '    NextSummon = SUMMONPLAYER_COOLDOWN
                 '    aiCreature.CastSpell(SUMMONPLAYER_SPELL, aiTarget) 'Summon Player
@@ -91,12 +87,12 @@ Namespace Scripts
 
             If NextWaypoint > 0 Then
                 NextWaypoint -= AI_UPDATE
-
                 If NextWaypoint <= 0 Then
                     On_Waypoint()
                 End If
             End If
         End Sub
+		
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If Percent <= 5 Then
@@ -132,7 +128,7 @@ Namespace Scripts
         Public Sub On_Waypoint() 'Waypoints will definitely need some adjustments, but these should hold for now.
             Select Case CurrentWaypoint
                 Case 0
-                    NextWaypoint = aiCreature.MoveTo(3261.996582, 3228.5979, 294.063354, 2.53919, True) 'No Waypoint Coords! Will need to back track from MaNGOS!
+                    NextWaypoint = aiCreature.MoveTo(3261.996582, 3228.5979, 294.063354, 2.53919, True) 'Coordinates do not work, but they are accurate for when we figure out how to move Patchwerk.
                 Case 1
                     NextWaypoint = 10000
                     'NextSummon = NextWaypoint

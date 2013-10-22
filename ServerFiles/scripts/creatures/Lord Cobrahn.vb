@@ -27,10 +27,8 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
         Public Overrides Sub OnEnterCombat()
@@ -45,18 +43,17 @@ Namespace Scripts
             NextPoison -= AI_UPDATE
             NextSerpentTransform -= AI_UPDATE
 
-
             If NextLightningBolt <= 0 Then
                 NextLightningBolt = Lightning_Bolt_CD
                 aiCreature.CastSpell(Spell_Lightning_Bolt, aiTarget) 'Lightning bolt on current target.
             End If
             If NextSlumber <= 0 Then
                 NextSlumber = SLUMBER_CD
-                aiCreature.CastSpell(Slumber_Spell, aiTarget) ' Not sure if its supposed to take a random target, stays like this for now.
+                aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget)
             End If
             If NextPoison <= 0 Then
                 NextPoison = Poison_CD
-                aiCreature.CastSpell(Poison_Spell, aiTarget)
+                aiCreature.CastSpell(Poison_Spell, aiTarget) 'Should this be random target?
             End If
         End Sub
 
@@ -69,10 +66,10 @@ Namespace Scripts
         End Sub
         Public Sub CastSlumber()
             For i As Integer = 1 To 3
-                Dim target As BaseUnit = aiCreature
+                Dim target As BaseUnit = aiCreature.GetRandomTarget
                 If target Is Nothing Then Exit Sub
             Next
-            aiCreature.CastSpell(Slumber_Spell, aiTarget)
+            aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget)
         End Sub
         Public Sub CastPoison()
             For i As Integer = 2 To 3
@@ -81,6 +78,7 @@ Namespace Scripts
             Next
             aiCreature.CastSpell(Poison_Spell, aiTarget)
         End Sub
+		
         'This may not work, unsure on how to add two health conditions.
         Public Sub OnHealthChange2(Percent As Integer)
             MyBase.OnHealthChange(Percent)
@@ -88,10 +86,11 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpellOnSelf(Cobrahn_Serpent_Form_Spell)
                 Catch ex As Exception
-
+					aiCreature.SendChatMessage("I have failed to cast Serpent Form on myself. This is a problem. Please report this issue to the developers of MaNGOS VB.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             End If
         End Sub
+		
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If Percent <= 10 Then

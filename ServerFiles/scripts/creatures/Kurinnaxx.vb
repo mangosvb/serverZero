@@ -37,14 +37,13 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance(700)
         End Sub
+		
         Public Overrides Sub OnEnterCombat()
             If phase > 1 Then Exit Sub
             MyBase.OnEnterCombat()
-
             AllowedAttack = True
             aiCreature.Flying = False
             ReinitSpells()
-
         End Sub
 
         Public Overrides Sub OnLeaveCombat(Optional Reset As Boolean = True)
@@ -83,10 +82,8 @@ Namespace Scripts
                 Next_Wide_Slash = Wide_Slash_Cooldown
                 aiCreature.CastSpell(spell_Thrash, aiTarget)
             End If
-
-
-
         End Sub
+		
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If phase = 1 Then
@@ -95,20 +92,6 @@ Namespace Scripts
                     aiCreature.CastSpellOnSelf(spell_Frenzy)
                 End If
             End If
-
-
         End Sub
-
-        Public Overrides Sub OnDeath()
-            MyBase.OnDeath()
-            aiCreature.SendChatMessage("Blurgh. I am dead.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
-        End Sub
-
-        Public Overrides Sub OnKill(ByRef Victim As BaseUnit)
-            MyBase.OnKill(Victim)
-            aiCreature.SendChatMessage("You died. You are dead.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
-
-        End Sub
-
-    End Class
+	End Class
 End Namespace

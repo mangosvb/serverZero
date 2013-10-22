@@ -5,7 +5,7 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-
+		
         Private Const AI_UPDATE As Integer = 1000
         Private Const BREATH_COOLDOWN As Integer = 11000
         Private Const WING_BUFFET_COOLDOWN As Integer = 15000
@@ -36,32 +36,26 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             Phase = 0
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
 
         Public Overrides Sub OnEnterCombat()
             If Phase > 1 Then Exit Sub
             MyBase.OnEnterCombat()
-
             aiCreature.Flying = False
             AllowedAttack = True
             Phase = 1
             ReinitSpells()
-
             aiCreature.SendChatMessage("How fortuitous, usually I must leave my lair to feed!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         End Sub
 
         Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)
             MyBase.OnLeaveCombat(Reset)
-
             AllowedAttack = True
             Phase = 0
-
             aiCreature.SendChatMessage("LEAVING COMBAT!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         End Sub
 
@@ -139,7 +133,6 @@ Namespace Scripts
 
             If NextWaypoint > 0 Then
                 NextWaypoint -= AI_UPDATE
-
                 If NextWaypoint <= 0 Then
                     On_Waypoint()
                 End If
@@ -162,12 +155,9 @@ Namespace Scripts
             'TODO: Do emote
             'TODO: Whelps
             'TODO: Movement in the air
-
             aiCreature.SendChatMessage("Phase 2!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
-
             CurrentWaypoint = 0
             On_Waypoint()
-
             'DONE: Reset hate table
             AllowedAttack = False
             aiTarget = Nothing
@@ -178,15 +168,11 @@ Namespace Scripts
         Public Sub Go_LastPhase()
             'TODO: Land again
             'TODO: Do emote
-
             aiCreature.SendChatMessage("Phase 3!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
-
             NextWaypoint = 0
             aiCreature.Flying = False
-
             'TODO: Do these after landing
             ReinitSpells()
-
             'DONE: Reset hate table
             AllowedAttack = True
             aiTarget = Nothing

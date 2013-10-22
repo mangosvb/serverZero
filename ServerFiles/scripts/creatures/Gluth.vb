@@ -34,14 +34,12 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
+		
         Public Overrides Sub OnThink()
-
             NextDecimate -= AI_UPDATE
             NextFrenzy -= AI_UPDATE
             NextMortalWound -= AI_UPDATE

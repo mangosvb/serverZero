@@ -16,7 +16,6 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             aiCreature = Creature
-
             InitWaypoints()
         End Sub
 
@@ -53,16 +52,14 @@ Namespace Scripts
         Public Overrides Sub DoThink()
             NextWaypoint -= 1000
             If NextWaypoint > 0 Then Exit Sub
-
             ' The guide has finished
             If aiCreature.Life.Current OrElse CurrentWaypoint >= Waypoints.Count Then
                 aiCreature.Destroy()
                 Exit Sub
             End If
-
+			
             NextWaypoint = aiCreature.MoveTo(Waypoints(CurrentWaypoint).x, Waypoints(CurrentWaypoint).y, Waypoints(CurrentWaypoint).z) + Waypoints(CurrentWaypoint).waittime
             CurrentWaypoint += 1
         End Sub
-
     End Class
 End Namespace

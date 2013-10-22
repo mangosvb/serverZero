@@ -17,10 +17,8 @@ Namespace Scripts
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
-
             AllowedMove = False
             Creature.Flying = False
-
             Creature.VisibleDistance = 700
         End Sub
         Public Overrides Sub OnThink()
@@ -37,7 +35,6 @@ Namespace Scripts
             For i As Integer = 0 To 3
                 Dim Target As BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
-
                 aiCreature.CastSpell(SLAM_SPELL, aiTarget)
             Next
         End Sub
