@@ -23,7 +23,6 @@ Imports System.Net
 Imports System.Security.Cryptography
 Imports System.Reflection
 Imports System.Collections.Generic
-Imports mangosVB.Common.SQL
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
 
@@ -949,7 +948,11 @@ Public Module RS_Main
         AddHandler AccountDatabase.SQLMessage, AddressOf SLQEventHandler
         AccountDatabase.Connect()
 
+
         RealmServer = New RealmServerClass
+
+        'Check the Database version, exit if its wrong
+        If Revisions.CheckRequiredDBVersion(AccountDatabase, "REALM") = False Then End
 
         WorldServer_Status_Report()
     End Sub

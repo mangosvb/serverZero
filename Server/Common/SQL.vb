@@ -59,17 +59,17 @@ Public Class SQL
         MyBase.New()
     End Sub
 
-#Region "Version Info <Update VInfo and rvDate as needed>"
-    Private VInfo As String = "2.1.0a"
-    Private rvDate As String = "9:36 PM, Wednesday, September, 25, 2006"
+    '#Region "Version Info <Update VInfo and rvDate as needed>"
+    '    Private VInfo As String = "2.1.0a"
+    '    Private rvDate As String = "9:36 PM, Wednesday, September, 25, 2006"
 
-    <Description("Class info version/last date updated.")> _
-    Public ReadOnly Property Class_Version_Info() As String
-        Get
-            Return "Version: " + VInfo + ", Updated at: " + rvDate
-        End Get
-    End Property
-#End Region
+    '    <Description("Class info version/last date updated.")> _
+    '    Public ReadOnly Property Class_Version_Info() As String
+    '        Get
+    '            Return "Version: " + VInfo + ", Updated at: " + rvDate
+    '        End Get
+    '    End Property
+    '#End Region
 
 #Region "SQL startup Propertys, connections and disposal"
     'SQL Host name/password/etc..
