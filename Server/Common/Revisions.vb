@@ -39,7 +39,7 @@
                 '            Console.WriteLine("[{0}]", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] This revision of MaNGOSVB requires a database updated to:", Format(TimeOfDay, "hh:mm:ss"))
-                Console.WriteLine("[{0}] `" & RevisionDbRealmd.Replace("required_", "") & ".sql`", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}] `" & thisDbTableName.Replace("required_", "") & ".sql`", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("*************************")
                 Console.WriteLine("* Press any key to exit *")
@@ -51,12 +51,12 @@
                 Return True
             Else 'Oh no they do not match
                 Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
-                Console.WriteLine("[{0}] The table `" & "realmd_db_version" & "` in your [" & thisDatabase.SQLDBName & "] database", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}] The table `" & thisDbTableName & "` in your [" & thisDatabase.SQLDBName & "] database", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] indicates that this database is out of date!", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}]  [A] You have: --> `" & dtVersion & ".sql`", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
-                Console.WriteLine("[{0}]  [B] You need: --> `" & RevisionDbRealmd & ".sql`", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}]  [B] You need: --> `" & thisDbTableName & ".sql`", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
                 Console.WriteLine("[{0}] You must apply all updates after [A] to [B] to use mangos with this", Format(TimeOfDay, "hh:mm:ss"))
@@ -72,7 +72,7 @@
             End If
         Else
             Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
-            Console.WriteLine("[{0}] The table `" & "realmd_db_version" & "` in your [" & thisDatabase.SQLDBName & "]", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("[{0}] The table `" & thisDbTableName & "` in your [" & thisDatabase.SQLDBName & "]", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("[{0}] database is missing ", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("[{0}] MaNGOSVB cannot find the version info required", Format(TimeOfDay, "hh:mm:ss"))
@@ -80,7 +80,7 @@
             '            Console.WriteLine("[{0}]", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("[{0}] This revision of MaNGOSVB requires a database updated to:", Format(TimeOfDay, "hh:mm:ss"))
-            Console.WriteLine("[{0}] `" & RevisionDbRealmd.Replace("required_", "") & ".sql`", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("[{0}] `" & thisDbTableName.Replace("required_", "") & ".sql`", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
             Console.WriteLine("* Press any key to exit *")
