@@ -7,8 +7,19 @@ version supporting clients from the [patch 1.12][50] branch, specifically patch
 World of Warcraft, and all World of Warcraft or Warcraft art, images, and lore are
 copyrighted by [Blizzard Entertainment, Inc.][1].
 
-Requirements
+System Requirements
 ------------
+Windows OS 7/8/8.1
+Visual Basic 2010 or 2012
+
+Minium Requirements without Clustering - 
+RAM 2GB, 
+CPU  1.90GHz
+
+Required Requirements with Clustering - 
+RAM 4GB or higher, 
+CPU 2.30GHz or better
+
 
 Documentation
 -------------
