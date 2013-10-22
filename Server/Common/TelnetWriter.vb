@@ -33,18 +33,18 @@ Public Class TelnetWriter
         ThreadPool.QueueUserWorkItem(AddressOf ConnWaitListen)
     End Sub
 
-    Private disposedValue As Boolean ' To detect redundant calls
+    Private _disposedValue As Boolean ' To detect redundant calls
 
     ' IDisposable
-    Protected Overrides Sub Dispose(disposing As Boolean)
-        If Not Me.disposedValue Then
+    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+        If Not _disposedValue Then
             ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
             ' TODO: set large fields to null.
             conn.Stop()
             conn = Nothing
             socket.Close()
         End If
-        Me.disposedValue = True
+        _disposedValue = True
     End Sub
 
     Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)

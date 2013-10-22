@@ -39,11 +39,11 @@ Public Module VMAP_Module
         End Sub
 
 #Region "IDisposable Support"
-        Private disposedValue As Boolean ' To detect redundant calls
+        Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
-            If Not Me.disposedValue Then
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
                 iTreeNodes.Clear()
@@ -51,7 +51,7 @@ Public Module VMAP_Module
                 subModels.Clear()
                 GC.Collect()
             End If
-            Me.disposedValue = True
+            _disposedValue = True
         End Sub
 
         ' This code added by Visual Basic to correctly implement the disposable pattern.
@@ -241,15 +241,15 @@ Public Module VMAP_Module
         Implements IDisposable
 
 #Region "IDisposable Support"
-        Private disposedValue As Boolean ' To detect redundant calls
+        Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
-            If Not Me.disposedValue Then
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
             End If
-            Me.disposedValue = True
+            _disposedValue = True
         End Sub
 
         ' This code added by Visual Basic to correctly implement the disposable pattern.
@@ -720,12 +720,12 @@ Public Module VMAP_Module
 
 
 #Region "IDisposable Support"
-            Private disposedValue As Boolean ' To detect redundant calls
+            Private _disposedValue As Boolean ' To detect redundant calls
 
             'Deletes the children (but not the values)
             ' IDisposable
-            Protected Overridable Sub Dispose(disposing As Boolean)
-                If Not Me.disposedValue Then
+            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+                If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
                     For i As Integer = 0 To 1
@@ -735,7 +735,7 @@ Public Module VMAP_Module
                         End If
                     Next
                 End If
-                Me.disposedValue = True
+                _disposedValue = True
             End Sub
 
             ' This code added by Visual Basic to correctly implement the disposable pattern.

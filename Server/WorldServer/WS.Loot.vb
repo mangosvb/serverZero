@@ -129,15 +129,15 @@ Public Module WS_Loot
 
 
 #Region "IDisposable Support"
-        Private disposedValue As Boolean ' To detect redundant calls
+        Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
-            If Not Me.disposedValue Then
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
             End If
-            Me.disposedValue = True
+            _disposedValue = True
         End Sub
 
         ' This code added by Visual Basic to correctly implement the disposable pattern.
@@ -394,17 +394,17 @@ Public Module WS_Loot
         End Property
 
 #Region "IDisposable Support"
-        Private disposedValue As Boolean ' To detect redundant calls
+        Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(disposing As Boolean)
-            If Not Me.disposedValue Then
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
                 LootTable.Remove(GUID)
                 Log.WriteLine(LogType.DEBUG, "Loot destroyed.")
             End If
-            Me.disposedValue = True
+            _disposedValue = True
         End Sub
 
         ' This code added by Visual Basic to correctly implement the disposable pattern.
