@@ -124,7 +124,7 @@ Public Class WS_GraveYards
             Dim locationIndex As Integer
 
             Dim i As Integer = 0
-            Console.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
+            Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
             For i = 0 To tmpDBC.Rows - 1
                 locationIndex = tmpDBC.Item(i, 0)
                 locationMapID = tmpDBC.Item(i, 1)
@@ -137,7 +137,7 @@ Public Class WS_GraveYards
                     Log.WriteLine(LogType.DEBUG, "         : Map: {0}  X: {1}  Y: {2}  Z: {3}", locationMapID, locationPosX, locationPosY, locationPosZ)
                 End If
             Next i
-            Console.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.Rows - 1)
+            Log.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.Rows - 1)
 
             tmpDBC.Dispose()
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", i)

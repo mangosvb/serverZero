@@ -100,7 +100,7 @@ Public Module WC_Handlers_Misc
         End Try
 
         'DONE: Save location on cluster
-        Client.Character.PositionX = packet.GetFloat(15)
+        Client.Character.PositionX = packet.GetFloat '(15)
         Client.Character.PositionY = packet.GetFloat
         Client.Character.PositionZ = packet.GetFloat
 
