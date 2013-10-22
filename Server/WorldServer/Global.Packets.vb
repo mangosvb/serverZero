@@ -642,60 +642,60 @@ Public Module Packets
             Offset = Offset + 1
             Return Data(Offset - 1)
         End Function
-        Public Function GetInt8(ByVal Offset As Integer) As Byte
-            Offset = Offset + 1
-            Return Data(Offset - 1)
-        End Function
+        'Public Function GetInt8(ByVal Offset As Integer) As Byte
+        '    Offset = Offset + 1
+        '    Return Data(Offset - 1)
+        'End Function
         Public Function GetInt16() As Short
             Dim num1 As Short = BitConverter.ToInt16(Data, Offset)
             Offset = (Offset + 2)
             Return num1
         End Function
-        Public Function GetInt16(ByVal Offset As Integer) As Short
-            Dim num1 As Short = BitConverter.ToInt16(Data, Offset)
-            Offset = (Offset + 2)
-            Return num1
-        End Function
+        'Public Function GetInt16(ByVal Offset As Integer) As Short
+        '    Dim num1 As Short = BitConverter.ToInt16(Data, Offset)
+        '    Offset = (Offset + 2)
+        '    Return num1
+        'End Function
         Public Function GetInt32() As Integer
             Dim num1 As Integer = BitConverter.ToInt32(Data, Offset)
             Offset = (Offset + 4)
             Return num1
         End Function
-        Public Function GetInt32(ByVal Offset As Integer) As Integer
-            Dim num1 As Integer = BitConverter.ToInt32(Data, Offset)
-            Offset = (Offset + 4)
-            Return num1
-        End Function
+        'Public Function GetInt32(ByVal Offset As Integer) As Integer
+        '    Dim num1 As Integer = BitConverter.ToInt32(Data, Offset)
+        '    Offset = (Offset + 4)
+        '    Return num1
+        'End Function
         Public Function GetInt64() As Long
             Dim num1 As Long = BitConverter.ToInt64(Data, Offset)
             Offset = (Offset + 8)
             Return num1
         End Function
-        Public Function GetInt64(ByVal Offset As Integer) As Long
-            Dim num1 As Long = BitConverter.ToInt64(Data, Offset)
-            Offset = (Offset + 8)
-            Return num1
-        End Function
+        'Public Function GetInt64(ByVal Offset As Integer) As Long
+        '    Dim num1 As Long = BitConverter.ToInt64(Data, Offset)
+        '    Offset = (Offset + 8)
+        '    Return num1
+        'End Function
         Public Function GetFloat() As Single
             Dim single1 As Single = BitConverter.ToSingle(Data, Offset)
             Offset = (Offset + 4)
             Return single1
         End Function
-        Public Function GetFloat(ByVal Offset As Integer) As Single
-            Dim single1 As Single = BitConverter.ToSingle(Data, Offset)
-            Offset = (Offset + 4)
-            Return single1
-        End Function
+        'Public Function GetFloat(ByVal Offset As Integer) As Single
+        '    Dim single1 As Single = BitConverter.ToSingle(Data, Offset)
+        '    Offset = (Offset + 4)
+        '    Return single1
+        'End Function
         Public Function GetDouble() As Double
             Dim num1 As Double = BitConverter.ToDouble(Data, Offset)
             Offset = (Offset + 8)
             Return num1
         End Function
-        Public Function GetDouble(ByVal Offset As Integer) As Double
-            Dim num1 As Double = BitConverter.ToDouble(Data, Offset)
-            Offset = (Offset + 8)
-            Return num1
-        End Function
+        'Public Function GetDouble(ByVal Offset As Integer) As Double
+        '    Dim num1 As Double = BitConverter.ToDouble(Data, Offset)
+        '    Offset = (Offset + 8)
+        '    Return num1
+        'End Function
         Public Function GetString() As String
             Dim start As Integer = Offset
             Dim i As Integer = 0
@@ -708,17 +708,17 @@ Public Module Packets
 
             Return EscapeString(System.Text.Encoding.UTF8.GetString(Data, start, i))
         End Function
-        Public Function GetString(ByVal Offset As Integer) As String
-            Dim i As Integer = Offset
-            Dim tmpString As String = ""
-            While Data(i) <> 0
-                tmpString = tmpString + Chr(Data(i))
-                i = i + 1
-                Offset = Offset + 1
-            End While
-            Offset = Offset + 1
-            Return EscapeString(tmpString)
-        End Function
+        'Public Function GetString(ByVal Offset As Integer) As String
+        '    Dim i As Integer = Offset
+        '    Dim tmpString As String = ""
+        '    While Data(i) <> 0
+        '        tmpString = tmpString + Chr(Data(i))
+        '        i = i + 1
+        '        Offset = Offset + 1
+        '    End While
+        '    Offset = Offset + 1
+        '    Return EscapeString(tmpString)
+        'End Function
         Public Function GetString2() As String
             Dim length As Integer = Data(Offset)
             Dim start As Integer = Offset + 1
@@ -732,31 +732,31 @@ Public Module Packets
             Offset = (Offset + 2)
             Return num1
         End Function
-        Public Function GetUInt16(ByVal Offset As Integer) As UShort
-            Dim num1 As UShort = BitConverter.ToUInt16(Data, Offset)
-            Offset = (Offset + 2)
-            Return num1
-        End Function
+        'Public Function GetUInt16(ByVal Offset As Integer) As UShort
+        '    Dim num1 As UShort = BitConverter.ToUInt16(Data, Offset)
+        '    Offset = (Offset + 2)
+        '    Return num1
+        'End Function
         Public Function GetUInt32() As UInteger
             Dim num1 As UInteger = BitConverter.ToUInt32(Data, Offset)
             Offset = (Offset + 4)
             Return num1
         End Function
-        Public Function GetUInt32(ByVal Offset As Integer) As UInteger
-            Dim num1 As UInteger = BitConverter.ToUInt32(Data, Offset)
-            Offset = (Offset + 4)
-            Return num1
-        End Function
+        'Public Function GetUInt32(ByVal Offset As Integer) As UInteger
+        '    Dim num1 As UInteger = BitConverter.ToUInt32(Data, Offset)
+        '    Offset = (Offset + 4)
+        '    Return num1
+        'End Function
         Public Function GetUInt64() As ULong
             Dim num1 As ULong = BitConverter.ToUInt64(Data, Offset)
             Offset = (Offset + 8)
             Return num1
         End Function
-        Public Function GetUInt64(ByVal Offset As Integer) As ULong
-            Dim num1 As ULong = BitConverter.ToUInt64(Data, Offset)
-            Offset = (Offset + 8)
-            Return num1
-        End Function
+        'Public Function GetUInt64(ByVal Offset As Integer) As ULong
+        '    Dim num1 As ULong = BitConverter.ToUInt64(Data, Offset)
+        '    Offset = (Offset + 8)
+        '    Return num1
+        'End Function
 
         Public Function GetPackGUID() As ULong
             Dim flags As Byte = Data(Offset)
@@ -798,55 +798,56 @@ Public Module Packets
 
             Return CType(BitConverter.ToUInt64(GUID, 0), ULong)
         End Function
-        Public Function GetPackGUID(ByVal Offset As Integer) As ULong
-            Dim flags As Byte = Data(Offset)
-            Dim GUID() As Byte = {0, 0, 0, 0, 0, 0, 0, 0}
-            Offset += 1
+        'Public Function GetPackGUID(ByVal Offset As Integer) As ULong
+        '    Dim flags As Byte = Data(Offset)
+        '    Dim GUID() As Byte = {0, 0, 0, 0, 0, 0, 0, 0}
+        '    Offset += 1
 
-            If (flags And 1) = 1 Then
-                GUID(0) = Data(Offset)
-                Offset += 1
-            End If
-            If (flags And 2) = 2 Then
-                GUID(1) = Data(Offset)
-                Offset += 1
-            End If
-            If (flags And 4) = 4 Then
-                GUID(2) = Data(Offset)
-                Offset += 1
-            End If
-            If (flags And 8) = 8 Then
-                GUID(3) = Data(Offset)
-                Offset += 1
-            End If
-            If (flags And 16) = 16 Then
-                GUID(4) = Data(Offset)
-                Offset += 1
-            End If
-            If (flags And 32) = 32 Then
-                GUID(5) = Data(Offset)
-                Offset += 1
-            End If
-            If (flags And 64) = 64 Then
-                GUID(6) = Data(Offset)
-                Offset += 1
-            End If
-            If (flags And 128) = 128 Then
-                GUID(7) = Data(Offset)
-                Offset += 1
-            End If
+        '    If (flags And 1) = 1 Then
+        '        GUID(0) = Data(Offset)
+        '        Offset += 1
+        '    End If
+        '    If (flags And 2) = 2 Then
+        '        GUID(1) = Data(Offset)
+        '        Offset += 1
+        '    End If
+        '    If (flags And 4) = 4 Then
+        '        GUID(2) = Data(Offset)
+        '        Offset += 1
+        '    End If
+        '    If (flags And 8) = 8 Then
+        '        GUID(3) = Data(Offset)
+        '        Offset += 1
+        '    End If
+        '    If (flags And 16) = 16 Then
+        '        GUID(4) = Data(Offset)
+        '        Offset += 1
+        '    End If
+        '    If (flags And 32) = 32 Then
+        '        GUID(5) = Data(Offset)
+        '        Offset += 1
+        '    End If
+        '    If (flags And 64) = 64 Then
+        '        GUID(6) = Data(Offset)
+        '        Offset += 1
+        '    End If
+        '    If (flags And 128) = 128 Then
+        '        GUID(7) = Data(Offset)
+        '        Offset += 1
+        '    End If
 
-            Return CType(BitConverter.ToUInt64(GUID, 0), ULong)
-        End Function
+        '    Return CType(BitConverter.ToUInt64(GUID, 0), ULong)
+        'End Function
         Public Function GetByteArray() As Byte()
-            Dim length As Integer = Data.Length - Offset
-            If length <= 0 Then Return New Byte() {}
-            Return GetByteArray(length)
+            Dim lengthLoc As Integer = Data.Length - Offset
+            If lengthLoc <= 0 Then Return New Byte() {}
+            Return GetByteArray(lengthLoc)
         End Function
-        Public Function GetByteArray(ByVal Length As Integer) As Byte()
-            If Offset + Length > Data.Length Then Length = Data.Length - Offset
-            If Length <= 0 Then Return New Byte() {}
-            Dim tmpBytes(Length - 1) As Byte
+
+        Private Function GetByteArray(ByVal lengthLoc As Integer) As Byte()
+            If Offset + LengthLoc > Data.Length Then LengthLoc = Data.Length - Offset
+            If LengthLoc <= 0 Then Return New Byte() {}
+            Dim tmpBytes(LengthLoc - 1) As Byte
             Array.Copy(Data, Offset, tmpBytes, 0, tmpBytes.Length)
             Offset += tmpBytes.Length
 

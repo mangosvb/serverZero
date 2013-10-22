@@ -753,7 +753,7 @@ Public Module WS_Warden
                 Select Case Check.Type
                     Case CheckTypes.MEM_CHECK ' MEM_CHECK: uint8 result, uint8[] bytes
                         Dim result As Byte = p.GetInt8()
-                        Dim bytes() As Byte = p.GetByteArray(Check.Length)
+                        Dim bytes() As Byte = p.GetByteArray '(Check.Length)
                         Log.WriteLine(BaseWriter.LogType.DEBUG, "[WARDEN] [{0}] Result={1} Bytes=0x{2}", Check.Type, result, BitConverter.ToString(bytes).Replace("-", ""))
 
                     Case CheckTypes.PAGE_CHECK_A_B ' PAGE_CHECK_A_B: uint8 result
@@ -762,7 +762,7 @@ Public Module WS_Warden
 
                     Case CheckTypes.MPQ_CHECK ' MPQ_CHECK: uint8 result, uint8[20] sha1
                         Dim result As Byte = p.GetInt8()
-                        Dim hash() As Byte = p.GetByteArray(20)
+                        Dim hash() As Byte = p.GetByteArray '(20)
                         Log.WriteLine(BaseWriter.LogType.DEBUG, "[WARDEN] [{0}] Result={1} Hash=0x{2}", Check.Type, result, BitConverter.ToString(hash).Replace("-", ""))
 
                     Case CheckTypes.LUA_STR_CHECK ' LUA_STR_CHECK: uint8 unk, uint8 len, char[len] data

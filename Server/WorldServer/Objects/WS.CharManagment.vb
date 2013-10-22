@@ -6101,10 +6101,10 @@ DoneAmmo:
     Public Sub On_CMSG_SET_ACTION_BUTTON(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 10 Then Exit Sub
         packet.GetInt16()
-        Dim button As Byte = packet.GetInt8(6)
-        Dim action As UShort = packet.GetUInt16(7)
-        Dim actionMisc As Byte = packet.GetInt8(9)
-        Dim actionType As Byte = packet.GetInt8(10)
+        Dim button As Byte = packet.GetInt8 '(6)
+        Dim action As UShort = packet.GetUInt16 '(7)
+        Dim actionMisc As Byte = packet.GetInt8 '(9)
+        Dim actionType As Byte = packet.GetInt8 '(10)
 
         If action = 0 Then
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_SET_ACTION_BUTTON [Remove action from button {2}]", Client.IP, Client.Port, button)
