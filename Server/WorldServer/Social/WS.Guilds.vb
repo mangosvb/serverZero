@@ -291,7 +291,7 @@ Public Module WS_Guilds
         Dim GUID As ULong = packet.GetUInt64
         If CHARACTERs.ContainsKey(GUID) = False Then Exit Sub
         'If CHARACTERs(GUID).IgnoreList.Contains(Client.Character.GUID) Then Exit Sub
-        If CHARACTERs(GUID).Side <> Client.Character.Side Then Exit Sub
+        If CHARACTERs(GUID).IsHorde <> Client.Character.IsHorde Then Exit Sub
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OFFER_PETITION [GUID={2:X} Petition={3}]", Client.IP, Client.Port, GUID, ItemGUID)
 

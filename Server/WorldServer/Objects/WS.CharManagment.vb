@@ -6061,7 +6061,7 @@ DoneAmmo:
             End Try
         End Sub
 
-        Public ReadOnly Property Side() As Boolean
+        Public ReadOnly Property IsHorde() As Boolean
             Get
                 Select Case Race
                     Case Races.RACE_DWARF, Races.RACE_GNOME, Races.RACE_HUMAN, Races.RACE_NIGHT_ELF
@@ -6381,7 +6381,7 @@ DoneAmmo:
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT char_race FROM characters WHERE account_id = ""{0}"" LIMIT 1;", Account_ID), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
-                If Character.Side <> GetCharacterSide(CByte(MySQLQuery.Rows(0).Item("char_race"))) Then
+                If Character.IsHorde <> GetCharacterSide(CByte(MySQLQuery.Rows(0).Item("char_race"))) Then
                     Return AuthResponseCodes.CHAR_CREATE_PVP_TEAMS_VIOLATION
                 End If
             End If

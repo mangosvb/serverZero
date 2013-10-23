@@ -58,8 +58,8 @@ Public Module WS_Maps
         End Enum
         Public Function IsMyLand(ByRef c As CharacterObject) As Boolean
             If Team = AreaTeam.AREATEAM_NONE Then Return False
-            If c.Side = False Then Return Team = AreaTeam.AREATEAM_ALLY
-            If c.Side = True Then Return Team = AreaTeam.AREATEAM_HORDE
+            If c.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
+            If c.IsHorde = True Then Return Team = AreaTeam.AREATEAM_HORDE
         End Function
         Public Function IsCity() As Boolean
             Return ZoneType = 312

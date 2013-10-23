@@ -4837,7 +4837,7 @@ SkipShapeShift:
 
         If TypeOf c Is CharacterObject Then
             For Each pGUID As ULong In CType(c, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(c, CharacterObject).Side <> CHARACTERs(pGUID).Side OrElse (CType(c, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(c, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(c, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(c, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(c, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
                     If GetDistance(CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
@@ -4865,7 +4865,7 @@ SkipShapeShift:
         If r Is Nothing Then r = c
         If TypeOf r Is CharacterObject Then
             For Each pGUID As ULong In CType(r, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).Side <> CHARACTERs(pGUID).Side OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
                     If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
@@ -4892,7 +4892,7 @@ SkipShapeShift:
 
         If TypeOf c Is CharacterObject Then
             For Each pGUID As ULong In CType(c, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(c, CharacterObject).Side = CHARACTERs(pGUID).Side AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(c, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
                     If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
@@ -4919,7 +4919,7 @@ SkipShapeShift:
 
         If TypeOf c Is CharacterObject Then
             For Each pGUID As ULong In CType(c, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(c, CharacterObject).Side = CHARACTERs(pGUID).Side AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(c, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
                     If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next

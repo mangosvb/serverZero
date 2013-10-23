@@ -507,7 +507,7 @@ Public Module WS_Handlers_Trade
             Exit Sub
         End If
 
-        If CType(CHARACTERs(targetGUID), CharacterObject).Side <> Client.Character.Side Then
+        If CType(CHARACTERs(targetGUID), CharacterObject).IsHorde <> Client.Character.IsHorde Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
             Try
                 response.AddInt32(TradeStatus.TRADE_TARGET_DIFF_FACTION)

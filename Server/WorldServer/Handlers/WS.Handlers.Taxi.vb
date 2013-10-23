@@ -161,7 +161,7 @@ Public Module WS_Handlers_Taxi
         End If
 
         Dim Mount As Integer = 0
-        If Client.Character.Side Then
+        If Client.Character.IsHorde Then
             If CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).HordeMount) = False Then Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).HordeMount)
             Mount = CREATURESDatabase(TaxiNodes(srcNode).HordeMount).ModelA1
         Else
@@ -260,11 +260,17 @@ Public Module WS_Handlers_Taxi
             Next
 
             Dim Mount As Integer = 0
-            If Client.Character.Side Then
-                If CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).HordeMount) = False Then Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).HordeMount)
+            If Client.Character.IsHorde Then
+                If CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).HordeMount) = False Then
+                    'TODO: This was here for a reason, i'm guessing to correct the line below.but it is never used
+                    Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).HordeMount)
+                End If
                 Mount = CREATURESDatabase(TaxiNodes(srcNode).HordeMount).GetFirstModel
             Else
-                If CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).AllianceMount) = False Then Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).AllianceMount)
+                If CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).AllianceMount) = False Then
+                    'TODO: This was here for a reason, i'm guessing to correct the line below.but it is never used
+                    Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).AllianceMount)
+                End If
                 Mount = CREATURESDatabase(TaxiNodes(srcNode).AllianceMount).GetFirstModel
             End If
             If Mount = 0 Then

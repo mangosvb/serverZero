@@ -440,7 +440,7 @@ Public Module WS_Mail
             End If
 
             'You can only send mails to characters with your same faction, but GMs can ofc
-            If Client.Access >= AccessLevel.GameMaster AndAlso Client.Character.Side <> ReceiverSide Then
+            If Client.Access >= AccessLevel.GameMaster AndAlso Client.Character.IsHorde <> ReceiverSide Then
                 Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                 response.AddInt32(0)
                 response.AddInt32(MailResult.MAIL_SENT)
