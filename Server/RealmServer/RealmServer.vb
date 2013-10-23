@@ -582,10 +582,10 @@ Public Module RS_Main
             Dim sshash As String = ""
             'For i = 0 To Client.AuthEngine.SS_Hash.Length - 1
             For i = 0 To 40 - 1
-                If Client.AuthEngine.SS_Hash(i) < 16 Then
-                    sshash = sshash + "0" + Hex(Client.AuthEngine.SS_Hash(i))
+                If Client.AuthEngine.SsHash(i) < 16 Then
+                    sshash = sshash + "0" + Hex(Client.AuthEngine.SsHash(i))
                 Else
-                    sshash = sshash + Hex(Client.AuthEngine.SS_Hash(i))
+                    sshash = sshash + Hex(Client.AuthEngine.SsHash(i))
                 End If
             Next
             AccountDatabase.Update([String].Format("UPDATE account SET sessionkey = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';", Client.Account, sshash, Client.IP.ToString, Format(Now, "yyyy-MM-dd")))
