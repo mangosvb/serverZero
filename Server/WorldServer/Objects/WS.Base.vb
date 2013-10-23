@@ -61,6 +61,7 @@ Public Module WS_Base
             If Math.Sqrt((c.positionX - positionX) ^ 2 + (c.positionY - positionY) ^ 2) > c.VisibleDistance Then Return False
             Return True
         End Function
+
         Public Sub InvisibilityReset()
             Invisibility = InvisibilityLevel.VISIBLE
             Invisibility_Value = 0
@@ -91,7 +92,6 @@ Public Module WS_Base
             Next
         End Sub
     End Class
-
 
     Public Class BaseUnit
         Inherits BaseObject
@@ -124,6 +124,7 @@ Public Module WS_Base
                 cBytes0 = ((cBytes0 And &HFFFFFF) Or (CInt(value) << 24))
             End Set
         End Property
+
         Public Overridable Property Gender() As Genders
             Get
                 Return (cBytes0 And &HFF0000) >> 16
@@ -132,6 +133,7 @@ Public Module WS_Base
                 cBytes0 = ((cBytes0 And &HFF00FFFF) Or (CInt(value) << 16))
             End Set
         End Property
+
         Public Overridable Property Classe() As Classes
             Get
                 Return (cBytes0 And &HFF00) >> 8
@@ -140,6 +142,7 @@ Public Module WS_Base
                 cBytes0 = ((cBytes0 And &HFFFF00FF) Or (CInt(value) << 8))
             End Set
         End Property
+
         Public Overridable Property Race() As Races
             Get
                 Return (cBytes0 And &HFF) >> 0
@@ -148,6 +151,7 @@ Public Module WS_Base
                 cBytes0 = ((cBytes0 And &HFFFFFF00) Or (CInt(value) << 0))
             End Set
         End Property
+
         Public ReadOnly Property UnitName() As String
             Get
                 If TypeOf Me Is CharacterObject Then
@@ -170,6 +174,7 @@ Public Module WS_Base
                 cBytes1 = ((cBytes1 And &HFFFFFF00) Or (CInt(Value) << 0))
             End Set
         End Property
+
         Public Overridable Property PetLoyalty() As Byte
             Get
                 Return (cBytes1 And &HFF00) >> 8
@@ -178,6 +183,7 @@ Public Module WS_Base
                 cBytes1 = ((cBytes1 And &HFFFF00FF) Or (CInt(Value) << 8))
             End Set
         End Property
+
         Public Overridable Property ShapeshiftForm() As ShapeshiftForm
             Get
                 Return (cBytes1 And &HFF0000) >> 16
@@ -220,20 +226,25 @@ Public Module WS_Base
         Public Overridable Sub Die(ByRef Attacker As BaseUnit)
             Log.WriteLine(LogType.WARNING, "BaseUnit can't die.")
         End Sub
+
         Public Overridable Sub DealDamage(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
             Log.WriteLine(LogType.WARNING, "No damage dealt.")
         End Sub
+
         Public Overridable Sub Heal(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
             Log.WriteLine(LogType.WARNING, "No healing done.")
         End Sub
+
         Public Overridable Sub Energize(ByVal Damage As Integer, ByVal Power As ManaTypes, Optional ByRef Attacker As BaseUnit = Nothing)
             Log.WriteLine(LogType.WARNING, "No mana increase done.")
         End Sub
+
         Public Overridable ReadOnly Property isDead() As Boolean
             Get
                 Return (Life.Current = 0)
             End Get
         End Property
+
         Public Overridable ReadOnly Property Exist() As Boolean
             Get
                 If TypeOf Me Is CharacterObject Then
@@ -244,29 +255,35 @@ Public Module WS_Base
                 Return False
             End Get
         End Property
+
         Public Overridable ReadOnly Property isRooted() As Boolean
             Get
                 Return (cUnitFlags And UnitFlags.UNIT_FLAG_ROOTED)
             End Get
         End Property
+
         Public Overridable ReadOnly Property isStunned() As Boolean
             Get
                 Return (cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED)
             End Get
         End Property
+
         Public ReadOnly Property IsInFeralForm() As Boolean
             Get
                 Return (ShapeshiftForm = WS_Spells.ShapeshiftForm.FORM_CAT OrElse ShapeshiftForm = WS_Spells.ShapeshiftForm.FORM_BEAR OrElse ShapeshiftForm = WS_Spells.ShapeshiftForm.FORM_DIREBEAR)
             End Get
         End Property
+
         Public ReadOnly Property IsPlayer() As Boolean
             Get
                 Return (TypeOf Me Is CharacterObject)
             End Get
         End Property
+
         Public Overridable Function IsFriendlyTo(ByRef Unit As BaseUnit) As Boolean
             Return False
         End Function
+
         Public Overridable Function IsEnemyTo(ByRef Unit As BaseUnit) As Boolean
             Return False
         End Function
@@ -331,6 +348,7 @@ Public Module WS_Base
                 End If
             End If
         End Sub
+
         Public Sub SetAuraStackCount(ByVal Slot As Integer, ByVal Count As Byte)
             'NOTE: Stack count is Zero based -> 2 means "Stacked 3 times"
 
@@ -340,6 +358,7 @@ Public Module WS_Base
             ActiveSpells_Count(AuraFlag_Slot) = ActiveSpells_Count(AuraFlag_Slot) And (Not (&HFF << AuraFlag_SubSlot))
             ActiveSpells_Count(AuraFlag_Slot) = ActiveSpells_Count(AuraFlag_Slot) Or (CInt(Count) << AuraFlag_SubSlot)
         End Sub
+
         Public Sub SetAuraSlotLevel(ByVal Slot As Integer, ByVal Level As Integer)
             Dim AuraFlag_Slot As Integer = Slot \ 4
             Dim AuraFlag_SubSlot As Integer = (Slot Mod 4) * 8
@@ -347,12 +366,14 @@ Public Module WS_Base
             ActiveSpells_Level(AuraFlag_Slot) = ActiveSpells_Level(AuraFlag_Slot) And (Not (&HFF << AuraFlag_SubSlot))
             ActiveSpells_Level(AuraFlag_Slot) = ActiveSpells_Level(AuraFlag_Slot) Or (Level << AuraFlag_SubSlot)
         End Sub
+
         Public Function HaveAura(ByVal SpellID As Integer) As Boolean
             For i As Byte = 0 To MAX_AURA_EFFECTs - 1
                 If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).SpellID = SpellID Then Return True
             Next
             Return False
         End Function
+
         Public Function HaveAuraType(ByVal AuraIndex As AuraEffects_Names) As Boolean
             Dim i As Integer
             For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
@@ -366,18 +387,21 @@ Public Module WS_Base
             Next
             Return False
         End Function
+
         Public Function HaveVisibleAura(ByVal SpellID As Integer) As Boolean
             For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If Not ActiveSpells(i) Is Nothing AndAlso ActiveSpells(i).SpellID = SpellID Then Return True
             Next
             Return False
         End Function
+
         Public Function HavePassiveAura(ByVal SpellID As Integer) As Boolean
             For i As Byte = MAX_AURA_EFFECTs_VISIBLE To MAX_AURA_EFFECTs - 1
                 If Not ActiveSpells(i) Is Nothing AndAlso ActiveSpells(i).SpellID = SpellID Then Return True
             Next
             Return False
         End Function
+
         Public Sub RemoveAura(ByVal Slot As Integer, ByRef Caster As BaseUnit, Optional ByVal RemovedByDuration As Boolean = False, Optional ByVal SendUpdate As Boolean = True)
             'DONE: Removing SpellAura
             Dim RemoveAction As AuraAction = AuraAction.AURA_REMOVE
@@ -391,6 +415,7 @@ Public Module WS_Base
             If SendUpdate AndAlso Slot < MAX_AURA_EFFECTs_VISIBLE Then SetAura(0, Slot, 0)
             ActiveSpells(Slot) = Nothing
         End Sub
+
         Public Sub RemoveAuraBySpell(ByVal SpellID As Integer)
             'DONE: Real aura removing
             For i As Integer = 0 To MAX_AURA_EFFECTs - 1
@@ -407,6 +432,7 @@ Public Module WS_Base
                 End If
             Next
         End Sub
+
         Public Sub RemoveAurasOfType(ByVal AuraIndex As AuraEffects_Names, Optional ByRef NotSpellID As Integer = 0)
             'DONE: Removing SpellAuras of a certain type
             For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
@@ -420,6 +446,7 @@ Public Module WS_Base
                 End If
             Next
         End Sub
+
         Public Sub RemoveAurasByMechanic(ByVal Mechanic As Integer)
             'DONE: Removing SpellAuras of a certain mechanic
             Dim i As Integer
@@ -429,6 +456,7 @@ Public Module WS_Base
                 End If
             Next
         End Sub
+
         Public Sub RemoveAurasByDispellType(ByVal DispellType As Integer, ByVal Amount As Integer)
             'DONE: Removing SpellAuras of a certain dispelltype
             Dim i As Integer
@@ -440,6 +468,7 @@ Public Module WS_Base
                 End If
             Next
         End Sub
+
         Public Sub RemoveAurasByInterruptFlag(ByVal AuraInterruptFlag As Integer)
             'DONE: Removing SpellAuras with a certain interruptflag
             Dim i As Integer
@@ -468,6 +497,7 @@ Public Module WS_Base
                 End With
             End If
         End Sub
+
         Public Function GetAuraModifier(ByVal AuraIndex As AuraEffects_Names) As Integer
             Dim Modifier As Integer = 0
             Dim i As Integer
@@ -482,6 +512,7 @@ Public Module WS_Base
             Next
             Return Modifier
         End Function
+
         Public Function GetAuraModifierByMiscMask(ByVal AuraIndex As AuraEffects_Names, ByVal Mask As Integer) As Integer
             Dim Modifier As Integer = 0
             Dim i As Integer
@@ -496,6 +527,7 @@ Public Module WS_Base
             Next
             Return Modifier
         End Function
+
         Public Sub AddAura(ByVal SpellID As Integer, ByVal Duration As Integer, ByRef Caster As BaseUnit)
             Dim AuraStart As Integer = 0
             Dim AuraEnd As Integer = MAX_POSITIVE_AURA_EFFECTs - 1
@@ -541,6 +573,7 @@ Public Module WS_Base
                 CType(CType(Me, PetObject).Owner, CharacterObject).GroupUpdateFlag = CType(CType(Me, PetObject).Owner, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS
             End If
         End Sub
+
         Public Sub UpdateAura(ByVal Slot As Integer)
             If ActiveSpells(Slot) Is Nothing Then Exit Sub
             If Slot >= MAX_AURA_EFFECTs_VISIBLE Then Exit Sub

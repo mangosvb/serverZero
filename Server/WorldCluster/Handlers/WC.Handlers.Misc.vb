@@ -40,14 +40,13 @@ Public Module WC_Handlers_Misc
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUERY_TIME_RESPONSE", Client.IP, Client.Port)
     End Sub
 
-
     Public Sub On_CMSG_NEXT_CINEMATIC_CAMERA(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NEXT_CINEMATIC_CAMERA", Client.IP, Client.Port)
     End Sub
+
     Public Sub On_CMSG_COMPLETE_CINEMATIC(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_COMPLETE_CINEMATIC", Client.IP, Client.Port)
     End Sub
-
 
     Public Sub On_CMSG_PLAYED_TIME(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY", Client.IP, Client.Port)
@@ -58,6 +57,7 @@ Public Module WC_Handlers_Misc
         Client.Send(response)
         response.Dispose()
     End Sub
+
     Public Sub On_CMSG_NAME_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -84,12 +84,12 @@ Public Module WC_Handlers_Misc
             End Try
         End If
     End Sub
+
     Public Sub On_CMSG_INSPECT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_INSPECT [GUID={2:X}]", Client.IP, Client.Port, GUID)
     End Sub
-
 
     Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Try
@@ -112,6 +112,7 @@ Public Module WC_Handlers_Misc
             statsPacket.Dispose()
         End If
     End Sub
+
     Public Sub On_CMSG_CANCEL_TRADE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If Client.Character IsNot Nothing AndAlso Client.Character.IsInWorld Then
             Try

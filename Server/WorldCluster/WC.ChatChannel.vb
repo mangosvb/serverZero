@@ -22,7 +22,6 @@ Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Channels
 
-
     Public CHAT_CHANNELs As New Dictionary(Of String, ChatChannelClass)
     Private CHAT_CHANNELs_Counter As Long = 1
     Private Function GetNexyChatChannelID() As Long
@@ -114,6 +113,7 @@ Public Module WS_Channels
                 ChannelFlags = ChannelFlags Or CHANNEL_FLAG.CHANNEL_FLAG_CUSTOM
             End If
         End Sub
+
         Public Sub Say(ByVal Message As String, ByVal msgLang As Integer, ByRef Character As CharacterObject)
             If Muted.Contains(Character.GUID) Then
                 Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOUCANTSPEAK, Character.GUID, Nothing, Nothing)
@@ -132,6 +132,7 @@ Public Module WS_Channels
                 Log.WriteLine(LogType.USER, "[{0}:{1}] SMSG_MESSAGECHAT [{2}: <{3}> {4}]", Character.Client.IP, Character.Client.Port, ChannelName, Character.Name, Message)
             End If
         End Sub
+
         Public Overridable Sub Join(ByRef Character As CharacterObject, ByVal ClientPassword As String)
             'DONE: Check if Already joined
             If Joined.Contains(Character.GUID) Then
@@ -193,6 +194,7 @@ Public Module WS_Channels
             End If
             Joined_Mode(Character.GUID) = modes
         End Sub
+
         Public Overridable Sub Part(ByRef Character As CharacterObject)
             'DONE: Check if not on this channel
             If Not Joined.Contains(Character.GUID) Then
@@ -235,6 +237,7 @@ Public Module WS_Channels
                 Me.Dispose()
             End If
         End Sub
+
         Public Overridable Sub Kick(ByRef Character As CharacterObject, ByVal Name As String)
             Dim VictimGUID As ULong = GetCharacterGUIDByName(Name)
 
@@ -270,6 +273,7 @@ Public Module WS_Channels
                 packet2.Dispose()
             End If
         End Sub
+
         Public Overridable Sub Ban(ByRef Character As CharacterObject, ByVal Name As String)
             Dim VictimGUID As ULong = GetCharacterGUIDByName(Name)
 
@@ -311,6 +315,7 @@ Public Module WS_Channels
                 packet1.Dispose()
             End If
         End Sub
+
         Public Overridable Sub UnBan(ByRef Character As CharacterObject, ByVal Name As String)
             Dim VictimGUID As ULong = GetCharacterGUIDByName(Name)
 
@@ -360,6 +365,7 @@ Public Module WS_Channels
                 packet.Dispose()
             End If
         End Sub
+
         Public Sub Invite(ByRef Character As CharacterObject, ByVal Name As String)
             If Not Joined.Contains(Character.GUID) Then
                 Dim packet As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.GUID, Nothing, Nothing)
@@ -423,6 +429,7 @@ Public Module WS_Channels
             p.Dispose()
             Return False
         End Function
+
         Public Sub GetOwner(ByRef Character As CharacterObject)
             Dim p As PacketClass
 
@@ -437,6 +444,7 @@ Public Module WS_Channels
             Character.Client.Send(p)
             p.Dispose()
         End Sub
+
         Public Sub SetOwner(ByRef Character As CharacterObject)
             If Joined_Mode.ContainsKey(Owner) Then
                 Joined_Mode(Owner) = Joined_Mode(Owner) And Not CHANNEL_USER_FLAG.CHANNEL_FLAG_OWNER
@@ -451,7 +459,6 @@ Public Module WS_Channels
             Broadcast(p)
             p.Dispose()
         End Sub
-
 
         Public Sub SetAnnouncements(ByRef Character As CharacterObject)
             If Not Joined.Contains(Character.GUID) Then
@@ -474,6 +481,7 @@ Public Module WS_Channels
                 packet.Dispose()
             End If
         End Sub
+
         Public Sub SetModeration(ByRef Character As CharacterObject)
             If Not Joined.Contains(Character.GUID) Then
                 Dim packet As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.GUID, Nothing, Nothing)
@@ -495,6 +503,7 @@ Public Module WS_Channels
                 packet.Dispose()
             End If
         End Sub
+
         Public Sub SetPassword(ByRef Character As CharacterObject, ByVal NewPassword As String)
             If Not Joined.Contains(Character.GUID) Then
                 Dim packet As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.GUID, Nothing, Nothing)
@@ -543,6 +552,7 @@ Public Module WS_Channels
                 packet.Dispose()
             End If
         End Sub
+
         Public Sub SetUnModerator(ByRef Character As CharacterObject, ByVal Name As String)
             If Not Joined.Contains(Character.GUID) Then
                 Dim packet As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.GUID, Nothing, Nothing)
@@ -573,6 +583,7 @@ Public Module WS_Channels
                 packet.Dispose()
             End If
         End Sub
+
         Public Sub SetMute(ByRef Character As CharacterObject, ByVal Name As String)
             If Not Joined.Contains(Character.GUID) Then
                 Dim packet As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.GUID, Nothing, Nothing)
@@ -603,6 +614,7 @@ Public Module WS_Channels
                 packet.Dispose()
             End If
         End Sub
+
         Public Sub SetUnMute(ByRef Character As CharacterObject, ByVal Name As String)
             If Not Joined.Contains(Character.GUID) Then
                 Dim packet As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.GUID, Nothing, Nothing)
@@ -634,16 +646,16 @@ Public Module WS_Channels
             End If
         End Sub
 
-
-
         Public Sub Broadcast(ByRef p As PacketClass)
             For Each GUID As ULong In Joined.ToArray
                 CHARACTERs(GUID).Client.SendMultiplyPackets(p)
             Next
         End Sub
+
         Public Sub Save()
             'TODO: Saving into database
         End Sub
+
         Public Sub Load()
             'TODO: Loading from database
         End Sub
@@ -665,6 +677,7 @@ Public Module WS_Channels
             CHANNEL_FLAG_CITY = &H20
             CHANNEL_FLAG_LFG = &H40
         End Enum
+
         <Flags()> _
         Protected Enum CHANNEL_USER_FLAG As Byte
             CHANNEL_FLAG_NONE = &H0
@@ -673,6 +686,7 @@ Public Module WS_Channels
             CHANNEL_FLAG_MUTED = &H4
             CHANNEL_FLAG_CUSTOM = &H10
         End Enum
+
         Protected Enum CHANNEL_NOTIFY_FLAGS
             CHANNEL_JOINED = 0                      ' %s joined channel.
             CHANNEL_LEFT = 1                        ' %s left channel.
@@ -710,6 +724,7 @@ Public Module WS_Channels
             CHANNEL_NOT_IN_LFG = &H21               ' [%s] You must be queued in looking for group before joining this channel.
 
         End Enum
+
         Protected Function BuildChannelNotify(ByVal Notify As CHANNEL_NOTIFY_FLAGS, ByVal GUID1 As ULong, ByVal GUID2 As ULong, ByVal Name As String) As PacketClass
             Dim response As New PacketClass(OPCODES.SMSG_CHANNEL_NOTIFY)
             response.AddInt8(Notify)

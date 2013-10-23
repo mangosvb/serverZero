@@ -64,32 +64,38 @@ Public Module WC_Character
                 Return (Group IsNot Nothing) AndAlso (GroupInvitedFlag = False)
             End Get
         End Property
+
         Public ReadOnly Property IsGroupLeader() As Boolean
             Get
                 If Group Is Nothing Then Return False
                 Return (Group.Members(Group.Leader) Is Me)
             End Get
         End Property
+
         Public ReadOnly Property IsInRaid() As Boolean
             Get
                 Return ((Group IsNot Nothing) AndAlso (Group.Type = GroupType.RAID))
             End Get
         End Property
+
         Public ReadOnly Property IsInGuild() As Boolean
             Get
                 Return (Guild IsNot Nothing)
             End Get
         End Property
+
         Public ReadOnly Property IsGuildLeader() As Boolean
             Get
                 Return ((Guild IsNot Nothing) AndAlso Guild.Leader = GUID)
             End Get
         End Property
+
         Public ReadOnly Property IsGuildRightSet(ByVal Rights As UInteger) As Boolean
             Get
                 Return ((Guild IsNot Nothing) AndAlso (Guild.RankRights(guildrank) And Rights) = Rights)
             End Get
         End Property
+
         Public ReadOnly Property Side() As Boolean
             Get
                 Select Case Race
@@ -140,6 +146,7 @@ Public Module WC_Character
                 GuildRank = CType(MySQLQuery.Rows(0).Item("char_guildRank"), Byte)
             End If
         End Sub
+
         Public Sub New(ByVal g As ULong, ByRef c As ClientClass)
             GUID = g
             Client = c
@@ -228,8 +235,6 @@ Public Module WC_Character
             WorldServer.ClientTransfer(Client.Index, posX, posY, posZ, ori, map)
         End Sub
 
-
-
         'Login
         Public Sub OnLogin()
             'DONE: Update character status in database
@@ -282,6 +287,7 @@ Public Module WC_Character
                 Next
             Next
         End Sub
+
         Public Sub OnLogout()
             'DONE: Leave group
             If IsInGroup Then
@@ -315,7 +321,6 @@ Public Module WC_Character
         End Sub
     End Class
 
-
     Public Function GetCharacterGUIDByName(ByVal Name As String) As ULong
         Dim GUID As ULong = 0
 
@@ -341,6 +346,7 @@ Public Module WC_Character
             Return GUID
         End If
     End Function
+
     Public Function GetCharacterNameByGUID(ByVal GUID As String) As String
         If CHARACTERs.ContainsKey(GUID) Then
             Return CHARACTERs(GUID).Name
@@ -355,6 +361,5 @@ Public Module WC_Character
             End If
         End If
     End Function
-
 
 End Module

@@ -980,6 +980,7 @@ Public Module WS_Combat
                 Log.WriteLine(LogType.DEBUG, "Error while doing melee attack.{0}", vbNewLine & e.ToString)
             End Try
         End Sub
+
         Public Sub DoRangedAttack(ByVal Status As Object)
             'DONE: Decide it's real position
             If TypeOf Victim Is CreatureObject Then CType(Victim, CreatureObject).SetToRealPosition()
@@ -1051,6 +1052,7 @@ Public Module WS_Combat
             'DONE: Enqueue next attack
             NextAttackTimer.Change(GetAttackTime(Character, False), Timeout.Infinite)
         End Sub
+
         Public Sub DoMeleeDamage()
 
             Dim damageInfo As DamageInfo = CalculateDamage(Character, Victim, combatDualWield, False)

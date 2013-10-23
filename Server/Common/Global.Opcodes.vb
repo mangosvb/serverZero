@@ -831,6 +831,7 @@ Public Enum OPCODES
 
     ' unofficial opcodes:
     SMSG_OUTDOORPVP_NOTIFY = &H33B              '827
+    SMSG_DEATH_RELEASE_LOC = &H378              '828
 End Enum
 
 

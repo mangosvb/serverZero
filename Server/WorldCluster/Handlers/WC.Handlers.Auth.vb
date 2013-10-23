@@ -657,7 +657,6 @@ Public Module WC_Handlers_Auth
         Try
             If Not WorldServer.InstanceCheck(Client, Client.Character.Map) Then Exit Sub
 
-
             If Client.Character.IsInWorld Then
                 'Inside server transfer
                 Client.Character.GetWorld.ClientLogin(Client.Index, Client.Character.GUID)

@@ -378,6 +378,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "Taxi"
     Public Sub InitializeTaxiNodes()
         Try
@@ -487,6 +488,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "Skills"
     Public Sub InitializeSkillLines()
         Try
@@ -557,6 +559,7 @@ Public Module WS_DBCLoad
     End Sub
 
 #End Region
+
 #Region "Locks"
     Public Sub InitializeLocks()
         Try
@@ -596,6 +599,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "AreaTable"
     Public Sub InitializeAreaTable()
         Try
@@ -640,7 +644,6 @@ Public Module WS_DBCLoad
                 AreaTable(areaExploreFlag).ZoneType = areaZoneType
                 'AreaTable(areaExploreFlag).Team = areaTeam
             Next i
-
             tmpDBC.Dispose()
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", i)
         Catch e As System.IO.DirectoryNotFoundException
@@ -650,6 +653,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "Emotes"
     Public Sub InitializeEmotes()
         Try
@@ -707,6 +711,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "Factions"
     Public Sub InitializeFactions()
         Try
@@ -853,6 +858,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "DurabilityCosts"
     Public Sub InitializeDurabilityCosts()
         Try
@@ -882,6 +888,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "Talents"
     Public Sub LoadTalentDBC()
         Try
@@ -948,6 +955,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "AuctionHouse"
     Public Sub LoadAuctionHouseDBC()
         Try
@@ -980,6 +988,7 @@ Public Module WS_DBCLoad
     End Sub
 
 #End Region
+
 #Region "Items"
     Public Sub LoadSpellItemEnchantments()
         Try
@@ -1130,6 +1139,7 @@ Public Module WS_DBCLoad
     End Sub
 
 #End Region
+
 #Region "Creatures"
     Public Sub LoadCreatureGossip()
         Try
@@ -1239,6 +1249,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 #End Region
+
 #Region "Quests"
     Public Sub LoadQuestStartersAndFinishers()
         Dim questStarters As New DataTable
@@ -1304,6 +1315,7 @@ Public Module WS_DBCLoad
         LootTemplates_Skinning = New LootStore("skinning_loot")
     End Sub
 #End Region
+
 #Region "Weather"
     Public Sub LoadWeather()
         Try

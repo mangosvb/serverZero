@@ -54,7 +54,6 @@ Public Module WS_Transports
     End Sub
 #End Region
 
-
 #Region "Transport.Waypoints"
     Public Class TransportMove
         Public X As Single

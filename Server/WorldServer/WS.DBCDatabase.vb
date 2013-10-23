@@ -107,6 +107,7 @@ Public Module WS_DBCDatabase
         ONESHOT_SUBMERGE = 374
         STATE_CANNIBALIZE = 398
     End Enum
+
     Public Enum EmoteStates As Integer
         ANIM_STAND = &H0
         ANIM_DEATH = &H1
@@ -245,6 +246,7 @@ Public Module WS_DBCDatabase
         ANIM_FISHINGLOOP = &H86
     End Enum
 #End Region
+
 #Region "SkillLines"
     Public Enum SKILL_LineCategory
         ATTRIBUTES = 5
@@ -256,6 +258,7 @@ Public Module WS_DBCDatabase
         PROFESSIONS = 11
         NOT_DISPLAYED = 12
     End Enum
+
     Public Enum SKILL_IDs As Integer
         SKILL_NONE = 0
         SKILL_FROST = 6
@@ -396,6 +399,7 @@ Public Module WS_DBCDatabase
         SKILL_PET_SERPENT = 768
         SKILL_INTERNAL = 769
     End Enum
+
     Public SkillLines As New Dictionary(Of Integer, Integer)
 
     Public SkillLineAbility As New Dictionary(Of Integer, TSkillLineAbility)
@@ -489,6 +493,7 @@ Public Module WS_DBCDatabase
         Return selectedTaxiNode
     End Function
 #End Region
+
 #Region "Talents"
     Public TalentsTab As New Dictionary(Of Integer, Integer)(30)
     Public Talents As New Dictionary(Of Integer, TalentInfo)(500)
@@ -502,6 +507,7 @@ Public Module WS_DBCDatabase
         Public RequiredPoints(2) As Integer
     End Class
 #End Region
+
 #Region "Factions"
     Public Const FACTION_TEMPLATES_COUNT As Integer = 2074
     Enum FactionTemplates
@@ -1112,12 +1118,14 @@ Public Module WS_DBCDatabase
         MonsterPredator_2 = 2029
         CavernsOfTimeDurnholde_2 = 2074
     End Enum                    'FactionTemplate.dbc       'Used in CREATUREs Database as Faction
+
     Public Enum TReaction As Byte
         HOSTILE = 0
         NEUTRAL = 1
         FRIENDLY = 2
         FIGHT_SUPPORT = 3
     End Enum
+
     Enum Factions
         None = 0
         PLAYERHuman = 1
@@ -1392,6 +1400,7 @@ Public Module WS_DBCDatabase
         ObjectForceReaction = 1081
         HolidayMonster = 1087
     End Enum        'Faction.dbc
+
     Public Enum FactionMasks
         FACTION_MASK_PLAYER = 1     'any player
         FACTION_MASK_ALLIANCE = 2   'player or creature from alliance team
@@ -1471,6 +1480,7 @@ Public Module WS_DBCDatabase
         Public friendFaction4 As Integer
     End Class
 #End Region
+
 #Region "Spells"
     Public SpellShapeShiftForm As New List(Of TSpellShapeshiftForm)
     Public Class TSpellShapeshiftForm
@@ -1502,6 +1512,7 @@ Public Module WS_DBCDatabase
     Public gtRegenHPPerSpt As New List(Of Single)
     Public gtRegenMPPerSpt As New List(Of Single)
 #End Region
+
 #Region "Items"
     Public Const DurabilityCosts_MAX As Integer = 300
     Public DurabilityCosts(DurabilityCosts_MAX, 28) As Short
@@ -1563,9 +1574,9 @@ Public Module WS_DBCDatabase
     End Class
 
 #End Region
+
 #Region "XPTable"
     Public Sub InitializeXPTable()
-        WS_CharManagment.XPTable(0) = 0
         WS_CharManagment.XPTable(1) = 400
         WS_CharManagment.XPTable(2) = 900
         WS_CharManagment.XPTable(3) = 1400
@@ -1576,81 +1587,61 @@ Public Module WS_DBCDatabase
         WS_CharManagment.XPTable(8) = 5400
         WS_CharManagment.XPTable(9) = 6500
         WS_CharManagment.XPTable(10) = 7600
-        WS_CharManagment.XPTable(11) = 8700
-        WS_CharManagment.XPTable(12) = 9800
-        WS_CharManagment.XPTable(13) = 11000
-        WS_CharManagment.XPTable(14) = 12300
-        WS_CharManagment.XPTable(15) = 13600
-        WS_CharManagment.XPTable(16) = 15000
-        WS_CharManagment.XPTable(17) = 16400
-        WS_CharManagment.XPTable(18) = 17800
-        WS_CharManagment.XPTable(19) = 19300
-        WS_CharManagment.XPTable(20) = 20800
-        WS_CharManagment.XPTable(21) = 22400
-        WS_CharManagment.XPTable(22) = 24000
-        WS_CharManagment.XPTable(23) = 25500
-        WS_CharManagment.XPTable(24) = 27200
-        WS_CharManagment.XPTable(25) = 28900
-        WS_CharManagment.XPTable(26) = 30500
-        WS_CharManagment.XPTable(27) = 32200
-        WS_CharManagment.XPTable(28) = 33900
-        WS_CharManagment.XPTable(29) = 36300
-        WS_CharManagment.XPTable(30) = 38800
-        WS_CharManagment.XPTable(31) = 41600
-        WS_CharManagment.XPTable(32) = 44600
-        WS_CharManagment.XPTable(33) = 48000
-        WS_CharManagment.XPTable(34) = 51400
-        WS_CharManagment.XPTable(35) = 55000
-        WS_CharManagment.XPTable(36) = 58700
-        WS_CharManagment.XPTable(37) = 62400
-        WS_CharManagment.XPTable(38) = 66200
-        WS_CharManagment.XPTable(39) = 70200
-        WS_CharManagment.XPTable(40) = 74300
-        WS_CharManagment.XPTable(41) = 78500
-        WS_CharManagment.XPTable(42) = 82800
-        WS_CharManagment.XPTable(43) = 87100
-        WS_CharManagment.XPTable(44) = 91600
-        WS_CharManagment.XPTable(45) = 95300
-        WS_CharManagment.XPTable(46) = 101000
-        WS_CharManagment.XPTable(47) = 105800
-        WS_CharManagment.XPTable(48) = 110700
-        WS_CharManagment.XPTable(49) = 115700
-        WS_CharManagment.XPTable(50) = 120900
-        WS_CharManagment.XPTable(51) = 126100
-        WS_CharManagment.XPTable(52) = 131500
-        WS_CharManagment.XPTable(53) = 137000
-        WS_CharManagment.XPTable(54) = 142500
-        WS_CharManagment.XPTable(55) = 148200
-        WS_CharManagment.XPTable(56) = 154000
-        WS_CharManagment.XPTable(57) = 159900
-        WS_CharManagment.XPTable(58) = 165800
-        WS_CharManagment.XPTable(59) = 172000
-        WS_CharManagment.XPTable(60) = 290000
-        WS_CharManagment.XPTable(61) = 317000
-        WS_CharManagment.XPTable(62) = 349000
-        WS_CharManagment.XPTable(63) = 386000
-        WS_CharManagment.XPTable(64) = 428000
-        WS_CharManagment.XPTable(65) = 475000
-        WS_CharManagment.XPTable(66) = 527000
-        WS_CharManagment.XPTable(67) = 585000
-        WS_CharManagment.XPTable(68) = 648000
-        WS_CharManagment.XPTable(69) = 717000
-        WS_CharManagment.XPTable(70) = 1523800
-        WS_CharManagment.XPTable(71) = 1539600
-        WS_CharManagment.XPTable(72) = 1555700
-        WS_CharManagment.XPTable(73) = 1571800
-        WS_CharManagment.XPTable(74) = 1587900
-        WS_CharManagment.XPTable(75) = 1604200
-        WS_CharManagment.XPTable(76) = 1620700
-        WS_CharManagment.XPTable(77) = 1637400
-        WS_CharManagment.XPTable(78) = 1653900
-        WS_CharManagment.XPTable(79) = 1670800
-        WS_CharManagment.XPTable(80) = 1700000
+        WS_CharManagment.XPTable(11) = 8800
+        WS_CharManagment.XPTable(12) = 10100
+        WS_CharManagment.XPTable(13) = 11400
+        WS_CharManagment.XPTable(14) = 12900
+        WS_CharManagment.XPTable(15) = 14400
+        WS_CharManagment.XPTable(16) = 16000
+        WS_CharManagment.XPTable(17) = 17700
+        WS_CharManagment.XPTable(18) = 19400
+        WS_CharManagment.XPTable(19) = 21300
+        WS_CharManagment.XPTable(20) = 23200
+        WS_CharManagment.XPTable(21) = 25200
+        WS_CharManagment.XPTable(22) = 27300
+        WS_CharManagment.XPTable(23) = 29400
+        WS_CharManagment.XPTable(24) = 31700
+        WS_CharManagment.XPTable(25) = 34000
+        WS_CharManagment.XPTable(26) = 36400
+        WS_CharManagment.XPTable(27) = 38900
+        WS_CharManagment.XPTable(28) = 41400
+        WS_CharManagment.XPTable(29) = 44300
+        WS_CharManagment.XPTable(30) = 47400
+        WS_CharManagment.XPTable(31) = 50800
+        WS_CharManagment.XPTable(32) = 54500
+        WS_CharManagment.XPTable(33) = 58600
+        WS_CharManagment.XPTable(34) = 62800
+        WS_CharManagment.XPTable(35) = 67100
+        WS_CharManagment.XPTable(36) = 71600
+        WS_CharManagment.XPTable(37) = 76100
+        WS_CharManagment.XPTable(38) = 80800
+        WS_CharManagment.XPTable(39) = 85700
+        WS_CharManagment.XPTable(40) = 90700
+        WS_CharManagment.XPTable(41) = 95800
+        WS_CharManagment.XPTable(42) = 101000
+        WS_CharManagment.XPTable(43) = 106300
+        WS_CharManagment.XPTable(44) = 111800
+        WS_CharManagment.XPTable(45) = 117500
+        WS_CharManagment.XPTable(46) = 123200
+        WS_CharManagment.XPTable(47) = 129100
+        WS_CharManagment.XPTable(48) = 135100
+        WS_CharManagment.XPTable(49) = 141200
+        WS_CharManagment.XPTable(50) = 147500
+        WS_CharManagment.XPTable(51) = 153900
+        WS_CharManagment.XPTable(52) = 160400
+        WS_CharManagment.XPTable(53) = 167100
+        WS_CharManagment.XPTable(54) = 173900
+        WS_CharManagment.XPTable(55) = 180800
+        WS_CharManagment.XPTable(56) = 187900
+        WS_CharManagment.XPTable(57) = 195000
+        WS_CharManagment.XPTable(58) = 202300
+        WS_CharManagment.XPTable(59) = 209800
+        WS_CharManagment.XPTable(60) = 217400
+
         Log.WriteLine(LogType.INFORMATION, "Initalizing: XPTable initialized.")
     End Sub
 #End Region
 #Region "Battlemasters"
-
 
     Public Battlemasters As New Dictionary(Of Integer, Byte)
     Public Sub InitializeBattlemasters()
@@ -1664,10 +1655,9 @@ Public Module WS_DBCDatabase
         Log.WriteLine(LogType.INFORMATION, "World: {0} Battlemasters Loaded.", MySQLQuery.Rows.Count)
     End Sub
 
-
 #End Region
-#Region "Battlegrounds"
 
+#Region "Battlegrounds"
 
     Public Battlegrounds As New Dictionary(Of Byte, TBattleground)
     Public Sub InitializeBattlegrounds()
@@ -1706,8 +1696,8 @@ Public Module WS_DBCDatabase
         Public HordeStartO As Single
     End Class
 
-
 #End Region
+
 #Region "TeleportCoords"
     Public TeleportCoords As New Dictionary(Of Integer, TTeleportCoords)
     Public Sub InitializeTeleportCoords()
@@ -1738,6 +1728,7 @@ Public Module WS_DBCDatabase
         Public PosZ As Single
     End Class
 #End Region
+
 #Region "MonterSayCombat"
     Public Sub InitializeMonsterSayCombat()
         ' Load the MonsterSayCombat Hashtable.
@@ -1809,6 +1800,7 @@ Public Module WS_DBCDatabase
 
     End Sub
 #End Region
+
 #Region "Creatures"
     Public CreatureGossip As New Dictionary(Of ULong, Integer)
 
@@ -1876,6 +1868,7 @@ Public Module WS_DBCDatabase
         End Sub
     End Class
 #End Region
+
 #Region "Other"
 
     Public Sub InitializeInternalDatabase()

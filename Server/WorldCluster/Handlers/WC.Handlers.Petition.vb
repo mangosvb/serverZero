@@ -28,8 +28,5 @@ Imports mangosVB.Common
 
 
 Public Module WC_Handlers_Petition
-
-
-
-
+    'TODO: Need to code the petition handlers for guild creation
 End Module

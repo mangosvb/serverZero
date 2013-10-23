@@ -32,8 +32,6 @@ Public Class WS_QuestSystem
 
     End Sub
 
-
-
     Public Enum QuestgiverStatusFlag As Integer
         DIALOG_STATUS_NONE = 0                  ' There aren't any quests available. - No Mark
         DIALOG_STATUS_UNAVAILABLE = 1           ' Quest available and your leve isn't enough. - Gray Quotation ! Mark
@@ -43,6 +41,7 @@ Public Class WS_QuestSystem
         DIALOG_STATUS_AVAILABLE = 5             ' Quest available, and your level is enough. - Yellow Quotation ! Mark
         DIALOG_STATUS_REWARD = 6                ' Quest has been finished. - Yellow dot on the minimap
     End Enum
+
     Public Enum QuestObjectiveFlag 'These flags are custom and are only used for MangosVB
         QUEST_OBJECTIVE_KILL = 1 'You have to kill creatures
         QUEST_OBJECTIVE_EXPLORE = 2 'You have to explore an area
@@ -52,6 +51,7 @@ Public Class WS_QuestSystem
         QUEST_OBJECTIVE_ITEM = 32 'You have to recieve some items to deliver
         QUEST_OBJECTIVE_EMOTE = 64 'You do an emote to a creature
     End Enum
+
     Public Enum QuestSpecialFlag As Integer
         QUEST_SPECIALFLAGS_NONE = 0
         QUEST_SPECIALFLAGS_DELIVER = 1
@@ -79,6 +79,7 @@ Public Class WS_QuestSystem
         INVALIDREASON_REACHED_DAILY_LIMIT = 26              'You have completed xx daily quests today
         INVALIDREASON_UNKNOW27 = 27                         'You can not complete quests once you have reached tired time ???
     End Enum
+
     Public Enum QuestFailedReason
         'SMSG_QUESTGIVER_QUEST_FAILED
         '		uint32 questID
@@ -89,6 +90,7 @@ Public Class WS_QuestSystem
         FAILED_INVENTORY_FULL2 = &H31   '0x31: '%s failed: Inventory is full.'
         FAILED_NOREASON = 0       '0x00: '%s failed.'
     End Enum
+
     Public Enum QuestPartyPushError As Byte
         QUEST_PARTY_MSG_SHARRING_QUEST = 0
         QUEST_PARTY_MSG_CANT_TAKE_QUEST = 1

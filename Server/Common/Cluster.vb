@@ -124,7 +124,6 @@ Public Interface IWorld
     Sub BattlefieldJoin(ByVal BattlefieldID As Integer, ByVal GUID As ULong)
     Sub BattlefieldLeave(ByVal BattlefieldID As Integer, ByVal GUID As ULong)
 
-
 End Interface
 
 <Serializable()> _

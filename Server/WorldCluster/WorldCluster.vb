@@ -174,6 +174,7 @@ Public Module WorldCluster
                 Log.WriteLine(LogType.SUCCESS, "[ACCOUNT] " & OutBuf)
         End Select
     End Sub
+
     Public Sub CharacterSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
@@ -182,6 +183,7 @@ Public Module WorldCluster
                 Log.WriteLine(LogType.SUCCESS, "[CHARACTER] " & OutBuf)
         End Select
     End Sub
+
     Public Sub WorldSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
@@ -310,7 +312,6 @@ Public Module WorldCluster
         WaitConsoleCommand()
     End Sub
 
-
     Public Sub WaitConsoleCommand()
         Dim tmp As String = "", CommandList() As String, cmds() As String
         Dim cmd() As String = {}
@@ -381,6 +382,5 @@ Public Module WorldCluster
         tw.Write(EX.ToString)
         tw.Close()
     End Sub
-
 
 End Module

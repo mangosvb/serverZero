@@ -4691,13 +4691,16 @@ CheckXPAgain:
 
         Public Sub SendDeathReleaseLoc(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal MapID As Integer)
             'Show spirit healer position on minimap
-            'Dim p As New PacketClass(OPCODES.SMSG_DEATH_RELEASE_LOC)
-            'p.AddInt32(MapID)
-            'p.AddSingle(x)
-            'p.AddSingle(y)
-            'p.AddSingle(z)
-            'Client.Send(p)
-            'p.Dispose()
+            Dim p As New PacketClass(OPCODES.SMSG_DEATH_RELEASE_LOC)
+            Try
+                p.AddInt32(MapID)
+                p.AddSingle(x)
+                p.AddSingle(y)
+                p.AddSingle(z)
+                Client.Send(p)
+            Finally
+                p.Dispose()
+            End Try
         End Sub
 
         'Combat
@@ -4722,27 +4725,33 @@ CheckXPAgain:
 
             If Attacker IsNot Nothing Then
                 'DONE: Add into combat if not already
-                AddToCombat(Attacker)
+                If Not inCombatWith.Contains(Attacker.GUID) Then
+                    inCombatWith.Add(Attacker.GUID)
+                    CheckCombat()
+                    SendCharacterUpdate()
+                End If
 
                 'DONE: Add the attacker into combat if not already
-                If TypeOf Attacker Is CharacterObject Then
-                    CType(Attacker, CharacterObject).AddToCombat(Me)
+                If TypeOf Attacker Is CharacterObject AndAlso CType(Attacker, CharacterObject).inCombatWith.Contains(GUID) = False Then
+                    CType(Attacker, CharacterObject).inCombatWith.Add(GUID)
+                    If (CType(Attacker, CharacterObject).cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) = 0 Then
+                        CType(Attacker, CharacterObject).cUnitFlags = CType(Attacker, CharacterObject).cUnitFlags Or UnitFlags.UNIT_FLAG_IN_COMBAT
+                        CType(Attacker, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Attacker, CharacterObject).cUnitFlags)
+                        CType(Attacker, CharacterObject).SendCharacterUpdate()
+                    End If
                 End If
 
                 'DONE: Fight support by NPCs
-                'TODO: Fight support is not with all mobs? Specified somewhere? Like the faction DBC?
-                If Not Attacker Is DuelPartner Then
-                    For Each cGUID As ULong In creaturesNear.ToArray
-                        If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso WORLD_CREATUREs(cGUID).isGuard Then
-                            If WORLD_CREATUREs(cGUID).isDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
-                                If inCombatWith.Contains(cGUID) Then Continue For
-                                If GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.FIGHT_SUPPORT AndAlso GetDistance(WORLD_CREATUREs(cGUID), Me) <= WORLD_CREATUREs(cGUID).AggroRange(Me) Then
-                                    WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Attacker, Damage)
-                                End If
+                For Each cGUID As ULong In creaturesNear.ToArray
+                    If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso WORLD_CREATUREs(cGUID).isGuard Then
+                        If WORLD_CREATUREs(cGUID).isDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
+                            If inCombatWith.Contains(cGUID) Then Continue For
+                            If GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.FIGHT_SUPPORT AndAlso GetDistance(WORLD_CREATUREs(cGUID), Me) <= WORLD_CREATUREs(cGUID).AggroRange(Me) Then
+                                WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Attacker, Damage)
                             End If
                         End If
-                    Next
-                End If
+                    End If
+                Next
             End If
 
             GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP
@@ -4756,7 +4765,7 @@ CheckXPAgain:
                 SendCharacterUpdate()
             End If
 
-            'DONE: Rage generation
+            'TODO: Need a better generation for Range
             'http://www.wowwiki.com/Formulas:Rage_generation
             If Classe = Classes.CLASS_WARRIOR OrElse (Classe = Classes.CLASS_DRUID AndAlso (ShapeshiftForm = ShapeshiftForm.FORM_BEAR OrElse ShapeshiftForm = ShapeshiftForm.FORM_DIREBEAR)) Then
                 Rage.Increment(Fix(2.5 * Damage / GetRageConversion))
@@ -4776,6 +4785,7 @@ CheckXPAgain:
             SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Life.Current, Integer))
             SendCharacterUpdate()
         End Sub
+
         Public Overrides Sub Energize(ByVal Damage As Integer, ByVal Power As ManaTypes, Optional ByRef Attacker As BaseUnit = Nothing)
             If DEAD Then Exit Sub
 

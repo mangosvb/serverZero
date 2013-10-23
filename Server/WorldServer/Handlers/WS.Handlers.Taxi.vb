@@ -23,13 +23,7 @@ Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
 Imports mangosVB.Common.Authenticator
 
-
-
-
-
-
 Public Module WS_Handlers_Taxi
-
 
     Private Enum ActivateTaxiReplies As Byte
         ERR_TAXIOK = 0
@@ -46,6 +40,7 @@ Public Module WS_Handlers_Taxi
         ERR_TAXISAMENODE = 11
         ERR_TAXINOTSTANDING = 12
     End Enum
+
     Private Sub SendActivateTaxiReply(ByRef Client As ClientClass, ByVal Reply As ActivateTaxiReplies)
         Dim TaxiFailed As New PacketClass(OPCODES.SMSG_ACTIVATETAXIREPLY)
         Try
@@ -97,7 +92,6 @@ Public Module WS_Handlers_Taxi
             Exit Sub
         End If
 
-
         Dim SMSG_SHOWTAXINODES As New PacketClass(OPCODES.SMSG_SHOWTAXINODES)
         Try
             SMSG_SHOWTAXINODES.AddInt32(1)
@@ -119,6 +113,7 @@ Public Module WS_Handlers_Taxi
 
         SendTaxiStatus(Client.Character, GUID)
     End Sub
+
     Public Sub On_CMSG_TAXIQUERYAVAILABLENODES(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -129,6 +124,7 @@ Public Module WS_Handlers_Taxi
 
         SendTaxiMenu(Client.Character, GUID)
     End Sub
+
     Public Sub On_CMSG_ACTIVATETAXI(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
@@ -204,6 +200,7 @@ Public Module WS_Handlers_Taxi
         TaxiTake(Client.Character, Mount)
         TaxiMove(Client.Character, DiscountMod)
     End Sub
+
     Public Sub On_CMSG_ACTIVATETAXI_FAR(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
@@ -307,10 +304,10 @@ Public Module WS_Handlers_Taxi
             Log.WriteLine(LogType.CRITICAL, "Error when taking a long taxi.{0}", vbNewLine & e.ToString)
         End Try
     End Sub
+
     Public Sub On_CMSG_MOVE_SPLINE_DONE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_SPLINE_DONE", Client.IP, Client.Port)
     End Sub
-
 
     Private Sub TaxiLand(ByVal Character As CharacterObject)
         Character.TaxiNodes.Clear()
@@ -321,6 +318,7 @@ Public Module WS_Handlers_Taxi
         Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Character.cUnitFlags)
         Character.SendCharacterUpdate()
     End Sub
+
     Private Sub TaxiTake(ByVal Character As CharacterObject, ByVal Mount As Integer)
         Character.Mount = Mount
         Character.cUnitFlags = Character.cUnitFlags Or UnitFlags.UNIT_FLAG_DISABLE_MOVE
@@ -330,6 +328,7 @@ Public Module WS_Handlers_Taxi
         Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Character.Copper)
         Character.SendCharacterUpdate()
     End Sub
+
     Public Sub TaxiMove(ByVal Character As CharacterObject, ByVal DiscountMod As Single)
         Dim FlagFirstNode As Boolean = True
         Dim LastX As Single
@@ -340,7 +339,6 @@ Public Module WS_Handlers_Taxi
 
         Dim WaypointPaths As New List(Of Integer)
         Dim WaypointNodes As New Dictionary(Of Integer, TTaxiPathNode)
-
 
         Try
             'DONE: Generate paths

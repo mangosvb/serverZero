@@ -23,7 +23,6 @@ Imports mangosVB.Common.BaseWriter
 
 Public Module WC_Handlers_Chat
 
-
     Public Sub On_CMSG_CHAT_IGNORED(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
 
@@ -37,6 +36,7 @@ Public Module WC_Handlers_Chat
             response.Dispose()
         End If
     End Sub
+
     Public Sub On_CMSG_MESSAGECHAT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
@@ -189,9 +189,6 @@ Public Module WC_Handlers_Chat
 
     End Sub
 
-
-
-
     Public Sub On_CMSG_JOIN_CHANNEL(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString()
@@ -205,6 +202,7 @@ Public Module WC_Handlers_Chat
 
         CHAT_CHANNELs(ChannelName.ToUpper).Join(Client.Character, Password)
     End Sub
+
     Public Sub On_CMSG_LEAVE_CHANNEL(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -216,6 +214,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).Part(Client.Character)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_LIST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString()
@@ -240,6 +239,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).SetPassword(Client.Character, ChannelNewPassword)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_SET_OWNER(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -259,6 +259,7 @@ Public Module WC_Handlers_Chat
             End If
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_OWNER(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -270,6 +271,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).GetOwner(Client.Character)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_MODERATOR(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -282,6 +284,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).SetModerator(Client.Character, ChannelUser)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_UNMODERATOR(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -294,6 +297,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).SetUnModerator(Client.Character, ChannelUser)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_MUTE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -306,6 +310,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).SetMute(Client.Character, ChannelUser)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_UNMUTE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -318,6 +323,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).SetUnMute(Client.Character, ChannelUser)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_INVITE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -332,6 +338,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).Invite(Client.Character, PlayerName)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_KICK(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -346,6 +353,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).Kick(Client.Character, PlayerName)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_ANNOUNCEMENTS(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -357,6 +365,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).SetAnnouncements(Client.Character)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_BAN(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -371,6 +380,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).Ban(Client.Character, PlayerName)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_UNBAN(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -385,6 +395,7 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).UnBan(Client.Character, PlayerName)
         End If
     End Sub
+
     Public Sub On_CMSG_CHANNEL_MODERATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         packet.GetInt16()
         Dim ChannelName As String = packet.GetString
@@ -396,6 +407,5 @@ Public Module WC_Handlers_Chat
             CHAT_CHANNELs(ChannelName).SetModeration(Client.Character)
         End If
     End Sub
-
 
 End Module

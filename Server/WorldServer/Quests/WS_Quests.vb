@@ -938,10 +938,12 @@ Public Class WS_Quests
 
         'TODO: Check for quest loots for adding to looted creature
     End Sub
+
     Public Sub OnQuestAddQuestLoot(ByRef c As CharacterObject, ByRef GameObject As GameObjectObject, ByRef Loot As LootObject)
         'HANDLERS: None
         'TODO: Check for quest loots for adding to looted gameObject
     End Sub
+
     Public Sub OnQuestAddQuestLoot(ByRef c As CharacterObject, ByRef Character As CharacterObject, ByRef Loot As LootObject)
         'HANDLERS: None
         'TODO: Check for quest loots for adding to looted player (used only in battleground?)
@@ -975,6 +977,7 @@ Public Class WS_Quests
             End If
         Next i
     End Sub
+
     Public Sub OnQuestItemRemove(ByRef c As CharacterObject, ByVal ItemID As Integer, ByVal Count As Byte)
         'HANDLERS: Added to delete sub
 
@@ -1130,6 +1133,7 @@ Public Class WS_Quests
 
         Return Status
     End Function
+
     Public Sub On_CMSG_QUESTGIVER_STATUS_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Try
             If (packet.Data.Length - 1) < 13 Then Exit Sub
@@ -1170,6 +1174,7 @@ Public Class WS_Quests
             Log.WriteLine(LogType.CRITICAL, "Error when sending quest menu.{0}", vbNewLine & e.ToString)
         End Try
     End Sub
+
     Public Sub On_CMSG_QUESTGIVER_QUERY_QUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
@@ -1187,6 +1192,7 @@ Public Class WS_Quests
             Log.WriteLine(LogType.CRITICAL, "Error while querying a quest.{0}{1}", vbNewLine, ex.ToString)
         End Try
     End Sub
+
     Public Sub On_CMSG_QUESTGIVER_ACCEPT_QUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
@@ -1224,6 +1230,7 @@ Public Class WS_Quests
             End If
         End If
     End Sub
+
     Public Sub On_CMSG_QUESTLOG_REMOVE_QUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -1286,6 +1293,7 @@ Public Class WS_Quests
             End If
         Next
     End Sub
+
     Public Sub On_CMSG_QUESTGIVER_COMPLETE_QUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
@@ -1296,6 +1304,7 @@ Public Class WS_Quests
 
         CompleteQuest(Client.Character, QuestID, GUID)
     End Sub
+
     Public Sub On_CMSG_QUESTGIVER_REQUEST_REWARD(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
@@ -1318,6 +1327,7 @@ Public Class WS_Quests
         Next
 
     End Sub
+
     Public Sub On_CMSG_QUESTGIVER_CHOOSE_REWARD(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
@@ -1540,6 +1550,7 @@ Public Class WS_Quests
 
         End If
     End Sub
+
     Public Sub On_MSG_QUEST_PUSH_RESULT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
@@ -1548,12 +1559,12 @@ Public Class WS_Quests
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_QUEST_PUSH_RESULT [{2:X} {3}]", Client.IP, Client.Port, GUID, Message)
 
-        'Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
-        'response.AddUInt64(GUID)
-        'response.AddInt8(QuestPartyPushError.QUEST_PARTY_MSG_ACCEPT_QUEST)
-        'response.AddInt32(0)
-        'Client.Send(response)
-        'response.Dispose()
+        Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+        response.AddUInt64(GUID)
+        response.AddInt8(QuestPartyPushError.QUEST_PARTY_MSG_ACCEPT_QUEST)
+        response.AddInt32(0)
+        Client.Send(response)
+        response.Dispose()
     End Sub
 
 

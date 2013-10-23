@@ -225,6 +225,7 @@ Module WS_CharMovement
             Client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING)
         End If
     End Sub
+
     Public Sub OnControlledMovementPacket(ByRef packet As PacketClass, ByRef Controlled As BaseUnit, ByRef Controller As CharacterObject)
         Dim MovementFlags As Integer = packet.GetInt32()
         Dim Time As UInteger = packet.GetUInt32()
@@ -265,6 +266,7 @@ Module WS_CharMovement
         Controlled.SendToNearPlayers(response, Controller.GUID)
         response.Dispose()
     End Sub
+
     Public Sub OnStartSwim(ByRef packet As PacketClass, ByRef Client As ClientClass)
         OnMovementPacket(packet, Client)
 
@@ -279,6 +281,7 @@ Module WS_CharMovement
             End If
         End If
     End Sub
+
     Public Sub OnStopSwim(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If Client.Character.underWaterTimer IsNot Nothing Then
             Client.Character.underWaterTimer.Dispose()
@@ -356,6 +359,7 @@ Module WS_CharMovement
         Client.Send(p)
         p.Dispose()
     End Sub
+
     Public Sub On_CMSG_AREATRIGGER(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Try
             If (packet.Data.Length - 1) < 9 Then Exit Sub
@@ -480,6 +484,7 @@ Module WS_CharMovement
                 Client.Character.underWaterTimer.Dispose()
                 Client.Character.underWaterTimer = Nothing
             End If
+
             If Not Client.Character.LogoutTimer Is Nothing Then
                 'DONE: Initialize packet
                 Dim UpdateData As New UpdateClass
@@ -500,14 +505,18 @@ Module WS_CharMovement
                 SMSG_UPDATE_OBJECT.Dispose()
 
                 Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
-                packetACK.AddInt8(StandStates.STANDSTATE_SIT)
-                Client.Send(packetACK)
-                packetACK.Dispose()
+                Try
+                    packetACK.AddInt8(StandStates.STANDSTATE_SIT)
+                    Client.Send(packetACK)
+                Finally
+                    packetACK.Dispose()
+                End Try
             End If
         Catch e As Exception
             Log.WriteLine(LogType.DEBUG, "Error when falling.{0}", vbNewLine & e.ToString)
         End Try
     End Sub
+
     Public Sub On_CMSG_ZONEUPDATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
@@ -526,6 +535,7 @@ Module WS_CharMovement
             SendWeather(newZone, Client)
         End If
     End Sub
+
     Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         OnMovementPacket(packet, Client)
 
@@ -604,6 +614,7 @@ Module WS_CharMovement
         Next
         GC.Collect()
     End Sub
+
     Public Sub MAP_UnLoad(ByVal x As Byte, ByVal y As Byte, ByVal Map As Integer)
         If Maps(Map).Tiles(x, y).PlayersHere.Count = 0 Then
             Log.WriteLine(LogType.INFORMATION, "Unloading map [{2}: {0},{1}]...", x, y, Map)
@@ -630,6 +641,7 @@ Module WS_CharMovement
             Character.Pet.Spawn()
         End If
     End Sub
+
     Public Sub RemoveFromWorld(ByRef Character As CharacterObject)
         If Not Maps.ContainsKey(Character.MapID) Then Return
 
@@ -700,6 +712,7 @@ Module WS_CharMovement
             Character.Pet.Hide()
         End If
     End Sub
+
     Public Sub MoveCell(ByRef Character As CharacterObject)
         Dim oldX As Byte = Character.CellX
         Dim oldY As Byte = Character.CellY
@@ -716,6 +729,7 @@ Module WS_CharMovement
             Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Add(Character.GUID)
         End If
     End Sub
+
     Public Sub UpdateCell(ByRef Character As CharacterObject)
         'Dim start As Integer = timeGetTime("")
         Dim list() As ULong
@@ -847,7 +861,6 @@ Module WS_CharMovement
             End If
         End If
 
-
         If CellYAdd <> 0 Then
             'DONE: Load cell if needed
             If Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd) Is Nothing Then
@@ -936,6 +949,7 @@ Module WS_CharMovement
             Next
         End With
     End Sub
+
     Public Sub UpdateCreaturesAndGameObjectsInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
         Dim list() As ULong
         Dim packet As New UpdatePacketClass
@@ -1008,6 +1022,7 @@ Module WS_CharMovement
         End If
         packet.Dispose()
     End Sub
+
     Public Sub UpdateCreaturesInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
         Dim list() As ULong
 
@@ -1034,6 +1049,7 @@ Module WS_CharMovement
             Next
         End With
     End Sub
+
     Public Sub UpdateGameObjectsInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
         With MapTile
 
@@ -1063,6 +1079,7 @@ Module WS_CharMovement
 
         End With
     End Sub
+
     Public Sub UpdateCorpseObjectsInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
         With MapTile
 
@@ -1091,7 +1108,6 @@ Module WS_CharMovement
 
         End With
     End Sub
-
 
 #End Region
 

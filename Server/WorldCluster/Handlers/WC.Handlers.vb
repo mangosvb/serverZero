@@ -29,7 +29,6 @@ Imports mangosVB.Common
 
 Public Module WC_Handlers
 
-
     Public Sub IntializePacketHandlers()
         'NOTE: These opcodes are not used in any way
         PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = CType(AddressOf OnUnhandledPacket, HandlePacket)
@@ -166,12 +165,5 @@ Public Module WC_Handlers
             Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
         End If
     End Sub
-
-
-
-
-
-
-
 
 End Module

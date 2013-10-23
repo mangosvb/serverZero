@@ -37,6 +37,7 @@ Public Module WS_Spells
         TRADESKILL_FISHING = 12
         TRADESKILL_SKINNING = 13
     End Enum
+
     Public Enum TradeSkillLevel As Integer
         TRADESKILL_LEVEL_NONE = 0
         TRADESKILL_LEVEL_APPRENTICE = 1
@@ -46,6 +47,7 @@ Public Module WS_Spells
         TRADESKILL_LEVEL_MASTER = 5
     End Enum
 #End Region
+
 #Region "WS.Spells.Constants"
     Public Const SPELL_DURATION_INFINITE As Integer = -1
     Public Const MAX_AURA_EFFECTs_VISIBLE As Integer = 48                  '48 AuraSlots (32 buff, 16 debuff)
@@ -73,6 +75,7 @@ Public Module WS_Spells
         Party = 2
         Pet = 3
     End Enum
+
     Public Enum TrackableCreatures
         All = 128
         Beast = 1
@@ -85,6 +88,7 @@ Public Module WS_Spells
         Mechanical = 9
         Undead = 6
     End Enum
+
     Public Enum TrackableResources
         ElvenGems = 7
         GahzRidian = 15
@@ -100,6 +104,7 @@ Public Module WS_Spells
         SPELL_STATE_FINISHED = 3
         SPELL_STATE_IDLE = 4
     End Enum
+
     Public Enum SpellSchoolMask As Integer
         SPELL_SCHOOL_MASK_NONE = &H0
         SPELL_SCHOOL_MASK_NORMAL = &H1
@@ -113,6 +118,7 @@ Public Module WS_Spells
         SPELL_SCHOOL_MASK_MAGIC = (SPELL_SCHOOL_MASK_HOLY Or SPELL_SCHOOL_MASK_SPELL)
         SPELL_SCHOOL_MASK_ALL = (SPELL_SCHOOL_MASK_NORMAL Or SPELL_SCHOOL_MASK_MAGIC)
     End Enum
+
     Public Enum SpellInterruptFlags As Integer
         SPELL_INTERRUPT_FLAG_MOVEMENT = &H1 ' why need this for instant?
         SPELL_INTERRUPT_FLAG_PUSH_BACK = &H2 ' push back
@@ -120,6 +126,7 @@ Public Module WS_Spells
         SPELL_INTERRUPT_FLAG_AUTOATTACK = &H8 ' no
         SPELL_INTERRUPT_FLAG_DAMAGE = &H10  ' _complete_ interrupt on direct damage?
     End Enum
+
     Public Enum SpellAuraInterruptFlags As Integer
         AURA_INTERRUPT_FLAG_HOSTILE_SPELL_INFLICTED = &H1 'removed when recieving a hostile spell?
         AURA_INTERRUPT_FLAG_DAMAGE = &H2 'removed by any damage
@@ -145,6 +152,7 @@ Public Module WS_Spells
         AURA_INTERRUPT_FLAG_STEALTH = &H200000 'removed by stealth
         AURA_INTERRUPT_FLAG_UNK7 = &H400000
     End Enum
+
     Public Enum SpellAuraProcFlags As Integer
         AURA_PROC_NULL = &H0
         AURA_PROC_ON_ANY_HOSTILE_ACTION = &H1
@@ -180,6 +188,7 @@ Public Module WS_Spells
         AURA_PROC_ON_SPELL_CRIT_HIT = &H40000000
         AURA_PROC_TARGET_SELF = &H80000000                   'our custom flag to decide if AURA_PROC target is self or victim
     End Enum
+
     Public Enum SpellAuraStates As Integer
         AURASTATE_FLAG_DODGE_BLOCK = 1
         AURASTATE_FLAG_HEALTH20 = 2
@@ -193,6 +202,7 @@ Public Module WS_Spells
         AURASTATE_FLAG_REJUVENATE = 16384
         AURASTATE_FLAG_POISON = 32768
     End Enum
+
     Public Enum AuraTickFlags As Byte
         FLAG_PERIODIC_DAMAGE = &H2
         FLAG_PERIODIC_TRIGGER_SPELL = &H4
@@ -200,6 +210,7 @@ Public Module WS_Spells
         FLAG_PERIODIC_LEECH = &H10
         FLAG_PERIODIC_ENERGIZE = &H20
     End Enum
+
     Public Enum AuraFlags
         AFLAG_NONE = &H0
         AFLAG_VISIBLE = &H1
@@ -213,26 +224,31 @@ Public Module WS_Spells
         AFLAG_POSITIVE = &H1F
         AFLAG_MASK = &HFF
     End Enum
+
     Public Enum SpellProcFlags As Byte
         PROC_ON_DAMAGE_RECEIVED = 3
     End Enum
+
     Public Enum SpellCastFlags As Integer
         CAST_FLAG_RANGED = &H20
         CAST_FLAG_ITEM_CASTER = &H100
         CAST_FLAG_EXTRA_MSG = &H400
     End Enum
+
     Public Enum SpellDamageType As Byte
         SPELL_DMG_TYPE_NONE = 0
         SPELL_DMG_TYPE_MAGIC = 1
         SPELL_DMG_TYPE_MELEE = 2
         SPELL_DMG_TYPE_RANGED = 3
     End Enum
+
     Public Enum SpellType As Byte
         SPELL_TYPE_NONMELEE = 0
         SPELL_TYPE_DOT = 1
         SPELL_TYPE_HEAL = 2
         SPELL_TYPE_HEALDOT = 3
     End Enum
+
     Public Enum SpellModOp
         SPELLMOD_DAMAGE = 0
         SPELLMOD_DURATION = 1
@@ -264,6 +280,7 @@ Public Module WS_Spells
         SPELLMOD_MULTIPLE_VALUE = 27
         SPELLMOD_RESIST_DISPEL_CHANCE = 28
     End Enum
+
     Public Enum SpellAttributes As Integer
         SPELL_ATTR_NONE = &H0
         SPELL_ATTR_RANGED = &H2
@@ -298,6 +315,7 @@ Public Module WS_Spells
         SPELL_ATTR_BREAKABLE_BY_DAMAGE = &H40000000 'Breakable by damage
         SPELL_ATTR_CANT_REMOVE = &H80000000 'Positive Aura but cannot right click to remove
     End Enum
+
     Public Enum SpellAttributesEx As Integer
         SPELL_ATTR_EX_DRAIN_ALL_POWER = &H2 'use all power (Only paladin Lay of Hands and Bunyanize)
         SPELL_ATTR_EX_CHANNELED_1 = &H4 'channeled 1
@@ -311,12 +329,14 @@ Public Module WS_Spells
         SPELL_ATTR_EX_REQ_COMBO_POINTS1 = &H100000 'Req combo points on target
         SPELL_ATTR_EX_REQ_COMBO_POINTS2 = &H400000 'Req combo points on target
     End Enum
+
     Public Enum SpellAttributesEx2 As Integer
         SPELL_ATTR_EX2_AUTO_SHOOT = &H20 'Auto Shoot?
         SPELL_ATTR_EX2_HEALTH_FUNNEL = &H800 'Health funnel pets?
         SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT = &H80000 'does not necessarly need shapeshift
         SPELL_ATTR_EX2_CANT_CRIT = &H20000000 'Spell can't crit
     End Enum
+
     Public Enum SpellAttributesCustom As UInteger
         SPELL_ATTR_CU_CONE_BACK = &H1
         SPELL_ATTR_CU_CONE_LINE = &H2
@@ -349,6 +369,7 @@ Public Module WS_Spells
         TARGET_FLAG_CORPSE = &H8000
         TARGET_FLAG_UNK2 = &H10000
     End Enum
+
     Public Enum SpellMissInfo As Byte
         SPELL_MISS_NONE = 0
         SPELL_MISS_MISS = 1
@@ -363,6 +384,7 @@ Public Module WS_Spells
         SPELL_MISS_ABSORB = 10
         SPELL_MISS_REFLECT = 11
     End Enum
+
     Public Enum SpellFailedReason As Byte
         SPELL_FAILED_AFFECTING_COMBAT = &H0                             ' 0x000
         SPELL_FAILED_ALREADY_AT_FULL_HEALTH = &H1                       ' 0x001
@@ -515,6 +537,7 @@ Public Module WS_Spells
         SPELL_FAILED_UNKNOWN = &H91                                     ' 0x08C
         SPELL_NO_ERROR = &HFF                                           ' 0x0FF
     End Enum
+
     Public Enum SpellImplicitTargets As Byte
         TARGET_NOTHING = 0
 
@@ -563,6 +586,7 @@ Public Module WS_Spells
         TARGET_SELF2 = 87
         TARGET_NONCOMBAT_PET = 90
     End Enum
+
     Public Enum SpellFamilyNames As Integer
         SPELLFAMILY_GENERIC = 0
         SPELLFAMILY_MAGE = 3
@@ -673,6 +697,7 @@ Public Module WS_Spells
                 'Case ShapeshiftForm.FORM_SHADOW
         End Select
     End Function
+
     Public Function GetShapeshiftManaType(ByVal form As ShapeshiftForm, ByVal manaType As ManaTypes) As ManaTypes
         Select Case form
             Case ShapeshiftForm.FORM_CAT, ShapeshiftForm.FORM_STEALTH
@@ -778,35 +803,41 @@ Public Module WS_Spells
                 Return (1 << School)
             End Get
         End Property
+
         Public ReadOnly Property GetDuration() As Integer
             Get
                 If SpellDuration.ContainsKey(DurationIndex) Then Return SpellDuration(DurationIndex)
                 Return 0
             End Get
         End Property
+
         Public ReadOnly Property GetRange() As Integer
             Get
                 If SpellRange.ContainsKey(rangeIndex) Then Return SpellRange(rangeIndex)
                 Return 0
             End Get
         End Property
+
         Public ReadOnly Property GetFocusObject() As String
             Get
                 If SpellFocusObject.ContainsKey(FocusObjectIndex) Then Return SpellFocusObject(FocusObjectIndex)
                 Return 0
             End Get
         End Property
+
         Public ReadOnly Property GetCastTime() As Integer
             Get
                 If SpellCastTime.ContainsKey(SpellCastTimeIndex) Then Return SpellCastTime(SpellCastTimeIndex)
                 Return 0
             End Get
         End Property
+
         Public ReadOnly Property GetManaCost(ByVal level As Integer, ByVal Mana As Integer) As Integer
             Get
                 Return manaCost + manaCostPerlevel * level + Mana * (manaCostPercent / 100)
             End Get
         End Property
+
         Public ReadOnly Property IsAura() As Boolean
             Get
                 If SpellEffects(0) IsNot Nothing AndAlso SpellEffects(0).ApplyAuraIndex <> 0 Then Return True
@@ -815,6 +846,7 @@ Public Module WS_Spells
                 Return False
             End Get
         End Property
+
         Public ReadOnly Property IsAOE() As Boolean
             Get
                 If SpellEffects(0) IsNot Nothing AndAlso SpellEffects(0).IsAOE Then Return True
@@ -823,6 +855,7 @@ Public Module WS_Spells
                 Return False
             End Get
         End Property
+
         Public ReadOnly Property IsDispell() As Boolean
             Get
                 If SpellEffects(0) IsNot Nothing AndAlso SpellEffects(0).ID = SpellEffects_Names.SPELL_EFFECT_DISPEL Then Return True
@@ -831,11 +864,13 @@ Public Module WS_Spells
                 Return False
             End Get
         End Property
+
         Public ReadOnly Property IsPassive() As Boolean
             Get
                 Return (Me.Attributes And SpellAttributes.SPELL_ATTR_PASSIVE) AndAlso ((Me.AttributesEx And SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE) = 0)
             End Get
         End Property
+
         Public ReadOnly Property IsNegative() As Boolean
             Get
                 For i As Byte = 0 To 2
@@ -844,21 +879,25 @@ Public Module WS_Spells
                 Return (Me.AttributesEx And SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE)
             End Get
         End Property
+
         Public ReadOnly Property IsAutoRepeat() As Boolean
             Get
                 Return (Me.AttributesEx2 And SpellAttributesEx2.SPELL_ATTR_EX2_AUTO_SHOOT)
             End Get
         End Property
+
         Public ReadOnly Property IsRanged() As Boolean
             Get
                 Return (Me.DamageType = SpellDamageType.SPELL_DMG_TYPE_RANGED)
             End Get
         End Property
+
         Public ReadOnly Property IsMelee() As Boolean
             Get
                 Return (Me.DamageType = SpellDamageType.SPELL_DMG_TYPE_MELEE)
             End Get
         End Property
+
         Public ReadOnly Property CanStackSpellRank() As Boolean
             Get
                 If Not SpellChains.ContainsKey(ID) OrElse SpellChains(ID) = 0 Then Return True
@@ -1449,6 +1488,7 @@ Public Module WS_Spells
                 End Try
             End If
         End Sub
+
         Public Sub Apply(ByRef caster As BaseObject, ByVal Targets As SpellTargets)
             Dim TargetsInfected(0 To 2) As List(Of BaseObject)
             TargetsInfected(0) = GetHits(GetTargets(caster, Targets, 0))
@@ -1636,6 +1676,7 @@ SkipShapeShift:
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
+
         Public Sub StartChannel(ByRef Caster As BaseUnit, ByVal Duration As Integer, ByRef Targets As SpellTargets)
             If TypeOf Caster Is CharacterObject Then
                 Dim packet As New PacketClass(OPCODES.MSG_CHANNEL_START)
@@ -1665,6 +1706,7 @@ SkipShapeShift:
             Caster.SendToNearPlayers(updatePacket)
             updatePacket.Dispose()
         End Sub
+
         Public Sub WriteAmmoToPacket(ByRef Packet As PacketClass, ByRef Caster As BaseUnit)
             Dim ItemInfo As ItemInfo = Nothing
 
@@ -1693,6 +1735,7 @@ SkipShapeShift:
             Packet.AddInt32(ItemInfo.Model) 'Ammo Display ID
             Packet.AddInt32(ItemInfo.InventoryType) 'Ammo Inventory Type
         End Sub
+
         Public Sub SendInterrupted(ByVal result As Byte, ByRef Caster As BaseUnit)
             If TypeOf Caster Is CharacterObject Then
                 Dim packet As New PacketClass(OPCODES.SMSG_SPELL_FAILURE)
@@ -1709,6 +1752,7 @@ SkipShapeShift:
             Caster.SendToNearPlayers(packet2)
             packet2.Dispose()
         End Sub
+
         Public Sub SendSpellGO(ByRef Caster As BaseObject, ByRef Targets As SpellTargets, ByRef InfectedTargets As Dictionary(Of ULong, SpellMissInfo), ByRef Item As ItemObject)
             Dim castFlags As Short = 256
             If IsRanged Then castFlags = castFlags Or SpellCastFlags.CAST_FLAG_RANGED
@@ -1758,6 +1802,7 @@ SkipShapeShift:
             Caster.SendToNearPlayers(packet)
             packet.Dispose()
         End Sub
+
         Public Sub SendSpellMiss(ByRef Caster As BaseObject, ByRef Target As BaseUnit, ByVal MissInfo As SpellMissInfo)
             Dim packet As New PacketClass(OPCODES.SMSG_SPELLLOGMISS)
             packet.AddInt32(ID)
@@ -1769,6 +1814,7 @@ SkipShapeShift:
             Caster.SendToNearPlayers(packet)
             packet.Dispose()
         End Sub
+
         Public Sub SendSpellLog(ByRef Caster As BaseObject, ByRef Targets As SpellTargets)
             Dim packet As New PacketClass(OPCODES.SMSG_SPELLLOGEXECUTE)
 
@@ -1845,6 +1891,7 @@ SkipShapeShift:
             Caster.SendToNearPlayers(packet)
             packet.Dispose()
         End Sub
+
         Public Sub SendSpellCooldown(ByRef c As CharacterObject, Optional ByRef castItem As ItemObject = Nothing)
             If Not c.Spells.ContainsKey(ID) Then Return 'This is a trigger spell or something, exit
             Dim Recovery As Integer = SpellCooldown
@@ -1914,6 +1961,7 @@ SkipShapeShift:
             End If
         End Sub
     End Class
+
     Public Class SpellEffect
         Public ID As SpellEffects_Names = SpellEffects_Names.SPELL_EFFECT_NOTHING
         Public Spell As SpellInfo
@@ -1950,6 +1998,7 @@ SkipShapeShift:
                 Return 0
             End Get
         End Property
+
         Public ReadOnly Property GetValue(ByVal Level As Integer, Optional ByVal ComboPoints As Integer = 0) As Integer
             Get
                 Try
@@ -1959,6 +2008,7 @@ SkipShapeShift:
                 End Try
             End Get
         End Property
+
         Public ReadOnly Property IsNegative() As Boolean
             Get
                 If ID <> SpellEffects_Names.SPELL_EFFECT_APPLY_AURA Then Return False
@@ -1980,6 +2030,7 @@ SkipShapeShift:
                 End Select
             End Get
         End Property
+
         Public ReadOnly Property IsAOE() As Boolean
             Get
                 For i As Integer = 0 To 1
@@ -2005,6 +2056,7 @@ SkipShapeShift:
             End Get
         End Property
     End Class
+
     Public Class SpellTargets
         Public unitTarget As BaseUnit = Nothing
         Public goTarget As BaseObject = Nothing
@@ -2074,6 +2126,7 @@ SkipShapeShift:
                 End If
             End If
         End Sub
+
         Public Sub WriteTargets(ByRef packet As PacketClass)
             packet.AddInt16(targetMask)
 
@@ -2104,36 +2157,41 @@ SkipShapeShift:
             unitTarget = c
             targetMask += SpellCastTargetFlags.TARGET_FLAG_SELF
         End Sub
+
         Public Sub SetTarget_UNIT(ByRef c As BaseUnit)
             unitTarget = c
             targetMask += SpellCastTargetFlags.TARGET_FLAG_UNIT
         End Sub
+
         Public Sub SetTarget_OBJECT(ByRef o As BaseObject)
             Me.goTarget = o
             targetMask += SpellCastTargetFlags.TARGET_FLAG_OBJECT
         End Sub
+
         Public Sub SetTarget_ITEM(ByRef i As ItemObject)
             Me.itemTarget = i
             targetMask += SpellCastTargetFlags.TARGET_FLAG_ITEM
         End Sub
+
         Public Sub SetTarget_SOURCELOCATION(ByVal x As Single, ByVal y As Single, ByVal z As Single)
             Me.srcX = x
             Me.srcY = y
             Me.srcZ = z
             targetMask += SpellCastTargetFlags.TARGET_FLAG_SOURCE_LOCATION
         End Sub
+
         Public Sub SetTarget_DESTINATIONLOCATION(ByVal x As Single, ByVal y As Single, ByVal z As Single)
             Me.dstX = x
             Me.dstY = y
             Me.dstZ = z
             targetMask += SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION
         End Sub
+
         Public Sub SetTarget_STRING(ByVal str As String)
             Me.stringTarget = str
             targetMask += SpellCastTargetFlags.TARGET_FLAG_STRING
         End Sub
     End Class
-
 
     Public Class CastSpellParameters
         Implements IDisposable
@@ -2270,6 +2328,7 @@ SkipShapeShift:
         Client.Send(packet)
         packet.Dispose()
     End Sub
+
     Public Sub SendNonMeleeDamageLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal SchoolType As Integer, ByVal Damage As Integer, ByVal Resist As Integer, ByVal Absorbed As Integer, ByVal CriticalHit As Boolean)
         Dim packet As New PacketClass(OPCODES.SMSG_SPELLNONMELEEDAMAGELOG)
         packet.AddPackGUID(Target.GUID)
@@ -2290,6 +2349,7 @@ SkipShapeShift:
         packet.AddInt32(0)               'Unk
         Caster.SendToNearPlayers(packet)
     End Sub
+
     Public Sub SendHealSpellLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal CriticalHit As Boolean)
         Dim packet As New PacketClass(OPCODES.SMSG_HEALSPELL_ON_PLAYER_OBSOLETE)
         packet.AddPackGUID(Target.GUID)
@@ -2303,6 +2363,7 @@ SkipShapeShift:
         End If
         Caster.SendToNearPlayers(packet)
     End Sub
+
     Public Sub SendEnergizeSpellLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal PowerType As Integer)
         'Dim packet As New PacketClass(OPCODES.SMSG_SPELLENERGIZELOG)
         'packet.AddPackGUID(Target.GUID)
@@ -2313,6 +2374,7 @@ SkipShapeShift:
         'Caster.SendToNearPlayers(packet)
         'packet.Dispose()
     End Sub
+
     Public Sub SendPeriodicAuraLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal School As Integer, ByVal Damage As Integer, ByVal AuraIndex As Integer)
         Dim packet As New PacketClass(OPCODES.SMSG_PERIODICAURALOG)
         packet.AddPackGUID(Target.GUID)
@@ -2326,6 +2388,7 @@ SkipShapeShift:
         Caster.SendToNearPlayers(packet)
         packet.Dispose()
     End Sub
+
     Public Sub SendPlaySpellVisual(ByRef Caster As BaseUnit, ByVal SpellId As Integer)
         Dim packet As New PacketClass(OPCODES.SMSG_PLAY_SPELL_VISUAL)
         packet.AddUInt64(Caster.GUID)
@@ -2333,6 +2396,7 @@ SkipShapeShift:
         Caster.SendToNearPlayers(packet)
         packet.Dispose()
     End Sub
+
     Public Sub SendChannelUpdate(ByRef Caster As CharacterObject, ByVal Time As Integer)
         'DONE: Update time for self
         Dim packet As New PacketClass(OPCODES.MSG_CHANNEL_UPDATE)
@@ -2349,6 +2413,7 @@ SkipShapeShift:
     End Sub
 
 #End Region
+
 #Region "WS.Spells.Database"
 
     Public SpellChains As New Dictionary(Of Integer, Integer)
@@ -2505,9 +2570,6 @@ SkipShapeShift:
         'SPELL_EFFECTs(135) = AddressOf SPELL_EFFECT_SUMMON_PET_NEW
         'SPELL_EFFECTs(136) = AddressOf SPELL_EFFECT_HEAL_PCT
         SPELL_EFFECTs(137) = AddressOf SPELL_EFFECT_ENERGIZE_PCT
-
-
-
 
 
         For i = 0 To AURAs_COUNT
@@ -2777,7 +2839,6 @@ SkipShapeShift:
         'AURAs( 260 ) = AddressOf   SPELL_AURA_260                                      '
         'AURAs( 261 ) = AddressOf   SPELL_AURA_261                                      '
     End Sub
-
 
 #End Region
 
@@ -3210,6 +3271,7 @@ SkipShapeShift:
     Public Function SPELL_EFFECT_NOTHING(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_BIND(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3220,6 +3282,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_DUMMY(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
@@ -3231,6 +3294,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_SCHOOL_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         Dim Damage As Integer = 0
@@ -3257,6 +3321,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_ENVIRONMENTAL_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
 
@@ -3267,6 +3332,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_TRIGGER_SPELL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         'NOTE: Trigger spell shouldn't add a cast error?
         If SPELLs.ContainsKey(SpellInfo.TriggerSpell) = False Then Return SpellFailedReason.SPELL_NO_ERROR
@@ -3307,6 +3373,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_TELEPORT_UNITS(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3328,6 +3395,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_MANA_DRAIN(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         Dim Damage As Integer = 0
@@ -3408,6 +3476,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_HEAL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         Dim Damage As Integer = 0
@@ -3423,6 +3492,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_HEAL_MAX_HEALTH(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         Dim Damage As Integer = 0
@@ -3438,6 +3508,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_ENERGIZE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
 
@@ -3448,6 +3519,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_ENERGIZE_PCT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Dim Damage As Integer = 0
 
@@ -3651,6 +3723,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_SKILL_STEP(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         If SpellInfo.MiscValue <> 0 Then
@@ -3664,6 +3737,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_DISPEL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         For Each Unit As BaseUnit In Infected
             'TODO: Remove friendly or enemy spells depending on the reaction?
@@ -3674,6 +3748,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_EVADE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3682,6 +3757,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_DODGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3692,6 +3768,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_PARRY(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3702,6 +3779,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_BLOCK(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3712,6 +3790,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_DUAL_WIELD(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3750,6 +3829,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -3793,9 +3873,6 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
-
-
-
 
 
     Private Const SLOT_NOT_FOUND As Integer = -1
@@ -3894,6 +3971,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_APPLY_AURA(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         If ((Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) OrElse Target.targetMask = SpellCastTargetFlags.TARGET_FLAG_SELF) AndAlso Target.unitTarget Is Nothing Then Return SpellFailedReason.SPELL_FAILED_BAD_IMPLICIT_TARGETS
 
@@ -3973,6 +4051,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_RESURRECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseObject In Infected
@@ -4045,6 +4124,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_RESURRECT_NEW(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseObject In Infected
@@ -4113,6 +4193,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_TELEPORT_GRAVEYARD(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -4151,6 +4232,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_DETECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         For Each Unit As BaseUnit In Infected
@@ -4161,6 +4243,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_LEAP(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Dim selectedX As Single = Caster.positionX + Math.Cos(Caster.orientation) * SpellInfo.GetRadius
         Dim selectedY As Single = Caster.positionY + Math.Sin(Caster.orientation) * SpellInfo.GetRadius
@@ -4188,6 +4271,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_SUMMON(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         'Select Case SpellInfo.MiscValueB
         '    Case SummonType.SUMMON_TYPE_GUARDIAN, SummonType.SUMMON_TYPE_POSESSED, SummonType.SUMMON_TYPE_POSESSED2
@@ -4354,6 +4438,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_SUMMON_WILD(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Dim Duration As Integer = SPELLs(SpellID).GetDuration
         Dim Type As TempSummonType = TempSummonType.TEMPSUMMON_TIMED_OR_DEAD_DESPAWN
@@ -4379,6 +4464,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_SUMMON_TOTEM(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Dim Slot As Byte = 0
         Select Case SpellInfo.ID
@@ -4448,6 +4534,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_SUMMON_OBJECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         If Not TypeOf Caster Is BaseUnit Then Return SpellFailedReason.SPELL_FAILED_CASTER_DEAD
 
@@ -4506,6 +4593,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_ENCHANT_ITEM(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         If Target.itemTarget Is Nothing Then Return SpellFailedReason.SPELL_FAILED_ITEM_NOT_FOUND
 
@@ -4535,6 +4623,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         If Target.itemTarget Is Nothing Then Return SpellFailedReason.SPELL_FAILED_ITEM_NOT_FOUND
 
@@ -4577,6 +4666,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_ENCHANT_HELD_ITEM(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         'TODO: If there already is an enchantment here, ask for permission?
 
@@ -4596,6 +4686,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_CHARGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         If TypeOf Caster Is CreatureObject Then
             CType(Caster, CreatureObject).SetToRealPosition()
@@ -4635,6 +4726,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_KNOCK_BACK(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         For Each Unit As BaseUnit In Infected
             Dim Direction As Single = GetOrientation(Caster.positionX, Unit.positionX, Caster.positionY, Unit.positionY)
@@ -4656,6 +4748,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_SCRIPT_EFFECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         If SPELLs(SpellID).SpellFamilyName = SpellFamilyNames.SPELLFAMILY_PALADIN Then
             If SPELLs(SpellID).SpellIconID = 70 OrElse SPELLs(SpellID).SpellIconID = 242 Then
@@ -4682,6 +4775,7 @@ SkipShapeShift:
 
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
+
     Public Function SPELL_EFFECT_DUEL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
         Select Case SpellInfo.implicitTargetA
@@ -4738,7 +4832,6 @@ SkipShapeShift:
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
 
-
     Public Function GetEnemyAtPoint(ByRef c As BaseUnit, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
@@ -4765,6 +4858,7 @@ SkipShapeShift:
 
         Return result
     End Function
+
     Public Function GetEnemyAroundMe(ByRef c As BaseUnit, ByVal Distance As Single, Optional ByRef r As BaseUnit = Nothing) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
@@ -4792,6 +4886,7 @@ SkipShapeShift:
 
         Return result
     End Function
+
     Public Function GetFriendAroundMe(ByRef c As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
@@ -4818,6 +4913,7 @@ SkipShapeShift:
 
         Return result
     End Function
+
     Public Function GetFriendPlayersAroundMe(ByRef c As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
@@ -4838,6 +4934,7 @@ SkipShapeShift:
 
         Return result
     End Function
+
     Public Function GetPartyMembersAroundMe(ByRef c As CharacterObject, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
@@ -4908,6 +5005,7 @@ SkipShapeShift:
     Public Sub SPELL_AURA_NONE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
     End Sub
+
     Public Sub SPELL_AURA_DUMMY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         Log.WriteLine(LogType.DEBUG, "[DEBUG] Aura Dummy for spell {0}.", SpellID)
         Select Case Action
@@ -4922,6 +5020,7 @@ SkipShapeShift:
                 End Select
         End Select
     End Sub
+
     Public Sub SPELL_AURA_BIND_SIGHT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -4944,6 +5043,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_FAR_SIGHT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -4964,6 +5064,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_SCHOOL_IMMUNITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -4978,6 +5079,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MECHANIC_IMMUNITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -4993,6 +5095,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_DISPEL_IMMUNITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5007,6 +5110,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_TRACK_CREATURES(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5027,6 +5131,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_TRACK_RESOURCES(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5047,6 +5152,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_SCALE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5073,6 +5179,7 @@ SkipShapeShift:
         End If
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_SKILL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5136,6 +5243,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_DAMAGE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5154,6 +5262,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_HEAL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5169,6 +5278,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_ENERGIZE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5184,6 +5294,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_LEECH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5200,6 +5311,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_MANA_LEECH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5216,6 +5328,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_TRIGGER_SPELL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5235,6 +5348,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_DAMAGE_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5248,6 +5362,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_HEAL_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5264,6 +5379,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_PERIODIC_ENERGIZE_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5280,6 +5396,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_REGEN(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -5305,6 +5422,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_POWER_REGEN(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -5339,6 +5457,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_POWER_REGEN_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -5396,7 +5515,6 @@ SkipShapeShift:
 
     End Sub
 
-
     Public Sub SPELL_AURA_GHOST(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -5417,6 +5535,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_INVISIBILITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5445,6 +5564,7 @@ SkipShapeShift:
         End If
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_STEALTH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5464,6 +5584,7 @@ SkipShapeShift:
         'DONE: Update the cell
         UpdateCell(CType(Target, CharacterObject))
     End Sub
+
     Public Sub SPELL_AURA_MOD_STEALTH_LEVEL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5479,6 +5600,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_INVISIBILITY_DETECTION(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5497,6 +5619,7 @@ SkipShapeShift:
             UpdateCell(CType(Target, CharacterObject))
         End If
     End Sub
+
     Public Sub SPELL_AURA_MOD_DETECT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5515,6 +5638,7 @@ SkipShapeShift:
             UpdateCell(CType(Target, CharacterObject))
         End If
     End Sub
+
     Public Sub SPELL_AURA_DETECT_STEALTH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5533,6 +5657,7 @@ SkipShapeShift:
             UpdateCell(CType(Target, CharacterObject))
         End If
     End Sub
+
     Public Sub SPELL_AURA_MOD_DISARM(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
         Select Case Action
@@ -5554,6 +5679,7 @@ SkipShapeShift:
                 End If
         End Select
     End Sub
+
     Public Sub SPELL_AURA_SCHOOL_ABSORB(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Caster Is BaseUnit Then Exit Sub
         Select Case Action
@@ -5569,6 +5695,7 @@ SkipShapeShift:
                 Target.AbsorbSpellLeft.Remove(SpellID)
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_SHAPESHIFT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -5736,6 +5863,7 @@ SkipShapeShift:
                 Exit Sub
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_DECREASE_SPEED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         'NOTE: Some values of EffectInfo.GetValue are in old format, new format uses (-) values
 
@@ -5785,6 +5913,7 @@ SkipShapeShift:
                 Exit Sub
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_INCREASE_SPEED_ALWAYS(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -5803,6 +5932,7 @@ SkipShapeShift:
                 Exit Sub
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -5821,6 +5951,7 @@ SkipShapeShift:
                 Exit Sub
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED_ALWAYS(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -5839,6 +5970,7 @@ SkipShapeShift:
                 Exit Sub
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_INCREASE_SWIM_SPEED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -6003,6 +6135,7 @@ SkipShapeShift:
         End If
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_STUN(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -6103,6 +6236,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_FEATHER_FALL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -6124,6 +6258,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_WATER_WALK(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -6145,6 +6280,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_HOVER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -6166,6 +6302,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_WATER_BREATHING(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -6392,6 +6529,7 @@ SkipShapeShift:
         CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
         CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
     End Sub
+
     Public Sub SPELL_AURA_MOD_STAT_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Action = AuraAction.AURA_UPDATE Then Exit Sub
         If Not TypeOf Target Is CharacterObject Then Exit Sub
@@ -6474,6 +6612,7 @@ SkipShapeShift:
         CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
         CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
     End Sub
+
     Public Sub SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Action = AuraAction.AURA_UPDATE Then Exit Sub
         If Not TypeOf Target Is CharacterObject Then Exit Sub
@@ -6625,6 +6764,7 @@ SkipShapeShift:
             UpdateData.Dispose()
         End If
     End Sub
+
     Public Sub SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -6655,6 +6795,7 @@ SkipShapeShift:
         End If
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_INCREASE_ENERGY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -6711,7 +6852,6 @@ SkipShapeShift:
 
     End Sub
 
-
     Public Sub SPELL_AURA_MOD_BASE_RESISTANCE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -6741,6 +6881,7 @@ SkipShapeShift:
 
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_BASE_RESISTANCE_PCT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -6770,6 +6911,7 @@ SkipShapeShift:
 
         End Select
     End Sub
+
     Public Sub SPELL_AURA_MOD_RESISTANCE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -6816,6 +6958,7 @@ SkipShapeShift:
         End Select
         CType(Target, CharacterObject).SendCharacterUpdate(False)
     End Sub
+
     Public Sub SPELL_AURA_MOD_RESISTANCE_PCT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -6868,6 +7011,7 @@ SkipShapeShift:
         End Select
         CType(Target, CharacterObject).SendCharacterUpdate(False)
     End Sub
+
     Public Sub SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CharacterObject Then Exit Sub
 
@@ -6920,6 +7064,7 @@ SkipShapeShift:
         End Select
         CType(Target, CharacterObject).SendCharacterUpdate(False)
     End Sub
+
     Public Sub SPELL_AURA_MOD_ATTACK_POWER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -6944,6 +7089,7 @@ SkipShapeShift:
         End If
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_RANGED_ATTACK_POWER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -7100,6 +7246,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_SILENCE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -7117,6 +7264,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_PACIFY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         Select Case Action
@@ -7149,6 +7297,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_POSSESS(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If (Not TypeOf Target Is CreatureObject) AndAlso (Not TypeOf Target Is CharacterObject) Then Exit Sub
 
@@ -7271,8 +7420,6 @@ SkipShapeShift:
 
     End Sub
 
-
-
     Public Sub SPELL_AURA_MOD_THREAT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         'NOTE: EffectInfo.MiscValue => DamageType (not used for now, till new combat sytem)
@@ -7291,6 +7438,7 @@ SkipShapeShift:
         End Select
 
     End Sub
+
     Public Sub SPELL_AURA_MOD_TOTAL_THREAT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         Dim Value As Integer
 
@@ -7328,6 +7476,7 @@ SkipShapeShift:
             End If
         End If
     End Sub
+
     Public Sub SPELL_AURA_MOD_TAUNT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         If Not TypeOf Target Is CreatureObject Then Exit Sub
 
@@ -7344,9 +7493,6 @@ SkipShapeShift:
         End Select
 
     End Sub
-
-
-
 
 #End Region
 
@@ -7380,6 +7526,7 @@ SkipShapeShift:
             End If
         End If
     End Sub
+
     Public Sub DuelComplete(ByRef Winner As CharacterObject, ByRef Loser As CharacterObject)
         If Winner Is Nothing Then Exit Sub
         If Loser Is Nothing Then Exit Sub
@@ -7490,6 +7637,7 @@ SkipShapeShift:
         StartDuel.Name = "Duel timer"
         StartDuel.Start()
     End Sub
+
     Public Sub On_CMSG_DUEL_CANCELLED(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -7512,6 +7660,7 @@ SkipShapeShift:
         Client.Character.DuelPartner.DuelPartner = Nothing
         Client.Character.DuelPartner = Nothing
     End Sub
+
     Public Sub On_CMSG_RESURRECT_RESPONSE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
@@ -7543,8 +7692,8 @@ SkipShapeShift:
         Client.Character.Teleport(Client.Character.resurrectPositionX, Client.Character.resurrectPositionY, Client.Character.resurrectPositionZ, Client.Character.orientation, Client.Character.resurrectMapID)
     End Sub
 
-
 #End Region
+
 #Region "WS.Spells.Handlers"
     Public Sub On_CMSG_CAST_SPELL(ByRef packet As PacketClass, ByRef Client As ClientClass)
         'If (packet.Data.Length - 1) < 11 Then Exit Sub
@@ -7624,6 +7773,7 @@ SkipShapeShift:
             SendCastResult(castResult, Client, spellID)
         End Try
     End Sub
+
     Public Sub On_CMSG_CANCEL_CAST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
@@ -7642,6 +7792,7 @@ SkipShapeShift:
             Client.Character.FinishSpell(CurrentSpellTypes.CURRENT_MELEE_SPELL)
         End If
     End Sub
+
     Public Sub On_CMSG_CANCEL_AUTO_REPEAT_SPELL(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_AUTO_REPEAT_SPELL", Client.IP, Client.Port)
 
@@ -7757,7 +7908,6 @@ SkipShapeShift:
         End Try
     End Sub
 
-
 #End Region
 
 #Region "WS.Spells.Loot"
@@ -7782,6 +7932,5 @@ SkipShapeShift:
         CType(WORLD_GAMEOBJECTs(GUID), GameObjectObject).LootObject(Player, LootingType)
     End Sub
 #End Region
-
 
 End Module
