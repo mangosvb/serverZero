@@ -256,7 +256,7 @@ Public Module WC_Character
 
             'DONE: Server Message Of The Day
             SendMessageMOTD(Client, "Welcome to World of Warcraft.")
-            SendMessageMOTD(Client, String.Format("This server is using {0} v.{1}, svn-revision {2} ({3})", SetColor("[mangosVB]", 255, 0, 0), [Assembly].GetExecutingAssembly().GetName().Version, svnRevision, svnDate))
+            SendMessageMOTD(Client, String.Format("This server is using {0} v.{1}", SetColor("[mangosVB]", 255, 0, 0), [Assembly].GetExecutingAssembly().GetName().Version))
 
             'DONE: Guild Message Of The Day
             SendGuildMOTD(Me)

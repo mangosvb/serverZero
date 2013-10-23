@@ -153,7 +153,6 @@
     <Compile Include="..\WorldServer\Global.Functions.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Revision.vb" />
     <Compile Include="WC.Battlegrounds.vb" />
     <Compile Include="Global.Packets.vb" />
     <Compile Include="WC.ChatChannel.vb" />

@@ -131,7 +131,7 @@ Public Module WC_Stats
         f.WriteStartElement("cluster")
 
         f.WriteStartElement("platform")
-        f.WriteValue(String.Format("mangosVB rev{0} v{1}", svnRevision, [Assembly].GetExecutingAssembly().GetName().Version))
+        f.WriteValue(String.Format("mangosVB rev{0}", [Assembly].GetExecutingAssembly().GetName().Version))
         f.WriteEndElement()
 
         f.WriteStartElement("uptime")

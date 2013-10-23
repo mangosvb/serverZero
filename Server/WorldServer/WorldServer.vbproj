@@ -161,7 +161,6 @@
     <Compile Include="Quests\WS_Quests.vb" />
     <Compile Include="Quests\WS_QuestsBase.vb" />
     <Compile Include="Quests\WS_QuestInfo.vb" />
-    <Compile Include="Revision.vb" />
     <Compile Include="Handlers\WS.Handlers.Battleground.vb" />
     <Compile Include="WS.LockDebug.vb" />
     <Compile Include="Objects\WS.Totems.vb" />
