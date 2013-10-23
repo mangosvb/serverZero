@@ -23,7 +23,6 @@ Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common.Authenticator
 Imports mangosVB.WorldServer.WS_Quests
-Imports mangosVB.WorldServer.WS_QuestSystem
 
 
 Public Module WS_CharManagment

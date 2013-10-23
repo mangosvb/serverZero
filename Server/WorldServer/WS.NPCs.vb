@@ -17,8 +17,6 @@
 '
 
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.WorldServer.WS_Quests
-Imports mangosVB.WorldServer.WS_QuestSystem
 
 Public Module WS_NPCs
 
