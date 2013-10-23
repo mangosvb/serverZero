@@ -251,7 +251,6 @@
     <Compile Include="WS.Warden.vb" />
     <Compile Include="WS.Weather.vb" />
     <Compile Include="Quests\WS_QuestsBaseScripted.vb" />
-    <Compile Include="Quests\WS_QuestSystem.vb" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
