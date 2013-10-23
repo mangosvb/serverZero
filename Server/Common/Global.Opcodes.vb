@@ -1274,3 +1274,4 @@ Public Enum ECorpseFields
     CORPSE_FIELD_PAD = EObjectFields.OBJECT_END + &H1F                            ' 0x025 - Size: 1 - Type: INT - Flags: NONE
     CORPSE_END = EObjectFields.OBJECT_END + &H20                                  ' 0x026
 End Enum
+

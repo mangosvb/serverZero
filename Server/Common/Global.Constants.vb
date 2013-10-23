@@ -938,4 +938,27 @@ Public Module Constants
         QUEST_PARTY_MSG_FINISH_QUEST = 8
     End Enum
 
+    'RealmServ OP Codes
+    Public Const CMD_AUTH_LOGON_CHALLENGE As Integer = &H0
+    Public Const CMD_AUTH_LOGON_PROOF As Integer = &H1
+    Public Const CMD_AUTH_RECONNECT_CHALLENGE As Integer = &H2
+    Public Const CMD_AUTH_RECONNECT_PROOF As Integer = &H3
+    Public Const CMD_AUTH_UPDATESRV As Integer = &H4
+    Public Const CMD_AUTH_REALMLIST As Integer = &H10
+
+    'UpdateServ OP Codes
+    Public Const CMD_XFER_INITIATE As Integer = &H30  'client? from server
+    Public Const CMD_XFER_DATA As Integer = &H31      'client? from server
+    Public Const CMD_XFER_ACCEPT As Integer = &H32    'not official name, from client
+    Public Const CMD_XFER_RESUME As Integer = &H33    'not official name, from client
+    Public Const CMD_XFER_CANCEL As Integer = &H34    'not official name, from client
+
+    'Unknown
+    Public Const CMD_GRUNT_AUTH_CHALLENGE As Integer = &H0    'server
+    Public Const CMD_GRUNT_AUTH_VERIFY As Integer = &H2       'server
+    Public Const CMD_GRUNT_CONN_PING As Integer = &H10        'server
+    Public Const CMD_GRUNT_CONN_PONG As Integer = &H11        'server
+    Public Const CMD_GRUNT_HELLO As Integer = &H20            'server
+    Public Const CMD_GRUNT_PROVESESSION As Integer = &H21     'server
+    Public Const CMD_GRUNT_KICK As Integer = &H24             'server
 End Module
