@@ -56,8 +56,8 @@ Public Class WS_QuestsBase
         'Load Spell Casts
         For bytLoop As Byte = 0 To 3
             If Quest.ObjectivesCastSpell(bytLoop) > 0 Then
-                ObjectiveFlags = ObjectiveFlags Or WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_CAST
-                ObjectivesType(bytLoop) = WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_CAST
+                ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_CAST
+                ObjectivesType(bytLoop) = QuestObjectiveFlag.QUEST_OBJECTIVE_CAST
                 ObjectivesSpell(bytLoop) = Quest.ObjectivesCastSpell(bytLoop)
                 ObjectivesObject(0) = Quest.ObjectivesKill(bytLoop)
                 ObjectivesCount(0) = Quest.ObjectivesKill_Count(bytLoop)
@@ -69,8 +69,8 @@ Public Class WS_QuestsBase
             If Quest.ObjectivesKill(bytLoop) > 0 Then
                 For bytLoop2 As Byte = 0 To 3
                     If ObjectivesType(bytLoop2) = 0 Then
-                        ObjectiveFlags = ObjectiveFlags Or WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_KILL
-                        ObjectivesType(bytLoop2) = WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_KILL
+                        ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_KILL
+                        ObjectivesType(bytLoop2) = QuestObjectiveFlag.QUEST_OBJECTIVE_KILL
                         ObjectivesObject(bytLoop2) = Quest.ObjectivesKill(bytLoop)
                         ObjectivesCount(bytLoop2) = Quest.ObjectivesKill_Count(bytLoop)
                         Exit For
@@ -82,18 +82,18 @@ Public Class WS_QuestsBase
         'Load Items
         For bytLoop As Byte = 0 To 3
             If Quest.ObjectivesItem(bytLoop) > 0 Then
-                ObjectiveFlags = ObjectiveFlags Or WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM
-                ObjectivesType(bytLoop) = WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM
+                ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM
+                ObjectivesType(bytLoop) = QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM
                 ObjectivesItem(bytLoop) = Quest.ObjectivesItem(bytLoop)
                 ObjectivesItemCount(bytLoop) = Quest.ObjectivesItem_Count(bytLoop)
             End If
         Next
 
         'Load Exploration loctions
-        If (Quest.SpecialFlags And WS_QuestSystem.QuestSpecialFlag.QUEST_SPECIALFLAGS_EXPLORE) Then
-            ObjectiveFlags = ObjectiveFlags Or WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE
+        If (Quest.SpecialFlags And QuestSpecialFlag.QUEST_SPECIALFLAGS_EXPLORE) Then
+            ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE
             For bytLoop As Byte = 0 To 3
-                ObjectivesType(bytLoop) = WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE
+                ObjectivesType(bytLoop) = QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE
                 ObjectivesExplore(bytLoop) = Quest.ObjectivesTrigger(bytLoop)
             Next
         End If
@@ -143,7 +143,7 @@ Public Class WS_QuestsBase
         Next
 
         'DONE: If the quest doesn't require any explore than set this as completed
-        If (ObjectiveFlags And WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE) = 0 Then Explored = True
+        If (ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE) = 0 Then Explored = True
 
         'DONE: Check if the quest is completed
         IsCompleted()
@@ -163,7 +163,7 @@ Public Class WS_QuestsBase
 
                 Dim response As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_FAILED)
                 response.AddInt32(ID)
-                response.AddInt32(WS_QuestSystem.QuestFailedReason.FAILED_INVENTORY_FULL)
+                response.AddInt32(QuestFailedReason.FAILED_INVENTORY_FULL)
                 objChar.Client.Send(response)
                 response.Dispose()
                 Exit Sub
@@ -176,7 +176,7 @@ Public Class WS_QuestsBase
             If ObjectivesItem(i) <> 0 Then ProgressItem(i) = objChar.ItemCOUNT(ObjectivesItem(i))
         Next
 
-        If (ObjectiveFlags And WS_QuestSystem.QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE) Then Explored = False
+        If (ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE) Then Explored = False
 
         IsCompleted()
     End Sub

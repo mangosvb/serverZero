@@ -482,11 +482,11 @@ Public Module WS_Mail
         End Try
     End Sub
 
-    Public Sub SendNotify(ByRef client As ClientClass)
-        Dim packet As New PacketClass(OPCODES.SMSG_RECEIVED_MAIL)
-        packet.GetInt32() '(0)
-        client.Send(packet)
-    End Sub
+    'Public Sub SendNotify(ByRef client As ClientClass)
+    '    Dim packet As New PacketClass(OPCODES.SMSG_RECEIVED_MAIL)
+    '    packet.GetInt32() '(0)
+    '    client.Send(packet)
+    'End Sub
 
 #End Region
 

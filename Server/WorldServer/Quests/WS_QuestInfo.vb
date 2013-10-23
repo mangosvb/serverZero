@@ -36,10 +36,10 @@ Public Class WS_QuestInfo
     Public RewMoneyMaxLevel As Integer '= 0
     Public RewardSpell As Integer ' = 0
     Public RewardSpellCast As Integer '= 0
-    Public RewardItems(WS_QuestSystem.QUEST_REWARD_CHOICES_COUNT) As Integer
-    Public RewardItems_Count(WS_QuestSystem.QUEST_REWARD_CHOICES_COUNT) As Integer
-    Public RewardStaticItems(WS_QuestSystem.QUEST_REWARDS_COUNT) As Integer
-    Public RewardStaticItems_Count(WS_QuestSystem.QUEST_REWARDS_COUNT) As Integer
+    Public RewardItems(QUEST_REWARD_CHOICES_COUNT) As Integer
+    Public RewardItems_Count(QUEST_REWARD_CHOICES_COUNT) As Integer
+    Public RewardStaticItems(QUEST_REWARDS_COUNT) As Integer
+    Public RewardStaticItems_Count(QUEST_REWARDS_COUNT) As Integer
     Public RewardRepFaction(4) As Integer
     Public RewardRepValue(4) As Integer
     Public RewMailTemplateId As Integer
@@ -126,7 +126,7 @@ Public Class WS_QuestInfo
         PreQuests = New List(Of Integer)
         Dim MySQLQuery As New DataTable
 
-        '        WS_QuestSystem.Quests.Add(ID, Me)
+        '        Quests.Add(ID, Me)
 
         WorldDatabase.Query(String.Format("SELECT * FROM quests WHERE entry = {0};", QuestID), MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Throw New ApplicationException("Quest " & QuestID & " not found in database.")
