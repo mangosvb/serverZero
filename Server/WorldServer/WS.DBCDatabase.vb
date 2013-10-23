@@ -15,11 +15,9 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports System.Threading
-Imports System.IO
-Imports System.Runtime.InteropServices
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
+Imports mangosVB.Common.SQL
 
 Public Module WS_DBCDatabase
 
@@ -1576,71 +1574,30 @@ Public Module WS_DBCDatabase
 #End Region
 
 #Region "XPTable"
-    Public Sub InitializeXPTable()
-        WS_CharManagment.XPTable(1) = 400
-        WS_CharManagment.XPTable(2) = 900
-        WS_CharManagment.XPTable(3) = 1400
-        WS_CharManagment.XPTable(4) = 2100
-        WS_CharManagment.XPTable(5) = 2800
-        WS_CharManagment.XPTable(6) = 3600
-        WS_CharManagment.XPTable(7) = 4500
-        WS_CharManagment.XPTable(8) = 5400
-        WS_CharManagment.XPTable(9) = 6500
-        WS_CharManagment.XPTable(10) = 7600
-        WS_CharManagment.XPTable(11) = 8800
-        WS_CharManagment.XPTable(12) = 10100
-        WS_CharManagment.XPTable(13) = 11400
-        WS_CharManagment.XPTable(14) = 12900
-        WS_CharManagment.XPTable(15) = 14400
-        WS_CharManagment.XPTable(16) = 16000
-        WS_CharManagment.XPTable(17) = 17700
-        WS_CharManagment.XPTable(18) = 19400
-        WS_CharManagment.XPTable(19) = 21300
-        WS_CharManagment.XPTable(20) = 23200
-        WS_CharManagment.XPTable(21) = 25200
-        WS_CharManagment.XPTable(22) = 27300
-        WS_CharManagment.XPTable(23) = 29400
-        WS_CharManagment.XPTable(24) = 31700
-        WS_CharManagment.XPTable(25) = 34000
-        WS_CharManagment.XPTable(26) = 36400
-        WS_CharManagment.XPTable(27) = 38900
-        WS_CharManagment.XPTable(28) = 41400
-        WS_CharManagment.XPTable(29) = 44300
-        WS_CharManagment.XPTable(30) = 47400
-        WS_CharManagment.XPTable(31) = 50800
-        WS_CharManagment.XPTable(32) = 54500
-        WS_CharManagment.XPTable(33) = 58600
-        WS_CharManagment.XPTable(34) = 62800
-        WS_CharManagment.XPTable(35) = 67100
-        WS_CharManagment.XPTable(36) = 71600
-        WS_CharManagment.XPTable(37) = 76100
-        WS_CharManagment.XPTable(38) = 80800
-        WS_CharManagment.XPTable(39) = 85700
-        WS_CharManagment.XPTable(40) = 90700
-        WS_CharManagment.XPTable(41) = 95800
-        WS_CharManagment.XPTable(42) = 101000
-        WS_CharManagment.XPTable(43) = 106300
-        WS_CharManagment.XPTable(44) = 111800
-        WS_CharManagment.XPTable(45) = 117500
-        WS_CharManagment.XPTable(46) = 123200
-        WS_CharManagment.XPTable(47) = 129100
-        WS_CharManagment.XPTable(48) = 135100
-        WS_CharManagment.XPTable(49) = 141200
-        WS_CharManagment.XPTable(50) = 147500
-        WS_CharManagment.XPTable(51) = 153900
-        WS_CharManagment.XPTable(52) = 160400
-        WS_CharManagment.XPTable(53) = 167100
-        WS_CharManagment.XPTable(54) = 173900
-        WS_CharManagment.XPTable(55) = 180800
-        WS_CharManagment.XPTable(56) = 187900
-        WS_CharManagment.XPTable(57) = 195000
-        WS_CharManagment.XPTable(58) = 202300
-        WS_CharManagment.XPTable(59) = 209800
-        WS_CharManagment.XPTable(60) = 217400
-
-        Log.WriteLine(LogType.INFORMATION, "Initalizing: XPTable initialized.")
+    ''' <summary>
+    ''' Initializes the xp lookup table from db.
+    ''' </summary>
+    ''' <returns></returns>
+    Private Sub InitializeXpTableFromDb()
+        Dim result As DataTable = Nothing
+        Dim dbLvl As Integer
+        Dim dbXp As Long
+        Try
+            WorldDatabase.Query([String].Format("SELECT * FROM player_xp_for_level order by lvl;"), result)
+            If result.Rows.Count > 0 Then
+                For Each row As DataRow In result.Rows
+                    dbLvl = row.Item("lvl")
+                    dbXp = row.Item("xp_for_next_level")
+                    XPTable(dbLvl) = dbXp
+                Next
+            End If
+            Log.WriteLine(LogType.INFORMATION, "Initalizing: XPTable initialized.")
+        Catch ex As Exception
+            Log.WriteLine(LogType.FAILED, "XPTable initialization failed.")
+        End Try
     End Sub
 #End Region
+
 #Region "Battlemasters"
 
     Public Battlemasters As New Dictionary(Of Integer, Byte)
@@ -1943,8 +1900,7 @@ Public Module WS_DBCDatabase
 
     Public Sub InitializeLoadDBCs()
         InitializeMaps()
-
-        InitializeXPTable()
+        InitializeXpTableFromDb()
         InitializeEmotes()
         InitializeEmotesText()
         InitializeAreaTable()
