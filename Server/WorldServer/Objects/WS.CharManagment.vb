@@ -4691,7 +4691,7 @@ CheckXPAgain:
 
         Public Sub SendDeathReleaseLoc(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal MapID As Integer)
             'Show spirit healer position on minimap
-            Dim p As New PacketClass(OPCODES.SMSG_DEATH_RELEASE_LOC)
+            Dim p As New PacketClass(OPCODES.CMSG_REPOP_REQUEST)
             Try
                 p.AddInt32(MapID)
                 p.AddSingle(x)
