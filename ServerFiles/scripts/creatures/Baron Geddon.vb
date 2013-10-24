@@ -29,6 +29,7 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
+        
         Public Overrides Sub OnThink()
 
             NextInferno -= AI_UPDATE
