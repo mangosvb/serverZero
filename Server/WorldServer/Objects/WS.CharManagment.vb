@@ -2962,7 +2962,7 @@ CheckXPAgain:
             For bag As Byte = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
                 If Items.ContainsKey(bag) AndAlso Items(bag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_BAG Then
                     For slot As Byte = 0 To Items(bag).ItemInfo.ContainerSlots - 1
-                        If (Not Items(bag).Items.ContainsKey(slot)) AndAlso ItemCANEQUIP(Item, bag, slot) = WS_Items.InventoryChangeFailure.EQUIP_ERR_OK Then
+                        If (Not Items(bag).Items.ContainsKey(slot)) AndAlso ItemCANEQUIP(Item, bag, slot) = InventoryChangeFailure.EQUIP_ERR_OK Then
                             Return ItemSETSLOT(Item, bag, slot)
                         End If
                     Next
@@ -3330,7 +3330,7 @@ CheckXPAgain:
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
                         Case Is < KEYRING_SLOT_END
-                            If ItemInfo.BagFamily <> ITEM_BAG.KEYRING AndAlso ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_KEY Then Return WS_Items.InventoryChangeFailure.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT
+                            If ItemInfo.BagFamily <> ITEM_BAG.KEYRING AndAlso ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_KEY Then Return InventoryChangeFailure.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
                         Case Else
