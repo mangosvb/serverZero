@@ -1850,9 +1850,9 @@ Public Module WS_DBCDatabase
             Try
                 CharacterDatabase.Query(String.Format("SELECT MAX(item_guid) FROM characters_inventory;"), MySQLQuery)
                 If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                    ItemGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_ITEM
+                    itemGuidCounter = MySQLQuery.Rows(0).Item(0) + GUID_ITEM
                 Else
-                    ItemGUIDCounter = 0 + GUID_ITEM
+                    itemGuidCounter = 0 + GUID_ITEM
                 End If
             Catch ex As Exception
                 Log.WriteLine(LogType.FAILED, "World: Failed loading characters_inventory....")

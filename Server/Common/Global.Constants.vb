@@ -979,4 +979,97 @@ Public Module Constants
         ERR_TAXISAMENODE = 11
         ERR_TAXINOTSTANDING = 12
     End Enum
+
+
+#Region "NPC Constants"
+    Public Enum SELL_ERROR As Byte
+        SELL_ERR_CANT_FIND_ITEM = 1
+        SELL_ERR_CANT_SELL_ITEM = 2
+        SELL_ERR_CANT_FIND_VENDOR = 3
+    End Enum
+
+    Public Enum BUY_ERROR As Byte
+        'SMSG_BUY_FAILED error
+        '0: cant find item
+        '1: item already selled
+        '2: not enought money
+        '4: seller(dont Like u)
+        '5: distance too far
+        '8: cant carry more
+        '11: level(require)
+        '12: reputation(require)
+
+        BUY_ERR_CANT_FIND_ITEM = 0
+        BUY_ERR_ITEM_ALREADY_SOLD = 1
+        BUY_ERR_NOT_ENOUGHT_MONEY = 2
+        BUY_ERR_SELLER_DONT_LIKE_YOU = 4
+        BUY_ERR_DISTANCE_TOO_FAR = 5
+        BUY_ERR_CANT_CARRY_MORE = 8
+        BUY_ERR_LEVEL_REQUIRE = 11
+        BUY_ERR_REPUTATION_REQUIRE = 12
+    End Enum
+
+    Public Enum Gossip_Option
+        GOSSIP_OPTION_NONE = 0                                 'UNIT_NPC_FLAG_NONE              = 0
+        GOSSIP_OPTION_GOSSIP = 1                               'UNIT_NPC_FLAG_GOSSIP            = 1
+        GOSSIP_OPTION_QUESTGIVER = 2                           'UNIT_NPC_FLAG_QUESTGIVER        = 2
+        GOSSIP_OPTION_VENDOR = 3                               'UNIT_NPC_FLAG_VENDOR            = 4
+        GOSSIP_OPTION_TAXIVENDOR = 4                           'UNIT_NPC_FLAG_FLIGHTMASTER        = 8
+        GOSSIP_OPTION_TRAINER = 5                              'UNIT_NPC_FLAG_TRAINER           = 16
+        GOSSIP_OPTION_SPIRITHEALER = 6                         'UNIT_NPC_FLAG_SPIRITHEALER      = 32
+        GOSSIP_OPTION_GUARD = 7                                'UNIT_NPC_FLAG_GUARD		        = 64
+        GOSSIP_OPTION_INNKEEPER = 8                            'UNIT_NPC_FLAG_INNKEEPER         = 128
+        GOSSIP_OPTION_BANKER = 9                               'UNIT_NPC_FLAG_BANKER            = 256
+        GOSSIP_OPTION_ARENACHARTER = 10                         'UNIT_NPC_FLAG_ARENACHARTER     = 262144
+        GOSSIP_OPTION_TABARDVENDOR = 11                        'UNIT_NPC_FLAG_TABARDVENDOR      = 1024
+        GOSSIP_OPTION_BATTLEFIELD = 12                         'UNIT_NPC_FLAG_BATTLEFIELDPERSON = 2048
+        GOSSIP_OPTION_AUCTIONEER = 13                          'UNIT_NPC_FLAG_AUCTIONEER        = 4096
+        GOSSIP_OPTION_STABLEPET = 14                           'UNIT_NPC_FLAG_STABLE            = 8192
+        GOSSIP_OPTION_ARMORER = 15                             'UNIT_NPC_FLAG_REPAIR           = 16384
+        GOSSIP_OPTION_TALENTWIPE = 16
+    End Enum
+
+    Public Enum Gossip_Guard
+        GOSSIP_GUARD_BANK = 32
+        GOSSIP_GUARD_RIDE = 33
+        GOSSIP_GUARD_GUILD = 34
+        GOSSIP_GUARD_INN = 35
+        GOSSIP_GUARD_MAIL = 36
+        GOSSIP_GUARD_AUCTION = 37
+        GOSSIP_GUARD_WEAPON = 38
+        GOSSIP_GUARD_STABLE = 39
+        GOSSIP_GUARD_BATTLE = 40
+        GOSSIP_GUARD_SPELLTRAINER = 41
+        GOSSIP_GUARD_SKILLTRAINER = 42
+    End Enum
+
+    Public Enum Gossip_Guard_Spell
+        GOSSIP_GUARD_SPELL_WARRIOR = 64
+        GOSSIP_GUARD_SPELL_PALADIN = 65
+        GOSSIP_GUARD_SPELL_HUNTER = 66
+        GOSSIP_GUARD_SPELL_ROGUE = 67
+        GOSSIP_GUARD_SPELL_PRIEST = 68
+        GOSSIP_GUARD_SPELL_UNKNOWN1 = 69
+        GOSSIP_GUARD_SPELL_SHAMAN = 70
+        GOSSIP_GUARD_SPELL_MAGE = 71
+        GOSSIP_GUARD_SPELL_WARLOCK = 72
+        GOSSIP_GUARD_SPELL_UNKNOWN2 = 73
+        GOSSIP_GUARD_SPELL_DRUID = 74
+    End Enum
+
+    Public Enum Gossip_Guard_Skill
+        GOSSIP_GUARD_SKILL_ALCHEMY = 80
+        GOSSIP_GUARD_SKILL_BLACKSMITH = 81
+        GOSSIP_GUARD_SKILL_COOKING = 82
+        GOSSIP_GUARD_SKILL_ENCHANT = 83
+        GOSSIP_GUARD_SKILL_FIRSTAID = 84
+        GOSSIP_GUARD_SKILL_FISHING = 85
+        GOSSIP_GUARD_SKILL_HERBALISM = 86
+        GOSSIP_GUARD_SKILL_LEATHER = 87
+        GOSSIP_GUARD_SKILL_MINING = 88
+        GOSSIP_GUARD_SKILL_SKINNING = 89
+        GOSSIP_GUARD_SKILL_TAILORING = 90
+        GOSSIP_GUARD_SKILL_ENGINERING = 91
+    End Enum
+#End Region
 End Module

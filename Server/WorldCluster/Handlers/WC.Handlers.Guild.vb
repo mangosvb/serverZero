@@ -671,13 +671,13 @@ Public Module WC_Handlers_Guild
     Public Sub On_CMSG_TURN_IN_PETITION(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
-        Dim ItemGUID As ULong = packet.GetUInt64
+        Dim itemGuid As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TURN_IN_PETITION [GUID={2:X}]", Client.IP, Client.Port, ItemGUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TURN_IN_PETITION [GUID={2:X}]", Client.IP, Client.Port, itemGuid)
 
         'DONE: Get info
         Dim q As New DataTable
-        CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & ItemGUID - GUID_ITEM & " LIMIT 1;", q)
+        CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & " LIMIT 1;", q)
         If q.Rows.Count = 0 Then Exit Sub
         Dim Type As Byte = q.Rows(0).Item("petition_type")
         Dim Name As String = q.Rows(0).Item("petition_name")

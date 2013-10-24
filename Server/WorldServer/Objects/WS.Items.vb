@@ -1081,7 +1081,7 @@ Public Module WS_Items
             'DONE: Get from SQLDB
             Dim MySQLQuery As New DataTable
             CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_guid = ""{0}"";", GUIDVal), MySQLQuery)
-            If MySQLQuery.Rows.Count = 0 Then Err.Raise(1, "ItemObject.New", String.Format("ItemGUID {0} not found in SQL database!", GUIDVal))
+            If MySQLQuery.Rows.Count = 0 Then Err.Raise(1, "ItemObject.New", String.Format("itemGuid {0} not found in SQL database!", GUIDVal))
 
             GUID = MySQLQuery.Rows(0).Item("item_guid") + GUID_ITEM
             CreatorGUID = MySQLQuery.Rows(0).Item("item_creator")
@@ -1445,8 +1445,8 @@ Public Module WS_Items
 
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _
     Private Function GetNewGUID() As ULong
-        ItemGUIDCounter += 1
-        GetNewGUID = ItemGUIDCounter
+        itemGuidCounter += 1
+        GetNewGUID = itemGuidCounter
     End Function
     Public Function LoadItemByGUID(ByVal GUID As ULong, Optional ByVal Owner As CharacterObject = Nothing, Optional ByVal Equipped As Boolean = False) As ItemObject
         If WORLD_ITEMs.ContainsKey(GUID + GUID_ITEM) Then
@@ -1755,8 +1755,8 @@ Public Module WS_Items
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim pageID As Integer = packet.GetInt32
-        Dim itemGUID As ULong = packet.GetUInt64
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGUID={3:X}]", Client.IP, Client.Port, pageID, itemGUID)
+        Dim itemGuid As ULong = packet.GetUInt64
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGuid={3:X}]", Client.IP, Client.Port, pageID, itemGuid)
 
         Dim MySQLQuery As New DataTable
         WorldDatabase.Query(String.Format("SELECT * FROM itempages WHERE entry = ""{0}"";", pageID), MySQLQuery)
@@ -1904,12 +1904,12 @@ Public Module WS_Items
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_USE_ITEM [bag={2} slot={3} tmp3={4}]", Client.IP, Client.Port, bag, slot, tmp3)
             If (Client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_TAXI_FLIGHT) Then Exit Sub 'Don't allow item usage when on a taxi
 
-            Dim ItemGUID As ULong = Client.Character.ItemGetGUID(bag, slot)
-            If WORLD_ITEMs.ContainsKey(ItemGUID) = False Then
+            Dim itemGuid As ULong = Client.Character.ItemGetGUID(bag, slot)
+            If WORLD_ITEMs.ContainsKey(itemGuid) = False Then
                 SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND, 0, 0)
                 Exit Sub
             End If
-            Dim itemInfo As ItemInfo = WORLD_ITEMs(ItemGUID).ItemInfo
+            Dim itemInfo As ItemInfo = WORLD_ITEMs(itemGuid).ItemInfo
 
             'DONE: Check if the item can be used in combat
             Dim InstantCast As Boolean = False
@@ -1918,7 +1918,7 @@ Public Module WS_Items
                 If SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
                     If ((Client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) = UnitFlags.UNIT_FLAG_IN_COMBAT) Then
                         If (CType(SPELLs(itemInfo.Spells(i).SpellID), SpellInfo).Attributes And SpellAttributes.SPELL_ATTR_NOT_WHILE_COMBAT) Then
-                            SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_CANT_DO_IN_COMBAT, ItemGUID, 0)
+                            SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_CANT_DO_IN_COMBAT, itemGuid, 0)
                             Exit Sub
                         End If
                     End If
@@ -1926,13 +1926,13 @@ Public Module WS_Items
             Next
 
             If Client.Character.DEAD = True Then
-                SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, ItemGUID, 0)
+                SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, itemGuid, 0)
                 Exit Sub
             End If
 
             If itemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_CONSUMABLE Then
                 'DONE: Bind item to player
-                If WORLD_ITEMs(ItemGUID).ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_WHEN_USED AndAlso WORLD_ITEMs(ItemGUID).IsSoulBound = False Then WORLD_ITEMs(ItemGUID).SoulbindItem(Client)
+                If WORLD_ITEMs(itemGuid).ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_WHEN_USED AndAlso WORLD_ITEMs(itemGuid).IsSoulBound = False Then WORLD_ITEMs(itemGuid).SoulbindItem(Client)
             End If
 
             'DONE: Read spell targets
@@ -1943,12 +1943,12 @@ Public Module WS_Items
                 If itemInfo.Spells(i).SpellID > 0 AndAlso (itemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse itemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE) Then
                     If SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
                         'DONE: If there's no more charges
-                        If itemInfo.Spells(i).SpellCharges > 0 AndAlso WORLD_ITEMs(ItemGUID).ChargesLeft = 0 Then
+                        If itemInfo.Spells(i).SpellCharges > 0 AndAlso WORLD_ITEMs(itemGuid).ChargesLeft = 0 Then
                             SendCastResult(SpellFailedReason.SPELL_FAILED_NO_CHARGES_REMAIN, Client, itemInfo.Spells(i).SpellID)
                             Exit Sub
                         End If
 
-                        Dim tmpSpell As New CastSpellParameters(Targets, Client.Character, itemInfo.Spells(i).SpellID, WORLD_ITEMs(ItemGUID), InstantCast)
+                        Dim tmpSpell As New CastSpellParameters(Targets, Client.Character, itemInfo.Spells(i).SpellID, WORLD_ITEMs(itemGuid), InstantCast)
 
                         Dim castResult As Byte = SpellFailedReason.SPELL_NO_ERROR
                         Try
@@ -1984,20 +1984,20 @@ Public Module WS_Items
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", Client.IP, Client.Port, bag, slot)
 
-        Dim itemGUID As ULong = 0
+        Dim itemGuid As ULong = 0
         If bag = 0 Then
-            itemGUID = Client.Character.Items(slot).GUID
+            itemGuid = Client.Character.Items(slot).GUID
         Else
-            itemGUID = Client.Character.Items(bag).Items(slot).GUID
+            itemGuid = Client.Character.Items(bag).Items(slot).GUID
         End If
-        If itemGUID = 0 OrElse WORLD_ITEMs.ContainsKey(itemGUID) = False Then Exit Sub
+        If itemGuid = 0 OrElse WORLD_ITEMs.ContainsKey(itemGuid) = False Then Exit Sub
 
-        If WORLD_ITEMs(itemGUID).generateloot Then
-            CType(LootTable(itemGUID), LootObject).SendLoot(Client)
+        If WORLD_ITEMs(itemGuid).generateloot Then
+            CType(LootTable(itemGuid), LootObject).SendLoot(Client)
             Exit Sub
         End If
 
-        SendEmptyLoot(itemGUID, WS_Loot.LootType.LOOTTYPE_CORPSE, Client)
+        SendEmptyLoot(itemGuid, WS_Loot.LootType.LOOTTYPE_CORPSE, Client)
     End Sub
 
 

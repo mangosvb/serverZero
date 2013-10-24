@@ -126,40 +126,40 @@ Public Module WS_GuardGossip
 #End Region
 
 #Region "Gossip functions"
-        Public Overrides Sub OnGossipHello(ByRef c As CharacterObject, ByVal cGUID As ULong)
+        Public Overrides Sub OnGossipHello(ByRef objChar As CharacterObject, ByVal cGUID As ULong)
             Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
 
             Select Case Gossip
                 Case Gossips.Darnassus
-                    OnGossipHello_Darnassus(c, cGUID)
+                    OnGossipHello_Darnassus(objChar, cGUID)
                 Case Gossips.DunMorogh
-                    OnGossipHello_DunMorogh(c, cGUID)
+                    OnGossipHello_DunMorogh(objChar, cGUID)
                 Case Gossips.Durotar
-                    OnGossipHello_Durotar(c, cGUID)
+                    OnGossipHello_Durotar(objChar, cGUID)
                 Case Gossips.ElwynnForest
-                    OnGossipHello_ElwynnForest(c, cGUID)
+                    OnGossipHello_ElwynnForest(objChar, cGUID)
                 Case Gossips.Ironforge
-                    OnGossipHello_Ironforge(c, cGUID)
+                    OnGossipHello_Ironforge(objChar, cGUID)
                 Case Gossips.Mulgore
-                    OnGossipHello_Mulgore(c, cGUID)
+                    OnGossipHello_Mulgore(objChar, cGUID)
                 Case Gossips.Orgrimmar
-                    OnGossipHello_Orgrimmar(c, cGUID)
+                    OnGossipHello_Orgrimmar(objChar, cGUID)
                 Case Gossips.Stormwind
-                    OnGossipHello_Stormwind(c, cGUID)
+                    OnGossipHello_Stormwind(objChar, cGUID)
                 Case Gossips.Teldrassil
-                    OnGossipHello_Teldrassil(c, cGUID)
+                    OnGossipHello_Teldrassil(objChar, cGUID)
                 Case Gossips.Thunderbluff
-                    OnGossipHello_Thunderbluff(c, cGUID)
+                    OnGossipHello_Thunderbluff(objChar, cGUID)
                 Case Gossips.Tirisfall
-                    OnGossipHello_Tirisfall(c, cGUID)
+                    OnGossipHello_Tirisfall(objChar, cGUID)
                 Case Gossips.Undercity
-                    OnGossipHello_Undercity(c, cGUID)
+                    OnGossipHello_Undercity(objChar, cGUID)
                 Case Else
                     Log.WriteLine(BaseWriter.LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
             End Select
         End Sub
 
-        Public Overrides Sub OnGossipSelect(ByRef c As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+        Public Overrides Sub OnGossipSelect(ByRef c As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
             Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
 
             Select Case Gossip

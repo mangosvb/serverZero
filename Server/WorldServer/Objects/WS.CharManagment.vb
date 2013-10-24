@@ -2712,11 +2712,11 @@ CheckXPAgain:
                 If Update Then SendItemUpdate(Items(srcBag))
             End If
         End Sub
-        Public Sub ItemREMOVE(ByVal ItemGUID As ULong, ByVal Destroy As Boolean, ByVal Update As Boolean)
+        Public Sub ItemREMOVE(ByVal itemGuid As ULong, ByVal Destroy As Boolean, ByVal Update As Boolean)
             'DONE: Search in inventory
             For slot As Byte = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
                 If Items.ContainsKey(slot) Then
-                    If Items(slot).GUID = ItemGUID Then
+                    If Items(slot).GUID = itemGuid Then
 
                         CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(slot).GUID - GUID_ITEM))
                         If slot < INVENTORY_SLOT_BAG_END Then
@@ -2743,7 +2743,7 @@ CheckXPAgain:
                     For slot = 0 To Items(bag).ItemInfo.ContainerSlots - 1
                         If Items(bag).Items.ContainsKey(slot) = False Then
 
-                            If Items(bag).Items(slot).GUID = ItemGUID Then
+                            If Items(bag).Items(slot).GUID = itemGuid Then
                                 CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(bag).Items(slot).GUID - GUID_ITEM))
 
                                 If Destroy Then Items(bag).Items(slot).Delete()

@@ -63,7 +63,7 @@ Public Module WS_Main
     Public GAMEOBJECTSDatabase As New Dictionary(Of Integer, GameObjectInfo)
 
     'Other
-    Public ItemGUIDCounter As ULong = GUID_ITEM
+    Public itemGuidCounter As ULong = GUID_ITEM
     Public CreatureGUIDCounter As ULong = GUID_UNIT
     Public GameObjectsGUIDCounter As ULong = GUID_GAMEOBJECT
     Public CorpseGUIDCounter As ULong = GUID_CORPSE

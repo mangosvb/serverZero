@@ -1834,10 +1834,10 @@ Public Class QuestMenu
     Public Levels As ArrayList = New ArrayList
 End Class
 Public Class TBaseTalk
-    Public Overridable Sub OnGossipHello(ByRef c As CharacterObject, ByVal cGUID As ULong)
+    Public Overridable Sub OnGossipHello(ByRef objChar As CharacterObject, ByVal cGUID As ULong)
 
     End Sub
-    Public Overridable Sub OnGossipSelect(ByRef c As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+    Public Overridable Sub OnGossipSelect(ByRef c As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
 
     End Sub
     Public Overridable Function OnQuestStatus(ByRef c As CharacterObject, ByVal cGUID As ULong) As Integer

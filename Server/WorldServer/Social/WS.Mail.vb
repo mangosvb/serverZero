@@ -385,7 +385,7 @@ Public Module WS_Mail
         If (packet.Data.Length - 1) < (14 + Receiver.Length + 2 + Subject.Length + Body.Length + 4 + 4 + 1) Then Exit Sub
         packet.GetInt32()
         packet.GetInt32()
-        Dim ItemGUID As ULong = packet.GetUInt64()
+        Dim itemGuid As ULong = packet.GetUInt64()
         Dim Money As UInteger = packet.GetUInt32()
         Dim COD As UInteger = packet.GetUInt32()
 
@@ -451,15 +451,15 @@ Public Module WS_Mail
             End If
 
             'Check if the item exists
-            If Client.Character.ItemGETByGUID(ItemGUID) Is Nothing Then ItemGUID = 0
+            If Client.Character.ItemGETByGUID(itemGuid) Is Nothing Then itemGuid = 0
 
             Client.Character.Copper -= 30 + Money
             Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
 
             Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 30) 'Add 30 days to the current date/time
-            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, mail_type, mail_stationary, item_guid) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},41,'{9}');", Client.Character.GUID, ReceiverGUID, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), 0, ItemGUID - GUID_ITEM))
+            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, mail_type, mail_stationary, item_guid) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},41,'{9}');", Client.Character.GUID, ReceiverGUID, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), 0, itemGuid - GUID_ITEM))
 
-            If ItemGUID > 0 Then Client.Character.ItemREMOVE(ItemGUID, False, True)
+            If itemGuid > 0 Then Client.Character.ItemREMOVE(itemGuid, False, True)
 
             'Tell the client we succeded
             Dim sendOK As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
