@@ -932,7 +932,7 @@ Public Module WS_NPCs
     Public Sub On_MSG_TALENT_WIPE_CONFIRM(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
             packet.GetInt16()
-            Dim guid As ULong = packet.GetPackGUID
+            Dim guid As ULong = packet.GetPackGuid
             Dim i As Integer
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_TALENT_WIPE_CONFIRM [GUID={2:X}]", client.IP, client.Port, guid)

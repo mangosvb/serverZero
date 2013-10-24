@@ -2081,7 +2081,7 @@ SkipShapeShift:
             End If
 
             If (targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) Then
-                Dim GUID As ULong = packet.GetPackGUID
+                Dim GUID As ULong = packet.GetPackGuid
                 If GuidIsCreature(GUID) OrElse GuidIsPet(GUID) Then
                     unitTarget = WORLD_CREATUREs(GUID)
                 ElseIf GuidIsPlayer(GUID) Then
@@ -2090,7 +2090,7 @@ SkipShapeShift:
             End If
 
             If (targetMask And SpellCastTargetFlags.TARGET_FLAG_OBJECT) Then
-                Dim GUID As ULong = packet.GetPackGUID
+                Dim GUID As ULong = packet.GetPackGuid
                 If GuidIsGameObject(GUID) Then
                     goTarget = WORLD_GAMEOBJECTs(GUID)
                 ElseIf GuidIsDnyamicObject(GUID) Then
@@ -2099,7 +2099,7 @@ SkipShapeShift:
             End If
 
             If (targetMask And SpellCastTargetFlags.TARGET_FLAG_ITEM) OrElse (targetMask And SpellCastTargetFlags.TARGET_FLAG_TRADE_ITEM) Then
-                Dim GUID As ULong = packet.GetPackGUID
+                Dim GUID As ULong = packet.GetPackGuid
                 If GuidIsItem(GUID) Then
                     itemTarget = WORLD_ITEMs(GUID)
                 End If
@@ -2120,7 +2120,7 @@ SkipShapeShift:
             If (targetMask And SpellCastTargetFlags.TARGET_FLAG_STRING) Then stringTarget = packet.GetString
 
             If (targetMask And SpellCastTargetFlags.TARGET_FLAG_CORPSE) OrElse (targetMask And SpellCastTargetFlags.TARGET_FLAG_PVP_CORPSE) Then
-                Dim GUID As ULong = packet.GetPackGUID
+                Dim GUID As ULong = packet.GetPackGuid
                 If GuidIsCorpse(GUID) Then
                     corpseTarget = WORLD_CORPSEOBJECTs(GUID)
                 End If
