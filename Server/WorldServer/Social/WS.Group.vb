@@ -16,18 +16,16 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Collections.Generic
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Group
+    Public ReadOnly Groups As New Dictionary(Of Long, Group)
+    Private _lastLooter As ULong = 0
 
-
-    Public GROUPs As New Dictionary(Of Long, Group)
-    Public Class Group
+    Public NotInheritable Class Group
         Implements IDisposable
 
-        Public ID As Long
+        Public ReadOnly ID As Long
         Public Type As GroupType = GroupType.PARTY
         Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
         Public LootMethod As GroupLootMethod = GroupLootMethod.LOOT_GROUP
@@ -38,8 +36,8 @@ Public Module WS_Group
         Public LocalLootMaster As CharacterObject
 
 
-        Public Sub New(ByVal GroupID As Long)
-            ID = GroupID
+        Public Sub New(ByVal groupID As Long)
+            ID = groupID
             GROUPs.Add(ID, Me)
         End Sub
 
@@ -47,7 +45,7 @@ Public Module WS_Group
         Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+        Private Sub Dispose(ByVal disposing As Boolean)
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -64,50 +62,66 @@ Public Module WS_Group
         End Sub
 #End Region
 
+        ''' <summary>
+        ''' Broadcasts the specified p.
+        ''' </summary>
+        ''' <param name="p">The p.</param>
+        ''' <returns></returns>
         Public Sub Broadcast(ByVal p As PacketClass)
             p.UpdateLength()
             WorldServer.Cluster.BroadcastGroup(ID, p.Data)
         End Sub
 
-
-        Private LastLooter As ULong = 0
+        ''' <summary>
+        ''' Gets the next looter.
+        ''' </summary>
+        ''' <returns></returns>
         Public Function GetNextLooter() As CharacterObject
             Dim nextIsLooter As Boolean = False
             Dim nextLooterFound As Boolean = False
 
-            For Each Guid As ULong In LocalMembers
+            For Each guid As ULong In LocalMembers
                 If nextIsLooter Then
-                    LastLooter = Guid
+                    _lastLooter = guid
                     nextLooterFound = True
                     Exit For
                 End If
 
-                If Guid = LastLooter Then nextIsLooter = True
+                If guid = _lastLooter Then nextIsLooter = True
             Next
 
             If Not nextLooterFound Then
-                LastLooter = LocalMembers.Item(0)
+                _lastLooter = LocalMembers.Item(0)
             End If
 
-            Return CHARACTERs(LastLooter)
+            Return CHARACTERs(_lastLooter)
         End Function
 
+        ''' <summary>
+        ''' Gets the members count.
+        ''' </summary>
+        ''' <returns></returns>
         Public Function GetMembersCount() As Integer
             Return LocalMembers.Count
         End Function
-
     End Class
 
 
-    Function BuildPartyMemberStats(ByRef c As CharacterObject, ByVal Flag As UInteger) As PacketClass
-        Dim OpCode As OPCODES = OPCODES.SMSG_PARTY_MEMBER_STATS
+    ''' <summary>
+    ''' Builds the party member stats.
+    ''' </summary>
+    ''' <param name="c">The c.</param>
+    ''' <param name="flag">The flag.</param>
+    ''' <returns></returns>
+    Function BuildPartyMemberStats(ByRef c As CharacterObject, ByVal flag As UInteger) As PacketClass
+        Dim opCode As OPCODES = OPCODES.SMSG_PARTY_MEMBER_STATS
         If Flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL OrElse Flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL_PET Then
-            OpCode = OPCODES.SMSG_PARTY_MEMBER_STATS_FULL
+            opCode = OPCODES.SMSG_PARTY_MEMBER_STATS_FULL
 
             If c.ManaType <> ManaTypes.TYPE_MANA Then Flag = Flag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE
         End If
 
-        Dim packet As New PacketClass(OpCode)
+        Dim packet As New PacketClass(opCode)
         packet.AddPackGUID(c.GUID)
         packet.AddUInt32(Flag)
 
@@ -145,17 +159,17 @@ Public Module WS_Group
             packet.AddInt16(Fix(c.positionY))
         End If
         If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS) Then
-            Dim AuraMask As ULong = 0
-            Dim AuraPos As Integer = packet.Data.Length
+            Dim auraMask As ULong = 0
+            Dim auraPos As Integer = packet.Data.Length
             packet.AddUInt64(0) 'AuraMask (is set after the loop)
             For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If Not c.ActiveSpells(i) Is Nothing Then
-                    AuraMask = AuraMask Or (CULng(1) << CULng(i))
+                    auraMask = auraMask Or (CULng(1) << CULng(i))
                     packet.AddUInt16(c.ActiveSpells(i).SpellID)
                     packet.AddInt8(1) 'Stack Count?
                 End If
             Next
-            packet.AddUInt64(AuraMask, AuraPos) 'Set the AuraMask
+            packet.AddUInt64(auraMask, auraPos) 'Set the AuraMask
         End If
         If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_GUID) Then
             If c.Pet IsNot Nothing Then
@@ -215,17 +229,17 @@ Public Module WS_Group
         End If
         If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS) Then
             If c.Pet IsNot Nothing Then
-                Dim AuraMask As ULong = 0
-                Dim AuraPos As Integer = packet.Data.Length
+                Dim auraMask As ULong = 0
+                Dim auraPos As Integer = packet.Data.Length
                 packet.AddUInt64(0) 'AuraMask (is set after the loop)
                 For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                     If Not c.Pet.ActiveSpells(i) Is Nothing Then
-                        AuraMask = AuraMask Or (CULng(1) << CULng(i))
+                        auraMask = auraMask Or (CULng(1) << CULng(i))
                         packet.AddUInt16(c.Pet.ActiveSpells(i).SpellID)
                         packet.AddInt8(1) 'Stack Count?
                     End If
                 Next
-                packet.AddUInt64(AuraMask, AuraPos) 'Set the AuraMask
+                packet.AddUInt64(auraMask, auraPos) 'Set the AuraMask
             Else
                 packet.AddInt64(0)
             End If
@@ -233,6 +247,4 @@ Public Module WS_Group
 
         Return packet
     End Function
-
-
 End Module
