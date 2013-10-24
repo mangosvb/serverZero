@@ -23,6 +23,7 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
+		
         Public Overrides Sub OnThink()
 
             NextKnockdown -= AI_UPDATE 'The update is required for the AI to actually go on with anything.

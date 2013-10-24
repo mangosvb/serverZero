@@ -5,7 +5,6 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-
         Private Const AI_UPDATE As Integer = 1000
         Private Const NOVA_COOLDOWN As Integer = 4000
 		Private Const UPPER_COOLDOWN As Integer = 12000

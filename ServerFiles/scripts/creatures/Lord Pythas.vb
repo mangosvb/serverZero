@@ -5,10 +5,8 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-        'AI TO DO: Implement slumber, add healing correctly to the mob.
         Private Const AI_UPDATE As Integer = 1000
         Private Const SLUMBER_CD As Integer = 10000
-        Private Const Healing_Touch_CD As Integer = 20000
         Private Const Lightning_Bolt_CD As Integer = 6000
         Private Const Thunder_Clap_CD As Integer = 9000
 
@@ -20,7 +18,6 @@ Namespace Scripts
         Public NextWaypoint As Integer = 0
         Public NextThunderClap As Integer = 0
         Public NextLightningBolt As Integer = 0
-        Public NextHealingTouch As Integer = 0
         Public NextSlumber As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
@@ -47,7 +44,7 @@ Namespace Scripts
             End If
             If NextSlumber <= 0 Then
                 NextSlumber = SLUMBER_CD
-                aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget) ' Not sure if its supposed to take a random target, stays like this for now.
+                aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget)
             End If
             If NextThunderClap <= 0 Then
                 NextThunderClap = Thunder_Clap_CD

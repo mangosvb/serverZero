@@ -7,7 +7,6 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-
         Private Const AI_UPDATE As Integer = 1000
         Private Const Inferno_CD As Integer = 45000
         Private Const Ignite_CD As Integer = 30000
@@ -59,6 +58,7 @@ Namespace Scripts
                 aiCreature.CastSpell(Spell_Inferno, aiTarget) 'This spell should be mitigated with fire resistance and nothing more.
             Next
         End Sub
+		
         Public Sub CastIgnite()
             For i As Integer = 1 To 3
                 Dim target As BaseUnit = aiCreature.GetRandomTarget
@@ -66,6 +66,7 @@ Namespace Scripts
                 aiCreature.CastSpell(Spell_Ignite, aiCreature.GetRandomTarget) 'This spell drains 400 mana per second and MUST be dispelled immediately or your healers will wipe the group.
             Next
         End Sub
+		
         Public Sub CastLivingBomb()
             For i As Integer = 2 To 3
                 Dim target As BaseUnit = aiCreature.GetRandomTarget

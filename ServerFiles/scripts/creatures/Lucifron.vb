@@ -5,7 +5,6 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-
         Private Const AI_UPDATE As Integer = 1000
         Private Const Impending_Doom_Cooldown As Integer = 20000
         Private Const Lucifrons_Curse_Cooldown As Integer = 20000
@@ -65,10 +64,12 @@ Namespace Scripts
                     NextImpendingDoom = Impending_Doom_Cooldown
                     aiCreature.CastSpell(Impending_Doom, aiTarget) 'Impending DOOOOOM!
                 End If
+				
                 If NextLucifronsCurse <= 0 Then
                     NextLucifronsCurse = Lucifrons_Curse_Cooldown
                     aiCreature.CastSpell(Lucifrons_Curse, aiTarget) 'Lucifrons Curse.
                 End If
+				
                 If NextShadowShock <= 0 Then
                     NextShadowShock = Shadow_Shock_Cooldown
                     aiCreature.CastSpell(Shadow_Shock, aiTarget) 'Summon Player
@@ -90,7 +91,6 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpell(Lucifrons_Curse, aiTarget)
                 Catch Ex As Exception
-                    'Log.WriteLine(BaseWriter.LogType.WARNING, "FRENZY FAILED TO CAST ON PATCHWERK!")
                     aiCreature.SendChatMessage("Failed to cast Lucifron's Curse. This is bad. Please report to developers.", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
@@ -103,7 +103,6 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpell(Impending_Doom, aiTarget)
                 Catch Ex As Exception
-                    'Log.WriteLine(BaseWriter.LogType.WARNING, "BERSERK FAILED TO CAST ON PATCHWERK!")
                     aiCreature.SendChatMessage("Failed to cast IMPENDING DOOOOOM! Please report this to a developer.", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
@@ -116,7 +115,6 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpell(Shadow_Shock, theTarget.positionX, theTarget.positionY, theTarget.positionZ)
                 Catch Ex As Exception
-                    'Log.WriteLine(BaseWriter.LogType.WARNING, "SUMMON FAILED TO CAST ON TARGET!")
                     aiCreature.SendChatMessage("Failed to cast Shadow Shock. Please report this to a developer.", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next

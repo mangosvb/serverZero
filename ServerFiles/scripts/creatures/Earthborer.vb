@@ -5,7 +5,6 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-
         Private Const AI_UPDATE As Integer = 1000
         Private Const ACID_COOLDOWN As Integer = 10000
         Private Const ACID_SPELL As Integer = 18070
@@ -20,6 +19,7 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
+		
         Public Overrides Sub OnThink()
             NextAcid -= AI_UPDATE
 
@@ -33,7 +33,6 @@ Namespace Scripts
             For i As Integer = 0 To 3
                 Dim Target As BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
-
                 aiCreature.CastSpell(ACID_SPELL, aiTarget)
             Next
         End Sub

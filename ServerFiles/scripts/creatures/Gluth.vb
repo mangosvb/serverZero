@@ -49,14 +49,17 @@ Namespace Scripts
                 NextDecimate = Decimate_CD
                 aiCreature.CastSpell(Spell_Decimate, aiTarget) 'Earthborer Acid
             End If
+			
             If NextFrenzy <= 1 Then
                 NextFrenzy = Frenzy_CD
                 aiCreature.CastSpellOnSelf(Spell_Frenzy)
             End If
+			
             If NextMortalWound <= 2 Then
                 NextMortalWound = Mortal_Wound_CD
                 aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
             End If
+			
             If NextRoar <= 3 Then
                 NextRoar = Terrifying_Roar_CD
                 aiCreature.CastSpell(Spell_Terrifying_Roar, aiTarget)
@@ -98,6 +101,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
+		
         Public Sub CastTerrifyingRoar()
             For i As Integer = 3 To 3
                 Dim target As BaseUnit = aiCreature

@@ -5,13 +5,10 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-        'AI TO DO: Implement slumber, add healing correctly to the mob.
         Private Const AI_UPDATE As Integer = 1000
         Private Const SLUMBER_CD As Integer = 10000
-        Private Const Healing_Touch_CD As Integer = 20000
         Private Const Lightning_Bolt_CD As Integer = 6000
         Private Const Poison_CD As Integer = 9000
-        Private Const Cobrahn_Serpent_Form_CD As Integer = 5000000 'This should NEVER be recasted.
 
         Private Const Cobrahn_Serpent_Form_Spell As Integer = 7965
         Private Const Poison_Spell As Integer = 744
@@ -21,8 +18,6 @@ Namespace Scripts
         Private Const Spell_Lightning_Bolt As Integer = 9532
         Public NextPoison As Integer = 0
         Public NextLightningBolt As Integer = 0
-        Public NextHealingTouch As Integer = 0
-        Public NextSerpentTransform As Integer = 0 'Unused
         Public NextSlumber As Integer = 0
 
         Public Sub New(ByRef Creature As CreatureObject)
@@ -31,14 +26,14 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
+		
         Public Overrides Sub OnEnterCombat()
             MyBase.OnEnterCombat()
             aiCreature.SendChatMessage("You will never wake the dreamer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
         End Sub
+		
         Public Overrides Sub OnThink()
-
             NextLightningBolt -= AI_UPDATE
-            NextHealingTouch -= AI_UPDATE
             NextSlumber -= AI_UPDATE
             NextPoison -= AI_UPDATE
             NextSerpentTransform -= AI_UPDATE
@@ -47,10 +42,12 @@ Namespace Scripts
                 NextLightningBolt = Lightning_Bolt_CD
                 aiCreature.CastSpell(Spell_Lightning_Bolt, aiTarget) 'Lightning bolt on current target.
             End If
+			
             If NextSlumber <= 0 Then
                 NextSlumber = SLUMBER_CD
                 aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget)
             End If
+			
             If NextPoison <= 0 Then
                 NextPoison = Poison_CD
                 aiCreature.CastSpell(Poison_Spell, aiTarget) 'Should this be random target?
@@ -64,6 +61,7 @@ Namespace Scripts
                 aiCreature.CastSpell(Spell_Lightning_Bolt, aiTarget)
             Next
         End Sub
+		
         Public Sub CastSlumber()
             For i As Integer = 1 To 3
                 Dim target As BaseUnit = aiCreature.GetRandomTarget
@@ -71,6 +69,7 @@ Namespace Scripts
             Next
             aiCreature.CastSpell(Slumber_Spell, aiCreature.GetRandomTarget)
         End Sub
+		
         Public Sub CastPoison()
             For i As Integer = 2 To 3
                 Dim target As BaseUnit = aiCreature

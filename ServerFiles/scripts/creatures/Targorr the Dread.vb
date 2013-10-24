@@ -5,7 +5,6 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-
         Private Const AI_UPDATE As Integer = 1000
         Private Const ThrashCD As Integer = 7000
         Private Const FrenzyCD As Integer = 90000 'This should never be reused.
@@ -25,7 +24,6 @@ Namespace Scripts
             Creature.VisibleDistance = 700
         End Sub
         Public Overrides Sub OnThink()
-
 
             NextThrash -= AI_UPDATE
 

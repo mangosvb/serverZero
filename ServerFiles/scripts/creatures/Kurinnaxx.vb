@@ -87,7 +87,6 @@ Namespace Scripts
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If phase = 1 Then
-
                 If Percent <= 20 Then
                     aiCreature.CastSpellOnSelf(spell_Frenzy)
                 End If

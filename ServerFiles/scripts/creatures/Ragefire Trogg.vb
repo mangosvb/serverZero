@@ -5,7 +5,6 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-
         Private Const AI_UPDATE As Integer = 1000
         Private Const STRIKE_COOLDOWN As Integer = 4000
 
@@ -21,6 +20,7 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
+		
         Public Overrides Sub OnThink()
 
             NextStrike -= AI_UPDATE

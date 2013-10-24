@@ -5,7 +5,7 @@ Imports mangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
-        'AI TODO: Confirm AI sounds, fix AoE casts. Rest of the spell issues would be core problems.
+        'AI TODO: Fix arcane explosion. Make the AoE silence an AoE instead of random target.
         Private Const AI_UPDATE As Integer = 1000
         Private Const ARCANE_BUBBLE_CD As Integer = 500000 'This should never be recasted.
         Private Const DETONATION_CD As Integer = 500000 'This should never be recasted.
@@ -21,13 +21,13 @@ Namespace Scripts
 
         Public NextDetonation As Integer = 0 'Again, this should never be reused.
         Public NextArcaneBubble As Integer = 0 'Again, this should never be reused.
-        'Public NextExplosion As Integer = 0
         Public NextPolymorph As Integer = 0
         Public NextSilence As Integer = 0
         Public NextWaypoint As Integer = 0
         Public NextAcid As Integer = 0
         Public CurrentWaypoint As Integer = 0
-
+        'Public NextExplosion As Integer = 0
+		
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
@@ -57,7 +57,8 @@ Namespace Scripts
             End If
             'No need to handle Detonation or Bubble here.
         End Sub
-        'Public Sub CastExplosion()
+		
+        'Public Sub CastExplosion() - This is commented out because Arcane Explosion completely crashes the core.
         '    For i As Integer = 0 To 2
         '        Dim Target As BaseUnit = aiCreature
         '        If Target Is Nothing Then Exit Sub
@@ -68,6 +69,7 @@ Namespace Scripts
         '       End Try
         '   Next
         'End Sub
+		
         Public Sub CastPolymorph()
             For i As Integer = 1 To 2
                 Dim target As BaseUnit = aiCreature.GetRandomTarget 'Finally learned how random target functions work. 
@@ -79,6 +81,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
+		
         Public Sub CastSilence()
             For i As Integer = 2 To 2
                 Dim target As BaseUnit = aiCreature.GetRandomTarget
@@ -90,6 +93,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
+		
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If Percent <= 50 Then
@@ -107,6 +111,7 @@ Namespace Scripts
                 aiCreature.SendChatMessage("Burn in righteous fire!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
             End If
         End Sub
+		
         Public Overrides Sub OnEnterCombat()
             MyBase.OnEnterCombat()
             aiCreature.SendChatMessage("You will not defile these mysteries!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)

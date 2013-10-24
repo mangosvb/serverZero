@@ -6,7 +6,6 @@ Imports MangosVB.WorldServer
 Namespace Scripts
     Public Class CreatureAI
         Inherits TBaseAI
-
         Protected aiCreature As CreatureObject = Nothing
 
         Private CurrentWaypoint As Integer = 0
