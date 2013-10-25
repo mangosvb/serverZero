@@ -759,18 +759,18 @@ Public Module WS_CharManagment
         End Try
     End Sub
 
-    Public Sub InitializeTalentSpells(ByVal c As CharacterObject)
+    Public Sub InitializeTalentSpells(ByVal objChar As CharacterObject)
         Dim t As New SpellTargets
-        t.SetTarget_SELF(CType(c, CharacterObject))
+        t.SetTarget_SELF(CType(objChar, CharacterObject))
 
-        For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In c.Spells
+        For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In objChar.Spells
             If SPELLs.ContainsKey(Spell.Key) AndAlso (SPELLs(Spell.Key).IsPassive) Then
                 'DONE: Add passive spell we don't have
                 'DONE: Remove passive spells we can't have anymore
-                If c.HavePassiveAura(Spell.Key) = False AndAlso SPELLs(Spell.Key).CanCast(c, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
-                    SPELLs(Spell.Key).Apply(CType(c, CharacterObject), t)
-                ElseIf c.HavePassiveAura(Spell.Key) AndAlso SPELLs(Spell.Key).CanCast(c, t, False) <> SpellFailedReason.SPELL_NO_ERROR Then
-                    c.RemoveAuraBySpell(Spell.Key)
+                If objChar.HavePassiveAura(Spell.Key) = False AndAlso SPELLs(Spell.Key).CanCast(objChar, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
+                    SPELLs(Spell.Key).Apply(CType(objChar, CharacterObject), t)
+                ElseIf objChar.HavePassiveAura(Spell.Key) AndAlso SPELLs(Spell.Key).CanCast(objChar, t, False) <> SpellFailedReason.SPELL_NO_ERROR Then
+                    objChar.RemoveAuraBySpell(Spell.Key)
                 End If
             End If
         Next

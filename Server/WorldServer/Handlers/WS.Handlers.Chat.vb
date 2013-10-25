@@ -23,12 +23,12 @@ Imports mangosVB.Common.BaseWriter
 Public Module WS_Handlers_Chat
 
 
-    Public Function GetChatFlag(ByVal c As CharacterObject) As Byte
-        If c.GM Then
+    Public Function GetChatFlag(ByVal objChar As CharacterObject) As Byte
+        If objChar.GM Then
             Return ChatFlag.FLAG_GM
-        ElseIf c.AFK Then
+        ElseIf objChar.AFK Then
             Return ChatFlag.FLAG_AFK
-        ElseIf c.DND Then
+        ElseIf objChar.DND Then
             Return ChatFlag.FLAG_DND
         Else
             Return 0

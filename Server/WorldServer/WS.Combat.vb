@@ -1313,7 +1313,7 @@ Public Module WS_Combat
         c.SendCharacterUpdate(True)
     End Sub
 
-    Public Sub SetVirtualItemInfo(ByVal c As CharacterObject, ByVal Slot As Byte, ByRef Item As ItemObject)
+    Public Sub SetVirtualItemInfo(ByVal objChar As CharacterObject, ByVal Slot As Byte, ByRef Item As ItemObject)
         If Slot > 2 Then Exit Sub
         If Item Is Nothing Then
             'c.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + Slot * 2, 0)

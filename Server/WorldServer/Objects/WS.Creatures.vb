@@ -442,8 +442,8 @@ Public Module WS_Creatures
             Return False
         End Function
 
-        Public Function AggroRange(ByVal c As CharacterObject) As Single
-            Dim LevelDiff As Short = CShort(Level) - CShort(c.Level)
+        Public Function AggroRange(ByVal objChar As CharacterObject) As Single
+            Dim LevelDiff As Short = CShort(Level) - CShort(objChar.Level)
             Dim Range As Single = 20 + LevelDiff
             If Range < 5 Then Range = 5
             If Range > 45 Then Range = 45
