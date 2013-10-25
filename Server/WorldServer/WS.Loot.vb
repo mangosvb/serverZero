@@ -157,19 +157,19 @@ Public Module WS_Loot
         Public MinCountOrRef As Integer = 0
         Public MaxCount As Byte = 0
         Public LootCondition As ConditionType = ConditionType.CONDITION_NONE
-        Public ConditionValue1 As Integer = 0
-        Public ConditionValue2 As Integer = 0
+        '        Public ConditionValue1 As Integer = 0
+        '       Public ConditionValue2 As Integer = 0
         Public NeedQuest As Boolean = False
 
-        Public Sub New(ByVal Item As Integer, ByVal Chance As Single, ByVal Group As Byte, ByVal MinCountOrRef As Integer, ByVal MaxCount As Byte, ByVal LootCondition As ConditionType, ByVal ConditionValue1 As Integer, ByVal ConditionValue2 As Integer, ByVal NeedQuest As Boolean)
+        Public Sub New(ByVal Item As Integer, ByVal Chance As Single, ByVal Group As Byte, ByVal MinCountOrRef As Integer, ByVal MaxCount As Byte, ByVal LootCondition As ConditionType, ByVal NeedQuest As Boolean)
             Me.ItemID = Item
             Me.Chance = Chance
             Me.Group = Group
             Me.MinCountOrRef = MinCountOrRef
             Me.MaxCount = MaxCount
             Me.LootCondition = LootCondition
-            Me.ConditionValue1 = ConditionValue1
-            Me.ConditionValue2 = ConditionValue2
+            'Me.ConditionValue1 = ConditionValue1
+            'Me.ConditionValue2 = ConditionValue2
             Me.NeedQuest = NeedQuest
         End Sub
 
@@ -501,10 +501,10 @@ Public Module WS_Loot
                 Dim MinCountOrRef As Integer = LootRow.Item("mincountOrRef")
                 Dim MaxCount As Byte = LootRow.Item("maxcount")
                 Dim LootCondition As ConditionType = LootRow.Item("lootcondition")
-                Dim ConditionValue1 As Integer = LootRow.Item("condition_value1")
-                Dim ConditionValue2 As Integer = LootRow.Item("condition_value2")
+                'Dim ConditionValue1 As Integer = LootRow.Item("condition_value1")
+                'Dim ConditionValue2 As Integer = LootRow.Item("condition_value2")
 
-                Dim newItem As New LootStoreItem(Item, Math.Abs(ChanceOrQuestChance), GroupID, MinCountOrRef, MaxCount, LootCondition, ConditionValue1, ConditionValue2, (ChanceOrQuestChance < 0.0F))
+                Dim newItem As New LootStoreItem(Item, Math.Abs(ChanceOrQuestChance), GroupID, MinCountOrRef, MaxCount, LootCondition, (ChanceOrQuestChance < 0.0F))
                 newTemplate.AddItem(newItem)
             Next
 
