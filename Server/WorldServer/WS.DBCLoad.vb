@@ -19,7 +19,6 @@ Imports System
 Imports System.IO
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.WorldServer
 Imports mangosVB.Common.DBC
 
 Public Module WS_DBCLoad
@@ -1213,7 +1212,7 @@ Public Module WS_DBCLoad
     Public Sub LoadCreatureEquipTable()
         Try
             Dim EquipQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM creature_equip_template;", EquipQuery)
+            WorldDatabase.Query("SELECT * FROM creature_equip_template_raw;", EquipQuery)
 
             Dim Entry As Integer
             For Each EquipInfo As DataRow In EquipQuery.Rows
@@ -1223,10 +1222,10 @@ Public Module WS_DBCLoad
             Next
 
             Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", EquipQuery.Rows.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
-            Console.WriteLine("Database : Creature_Equip_Template missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
+            Console.WriteLine("Database : Creature_Equip_Template_raw missing.")
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub LoadCreatureModelInfo()

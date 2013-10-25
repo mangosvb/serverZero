@@ -141,7 +141,9 @@ Public Module WS_DBCDatabase
             Entry = row.Item("id")
             Battlegrounds.Add(Entry, New TBattleground)
 
-            Battlegrounds(Entry).Map = row.Item("Map")
+            'TODO: the MAPId needs to be located from somewhere other than the template file
+            'BUG: THIS IS AN UGLY HACK UNTIL THE ABOVE IS FIXED
+            '            Battlegrounds(Entry).Map = row.Item("Map")
             Battlegrounds(Entry).MinPlayersPerTeam = row.Item("MinPlayersPerTeam")
             Battlegrounds(Entry).MaxPlayersPerTeam = row.Item("MaxPlayersPerTeam")
             Battlegrounds(Entry).MinLevel = row.Item("MinLvl")
@@ -156,7 +158,7 @@ Public Module WS_DBCDatabase
     End Sub
 
     Public Class TBattleground
-        Public Map As UInteger
+        'Public Map As UInteger
         Public MinPlayersPerTeam As Byte
         Public MaxPlayersPerTeam As Byte
         Public MinLevel As Byte

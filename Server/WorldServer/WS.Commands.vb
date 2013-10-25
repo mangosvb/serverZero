@@ -1513,7 +1513,7 @@ Public Module WS_Commands
             Dim cmdList As String = "Listing of available locations:" & vbNewLine
 
             Dim ListSQLQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM world_cmdteleports", ListSQLQuery)
+            WorldDatabase.Query("SELECT * FROM game_tele", ListSQLQuery)
 
             For Each LocationRow As DataRow In ListSQLQuery.Rows
                 cmdList += LocationRow.Item("name") & ", "
@@ -1524,12 +1524,13 @@ Public Module WS_Commands
 
         location = location.Replace("'", "").Replace(" ", "")
         Dim MySQLQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM world_cmdteleports WHERE name = '{0}' LIMIT 1;", location), MySQLQuery)
+        WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name = '{0}' LIMIT 1;", location), MySQLQuery)
 
         If MySQLQuery.Rows.Count > 0 Then
             posX = CType(MySQLQuery.Rows(0).Item("positionX"), Single)
             posY = CType(MySQLQuery.Rows(0).Item("positionY"), Single)
             posZ = CType(MySQLQuery.Rows(0).Item("positionZ"), Single)
+            posO = CType(MySQLQuery.Rows(0).Item("Orientation"), Single)
             posMap = CType(MySQLQuery.Rows(0).Item("MapId"), Integer)
             c.Teleport(posX, posY, posZ, posO, posMap)
         Else

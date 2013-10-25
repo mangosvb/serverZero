@@ -232,7 +232,9 @@ Public Module WC_Battlegrounds
 
         'DONE: Create new if not found any
         If Battlefield Is Nothing Then
-            Dim Map As UInteger = Battlegrounds(MapType).Map
+            'TODO: the MAPId needs to be located from somewhere other than the template file
+            'BUG: THIS IS AN UGLY HACK UNTIL THE ABOVE IS FIXED
+            Dim Map As UInteger = 0 ' Battlegrounds(MapType).Map
             If WorldServer.BattlefieldCheck(Map) Then
                 Battlefield = New Battlefield(MapType, Level, Map)
             Else
