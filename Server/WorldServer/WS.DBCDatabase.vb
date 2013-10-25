@@ -1618,31 +1618,31 @@ Public Module WS_DBCDatabase
 
     Public Battlegrounds As New Dictionary(Of Byte, TBattleground)
     Public Sub InitializeBattlegrounds()
-        Dim Entry As Byte
+        Dim entry As Byte
 
-        Dim MySQLQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), MySQLQuery)
+        Dim mySqlQuery As New DataTable
+        WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), mySqlQuery)
 
-        For Each row As DataRow In MySQLQuery.Rows
-            Entry = row.Item("id")
-            Battlegrounds.Add(Entry, New TBattleground)
+        For Each row As DataRow In mySqlQuery.Rows
+            entry = row.Item("id")
+            Battlegrounds.Add(entry, New TBattleground)
 
-            Battlegrounds(Entry).Map = row.Item("Map")
-            Battlegrounds(Entry).MinPlayersPerTeam = row.Item("MinPlayersPerTeam")
-            Battlegrounds(Entry).MaxPlayersPerTeam = row.Item("MaxPlayersPerTeam")
-            Battlegrounds(Entry).MinLevel = row.Item("MinLvl")
-            Battlegrounds(Entry).MaxLevel = row.Item("MaxLvl")
-            Battlegrounds(Entry).AllianceStartLoc = row.Item("AllianceStartLoc")
-            Battlegrounds(Entry).AllianceStartO = row.Item("AllianceStartO")
-            Battlegrounds(Entry).HordeStartLoc = row.Item("HordeStartLoc")
-            Battlegrounds(Entry).HordeStartO = row.Item("HordeStartO")
+            '            Battlegrounds(Entry).Map = row.Item("Map")
+            Battlegrounds(entry).MinPlayersPerTeam = row.Item("MinPlayersPerTeam")
+            Battlegrounds(entry).MaxPlayersPerTeam = row.Item("MaxPlayersPerTeam")
+            Battlegrounds(entry).MinLevel = row.Item("MinLvl")
+            Battlegrounds(entry).MaxLevel = row.Item("MaxLvl")
+            Battlegrounds(entry).AllianceStartLoc = row.Item("AllianceStartLoc")
+            Battlegrounds(entry).AllianceStartO = row.Item("AllianceStartO")
+            Battlegrounds(entry).HordeStartLoc = row.Item("HordeStartLoc")
+            Battlegrounds(entry).HordeStartO = row.Item("HordeStartO")
         Next
 
-        Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Loaded.", MySQLQuery.Rows.Count)
+        Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Loaded.", mySqlQuery.Rows.Count)
     End Sub
 
     Public Class TBattleground
-        Public Map As Integer
+        '        Public Map As Integer
         Public MinPlayersPerTeam As Byte
         Public MaxPlayersPerTeam As Byte
         Public MinLevel As Byte
