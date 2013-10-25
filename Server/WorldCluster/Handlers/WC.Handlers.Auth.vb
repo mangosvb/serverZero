@@ -416,7 +416,7 @@ Public Module WC_Handlers_Auth
                 Dim ItemsMySQLQuery As New DataTable
                 Dim characterDB As String = CharacterDatabase.SQLDBName
                 Dim worldDB As String = WorldDatabase.SQLDBName
-                CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM " & characterDB & ".characters_inventory, " & worldDB & ".items WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
+                CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM " & characterDB & ".characters_inventory, " & worldDB & ".item_template WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
 
                 Dim e As IEnumerator = ItemsMySQLQuery.Rows.GetEnumerator
                 e.Reset()
