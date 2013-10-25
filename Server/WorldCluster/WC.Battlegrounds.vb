@@ -234,7 +234,7 @@ Public Module WC_Battlegrounds
         If Battlefield Is Nothing Then
             'TODO: the MAPId needs to be located from somewhere other than the template file
             'BUG: THIS IS AN UGLY HACK UNTIL THE ABOVE IS FIXED
-            Dim Map As UInteger = 0 ' Battlegrounds(MapType).Map
+            Dim Map As UInteger = GetBattleGrounMapIdByTypeId(MapType)
             If WorldServer.BattlefieldCheck(Map) Then
                 Battlefield = New Battlefield(MapType, Level, Map)
             Else
@@ -243,6 +243,41 @@ Public Module WC_Battlegrounds
         End If
         Return Battlefield
     End Function
+
+    'indexes of BattlemasterList.dbc
+    Enum BattleGroundTypeId As Byte
+        BATTLEGROUND_TYPE_NONE = 0
+        BATTLEGROUND_AV = 1
+        BATTLEGROUND_WS = 2
+        BATTLEGROUND_AB = 3
+    End Enum
+
+    Function GetBattleGroundTypeIdByMapId(ByVal mapId As Integer) As Integer
+        Select Case mapId
+            Case 30
+                Return BattleGroundTypeId.BATTLEGROUND_AV
+            Case 489
+                Return BattleGroundTypeId.BATTLEGROUND_WS
+            Case 529
+                Return BattleGroundTypeId.BATTLEGROUND_AB
+            Case Else
+                Return BattleGroundTypeId.BATTLEGROUND_TYPE_NONE
+        End Select
+
+    End Function
+    Function GetBattleGrounMapIdByTypeId(bgTypeId As BattleGroundTypeId) As Integer
+        Select Case bgTypeId
+            Case BattleGroundTypeId.BATTLEGROUND_AV
+                Return 30
+            Case BattleGroundTypeId.BATTLEGROUND_WS
+                Return 489
+            Case BattleGroundTypeId.BATTLEGROUND_AB
+                Return 529
+            Case Else
+                Return 0
+        End Select
+    End Function
+
     Public Sub SendBattlegroundGroupJoined(ByVal c As CharacterObject)
         '0 - Your group has joined a battleground queue, but you are not eligible
         '1 - Your group has joined the queue for AV
