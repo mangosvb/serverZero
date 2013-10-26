@@ -54,7 +54,7 @@ Public Module WS_Handlers_Chat
                 'Handle admin/gm commands
                 If Message.StartsWith(Config.CommandCharacter) AndAlso Client.Character.Access > AccessLevel.Player Then
                     Message = Message.Remove(0, 1) ' Remove Command Start Character From Message
-                    Dim toCommand As PacketClass = BuildChatMessage(WardenGUID, Message, ChatMsg.CHAT_MSG_WHISPER_INFORM, LANGUAGES.LANG_UNIVERSAL)
+                    Dim toCommand As PacketClass = BuildChatMessage(SystemGUID, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
                     Try
                         Client.Send(toCommand)
                     Finally

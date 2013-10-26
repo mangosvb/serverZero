@@ -72,8 +72,8 @@ Public Module WS_Commands
 #Region "WS.Commands.Framework"
 
 
-    Public Const WardenGUID As ULong = Integer.MaxValue
-    Public Const WardenNAME As String = "Warden"
+    Public Const SystemGUID As ULong = Integer.MaxValue
+    Public Const SystemNAME As String = "System"
     Public Enum AccessLevel As Byte
         Trial = 0
         Player = 1
@@ -397,16 +397,16 @@ Public Module WS_Commands
 
         Return True
     End Function
-    <ChatCommandAttribute("AddWardenToParty", "This command will add the command bot to you group.", AccessLevel.Developer)> _
-    Public Function cmdAddWardenToParty(ByRef c As CharacterObject, ByVal Message As String) As Boolean
-        'Dim Warden As New CharacterObject
-        'Warden.Name = WardenNAME
-        'Warden.GUID = WardenGUID
-        'Warden.Client = New ClientClass
-        'Warden.Client.DEBUG_CONNECTION = True
+    <ChatCommandAttribute("AddSystemToParty", "This command will add the command bot to you group.", AccessLevel.Developer)> _
+    Public Function cmdAddSystemToParty(ByRef c As CharacterObject, ByVal Message As String) As Boolean
+        'Dim System As New CharacterObject
+        'System.Name = SystemNAME
+        'System.GUID = SystemGUID
+        'System.Client = New ClientClass
+        'System.Client.DEBUG_CONNECTION = True
 
         'c.Party = New BaseParty(c)
-        'c.Party.AddCharacter(Warden)
+        'c.Party.AddCharacter(System)
 
         c.CommandResponse("This command is disabled for now")
         Return True

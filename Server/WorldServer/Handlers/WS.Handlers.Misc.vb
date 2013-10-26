@@ -62,10 +62,10 @@ Public Module WS_Handlers_Misc
             Dim SMSG_NAME_QUERY_RESPONSE As New PacketClass(OPCODES.SMSG_NAME_QUERY_RESPONSE)
 
             'RESERVED For Warden Bot
-            If GUID = WardenGUID Then
+            If GUID = SystemGUID Then
                 Try
                     SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                    SMSG_NAME_QUERY_RESPONSE.AddString(WardenNAME)
+                    SMSG_NAME_QUERY_RESPONSE.AddString(SystemNAME)
                     SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
                     SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
                     SMSG_NAME_QUERY_RESPONSE.AddInt32(1)

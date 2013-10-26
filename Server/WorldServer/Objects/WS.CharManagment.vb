@@ -2199,7 +2199,7 @@ Public Module WS_CharManagment
                 Messages(0) = Message
             End If
             For Each Msg As String In Messages
-                Dim packet As PacketClass = BuildChatMessage(WardenGUID, Msg, ChatMsg.CHAT_MSG_WHISPER, LANGUAGES.LANG_UNIVERSAL)
+                Dim packet As PacketClass = BuildChatMessage(SystemGUID, Msg, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
                 Client.Send(packet)
                 packet.Dispose()
             Next
@@ -6366,7 +6366,7 @@ DoneAmmo:
         End Try
 
         'DONE: Can't create character named as the bot
-        If UCase(Character.Name) = UCase(WardenNAME) Then
+        If UCase(Character.Name) = UCase(SystemNAME) Then
             Return AuthResponseCodes.CHAR_CREATE_NAME_IN_USE
         End If
 
