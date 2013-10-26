@@ -619,15 +619,25 @@ Public Module WS_Base
             End Try
         End Sub
 
-        Public Function DealSpellDamage(ByRef Caster As BaseUnit, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal DamageType As DamageTypes, ByVal SpellType As SpellType) As Integer
+        Public Sub DealSpellDamage(ByRef Caster As BaseUnit, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal DamageType As DamageTypes, ByVal SpellType As SpellType)
             Dim IsHeal As Boolean = False
-            If SpellType = WS_Spells.SpellType.SPELL_TYPE_HEAL OrElse SpellType = WS_Spells.SpellType.SPELL_TYPE_HEALDOT Then
-                IsHeal = True
-            End If
             Dim IsDot As Boolean = False
-            If SpellType = WS_Spells.SpellType.SPELL_TYPE_DOT OrElse SpellType = WS_Spells.SpellType.SPELL_TYPE_HEALDOT Then
-                IsDot = True
-            End If
+
+            Select Case SpellType
+                Case SpellType.SPELL_TYPE_HEAL
+                    IsHeal = True
+                Case SpellType.SPELL_TYPE_HEALDOT
+                    IsHeal = True
+                    IsDot = True
+                Case SpellType.SPELL_TYPE_DOT
+                    IsDot = True
+            End Select
+            'If SpellType = SpellType.SPELL_TYPE_HEAL Or SpellType = SpellType.SPELL_TYPE_HEALDOT Then
+            '    IsHeal = True
+            'End If
+            'If SpellType = SpellType.SPELL_TYPE_DOT OrElse SpellType = SpellType.SPELL_TYPE_HEALDOT Then
+            '    IsDot = True
+            'End If
 
             Dim SpellDamageBenefit As Integer = 0
             If TypeOf Caster Is CharacterObject Then
@@ -699,16 +709,16 @@ Public Module WS_Base
 
             'DONE: Send log
             Select Case SpellType
-                Case WS_Spells.SpellType.SPELL_TYPE_NONMELEE
+                Case SpellType.SPELL_TYPE_NONMELEE
                     SendNonMeleeDamageLog(Caster, Me, SpellID, DamageType, Damage, Resist, Absorb, IsCrit)
-                Case WS_Spells.SpellType.SPELL_TYPE_DOT
+                Case SpellType.SPELL_TYPE_DOT
                     SendPeriodicAuraLog(Caster, Me, SpellID, DamageType, Damage, EffectInfo.ApplyAuraIndex)
-                Case WS_Spells.SpellType.SPELL_TYPE_HEAL
+                Case SpellType.SPELL_TYPE_HEAL
                     SendHealSpellLog(Caster, Me, SpellID, Damage, IsCrit)
-                Case WS_Spells.SpellType.SPELL_TYPE_HEALDOT
+                Case SpellType.SPELL_TYPE_HEALDOT
                     SendPeriodicAuraLog(Caster, Me, SpellID, DamageType, Damage, EffectInfo.ApplyAuraIndex)
             End Select
-        End Function
+        End Sub
 
         Public Function GetMagicSpellHitResult(ByRef Caster As BaseUnit, ByVal Spell As SpellInfo) As SpellMissInfo
             If Me.isDead Then Return SpellMissInfo.SPELL_MISS_NONE 'Can't miss dead target
@@ -863,7 +873,7 @@ Public Module WS_Base
             End If
         End Function
 
-        Public Function GetDamageReduction(ByRef t As BaseUnit, ByVal School As DamageTypes, ByVal Damage As Integer) As Integer
+        Public Function GetDamageReduction(ByRef t As BaseUnit, ByVal School As DamageTypes, ByVal Damage As Integer) As Single
             Dim DamageReduction As Single = 0.0F
 
             If School = DamageTypes.DMG_PHYSICAL Then
@@ -881,7 +891,7 @@ Public Module WS_Base
             Return DamageReduction
         End Function
 
-        Public Function GetResist(ByRef t As BaseUnit, ByVal School As DamageTypes, ByVal Damage As Integer) As Integer
+        Public Function GetResist(ByRef t As BaseUnit, ByVal School As DamageTypes, ByVal Damage As Integer) As Single
             Dim damageReduction As Single = GetDamageReduction(t, School, Damage)
 
             'DONE: Partial resist
