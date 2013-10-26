@@ -1488,46 +1488,67 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("PortByName", "PORT <LocationName> - Teleports Character To The LocationName Location. Use PortByName list to get a list of locations.", AccessLevel.GameMaster)> _
-    Public Function cmdPortByName(ByRef c As CharacterObject, ByVal location As String) As Boolean
+    ''' <summary>
+    ''' Teleports the player to a location.
+    ''' </summary>
+    ''' <param name="objChar">The c.</param>
+    ''' <param name="location">The location. Use PortByName list to get a list of locations (can use * as wildcard).</param>
+    ''' <returns></returns>
+    <ChatCommandAttribute("PortByName", "PORT <LocationName> - Teleports Character To The LocationName Location. Use PortByName list to get a list of locations (can use * as wildcard).", AccessLevel.GameMaster)> _
+    Public Function CmdPortByName(ByRef objChar As CharacterObject, ByVal location As String) As Boolean
 
         If location = "" Then Return False
 
-        Dim posX As Single = 0
-        Dim posY As Single = 0
-        Dim posZ As Single = 0
-        Dim posO As Single = 0
-        Dim posMap As Integer = 0
+        Dim posX As Single '= 0
+        Dim posY As Single '= 0
+        Dim posZ As Single '= 0
+        Dim posO As Single '= 0
+        Dim posMap As Integer '= 0
 
         If UCase(location) = "LIST" Then
             Dim cmdList As String = "Listing of available locations:" & vbNewLine
 
-            Dim ListSQLQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM game_tele", ListSQLQuery)
+            Dim listSqlQuery As New DataTable
+            WorldDatabase.Query("SELECT * FROM game_tele order by name", listSqlQuery)
 
-            For Each LocationRow As DataRow In ListSQLQuery.Rows
-                cmdList += LocationRow.Item("name") & ", "
+            For Each locationRow As DataRow In listSqlQuery.Rows
+                cmdList += locationRow.Item("name") & ", "
             Next
-            c.CommandResponse(cmdList)
+            objChar.CommandResponse(cmdList)
             Return True
         End If
 
         location = location.Replace("'", "").Replace(" ", "")
-        Dim MySQLQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name = '{0}' LIMIT 1;", location), MySQLQuery)
+        location = location.Replace(";", "") 'Some SQL Safety added
 
-        If MySQLQuery.Rows.Count > 0 Then
-            posX = CType(MySQLQuery.Rows(0).Item("position_x"), Single)
-            posY = CType(MySQLQuery.Rows(0).Item("position_y"), Single)
-            posZ = CType(MySQLQuery.Rows(0).Item("position_z"), Single)
-            posO = CType(MySQLQuery.Rows(0).Item("orientation"), Single)
-            posMap = CType(MySQLQuery.Rows(0).Item("map"), Integer)
-            c.Teleport(posX, posY, posZ, posO, posMap)
+        Dim mySqlQuery As New DataTable
+        If location.Contains("*") Then
+            location = location.Replace("*", "")
+            WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name like '{0}%' order by name;", location), mySqlQuery)
         Else
-            c.CommandResponse(String.Format("Location {0} NOT found in Database", location))
+            WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name = '{0}' order by name LIMIT 1;", location), mySqlQuery)
         End If
+        If mySqlQuery.Rows.Count > 0 Then
+            If mySqlQuery.Rows.Count = 1 Then
 
+                posX = CType(mySqlQuery.Rows(0).Item("position_x"), Single)
+                posY = CType(mySqlQuery.Rows(0).Item("position_y"), Single)
+                posZ = CType(mySqlQuery.Rows(0).Item("position_z"), Single)
+                posO = CType(mySqlQuery.Rows(0).Item("orientation"), Single)
+                posMap = CType(mySqlQuery.Rows(0).Item("map"), Integer)
+                objChar.Teleport(posX, posY, posZ, posO, posMap)
+            Else
+                Dim cmdList As String = "Listing of matching locations:" & vbNewLine
 
+                For Each locationRow As DataRow In mySqlQuery.Rows
+                    cmdList += locationRow.Item("name") & ", "
+                Next
+                objChar.CommandResponse(cmdList)
+                Return True
+            End If
+        Else
+            objChar.CommandResponse(String.Format("Location {0} NOT found in Database", location))
+        End If
         Return True
     End Function
 
