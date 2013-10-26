@@ -169,11 +169,11 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseWriter.vb" />
+    <Compile Include="Writers\BaseWriter.vb" />
     <Compile Include="Cluster.vb">
     </Compile>
-    <Compile Include="ColoredConsoleWriter.vb" />
-    <Compile Include="ConsoleWriter.vb" />
+    <Compile Include="Writers\ColoredConsoleWriter.vb" />
+    <Compile Include="Writers\ConsoleWriter.vb" />
     <Compile Include="fileADT.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -186,17 +186,17 @@
     <Compile Include="fileWDB.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FileWriter.vb" />
-    <Compile Include="Global.Constants.vb" />
-    <Compile Include="Global.Converter.vb" />
-    <Compile Include="Global.Opcodes.vb" />
-    <Compile Include="Global.Zip.vb" />
-    <Compile Include="IrcWriter.vb" />
+    <Compile Include="Writers\FileWriter.vb" />
+    <Compile Include="Globals\Global.Constants.vb" />
+    <Compile Include="Globals\Global.Converter.vb" />
+    <Compile Include="Globals\Global.Opcodes.vb" />
+    <Compile Include="Globals\Global.Zip.vb" />
+    <Compile Include="Writers\IrcWriter.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="NativeMethods.vb" />
     <Compile Include="Revisions.vb" />
     <Compile Include="SQL.vb" />
-    <Compile Include="TelnetWriter.vb" />
+    <Compile Include="Writers\TelnetWriter.vb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ICSharpCode.SharpZipLib.dll">

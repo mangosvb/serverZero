@@ -1,4 +1,22 @@
-﻿Public Class Revisions
+﻿'
+' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+'
+' This program is free software; you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation; either version 2 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program; if not, write to the Free Software
+' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+'
+
+Public Class Revisions
     Private Const RevisionDbCharacters As String = "required_s1350_11716_09_characters_mail"
     Private Const RevisionDbMangos As String = "required_s2034_12522_01_mangos_db_script_string"
     Private Const RevisionDbRealmd As String = "required_c12484_02_realmd_account_access"
