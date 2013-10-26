@@ -1527,11 +1527,11 @@ Public Module WS_Commands
         WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name = '{0}' LIMIT 1;", location), MySQLQuery)
 
         If MySQLQuery.Rows.Count > 0 Then
-            posX = CType(MySQLQuery.Rows(0).Item("positionX"), Single)
-            posY = CType(MySQLQuery.Rows(0).Item("positionY"), Single)
-            posZ = CType(MySQLQuery.Rows(0).Item("positionZ"), Single)
-            posO = CType(MySQLQuery.Rows(0).Item("Orientation"), Single)
-            posMap = CType(MySQLQuery.Rows(0).Item("MapId"), Integer)
+            posX = CType(MySQLQuery.Rows(0).Item("position_x"), Single)
+            posY = CType(MySQLQuery.Rows(0).Item("position_y"), Single)
+            posZ = CType(MySQLQuery.Rows(0).Item("position_z"), Single)
+            posO = CType(MySQLQuery.Rows(0).Item("orientation"), Single)
+            posMap = CType(MySQLQuery.Rows(0).Item("map"), Integer)
             c.Teleport(posX, posY, posZ, posO, posMap)
         Else
             c.CommandResponse(String.Format("Location {0} NOT found in Database", location))

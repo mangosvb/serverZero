@@ -260,15 +260,15 @@ Public Module WC_Network
         End Sub
         Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
             Try
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client drop [M{1:0000}]", ID, CLIENTs(ID).Character.Map)
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Dropped Map {1:000}", ID, CLIENTs(ID).Character.Map)
                 CLIENTs(ID).Character.IsInWorld = False
                 CLIENTs(ID).Character.OnLogout()
             Catch ex As Exception
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client drop exception: {1}", ID, ex.ToString)
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Dropped Exception: {1}", ID, ex.ToString)
             End Try
         End Sub
         Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger) Implements ICluster.ClientTransfer
-            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client transfer [M{1:0000}->M{2:0000}]", ID, CLIENTs(ID).Character.Map, map)
+            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Transfer Map {1:000} to Map {2:000}", ID, CLIENTs(ID).Character.Map, map)
 
             Dim p As New PacketClass(OPCODES.SMSG_NEW_WORLD)
             p.AddUInt32(map)
@@ -280,19 +280,22 @@ Public Module WC_Network
 
             CLIENTs(ID).Character.Map = map
         End Sub
+
         Public Sub ClientUpdate(ByVal ID As UInteger, ByVal Zone As UInteger, ByVal Level As Byte) Implements ICluster.ClientUpdate
             If CLIENTs(ID).Character Is Nothing Then Return
-            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client zone update [Z{1:0000}]", ID, Zone)
+            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Update Zone {1:000}", ID, Zone)
 
             CLIENTs(ID).Character.Zone = Zone
             CLIENTs(ID).Character.Level = Level
         End Sub
+
         Public Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal Flag As Byte) Implements ICluster.ClientSetChatFlag
             If CLIENTs(ID).Character Is Nothing Then Return
             Log.WriteLine(LogType.DEBUG, "[{0:000000}] Client chat flag update [0x{1:X}]", ID, Flag)
 
             CLIENTs(ID).Character.ChatFlag = Flag
         End Sub
+
         Public Function ClientGetCryptKey(ByVal ID As UInteger) As Byte() Implements ICluster.ClientGetCryptKey
             Log.WriteLine(LogType.DEBUG, "[{0:000000}] Requested client crypt key", ID)
             Return CLIENTs(ID).SS_Hash
@@ -306,6 +309,7 @@ Public Module WC_Network
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
+
         Public Sub Broadcast(ByVal Data() As Byte) Implements ICluster.Broadcast
             Dim b As Byte()
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
