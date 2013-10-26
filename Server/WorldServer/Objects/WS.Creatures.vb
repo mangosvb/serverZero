@@ -1543,7 +1543,9 @@ Public Module WS_Creatures
         Public Sub MoveCell()
             Try
                 If CellX <> GetMapTileX(positionX) OrElse CellY <> GetMapTileY(positionY) Then
-                    Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)
+                    If IsNothing(Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)) = False Then
+                        Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)
+                    End If
                     GetMapTile(positionX, positionY, CellX, CellY)
 
                     'If creature changes cell then it's sent back to spawn, if the creature is a waypoint walker this won't be very good :/
