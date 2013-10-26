@@ -302,6 +302,7 @@ Public Module WS_Maps
             GC.SuppressFinalize(Me)
         End Sub
 #End Region
+
     End Class
 
     Public Class TMap
@@ -1092,6 +1093,7 @@ Public Module WS_Maps
 
 
 #End Region
+
 #Region "Instances"
 
 
@@ -1120,8 +1122,5 @@ Public Module WS_Maps
 
 
 #End Region
-
-
-
 
 End Module

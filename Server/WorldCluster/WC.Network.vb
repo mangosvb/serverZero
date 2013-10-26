@@ -155,7 +155,7 @@ Public Module WC_Network
                 'Dim WorldServer As IWorld = CType(RemotingServices.Connect(GetType(IWorld), URI), IWorld)
 
                 Dim WorldServerInfo As New WorldInfo
-                Log.WriteLine(LogType.INFORMATION, "Connected World Server: {0}", URI)
+                Log.WriteLine(LogType.INFORMATION, "Connected Map Server: {0}", URI)
 
                 SyncLock CType(Worlds, ICollection).SyncRoot
                     For Each Map As UInteger In Maps
@@ -204,13 +204,14 @@ Public Module WC_Network
                         SyncLock CType(Worlds, ICollection).SyncRoot
                             Worlds.Remove(Map)
                             WorldsInfo.Remove(Map)
-                            Log.WriteLine(LogType.INFORMATION, "Disconnected World Server: {0:000}", Map)
+                            Log.WriteLine(LogType.INFORMATION, "Disconnected Map: {0:000}", Map)
                         End SyncLock
                     End Try
                 End If
             Next
 
         End Sub
+
         Public Sub Ping(ByVal State As Object)
             Dim DeadServers As New List(Of UInteger)
             Dim SentPingTo As New Dictionary(Of WorldInfo, Integer)
@@ -224,7 +225,7 @@ Public Module WC_Network
                 For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                     Try
                         If SentPingTo.ContainsKey(WorldsInfo(w.Key)) Then
-                            Log.WriteLine(LogType.NETWORK, "World [M{0:0000}] ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
+                            Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
                         Else
                             MyTime = timeGetTime("")
                             ServerTime = w.Value.Ping(MyTime, WorldsInfo(w.Key).Latency)
@@ -233,14 +234,14 @@ Public Module WC_Network
                             WorldsInfo(w.Key).Latency = Latency
                             SentPingTo(WorldsInfo(w.Key)) = Latency
 
-                            Log.WriteLine(LogType.NETWORK, "World [M{0:0000}] ping: {1}ms", w.Key, Latency)
+                            Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, Latency)
 
                             'Query CPU and Memory usage
                             w.Value.ServerInfo(WorldsInfo(w.Key).CPUUsage, WorldsInfo(w.Key).MemoryUsage)
                         End If
 
                     Catch ex As Exception
-                        Log.WriteLine(LogType.WARNING, "World [M{0:0000}] down.", w.Key)
+                        Log.WriteLine(LogType.WARNING, "Map {0:000} Down!", w.Key)
 
                         DeadServers.Add(w.Key)
                     End Try
@@ -248,7 +249,7 @@ Public Module WC_Network
             End SyncLock
 
             'Notification message
-            If Worlds.Count = 0 Then Log.WriteLine(LogType.WARNING, "No world servers available!")
+            If Worlds.Count = 0 Then Log.WriteLine(LogType.WARNING, "No Maps Available!")
 
             'Drop WorldServers
             Disconnect("NULL", DeadServers)
@@ -352,7 +353,7 @@ Public Module WC_Network
             If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
                 'We don't create new continents
                 If IsContinentMap(MapID) Then
-                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested instance map [{1}] is a continent", Client.Index, MapID)
+                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] is a continent", Client.Index, MapID)
 
                     Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
                     Client.Send(SMSG_LOGOUT_COMPLETE)
@@ -362,7 +363,7 @@ Public Module WC_Network
                     Return False
                 End If
 
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Requesting instance map [{1}]", Client.Index, MapID)
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Requesting Instance Map [{1}]", Client.Index, MapID)
                 Dim ParentMap As IWorld = Nothing
                 Dim ParentMapInfo As WorldInfo = Nothing
 
@@ -379,7 +380,7 @@ Public Module WC_Network
                 End If
 
                 If ParentMap Is Nothing Then
-                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested instance map [{1}] can't be loaded", Client.Index, MapID)
+                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] can't be loaded", Client.Index, MapID)
 
                     Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
                     Client.Send(SMSG_LOGOUT_COMPLETE)

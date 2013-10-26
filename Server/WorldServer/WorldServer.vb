@@ -552,6 +552,7 @@ Public Module WS_Main
             End Try
         End While
     End Sub
+
     Private Sub GenericExceptionHandler(ByVal sender As Object, ByVal e As UnhandledExceptionEventArgs)
         Dim EX As Exception
         EX = e.ExceptionObject

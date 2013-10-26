@@ -48,6 +48,7 @@ Public Module WorldCluster
     Delegate Sub HandlePacket(ByRef Packet As PacketClass, ByRef Client As ClientClass)
 
 #End Region
+
 #Region "Global.Config"
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="WorldCluster")> _
