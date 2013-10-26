@@ -16,7 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+Imports System
 Imports System.IO
+Imports System.Object
 
 Public Class frmMain
 
@@ -27,8 +29,8 @@ Public Class frmMain
 
     Private Sub cmdBrowse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdBrowse.Click
         Dim fdlg As OpenFileDialog = New OpenFileDialog()
-        fdlg.Title = "Find your DBC File"
-        fdlg.Filter = "All files (*.*)|*.*|All files (*.*)|*.*"
+        fdlg.Title = "Which DBC You Want to View"
+        fdlg.Filter = "DBC File (*.dbc)|*.dbc"
         fdlg.FilterIndex = 2
         fdlg.RestoreDirectory = True
         If fdlg.ShowDialog() = DialogResult.OK Then

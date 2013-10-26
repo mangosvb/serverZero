@@ -22,15 +22,15 @@ Partial Class frmMain
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.components = New System.ComponentModel.Container
-        Me.txtFile = New System.Windows.Forms.TextBox
-        Me.cmdBrowse = New System.Windows.Forms.Button
-        Me.DBCData = New System.Windows.Forms.ListView
-        Me.ProgressBar = New System.Windows.Forms.ProgressBar
+        Me.components = New System.ComponentModel.Container()
+        Me.txtFile = New System.Windows.Forms.TextBox()
+        Me.cmdBrowse = New System.Windows.Forms.Button()
+        Me.DBCData = New System.Windows.Forms.ListView()
+        Me.ProgressBar = New System.Windows.Forms.ProgressBar()
         Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
-        Me.cmbColumn = New System.Windows.Forms.ComboBox
-        Me.txtQuery = New System.Windows.Forms.TextBox
-        Me.cmdSearch = New System.Windows.Forms.Button
+        Me.cmbColumn = New System.Windows.Forms.ComboBox()
+        Me.txtQuery = New System.Windows.Forms.TextBox()
+        Me.cmdSearch = New System.Windows.Forms.Button()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -39,7 +39,7 @@ Partial Class frmMain
         Me.txtFile.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtFile.Enabled = False
-        Me.txtFile.Location = New System.Drawing.Point(2, 6)
+        Me.txtFile.Location = New System.Drawing.Point(2, 7)
         Me.txtFile.Name = "txtFile"
         Me.txtFile.Size = New System.Drawing.Size(670, 20)
         Me.txtFile.TabIndex = 1
@@ -122,7 +122,7 @@ Partial Class frmMain
         Me.Controls.Add(Me.cmdBrowse)
         Me.Controls.Add(Me.txtFile)
         Me.Name = "frmMain"
-        Me.Text = "DBC Reader by UniX"
+        Me.Text = "DBC (Database Code) Reader"
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
