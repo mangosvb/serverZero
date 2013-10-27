@@ -52,8 +52,8 @@ Public Module WS_CharManagment
     Public Const TurningFlagsMask As Integer = MovementFlags.MOVEMENTFLAG_LEFT Or MovementFlags.MOVEMENTFLAG_RIGHT
     Public Const movementOrTurningFlagsMask As Integer = movementFlagsMask Or TurningFlagsMask
 
-    Public XPTable(60) As Integer 'Max XPTable Level from Database
     Public DEFAULT_MAX_LEVEL As Integer = 60 'Max Player Level
+    Public XPTable(DEFAULT_MAX_LEVEL) As Integer 'Max XPTable Level from Database
 
     Public Function CalculateStartingLIFE(ByRef c As CharacterObject, ByVal baseLIFE As Integer) As Integer
         If (c.Stamina.Base < 20) Then
@@ -71,8 +71,8 @@ Public Module WS_CharManagment
         End If
     End Function
     Private Function gainStat(ByVal level As Integer, ByVal a3 As Double, ByVal a2 As Double, ByVal a1 As Double, ByVal a0 As Double) As Integer
-        Return CType(System.Math.Round(a3 * level * level * level + a2 * level * level + a1 * level + a0), Integer) - _
-                CType(System.Math.Round(a3 * (level - 1) * (level - 1) * (level - 1) + a2 * (level - 1) * (level - 1) + a1 * (level - 1) + a0), Integer)
+        Return CType(Math.Round(a3 * level * level * level + a2 * level * level + a1 * level + a0), Integer) - _
+                CType(Math.Round(a3 * (level - 1) * (level - 1) * (level - 1) + a2 * (level - 1) * (level - 1) + a1 * (level - 1) + a0), Integer)
     End Function
 
     Public Sub CalculateOnLevelUP(ByRef c As CharacterObject)
