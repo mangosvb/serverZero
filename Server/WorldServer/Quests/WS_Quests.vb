@@ -1435,7 +1435,7 @@ Public Class WS_Quests
                 Dim qLevel As Integer = Client.Character.TalkCurrentQuest.Level_Normal
                 Dim fullxp As Single = 0.0F
 
-                If pLevel <= MAX_LEVEL Then
+                If pLevel <= DEFAULT_MAX_LEVEL Then
                     If qLevel >= 65 Then
                         fullxp = ReqMoneyMaxLevel / 6.0F
                     ElseIf qLevel = 64 Then

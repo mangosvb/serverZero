@@ -52,8 +52,8 @@ Public Module WS_CharManagment
     Public Const TurningFlagsMask As Integer = MovementFlags.MOVEMENTFLAG_LEFT Or MovementFlags.MOVEMENTFLAG_RIGHT
     Public Const movementOrTurningFlagsMask As Integer = movementFlagsMask Or TurningFlagsMask
 
-    Public XPTable(80) As Integer
-    Public MAX_LEVEL As Integer = 60
+    Public XPTable(60) As Integer 'Max XPTable Level from Database
+    Public DEFAULT_MAX_LEVEL As Integer = 60 'Max Player Level
 
     Public Function CalculateStartingLIFE(ByRef c As CharacterObject, ByVal baseLIFE As Integer) As Integer
         If (c.Stamina.Base < 20) Then
@@ -2362,7 +2362,7 @@ Public Module WS_CharManagment
                 End If
             End If
 
-            Dim maxSkill As Integer = If(Level > MAX_LEVEL, MAX_LEVEL * 5, CInt(Level) * 5)
+            Dim maxSkill As Integer = If(Level > DEFAULT_MAX_LEVEL, DEFAULT_MAX_LEVEL * 5, CInt(Level) * 5)
             Select Case SpellID
                 Case 4036 ' SKILL_ENGINERING
                     LearnSpell(3918)
@@ -2571,7 +2571,7 @@ Public Module WS_CharManagment
         Public Sub AddXP(ByVal Ammount As Integer, ByVal RestedBonus As Integer, Optional ByVal VictimGUID As ULong = 0, Optional ByVal LogIt As Boolean = True)
             If Ammount <= 0 Then Exit Sub
 
-            If Level < MAX_LEVEL Then
+            If Level < DEFAULT_MAX_LEVEL Then
 
                 XP = XP + Ammount
                 If LogIt Then LogXPGain(Ammount, RestedBonus, VictimGUID, 1.0F)
@@ -2667,7 +2667,7 @@ CheckXPAgain:
                 End If
 
                 'We just dinged more than one level
-                If XP >= XPTable(Level) AndAlso Level < MAX_LEVEL Then GoTo CheckXPAgain
+                If XP >= XPTable(Level) AndAlso Level < DEFAULT_MAX_LEVEL Then GoTo CheckXPAgain
 
                 'Fix if we add very big number XP
                 If XP > XPTable(Level) Then XP = XPTable(Level)
@@ -4216,7 +4216,7 @@ CheckXPAgain:
 
             'DONE: Set rested in citys
             If AreaTable(ZoneFlag).IsCity Then
-                If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_RESTING) = 0 AndAlso Level < MAX_LEVEL Then
+                If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_RESTING) = 0 AndAlso Level < DEFAULT_MAX_LEVEL Then
                     cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_RESTING
                     SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                     SendCharacterUpdate()
@@ -6439,14 +6439,17 @@ DoneAmmo:
         If CreateInfoBars.Rows.Count <= 0 Then
             Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_action table for race={0}, class={1}", c.Race, c.Classe)
         End If
+
         WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_skill WHERE race = {0} AND class = {1};", CType(c.Race, Integer), CType(c.Classe, Integer)), CreateInfoSkills)
         If CreateInfoSkills.Rows.Count <= 0 Then
             Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_skill table for race={0}, class={1}", c.Race, c.Classe)
         End If
+
         WorldDatabase.Query(String.Format("SELECT * FROM player_levelstats WHERE race = {0} AND class = {1} AND level = {2};", CType(c.Race, Integer), CType(c.Classe, Integer), CType(c.Level, Integer)), LevelStats)
         If LevelStats.Rows.Count <= 0 Then
             Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for race={0}, class={1}, level={2}", c.Race, c.Classe, c.Level)
         End If
+
         WorldDatabase.Query(String.Format("SELECT * FROM player_classlevelstats WHERE class = {0} AND level = {1};", CType(c.Classe, Integer), CType(c.Level, Integer)), ClassLevelStats)
         If ClassLevelStats.Rows.Count <= 0 Then
             Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for class={0}, level={1}", c.Classe, c.Level)

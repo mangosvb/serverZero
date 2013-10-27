@@ -585,8 +585,8 @@ Public Module WS_Commands
         If IsNumeric(tLevel) = False Then Return False
 
         Dim Level As Integer = tLevel
-        If Level > MAX_LEVEL Then Level = MAX_LEVEL
-        If Level > 255 Then Level = 255
+        If Level > DEFAULT_MAX_LEVEL Then Level = DEFAULT_MAX_LEVEL
+        If Level > 60 Then Level = 60
 
         If CHARACTERs.ContainsKey(c.TargetGUID) = False Then
             c.CommandResponse("Target not found or not character.")
