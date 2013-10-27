@@ -20,9 +20,7 @@ Imports System.Threading
 Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
 
-
 Public Module WS_Handlers_Gamemaster
-
 
     Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", Client.IP, Client.Port)

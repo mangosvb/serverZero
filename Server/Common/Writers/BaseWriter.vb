@@ -27,7 +27,7 @@ Public Class BaseWriter
         WARNING                 'Warning
         FAILED                  'Processing Error
         CRITICAL                'Application Error
-        DATABASE               'Database Error
+        DATABASE                'Database Error
     End Enum
     Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
 
