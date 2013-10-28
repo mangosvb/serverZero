@@ -22,8 +22,8 @@ Public Module WC_Guild
 
 #Region "WC.Guild.Constants"
 
-    Public Const GUILD_RANK_MAX As Integer = 9
-    Public Const GUILD_RANK_MIN As Integer = 0
+    Public Const GUILD_RANK_MAX As Integer = 9 'Max Ranks Per Guild
+    Public Const GUILD_RANK_MIN As Integer = 5 'Min Ranks Per Guild
 
 #End Region
 
@@ -123,9 +123,11 @@ Public Module WC_Guild
 
         c.SendGuildUpdate()
     End Sub
+
     Public Sub AddCharacterToGuild(ByVal GUID As ULong, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", GuildID, GUID, GuildRank))
     End Sub
+
     Public Sub RemoveCharacterFromGuild(ByRef c As CharacterObject)
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, c.GUID))
 
@@ -134,9 +136,11 @@ Public Module WC_Guild
         c.GuildRank = 0
         c.SendGuildUpdate()
     End Sub
+
     Public Sub RemoveCharacterFromGuild(ByVal GUID As ULong)
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, GUID))
     End Sub
+
     Public Sub BroadcastChatMessageGuild(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal GuildID As Integer)
         'DONE: Check for guild member
         If Not Sender.IsInGuild Then
@@ -165,6 +169,7 @@ Public Module WC_Guild
 
         packet.Dispose()
     End Sub
+
     Public Sub BroadcastChatMessageOfficer(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal GuildID As Integer)
         'DONE: Check for guild member
         If Not Sender.IsInGuild Then
@@ -193,6 +198,7 @@ Public Module WC_Guild
 
         packet.Dispose()
     End Sub
+
     Public Sub SendGuildQuery(ByRef Client As ClientClass, ByVal GuildID As UInteger)
         If GuildID = 0 Then Exit Sub
         'WARNING: This opcode is used also in character enum, so there must not be used any references to CharacterObject, only ClientClass
@@ -217,6 +223,7 @@ Public Module WC_Guild
         Client.Send(response)
         response.Dispose()
     End Sub
+
     Public Sub SendGuildRoster(ByRef c As CharacterObject)
         If Not c.IsInGuild Then Exit Sub
 
@@ -282,6 +289,15 @@ Public Module WC_Guild
         response.Dispose()
     End Sub
 
+    'Default Guild Ranks
+    'TODO: Set the ranks during guild creation
+    Public Enum GuildDefaultRanks As Byte
+        GR_GUILDMASTER = 0
+        GR_OFFICER = 1
+        GR_VETERAN = 2
+        GR_MEMBER = 3
+        GR_INITIATE = 4
+    End Enum
 
     'Helping Subs
     Public Enum GuildCommand As Byte
@@ -290,6 +306,7 @@ Public Module WC_Guild
         GUILD_QUIT_S = &H2
         GUILD_FOUNDER_S = &HC
     End Enum
+
     Public Enum GuildError As Byte
         GUILD_PLAYER_NO_MORE_IN_GUILD = &H0
         GUILD_INTERNAL = &H1

@@ -23,9 +23,10 @@ Public Module WS_Guilds
 
 #Region "WS.Guilds.Constants"
 
-
     Public Const PETITION_GUILD_PRICE As Integer = 1000
     Public Const PETITION_GUILD As Integer = 5863       'Guild Charter, ItemFlags = &H2000
+    Public Const GUILD_TABARD_ITEM As Integer = 5976
+
     Public Const PETITION_2v2_PRICE As Integer = 800000
     Public Const PETITION_2v2 As Integer = 23560
     Public Const PETITION_3v3_PRICE As Integer = 1200000
@@ -33,10 +34,8 @@ Public Module WS_Guilds
     Public Const PETITION_5v5_PRICE As Integer = 2000000
     Public Const PETITION_5v5 As Integer = 23562
 
-    Public Const TABARD_ITEM As Integer = 5976
-
-
 #End Region
+
 #Region "WS.Guilds.Petition"
 
     'ERR_PETITION_FULL
@@ -56,6 +55,7 @@ Public Module WS_Guilds
         PETITIONSIGN_CANT_SIGN_OWN = 3          'You can's sign own guild charter
         PETITIONSIGN_NOT_SERVER = 4             'That player is not from your server
     End Enum
+
     Public Enum PetitionTurnInError As Integer
         PETITIONTURNIN_OK = 0                   ':Closes the window
         PETITIONTURNIN_ALREADY_IN_GUILD = 2     'You are already in a guild
@@ -106,6 +106,7 @@ Public Module WS_Guilds
         c.Client.Send(packet)
         packet.Dispose()
     End Sub
+
     Public Sub On_CMSG_PETITION_SHOWLIST(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -115,6 +116,7 @@ Public Module WS_Guilds
 
         SendPetitionActivate(Client.Character, GUID)
     End Sub
+
     Public Sub On_CMSG_PETITION_BUY(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 26 Then Exit Sub
         packet.GetInt16()
@@ -161,6 +163,7 @@ Public Module WS_Guilds
             response.Dispose()
             Exit Sub
         End If
+
         If Client.Character.Copper < CharterPrice Then
             Dim response As New PacketClass(OPCODES.SMSG_BUY_FAILED)
             response.AddUInt64(GUID)
@@ -175,7 +178,7 @@ Public Module WS_Guilds
         Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
         Client.Character.SendCharacterUpdate(False)
 
-        'Client.Character.AddItem(PETITION_ITEM)
+        'Client.Character.AddItem(PETITION_GUILD)
         Dim tmpItem As New ItemObject(CharterID, Client.Character.GUID)
         tmpItem.StackCount = 1
         tmpItem.AddEnchantment(tmpItem.GUID - GUID_ITEM, 0, 0, 0)
@@ -196,17 +199,18 @@ Public Module WS_Guilds
         Dim response As New PacketClass(OPCODES.SMSG_PETITION_SHOW_SIGNATURES)
         response.AddUInt64(iGUID)                                                        'itemGuid
         response.AddUInt64(MySQLQuery.Rows(0).Item("petition_owner"))                    'GuildOwner
-        response.AddInt32(MySQLQuery.Rows(0).Item("petition_id"))                       'PetitionGUID
-        response.AddInt8(MySQLQuery.Rows(0).Item("petition_signedMembers"))             'PlayersSigned
+        response.AddInt32(MySQLQuery.Rows(0).Item("petition_id"))                        'PetitionGUID
+        response.AddInt8(MySQLQuery.Rows(0).Item("petition_signedMembers"))              'PlayersSigned
 
         For i As Byte = 1 To MySQLQuery.Rows(0).Item("petition_signedMembers")
-            response.AddUInt64(MySQLQuery.Rows(0).Item("petition_signedMember" & i))                     'SignedGUID
-            response.AddInt32(0)                                                                        'Unk
+            response.AddUInt64(MySQLQuery.Rows(0).Item("petition_signedMember" & i))     'SignedGUID
+            response.AddInt32(0)                                                         'Unk
         Next
 
         c.Client.Send(response)
         response.Dispose()
     End Sub
+
     Public Sub On_CMSG_PETITION_SHOW_SIGNATURES(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -216,6 +220,7 @@ Public Module WS_Guilds
 
         SendPetitionSignatures(Client.Character, GUID)
     End Sub
+
     Public Sub On_CMSG_PETITION_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
@@ -228,12 +233,9 @@ Public Module WS_Guilds
         CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";", MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-
-
-
         Dim response As New PacketClass(OPCODES.SMSG_PETITION_QUERY_RESPONSE)
         response.AddInt32(MySQLQuery.Rows(0).Item("petition_id"))               'PetitionGUID
-        response.AddUInt64(MySQLQuery.Rows(0).Item("petition_owner"))            'GuildOwner
+        response.AddUInt64(MySQLQuery.Rows(0).Item("petition_owner"))           'GuildOwner
         response.AddString(MySQLQuery.Rows(0).Item("petition_name"))            'GuildName
         response.AddInt8(0)         'Unk1
         If CByte(MySQLQuery.Rows(0).Item("petition_type")) = 9 Then
@@ -283,6 +285,7 @@ Public Module WS_Guilds
         Client.Send(response)
         response.Dispose()
     End Sub
+
     Public Sub On_CMSG_OFFER_PETITION(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
@@ -297,6 +300,7 @@ Public Module WS_Guilds
 
         SendPetitionSignatures(CHARACTERs(GUID), itemGuid)
     End Sub
+
     Public Sub On_CMSG_PETITION_SIGN(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
@@ -322,6 +326,7 @@ Public Module WS_Guilds
         If CHARACTERs.ContainsKey(CType(MySQLQuery.Rows(0).Item("petition_owner"), ULong)) Then CHARACTERs(CType(MySQLQuery.Rows(0).Item("petition_owner"), ULong)).Client.SendMultiplyPackets(response)
         response.Dispose()
     End Sub
+
     Public Sub On_MSG_PETITION_DECLINE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -351,6 +356,7 @@ Public Module WS_Guilds
     End Sub
 
 #End Region
+
 #Region "WS.Guilds.Handlers"
 
     'Basic Tabard Framework
@@ -360,6 +366,7 @@ Public Module WS_Guilds
         c.Client.Send(packet)
         packet.Dispose()
     End Sub
+
     Public Sub On_MSG_TABARDVENDOR_ACTIVATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -369,6 +376,7 @@ Public Module WS_Guilds
 
         SendTabardActivate(Client.Character, GUID)
     End Sub
+
     Public Function GetGuildBankTabPrice(ByVal TabID As Byte) As Integer
         Select Case TabID
             Case 0
@@ -388,6 +396,16 @@ Public Module WS_Guilds
         End Select
     End Function
 
+    'Default Guild Ranks
+    'TODO: Set the ranks during guild creation
+    Public Enum GuildDefaultRanks As Byte
+        GR_GUILDMASTER = 0
+        GR_OFFICER = 1
+        GR_VETERAN = 2
+        GR_MEMBER = 3
+        GR_INITIATE = 4
+    End Enum
+
     'Helping Subs
     Public Enum GuildCommand As Byte
         GUILD_CREATE_S = &H0
@@ -395,6 +413,7 @@ Public Module WS_Guilds
         GUILD_QUIT_S = &H2
         GUILD_FOUNDER_S = &HC
     End Enum
+
     Public Enum GuildError As Byte
         GUILD_PLAYER_NO_MORE_IN_GUILD = &H0
         GUILD_INTERNAL = &H1
