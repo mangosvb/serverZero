@@ -88,7 +88,7 @@ Public Class WS_GraveYards
     ''' <param name="locationPosY">The location pos Y.</param>
     ''' <param name="locationPosZ">The location pos Z.</param>
     ''' <param name="locationMapID">The location map ID.</param>
-    Public Sub AddCoords(ID As Integer, locationPosX As Single, locationPosY As Single, locationPosZ As Single, locationMapID As Integer)
+    Public Sub AddGraveYard(ID As Integer, locationPosX As Single, locationPosY As Single, locationPosZ As Single, locationMapID As Integer)
         ' TODO: Complete member initialization 
         Me.Graveyards.Add(ID, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
     End Sub
@@ -98,7 +98,7 @@ Public Class WS_GraveYards
     ''' </summary>
     ''' <param name="ID">The ID.</param>
     ''' <returns>a <c>classCoords</c> structure</returns>
-    Public Function GetCoords(ID As Integer) As TGraveyard
+    Public Function GetGraveYard(ID As Integer) As TGraveyard
         Dim ret As New TGraveyard
         ret = Me.Graveyards(ID)
         Return ret
@@ -150,7 +150,7 @@ Public Class WS_GraveYards
 #End Region
 
 
-    Public Sub GoToNearestGraveyard(ByRef Character As CharacterObject, Optional ByVal Alive As Boolean = False, Optional ByVal Teleport As Boolean = True)
+    Public Sub GoToNearestGraveyard(ByRef Character As CharacterObject, ByVal Alive As Boolean, ByVal Teleport As Boolean)
         Character.ZoneCheck()
 
         Dim GraveQuery As New DataTable
@@ -182,7 +182,7 @@ Public Class WS_GraveYards
             'Skip graveyards that ain't for your faction
             If GraveyardFaction <> 0 AndAlso GraveyardFaction <> Character.Team Then Continue For
 
-            Dim dist2 As Single = GetDistance(Character.positionX, Graveyards(GraveyardID).x, Character.positionY, Graveyards(GraveyardID).y, Character.positionZ, Graveyards(GraveyardID).z)
+            Dim dist2 As Single = GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
             If foundNear Then
                 If dist2 < distNear Then
                     distNear = dist2
@@ -210,13 +210,13 @@ Public Class WS_GraveYards
                 End If
             End If
 
-            Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.x, selectedGraveyard.y, selectedGraveyard.z)
-            Character.Teleport(selectedGraveyard.x, selectedGraveyard.y, selectedGraveyard.z, 0, selectedGraveyard.Map)
-            Character.SendDeathReleaseLoc(selectedGraveyard.x, selectedGraveyard.y, selectedGraveyard.z, selectedGraveyard.Map)
+            Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z)
+            Character.Teleport(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, 0, selectedGraveyard.Map)
+            Character.SendDeathReleaseLoc(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, selectedGraveyard.Map)
         Else
-            Character.positionX = selectedGraveyard.x
-            Character.positionY = selectedGraveyard.y
-            Character.positionZ = selectedGraveyard.z
+            Character.positionX = selectedGraveyard.X
+            Character.positionY = selectedGraveyard.Y
+            Character.positionZ = selectedGraveyard.Z
             Character.MapID = selectedGraveyard.Map
         End If
     End Sub

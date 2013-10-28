@@ -1223,7 +1223,7 @@ Public Module WS_Commands
         End If
 
         If CHARACTERs.ContainsKey(c.TargetGUID) Then
-            AllGraveYards.GoToNearestGraveyard(CType(CHARACTERs(c.TargetGUID), CharacterObject))
+            AllGraveYards.GoToNearestGraveyard(CType(CHARACTERs(c.TargetGUID), CharacterObject), False, True)
             Return True
         End If
 

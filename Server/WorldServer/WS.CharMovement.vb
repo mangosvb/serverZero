@@ -489,20 +489,23 @@ Module WS_CharMovement
                 'DONE: Initialize packet
                 Dim UpdateData As New UpdateClass
                 Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
-                SMSG_UPDATE_OBJECT.AddInt8(0)
+                Try
+                    SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
+                    SMSG_UPDATE_OBJECT.AddInt8(0)
 
-                'DONE: Disable Turn
-                Client.Character.cUnitFlags = Client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
-                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
-                'DONE: StandState -> Sit
-                Client.Character.StandState = StandStates.STANDSTATE_SIT
-                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
+                    'DONE: Disable Turn
+                    Client.Character.cUnitFlags = Client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
+                    'DONE: StandState -> Sit
+                    Client.Character.StandState = StandStates.STANDSTATE_SIT
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
 
-                'DONE: Send packet
-                UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, CType(Client.Character, CharacterObject))
-                Client.Send(SMSG_UPDATE_OBJECT)
-                SMSG_UPDATE_OBJECT.Dispose()
+                    'DONE: Send packet
+                    UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, Client.Character)
+                    Client.Send(SMSG_UPDATE_OBJECT)
+                Finally
+                    SMSG_UPDATE_OBJECT.Dispose()
+                End Try
 
                 Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
                 Try
