@@ -185,12 +185,17 @@ Public Class WS_Quests
             For Each QuestID As Integer In GameobjectQuestStarters(GOEntry)
                 If alreadyHave.Contains(QuestID) Then Continue For
                 If Not ALLQUESTS.IsValidQuest(QuestID) Then
-                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
                     Dim tmpQuest As New WS_QuestInfo(QuestID)
-                End If
-                If ALLQUESTS.ReturnQuestInfoById(QuestID).CanSeeQuest(objChar) Then
-                    If ALLQUESTS.ReturnQuestInfoById(QuestID).SatisfyQuestLevel(objChar) Then
-                        QuestMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(QuestID).Title, QuestID, ALLQUESTS.ReturnQuestInfoById(QuestID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                    If tmpQuest.CanSeeQuest(objChar) Then
+                        If tmpQuest.SatisfyQuestLevel(objChar) Then
+                            QuestMenu.AddMenu(tmpQuest.Title, QuestID, tmpQuest.Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                        End If
+                    End If
+                Else
+                    If ALLQUESTS.ReturnQuestInfoById(QuestID).CanSeeQuest(objChar) Then
+                        If ALLQUESTS.ReturnQuestInfoById(QuestID).SatisfyQuestLevel(objChar) Then
+                            QuestMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(QuestID).Title, QuestID, ALLQUESTS.ReturnQuestInfoById(QuestID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                        End If
                     End If
                 End If
             Next
@@ -257,10 +262,11 @@ Public Class WS_Quests
             If Quest.RewardItems(i) <> 0 Then
                 'Add item if not loaded into server
                 If Not ITEMDatabase.ContainsKey(Quest.RewardItems(i)) Then
-                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
                     Dim tmpItem As New ItemInfo(Quest.RewardItems(i))
+                    packet.AddInt32(tmpItem.Id)
+                Else
+                    packet.AddInt32(Quest.RewardItems(i))
                 End If
-                packet.AddInt32(Quest.RewardItems(i))
                 packet.AddInt32(Quest.RewardItems_Count(i))
                 packet.AddInt32(ITEMDatabase(Quest.RewardItems(i)).Model)
             Else
@@ -279,10 +285,11 @@ Public Class WS_Quests
             If Quest.RewardStaticItems(i) <> 0 Then
                 'Add item if not loaded into server
                 If Not ITEMDatabase.ContainsKey(Quest.RewardStaticItems(i)) Then
-                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
                     Dim tmpItem As New ItemInfo(Quest.RewardStaticItems(i))
+                    packet.AddInt32(tmpItem.Id)
+                Else
+                    packet.AddInt32(Quest.RewardStaticItems(i))
                 End If
-                packet.AddInt32(Quest.RewardStaticItems(i))
                 packet.AddInt32(Quest.RewardStaticItems_Count(i))
                 packet.AddInt32(ITEMDatabase(Quest.RewardStaticItems(i)).Model)
             Else
@@ -301,10 +308,11 @@ Public Class WS_Quests
         For i = 0 To QUEST_OBJECTIVES_COUNT
             'Add item if not loaded into server
             If Quest.ObjectivesItem(i) <> 0 AndAlso ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) = False Then
-                'TODO: Another one of these useless bits of code, needs to be implemented correctly
                 Dim tmpItem As New ItemInfo(Quest.ObjectivesItem(i))
+                packet.AddInt32(tmpItem.Id)
+            Else
+                packet.AddInt32(Quest.ObjectivesItem(i))
             End If
-            packet.AddInt32(Quest.ObjectivesItem(i))
             packet.AddInt32(Quest.ObjectivesItem_Count(i))
         Next
 
@@ -556,10 +564,11 @@ Public Class WS_Quests
 
                 'Add item if not loaded into server
                 If Not ITEMDatabase.ContainsKey(Quest.RewardItems(i)) Then
-                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
                     Dim tmpItem As New ItemInfo(Quest.RewardItems(i))
+                    packet.AddInt32(tmpItem.Model)
+                Else
+                    packet.AddInt32(ITEMDatabase(Quest.RewardItems(i)).Model)
                 End If
-                packet.AddInt32(ITEMDatabase(Quest.RewardItems(i)).Model)
             End If
         Next
 
@@ -645,10 +654,11 @@ Public Class WS_Quests
             For i = 0 To QUEST_OBJECTIVES_COUNT
                 If Quest.ObjectivesItem(i) <> 0 Then
                     If ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) = False Then
-                        'TODO: Another one of these useless bits of code, needs to be implemented correctly
                         Dim tmpItem As ItemInfo = New ItemInfo(Quest.ObjectivesItem(i))
+                        packet.AddInt32(tmpItem.Id)
+                    Else
+                        packet.AddInt32(Quest.ObjectivesItem(i))
                     End If
-                    packet.AddInt32(Quest.ObjectivesItem(i))
                     packet.AddInt32(Quest.ObjectivesItem_Count(i))
                     If ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) Then
                         packet.AddInt32(ITEMDatabase(Quest.ObjectivesItem(i)).Model)
@@ -1053,6 +1063,11 @@ Public Class WS_Quests
 #End Region
 #Region "Quests.OpcodeHandlers"
 
+    ''' <summary>
+    ''' Classes the by quest sort.
+    ''' </summary>
+    ''' <param name="QuestSort">This is the Value from Col 0 of QuestSort.dbc.</param>
+    ''' <returns></returns>
     Public Function ClassByQuestSort(ByVal QuestSort As Integer) As Byte
         Select Case QuestSort
             Case 61
@@ -1204,15 +1219,21 @@ Public Class WS_Quests
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_QUERY_QUEST [GUID={2:X} QuestID={3}]", Client.IP, Client.Port, GUID, QuestID)
 
         If Not ALLQUESTS.IsValidQuest(QuestID) Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
             Dim tmpQuest As New WS_QuestInfo(QuestID)
+            Try
+                Client.Character.TalkCurrentQuest = tmpQuest
+                SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
+            Catch ex As Exception
+                Log.WriteLine(LogType.CRITICAL, "Error while querying a quest.{0}{1}", vbNewLine, ex.ToString)
+            End Try
+        Else
+            Try
+                Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
+            Catch ex As Exception
+                Log.WriteLine(LogType.CRITICAL, "Error while querying a quest.{0}{1}", vbNewLine, ex.ToString)
+            End Try
         End If
-        Try
-            Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
-            SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
-        Catch ex As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error while querying a quest.{0}{1}", vbNewLine, ex.ToString)
-        End Try
     End Sub
 
     Public Sub On_CMSG_QUESTGIVER_ACCEPT_QUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -1224,11 +1245,13 @@ Public Class WS_Quests
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_ACCEPT_QUEST [GUID={2:X} QuestID={3}]", Client.IP, Client.Port, GUID, QuestID)
 
         If Not ALLQUESTS.IsValidQuest(QuestID) Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
             Dim tmpQuest As New WS_QuestInfo(QuestID)
+            'Load quest data
+            If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = tmpQuest
+        Else
+            'Load quest data
+            If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
         End If
-        'Load quest data
-        If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
 
         If Client.Character.TalkCanAccept(Client.Character.TalkCurrentQuest) Then
             If Client.Character.TalkAddQuest(Client.Character.TalkCurrentQuest) Then
@@ -1273,54 +1296,92 @@ Public Class WS_Quests
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUEST_QUERY [QuestID={2}]", Client.IP, Client.Port, QuestID)
 
         If Not ALLQUESTS.IsValidQuest(QuestID) Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
             Dim tmpQuest As New WS_QuestInfo(QuestID)
-        End If
-        If Client.Character.TalkCurrentQuest Is Nothing Then
-            SendQuest(Client, ALLQUESTS.ReturnQuestInfoById(QuestID))
-            Exit Sub
-        End If
+            If Client.Character.TalkCurrentQuest Is Nothing Then
+                SendQuest(Client, tmpQuest)
+                Exit Sub
+            End If
 
-        If Client.Character.TalkCurrentQuest.ID = QuestID Then
-            SendQuest(Client, Client.Character.TalkCurrentQuest)
+            If Client.Character.TalkCurrentQuest.ID = QuestID Then
+                SendQuest(Client, Client.Character.TalkCurrentQuest)
+            Else
+                SendQuest(Client, tmpQuest)
+            End If
         Else
-            SendQuest(Client, ALLQUESTS.ReturnQuestInfoById(QuestID))
+            If Client.Character.TalkCurrentQuest Is Nothing Then
+                SendQuest(Client, ALLQUESTS.ReturnQuestInfoById(QuestID))
+                Exit Sub
+            End If
+
+            If Client.Character.TalkCurrentQuest.ID = QuestID Then
+                SendQuest(Client, Client.Character.TalkCurrentQuest)
+            Else
+                SendQuest(Client, ALLQUESTS.ReturnQuestInfoById(QuestID))
+            End If
         End If
     End Sub
 
     Public Sub CompleteQuest(ByVal objChar As CharacterObject, ByVal QuestID As Integer, ByVal QuestGiverGUID As ULong)
         If Not ALLQUESTS.IsValidQuest(QuestID) Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
             Dim tmpQuest As New WS_QuestInfo(QuestID)
-        End If
-        Dim i As Integer
-        For i = 0 To QUEST_SLOTS
-            If Not objChar.TalkQuests(i) Is Nothing Then
-                If objChar.TalkQuests(i).ID = QuestID Then
+            Dim i As Integer
+            For i = 0 To QUEST_SLOTS
+                If Not objChar.TalkQuests(i) Is Nothing Then
+                    If objChar.TalkQuests(i).ID = QuestID Then
 
-                    'Load quest data
-                    If objChar.TalkCurrentQuest Is Nothing Then objChar.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
-                    If objChar.TalkCurrentQuest.ID <> QuestID Then objChar.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                        'Load quest data
+                        If objChar.TalkCurrentQuest Is Nothing Then objChar.TalkCurrentQuest = tmpQuest
+                        If objChar.TalkCurrentQuest.ID <> QuestID Then objChar.TalkCurrentQuest = tmpQuest
 
-
-                    If objChar.TalkQuests(i).Complete Then
-                        'DONE: Show completion dialog
-                        If (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
-                            'Request items
-                            SendQuestRequireItems(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+                        If objChar.TalkQuests(i).Complete Then
+                            'DONE: Show completion dialog
+                            If (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
+                                'Request items
+                                SendQuestRequireItems(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+                            Else
+                                SendQuestReward(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+                            End If
                         Else
-                            SendQuestReward(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+                            'DONE: Just show incomplete text with disabled complete button
+                            SendQuestRequireItems(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
                         End If
-                    Else
-                        'DONE: Just show incomplete text with disabled complete button
-                        SendQuestRequireItems(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+
+
+                        Exit For
                     End If
-
-
-                    Exit For
                 End If
-            End If
-        Next
+            Next
+        Else
+            Dim i As Integer
+            For i = 0 To QUEST_SLOTS
+                If Not objChar.TalkQuests(i) Is Nothing Then
+                    If objChar.TalkQuests(i).ID = QuestID Then
+
+                        'Load quest data
+                        If objChar.TalkCurrentQuest Is Nothing Then objChar.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                        If objChar.TalkCurrentQuest.ID <> QuestID Then objChar.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+
+
+                        If objChar.TalkQuests(i).Complete Then
+                            'DONE: Show completion dialog
+                            If (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
+                                'Request items
+                                SendQuestRequireItems(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+                            Else
+                                SendQuestReward(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+                            End If
+                        Else
+                            'DONE: Just show incomplete text with disabled complete button
+                            SendQuestRequireItems(objChar.Client, objChar.TalkCurrentQuest, QuestGiverGUID, objChar.TalkQuests(i))
+                        End If
+
+
+                        Exit For
+                    End If
+                End If
+            Next
+        End If
+
     End Sub
 
     Public Sub On_CMSG_QUESTGIVER_COMPLETE_QUEST(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -1343,19 +1404,29 @@ Public Class WS_Quests
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_REQUEST_REWARD [GUID={2:X} Quest={3}]", Client.IP, Client.Port, GUID, QuestID)
 
         If Not ALLQUESTS.IsValidQuest(QuestID) Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
             Dim tmpQuest As New WS_QuestInfo(QuestID)
+            For i As Integer = 0 To QUEST_SLOTS
+                If Client.Character.TalkQuests(i) IsNot Nothing AndAlso Client.Character.TalkQuests(i).ID = QuestID AndAlso Client.Character.TalkQuests(i).Complete Then
+
+                    'Load quest data
+                    If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = tmpQuest
+                    SendQuestReward(Client, Client.Character.TalkCurrentQuest, GUID, Client.Character.TalkQuests(i))
+
+                    Exit For
+                End If
+            Next
+        Else
+            For i As Integer = 0 To QUEST_SLOTS
+                If Client.Character.TalkQuests(i) IsNot Nothing AndAlso Client.Character.TalkQuests(i).ID = QuestID AndAlso Client.Character.TalkQuests(i).Complete Then
+
+                    'Load quest data
+                    If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                    SendQuestReward(Client, Client.Character.TalkCurrentQuest, GUID, Client.Character.TalkQuests(i))
+
+                    Exit For
+                End If
+            Next
         End If
-        For i As Integer = 0 To QUEST_SLOTS
-            If Client.Character.TalkQuests(i) IsNot Nothing AndAlso Client.Character.TalkQuests(i).ID = QuestID AndAlso Client.Character.TalkQuests(i).Complete Then
-
-                'Load quest data
-                If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
-                SendQuestReward(Client, Client.Character.TalkCurrentQuest, GUID, Client.Character.TalkQuests(i))
-
-                Exit For
-            End If
-        Next
 
     End Sub
 
@@ -1368,166 +1439,329 @@ Public Class WS_Quests
         Dim i As Integer
 
         If Not ALLQUESTS.IsValidQuest(QuestID) Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
-            Dim tmpQuest As New WS_QuestInfo(QuestID)
-        End If
-        Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", Client.IP, Client.Port, GUID, QuestID, RewardIndex)
-            If WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
+            Try
+                Dim tmpQuest As New WS_QuestInfo(QuestID)
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", Client.IP, Client.Port, GUID, QuestID, RewardIndex)
+                If WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
 
-            'Load quest data
-            If Client.Character.TalkCurrentQuest Is Nothing Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
-            If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                'Load quest data
+                If Client.Character.TalkCurrentQuest Is Nothing Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
 
-            'DONE: Removing required gold
-            If Client.Character.TalkCurrentQuest.RewardGold < 0 Then
-                If (-Client.Character.TalkCurrentQuest.RewardGold) <= Client.Character.Copper Then
-                    'NOTE: Update flag set below
-                    'NOTE: Negative reward gold is required gold, that's why this should be plus
-                    Client.Character.Copper += Client.Character.TalkCurrentQuest.RewardGold
-                Else
-                    Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
-                    errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_MONEY)
-                    Client.Send(errorPacket)
-                    errorPacket.Dispose()
-                    Exit Sub
-                End If
-            End If
-
-            'DONE: Removing required items
-            For i = 0 To QUEST_OBJECTIVES_COUNT
-                If Client.Character.TalkCurrentQuest.ObjectivesItem(i) <> 0 Then
-                    If Not Client.Character.ItemCONSUME(Client.Character.TalkCurrentQuest.ObjectivesItem(i), Client.Character.TalkCurrentQuest.ObjectivesItem_Count(i)) Then
-                        'DONE: Restore gold
-                        If Client.Character.TalkCurrentQuest.RewardGold < 0 Then
-                            'NOTE: Negative reward gold is required gold, that's why this should be minus
-                            Client.Character.Copper -= Client.Character.TalkCurrentQuest.RewardGold
-                        End If
-                        'TODO: Restore items (not needed?)
+                'DONE: Removing required gold
+                If Client.Character.TalkCurrentQuest.RewardGold < 0 Then
+                    If (-Client.Character.TalkCurrentQuest.RewardGold) <= Client.Character.Copper Then
+                        'NOTE: Update flag set below
+                        'NOTE: Negative reward gold is required gold, that's why this should be plus
+                        Client.Character.Copper += Client.Character.TalkCurrentQuest.RewardGold
+                    Else
                         Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
-                        errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_ITEMS)
+                        errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_MONEY)
                         Client.Send(errorPacket)
                         errorPacket.Dispose()
                         Exit Sub
                     End If
-                Else
-                    Exit For
                 End If
-            Next
 
-
-            'DONE: Adding reward choice
-            If Client.Character.TalkCurrentQuest.RewardItems(RewardIndex) <> 0 Then
-                Dim tmpItem As New ItemObject(Client.Character.TalkCurrentQuest.RewardItems(RewardIndex), Client.Character.GUID)
-                tmpItem.StackCount = Client.Character.TalkCurrentQuest.RewardItems_Count(RewardIndex)
-                If Not Client.Character.ItemADD(tmpItem) Then
-                    tmpItem.Delete()
-                    'DONE: Inventory full sent form SetItemSlot
-                    Exit Sub
-                Else
-                    Client.Character.LogLootItem(tmpItem, 1, True, False)
-                End If
-            End If
-
-            'DONE: Adding gold
-            If Client.Character.TalkCurrentQuest.RewardGold > 0 Then
-                Client.Character.Copper += Client.Character.TalkCurrentQuest.RewardGold
-            End If
-            Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
-
-            'DONE: Add honor
-            If Client.Character.TalkCurrentQuest.RewardHonor <> 0 Then
-                Client.Character.HonorPoints += Client.Character.TalkCurrentQuest.RewardHonor
-                'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, Client.Character.HonorCurrency)
-            End If
-
-            'DONE: Cast spell
-            If Client.Character.TalkCurrentQuest.RewardSpell > 0 Then
-                Dim spellTargets As New SpellTargets
-                spellTargets.SetTarget_UNIT(Client.Character)
-
-                Dim castParams As New CastSpellParameters(spellTargets, WORLD_CREATUREs(GUID), Client.Character.TalkCurrentQuest.RewardSpell, True)
-                ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
-            End If
-
-            'DONE: Remove quest
-            For i = 0 To QUEST_SLOTS
-                If Not Client.Character.TalkQuests(i) Is Nothing Then
-                    If Client.Character.TalkQuests(i).ID = Client.Character.TalkCurrentQuest.ID Then
-                        Client.Character.TalkCompleteQuest(i)
+                'DONE: Removing required items
+                For i = 0 To QUEST_OBJECTIVES_COUNT
+                    If Client.Character.TalkCurrentQuest.ObjectivesItem(i) <> 0 Then
+                        If Not Client.Character.ItemCONSUME(Client.Character.TalkCurrentQuest.ObjectivesItem(i), Client.Character.TalkCurrentQuest.ObjectivesItem_Count(i)) Then
+                            'DONE: Restore gold
+                            If Client.Character.TalkCurrentQuest.RewardGold < 0 Then
+                                'NOTE: Negative reward gold is required gold, that's why this should be minus
+                                Client.Character.Copper -= Client.Character.TalkCurrentQuest.RewardGold
+                            End If
+                            'TODO: Restore items (not needed?)
+                            Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                            errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_ITEMS)
+                            Client.Send(errorPacket)
+                            errorPacket.Dispose()
+                            Exit Sub
+                        End If
+                    Else
                         Exit For
                     End If
-                End If
-            Next
+                Next
 
-            'DONE: XP Calculations
-            Dim xp As Integer = 0
-            Dim gold As Integer = Client.Character.TalkCurrentQuest.RewardGold
-            If Client.Character.TalkCurrentQuest.RewMoneyMaxLevel > 0 Then
-                Dim ReqMoneyMaxLevel As Integer = Client.Character.TalkCurrentQuest.RewMoneyMaxLevel
-                Dim pLevel As Integer = Client.Character.Level
-                Dim qLevel As Integer = Client.Character.TalkCurrentQuest.Level_Normal
-                Dim fullxp As Single = 0.0F
 
-                If pLevel <= DEFAULT_MAX_LEVEL Then
-                    If qLevel >= 65 Then
-                        fullxp = ReqMoneyMaxLevel / 6.0F
-                    ElseIf qLevel = 64 Then
-                        fullxp = ReqMoneyMaxLevel / 4.8F
-                    ElseIf qLevel = 63 Then
-                        fullxp = ReqMoneyMaxLevel / 3.6F
-                    ElseIf qLevel = 62 Then
-                        fullxp = ReqMoneyMaxLevel / 2.4F
-                    ElseIf qLevel = 61 Then
-                        fullxp = ReqMoneyMaxLevel / 1.2F
-                    ElseIf qLevel > 0 AndAlso qLevel <= 60 Then
-                        fullxp = ReqMoneyMaxLevel / 0.6F
-                    End If
-
-                    If pLevel <= (qLevel + 5) Then
-                        xp = CInt(Fix(fullxp))
-                    ElseIf pLevel = (qLevel + 6) Then
-                        xp = CInt(Fix(fullxp * 0.8F))
-                    ElseIf pLevel = (qLevel + 7) Then
-                        xp = CInt(Fix(fullxp * 0.6F))
-                    ElseIf pLevel = (qLevel + 8) Then
-                        xp = CInt(Fix(fullxp * 0.4F))
-                    ElseIf pLevel = (qLevel + 9) Then
-                        xp = CInt(Fix(fullxp * 0.2F))
+                'DONE: Adding reward choice
+                If Client.Character.TalkCurrentQuest.RewardItems(RewardIndex) <> 0 Then
+                    Dim tmpItem As New ItemObject(Client.Character.TalkCurrentQuest.RewardItems(RewardIndex), Client.Character.GUID)
+                    tmpItem.StackCount = Client.Character.TalkCurrentQuest.RewardItems_Count(RewardIndex)
+                    If Not Client.Character.ItemADD(tmpItem) Then
+                        tmpItem.Delete()
+                        'DONE: Inventory full sent form SetItemSlot
+                        Exit Sub
                     Else
-                        xp = CInt(Fix(fullxp * 0.1F))
+                        Client.Character.LogLootItem(tmpItem, 1, True, False)
                     End If
+                End If
 
-                    'DONE: Adding XP
-                    Client.Character.AddXP(xp, 0, 0, True)
+                'DONE: Adding gold
+                If Client.Character.TalkCurrentQuest.RewardGold > 0 Then
+                    Client.Character.Copper += Client.Character.TalkCurrentQuest.RewardGold
+                End If
+                Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+
+                'DONE: Add honor
+                If Client.Character.TalkCurrentQuest.RewardHonor <> 0 Then
+                    Client.Character.HonorPoints += Client.Character.TalkCurrentQuest.RewardHonor
+                    'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, Client.Character.HonorCurrency)
+                End If
+
+                'DONE: Cast spell
+                If Client.Character.TalkCurrentQuest.RewardSpell > 0 Then
+                    Dim spellTargets As New SpellTargets
+                    spellTargets.SetTarget_UNIT(Client.Character)
+
+                    Dim castParams As New CastSpellParameters(spellTargets, WORLD_CREATUREs(GUID), Client.Character.TalkCurrentQuest.RewardSpell, True)
+                    ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
+                End If
+
+                'DONE: Remove quest
+                For i = 0 To QUEST_SLOTS
+                    If Not Client.Character.TalkQuests(i) Is Nothing Then
+                        If Client.Character.TalkQuests(i).ID = Client.Character.TalkCurrentQuest.ID Then
+                            Client.Character.TalkCompleteQuest(i)
+                            Exit For
+                        End If
+                    End If
+                Next
+
+                'DONE: XP Calculations
+                Dim xp As Integer = 0
+                Dim gold As Integer = Client.Character.TalkCurrentQuest.RewardGold
+                If Client.Character.TalkCurrentQuest.RewMoneyMaxLevel > 0 Then
+                    Dim ReqMoneyMaxLevel As Integer = Client.Character.TalkCurrentQuest.RewMoneyMaxLevel
+                    Dim pLevel As Integer = Client.Character.Level
+                    Dim qLevel As Integer = Client.Character.TalkCurrentQuest.Level_Normal
+                    Dim fullxp As Single = 0.0F
+
+                    If pLevel <= DEFAULT_MAX_LEVEL Then
+                        If qLevel >= 65 Then
+                            fullxp = ReqMoneyMaxLevel / 6.0F
+                        ElseIf qLevel = 64 Then
+                            fullxp = ReqMoneyMaxLevel / 4.8F
+                        ElseIf qLevel = 63 Then
+                            fullxp = ReqMoneyMaxLevel / 3.6F
+                        ElseIf qLevel = 62 Then
+                            fullxp = ReqMoneyMaxLevel / 2.4F
+                        ElseIf qLevel = 61 Then
+                            fullxp = ReqMoneyMaxLevel / 1.2F
+                        ElseIf qLevel > 0 AndAlso qLevel <= 60 Then
+                            fullxp = ReqMoneyMaxLevel / 0.6F
+                        End If
+
+                        If pLevel <= (qLevel + 5) Then
+                            xp = CInt(Fix(fullxp))
+                        ElseIf pLevel = (qLevel + 6) Then
+                            xp = CInt(Fix(fullxp * 0.8F))
+                        ElseIf pLevel = (qLevel + 7) Then
+                            xp = CInt(Fix(fullxp * 0.6F))
+                        ElseIf pLevel = (qLevel + 8) Then
+                            xp = CInt(Fix(fullxp * 0.4F))
+                        ElseIf pLevel = (qLevel + 9) Then
+                            xp = CInt(Fix(fullxp * 0.2F))
+                        Else
+                            xp = CInt(Fix(fullxp * 0.1F))
+                        End If
+
+                        'DONE: Adding XP
+                        Client.Character.AddXP(xp, 0, 0, True)
+                    Else
+                        gold += ReqMoneyMaxLevel
+                    End If
+                End If
+
+                If gold < 0 AndAlso (-gold) >= Client.Character.Copper Then
+                    Client.Character.Copper = 0
                 Else
-                    gold += ReqMoneyMaxLevel
+                    Client.Character.Copper += gold
                 End If
-            End If
+                Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+                Client.Character.SendCharacterUpdate()
 
-            If gold < 0 AndAlso (-gold) >= Client.Character.Copper Then
-                Client.Character.Copper = 0
-            Else
-                Client.Character.Copper += gold
-            End If
-            Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
-            Client.Character.SendCharacterUpdate()
+                SendQuestComplete(Client, Client.Character.TalkCurrentQuest, xp, gold)
 
-            SendQuestComplete(Client, Client.Character.TalkCurrentQuest, xp, gold)
-
-            'DONE: Follow-up quests (no requirements checked?)
-            If Client.Character.TalkCurrentQuest.NextQuest <> 0 Then
-                If Not ALLQUESTS.IsValidQuest(Client.Character.TalkCurrentQuest.NextQuest) Then
-                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
-                    Dim tmpQuest As New WS_QuestInfo(Client.Character.TalkCurrentQuest.NextQuest)
+                'DONE: Follow-up quests (no requirements checked?)
+                If Client.Character.TalkCurrentQuest.NextQuest <> 0 Then
+                    If Not ALLQUESTS.IsValidQuest(Client.Character.TalkCurrentQuest.NextQuest) Then
+                        Dim tmpQuest2 As New WS_QuestInfo(Client.Character.TalkCurrentQuest.NextQuest)
+                        Client.Character.TalkCurrentQuest = tmpQuest2
+                    Else
+                        Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(Client.Character.TalkCurrentQuest.NextQuest)
+                    End If
+                    SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
                 End If
-                Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(Client.Character.TalkCurrentQuest.NextQuest)
-                SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
-            End If
 
-        Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error while choosing reward.{0}", vbNewLine & e.ToString)
-        End Try
+            Catch e As Exception
+                Log.WriteLine(LogType.CRITICAL, "Error while choosing reward.{0}", vbNewLine & e.ToString)
+            End Try
+
+        Else
+            Try
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", Client.IP, Client.Port, GUID, QuestID, RewardIndex)
+                If WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
+
+                'Load quest data
+                If Client.Character.TalkCurrentQuest Is Nothing Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+                If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
+
+                'DONE: Removing required gold
+                If Client.Character.TalkCurrentQuest.RewardGold < 0 Then
+                    If (-Client.Character.TalkCurrentQuest.RewardGold) <= Client.Character.Copper Then
+                        'NOTE: Update flag set below
+                        'NOTE: Negative reward gold is required gold, that's why this should be plus
+                        Client.Character.Copper += Client.Character.TalkCurrentQuest.RewardGold
+                    Else
+                        Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                        errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_MONEY)
+                        Client.Send(errorPacket)
+                        errorPacket.Dispose()
+                        Exit Sub
+                    End If
+                End If
+
+                'DONE: Removing required items
+                For i = 0 To QUEST_OBJECTIVES_COUNT
+                    If Client.Character.TalkCurrentQuest.ObjectivesItem(i) <> 0 Then
+                        If Not Client.Character.ItemCONSUME(Client.Character.TalkCurrentQuest.ObjectivesItem(i), Client.Character.TalkCurrentQuest.ObjectivesItem_Count(i)) Then
+                            'DONE: Restore gold
+                            If Client.Character.TalkCurrentQuest.RewardGold < 0 Then
+                                'NOTE: Negative reward gold is required gold, that's why this should be minus
+                                Client.Character.Copper -= Client.Character.TalkCurrentQuest.RewardGold
+                            End If
+                            'TODO: Restore items (not needed?)
+                            Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                            errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_ITEMS)
+                            Client.Send(errorPacket)
+                            errorPacket.Dispose()
+                            Exit Sub
+                        End If
+                    Else
+                        Exit For
+                    End If
+                Next
+
+
+                'DONE: Adding reward choice
+                If Client.Character.TalkCurrentQuest.RewardItems(RewardIndex) <> 0 Then
+                    Dim tmpItem As New ItemObject(Client.Character.TalkCurrentQuest.RewardItems(RewardIndex), Client.Character.GUID)
+                    tmpItem.StackCount = Client.Character.TalkCurrentQuest.RewardItems_Count(RewardIndex)
+                    If Not Client.Character.ItemADD(tmpItem) Then
+                        tmpItem.Delete()
+                        'DONE: Inventory full sent form SetItemSlot
+                        Exit Sub
+                    Else
+                        Client.Character.LogLootItem(tmpItem, 1, True, False)
+                    End If
+                End If
+
+                'DONE: Adding gold
+                If Client.Character.TalkCurrentQuest.RewardGold > 0 Then
+                    Client.Character.Copper += Client.Character.TalkCurrentQuest.RewardGold
+                End If
+                Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+
+                'DONE: Add honor
+                If Client.Character.TalkCurrentQuest.RewardHonor <> 0 Then
+                    Client.Character.HonorPoints += Client.Character.TalkCurrentQuest.RewardHonor
+                    'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, Client.Character.HonorCurrency)
+                End If
+
+                'DONE: Cast spell
+                If Client.Character.TalkCurrentQuest.RewardSpell > 0 Then
+                    Dim spellTargets As New SpellTargets
+                    spellTargets.SetTarget_UNIT(Client.Character)
+
+                    Dim castParams As New CastSpellParameters(spellTargets, WORLD_CREATUREs(GUID), Client.Character.TalkCurrentQuest.RewardSpell, True)
+                    ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
+                End If
+
+                'DONE: Remove quest
+                For i = 0 To QUEST_SLOTS
+                    If Not Client.Character.TalkQuests(i) Is Nothing Then
+                        If Client.Character.TalkQuests(i).ID = Client.Character.TalkCurrentQuest.ID Then
+                            Client.Character.TalkCompleteQuest(i)
+                            Exit For
+                        End If
+                    End If
+                Next
+
+                'DONE: XP Calculations
+                Dim xp As Integer = 0
+                Dim gold As Integer = Client.Character.TalkCurrentQuest.RewardGold
+                If Client.Character.TalkCurrentQuest.RewMoneyMaxLevel > 0 Then
+                    Dim ReqMoneyMaxLevel As Integer = Client.Character.TalkCurrentQuest.RewMoneyMaxLevel
+                    Dim pLevel As Integer = Client.Character.Level
+                    Dim qLevel As Integer = Client.Character.TalkCurrentQuest.Level_Normal
+                    Dim fullxp As Single = 0.0F
+
+                    If pLevel <= DEFAULT_MAX_LEVEL Then
+                        If qLevel >= 65 Then
+                            fullxp = ReqMoneyMaxLevel / 6.0F
+                        ElseIf qLevel = 64 Then
+                            fullxp = ReqMoneyMaxLevel / 4.8F
+                        ElseIf qLevel = 63 Then
+                            fullxp = ReqMoneyMaxLevel / 3.6F
+                        ElseIf qLevel = 62 Then
+                            fullxp = ReqMoneyMaxLevel / 2.4F
+                        ElseIf qLevel = 61 Then
+                            fullxp = ReqMoneyMaxLevel / 1.2F
+                        ElseIf qLevel > 0 AndAlso qLevel <= 60 Then
+                            fullxp = ReqMoneyMaxLevel / 0.6F
+                        End If
+
+                        If pLevel <= (qLevel + 5) Then
+                            xp = CInt(Fix(fullxp))
+                        ElseIf pLevel = (qLevel + 6) Then
+                            xp = CInt(Fix(fullxp * 0.8F))
+                        ElseIf pLevel = (qLevel + 7) Then
+                            xp = CInt(Fix(fullxp * 0.6F))
+                        ElseIf pLevel = (qLevel + 8) Then
+                            xp = CInt(Fix(fullxp * 0.4F))
+                        ElseIf pLevel = (qLevel + 9) Then
+                            xp = CInt(Fix(fullxp * 0.2F))
+                        Else
+                            xp = CInt(Fix(fullxp * 0.1F))
+                        End If
+
+                        'DONE: Adding XP
+                        Client.Character.AddXP(xp, 0, 0, True)
+                    Else
+                        gold += ReqMoneyMaxLevel
+                    End If
+                End If
+
+                If gold < 0 AndAlso (-gold) >= Client.Character.Copper Then
+                    Client.Character.Copper = 0
+                Else
+                    Client.Character.Copper += gold
+                End If
+                Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+                Client.Character.SendCharacterUpdate()
+
+                SendQuestComplete(Client, Client.Character.TalkCurrentQuest, xp, gold)
+
+                'DONE: Follow-up quests (no requirements checked?)
+                If Client.Character.TalkCurrentQuest.NextQuest <> 0 Then
+                    If Not ALLQUESTS.IsValidQuest(Client.Character.TalkCurrentQuest.NextQuest) Then
+                        Dim tmpQuest3 As New WS_QuestInfo(Client.Character.TalkCurrentQuest.NextQuest)
+                        Client.Character.TalkCurrentQuest = tmpQuest3
+
+                    Else
+                        Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(Client.Character.TalkCurrentQuest.NextQuest)
+                    End If
+                    SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
+                End If
+
+            Catch e As Exception
+                Log.WriteLine(LogType.CRITICAL, "Error while choosing reward.{0}", vbNewLine & e.ToString)
+            End Try
+
+        End If
+
     End Sub
 
     Public Sub On_CMSG_PUSHQUESTTOPARTY(ByRef packet As PacketClass, ByRef Client As ClientClass)
@@ -1539,53 +1773,95 @@ Public Class WS_Quests
 
         If Client.Character.IsInGroup Then
             If Not ALLQUESTS.IsValidQuest(questID) Then
-                'TODO: Another one of these useless bits of code, needs to be implemented correctly
                 Dim tmpQuest As New WS_QuestInfo(questID)
-            End If
-            For Each GUID As ULong In Client.Character.Group.LocalMembers
-                If GUID = Client.Character.GUID Then Continue For
+                For Each GUID As ULong In Client.Character.Group.LocalMembers
+                    If GUID = Client.Character.GUID Then Continue For
 
-                With CHARACTERs(GUID)
+                    With CHARACTERs(GUID)
 
-                    Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
-                    response.AddUInt64(GUID)
-                    response.AddInt32(QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST)
-                    response.AddInt8(0)
-                    Client.Send(response)
-                    response.Dispose()
+                        Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                        response.AddUInt64(GUID)
+                        response.AddInt32(QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST)
+                        response.AddInt8(0)
+                        Client.Send(response)
+                        response.Dispose()
 
-                    Dim message As QuestPartyPushError = QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST
+                        Dim message As QuestPartyPushError = QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST
 
-                    'DONE: Check distance and ...
-                    If (Math.Sqrt((.positionX - Client.Character.positionX) ^ 2 + (.positionY - Client.Character.positionY) ^ 2) > QUEST_SHARING_DISTANCE) Then
-                        message = QuestPartyPushError.QUEST_PARTY_MSG_TO_FAR
-                    ElseIf .IsQuestInProgress(questID) Then
-                        message = QuestPartyPushError.QUEST_PARTY_MSG_HAVE_QUEST
-                    ElseIf .IsQuestCompleted(questID) Then
-                        message = QuestPartyPushError.QUEST_PARTY_MSG_FINISH_QUEST
-                    Else
-                        If (.TalkCurrentQuest Is Nothing) OrElse (.TalkCurrentQuest.ID <> questID) Then .TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                        If .TalkCanAccept(.TalkCurrentQuest) Then
-                            SendQuestDetails(.Client, .TalkCurrentQuest, Client.Character.GUID, True)
+                        'DONE: Check distance and ...
+                        If (Math.Sqrt((.positionX - Client.Character.positionX) ^ 2 + (.positionY - Client.Character.positionY) ^ 2) > QUEST_SHARING_DISTANCE) Then
+                            message = QuestPartyPushError.QUEST_PARTY_MSG_TO_FAR
+                        ElseIf .IsQuestInProgress(questID) Then
+                            message = QuestPartyPushError.QUEST_PARTY_MSG_HAVE_QUEST
+                        ElseIf .IsQuestCompleted(questID) Then
+                            message = QuestPartyPushError.QUEST_PARTY_MSG_FINISH_QUEST
                         Else
-                            message = QuestPartyPushError.QUEST_PARTY_MSG_CANT_TAKE_QUEST
+                            If (.TalkCurrentQuest Is Nothing) OrElse (.TalkCurrentQuest.ID <> questID) Then .TalkCurrentQuest = tmpQuest
+                            If .TalkCanAccept(.TalkCurrentQuest) Then
+                                SendQuestDetails(.Client, .TalkCurrentQuest, Client.Character.GUID, True)
+                            Else
+                                message = QuestPartyPushError.QUEST_PARTY_MSG_CANT_TAKE_QUEST
+                            End If
                         End If
-                    End If
 
 
-                    'DONE: Send error if present
-                    If message <> QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST Then
-                        Dim errorPacket As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
-                        errorPacket.AddUInt64(.GUID)
-                        errorPacket.AddInt32(message)
-                        errorPacket.AddInt8(0)
-                        Client.Send(errorPacket)
-                        errorPacket.Dispose()
-                    End If
+                        'DONE: Send error if present
+                        If message <> QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST Then
+                            Dim errorPacket As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                            errorPacket.AddUInt64(.GUID)
+                            errorPacket.AddInt32(message)
+                            errorPacket.AddInt8(0)
+                            Client.Send(errorPacket)
+                            errorPacket.Dispose()
+                        End If
 
-                End With
-            Next
+                    End With
+                Next
+            Else
+                For Each GUID As ULong In Client.Character.Group.LocalMembers
+                    If GUID = Client.Character.GUID Then Continue For
 
+                    With CHARACTERs(GUID)
+
+                        Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                        response.AddUInt64(GUID)
+                        response.AddInt32(QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST)
+                        response.AddInt8(0)
+                        Client.Send(response)
+                        response.Dispose()
+
+                        Dim message As QuestPartyPushError = QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST
+
+                        'DONE: Check distance and ...
+                        If (Math.Sqrt((.positionX - Client.Character.positionX) ^ 2 + (.positionY - Client.Character.positionY) ^ 2) > QUEST_SHARING_DISTANCE) Then
+                            message = QuestPartyPushError.QUEST_PARTY_MSG_TO_FAR
+                        ElseIf .IsQuestInProgress(questID) Then
+                            message = QuestPartyPushError.QUEST_PARTY_MSG_HAVE_QUEST
+                        ElseIf .IsQuestCompleted(questID) Then
+                            message = QuestPartyPushError.QUEST_PARTY_MSG_FINISH_QUEST
+                        Else
+                            If (.TalkCurrentQuest Is Nothing) OrElse (.TalkCurrentQuest.ID <> questID) Then .TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                            If .TalkCanAccept(.TalkCurrentQuest) Then
+                                SendQuestDetails(.Client, .TalkCurrentQuest, Client.Character.GUID, True)
+                            Else
+                                message = QuestPartyPushError.QUEST_PARTY_MSG_CANT_TAKE_QUEST
+                            End If
+                        End If
+
+
+                        'DONE: Send error if present
+                        If message <> QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST Then
+                            Dim errorPacket As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                            errorPacket.AddUInt64(.GUID)
+                            errorPacket.AddInt32(message)
+                            errorPacket.AddInt8(0)
+                            Client.Send(errorPacket)
+                            errorPacket.Dispose()
+                        End If
+
+                    End With
+                Next
+            End If
         End If
     End Sub
 
