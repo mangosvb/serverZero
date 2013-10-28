@@ -224,9 +224,12 @@ Public Module WS_Network
         End Sub
         Public Sub ClientPacket(ByVal ID As UInteger, ByVal Data() As Byte) Implements IWorld.ClientPacket
             Dim p As New PacketClass(Data)
-
-            CLIENTs(ID).Packets.Enqueue(p)
-            ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(ID).OnPacket)
+            Try
+                CLIENTs(ID).Packets.Enqueue(p)
+                ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(ID).OnPacket)
+            Finally
+                p.Dispose()
+            End Try
         End Sub
         Public Function ClientCreateCharacter(ByVal Account As String, ByVal Name As String, ByVal Race As Byte, ByVal Classe As Byte, ByVal Gender As Byte, ByVal Skin As Byte, ByVal Face As Byte, ByVal HairStyle As Byte, ByVal HairColor As Byte, ByVal FacialHair As Byte, ByVal OutfitID As Byte) As Integer Implements IWorld.ClientCreateCharacter
             Return CreateCharacter(Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitID)
