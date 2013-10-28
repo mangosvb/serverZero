@@ -267,7 +267,10 @@ Public Module WS_Network
         End Sub
 
         Public Sub InstanceCreate(ByVal MapID As UInteger) Implements IWorld.InstanceCreate
-            If Not Maps.ContainsKey(MapID) Then Dim Map As New TMap(MapID)
+            If Not Maps.ContainsKey(MapID) Then
+                'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                Dim Map As New TMap(MapID)
+            End If
         End Sub
         Public Sub InstanceDestroy(ByVal MapID As UInteger) Implements IWorld.InstanceDestroy
             Maps(MapID).Dispose()

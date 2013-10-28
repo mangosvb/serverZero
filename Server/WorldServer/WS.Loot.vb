@@ -117,7 +117,10 @@ Public Module WS_Loot
 
         Public ReadOnly Property ItemModel() As Integer
             Get
-                If Not ITEMDatabase.ContainsKey(ItemID) Then Dim tmpItem As New ItemInfo(ItemID)
+                If Not ITEMDatabase.ContainsKey(ItemID) Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpItem As New ItemInfo(ItemID)
+                End If
                 Return ITEMDatabase(ItemID).Model
             End Get
         End Property

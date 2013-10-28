@@ -1728,7 +1728,10 @@ SkipShapeShift:
             End If
 
             If ItemInfo Is Nothing Then
-                If ITEMDatabase.ContainsKey(2512) = False Then Dim tmpInfo As New ItemInfo(2512)
+                If ITEMDatabase.ContainsKey(2512) = False Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpInfo As New ItemInfo(2512)
+                End If
                 ItemInfo = ITEMDatabase(2512)
             End If
 
@@ -4033,7 +4036,10 @@ SkipShapeShift:
         If Not TypeOf Target.unitTarget Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
         Dim Amount As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level - SPELLs(SpellID).spellLevel)
         If Amount < 0 Then Return SpellFailedReason.SPELL_FAILED_ERROR
-        If ITEMDatabase.ContainsKey(SpellInfo.ItemType) = False Then Dim tmpInfo As New ItemInfo(SpellInfo.ItemType)
+        If ITEMDatabase.ContainsKey(SpellInfo.ItemType) = False Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpInfo As New ItemInfo(SpellInfo.ItemType)
+        End If
         If Amount > ITEMDatabase(SpellInfo.ItemType).Stackable Then Amount = ITEMDatabase(SpellInfo.ItemType).Stackable
 
         Dim Targets As List(Of BaseUnit) = GetFriendPlayersAroundMe(Caster, SpellInfo.GetRadius)
@@ -4514,8 +4520,10 @@ SkipShapeShift:
             NewTotem.Faction = CType(Caster, CreatureObject).Faction
         End If
 
-        If CREATURESDatabase.ContainsKey(SpellInfo.MiscValue) = False Then Dim tmpInfo As New CreatureInfo(SpellInfo.MiscValue)
-
+        If CREATURESDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpInfo As New CreatureInfo(SpellInfo.MiscValue)
+        End If
         NewTotem.InitSpell(CREATURESDatabase(SpellInfo.MiscValue).Spells(0))
         NewTotem.AddToWorld()
         Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem spawned [{0:X}].", NewTotem.GUID)

@@ -184,7 +184,10 @@ Public Class WS_Quests
         If GameobjectQuestStarters.ContainsKey(GOEntry) Then
             For Each QuestID As Integer In GameobjectQuestStarters(GOEntry)
                 If alreadyHave.Contains(QuestID) Then Continue For
-                If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
+                If Not ALLQUESTS.IsValidQuest(QuestID) Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpQuest As New WS_QuestInfo(QuestID)
+                End If
                 If ALLQUESTS.ReturnQuestInfoById(QuestID).CanSeeQuest(objChar) Then
                     If ALLQUESTS.ReturnQuestInfoById(QuestID).SatisfyQuestLevel(objChar) Then
                         QuestMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(QuestID).Title, QuestID, ALLQUESTS.ReturnQuestInfoById(QuestID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
@@ -253,7 +256,10 @@ Public Class WS_Quests
         For i = 0 To QUEST_REWARD_CHOICES_COUNT
             If Quest.RewardItems(i) <> 0 Then
                 'Add item if not loaded into server
-                If Not ITEMDatabase.ContainsKey(Quest.RewardItems(i)) Then Dim tmpItem As New ItemInfo(Quest.RewardItems(i))
+                If Not ITEMDatabase.ContainsKey(Quest.RewardItems(i)) Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpItem As New ItemInfo(Quest.RewardItems(i))
+                End If
                 packet.AddInt32(Quest.RewardItems(i))
                 packet.AddInt32(Quest.RewardItems_Count(i))
                 packet.AddInt32(ITEMDatabase(Quest.RewardItems(i)).Model)
@@ -272,7 +278,10 @@ Public Class WS_Quests
         For i = 0 To QUEST_REWARDS_COUNT
             If Quest.RewardStaticItems(i) <> 0 Then
                 'Add item if not loaded into server
-                If Not ITEMDatabase.ContainsKey(Quest.RewardStaticItems(i)) Then Dim tmpItem As New ItemInfo(Quest.RewardStaticItems(i))
+                If Not ITEMDatabase.ContainsKey(Quest.RewardStaticItems(i)) Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpItem As New ItemInfo(Quest.RewardStaticItems(i))
+                End If
                 packet.AddInt32(Quest.RewardStaticItems(i))
                 packet.AddInt32(Quest.RewardStaticItems_Count(i))
                 packet.AddInt32(ITEMDatabase(Quest.RewardStaticItems(i)).Model)
@@ -291,7 +300,10 @@ Public Class WS_Quests
         packet.AddInt32(questRewardsCount)
         For i = 0 To QUEST_OBJECTIVES_COUNT
             'Add item if not loaded into server
-            If Quest.ObjectivesItem(i) <> 0 AndAlso ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) = False Then Dim tmpItem As New ItemInfo(Quest.ObjectivesItem(i))
+            If Quest.ObjectivesItem(i) <> 0 AndAlso ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) = False Then
+                'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                Dim tmpItem As New ItemInfo(Quest.ObjectivesItem(i))
+            End If
             packet.AddInt32(Quest.ObjectivesItem(i))
             packet.AddInt32(Quest.ObjectivesItem_Count(i))
         Next
@@ -543,7 +555,10 @@ Public Class WS_Quests
                 packet.AddInt32(Quest.RewardItems_Count(i))
 
                 'Add item if not loaded into server
-                If Not ITEMDatabase.ContainsKey(Quest.RewardItems(i)) Then Dim tmpItem As New ItemInfo(Quest.RewardItems(i))
+                If Not ITEMDatabase.ContainsKey(Quest.RewardItems(i)) Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpItem As New ItemInfo(Quest.RewardItems(i))
+                End If
                 packet.AddInt32(ITEMDatabase(Quest.RewardItems(i)).Model)
             End If
         Next
@@ -559,7 +574,10 @@ Public Class WS_Quests
                 packet.AddInt32(Quest.RewardStaticItems_Count(i))
 
                 'Add item if not loaded into server
-                If Not ITEMDatabase.ContainsKey(Quest.RewardStaticItems(i)) Then Dim tmpItem As New ItemInfo(Quest.RewardStaticItems(i))
+                If Not ITEMDatabase.ContainsKey(Quest.RewardStaticItems(i)) Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpItem As New ItemInfo(Quest.RewardStaticItems(i))
+                End If
                 packet.AddInt32(ITEMDatabase(Quest.RewardStaticItems(i)).Model)
             End If
         Next
@@ -626,7 +644,10 @@ Public Class WS_Quests
         If requiredItemsCount > 0 Then
             For i = 0 To QUEST_OBJECTIVES_COUNT
                 If Quest.ObjectivesItem(i) <> 0 Then
-                    If ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) = False Then Dim tmpItem As ItemInfo = New ItemInfo(Quest.ObjectivesItem(i))
+                    If ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) = False Then
+                        'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                        Dim tmpItem As ItemInfo = New ItemInfo(Quest.ObjectivesItem(i))
+                    End If
                     packet.AddInt32(Quest.ObjectivesItem(i))
                     packet.AddInt32(Quest.ObjectivesItem_Count(i))
                     If ITEMDatabase.ContainsKey(Quest.ObjectivesItem(i)) Then
@@ -1182,8 +1203,10 @@ Public Class WS_Quests
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_QUERY_QUEST [GUID={2:X} QuestID={3}]", Client.IP, Client.Port, GUID, QuestID)
 
-        If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
-
+        If Not ALLQUESTS.IsValidQuest(QuestID) Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpQuest As New WS_QuestInfo(QuestID)
+        End If
         Try
             Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
             SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
@@ -1200,8 +1223,10 @@ Public Class WS_Quests
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_ACCEPT_QUEST [GUID={2:X} QuestID={3}]", Client.IP, Client.Port, GUID, QuestID)
 
-        If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
-
+        If Not ALLQUESTS.IsValidQuest(QuestID) Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpQuest As New WS_QuestInfo(QuestID)
+        End If
         'Load quest data
         If Client.Character.TalkCurrentQuest.ID <> QuestID Then Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(QuestID)
 
@@ -1247,8 +1272,10 @@ Public Class WS_Quests
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUEST_QUERY [QuestID={2}]", Client.IP, Client.Port, QuestID)
 
-        If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
-
+        If Not ALLQUESTS.IsValidQuest(QuestID) Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpQuest As New WS_QuestInfo(QuestID)
+        End If
         If Client.Character.TalkCurrentQuest Is Nothing Then
             SendQuest(Client, ALLQUESTS.ReturnQuestInfoById(QuestID))
             Exit Sub
@@ -1262,7 +1289,10 @@ Public Class WS_Quests
     End Sub
 
     Public Sub CompleteQuest(ByVal objChar As CharacterObject, ByVal QuestID As Integer, ByVal QuestGiverGUID As ULong)
-        If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
+        If Not ALLQUESTS.IsValidQuest(QuestID) Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpQuest As New WS_QuestInfo(QuestID)
+        End If
         Dim i As Integer
         For i = 0 To QUEST_SLOTS
             If Not objChar.TalkQuests(i) Is Nothing Then
@@ -1312,8 +1342,10 @@ Public Class WS_Quests
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_REQUEST_REWARD [GUID={2:X} Quest={3}]", Client.IP, Client.Port, GUID, QuestID)
 
-        If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
-
+        If Not ALLQUESTS.IsValidQuest(QuestID) Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpQuest As New WS_QuestInfo(QuestID)
+        End If
         For i As Integer = 0 To QUEST_SLOTS
             If Client.Character.TalkQuests(i) IsNot Nothing AndAlso Client.Character.TalkQuests(i).ID = QuestID AndAlso Client.Character.TalkQuests(i).Complete Then
 
@@ -1335,8 +1367,10 @@ Public Class WS_Quests
         Dim RewardIndex As Integer = packet.GetInt32
         Dim i As Integer
 
-        If Not ALLQUESTS.IsValidQuest(QuestID) Then Dim tmpQuest As New WS_QuestInfo(QuestID)
-
+        If Not ALLQUESTS.IsValidQuest(QuestID) Then
+            'TODO: Another one of these useless bits of code, needs to be implemented correctly
+            Dim tmpQuest As New WS_QuestInfo(QuestID)
+        End If
         Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", Client.IP, Client.Port, GUID, QuestID, RewardIndex)
             If WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
@@ -1483,7 +1517,10 @@ Public Class WS_Quests
 
             'DONE: Follow-up quests (no requirements checked?)
             If Client.Character.TalkCurrentQuest.NextQuest <> 0 Then
-                'If Not ALLQUESTS.IsValidQuest(Client.Character.TalkCurrentQuest.NextQuest) Then Dim tmpQuest As New WS_QuestInfo(Client.Character.TalkCurrentQuest.NextQuest)
+                If Not ALLQUESTS.IsValidQuest(Client.Character.TalkCurrentQuest.NextQuest) Then
+                    'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                    Dim tmpQuest As New WS_QuestInfo(Client.Character.TalkCurrentQuest.NextQuest)
+                End If
                 Client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(Client.Character.TalkCurrentQuest.NextQuest)
                 SendQuestDetails(Client, Client.Character.TalkCurrentQuest, GUID, True)
             End If
@@ -1501,8 +1538,10 @@ Public Class WS_Quests
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PUSHQUESTTOPARTY [{2}]", Client.IP, Client.Port, questID)
 
         If Client.Character.IsInGroup Then
-            If Not ALLQUESTS.IsValidQuest(questID) Then Dim tmpQuest As New WS_QuestInfo(questID)
-
+            If Not ALLQUESTS.IsValidQuest(questID) Then
+                'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                Dim tmpQuest As New WS_QuestInfo(questID)
+            End If
             For Each GUID As ULong In Client.Character.Group.LocalMembers
                 If GUID = Client.Character.GUID Then Continue For
 

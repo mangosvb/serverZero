@@ -1221,7 +1221,10 @@ Public Module WS_Combat
 
         If AmmoID Then 'Set Ammo
             Client.Character.AmmoID = AmmoID
-            If ITEMDatabase.ContainsKey(AmmoID) = False Then Dim tmpItem As ItemInfo = New ItemInfo(AmmoID)
+            If ITEMDatabase.ContainsKey(AmmoID) = False Then
+                'TODO: Another one of these useless bits of code, needs to be implemented correctly
+                Dim tmpItem As ItemInfo = New ItemInfo(AmmoID)
+            End If
             Dim CanUse As InventoryChangeFailure = CanUseAmmo(Client.Character, AmmoID)
             If CanUse <> InventoryChangeFailure.EQUIP_ERR_OK Then
                 SendInventoryChangeFailure(Client.Character, CanUse, 0, 0)
