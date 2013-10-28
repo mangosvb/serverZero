@@ -131,20 +131,23 @@ Public Module WC_Character
 
                 PositionX = CType(MySQLQuery.Rows(0).Item("char_positionX"), Single)
                 PositionY = CType(MySQLQuery.Rows(0).Item("char_positionY"), Single)
+
+                'DONE: Get guild info
+                Dim GuildID As UInteger = CType(MySQLQuery.Rows(0).Item("char_guildId"), UInteger)
+                If GuildID > 0 Then
+                    If GUILDs.ContainsKey(GuildID) = False Then
+                        Dim tmpGuild As New Guild(GuildID)
+                        Guild = tmpGuild
+                    Else
+                        Guild = GUILDs(GuildID)
+                    End If
+                    GuildRank = CType(MySQLQuery.Rows(0).Item("char_guildRank"), Byte)
+                End If
             Else
                 Log.WriteLine(LogType.DATABASE, "Failed to load expected results from:")
                 Log.WriteLine(LogType.DATABASE, String.Format("SELECT * FROM characters WHERE char_guid = {0};", GUID))
             End If
 
-            'DONE: Get guild info
-            Dim GuildID As UInteger = CType(MySQLQuery.Rows(0).Item("char_guildId"), UInteger)
-            If GuildID > 0 Then
-                If GUILDs.ContainsKey(GuildID) = False Then
-                    Dim tmpGuild As New Guild(GuildID)
-                End If
-                Guild = GUILDs(GuildID)
-                GuildRank = CType(MySQLQuery.Rows(0).Item("char_guildRank"), Byte)
-            End If
         End Sub
 
         Public Sub New(ByVal g As ULong, ByRef c As ClientClass)
