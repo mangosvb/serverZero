@@ -382,36 +382,40 @@ Public Module WS_Network
 
         Public DEBUG_CONNECTION As Boolean = False
 
+        ''' <summary>
+        ''' Called when a packet is recieved.
+        ''' </summary>
+        ''' <param name="state">The state.</param>
+        ''' <returns></returns>
         Public Sub OnPacket(state As Object)
-            Try
+            While Packets.Count > 0
+                Dim p As PacketClass = Packets.Dequeue
+                Dim start As Integer = timeGetTime("")
+                Try
 
-                While Packets.Count > 0
-                    Dim p As PacketClass = Packets.Dequeue
-                    Dim start As Integer = timeGetTime("")
-
-                    Dim OpCode As OPCODES = p.OpCode
-                    If PacketHandlers.ContainsKey(OpCode) = True Then
+                    Dim opCode As OPCODES = p.OpCode
+                    If PacketHandlers.ContainsKey(opCode) = True Then
                         Try
-                            PacketHandlers(OpCode).Invoke(p, Me)
+                            PacketHandlers(opCode).Invoke(p, Me)
 
                             If timeGetTime("") - start > 100 Then
                                 Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
                             End If
                         Catch e As Exception 'TargetInvocationException
-                            Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, CType(p.OpCode, OPCODES))
+                            Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, p.OpCode)
                             'DumpPacket(packet.Data, Me)
                         End Try
                     Else
-                        Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, CType(p.OpCode, OPCODES))
+                        Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
                         DumpPacket(p.Data, Me)
                     End If
-
+                Catch err As Exception
+                    Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, vbNewLine)
+                    Me.Delete()
+                Finally
                     p.Dispose()
-                End While
-            Catch Err As Exception
-                Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
-                Me.Delete()
-            End Try
+                End Try
+            End While
         End Sub
 
         Public Sub Send(ByRef data() As Byte)
