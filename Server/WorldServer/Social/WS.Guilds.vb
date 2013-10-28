@@ -27,13 +27,6 @@ Public Module WS_Guilds
     Public Const PETITION_GUILD As Integer = 5863       'Guild Charter, ItemFlags = &H2000
     Public Const GUILD_TABARD_ITEM As Integer = 5976
 
-    Public Const PETITION_2v2_PRICE As Integer = 800000
-    Public Const PETITION_2v2 As Integer = 23560
-    Public Const PETITION_3v3_PRICE As Integer = 1200000
-    Public Const PETITION_3v3 As Integer = 23561
-    Public Const PETITION_5v5_PRICE As Integer = 2000000
-    Public Const PETITION_5v5 As Integer = 23562
-
 #End Region
 
 #Region "WS.Guilds.Petition"
@@ -80,27 +73,6 @@ Public Module WS_Guilds
             packet.AddInt32(PETITION_GUILD_PRICE)
             packet.AddInt32(0) 'Unknown
             packet.AddInt32(9) 'Required signatures
-        Else
-            packet.AddInt32(1) 'Index
-            packet.AddInt32(PETITION_2v2)
-            packet.AddInt32(16161) 'Charter display ID
-            packet.AddInt32(PETITION_2v2_PRICE)
-            packet.AddInt32(2) 'Unknown
-            packet.AddInt32(2) 'Required signatures
-
-            packet.AddInt32(2) 'Index
-            packet.AddInt32(PETITION_3v3)
-            packet.AddInt32(16161) 'Charter display ID
-            packet.AddInt32(PETITION_3v3_PRICE)
-            packet.AddInt32(3) 'Unknown
-            packet.AddInt32(3) 'Required signatures
-
-            packet.AddInt32(3) 'Index
-            packet.AddInt32(PETITION_5v5)
-            packet.AddInt32(16161) 'Charter display ID
-            packet.AddInt32(PETITION_5v5_PRICE)
-            packet.AddInt32(5) 'Unknown
-            packet.AddInt32(5) 'Required signatures
         End If
 
         c.Client.Send(packet)

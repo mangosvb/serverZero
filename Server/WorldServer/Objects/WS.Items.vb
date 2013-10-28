@@ -872,12 +872,9 @@ Public Module WS_Items
         Public Sub Delete()
             'DONE: Check if item is petition
             If _
-                ItemEntry = PETITION_GUILD OrElse ItemEntry = PETITION_2v2 OrElse ItemEntry = PETITION_3v3 OrElse
-                ItemEntry = PETITION_5v5 Then _
+                ItemEntry = PETITION_GUILD Then _
                 CharacterDatabase.Update("DELETE FROM petitions WHERE petition_itemGuid = " & GUID - GUID_ITEM & ";")
-
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = {0}",
-                                                   GUID - GUID_ITEM))
+            CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = {0}", GUID - GUID_ITEM))
 
             If ITEMDatabase(ItemEntry).IsContainer() Then
                 For Each item As KeyValuePair(Of Byte, ItemObject) In Items
