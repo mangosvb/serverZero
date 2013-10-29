@@ -650,8 +650,12 @@ Module WS_CharMovement
 
         If Not Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then
             'DONE: Remove character from map
-            GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
-            Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Remove(Character.GUID)
+            Try
+                GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
+                Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Remove(Character.GUID)
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, "Error removing character {0} from map", Character.Name)
+            End Try
         End If
 
         Dim list() As ULong
