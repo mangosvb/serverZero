@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ Public Module WC_Handlers_Social
 
 #Region "Framework"
 
-    Public Sub LoadIgnoreList(ByRef c As CharacterObject)
+    Public Sub LoadIgnoreList(ByRef objCharacter As CharacterObject)
         'DONE: Query DB
         Dim q As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT * FROM characters_social WHERE char_guid = {0} AND flags = {1};", c.GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
+        CharacterDatabase.Query(String.Format("SELECT * FROM characters_social WHERE char_guid = {0} AND flags = {1};", objCharacter.GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
 
         'DONE: Add to list
         For Each r As DataRow In q.Rows
-            c.IgnoreList.Add(CType(r.Item("guid"), ULong))
+            objCharacter.IgnoreList.Add(CType(r.Item("guid"), ULong))
         Next
     End Sub
 
@@ -129,14 +129,14 @@ Public Module WC_Handlers_Social
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_IGNORE_LIST", Client.IP, Client.Port)
     End Sub
 
-    Public Sub NotifyFriendStatus(ByRef c As CharacterObject, ByVal s As FriendStatus)
+    Public Sub NotifyFriendStatus(ByRef objCharacter As CharacterObject, ByVal s As FriendStatus)
         Dim q As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters_social WHERE guid = {0} AND (flags & {1}) > 0;", c.GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
+        CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters_social WHERE guid = {0} AND (flags & {1}) > 0;", objCharacter.GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
 
         'DONE: Send "Friend offline/online"
         Dim friendpacket As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
         friendpacket.AddInt8(s)
-        friendpacket.AddUInt64(c.GUID)
+        friendpacket.AddUInt64(objCharacter.GUID)
         For Each r As DataRow In q.Rows
             Dim GUID As ULong = r.Item("char_guid")
             If CHARACTERs.ContainsKey(GUID) AndAlso CHARACTERs(GUID).Client IsNot Nothing Then
@@ -178,21 +178,21 @@ Public Module WC_Handlers_Social
         'TODO: Don't show GMs?
         Dim results As New List(Of ULong)
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-        For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-            If Not c.Value.IsInWorld Then Continue For
-            If (GetCharacterSide(c.Value.Race) <> GetCharacterSide(Client.Character.Race)) AndAlso Client.Character.Access < AccessLevel.GameMaster Then Continue For
-            If NamePlayer <> "" AndAlso UCase(c.Value.Name).IndexOf(UCase(NamePlayer)) = -1 Then Continue For
-            If NameGuild <> "" AndAlso (c.Value.Guild Is Nothing OrElse UCase(c.Value.Guild.Name).IndexOf(UCase(NameGuild)) = -1) Then Continue For
-            If c.Value.Level < LevelMinimum Then Continue For
-            If c.Value.Level > LevelMaximum Then Continue For
-            If ZonesCount > 0 AndAlso Zones.Contains(c.Value.Zone) = False Then Continue For
+        For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            If Not objCharacter.Value.IsInWorld Then Continue For
+            If (GetCharacterSide(objCharacter.Value.Race) <> GetCharacterSide(Client.Character.Race)) AndAlso Client.Character.Access < AccessLevel.GameMaster Then Continue For
+            If NamePlayer <> "" AndAlso UCase(objCharacter.Value.Name).IndexOf(UCase(NamePlayer)) = -1 Then Continue For
+            If NameGuild <> "" AndAlso (objCharacter.Value.Guild Is Nothing OrElse UCase(objCharacter.Value.Guild.Name).IndexOf(UCase(NameGuild)) = -1) Then Continue For
+            If objCharacter.Value.Level < LevelMinimum Then Continue For
+            If objCharacter.Value.Level > LevelMaximum Then Continue For
+            If ZonesCount > 0 AndAlso Zones.Contains(objCharacter.Value.Zone) = False Then Continue For
             If StringsCount > 0 Then
                 Dim PassedStrings As Boolean = True
                 For Each StringValue As String In Strings
-                    If UCase(c.Value.Name).IndexOf(StringValue) <> -1 Then Continue For
-                    If UCase(GetRaceName(c.Value.Race)) = StringValue Then Continue For
-                    If UCase(GetClassName(c.Value.Classe)) = StringValue Then Continue For
-                    If c.Value.Guild IsNot Nothing AndAlso UCase(c.Value.Guild.Name).IndexOf(StringValue) <> -1 Then Continue For
+                    If UCase(objCharacter.Value.Name).IndexOf(StringValue) <> -1 Then Continue For
+                    If UCase(GetRaceName(objCharacter.Value.Race)) = StringValue Then Continue For
+                    If UCase(GetClassName(objCharacter.Value.Classe)) = StringValue Then Continue For
+                    If objCharacter.Value.Guild IsNot Nothing AndAlso UCase(objCharacter.Value.Guild.Name).IndexOf(StringValue) <> -1 Then Continue For
                     'TODO: Look for zone name
                     PassedStrings = False
                     Exit For
@@ -203,7 +203,7 @@ Public Module WC_Handlers_Social
             'DONE: List first 49 characters (like original)
             If results.Count > 49 Then Exit For
 
-            results.Add(c.Value.GUID)
+            results.Add(objCharacter.Value.GUID)
         Next
 
 

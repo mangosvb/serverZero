@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -336,10 +336,10 @@ Public Module Functions
             packet.Dispose()
         End Try
     End Sub
-    Public Sub SendMessageSystem(ByVal c As ClientClass, ByVal Message As String)
+    Public Sub SendMessageSystem(ByVal objCharacter As ClientClass, ByVal Message As String)
         Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
         Try
-            c.Send(packet)
+            objCharacter.Send(packet)
         Finally
             packet.Dispose()
         End Try

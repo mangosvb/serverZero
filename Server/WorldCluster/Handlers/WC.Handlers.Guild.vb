@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -426,9 +426,9 @@ Public Module WC_Handlers_Guild
             Exit Sub
         End If
 
-        Dim c As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
 
-        If c.IsGuildLeader Then
+        If objCharacter.IsGuildLeader Then
             SendGuildResult(Client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_LEADER_LEAVE)
             Exit Sub
         End If
@@ -438,11 +438,11 @@ Public Module WC_Handlers_Guild
         response.AddInt8(GuildEvent.REMOVED)
         response.AddInt8(2)
         response.AddString(playerName)
-        response.AddString(c.Name)
+        response.AddString(objCharacter.Name)
         BroadcastToGuild(response, Client.Character.Guild)
         response.Dispose()
 
-        RemoveCharacterFromGuild(c)
+        RemoveCharacterFromGuild(objCharacter)
     End Sub
     Public Sub On_CMSG_GUILD_PROMOTE(ByRef packet As PacketClass, ByRef Client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
@@ -471,30 +471,30 @@ Public Module WC_Handlers_Guild
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         End If
-        Dim c As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
-        If c.Guild.ID <> Client.Character.Guild.ID Then
+        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        If objCharacter.Guild.ID <> Client.Character.Guild.ID Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
             Exit Sub
-        ElseIf c.GuildRank <= Client.Character.GuildRank Then
+        ElseIf objCharacter.GuildRank <= Client.Character.GuildRank Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
-        ElseIf c.GuildRank = GUILD_RANK_MIN Then
+        ElseIf objCharacter.GuildRank = GUILD_RANK_MIN Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
             Exit Sub
         End If
 
         'DONE: Do the real update            
-        c.GuildRank -= 1
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", c.GuildRank, c.GUID))
-        c.SendGuildUpdate()
+        objCharacter.GuildRank -= 1
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.GUID))
+        objCharacter.SendGuildUpdate()
 
         'DONE: Send event to guild
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
         response.AddInt8(GuildEvent.PROMOTION)
         response.AddInt8(3)
-        response.AddString(c.Name)
+        response.AddString(objCharacter.Name)
         response.AddString(playerName)
-        response.AddString(Client.Character.Guild.Ranks(c.GuildRank))
+        response.AddString(Client.Character.Guild.Ranks(objCharacter.GuildRank))
         BroadcastToGuild(response, Client.Character.Guild)
         response.Dispose()
     End Sub
@@ -525,36 +525,36 @@ Public Module WC_Handlers_Guild
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         End If
-        Dim c As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
-        If c.Guild.ID <> Client.Character.Guild.ID Then
+        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        If objCharacter.Guild.ID <> Client.Character.Guild.ID Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
             Exit Sub
-        ElseIf c.GuildRank <= Client.Character.GuildRank Then
+        ElseIf objCharacter.GuildRank <= Client.Character.GuildRank Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
-        ElseIf c.GuildRank = GUILD_RANK_MAX Then
+        ElseIf objCharacter.GuildRank = GUILD_RANK_MAX Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
             Exit Sub
         End If
 
         'DONE: Max defined rank check
-        If Trim(Client.Character.Guild.Ranks(c.GuildRank + 1)) = "" Then
+        If Trim(Client.Character.Guild.Ranks(objCharacter.GuildRank + 1)) = "" Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
             Exit Sub
         End If
 
         'DONE: Do the real update            
-        c.GuildRank += 1
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", c.GuildRank, c.GUID))
-        c.SendGuildUpdate()
+        objCharacter.GuildRank += 1
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.GUID))
+        objCharacter.SendGuildUpdate()
 
         'DONE: Send event to guild
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
         response.AddInt8(GuildEvent.DEMOTION)
         response.AddInt8(3)
-        response.AddString(c.Name)
+        response.AddString(objCharacter.Name)
         response.AddString(playerName)
-        response.AddString(Client.Character.Guild.Ranks(c.GuildRank))
+        response.AddString(Client.Character.Guild.Ranks(objCharacter.GuildRank))
         BroadcastToGuild(response, Client.Character.Guild)
         response.Dispose()
     End Sub
@@ -589,14 +589,14 @@ Public Module WC_Handlers_Guild
             Exit Sub
         End If
 
-        Dim c As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
-        If c.IsInGuild Then
+        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        If objCharacter.IsInGuild Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.ALREADY_IN_GUILD, playerName)
             Exit Sub
-        ElseIf c.Side <> Client.Character.Side Then
+        ElseIf objCharacter.Side <> Client.Character.Side Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NOT_ALLIED, playerName)
             Exit Sub
-        ElseIf c.GuildInvited <> 0 Then
+        ElseIf objCharacter.GuildInvited <> 0 Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.ALREADY_INVITED_TO_GUILD, playerName)
             Exit Sub
         End If
@@ -604,11 +604,11 @@ Public Module WC_Handlers_Guild
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_INVITE)
         response.AddString(Client.Character.Name)
         response.AddString(Client.Character.Guild.Name)
-        c.Client.Send(response)
+        objCharacter.Client.Send(response)
         response.Dispose()
 
-        c.GuildInvited = Client.Character.Guild.ID
-        c.GuildInvitedBy = Client.Character.GUID
+        objCharacter.GuildInvited = Client.Character.Guild.ID
+        objCharacter.GuildInvitedBy = Client.Character.GUID
     End Sub
 
     Public Sub On_CMSG_GUILD_ACCEPT(ByRef packet As PacketClass, ByRef Client As ClientClass)

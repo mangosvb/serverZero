@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -45,20 +45,20 @@ Public Module WS_Base
         Public CanSeeInvisibility_Stealth As Integer = 0
         Public CanSeeStealth As Boolean = False
         Public CanSeeInvisibility_Invisibility As Integer = 0
-        Public Overridable Function CanSee(ByRef c As BaseObject) As Boolean
-            If GUID = c.GUID Then Return False
-            If instance <> c.instance Then Return False
+        Public Overridable Function CanSee(ByRef objCharacter As BaseObject) As Boolean
+            If GUID = objCharacter.GUID Then Return False
+            If instance <> objCharacter.instance Then Return False
 
             'DONE: GM and DEAD invisibility
-            If c.Invisibility > CanSeeInvisibility Then Return False
+            If objCharacter.Invisibility > CanSeeInvisibility Then Return False
             'DONE: Stealth Detection
-            If c.Invisibility = InvisibilityLevel.STEALTH AndAlso (Math.Sqrt((c.positionX - positionX) ^ 2 + (c.positionY - positionY) ^ 2) < DEFAULT_DISTANCE_DETECTION) Then Return True
+            If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso (Math.Sqrt((objCharacter.positionX - positionX) ^ 2 + (objCharacter.positionY - positionY) ^ 2) < DEFAULT_DISTANCE_DETECTION) Then Return True
             'DONE: Check invisibility
-            If c.Invisibility = InvisibilityLevel.INIVISIBILITY AndAlso c.Invisibility_Value > CanSeeInvisibility_Invisibility Then Return False
-            If c.Invisibility = InvisibilityLevel.STEALTH AndAlso c.Invisibility_Value > CanSeeInvisibility_Stealth Then Return False
+            If objCharacter.Invisibility = InvisibilityLevel.INIVISIBILITY AndAlso objCharacter.Invisibility_Value > CanSeeInvisibility_Invisibility Then Return False
+            If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso objCharacter.Invisibility_Value > CanSeeInvisibility_Stealth Then Return False
 
             'DONE: Check distance
-            If Math.Sqrt((c.positionX - positionX) ^ 2 + (c.positionY - positionY) ^ 2) > c.VisibleDistance Then Return False
+            If Math.Sqrt((objCharacter.positionX - positionX) ^ 2 + (objCharacter.positionY - positionY) ^ 2) > objCharacter.VisibleDistance Then Return False
             Return True
         End Function
 
@@ -87,8 +87,8 @@ Public Module WS_Base
 
         Public Sub SendToNearPlayers(ByRef packet As PacketClass, Optional ByVal NotTo As ULong = 0, Optional ByVal ToSelf As Boolean = True)
             If ToSelf AndAlso (TypeOf Me Is CharacterObject) AndAlso CType(Me, CharacterObject).Client IsNot Nothing Then CType(Me, CharacterObject).Client.SendMultiplyPackets(packet)
-            For Each c As ULong In SeenBy.ToArray
-                If c <> NotTo AndAlso CHARACTERs.ContainsKey(c) AndAlso CHARACTERs(c).Client IsNot Nothing Then CHARACTERs(c).Client.SendMultiplyPackets(packet)
+            For Each objCharacter As ULong In SeenBy.ToArray
+                If objCharacter <> NotTo AndAlso CHARACTERs.ContainsKey(objCharacter) AndAlso CHARACTERs(objCharacter).Client IsNot Nothing Then CHARACTERs(objCharacter).Client.SendMultiplyPackets(packet)
             Next
         End Sub
     End Class

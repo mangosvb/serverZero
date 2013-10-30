@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -193,12 +193,12 @@ Public Module WS_DBCDatabase
 
             Dim i As Integer = 0
             For i = 0 To tmpDBC.Rows - 1
-                Dim c As New ChatChannelInfo
-                c.Index = tmpDBC.Item(i, 0, DBC.DBCValueType.DBC_INTEGER)
-                c.Flags = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_INTEGER)
-                c.Name = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_STRING)
+                Dim objCharacter As New ChatChannelInfo
+                objCharacter.Index = tmpDBC.Item(i, 0, DBC.DBCValueType.DBC_INTEGER)
+                objCharacter.Flags = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_INTEGER)
+                objCharacter.Name = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_STRING)
 
-                ChatChannelsInfo.Add(c.Index, c)
+                ChatChannelsInfo.Add(objCharacter.Index, objCharacter)
             Next i
 
             tmpDBC.Dispose()

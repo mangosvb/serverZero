@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -56,10 +56,10 @@ Public Module WS_Maps
             AREA_FLAG_UNK5 = &H40000            ' just used for Amani Pass, Hatchet Hills
             AREA_FLAG_LOWLEVEL = &H100000       ' used for some starting areas with area_level <=15
         End Enum
-        Public Function IsMyLand(ByRef c As CharacterObject) As Boolean
+        Public Function IsMyLand(ByRef objCharacter As CharacterObject) As Boolean
             If Team = AreaTeam.AREATEAM_NONE Then Return False
-            If c.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
-            If c.IsHorde = True Then Return Team = AreaTeam.AREATEAM_HORDE
+            If objCharacter.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
+            If objCharacter.IsHorde = True Then Return Team = AreaTeam.AREATEAM_HORDE
         End Function
         Public Function IsCity() As Boolean
             Return ZoneType = 312
@@ -619,13 +619,13 @@ Public Module WS_Maps
         Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
     End Function
 
-    Public Function IsOutsideOfMap(ByRef c As BaseObject) As Boolean
+    Public Function IsOutsideOfMap(ByRef objCharacter As BaseObject) As Boolean
         'NOTE: Disabled these checks because DBC data contains too big X/Y coords to be usefull
         Return False
 
-        'Dim x As Single = c.positionX
-        'Dim y As Single = c.positionY
-        'Dim m As UInteger = c.MapID
+        'Dim x As Single = objCharacter.positionX
+        'Dim y As Single = objCharacter.positionY
+        'Dim m As UInteger = objCharacter.MapID
 
         ''Check transform data
         'For Each i As WorldMapTransformsDimension In WorldMapTransforms
@@ -650,7 +650,7 @@ Public Module WS_Maps
         '    With WorldMapContinent(m)
         '        If x > .X_Maximum Or x < .X_Minimum Or _
         '           y > .Y_Maximum Or y < .Y_Minimum Then
-        '            Log.WriteLine(LogType.USER, "Outside map: {0:X}", c.GUID)
+        '            Log.WriteLine(LogType.USER, "Outside map: {0:X}", objCharacter.GUID)
         '            Return True
         '        Else
         '            Return False
@@ -658,7 +658,7 @@ Public Module WS_Maps
         '    End With
         'End If
 
-        'Log.WriteLine(LogType.USER, "WorldMapContinent not found for map {0}.", c.MapID)
+        'Log.WriteLine(LogType.USER, "WorldMapContinent not found for map {0}.", objCharacter.MapID)
         'Return False
     End Function
 

@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -87,18 +87,18 @@ Public Module WC_Stats
         Latency = 0
 
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-        For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-            If c.Value.IsInWorld Then
+        For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            If objCharacter.Value.IsInWorld Then
                 CountPlayers += 1
 
-                If c.Value.Race = Races.RACE_ORC OrElse c.Value.Race = Races.RACE_TAUREN OrElse c.Value.Race = Races.RACE_TROLL OrElse c.Value.Race = Races.RACE_UNDEAD Then
+                If objCharacter.Value.Race = Races.RACE_ORC OrElse objCharacter.Value.Race = Races.RACE_TAUREN OrElse objCharacter.Value.Race = Races.RACE_TROLL OrElse objCharacter.Value.Race = Races.RACE_UNDEAD Then
                     CountPlayersHorde += 1
                 Else
                     CountPlayersAlliance += 1
                 End If
 
-                If c.Value.Access > AccessLevel.Player Then CountGMs += 1
-                Latency += c.Value.Latency
+                If objCharacter.Value.Access > AccessLevel.Player Then CountGMs += 1
+                Latency += objCharacter.Value.Latency
             End If
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
@@ -108,11 +108,11 @@ Public Module WC_Stats
         End If
 
 
-        For Each c As KeyValuePair(Of UInteger, WorldInfo) In WorldServer.WorldsInfo
-            If Not w.ContainsKey(c.Value) Then
-                w.Add(c.Value, New List(Of String))
+        For Each objCharacter As KeyValuePair(Of UInteger, WorldInfo) In WorldServer.WorldsInfo
+            If Not w.ContainsKey(objCharacter.Value) Then
+                w.Add(objCharacter.Value, New List(Of String))
             End If
-            w(c.Value).Add(c.Key)
+            w(objCharacter.Value).Add(objCharacter.Key)
         Next
     End Sub
     Public Sub GenerateStats(ByVal State As Object)
@@ -206,25 +206,25 @@ Public Module WC_Stats
         '<world>
         f.WriteStartElement("world")
         Try
-            For Each c As KeyValuePair(Of WorldInfo, List(Of String)) In w
+            For Each objCharacter As KeyValuePair(Of WorldInfo, List(Of String)) In w
                 f.WriteStartElement("instance")
                 f.WriteStartElement("uptime")
-                f.WriteValue(FormatUptime(Now - c.Key.Started))
+                f.WriteValue(FormatUptime(Now - objCharacter.Key.Started))
                 f.WriteEndElement()
                 f.WriteStartElement("players")
                 f.WriteValue("-")
                 f.WriteEndElement()
                 f.WriteStartElement("maps")
-                f.WriteValue(Join(c.Value.ToArray, ", "))
+                f.WriteValue(Join(objCharacter.Value.ToArray, ", "))
                 f.WriteEndElement()
                 f.WriteStartElement("cpu")
-                f.WriteValue(Format(c.Key.CPUUsage, "0.00"))
+                f.WriteValue(Format(objCharacter.Key.CPUUsage, "0.00"))
                 f.WriteEndElement()
                 f.WriteStartElement("ram")
-                f.WriteValue(c.Key.MemoryUsage)
+                f.WriteValue(objCharacter.Key.MemoryUsage)
                 f.WriteEndElement()
                 f.WriteStartElement("latency")
-                f.WriteValue(c.Key.Latency)
+                f.WriteValue(objCharacter.Key.Latency)
                 f.WriteEndElement()
 
                 f.WriteEndElement()
@@ -240,14 +240,14 @@ Public Module WC_Stats
 
 
         f.WriteStartElement("users")
-        For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-            If c.Value.IsInWorld AndAlso c.Value.Access >= AccessLevel.GameMaster Then
+        For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Access >= AccessLevel.GameMaster Then
                 f.WriteStartElement("gmplayer")
                 f.WriteStartElement("name")
-                f.WriteValue(c.Value.Name)
+                f.WriteValue(objCharacter.Value.Name)
                 f.WriteEndElement()
                 f.WriteStartElement("access")
-                f.WriteValue(c.Value.Access)
+                f.WriteValue(objCharacter.Value.Access)
                 f.WriteEndElement()
                 f.WriteEndElement()
             End If
@@ -255,32 +255,32 @@ Public Module WC_Stats
         f.WriteEndElement()
 
         f.WriteStartElement("sessions")
-        For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-            If c.Value.IsInWorld Then
+        For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            If objCharacter.Value.IsInWorld Then
                 f.WriteStartElement("player")
                 f.WriteStartElement("name")
-                f.WriteValue(c.Value.Name)
+                f.WriteValue(objCharacter.Value.Name)
                 f.WriteEndElement()
                 f.WriteStartElement("race")
-                f.WriteValue(c.Value.Race)
+                f.WriteValue(objCharacter.Value.Race)
                 f.WriteEndElement()
                 f.WriteStartElement("class")
-                f.WriteValue(c.Value.Classe)
+                f.WriteValue(objCharacter.Value.Classe)
                 f.WriteEndElement()
                 f.WriteStartElement("level")
-                f.WriteValue(c.Value.Level)
+                f.WriteValue(objCharacter.Value.Level)
                 f.WriteEndElement()
                 f.WriteStartElement("map")
-                f.WriteValue(c.Value.Map)
+                f.WriteValue(objCharacter.Value.Map)
                 f.WriteEndElement()
                 f.WriteStartElement("zone")
-                f.WriteValue(c.Value.Zone)
+                f.WriteValue(objCharacter.Value.Zone)
                 f.WriteEndElement()
                 f.WriteStartElement("ontime")
-                f.WriteValue(FormatUptime(Now - c.Value.Time))
+                f.WriteValue(FormatUptime(Now - objCharacter.Value.Time))
                 f.WriteEndElement()
                 f.WriteStartElement("latency")
-                f.WriteValue(c.Value.Latency)
+                f.WriteValue(objCharacter.Value.Latency)
                 f.WriteEndElement()
 
                 f.WriteEndElement()

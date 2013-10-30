@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -23,12 +23,12 @@ Imports mangosVB.Common.BaseWriter
 Public Module WS_Handlers_Chat
 
 
-    Public Function GetChatFlag(ByVal objChar As CharacterObject) As Byte
-        If objChar.GM Then
+    Public Function GetChatFlag(ByVal objCharacter As CharacterObject) As Byte
+        If objCharacter.GM Then
             Return ChatFlag.FLAG_GM
-        ElseIf objChar.AFK Then
+        ElseIf objCharacter.AFK Then
             Return ChatFlag.FLAG_AFK
-        ElseIf objChar.DND Then
+        ElseIf objCharacter.DND Then
             Return ChatFlag.FLAG_DND
         Else
             Return 0

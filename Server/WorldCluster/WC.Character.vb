@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -150,9 +150,9 @@ Public Module WC_Character
 
         End Sub
 
-        Public Sub New(ByVal g As ULong, ByRef c As ClientClass)
+        Public Sub New(ByVal g As ULong, ByRef objCharacter As ClientClass)
             GUID = g
-            Client = c
+            Client = objCharacter
 
             ReLoad()
             Access = Client.Access
@@ -328,9 +328,9 @@ Public Module WC_Character
         Dim GUID As ULong = 0
 
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-        For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-            If UCase(c.Value.Name) = UCase(Name) Then
-                GUID = c.Value.GUID
+        For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            If UCase(objCharacter.Value.Name) = UCase(Name) Then
+                GUID = objCharacter.Value.GUID
                 Exit For
             End If
         Next

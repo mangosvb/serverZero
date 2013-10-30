@@ -132,12 +132,12 @@ Public Class WS_QuestsBase
     ''' <summary>
     ''' Updates the item count.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
-    Public Sub UpdateItemCount(ByRef objChar As CharacterObject)
+    ''' <param name="objCharacter">The Character.</param>
+    Public Sub UpdateItemCount(ByRef objCharacter As CharacterObject)
         'DONE: Update item count at login
         For i As Byte = 0 To 3
             If ObjectivesItem(i) <> 0 Then
-                ProgressItem(i) = objChar.ItemCOUNT(ObjectivesItem(i))
+                ProgressItem(i) = objCharacter.ItemCOUNT(ObjectivesItem(i))
                 Log.WriteLine(LogType.DEBUG, "ITEM COUNT UPDATED TO: {0}", ProgressItem(i))
             End If
         Next
@@ -150,30 +150,30 @@ Public Class WS_QuestsBase
     End Sub
 
     ''' <summary>
-    ''' Initializes the specified objChar.
+    ''' Initializes the specified objCharacter.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
-    Public Sub Initialize(ByRef objChar As CharacterObject)
+    ''' <param name="objCharacter">The Character.</param>
+    Public Sub Initialize(ByRef objCharacter As CharacterObject)
         Dim i As Byte
         If ObjectivesDeliver > 0 Then
-            Dim tmpItem As New ItemObject(ObjectivesDeliver, objChar.GUID)
-            If Not objChar.ItemADD(tmpItem) Then
+            Dim tmpItem As New ItemObject(ObjectivesDeliver, objCharacter.GUID)
+            If Not objCharacter.ItemADD(tmpItem) Then
                 'DONE: Some error, unable to add item, quest is uncompletable
                 tmpItem.Delete()
 
                 Dim response As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_FAILED)
                 response.AddInt32(ID)
                 response.AddInt32(QuestFailedReason.FAILED_INVENTORY_FULL)
-                objChar.Client.Send(response)
+                objCharacter.Client.Send(response)
                 response.Dispose()
                 Exit Sub
             Else
-                objChar.LogLootItem(tmpItem, 1, True, False)
+                objCharacter.LogLootItem(tmpItem, 1, True, False)
             End If
         End If
 
         For i = 0 To 3
-            If ObjectivesItem(i) <> 0 Then ProgressItem(i) = objChar.ItemCOUNT(ObjectivesItem(i))
+            If ObjectivesItem(i) <> 0 Then ProgressItem(i) = objCharacter.ItemCOUNT(ObjectivesItem(i))
         Next
 
         If (ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE) Then Explored = False
@@ -246,84 +246,84 @@ Public Class WS_QuestsBase
     ''' <summary>
     ''' Adds the kill.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="index">The index.</param>
     ''' <param name="oGUID">The o unique identifier.</param>
-    Public Sub AddKill(ByVal objChar As CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
+    Public Sub AddKill(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
         Progress(index) += 1
         IsCompleted()
-        objChar.TalkUpdateQuest(Slot)
+        objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageAddKill(objChar.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+        ALLQUESTS.SendQuestMessageAddKill(objCharacter.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
     End Sub
 
     ''' <summary>
     ''' Adds the cast.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="index">The index.</param>
     ''' <param name="oGUID">The o unique identifier.</param>
-    Public Sub AddCast(ByVal objChar As CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
+    Public Sub AddCast(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
         Progress(index) += 1
         IsCompleted()
-        objChar.TalkUpdateQuest(Slot)
+        objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageAddKill(objChar.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+        ALLQUESTS.SendQuestMessageAddKill(objCharacter.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
     End Sub
 
     ''' <summary>
     ''' Adds the explore.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
-    Public Sub AddExplore(ByVal objChar As CharacterObject)
+    ''' <param name="objCharacter">The Character.</param>
+    Public Sub AddExplore(ByVal objCharacter As CharacterObject)
         Explored = True
         IsCompleted()
-        objChar.TalkUpdateQuest(Slot)
+        objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageComplete(objChar.Client, ID)
+        ALLQUESTS.SendQuestMessageComplete(objCharacter.Client, ID)
     End Sub
 
     ''' <summary>
     ''' Adds the emote.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="index">The index.</param>
-    Public Sub AddEmote(ByVal objChar As CharacterObject, ByVal index As Byte)
+    Public Sub AddEmote(ByVal objCharacter As CharacterObject, ByVal index As Byte)
         Progress(index) += 1
         IsCompleted()
-        objChar.TalkUpdateQuest(Slot)
+        objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageComplete(objChar.Client, ID)
+        ALLQUESTS.SendQuestMessageComplete(objCharacter.Client, ID)
     End Sub
 
     ''' <summary>
     ''' Adds the item.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="index">The index.</param>
     ''' <param name="Count">The count.</param>
-    Public Sub AddItem(ByVal objChar As CharacterObject, ByVal index As Byte, ByVal Count As Byte)
+    Public Sub AddItem(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal Count As Byte)
         If ProgressItem(index) + Count > ObjectivesItemCount(index) Then Count = ObjectivesItemCount(index) - ProgressItem(index)
         ProgressItem(index) += Count
         IsCompleted()
-        objChar.TalkUpdateQuest(Slot)
+        objCharacter.TalkUpdateQuest(Slot)
 
         'TODO: When item quest event is fired as it should, remove -1 here.
         Dim ItemCount As Integer = Count - 1
-        ALLQUESTS.SendQuestMessageAddItem(objChar.Client, ObjectivesItem(index), ItemCount)
+        ALLQUESTS.SendQuestMessageAddItem(objCharacter.Client, ObjectivesItem(index), ItemCount)
     End Sub
 
     ''' <summary>
     ''' Removes the item.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="index">The index.</param>
     ''' <param name="Count">The count.</param>
-    Public Sub RemoveItem(ByVal objChar As CharacterObject, ByVal index As Byte, ByVal Count As Byte)
+    Public Sub RemoveItem(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal Count As Byte)
         If CInt(ProgressItem(index)) - CInt(Count) < 0 Then Count = ProgressItem(index)
         ProgressItem(index) -= Count
         IsCompleted()
-        objChar.TalkUpdateQuest(Slot)
+        objCharacter.TalkUpdateQuest(Slot)
     End Sub
 
 #Region "IDisposable Support"

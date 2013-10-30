@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ Public Module WS_Combat
         packet.Dispose()
     End Sub
 
-    Public Function GetWeaponDmg(ByRef c As CharacterObject, ByVal AttackType As WeaponAttackType, ByVal MaxDmg As Boolean) As Single
+    Public Function GetWeaponDmg(ByRef objCharacter As CharacterObject, ByVal AttackType As WeaponAttackType, ByVal MaxDmg As Boolean) As Single
         Dim WepSlot As Byte
         Select Case AttackType
             Case WeaponAttackType.BASE_ATTACK
@@ -97,26 +97,26 @@ Public Module WS_Combat
                 Return 0
         End Select
 
-        If c.Items.ContainsKey(WepSlot) = False OrElse c.Items(WepSlot).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON OrElse c.Items(WepSlot).IsBroken Then Return 0.0F
+        If objCharacter.Items.ContainsKey(WepSlot) = False OrElse objCharacter.Items(WepSlot).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON OrElse objCharacter.Items(WepSlot).IsBroken Then Return 0.0F
 
         Dim Dmg As Single = 0
         For i As Byte = 0 To 4
             If MaxDmg Then
-                Dmg += c.Items(WepSlot).ItemInfo.Damage(i).Maximum
+                Dmg += objCharacter.Items(WepSlot).ItemInfo.Damage(i).Maximum
             Else
-                Dmg += c.Items(WepSlot).ItemInfo.Damage(i).Minimum
+                Dmg += objCharacter.Items(WepSlot).ItemInfo.Damage(i).Minimum
             End If
         Next
         Return Dmg
     End Function
 
-    Public Function GetAPMultiplier(ByRef c As BaseUnit, ByVal AttackType As WeaponAttackType, ByVal Normalized As Boolean) As Single
-        If Normalized = False OrElse (Not TypeOf c Is CharacterObject) Then
+    Public Function GetAPMultiplier(ByRef objCharacter As BaseUnit, ByVal AttackType As WeaponAttackType, ByVal Normalized As Boolean) As Single
+        If Normalized = False OrElse (Not TypeOf objCharacter Is CharacterObject) Then
             Select Case AttackType
                 Case WeaponAttackType.BASE_ATTACK
-                    Return (CType(c, CreatureObject).CreatureInfo.BaseAttackTime / 1000.0F)
+                    Return (CType(objCharacter, CreatureObject).CreatureInfo.BaseAttackTime / 1000.0F)
                 Case WeaponAttackType.RANGED_ATTACK
-                    Return (CType(c, CreatureObject).CreatureInfo.BaseRangedAttackTime / 1000.0F)
+                    Return (CType(objCharacter, CreatureObject).CreatureInfo.BaseRangedAttackTime / 1000.0F)
                 Case Else
                     Return 0.0F
             End Select
@@ -125,14 +125,14 @@ Public Module WS_Combat
         Dim Weapon As ItemObject = Nothing
         Select Case AttackType
             Case WeaponAttackType.BASE_ATTACK
-                If CType(c, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) = False Then Return 2.4F 'Fist attack
-                Weapon = CType(c, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND)
+                If CType(objCharacter, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) = False Then Return 2.4F 'Fist attack
+                Weapon = CType(objCharacter, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND)
             Case WeaponAttackType.OFF_ATTACK
-                If CType(c, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) = False Then Return 2.4F 'Fist attack
-                Weapon = CType(c, CharacterObject).Items(EQUIPMENT_SLOT_OFFHAND)
+                If CType(objCharacter, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) = False Then Return 2.4F 'Fist attack
+                Weapon = CType(objCharacter, CharacterObject).Items(EQUIPMENT_SLOT_OFFHAND)
             Case WeaponAttackType.RANGED_ATTACK
-                If CType(c, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_RANGED) = False Then Return 0.0F
-                Weapon = CType(c, CharacterObject).Items(EQUIPMENT_SLOT_RANGED)
+                If CType(objCharacter, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_RANGED) = False Then Return 0.0F
+                Weapon = CType(objCharacter, CharacterObject).Items(EQUIPMENT_SLOT_RANGED)
             Case Else
                 Return 0.0F
         End Select
@@ -153,32 +153,32 @@ Public Module WS_Combat
         End Select
     End Function
 
-    Public Sub CalculateMinMaxDamage(ByRef c As CharacterObject, ByVal AttackType As WeaponAttackType)
-        Dim AttSpeed As Single = GetAPMultiplier(c, AttackType, True)
+    Public Sub CalculateMinMaxDamage(ByRef objCharacter As CharacterObject, ByVal AttackType As WeaponAttackType)
+        Dim AttSpeed As Single = GetAPMultiplier(objCharacter, AttackType, True)
         Dim BaseValue As Single = 0
         Dim BasePercent As Single = 1
         Select Case AttackType
             Case WeaponAttackType.BASE_ATTACK, WeaponAttackType.OFF_ATTACK
-                BaseValue = c.AttackPower + c.AttackPowerMods
+                BaseValue = objCharacter.AttackPower + objCharacter.AttackPowerMods
             Case WeaponAttackType.RANGED_ATTACK
-                BaseValue = c.AttackPowerRanged + c.AttackPowerModsRanged
+                BaseValue = objCharacter.AttackPowerRanged + objCharacter.AttackPowerModsRanged
             Case Else
                 Exit Sub
         End Select
         BaseValue = BaseValue / 14.0F * AttSpeed
 
-        Dim WepMin As Single = GetWeaponDmg(c, AttackType, False)
-        Dim WepMax As Single = GetWeaponDmg(c, AttackType, True)
+        Dim WepMin As Single = GetWeaponDmg(objCharacter, AttackType, False)
+        Dim WepMax As Single = GetWeaponDmg(objCharacter, AttackType, True)
 
         If AttackType = WeaponAttackType.RANGED_ATTACK Then 'Add ammo dps
-            If c.AmmoID > 0 Then
-                Dim AmmoDmg As Single = (c.AmmoDPS / (1 / c.AmmoMod)) * AttSpeed
+            If objCharacter.AmmoID > 0 Then
+                Dim AmmoDmg As Single = (objCharacter.AmmoDPS / (1 / objCharacter.AmmoMod)) * AttSpeed
                 WepMin += AmmoDmg
                 WepMax += AmmoDmg
             End If
-        ElseIf c.ShapeshiftForm = ShapeshiftForm.FORM_BEAR OrElse c.ShapeshiftForm = ShapeshiftForm.FORM_DIREBEAR OrElse c.ShapeshiftForm = ShapeshiftForm.FORM_CAT Then
-            WepMin += c.Level * 0.85 * AttSpeed
-            WepMax += c.Level * 0.85 * AttSpeed
+        ElseIf objCharacter.ShapeshiftForm = ShapeshiftForm.FORM_BEAR OrElse objCharacter.ShapeshiftForm = ShapeshiftForm.FORM_DIREBEAR OrElse objCharacter.ShapeshiftForm = ShapeshiftForm.FORM_CAT Then
+            WepMin += objCharacter.Level * 0.85 * AttSpeed
+            WepMax += objCharacter.Level * 0.85 * AttSpeed
         End If
 
         Dim MinDamage As Single = (BaseValue + WepMin) * BasePercent
@@ -186,20 +186,20 @@ Public Module WS_Combat
 
         Select Case AttackType
             Case WeaponAttackType.BASE_ATTACK
-                c.Damage.Minimum = MinDamage
-                c.Damage.Maximum = MaxDamage
-                c.SetUpdateFlag(EUnitFields.UNIT_FIELD_MINDAMAGE, c.Damage.Minimum)
-                c.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXDAMAGE, c.Damage.Maximum)
+                objCharacter.Damage.Minimum = MinDamage
+                objCharacter.Damage.Maximum = MaxDamage
+                objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_MINDAMAGE, objCharacter.Damage.Minimum)
+                objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXDAMAGE, objCharacter.Damage.Maximum)
             Case WeaponAttackType.OFF_ATTACK
-                c.OffHandDamage.Minimum = MinDamage
-                c.OffHandDamage.Maximum = MaxDamage
-                c.SetUpdateFlag(EUnitFields.UNIT_FIELD_MINOFFHANDDAMAGE, c.OffHandDamage.Minimum)
-                c.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXOFFHANDDAMAGE, c.OffHandDamage.Maximum)
+                objCharacter.OffHandDamage.Minimum = MinDamage
+                objCharacter.OffHandDamage.Maximum = MaxDamage
+                objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_MINOFFHANDDAMAGE, objCharacter.OffHandDamage.Minimum)
+                objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXOFFHANDDAMAGE, objCharacter.OffHandDamage.Maximum)
             Case WeaponAttackType.RANGED_ATTACK
-                c.RangedDamage.Minimum = MinDamage
-                c.RangedDamage.Maximum = MaxDamage
-                c.SetUpdateFlag(EUnitFields.UNIT_FIELD_MINRANGEDDAMAGE, c.RangedDamage.Minimum)
-                c.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXRANGEDDAMAGE, c.RangedDamage.Maximum)
+                objCharacter.RangedDamage.Minimum = MinDamage
+                objCharacter.RangedDamage.Maximum = MaxDamage
+                objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_MINRANGEDDAMAGE, objCharacter.RangedDamage.Minimum)
+                objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXRANGEDDAMAGE, objCharacter.RangedDamage.Maximum)
         End Select
     End Sub
 
@@ -396,64 +396,64 @@ Public Module WS_Combat
     End Function
 
     'Combat system calculations
-    Public Function GetBasePercentDodge(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
+    Public Function GetBasePercentDodge(ByRef objCharacter As BaseUnit, ByVal skillDiference As Integer) As Single
         'http://www.wowwiki.com/Formulas:Dodge
 
-        If TypeOf c Is CharacterObject Then
+        If TypeOf objCharacter Is CharacterObject Then
             'DONE: Stunned target cannot dodge
-            If (c.cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then Return 0
+            If (objCharacter.cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then Return 0
 
-            If CType(c, CharacterObject).combatDodge > 0 Then
+            If CType(objCharacter, CharacterObject).combatDodge > 0 Then
                 Dim combatDodgeAgilityBonus As Integer = 0
-                Select Case CType(c, CharacterObject).Classe
+                Select Case CType(objCharacter, CharacterObject).Classe
                     Case Classes.CLASS_HUNTER
-                        combatDodgeAgilityBonus = Fix(CType(c, CharacterObject).Agility.Base / 26.5F)
+                        combatDodgeAgilityBonus = Fix(CType(objCharacter, CharacterObject).Agility.Base / 26.5F)
                     Case Classes.CLASS_ROGUE
-                        combatDodgeAgilityBonus = Fix(CType(c, CharacterObject).Agility.Base / 14.5F)
+                        combatDodgeAgilityBonus = Fix(CType(objCharacter, CharacterObject).Agility.Base / 14.5F)
                     Case Classes.CLASS_MAGE, Classes.CLASS_PALADIN, Classes.CLASS_WARLOCK
-                        combatDodgeAgilityBonus = Fix(CType(c, CharacterObject).Agility.Base / 19.5F)
+                        combatDodgeAgilityBonus = Fix(CType(objCharacter, CharacterObject).Agility.Base / 19.5F)
                     Case Else
-                        combatDodgeAgilityBonus = Fix(CType(c, CharacterObject).Agility.Base / 20)
+                        combatDodgeAgilityBonus = Fix(CType(objCharacter, CharacterObject).Agility.Base / 20)
                 End Select
 
-                Return CType(c, CharacterObject).combatDodge + combatDodgeAgilityBonus - skillDiference * 0.04F
+                Return CType(objCharacter, CharacterObject).combatDodge + combatDodgeAgilityBonus - skillDiference * 0.04F
             End If
         End If
 
         Return 0
     End Function
 
-    Public Function GetBasePercentParry(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
+    Public Function GetBasePercentParry(ByRef objCharacter As BaseUnit, ByVal skillDiference As Integer) As Single
         'http://www.wowwiki.com/Formulas:Parry
 
-        If TypeOf c Is CharacterObject Then
+        If TypeOf objCharacter Is CharacterObject Then
             'NOTE: Must have learned "Parry" spell, ID=3127
-            If CType(c, CharacterObject).combatParry > 0 Then
-                Return CType(c, CharacterObject).combatParry - skillDiference * 0.04F
+            If CType(objCharacter, CharacterObject).combatParry > 0 Then
+                Return CType(objCharacter, CharacterObject).combatParry - skillDiference * 0.04F
             End If
         End If
 
         Return 0
     End Function
 
-    Public Function GetBasePercentBlock(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
+    Public Function GetBasePercentBlock(ByRef objCharacter As BaseUnit, ByVal skillDiference As Integer) As Single
         'http://www.wowwiki.com/Formulas:Block
 
-        If TypeOf c Is CharacterObject Then
+        If TypeOf objCharacter Is CharacterObject Then
             'NOTE: Must have learned "Block" spell, ID=107
-            If CType(c, CharacterObject).combatBlock > 0 Then
-                Return CType(c, CharacterObject).combatBlock - skillDiference * 0.04F
+            If CType(objCharacter, CharacterObject).combatBlock > 0 Then
+                Return CType(objCharacter, CharacterObject).combatBlock - skillDiference * 0.04F
             End If
         End If
 
         Return 0
     End Function
 
-    Public Function GetBasePercentMiss(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
+    Public Function GetBasePercentMiss(ByRef objCharacter As BaseUnit, ByVal skillDiference As Integer) As Single
         'http://www.wowwiki.com/Miss
 
-        If TypeOf c Is CharacterObject Then
-            With CType(c, CharacterObject)
+        If TypeOf objCharacter Is CharacterObject Then
+            With CType(objCharacter, CharacterObject)
                 If .attackSheathState = SHEATHE_SLOT.SHEATHE_WEAPON Then
 
                     'NOTE: Character is with selected hand weapons
@@ -484,33 +484,33 @@ Public Module WS_Combat
         Return 5 - skillDiference * 0.04F
     End Function
 
-    Public Function GetBasePercentCrit(ByRef c As BaseUnit, ByVal skillDiference As Integer) As Single
+    Public Function GetBasePercentCrit(ByRef objCharacter As BaseUnit, ByVal skillDiference As Integer) As Single
         '5% base critical chance
 
-        If TypeOf c Is CharacterObject Then
+        If TypeOf objCharacter Is CharacterObject Then
             Dim baseCrit As Single = 0
-            Select Case CType(c, CharacterObject).Classe
+            Select Case CType(objCharacter, CharacterObject).Classe
                 Case Classes.CLASS_ROGUE
-                    baseCrit = 0.0F + CType(c, CharacterObject).Agility.Base / 29
+                    baseCrit = 0.0F + CType(objCharacter, CharacterObject).Agility.Base / 29
                 Case Classes.CLASS_DRUID
-                    baseCrit = 0.92F + CType(c, CharacterObject).Agility.Base / 20
+                    baseCrit = 0.92F + CType(objCharacter, CharacterObject).Agility.Base / 20
                 Case Classes.CLASS_HUNTER
-                    baseCrit = 0.0F + CType(c, CharacterObject).Agility.Base / 33
+                    baseCrit = 0.0F + CType(objCharacter, CharacterObject).Agility.Base / 33
                 Case Classes.CLASS_MAGE
-                    baseCrit = 3.2F + CType(c, CharacterObject).Agility.Base / 19.44
+                    baseCrit = 3.2F + CType(objCharacter, CharacterObject).Agility.Base / 19.44
                 Case Classes.CLASS_PALADIN
-                    baseCrit = 0.7F + CType(c, CharacterObject).Agility.Base / 19.77
+                    baseCrit = 0.7F + CType(objCharacter, CharacterObject).Agility.Base / 19.77
                 Case Classes.CLASS_PRIEST
-                    baseCrit = 3.0F + CType(c, CharacterObject).Agility.Base / 20
+                    baseCrit = 3.0F + CType(objCharacter, CharacterObject).Agility.Base / 20
                 Case Classes.CLASS_SHAMAN
-                    baseCrit = 1.7F + CType(c, CharacterObject).Agility.Base / 19.7
+                    baseCrit = 1.7F + CType(objCharacter, CharacterObject).Agility.Base / 19.7
                 Case Classes.CLASS_WARLOCK
-                    baseCrit = 2.0F + CType(c, CharacterObject).Agility.Base / 20
+                    baseCrit = 2.0F + CType(objCharacter, CharacterObject).Agility.Base / 20
                 Case Classes.CLASS_WARRIOR
-                    baseCrit = 0.0F + CType(c, CharacterObject).Agility.Base / 20
+                    baseCrit = 0.0F + CType(objCharacter, CharacterObject).Agility.Base / 20
             End Select
 
-            Return baseCrit + CType(c, CharacterObject).combatCrit + skillDiference * 0.2F
+            Return baseCrit + CType(objCharacter, CharacterObject).combatCrit + skillDiference * 0.2F
         Else
             Return 5 + skillDiference * 0.2F
         End If
@@ -573,10 +573,10 @@ Public Module WS_Combat
     End Function
 
     'Helper functions
-    Public Function GetSkillWeapon(ByRef c As BaseUnit, ByVal DualWield As Boolean) As Integer
-        If TypeOf c Is CharacterObject Then
+    Public Function GetSkillWeapon(ByRef objCharacter As BaseUnit, ByVal DualWield As Boolean) As Integer
+        If TypeOf objCharacter Is CharacterObject Then
             Dim tmpSkill As Integer
-            With CType(c, CharacterObject)
+            With CType(objCharacter, CharacterObject)
 
                 Select Case .attackSheathState
                     Case SHEATHE_SLOT.SHEATHE_NONE
@@ -594,7 +594,7 @@ Public Module WS_Combat
                 End Select
 
                 If tmpSkill = 0 Then
-                    Return CInt(c.Level) * 5
+                    Return CInt(objCharacter.Level) * 5
                 Else
                     .UpdateSkill(tmpSkill, 0.01F)
                     Return .Skills(tmpSkill).CurrentWithBonus
@@ -603,37 +603,37 @@ Public Module WS_Combat
             End With
         End If
 
-        Return CInt(c.Level) * 5
+        Return CInt(objCharacter.Level) * 5
     End Function
 
-    Public Function GetSkillDefence(ByRef c As BaseUnit) As Integer
-        If TypeOf c Is CharacterObject Then
-            CType(c, CharacterObject).UpdateSkill(SKILL_IDs.SKILL_DEFENSE, 0.01)
-            Return CType(CType(c, CharacterObject).Skills(CType(SKILL_IDs.SKILL_DEFENSE, Integer)), TSkill).CurrentWithBonus
+    Public Function GetSkillDefence(ByRef objCharacter As BaseUnit) As Integer
+        If TypeOf objCharacter Is CharacterObject Then
+            CType(objCharacter, CharacterObject).UpdateSkill(SKILL_IDs.SKILL_DEFENSE, 0.01)
+            Return CType(CType(objCharacter, CharacterObject).Skills(CType(SKILL_IDs.SKILL_DEFENSE, Integer)), TSkill).CurrentWithBonus
         End If
-        Return CInt(c.Level) * 5
+        Return CInt(objCharacter.Level) * 5
     End Function
 
-    Public Function GetAttackTime(ByRef c As CharacterObject, ByRef combatDualWield As Boolean) As Integer
-        Select Case c.attackSheathState
+    Public Function GetAttackTime(ByRef objCharacter As CharacterObject, ByRef combatDualWield As Boolean) As Integer
+        Select Case objCharacter.attackSheathState
             Case SHEATHE_SLOT.SHEATHE_NONE
-                Return c.AttackTime(0)
+                Return objCharacter.AttackTime(0)
             Case SHEATHE_SLOT.SHEATHE_WEAPON
                 If combatDualWield Then
-                    If c.AttackTime(1) = 0 Then Return c.AttackTime(0)
-                    Return c.AttackTime(1)
+                    If objCharacter.AttackTime(1) = 0 Then Return objCharacter.AttackTime(0)
+                    Return objCharacter.AttackTime(1)
                 Else
-                    If c.AttackTime(0) = 0 Then Return c.AttackTime(1)
-                    Return c.AttackTime(0)
+                    If objCharacter.AttackTime(0) = 0 Then Return objCharacter.AttackTime(1)
+                    Return objCharacter.AttackTime(0)
                 End If
             Case SHEATHE_SLOT.SHEATHE_RANGED
-                Return c.AttackTime(2)
+                Return objCharacter.AttackTime(2)
         End Select
     End Function
 
-    Public Sub GetDamage(ByRef c As BaseUnit, ByVal DualWield As Boolean, ByRef result As DamageInfo)
-        If TypeOf c Is CharacterObject Then
-            With CType(c, CharacterObject)
+    Public Sub GetDamage(ByRef objCharacter As BaseUnit, ByVal DualWield As Boolean, ByRef result As DamageInfo)
+        If TypeOf objCharacter Is CharacterObject Then
+            With CType(objCharacter, CharacterObject)
                 Select Case .attackSheathState
                     Case SHEATHE_SLOT.SHEATHE_NONE
                         result.HitInfo = AttackHitState.HITINFO_NORMALSWING
@@ -657,7 +657,7 @@ Public Module WS_Combat
             End With
 
         Else
-            With CType(c, CreatureObject)
+            With CType(objCharacter, CreatureObject)
                 result.DamageType = DamageTypes.DMG_PHYSICAL
                 result.Damage = Rnd.Next(CType(CREATURESDatabase(.ID), CreatureInfo).Damage.Minimum, CType(CREATURESDatabase(.ID), CreatureInfo).Damage.Maximum + 1) ' + (CType(CREATURESDatabase(.ID), CreatureInfo).AtackPower / 14 * (CType(CREATURESDatabase(.ID), CreatureInfo).BaseAttackTime / 1000))
             End With
@@ -1144,18 +1144,18 @@ Public Module WS_Combat
 
     End Class
 
-    Public Sub SetPlayerInCombat(ByRef c As CharacterObject)
-        c.cUnitFlags = c.cUnitFlags Or UnitFlags.UNIT_FLAG_IN_COMBAT
-        c.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, c.cUnitFlags)
-        c.SendCharacterUpdate(False)
+    Public Sub SetPlayerInCombat(ByRef objCharacter As CharacterObject)
+        objCharacter.cUnitFlags = objCharacter.cUnitFlags Or UnitFlags.UNIT_FLAG_IN_COMBAT
+        objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, objCharacter.cUnitFlags)
+        objCharacter.SendCharacterUpdate(False)
 
-        c.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT)
+        objCharacter.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT)
     End Sub
 
-    Public Sub SetPlayerOutOfCombat(ByRef c As CharacterObject)
-        c.cUnitFlags = c.cUnitFlags And (Not UnitFlags.UNIT_FLAG_IN_COMBAT)
-        c.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, c.cUnitFlags)
-        c.SendCharacterUpdate(False)
+    Public Sub SetPlayerOutOfCombat(ByRef objCharacter As CharacterObject)
+        objCharacter.cUnitFlags = objCharacter.cUnitFlags And (Not UnitFlags.UNIT_FLAG_IN_COMBAT)
+        objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, objCharacter.cUnitFlags)
+        objCharacter.SendCharacterUpdate(False)
     End Sub
 
 #End Region
@@ -1264,56 +1264,56 @@ Public Module WS_Combat
         SetSheath(Client.Character, sheathed)
     End Sub
 
-    Public Sub SetSheath(ByRef c As CharacterObject, ByVal State As SHEATHE_SLOT)
-        c.attackSheathState = State
-        c.combatCanDualWield = False
+    Public Sub SetSheath(ByRef objCharacter As CharacterObject, ByVal State As SHEATHE_SLOT)
+        objCharacter.attackSheathState = State
+        objCharacter.combatCanDualWield = False
 
-        c.cBytes2 = ((c.cBytes2 And (Not &HFF)) Or State)
-        c.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_2, c.cBytes2)
+        objCharacter.cBytes2 = ((objCharacter.cBytes2 And (Not &HFF)) Or State)
+        objCharacter.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_2, objCharacter.cBytes2)
 
         Select Case State
             Case SHEATHE_SLOT.SHEATHE_NONE
-                SetVirtualItemInfo(c, 0, Nothing)
-                SetVirtualItemInfo(c, 1, Nothing)
-                SetVirtualItemInfo(c, 2, Nothing)
+                SetVirtualItemInfo(objCharacter, 0, Nothing)
+                SetVirtualItemInfo(objCharacter, 1, Nothing)
+                SetVirtualItemInfo(objCharacter, 2, Nothing)
 
             Case SHEATHE_SLOT.SHEATHE_WEAPON
-                If c.Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) AndAlso (Not c.Items(EQUIPMENT_SLOT_MAINHAND).IsBroken) Then
-                    SetVirtualItemInfo(c, 0, c.Items(EQUIPMENT_SLOT_MAINHAND))
+                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) AndAlso (Not objCharacter.Items(EQUIPMENT_SLOT_MAINHAND).IsBroken) Then
+                    SetVirtualItemInfo(objCharacter, 0, objCharacter.Items(EQUIPMENT_SLOT_MAINHAND))
                 Else
-                    SetVirtualItemInfo(c, 0, Nothing)
-                    c.attackSheathState = SHEATHE_SLOT.SHEATHE_NONE
+                    SetVirtualItemInfo(objCharacter, 0, Nothing)
+                    objCharacter.attackSheathState = SHEATHE_SLOT.SHEATHE_NONE
                 End If
-                If c.Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) AndAlso (Not c.Items(EQUIPMENT_SLOT_OFFHAND).IsBroken) Then
-                    SetVirtualItemInfo(c, 1, c.Items(EQUIPMENT_SLOT_OFFHAND))
+                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) AndAlso (Not objCharacter.Items(EQUIPMENT_SLOT_OFFHAND).IsBroken) Then
+                    SetVirtualItemInfo(objCharacter, 1, objCharacter.Items(EQUIPMENT_SLOT_OFFHAND))
                     'DONE: Must be applyed SPELL_EFFECT_DUAL_WIELD and weapon in offhand
-                    Log.WriteLine(LogType.DEBUG, "spellCanDualWeild = {0}", c.spellCanDualWeild)
-                    Log.WriteLine(LogType.DEBUG, "objectClass = {0}", CType(c.Items(EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass)
-                    If c.spellCanDualWeild AndAlso CType(c.Items(EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then c.combatCanDualWield = True
+                    Log.WriteLine(LogType.DEBUG, "spellCanDualWeild = {0}", objCharacter.spellCanDualWeild)
+                    Log.WriteLine(LogType.DEBUG, "objectClass = {0}", CType(objCharacter.Items(EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass)
+                    If objCharacter.spellCanDualWeild AndAlso CType(objCharacter.Items(EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then objCharacter.combatCanDualWield = True
                 Else
-                    SetVirtualItemInfo(c, 1, Nothing)
+                    SetVirtualItemInfo(objCharacter, 1, Nothing)
                 End If
-                SetVirtualItemInfo(c, 2, Nothing)
+                SetVirtualItemInfo(objCharacter, 2, Nothing)
 
             Case SHEATHE_SLOT.SHEATHE_RANGED
-                SetVirtualItemInfo(c, 0, Nothing)
-                SetVirtualItemInfo(c, 1, Nothing)
-                If c.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) AndAlso (Not c.Items(EQUIPMENT_SLOT_RANGED).IsBroken) Then
-                    SetVirtualItemInfo(c, 2, c.Items(EQUIPMENT_SLOT_RANGED))
+                SetVirtualItemInfo(objCharacter, 0, Nothing)
+                SetVirtualItemInfo(objCharacter, 1, Nothing)
+                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) AndAlso (Not objCharacter.Items(EQUIPMENT_SLOT_RANGED).IsBroken) Then
+                    SetVirtualItemInfo(objCharacter, 2, objCharacter.Items(EQUIPMENT_SLOT_RANGED))
                 Else
-                    SetVirtualItemInfo(c, 2, Nothing)
-                    c.attackSheathState = SHEATHE_SLOT.SHEATHE_NONE
+                    SetVirtualItemInfo(objCharacter, 2, Nothing)
+                    objCharacter.attackSheathState = SHEATHE_SLOT.SHEATHE_NONE
                 End If
 
             Case Else
                 Log.WriteLine(LogType.WARNING, "Unhandled sheathe state [{0}]", State)
-                SetVirtualItemInfo(c, 0, Nothing)
-                SetVirtualItemInfo(c, 1, Nothing)
-                SetVirtualItemInfo(c, 2, Nothing)
+                SetVirtualItemInfo(objCharacter, 0, Nothing)
+                SetVirtualItemInfo(objCharacter, 1, Nothing)
+                SetVirtualItemInfo(objCharacter, 2, Nothing)
         End Select
 
 
-        c.SendCharacterUpdate(True)
+        objCharacter.SendCharacterUpdate(True)
     End Sub
 
     Public Sub SetVirtualItemInfo(ByVal objChar As CharacterObject, ByVal Slot As Byte, ByRef Item As ItemObject)

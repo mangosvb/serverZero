@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -98,16 +98,16 @@ Public Module WC_Battlegrounds
 
             'DONE: Adding members from queue
             If (_membersTeam1.Count + _invitedTeam1.Count) < _maxPlayersPerTeam AndAlso _queueTeam1.Count > 0 Then
-                Dim c As CharacterObject = _queueTeam1.Item(0)
+                Dim objCharacter As CharacterObject = _queueTeam1.Item(0)
                 _queueTeam1.RemoveAt(0)
-                _invitedTeam1.Add(c)
-                SendBattlegroundStatus(c, 0)
+                _invitedTeam1.Add(objCharacter)
+                SendBattlegroundStatus(objCharacter, 0)
             End If
             If (_membersTeam2.Count + _invitedTeam2.Count) < _maxPlayersPerTeam AndAlso _queueTeam2.Count > 0 Then
-                Dim c As CharacterObject = _queueTeam2.Item(0)
+                Dim objCharacter As CharacterObject = _queueTeam2.Item(0)
                 _queueTeam2.RemoveAt(0)
-                _invitedTeam2.Add(c)
-                SendBattlegroundStatus(c, 0)
+                _invitedTeam2.Add(objCharacter)
+                SendBattlegroundStatus(objCharacter, 0)
             End If
 
             'TODO: Checking minimum players
@@ -118,14 +118,14 @@ Public Module WC_Battlegrounds
         ''' </summary>
         ''' <param name="objChar">The obj char.</param>
         ''' <returns></returns>
-        Public Sub Enqueue(ByVal objChar As CharacterObject)
-            If GetCharacterSide(objChar.Race) Then
-                _queueTeam1.Add(objChar)
+        Public Sub Enqueue(ByVal objCharacter As CharacterObject)
+            If GetCharacterSide(objCharacter.Race) Then
+                _queueTeam1.Add(objCharacter)
             Else
-                _queueTeam2.Add(objChar)
+                _queueTeam2.Add(objCharacter)
             End If
 
-            SendBattlegroundStatus(objChar, 0)
+            SendBattlegroundStatus(objCharacter, 0)
         End Sub
 
         ''' <summary>
@@ -133,29 +133,29 @@ Public Module WC_Battlegrounds
         ''' </summary>
         ''' <param name="objChar">The obj char.</param>
         ''' <returns></returns>
-        Public Sub Join(ByVal objChar As CharacterObject)
-            If _invitedTeam1.Contains(objChar) OrElse _invitedTeam2.Contains(objChar) Then
-                If _invitedTeam1.Contains(objChar) Then
-                    _membersTeam1.Add(objChar)
-                    _invitedTeam1.Remove(objChar)
+        Public Sub Join(ByVal objCharacter As CharacterObject)
+            If _invitedTeam1.Contains(objCharacter) OrElse _invitedTeam2.Contains(objCharacter) Then
+                If _invitedTeam1.Contains(objCharacter) Then
+                    _membersTeam1.Add(objCharacter)
+                    _invitedTeam1.Remove(objCharacter)
                 End If
-                If _invitedTeam2.Contains(objChar) Then
-                    _membersTeam2.Add(objChar)
-                    _invitedTeam2.Remove(objChar)
+                If _invitedTeam2.Contains(objCharacter) Then
+                    _membersTeam2.Add(objCharacter)
+                    _invitedTeam2.Remove(objCharacter)
                 End If
 
-                SendBattlegroundStatus(objChar, 0)
+                SendBattlegroundStatus(objCharacter, 0)
 
                 With WorldSafeLocs(Battlegrounds(MapType).AllianceStartLoc)
                     'TODO: WTF? characters_locations table? when?
                     'Dim q As New DataTable
-                    'CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters_locations WHERE char_guid = {0};", c.GUID), q)
+                    'CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters_locations WHERE char_guid = {0};", objCharacter.GUID), q)
                     'If q.Rows.Count = 0 Then
                     '    'Save only first BG location
                     '    CharacterDatabase.Update(String.Format("INSERT INTO characters_locations(char_guid, char_positionX, char_positionY, char_positionZ, char_zone_id, char_map_id, char_orientation) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});", _
-                    '                                                    c.GUID, Trim(Str(c.PositionX)), Trim(Str(c.PositionY)), Trim(Str(c.PositionZ)), c.Zone, c.Map, 0))
+                    '                                                    objCharacter.GUID, Trim(Str(objCharacter.PositionX)), Trim(Str(objCharacter.PositionY)), Trim(Str(objCharacter.PositionZ)), objCharacter.Zone, objCharacter.Map, 0))
                     'End If
-                    objChar.Transfer(.x, .y, .z, Battlegrounds(MapType).AllianceStartO, .map)
+                    objCharacter.Transfer(.x, .y, .z, Battlegrounds(MapType).AllianceStartO, .map)
                 End With
             End If
         End Sub
@@ -165,26 +165,26 @@ Public Module WC_Battlegrounds
         ''' </summary>
         ''' <param name="objChar">The obj char.</param>
         ''' <returns></returns>
-        Public Sub Leave(ByVal objChar As CharacterObject)
-            If _queueTeam1.Contains(objChar) OrElse _queueTeam2.Contains(objChar) Then
-                _queueTeam1.Remove(objChar)
-                _queueTeam2.Remove(objChar)
+        Public Sub Leave(ByVal objCharacter As CharacterObject)
+            If _queueTeam1.Contains(objCharacter) OrElse _queueTeam2.Contains(objCharacter) Then
+                _queueTeam1.Remove(objCharacter)
+                _queueTeam2.Remove(objCharacter)
 
-            ElseIf _membersTeam1.Contains(objChar) OrElse _membersTeam2.Contains(objChar) Then
-                _membersTeam1.Remove(objChar)
-                _membersTeam2.Remove(objChar)
+            ElseIf _membersTeam1.Contains(objCharacter) OrElse _membersTeam2.Contains(objCharacter) Then
+                _membersTeam1.Remove(objCharacter)
+                _membersTeam2.Remove(objCharacter)
 
                 'TODO: Still.. characters_locations, doesn't exist?
                 'Dim q As New DataTable
-                'CharacterDatabase.Query(String.Format("SELECT * FROM characters_locations WHERE char_guid = {0};", c.GUID), q)
+                'CharacterDatabase.Query(String.Format("SELECT * FROM characters_locations WHERE char_guid = {0};", objCharacter.GUID), q)
                 'If q.Rows.Count = 0 Then
-                '    SendMessageSystem(c.Client, "You don't have location saved!")
+                '    SendMessageSystem(objCharacter.Client, "You don't have location saved!")
                 'Else
-                '    c.Transfer(q.Rows(0).Item("char_positionX"), q.Rows(0).Item("char_positionY"), q.Rows(0).Item("char_positionZ"), q.Rows(0).Item("char_orientation"), q.Rows(0).Item("char_map_id"))
+                '    objCharacter.Transfer(q.Rows(0).Item("char_positionX"), q.Rows(0).Item("char_positionY"), q.Rows(0).Item("char_positionZ"), q.Rows(0).Item("char_orientation"), q.Rows(0).Item("char_map_id"))
                 'End If
             End If
 
-            SendBattlegroundStatus(objChar, 0)
+            SendBattlegroundStatus(objCharacter, 0)
         End Sub
 
         Private Enum BattlegroundStatus
@@ -200,13 +200,13 @@ Public Module WC_Battlegrounds
         ''' <param name="objChar">The obj char.</param>
         ''' <param name="slot">The slot.</param>
         ''' <returns></returns>
-        Private Sub SendBattlegroundStatus(ByVal objChar As CharacterObject, ByVal slot As Byte)
+        Private Sub SendBattlegroundStatus(ByVal objCharacter As CharacterObject, ByVal slot As Byte)
             Dim status As BattlegroundStatus = BattlegroundStatus.STATUS_CLEAR
-            If _queueTeam1.Contains(objChar) Or _queueTeam2.Contains(objChar) Then
+            If _queueTeam1.Contains(objCharacter) Or _queueTeam2.Contains(objCharacter) Then
                 status = BattlegroundStatus.STATUS_WAIT_QUEUE
-            ElseIf _invitedTeam1.Contains(objChar) Or _invitedTeam2.Contains(objChar) Then
+            ElseIf _invitedTeam1.Contains(objCharacter) Or _invitedTeam2.Contains(objCharacter) Then
                 status = BattlegroundStatus.STATUS_WAIT_JOIN
-            ElseIf _membersTeam1.Contains(objChar) Or _membersTeam2.Contains(objChar) Then
+            ElseIf _membersTeam1.Contains(objCharacter) Or _membersTeam2.Contains(objCharacter) Then
                 status = BattlegroundStatus.STATUS_IN_PROGRESS
             Else
                 'Do nothing
@@ -242,7 +242,7 @@ Public Module WC_Battlegrounds
                     Case BattlegroundStatus.STATUS_CLEAR
                         'Do nothing
                 End Select
-                objChar.Client.Send(p)
+                objCharacter.Client.Send(p)
             Finally
                 p.Dispose()
             End Try
@@ -326,9 +326,9 @@ Public Module WC_Battlegrounds
     ''' <summary>
     ''' Sends the battleground group joined.
     ''' </summary>
-    ''' <param name="objChar">The c.</param>
+    ''' <param name="objChar">The objCharacter.</param>
     ''' <returns></returns>
-    Public Sub SendBattlegroundGroupJoined(ByVal objChar As CharacterObject)
+    Public Sub SendBattlegroundGroupJoined(ByVal objCharacter As CharacterObject)
         '0 - Your group has joined a battleground queue, but you are not eligible
         '1 - Your group has joined the queue for AV
         '2 - Your group has joined the queue for WS
@@ -341,7 +341,7 @@ Public Module WC_Battlegrounds
         Dim p As New PacketClass(OPCODES.SMSG_GROUP_JOINED_BATTLEGROUND)
         Try
             p.AddUInt32(&HFFFFFFFEUI)
-            objChar.Client.Send(p)
+            objCharacter.Client.Send(p)
         Finally
             p.Dispose()
         End Try

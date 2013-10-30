@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -41,10 +41,10 @@ Public Module WS_Handlers_Taxi
     ''' <summary>
     ''' Sends the taxi status.
     ''' </summary>
-    ''' <param name="c">The c.</param>
-    ''' <param name="cGuid">The c GUID.</param>
+    ''' <param name="c">The objCharacter.</param>
+    ''' <param name="cGuid">The objCharacter GUID.</param>
     ''' <returns></returns>
-    Private Sub SendTaxiStatus(ByRef c As CharacterObject, ByVal cGuid As ULong)
+    Private Sub SendTaxiStatus(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
         If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Exit Sub
 
         Dim currentTaxi As Integer = GetNearestTaxi(WORLD_CREATUREs(cGUID).positionX, WORLD_CREATUREs(cGUID).positionY, WORLD_CREATUREs(cGUID).MapID)
@@ -52,8 +52,8 @@ Public Module WS_Handlers_Taxi
         Dim SMSG_TAXINODE_STATUS As New PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
         Try
             SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
-            If c.TaxiZones.Item(currentTaxi) = False Then SMSG_TAXINODE_STATUS.AddInt8(0) Else SMSG_TAXINODE_STATUS.AddInt8(1)
-            c.Client.Send(SMSG_TAXINODE_STATUS)
+            If objCharacter.TaxiZones.Item(currentTaxi) = False Then SMSG_TAXINODE_STATUS.AddInt8(0) Else SMSG_TAXINODE_STATUS.AddInt8(1)
+            objCharacter.Client.Send(SMSG_TAXINODE_STATUS)
         Finally
             SMSG_TAXINODE_STATUS.Dispose()
         End Try
@@ -62,20 +62,20 @@ Public Module WS_Handlers_Taxi
     ''' <summary>
     ''' Sends the taxi menu.
     ''' </summary>
-    ''' <param name="c">The c.</param>
-    ''' <param name="cGuid">The c GUID.</param>
+    ''' <param name="c">The objCharacter.</param>
+    ''' <param name="cGuid">The objCharacter GUID.</param>
     ''' <returns></returns>
-    Public Sub SendTaxiMenu(ByRef c As CharacterObject, ByVal cGuid As ULong)
+    Public Sub SendTaxiMenu(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
         If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Exit Sub
 
         Dim currentTaxi As Integer = GetNearestTaxi(WORLD_CREATUREs(cGUID).positionX, WORLD_CREATUREs(cGUID).positionY, WORLD_CREATUREs(cGUID).MapID)
 
-        If c.TaxiZones.Item(currentTaxi) = False Then
-            c.TaxiZones.Set(currentTaxi, True)
+        If objCharacter.TaxiZones.Item(currentTaxi) = False Then
+            objCharacter.TaxiZones.Set(currentTaxi, True)
 
             Dim SMSG_NEW_TAXI_PATH As New PacketClass(OPCODES.SMSG_NEW_TAXI_PATH)
             Try
-                c.Client.Send(SMSG_NEW_TAXI_PATH)
+                objCharacter.Client.Send(SMSG_NEW_TAXI_PATH)
             Finally
                 SMSG_NEW_TAXI_PATH.Dispose()
             End Try
@@ -84,7 +84,7 @@ Public Module WS_Handlers_Taxi
             Try
                 SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
                 SMSG_TAXINODE_STATUS.AddInt8(1)
-                c.Client.Send(SMSG_TAXINODE_STATUS)
+                objCharacter.Client.Send(SMSG_TAXINODE_STATUS)
             Finally
                 SMSG_TAXINODE_STATUS.Dispose()
             End Try
@@ -96,8 +96,8 @@ Public Module WS_Handlers_Taxi
             SMSG_SHOWTAXINODES.AddInt32(1)
             SMSG_SHOWTAXINODES.AddUInt64(cGUID)
             SMSG_SHOWTAXINODES.AddInt32(currentTaxi)
-            SMSG_SHOWTAXINODES.AddBitArray(c.TaxiZones, 8 * 4)
-            c.Client.Send(SMSG_SHOWTAXINODES)
+            SMSG_SHOWTAXINODES.AddBitArray(objCharacter.TaxiZones, 8 * 4)
+            objCharacter.Client.Send(SMSG_SHOWTAXINODES)
         Finally
             SMSG_SHOWTAXINODES.Dispose()
         End Try

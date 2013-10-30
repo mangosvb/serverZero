@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -589,19 +589,19 @@ Public Module WS_Warden
             Return m_PKT
         End Function
 
-        Public Sub ReadKeys(ByRef c As CharacterObject)
+        Public Sub ReadKeys(ByRef objCharacter As CharacterObject)
             Dim KeyData(&H204 - 1) As Byte
             Marshal.Copy(New IntPtr(m_ModMem + 32), KeyData, 0, KeyData.Length)
-            Buffer.BlockCopy(KeyData, 0, c.WardenData.KeyOut, 0, 258)
-            Buffer.BlockCopy(KeyData, 258, c.WardenData.KeyIn, 0, 258)
+            Buffer.BlockCopy(KeyData, 0, objCharacter.WardenData.KeyOut, 0, 258)
+            Buffer.BlockCopy(KeyData, 258, objCharacter.WardenData.KeyIn, 0, 258)
         End Sub
 
-        Public Sub ReadXorByte(ByRef c As CharacterObject)
+        Public Sub ReadXorByte(ByRef objCharacter As CharacterObject)
             Dim ClientSeed(16 - 1) As Byte
             Marshal.Copy(New IntPtr(m_ModMem + 4), ClientSeed, 0, ClientSeed.Length)
 
-            c.WardenData.ClientSeed = ClientSeed
-            c.WardenData.xorByte = ClientSeed(0)
+            objCharacter.WardenData.ClientSeed = ClientSeed
+            objCharacter.WardenData.xorByte = ClientSeed(0)
         End Sub
 #End Region
 
@@ -643,8 +643,8 @@ Public Module WS_Warden
         Private UsedStrings As New List(Of String)
         Private Checks As New List(Of CheatCheck)
 
-        Public Sub New(ByRef c As CharacterObject)
-            Character = c
+        Public Sub New(ByRef objCharacter As CharacterObject)
+            Character = objCharacter
         End Sub
 
         Public Sub Do_MEM_CHECK(ByVal ScanModule As String, ByVal Offset As Integer, ByVal Length As Byte)
@@ -893,15 +893,15 @@ Public Module WS_Warden
     End Sub
 #End Region
 
-    Public Sub SendWardenPacket(ByRef c As CharacterObject, ByRef Packet As PacketClass)
+    Public Sub SendWardenPacket(ByRef objCharacter As CharacterObject, ByRef Packet As PacketClass)
         'START Warden Encryption
         Dim b(Packet.Data.Length - 4 - 1) As Byte
         Buffer.BlockCopy(Packet.Data, 4, b, 0, b.Length)
-        RC4.Crypt(b, c.WardenData.KeyIn)
+        RC4.Crypt(b, objCharacter.WardenData.KeyIn)
         Buffer.BlockCopy(b, 0, Packet.Data, 4, b.Length)
         'END
 
-        c.Client.Send(Packet)
+        objCharacter.Client.Send(Packet)
     End Sub
 
 End Module

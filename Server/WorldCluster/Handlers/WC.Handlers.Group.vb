@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -70,12 +70,12 @@ Public Module WC_Handlers_Group
         INVITE_IGNORED = 9              'Test is ignoring you.
         INVITE_RESTRICTED = 13
     End Enum
-    Public Sub SendPartyResult(ByVal c As ClientClass, ByVal Name As String, ByVal operation As PartyCommand, ByVal result As PartyCommandResult)
+    Public Sub SendPartyResult(ByVal objCharacter As ClientClass, ByVal Name As String, ByVal operation As PartyCommand, ByVal result As PartyCommandResult)
         Dim response As New PacketClass(OPCODES.SMSG_PARTY_COMMAND_RESULT)
         response.AddInt32(operation)
         response.AddString(Name)
         response.AddInt32(result)
-        c.Send(response)
+        objCharacter.Send(response)
         response.Dispose()
     End Sub
 

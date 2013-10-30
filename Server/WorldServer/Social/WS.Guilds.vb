@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ Public Module WS_Guilds
         PETITIONTURNIN_NEED_MORE_SIGNATURES = 4 'You need more signatures
     End Enum
 
-    Public Sub SendPetitionActivate(ByRef c As CharacterObject, ByVal cGUID As ULong)
+    Public Sub SendPetitionActivate(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
         If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Exit Sub
         Dim Count As Byte = 3
         If WORLD_CREATUREs(cGUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR Then
@@ -75,7 +75,7 @@ Public Module WS_Guilds
             packet.AddInt32(9) 'Required signatures
         End If
 
-        c.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
 
@@ -163,7 +163,7 @@ Public Module WS_Guilds
         End If
     End Sub
 
-    Public Sub SendPetitionSignatures(ByRef c As CharacterObject, ByVal iGUID As ULong)
+    Public Sub SendPetitionSignatures(ByRef objCharacter As CharacterObject, ByVal iGUID As ULong)
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & iGUID - GUID_ITEM & ";", MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Exit Sub
@@ -179,7 +179,7 @@ Public Module WS_Guilds
             response.AddInt32(0)                                                         'Unk
         Next
 
-        c.Client.Send(response)
+        objCharacter.Client.Send(response)
         response.Dispose()
     End Sub
 
@@ -332,10 +332,10 @@ Public Module WS_Guilds
 #Region "WS.Guilds.Handlers"
 
     'Basic Tabard Framework
-    Public Sub SendTabardActivate(ByRef c As CharacterObject, ByVal cGUID As ULong)
+    Public Sub SendTabardActivate(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
         Dim packet As New PacketClass(OPCODES.MSG_TABARDVENDOR_ACTIVATE)
         packet.AddUInt64(cGUID)
-        c.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
 

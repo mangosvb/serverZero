@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -131,10 +131,10 @@ Public Module WS_NPCs
     ''' <summary>
     ''' Sends the trainer list.
     ''' </summary>
-    ''' <param name="objChar">The c.</param>
-    ''' <param name="cGuid">The c GUID.</param>
+    ''' <param name="objChar">The objCharacter.</param>
+    ''' <param name="cGuid">The objCharacter GUID.</param>
     ''' <returns></returns>
-    Private Sub SendTrainerList(ByRef objChar As CharacterObject, ByVal cGuid As ULong)
+    Private Sub SendTrainerList(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
         'DONE: Query the database and sort spells
         'Dim NeedToLearn As Boolean = False
         'Dim noTrainID As Integer = 0
@@ -146,7 +146,7 @@ Public Module WS_NPCs
         Dim spellsList As List(Of DataRow)
         spellsList = New List(Of DataRow)
 
-        If (creatureInfo.Classe = 0 OrElse creatureInfo.Classe = objChar.Classe) AndAlso (creatureInfo.Race = 0 OrElse (creatureInfo.Race = objChar.Race OrElse objChar.GetReputation(creatureInfo.Faction) = ReputationRank.Exalted)) Then
+        If (creatureInfo.Classe = 0 OrElse creatureInfo.Classe = objCharacter.Classe) AndAlso (creatureInfo.Race = 0 OrElse (creatureInfo.Race = objCharacter.Race OrElse objCharacter.GetReputation(creatureInfo.Faction) = ReputationRank.Exalted)) Then
             WorldDatabase.Query(String.Format("SELECT * FROM npc_trainer WHERE entry = {0};", WORLD_CREATUREs(cGuid).ID), spellSqlQuery)
 
             For Each sellRow As DataRow In spellSqlQuery.Rows
@@ -162,7 +162,7 @@ Public Module WS_NPCs
         packet.AddInt32(spellsList.Count)              'Trains Length
 
         'DONE: Discount on reputation
-        Dim discountMod As Single = objChar.GetDiscountMod(WORLD_CREATUREs(cGuid).Faction)
+        Dim discountMod As Single = objCharacter.GetDiscountMod(WORLD_CREATUREs(cGuid).Faction)
 
         Dim spellID As Integer
         For Each sellRow As DataRow In spellsList
@@ -181,19 +181,19 @@ Public Module WS_NPCs
 
             'CanLearn (0):Green (1):Red (2):Gray
             Dim canLearnFlag As Byte = 0
-            If objChar.HaveSpell(spellInfo.ID) Then
+            If objCharacter.HaveSpell(spellInfo.ID) Then
                 'NOTE: Already have that spell
                 canLearnFlag = 2
 
-            ElseIf objChar.Level >= spellLevel Then
+            ElseIf objCharacter.Level >= spellLevel Then
 
-                If reqSpell > 0 AndAlso objChar.HaveSpell(reqSpell) = False Then
+                If reqSpell > 0 AndAlso objCharacter.HaveSpell(reqSpell) = False Then
                     canLearnFlag = 1
                 End If
 
                 If canLearnFlag = 0 AndAlso (CType(sellRow.Item("reqskill"), Integer) <> 0) Then
                     If (CType(sellRow.Item("reqskillvalue"), Integer) <> 0) Then
-                        If objChar.HaveSkill(sellRow.Item("reqskill"), sellRow.Item("reqskillvalue")) = False Then
+                        If objCharacter.HaveSkill(sellRow.Item("reqskill"), sellRow.Item("reqskillvalue")) = False Then
                             canLearnFlag = 1
                         End If
                     End If
@@ -224,7 +224,7 @@ Public Module WS_NPCs
 
         packet.AddString("Hello! Ready for some training?") ' Trainer UI message?
 
-        objChar.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
 
@@ -712,7 +712,7 @@ Public Module WS_NPCs
     ''' <param name="objChar">The obj char.</param>
     ''' <param name="guid">The GUID.</param>
     ''' <returns></returns>
-    Private Sub SendListInventory(ByRef objChar As CharacterObject, ByVal guid As ULong)
+    Private Sub SendListInventory(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
         Try
             Dim packet As New PacketClass(OPCODES.SMSG_LIST_INVENTORY)
             packet.AddUInt64(Guid)
@@ -731,7 +731,7 @@ Public Module WS_NPCs
                     'TODO: Another one of these lines that doesn't do anything, but should
                     Dim tmpItem As New ItemInfo(itemID)
                 End If
-                If (ITEMDatabase(itemID).AvailableClasses = 0 OrElse (ITEMDatabase(itemID).AvailableClasses And objChar.ClassMask)) Then
+                If (ITEMDatabase(itemID).AvailableClasses = 0 OrElse (ITEMDatabase(itemID).AvailableClasses And objCharacter.ClassMask)) Then
                     i += 1
                     packet.AddInt32(-1) 'i-1
                     packet.AddInt32(itemID)
@@ -745,7 +745,7 @@ Public Module WS_NPCs
                     End If
 
                     'DONE: Discount on reputation
-                    Dim discountMod As Single = objChar.GetDiscountMod(WORLD_CREATUREs(Guid).Faction)
+                    Dim discountMod As Single = objCharacter.GetDiscountMod(WORLD_CREATUREs(Guid).Faction)
                     packet.AddInt32(CInt(ITEMDatabase(itemID).BuyPrice * discountMod))
                     packet.AddInt32(-1) 'Durability
                     packet.AddInt32(ITEMDatabase(itemID).BuyCount)
@@ -753,7 +753,7 @@ Public Module WS_NPCs
             Next
 
             If i > 0 Then packet.AddInt8(i, dataPos)
-            objChar.Client.Send(packet)
+            objCharacter.Client.Send(packet)
             packet.Dispose()
         Catch e As Exception
             Log.WriteLine(LogType.DEBUG, "Error while listing inventory.{0}", vbNewLine & e.ToString)
@@ -849,14 +849,14 @@ Public Module WS_NPCs
     ''' <summary>
     ''' Sends the opcode to show the bank.
     ''' </summary>
-    ''' <param name="objChar">The c.</param>
+    ''' <param name="objChar">The objCharacter.</param>
     ''' <param name="guid">The GUID.</param>
     ''' <returns></returns>
-    Private Sub SendShowBank(ByRef objChar As CharacterObject, ByVal guid As ULong)
+    Private Sub SendShowBank(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
         Dim packet As New PacketClass(OPCODES.SMSG_SHOW_BANK)
         Try
             packet.AddUInt64(guid)
-            objChar.Client.Send(packet)
+            objCharacter.Client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -870,14 +870,14 @@ Public Module WS_NPCs
     ''' <param name="objChar">The obj char.</param>
     ''' <param name="guid">The GUID.</param>
     ''' <returns></returns>
-    Private Sub SendBindPointConfirm(ByRef objChar As CharacterObject, ByVal guid As ULong)
-        objChar.SendGossipComplete()
-        objChar.ZoneCheck()
+    Private Sub SendBindPointConfirm(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
+        objCharacter.SendGossipComplete()
+        objCharacter.ZoneCheck()
         Dim packet As New PacketClass(OPCODES.SMSG_BINDER_CONFIRM)
         Try
             packet.AddUInt64(guid)
-            packet.AddInt32(objChar.ZoneID)
-            objChar.Client.Send(packet)
+            packet.AddInt32(objCharacter.ZoneID)
+            objCharacter.Client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -912,12 +912,12 @@ Public Module WS_NPCs
     ''' <param name="objChar">The obj char.</param>
     ''' <param name="cost">The cost.</param>
     ''' <returns></returns>
-    Private Sub SendTalentWipeConfirm(ByRef objChar As CharacterObject, ByVal cost As Integer)
+    Private Sub SendTalentWipeConfirm(ByRef objCharacter As CharacterObject, ByVal cost As Integer)
         Dim packet As New PacketClass(OPCODES.MSG_TALENT_WIPE_CONFIRM)
         Try
-            packet.AddUInt64(objChar.GUID)
+            packet.AddUInt64(objCharacter.GUID)
             packet.AddInt32(cost)
-            objChar.Client.Send(packet)
+            objCharacter.Client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -1001,28 +1001,28 @@ Public Module WS_NPCs
         ''' Called when [gossip hello].
         ''' </summary>
         ''' <param name="objChar">The obj char.</param>
-        ''' <param name="cGuid">The c GUID.</param>
+        ''' <param name="cGuid">The objCharacter GUID.</param>
         ''' <returns></returns>
-        Public Overrides Sub OnGossipHello(ByRef objChar As CharacterObject, ByVal cGuid As ULong)
+        Public Overrides Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
             Dim textID As Integer = 0
 
             Dim npcMenu As New GossipMenu
 
-            objChar.TalkMenuTypes.Clear()
+            objCharacter.TalkMenuTypes.Clear()
 
             Dim creatureInfo As CreatureInfo = WORLD_CREATUREs(cGuid).CreatureInfo
             Try
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) OrElse (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) Then
                     npcMenu.AddMenu("Let me browse your goods.", MenuIcon.MENUICON_VENDOR)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_VENDOR)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_VENDOR)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TAXIVENDOR) Then
                     npcMenu.AddMenu("I want to continue my journey.", MenuIcon.MENUICON_TAXI)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TAXIVENDOR)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TAXIVENDOR)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TRAINER) Then
                     If creatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_CLASS Then
-                        If creatureInfo.Classe <> objChar.Classe Then
+                        If creatureInfo.Classe <> objCharacter.Classe Then
                             Select Case creatureInfo.Classe
                                 Case Classes.CLASS_DRUID
                                     textID = 4913
@@ -1044,18 +1044,18 @@ Public Module WS_NPCs
                                     textID = 4985
                             End Select
 
-                            objChar.SendGossip(cGuid, textID)
+                            objCharacter.SendGossip(cGuid, textID)
                             Exit Sub
                         Else
-                            npcMenu.AddMenu("I am interested in " & GetClassName(objChar.Classe) & " training.", MenuIcon.MENUICON_TRAINER)
-                            objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
-                            If objChar.Level >= 10 Then
+                            npcMenu.AddMenu("I am interested in " & GetClassName(objCharacter.Classe) & " training.", MenuIcon.MENUICON_TRAINER)
+                            objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                            If objCharacter.Level >= 10 Then
                                 npcMenu.AddMenu("I want to unlearn all my talents.", MenuIcon.MENUICON_GOSSIP)
-                                objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TALENTWIPE)
+                                objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TALENTWIPE)
                             End If
                         End If
                     ElseIf creatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_MOUNTS Then
-                        If creatureInfo.Race > 0 AndAlso creatureInfo.Race <> objChar.Race AndAlso objChar.GetReputation(creatureInfo.Faction) < ReputationRank.Exalted Then
+                        If creatureInfo.Race > 0 AndAlso creatureInfo.Race <> objCharacter.Race AndAlso objCharacter.GetReputation(creatureInfo.Faction) < ReputationRank.Exalted Then
                             Select Case creatureInfo.Race
                                 Case Races.RACE_DWARF
                                     textID = 5865
@@ -1075,71 +1075,71 @@ Public Module WS_NPCs
                                     textID = 624
                             End Select
 
-                            objChar.SendGossip(cGuid, textID)
+                            objCharacter.SendGossip(cGuid, textID)
                             Exit Sub
                         Else
                             npcMenu.AddMenu("I am interested in mount training.", MenuIcon.MENUICON_TRAINER)
-                            objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                            objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
                         End If
                     ElseIf creatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_TRADESKILLS Then
-                        If creatureInfo.TrainerSpell > 0 AndAlso objChar.HaveSpell(creatureInfo.TrainerSpell) = False Then
+                        If creatureInfo.TrainerSpell > 0 AndAlso objCharacter.HaveSpell(creatureInfo.TrainerSpell) = False Then
                             textID = 11031
-                            objChar.SendGossip(cGuid, textID)
+                            objCharacter.SendGossip(cGuid, textID)
                             Exit Sub
                         Else
                             npcMenu.AddMenu("I am interested in professions training.", MenuIcon.MENUICON_TRAINER)
-                            objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                            objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
                         End If
                     ElseIf creatureInfo.TrainerType = TrainerTypes.TRAINER_TYPE_PETS Then
-                        If objChar.Classe <> Classes.CLASS_HUNTER Then
+                        If objCharacter.Classe <> Classes.CLASS_HUNTER Then
                             textID = 3620
-                            objChar.SendGossip(cGuid, textID)
+                            objCharacter.SendGossip(cGuid, textID)
                             Exit Sub
                         Else
                             npcMenu.AddMenu("I am interested in pet training.", MenuIcon.MENUICON_TRAINER)
-                            objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
+                            objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
                         End If
                     End If
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_SPIRITHEALER) Then
                     textID = 580
                     npcMenu.AddMenu("Return me to life", MenuIcon.MENUICON_GOSSIP)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_SPIRITHEALER)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_SPIRITHEALER)
                 End If
                 'UNIT_NPC_FLAG_GUARD
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_INNKEEPER) Then
                     npcMenu.AddMenu("Make this inn your home.", MenuIcon.MENUICON_BINDER)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_INNKEEPER)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_INNKEEPER)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BANKER) Then
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BANKER)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BANKER)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_PETITIONER) Then
                     npcMenu.AddMenu("I am interested in guilds.", MenuIcon.MENUICON_PETITION)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_ARENACHARTER)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_ARENACHARTER)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TABARDVENDOR) Then
                     npcMenu.AddMenu("I want to purchase a tabard.", MenuIcon.MENUICON_TABARD)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TABARDVENDOR)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TABARDVENDOR)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BATTLEFIELDPERSON) Then
                     npcMenu.AddMenu("My blood hungers for battle.", MenuIcon.MENUICON_BATTLEMASTER)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BATTLEFIELD)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_BATTLEFIELD)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_AUCTIONEER) Then
                     npcMenu.AddMenu("Wanna auction something?", MenuIcon.MENUICON_AUCTIONER)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_AUCTIONEER)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_AUCTIONEER)
                 End If
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_STABLE) Then
                     npcMenu.AddMenu("Let me check my pet.", MenuIcon.MENUICON_VENDOR)
-                    objChar.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_STABLEPET)
+                    objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_STABLEPET)
                 End If
 
                 If textID = 0 Then textID = WORLD_CREATUREs(cGuid).NPCTextID
 
                 If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_QUESTGIVER) = NPCFlags.UNIT_NPC_FLAG_QUESTGIVER Then
 
-                    Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(objChar, cGuid)
+                    Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(objCharacter, cGuid)
                     If qMenu.IDs.Count = 0 AndAlso npcMenu.Menus.Count = 0 Then Exit Sub
 
                     If npcMenu.Menus.Count = 0 Then ' If we only have quests to list
@@ -1152,25 +1152,25 @@ Public Module WS_NPCs
                             Dim status As QuestgiverStatusFlag = CType(qMenu.Icons(0), QuestgiverStatusFlag)
                             If status = QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE Then
                                 For i As Integer = 0 To QUEST_SLOTS
-                                    If objChar.TalkQuests(i) IsNot Nothing AndAlso objChar.TalkQuests(i).ID = questID Then
+                                    If objCharacter.TalkQuests(i) IsNot Nothing AndAlso objCharacter.TalkQuests(i).ID = questID Then
                                         'Load quest data
-                                        objChar.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                                        ALLQUESTS.SendQuestRequireItems(objChar.Client, objChar.TalkCurrentQuest, cGuid, objChar.TalkQuests(i))
+                                        objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                                        ALLQUESTS.SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, cGuid, objCharacter.TalkQuests(i))
                                         Exit For
                                     End If
                                 Next
                             Else
-                                objChar.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                                ALLQUESTS.SendQuestDetails(objChar.Client, objChar.TalkCurrentQuest, cGuid, True)
+                                objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                                ALLQUESTS.SendQuestDetails(objCharacter.Client, objCharacter.TalkCurrentQuest, cGuid, True)
                             End If
                         Else ' There were more than one quest to list
-                            ALLQUESTS.SendQuestMenu(objChar, cGuid, "I have some tasks for you, $N.", qMenu)
+                            ALLQUESTS.SendQuestMenu(objCharacter, cGuid, "I have some tasks for you, $N.", qMenu)
                         End If
                     Else ' We have to list both gossip options and quests
-                        objChar.SendGossip(cGuid, textID, npcMenu, qMenu)
+                        objCharacter.SendGossip(cGuid, textID, npcMenu, qMenu)
                     End If
                 Else
-                    objChar.SendGossip(cGuid, textID, npcMenu)
+                    objCharacter.SendGossip(cGuid, textID, npcMenu)
                 End If
 
             Catch ex As Exception
@@ -1181,49 +1181,49 @@ Public Module WS_NPCs
         ''' <summary>
         ''' Called when [gossip select].
         ''' </summary>
-        ''' <param name="objChar">The objChar.</param>
-        ''' <param name="cGUID">The c GUID.</param>
+        ''' <param name="objChar">The objCharacter.</param>
+        ''' <param name="cGUID">The objCharacter GUID.</param>
         ''' <param name="selected">The selected.</param>
         ''' <returns></returns>
-        Public Overrides Sub OnGossipSelect(ByRef objChar As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
-            Select Case CType(objChar.TalkMenuTypes(selected), Gossip_Option)
+        Public Overrides Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
+            Select Case CType(objCharacter.TalkMenuTypes(selected), Gossip_Option)
                 Case Gossip_Option.GOSSIP_OPTION_SPIRITHEALER
-                    If objChar.DEAD = True Then
+                    If objCharacter.DEAD = True Then
                         Dim response As New PacketClass(OPCODES.SMSG_SPIRIT_HEALER_CONFIRM)
                         Try
                             response.AddUInt64(cGUID)
-                            objChar.Client.Send(response)
+                            objCharacter.Client.Send(response)
                         Finally
                             response.Dispose()
                         End Try
 
-                        objChar.SendGossipComplete()
+                        objCharacter.SendGossipComplete()
                     End If
 
                 Case Gossip_Option.GOSSIP_OPTION_VENDOR, Gossip_Option.GOSSIP_OPTION_ARMORER, Gossip_Option.GOSSIP_OPTION_STABLEPET
-                    SendListInventory(objChar, cGUID)
+                    SendListInventory(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_TRAINER
-                    SendTrainerList(objChar, cGUID)
+                    SendTrainerList(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_TAXIVENDOR
-                    SendTaxiMenu(objChar, cGUID)
+                    SendTaxiMenu(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_INNKEEPER
-                    SendBindPointConfirm(objChar, cGUID)
+                    SendBindPointConfirm(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_BANKER
-                    SendShowBank(objChar, cGUID)
+                    SendShowBank(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_ARENACHARTER
-                    SendPetitionActivate(objChar, cGUID)
+                    SendPetitionActivate(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_TABARDVENDOR
-                    SendTabardActivate(objChar, cGUID)
+                    SendTabardActivate(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_AUCTIONEER
-                    SendShowAuction(objChar, cGUID)
+                    SendShowAuction(objCharacter, cGUID)
                 Case Gossip_Option.GOSSIP_OPTION_TALENTWIPE
-                    SendTalentWipeConfirm(objChar, 0)
+                    SendTalentWipeConfirm(objCharacter, 0)
                 Case Gossip_Option.GOSSIP_OPTION_GOSSIP
-                    objChar.SendTalking(WORLD_CREATUREs(cGUID).NPCTextID)
+                    objCharacter.SendTalking(WORLD_CREATUREs(cGUID).NPCTextID)
                 Case Gossip_Option.GOSSIP_OPTION_QUESTGIVER
                     'NOTE: This may stay unused
-                    Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(objChar, cGUID)
-                    ALLQUESTS.SendQuestMenu(objChar, cGUID, "I have some tasks for you, $N.", qMenu)
+                    Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(objCharacter, cGUID)
+                    ALLQUESTS.SendQuestMenu(objCharacter, cGUID, "I have some tasks for you, $N.", qMenu)
             End Select
             ''c.SendGossipComplete()
         End Sub

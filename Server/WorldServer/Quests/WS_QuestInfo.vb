@@ -327,36 +327,36 @@ Public Class WS_QuestInfo
     ''' <summary>
     ''' Determines whether this instance Character can see the quest.
     ''' </summary>
-    ''' <param name="objChar">The objChar.</param>
+    ''' <param name="objChar">The objCharacter.</param>
     ''' <returns></returns>
-    Public Function CanSeeQuest(ByRef objChar As CharacterObject) As Boolean
+    Public Function CanSeeQuest(ByRef objCharacter As CharacterObject) As Boolean
         Try
-            If (CInt(objChar.Level) + 6) < Level_Start Then Return False
-            If RequiredClass > 0 AndAlso RequiredClass <> objChar.Classe Then Return False
+            If (CInt(objCharacter.Level) + 6) < Level_Start Then Return False
+            If RequiredClass > 0 AndAlso RequiredClass <> objCharacter.Classe Then Return False
             If ZoneOrSort < 0 Then
                 Dim tmpQuest As New WS_Quests
                 Dim reqSort As Byte = tmpQuest.ClassByQuestSort(-ZoneOrSort)
-                If reqSort > 0 AndAlso reqSort <> objChar.Classe Then Return False
+                If reqSort > 0 AndAlso reqSort <> objCharacter.Classe Then Return False
             End If
-            If RequiredRace <> 0 AndAlso (RequiredRace And objChar.RaceMask) = 0 Then Return False
+            If RequiredRace <> 0 AndAlso (RequiredRace And objCharacter.RaceMask) = 0 Then Return False
             If RequiredTradeSkill > 0 Then
-                If objChar.Skills.ContainsKey(RequiredTradeSkill) = False Then Return False
-                If objChar.Skills(RequiredTradeSkill).Current < RequiredTradeSkillValue Then Return False
+                If objCharacter.Skills.ContainsKey(RequiredTradeSkill) = False Then Return False
+                If objCharacter.Skills(RequiredTradeSkill).Current < RequiredTradeSkillValue Then Return False
             End If
-            If RequiredMinReputation_Faction > 0 AndAlso objChar.GetReputationValue(RequiredMinReputation_Faction) < RequiredMinReputation Then Return False
-            If RequiredMaxReputation_Faction > 0 AndAlso objChar.GetReputationValue(RequiredMaxReputation_Faction) >= RequiredMaxReputation Then Return False
+            If RequiredMinReputation_Faction > 0 AndAlso objCharacter.GetReputationValue(RequiredMinReputation_Faction) < RequiredMinReputation Then Return False
+            If RequiredMaxReputation_Faction > 0 AndAlso objCharacter.GetReputationValue(RequiredMaxReputation_Faction) >= RequiredMaxReputation Then Return False
             Dim mysqlQuery As New DataTable
             If PreQuests.Count > 0 Then
                 'Check if we have done the prequest
                 For Each QuestID As Integer In PreQuests
                     If QuestID > 0 Then 'If we haven't done this prequest we can't do this quest
-                        If objChar.QuestsCompleted.Contains(QuestID) = False Then Return False
+                        If objCharacter.QuestsCompleted.Contains(QuestID) = False Then Return False
                     ElseIf QuestID < 0 Then 'If we have done this prequest we can't do this quest
-                        If objChar.QuestsCompleted.Contains(QuestID) Then Return False
+                        If objCharacter.QuestsCompleted.Contains(QuestID) Then Return False
                     End If
                 Next
             End If
-            If objChar.QuestsCompleted.Contains(ID) Then Return False 'We have already completed this quest
+            If objCharacter.QuestsCompleted.Contains(ID) Then Return False 'We have already completed this quest
             Return True
         Catch ex As Exception
             Stop
@@ -368,8 +368,8 @@ Public Class WS_QuestInfo
     ''' </summary>
     ''' <param name="objChar">The Character.</param>
     ''' <returns>Boolean</returns>
-    Public Function SatisfyQuestLevel(ByRef objChar As CharacterObject) As Boolean
-        If objChar.Level < Level_Start Then Return False
+    Public Function SatisfyQuestLevel(ByRef objCharacter As CharacterObject) As Boolean
+        If objCharacter.Level < Level_Start Then Return False
         Return True
     End Function
 

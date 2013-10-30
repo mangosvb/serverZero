@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -305,8 +305,8 @@ Public Module VMAP_Module
                     Exit Sub
                 Case 2
                     'Two element array; median is the smaller
-                    Dim c As Integer = comparator.Compare(src(0), src(1))
-                    Select Case c
+                    Dim objCharacter As Integer = comparator.Compare(src(0), src(1))
+                    Select Case objCharacter
                         Case -1
                             'first was bigger
                             eqMedian.Add(src(1))
@@ -675,9 +675,9 @@ Public Module VMAP_Module
                 Dim childBounds(1) As AABox
                 myBounds.Split(splitAxis, splitLocation, childBounds(0), childBounds(1))
 
-                For c As Integer = 0 To 1
-                    If child(c) IsNot Nothing Then
-                        child(c).AssignSplitBounds(childBounds(c))
+                For objCharacter As Integer = 0 To 1
+                    If child(objCharacter) IsNot Nothing Then
+                        child(objCharacter).AssignSplitBounds(childBounds(objCharacter))
                     End If
                 Next
             End Sub
@@ -788,13 +788,13 @@ Public Module VMAP_Module
 
             'Get all handles and delete the old tree structure
             Dim oldRoot As Node = root
-            For c As Integer = 0 To 1
-                If root.child(c) IsNot Nothing Then
-                    root.child(c).GetValues(root.valueArray)
+            For objCharacter As Integer = 0 To 1
+                If root.child(objCharacter) IsNot Nothing Then
+                    root.child(objCharacter).GetValues(root.valueArray)
 
                     'Delete the child; this will delete all structure below it
-                    root.child(c).Dispose()
-                    root.child(c) = Nothing
+                    root.child(objCharacter).Dispose()
+                    root.child(objCharacter) = Nothing
                 End If
             Next
 

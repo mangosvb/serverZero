@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -603,20 +603,20 @@ Public Module WS_Loot
             End If
         End Sub
         Public Sub Broadcast(ByRef packet As PacketClass)
-            For Each c As CharacterObject In Rolls
-                c.Client.SendMultiplyPackets(packet)
+            For Each objCharacter As CharacterObject In Rolls
+                objCharacter.Client.SendMultiplyPackets(packet)
             Next
         End Sub
         Public Sub EndRoll(ByVal state As Object)
-            For Each c As CharacterObject In Rolls
-                If Not Looters.ContainsKey(c) Then
-                    Looters(c) = 0
+            For Each objCharacter As CharacterObject In Rolls
+                If Not Looters.ContainsKey(objCharacter) Then
+                    Looters(objCharacter) = 0
 
                     'DONE: Send roll info
                     Dim response As New PacketClass(OPCODES.SMSG_LOOT_ROLL)
                     response.AddUInt64(LootObject.GUID)
                     response.AddInt32(LootSlot)
-                    response.AddUInt64(c.GUID)
+                    response.AddUInt64(objCharacter.GUID)
                     response.AddInt32(Item.ItemID)
                     response.AddInt32(0)
                     response.AddInt32(0)
@@ -894,8 +894,8 @@ Public Module WS_Loot
         startRoll.AddInt32(0)
         startRoll.AddInt32(60000)
 
-        For Each c As CharacterObject In rollCharacters
-            c.Client.SendMultiplyPackets(startRoll)
+        For Each objCharacter As CharacterObject In rollCharacters
+            objCharacter.Client.SendMultiplyPackets(startRoll)
         Next
         startRoll.Dispose()
 

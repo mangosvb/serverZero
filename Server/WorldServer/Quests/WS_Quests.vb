@@ -118,7 +118,7 @@ Public Class WS_Quests
     ''' <param name="objChar">The Character.</param>
     ''' <param name="GUID">The unique identifier.</param>
     ''' <returns></returns>
-    Public Function GetQuestMenu(ByRef objChar As CharacterObject, ByVal guid As ULong) As QuestMenu
+    Public Function GetQuestMenu(ByRef objCharacter As CharacterObject, ByVal guid As ULong) As QuestMenu
         Dim questMenu As New QuestMenu
         Dim creatureEntry As Integer = WORLD_CREATUREs(guid).ID
 
@@ -126,10 +126,10 @@ Public Class WS_Quests
         Dim alreadyHave As New List(Of Integer)
         If CreatureQuestFinishers.ContainsKey(creatureEntry) Then
             For i As Integer = 0 To QUEST_SLOTS
-                If objChar.TalkQuests(i) IsNot Nothing Then
-                    alreadyHave.Add(objChar.TalkQuests(i).ID)
-                    If CreatureQuestFinishers(creatureEntry).Contains(objChar.TalkQuests(i).ID) Then
-                        questMenu.AddMenu(objChar.TalkQuests(i).Title, objChar.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
+                If objCharacter.TalkQuests(i) IsNot Nothing Then
+                    alreadyHave.Add(objCharacter.TalkQuests(i).ID)
+                    If CreatureQuestFinishers(creatureEntry).Contains(objCharacter.TalkQuests(i).ID) Then
+                        questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
                     End If
                 End If
             Next
@@ -142,8 +142,8 @@ Public Class WS_Quests
                 If Not ALLQUESTS.IsValidQuest(questID) Then
                     Try 'Sometimes Initialising Questinfo triggers an exception
                         Dim tmpQuest As New WS_QuestInfo(questID)
-                        If tmpQuest.CanSeeQuest(objChar) Then
-                            If tmpQuest.SatisfyQuestLevel(objChar) Then
+                        If tmpQuest.CanSeeQuest(objCharacter) Then
+                            If tmpQuest.SatisfyQuestLevel(objCharacter) Then
                                 questMenu.AddMenu(tmpQuest.Title, questID, tmpQuest.Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
                             End If
                         End If
@@ -151,8 +151,8 @@ Public Class WS_Quests
                         Log.WriteLine(LogType.WARNING, "GetQuestMenu returned error for QuestId {0}", questID)
                     End Try
                 Else
-                    If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objChar) Then
-                        If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objChar) Then
+                    If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
+                        If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
                             questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
                         End If
                     End If
@@ -169,7 +169,7 @@ Public Class WS_Quests
     ''' <param name="objChar">The Character.</param>
     ''' <param name="GUID">The unique identifier.</param>
     ''' <returns></returns>
-    Public Function GetQuestMenuGO(ByRef objChar As CharacterObject, ByVal guid As ULong) As QuestMenu
+    Public Function GetQuestMenuGO(ByRef objCharacter As CharacterObject, ByVal guid As ULong) As QuestMenu
         Dim questMenu As New QuestMenu
         Dim gOEntry As Integer = WORLD_GAMEOBJECTs(guid).ID
 
@@ -178,10 +178,10 @@ Public Class WS_Quests
         Dim alreadyHave As New List(Of Integer)
         If GameobjectQuestFinishers.ContainsKey(gOEntry) Then
             For i = 0 To QUEST_SLOTS
-                If objChar.TalkQuests(i) IsNot Nothing Then
-                    alreadyHave.Add(objChar.TalkQuests(i).ID)
-                    If GameobjectQuestFinishers(gOEntry).Contains(objChar.TalkQuests(i).ID) Then
-                        questMenu.AddMenu(objChar.TalkQuests(i).Title, objChar.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
+                If objCharacter.TalkQuests(i) IsNot Nothing Then
+                    alreadyHave.Add(objCharacter.TalkQuests(i).ID)
+                    If GameobjectQuestFinishers(gOEntry).Contains(objCharacter.TalkQuests(i).ID) Then
+                        questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
                     End If
                 End If
             Next
@@ -193,14 +193,14 @@ Public Class WS_Quests
                 If alreadyHave.Contains(questID) Then Continue For
                 If Not ALLQUESTS.IsValidQuest(questID) Then
                     Dim tmpQuest As New WS_QuestInfo(questID)
-                    If tmpQuest.CanSeeQuest(objChar) Then
-                        If tmpQuest.SatisfyQuestLevel(objChar) Then
+                    If tmpQuest.CanSeeQuest(objCharacter) Then
+                        If tmpQuest.SatisfyQuestLevel(objCharacter) Then
                             questMenu.AddMenu(tmpQuest.Title, questID, tmpQuest.Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
                         End If
                     End If
                 Else
-                    If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objChar) Then
-                        If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objChar) Then
+                    If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
+                        If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
                             questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
                         End If
                     End If
@@ -218,9 +218,9 @@ Public Class WS_Quests
     ''' <param name="GUID">The unique identifier.</param>
     ''' <param name="Title">The title.</param>
     ''' <param name="QuestMenu">The quest menu.</param>
-    Public Sub SendQuestMenu(ByRef objChar As CharacterObject, ByVal guid As ULong, Optional ByVal title As String = "Available quests", Optional ByVal questMenu As QuestMenu = Nothing)
+    Public Sub SendQuestMenu(ByRef objCharacter As CharacterObject, ByVal guid As ULong, Optional ByVal title As String = "Available quests", Optional ByVal questMenu As QuestMenu = Nothing)
         If questMenu Is Nothing Then
-            questMenu = GetQuestMenu(objChar, guid)
+            questMenu = GetQuestMenu(objCharacter, guid)
         End If
 
         Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_LIST)
@@ -237,7 +237,7 @@ Public Class WS_Quests
                 packet.AddInt32(questMenu.Levels(i))
                 packet.AddString(questMenu.Names(i))
             Next
-            objChar.Client.Send(packet)
+            objCharacter.Client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -726,9 +726,9 @@ Public Class WS_Quests
     ''' Loads the quests.
     ''' </summary>
     ''' <param name="objChar">The Character.</param>
-    Public Sub LoadQuests(ByRef objChar As CharacterObject)
+    Public Sub LoadQuests(ByRef objCharacter As CharacterObject)
         Dim cQuests As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT quest_id, quest_status FROM characters_quests q WHERE q.char_guid = {0};", objChar.GUID), cQuests)
+        CharacterDatabase.Query(String.Format("SELECT quest_id, quest_status FROM characters_quests q WHERE q.char_guid = {0};", objCharacter.GUID), cQuests)
 
         Dim i As Integer = 0
         For Each cRow As DataRow In cQuests.Rows
@@ -742,16 +742,16 @@ Public Class WS_Quests
 
 
                     'DONE: Initialize quest info
-                    CreateQuest(objChar.TalkQuests(i), tmpQuest)
+                    CreateQuest(objCharacter.TalkQuests(i), tmpQuest)
 
-                    objChar.TalkQuests(i).LoadState(questStatus)
-                    objChar.TalkQuests(i).Slot = i
-                    objChar.TalkQuests(i).UpdateItemCount(objChar)
+                    objCharacter.TalkQuests(i).LoadState(questStatus)
+                    objCharacter.TalkQuests(i).Slot = i
+                    objCharacter.TalkQuests(i).UpdateItemCount(objCharacter)
 
                     i += 1
                 End If
             ElseIf questStatus = -1 Then 'Completed
-                objChar.QuestsCompleted.Add(questID)
+                objCharacter.QuestsCompleted.Add(questID)
             End If
         Next
 
@@ -776,23 +776,23 @@ Public Class WS_Quests
     ''' </summary>
     ''' <param name="objChar">The Character.</param>
     ''' <param name="Creature">The creature.</param>
-    Public Sub OnQuestKill(ByRef objChar As CharacterObject, ByRef creature As CreatureObject)
+    Public Sub OnQuestKill(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject)
         'HANDLERS: Added to DealDamage sub
 
         'DONE: Do not count killed from guards
-        If objChar Is Nothing Then Exit Sub
+        If objCharacter Is Nothing Then Exit Sub
 
         'DONE: Count kills
         For i As Integer = 0 To QUEST_SLOTS
-            If (Not objChar.TalkQuests(i) Is Nothing) AndAlso (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_KILL) AndAlso (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) = 0 Then
-                If TypeOf objChar.TalkQuests(i) Is WS_QuestsBaseScripted Then
-                    CType(objChar.TalkQuests(i), WS_QuestsBaseScripted).OnQuestKill(objChar, creature)
+            If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_KILL) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) = 0 Then
+                If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
+                    CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestKill(objCharacter, creature)
                 Else
-                    With objChar.TalkQuests(i)
+                    With objCharacter.TalkQuests(i)
                         For j As Byte = 0 To 3
                             If .ObjectivesType(j) = QuestObjectiveFlag.QUEST_OBJECTIVE_KILL AndAlso .ObjectivesObject(j) = creature.ID Then
                                 If .Progress(j) < .ObjectivesCount(j) Then
-                                    .AddKill(objChar, j, creature.GUID)
+                                    .AddKill(objCharacter, j, creature.GUID)
                                     Exit Sub
                                 End If
                             End If
@@ -806,8 +806,8 @@ Public Class WS_Quests
         Exit Sub  'For now next is disabled
 
         'DONE: Check all in objChar's party for that quest
-        For Each guid As ULong In objChar.Group.LocalMembers
-            If guid = objChar.GUID Then Continue For
+        For Each guid As ULong In objCharacter.Group.LocalMembers
+            If guid = objCharacter.GUID Then Continue For
 
             With CHARACTERs(guid)
                 For i As Integer = 0 To QUEST_SLOTS
@@ -816,7 +816,7 @@ Public Class WS_Quests
                             For j As Byte = 0 To 3
                                 If .ObjectivesType(j) = QuestObjectiveFlag.QUEST_OBJECTIVE_KILL AndAlso .ObjectivesObject(j) = creature.ID Then
                                     If .Progress(j) < .ObjectivesCount(j) Then
-                                        .AddKill(objChar, j, creature.GUID)
+                                        .AddKill(objCharacter, j, creature.GUID)
                                         Exit Sub
                                     End If
                                 End If
@@ -835,20 +835,20 @@ Public Class WS_Quests
     ''' <param name="objChar">The Character.</param>
     ''' <param name="Creature">The creature.</param>
     ''' <param name="SpellID">The spell identifier.</param>
-    Public Sub OnQuestCastSpell(ByRef objChar As CharacterObject, ByRef creature As CreatureObject, ByVal spellID As Integer)
+    Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject, ByVal spellID As Integer)
         'DONE: Count spell casts
         'DONE: Check if we're casting it on the correct creature
         For i As Integer = 0 To QUEST_SLOTS
-            If (Not objChar.TalkQuests(i) Is Nothing) AndAlso (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) Then
-                If TypeOf objChar.TalkQuests(i) Is WS_QuestsBaseScripted Then
-                    CType(objChar.TalkQuests(i), WS_QuestsBaseScripted).OnQuestCastSpell(objChar, creature, spellID)
+            If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) Then
+                If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
+                    CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestCastSpell(objCharacter, creature, spellID)
                 Else
-                    With objChar.TalkQuests(i)
+                    With objCharacter.TalkQuests(i)
                         For j As Byte = 0 To 3
                             If .ObjectivesType(j) = QuestObjectiveFlag.QUEST_OBJECTIVE_KILL AndAlso .ObjectivesSpell(j) = spellID Then
                                 If .ObjectivesObject(j) = 0 OrElse .ObjectivesObject(j) = creature.ID Then
                                     If .Progress(j) < .ObjectivesCount(j) Then
-                                        .AddCast(objChar, j, creature.GUID)
+                                        .AddCast(objCharacter, j, creature.GUID)
                                         Exit Sub
                                     End If
                                 End If
@@ -866,21 +866,21 @@ Public Class WS_Quests
     ''' <param name="objChar">The Character.</param>
     ''' <param name="GameObject">The game object.</param>
     ''' <param name="SpellID">The spell identifier.</param>
-    Public Sub OnQuestCastSpell(ByRef objChar As CharacterObject, ByRef gameObject As GameObjectObject, ByVal spellID As Integer)
+    Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef gameObject As GameObjectObject, ByVal spellID As Integer)
         'DONE: Count spell casts
         'DONE: Check if we're casting it on the correct gameobject
         For i As Integer = 0 To QUEST_SLOTS
-            If (Not objChar.TalkQuests(i) Is Nothing) AndAlso (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) Then
-                If TypeOf objChar.TalkQuests(i) Is WS_QuestsBaseScripted Then
-                    CType(objChar.TalkQuests(i), WS_QuestsBaseScripted).OnQuestCastSpell(objChar, gameObject, spellID)
+            If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) Then
+                If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
+                    CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestCastSpell(objCharacter, gameObject, spellID)
                 Else
-                    With objChar.TalkQuests(i)
+                    With objCharacter.TalkQuests(i)
                         For j As Byte = 0 To 3
                             If .ObjectivesType(j) = QuestObjectiveFlag.QUEST_OBJECTIVE_KILL AndAlso .ObjectivesSpell(j) = spellID Then
                                 'NOTE: GameObjects are negative here!
                                 If .ObjectivesObject(j) = 0 OrElse .ObjectivesObject(j) = -(gameObject.ID) Then
                                     If .Progress(j) < .ObjectivesCount(j) Then
-                                        .AddCast(objChar, j, gameObject.GUID)
+                                        .AddCast(objCharacter, j, gameObject.GUID)
                                         Exit Sub
                                     End If
                                 End If
@@ -898,23 +898,23 @@ Public Class WS_Quests
     ''' <param name="objChar">The Character.</param>
     ''' <param name="Creature">The creature.</param>
     ''' <param name="EmoteID">The emote identifier.</param>
-    Public Sub OnQuestDoEmote(ByRef objChar As CharacterObject, ByRef creature As CreatureObject, ByVal emoteID As Integer)
+    Public Sub OnQuestDoEmote(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject, ByVal emoteID As Integer)
         Dim i As Integer, j As Byte
 
         'DONE: Count spell casts
         'DONE: Check if we're casting it on the correct gameobject
         For i = 0 To QUEST_SLOTS
-            If (Not objChar.TalkQuests(i) Is Nothing) AndAlso (objChar.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EMOTE) Then
-                If TypeOf objChar.TalkQuests(i) Is WS_QuestsBaseScripted Then
-                    CType(objChar.TalkQuests(i), WS_QuestsBaseScripted).OnQuestEmote(objChar, creature, emoteID)
+            If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EMOTE) Then
+                If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
+                    CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestEmote(objCharacter, creature, emoteID)
                 Else
-                    With objChar.TalkQuests(i)
+                    With objCharacter.TalkQuests(i)
                         For j = 0 To 3
                             If .ObjectivesType(j) = QuestObjectiveFlag.QUEST_OBJECTIVE_EMOTE AndAlso .ObjectivesSpell(j) = emoteID Then
                                 'NOTE: GameObjects are negative here!
                                 If .ObjectivesObject(j) = 0 OrElse .ObjectivesObject(j) = creature.ID Then
                                     If .Progress(j) < .ObjectivesCount(j) Then
-                                        .AddEmote(objChar, j)
+                                        .AddEmote(objCharacter, j)
                                         Exit Sub
                                     End If
                                 End If
@@ -932,14 +932,14 @@ Public Class WS_Quests
     ''' <param name="objChar">The Character.</param>
     ''' <param name="ItemEntry">The item entry.</param>
     ''' <returns></returns>
-    Public Function IsItemNeededForQuest(ByRef objChar As CharacterObject, ByRef itemEntry As Integer) As Boolean
+    Public Function IsItemNeededForQuest(ByRef objCharacter As CharacterObject, ByRef itemEntry As Integer) As Boolean
 
         'DONE: Check if anyone in the group has the quest that requires this item
         'DONE: If the quest isn't a raid quest then you can't loot quest items
         Dim isRaid As Boolean
-        isRaid = objChar.IsInRaid
-        If objChar.IsInGroup Then
-            For Each guid As ULong In objChar.Group.LocalMembers
+        isRaid = objCharacter.IsInRaid
+        If objCharacter.IsInGroup Then
+            For Each guid As ULong In objCharacter.Group.LocalMembers
                 With CHARACTERs(guid)
                     For j As Integer = 0 To QUEST_SLOTS
                         If (Not .TalkQuests(j) Is Nothing) AndAlso (.TalkQuests(j).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) AndAlso isRaid = False Then
@@ -957,8 +957,8 @@ Public Class WS_Quests
 
         Else
             For j As Integer = 0 To QUEST_SLOTS
-                If (Not objChar.TalkQuests(j) Is Nothing) AndAlso (objChar.TalkQuests(j).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
-                    With objChar.TalkQuests(j)
+                If (Not objCharacter.TalkQuests(j) Is Nothing) AndAlso (objCharacter.TalkQuests(j).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
+                    With objCharacter.TalkQuests(j)
                         For k As Byte = 0 To 3
                             If .ObjectivesItem(k) = itemEntry Then
                                 If .ProgressItem(k) < .ObjectivesItemCount(k) Then Return True

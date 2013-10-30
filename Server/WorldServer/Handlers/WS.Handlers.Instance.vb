@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -132,12 +132,12 @@ Public Module WS_Handlers_Instance
         End Try
     End Sub
 
-    Public Sub InstanceMapEnter(ByVal objChar As CharacterObject)
-        If Maps(objChar.MapID).Type = MapTypes.MAP_COMMON Then
-            objChar.instance = 0
+    Public Sub InstanceMapEnter(ByVal objCharacter As CharacterObject)
+        If Maps(objCharacter.MapID).Type = MapTypes.MAP_COMMON Then
+            objCharacter.instance = 0
 
 #If DEBUG Then
-            objChar.SystemMessage(SetColor("You are not in instance.", 0, 0, 255))
+            objCharacter.SystemMessage(SetColor("You are not in instance.", 0, 0, 255))
 #End If
         Else
             'DONE: Instances expire check
@@ -146,28 +146,28 @@ Public Module WS_Handlers_Instance
             Dim q As New DataTable
 
             'DONE: Check if player is already saved to instance
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0} AND map = {1};", objChar.GUID, objChar.MapID), q)
+            CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0} AND map = {1};", objCharacter.GUID, objCharacter.MapID), q)
             If q.Rows.Count > 0 Then
                 'Character is saved to instance
-                objChar.instance = q.Rows(0).Item("instance")
+                objCharacter.instance = q.Rows(0).Item("instance")
 #If DEBUG Then
-                objChar.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objChar.instance, objChar.MapID), 0, 0, 255))
+                objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-                SendInstanceMessage(objChar.Client, objChar.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
+                SendInstanceMessage(objCharacter.Client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
                 Exit Sub
             End If
 
             'DONE: Check if group is already in instance
-            If objChar.IsInGroup Then
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances_group WHERE group_id = {0} AND map = {1};", objChar.Group.ID, objChar.MapID), q)
+            If objCharacter.IsInGroup Then
+                CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances_group WHERE group_id = {0} AND map = {1};", objCharacter.Group.ID, objCharacter.MapID), q)
 
                 If q.Rows.Count > 0 Then
                     'Group is saved to instance
-                    objChar.instance = q.Rows(0).Item("instance")
+                    objCharacter.instance = q.Rows(0).Item("instance")
 #If DEBUG Then
-                    objChar.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objChar.instance, objChar.MapID), 0, 0, 255))
+                    objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-                    SendInstanceMessage(objChar.Client, objChar.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
+                    SendInstanceMessage(objCharacter.Client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
                     Exit Sub
                 End If
             End If
@@ -175,23 +175,23 @@ Public Module WS_Handlers_Instance
 
 
             'DONE Create new instance
-            Dim instanceNewID As Integer = InstanceMapCreate(objChar.MapID)
-            Dim instanceNewResetTime As Integer = GetTimestamp(Now) + Maps(objChar.MapID).ResetTime()
+            Dim instanceNewID As Integer = InstanceMapCreate(objCharacter.MapID)
+            Dim instanceNewResetTime As Integer = GetTimestamp(Now) + Maps(objCharacter.MapID).ResetTime()
 
             'Set instance
-            objChar.instance = instanceNewID
+            objCharacter.instance = instanceNewID
 
-            If objChar.IsInGroup Then
+            If objCharacter.IsInGroup Then
                 'Set group in the same instance
-                CharacterDatabase.Update(String.Format("INSERT INTO characters_instances_group (group_id, map, instance, expire) VALUES ({0}, {1}, {2}, {3});", objChar.Group.ID, objChar.MapID, instanceNewID, instanceNewResetTime))
+                CharacterDatabase.Update(String.Format("INSERT INTO characters_instances_group (group_id, map, instance, expire) VALUES ({0}, {1}, {2}, {3});", objCharacter.Group.ID, objCharacter.MapID, instanceNewID, instanceNewResetTime))
             End If
 
-            InstanceMapSpawn(objChar.MapID, instanceNewID)
+            InstanceMapSpawn(objCharacter.MapID, instanceNewID)
 
 #If DEBUG Then
-            objChar.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objChar.instance, objChar.MapID), 0, 0, 255))
+            objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-            SendInstanceMessage(objChar.Client, objChar.MapID, GetTimestamp(Now) - instanceNewResetTime)
+            SendInstanceMessage(objCharacter.Client, objCharacter.MapID, GetTimestamp(Now) - instanceNewResetTime)
         End If
     End Sub
     Public Sub InstanceUpdate(ByVal Map As UInteger, ByVal Instance As UInteger, ByVal Cleared As UInteger)

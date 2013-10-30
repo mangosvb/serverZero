@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -175,12 +175,12 @@ Public Module WS_Network
         Public Sub ClientConnect(ByVal ID As UInteger, ByVal Client As ClientInfo) Implements IWorld.ClientConnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", ID)
 
-            Dim c As New ClientClass(Client)
+            Dim objCharacter As New ClientClass(Client)
 
             If CLIENTs.ContainsKey(ID) = True Then  'Ooops, the character is already loaded, remove it
                 CLIENTs.Remove(ID)
             End If
-            CLIENTs.Add(ID, c)
+            CLIENTs.Add(ID, objCharacter)
         End Sub
 
         Public Sub ClientDisconnect(ByVal ID As UInteger) Implements IWorld.ClientDisconnect

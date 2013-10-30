@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -1895,18 +1895,18 @@ SkipShapeShift:
             packet.Dispose()
         End Sub
 
-        Public Sub SendSpellCooldown(ByRef c As CharacterObject, Optional ByRef castItem As ItemObject = Nothing)
-            If Not c.Spells.ContainsKey(ID) Then Return 'This is a trigger spell or something, exit
+        Public Sub SendSpellCooldown(ByRef objCharacter As CharacterObject, Optional ByRef castItem As ItemObject = Nothing)
+            If Not objCharacter.Spells.ContainsKey(ID) Then Return 'This is a trigger spell or something, exit
             Dim Recovery As Integer = SpellCooldown
             Dim CatRecovery As Integer = CategoryCooldown
 
             'DONE: Throw spell uses the equipped ranged item's attackspeed
-            If ID = 2764 Then Recovery = c.AttackTime(WeaponAttackType.RANGED_ATTACK)
+            If ID = 2764 Then Recovery = objCharacter.AttackTime(WeaponAttackType.RANGED_ATTACK)
 
             'DONE: Shoot spell uses the equipped wand's attackspeed
             If ID = 5019 Then
-                If c.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) Then
-                    Recovery = c.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.Delay
+                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) Then
+                    Recovery = objCharacter.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.Delay
                 End If
             End If
 
@@ -1923,20 +1923,20 @@ SkipShapeShift:
 
             If CatRecovery = 0 AndAlso Recovery = 0 Then Exit Sub 'There is no cooldown
 
-            c.Spells(ID).Cooldown = GetTimestamp(Now) + (Recovery \ 1000)
-            If castItem IsNot Nothing Then c.Spells(ID).CooldownItem = castItem.ItemEntry
+            objCharacter.Spells(ID).Cooldown = GetTimestamp(Now) + (Recovery \ 1000)
+            If castItem IsNot Nothing Then objCharacter.Spells(ID).CooldownItem = castItem.ItemEntry
 
             'DONE: Save the cooldown, but only if it's really worth saving
             If Recovery > 10000 Then
-                CharacterDatabase.Update(String.Format("UPDATE characters_spells SET cooldown={2}, cooldownitem={3} WHERE guid = {0} AND spellid = {1};", c.GUID, ID, c.Spells(ID).Cooldown, c.Spells(ID).CooldownItem))
+                CharacterDatabase.Update(String.Format("UPDATE characters_spells SET cooldown={2}, cooldownitem={3} WHERE guid = {0} AND spellid = {1};", objCharacter.GUID, ID, objCharacter.Spells(ID).Cooldown, objCharacter.Spells(ID).CooldownItem))
             End If
 
             'DONE: Send the cooldown
             Dim packet As New PacketClass(OPCODES.SMSG_SPELL_COOLDOWN)
-            packet.AddUInt64(c.GUID)
+            packet.AddUInt64(objCharacter.GUID)
 
             If CatRecovery > 0 Then
-                For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In c.Spells
+                For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In objCharacter.Spells
                     If SPELLs(Spell.Key).Category = Category Then
                         packet.AddInt32(Spell.Key)
                         If Spell.Key <> ID OrElse Recovery = 0 Then
@@ -1951,7 +1951,7 @@ SkipShapeShift:
                 packet.AddInt32(Recovery)
             End If
 
-            c.Client.Send(packet)
+            objCharacter.Client.Send(packet)
             packet.Dispose()
 
             'DONE: Send item cooldown
@@ -1959,7 +1959,7 @@ SkipShapeShift:
                 packet = New PacketClass(OPCODES.SMSG_ITEM_COOLDOWN)
                 packet.AddUInt64(castItem.GUID)
                 packet.AddInt32(ID)
-                c.Client.Send(packet)
+                objCharacter.Client.Send(packet)
                 packet.Dispose()
             End If
         End Sub
@@ -2156,13 +2156,13 @@ SkipShapeShift:
             End If
         End Sub
 
-        Public Sub SetTarget_SELF(ByRef c As BaseUnit)
-            unitTarget = c
+        Public Sub SetTarget_SELF(ByRef objCharacter As BaseUnit)
+            unitTarget = objCharacter
             targetMask += SpellCastTargetFlags.TARGET_FLAG_SELF
         End Sub
 
-        Public Sub SetTarget_UNIT(ByRef c As BaseUnit)
-            unitTarget = c
+        Public Sub SetTarget_UNIT(ByRef objCharacter As BaseUnit)
+            unitTarget = objCharacter
             targetMask += SpellCastTargetFlags.TARGET_FLAG_UNIT
         End Sub
 
@@ -4840,25 +4840,25 @@ SkipShapeShift:
         Return SpellFailedReason.SPELL_NO_ERROR
     End Function
 
-    Public Function GetEnemyAtPoint(ByRef c As BaseUnit, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Distance As Single) As List(Of BaseUnit)
+    Public Function GetEnemyAtPoint(ByRef objCharacter As BaseUnit, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        If TypeOf c Is CharacterObject Then
-            For Each pGUID As ULong In CType(c, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(c, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(c, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(c, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
+        If TypeOf objCharacter Is CharacterObject Then
+            For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
+                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(objCharacter, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(objCharacter, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(objCharacter, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
                     If GetDistance(CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
-            For Each cGUID As ULong In CType(c, CharacterObject).creaturesNear.ToArray
-                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(c, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
+            For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
+                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
                     If GetDistance(WORLD_CREATUREs(cGUID), PosX, PosY, PosZ) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
                 End If
             Next
 
-        ElseIf TypeOf c Is CreatureObject Then
-            For Each pGUID As ULong In c.SeenBy.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(c, CreatureObject).Faction) <= TReaction.NEUTRAL Then
+        ElseIf TypeOf objCharacter Is CreatureObject Then
+            For Each pGUID As ULong In objCharacter.SeenBy.ToArray
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) <= TReaction.NEUTRAL Then
                     If GetDistance(CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
@@ -4867,27 +4867,27 @@ SkipShapeShift:
         Return result
     End Function
 
-    Public Function GetEnemyAroundMe(ByRef c As BaseUnit, ByVal Distance As Single, Optional ByRef r As BaseUnit = Nothing) As List(Of BaseUnit)
+    Public Function GetEnemyAroundMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single, Optional ByRef r As BaseUnit = Nothing) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        If r Is Nothing Then r = c
+        If r Is Nothing Then r = objCharacter
         If TypeOf r Is CharacterObject Then
             For Each pGUID As ULong In CType(r, CharacterObject).playersNear.ToArray
                 If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
-                    If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
             For Each cGUID As ULong In CType(r, CharacterObject).creaturesNear.ToArray
                 If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(r, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
-                    If GetDistance(WORLD_CREATUREs(cGUID), c) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
+                    If GetDistance(WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
                 End If
             Next
 
         ElseIf TypeOf r Is CreatureObject Then
             For Each pGUID As ULong In r.SeenBy.ToArray
                 If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(r, CreatureObject).Faction) <= TReaction.NEUTRAL Then
-                    If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
         End If
@@ -4895,26 +4895,26 @@ SkipShapeShift:
         Return result
     End Function
 
-    Public Function GetFriendAroundMe(ByRef c As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
+    Public Function GetFriendAroundMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        If TypeOf c Is CharacterObject Then
-            For Each pGUID As ULong In CType(c, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(c, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
-                    If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
+        If TypeOf objCharacter Is CharacterObject Then
+            For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
+                    If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
-            For Each cGUID As ULong In CType(c, CharacterObject).creaturesNear.ToArray
-                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(c, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
-                    If GetDistance(WORLD_CREATUREs(cGUID), c) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
+            For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
+                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
+                    If GetDistance(WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
                 End If
             Next
 
-        ElseIf TypeOf c Is CreatureObject Then
-            For Each pGUID As ULong In c.SeenBy.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(c, CreatureObject).Faction) > TReaction.NEUTRAL Then
-                    If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
+        ElseIf TypeOf objCharacter Is CreatureObject Then
+            For Each pGUID As ULong In objCharacter.SeenBy.ToArray
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
+                    If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
         End If
@@ -4922,20 +4922,20 @@ SkipShapeShift:
         Return result
     End Function
 
-    Public Function GetFriendPlayersAroundMe(ByRef c As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
+    Public Function GetFriendPlayersAroundMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        If TypeOf c Is CharacterObject Then
-            For Each pGUID As ULong In CType(c, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(c, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
-                    If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
+        If TypeOf objCharacter Is CharacterObject Then
+            For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
+                    If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
-        ElseIf TypeOf c Is CreatureObject Then
-            For Each pGUID As ULong In c.SeenBy.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(c, CreatureObject).Faction) > TReaction.NEUTRAL Then
-                    If GetDistance(CHARACTERs(pGUID), c) < Distance Then result.Add(CHARACTERs(pGUID))
+        ElseIf TypeOf objCharacter Is CreatureObject Then
+            For Each pGUID As ULong In objCharacter.SeenBy.ToArray
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
+                    If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
         End If
@@ -4943,29 +4943,29 @@ SkipShapeShift:
         Return result
     End Function
 
-    Public Function GetPartyMembersAroundMe(ByRef c As CharacterObject, ByVal Distance As Single) As List(Of BaseUnit)
+    Public Function GetPartyMembersAroundMe(ByRef objCharacter As CharacterObject, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        result.Add(c)
-        If Not c.IsInGroup Then Return result
+        result.Add(objCharacter)
+        If Not objCharacter.IsInGroup Then Return result
 
-        For Each GUID As ULong In c.Group.LocalMembers.ToArray
-            If c.playersNear.Contains(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
-                If GetDistance(c, CHARACTERs(GUID)) < Distance Then result.Add(CHARACTERs(GUID))
+        For Each GUID As ULong In objCharacter.Group.LocalMembers.ToArray
+            If objCharacter.playersNear.Contains(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
+                If GetDistance(objCharacter, CHARACTERs(GUID)) < Distance Then result.Add(CHARACTERs(GUID))
             End If
         Next
 
         Return result
     End Function
 
-    Public Function GetPartyMembersAtPoint(ByRef c As CharacterObject, ByVal Distance As Single, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single) As List(Of BaseUnit)
+    Public Function GetPartyMembersAtPoint(ByRef objCharacter As CharacterObject, ByVal Distance As Single, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        If GetDistance(c, PosX, PosY, PosZ) < Distance Then result.Add(c)
-        If Not c.IsInGroup Then Return result
+        If GetDistance(objCharacter, PosX, PosY, PosZ) < Distance Then result.Add(objCharacter)
+        If Not objCharacter.IsInGroup Then Return result
 
-        For Each GUID As ULong In c.Group.LocalMembers.ToArray
-            If c.playersNear.Contains(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
+        For Each GUID As ULong In objCharacter.Group.LocalMembers.ToArray
+            If objCharacter.playersNear.Contains(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
                 If GetDistance(CHARACTERs(GUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(GUID))
             End If
         Next
@@ -4973,23 +4973,23 @@ SkipShapeShift:
         Return result
     End Function
 
-    Public Function GetEnemyInFrontOfMe(ByRef c As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
+    Public Function GetEnemyInFrontOfMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        Dim tmp As List(Of BaseUnit) = GetEnemyAroundMe(c, Distance)
+        Dim tmp As List(Of BaseUnit) = GetEnemyAroundMe(objCharacter, Distance)
         For Each unit As BaseUnit In tmp
-            If IsInFrontOf(c, unit) Then result.Add(unit)
+            If IsInFrontOf(objCharacter, unit) Then result.Add(unit)
         Next
 
         Return result
     End Function
 
-    Public Function GetEnemyInBehindMe(ByRef c As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
+    Public Function GetEnemyInBehindMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
         Dim result As New List(Of BaseUnit)
 
-        Dim tmp As List(Of BaseUnit) = GetEnemyAroundMe(c, Distance)
+        Dim tmp As List(Of BaseUnit) = GetEnemyAroundMe(objCharacter, Distance)
         For Each unit As BaseUnit In tmp
-            If IsInBackOf(c, unit) Then result.Add(unit)
+            If IsInBackOf(objCharacter, unit) Then result.Add(unit)
         Next
 
         Return result
@@ -7512,24 +7512,24 @@ SkipShapeShift:
     Public Const DUEL_COUNTER_START As Byte = 10
     Public Const DUEL_COUNTER_DISABLED As Byte = 11
 
-    Public Sub CheckDuelDistance(ByRef c As CharacterObject)
-        If WORLD_GAMEOBJECTs.ContainsKey(c.DuelArbiter) = False Then Exit Sub
-        If GetDistance(CType(c, CharacterObject), WORLD_GAMEOBJECTs(c.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
-            If c.DuelOutOfBounds = DUEL_COUNTER_DISABLED Then
+    Public Sub CheckDuelDistance(ByRef objCharacter As CharacterObject)
+        If WORLD_GAMEOBJECTs.ContainsKey(objCharacter.DuelArbiter) = False Then Exit Sub
+        If GetDistance(CType(objCharacter, CharacterObject), WORLD_GAMEOBJECTs(objCharacter.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
+            If objCharacter.DuelOutOfBounds = DUEL_COUNTER_DISABLED Then
                 'DONE: Notify for out of bounds of the duel flag and start counting
                 Dim packet As New PacketClass(OPCODES.SMSG_DUEL_OUTOFBOUNDS)
-                c.Client.Send(packet)
+                objCharacter.Client.Send(packet)
                 packet.Dispose()
 
-                c.DuelOutOfBounds = DUEL_COUNTER_START
+                objCharacter.DuelOutOfBounds = DUEL_COUNTER_START
             End If
         Else
-            If c.DuelOutOfBounds <> DUEL_COUNTER_DISABLED Then
-                c.DuelOutOfBounds = DUEL_COUNTER_DISABLED
+            If objCharacter.DuelOutOfBounds <> DUEL_COUNTER_DISABLED Then
+                objCharacter.DuelOutOfBounds = DUEL_COUNTER_DISABLED
 
                 'DONE: Notify for in bounds of the duel flag
                 Dim packet As New PacketClass(OPCODES.SMSG_DUEL_INBOUNDS)
-                c.Client.Send(packet)
+                objCharacter.Client.Send(packet)
                 packet.Dispose()
             End If
         End If

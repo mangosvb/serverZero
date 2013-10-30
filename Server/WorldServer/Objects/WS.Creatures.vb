@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -442,8 +442,8 @@ Public Module WS_Creatures
             Return False
         End Function
 
-        Public Function AggroRange(ByVal objChar As CharacterObject) As Single
-            Dim LevelDiff As Short = CShort(Level) - CShort(objChar.Level)
+        Public Function AggroRange(ByVal objCharacter As CharacterObject) As Single
+            Dim LevelDiff As Short = CShort(Level) - CShort(objCharacter.Level)
             Dim Range As Single = 20 + LevelDiff
             If Range < 5 Then Range = 5
             If Range > 45 Then Range = 45
@@ -888,10 +888,10 @@ Public Module WS_Creatures
 
                     Select Case Character.Group.LootMethod
                         Case GroupLootMethod.LOOT_FREE_FOR_ALL
-                            For Each c As ULong In Character.Group.LocalMembers
-                                If SeenBy.Contains(c) Then
-                                    LootTable(GUID).LootOwner = c
-                                    CHARACTERs(c).Client.Send(packet)
+                            For Each objCharacter As ULong In Character.Group.LocalMembers
+                                If SeenBy.Contains(objCharacter) Then
+                                    LootTable(GUID).LootOwner = objCharacter
+                                    CHARACTERs(objCharacter).Client.Send(packet)
                                 End If
                             Next
 
@@ -1836,16 +1836,16 @@ Public Class QuestMenu
     Public Levels As ArrayList = New ArrayList
 End Class
 Public Class TBaseTalk
-    Public Overridable Sub OnGossipHello(ByRef objChar As CharacterObject, ByVal cGUID As ULong)
+    Public Overridable Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
 
     End Sub
-    Public Overridable Sub OnGossipSelect(ByRef c As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
+    Public Overridable Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
 
     End Sub
-    Public Overridable Function OnQuestStatus(ByRef c As CharacterObject, ByVal cGUID As ULong) As Integer
+    Public Overridable Function OnQuestStatus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Integer
         Return QuestgiverStatusFlag.DIALOG_STATUS_NONE
     End Function
-    Public Overridable Function OnQuestHello(ByRef c As CharacterObject, ByVal cGUID As ULong) As Boolean
+    Public Overridable Function OnQuestHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Boolean
         Return True
     End Function
 End Class

@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -48,11 +48,11 @@ Public Module WC_Group
         Public TargetIcons(7) As ULong
 
 
-        Public Sub New(ByRef c As CharacterObject)
+        Public Sub New(ByRef objCharacter As CharacterObject)
             ID = Interlocked.Increment(GroupCounter)
             GROUPs.Add(ID, Me)
 
-            Members(0) = c
+            Members(0) = objCharacter
             Members(1) = Nothing
             Members(2) = Nothing
             Members(3) = Nothing
@@ -61,10 +61,10 @@ Public Module WC_Group
             Leader = 0
             LootMaster = 255
 
-            c.Group = Me
-            c.GroupAssistant = False
+            objCharacter.Group = Me
+            objCharacter.GroupAssistant = False
 
-            c.GetWorld.ClientSetGroup(c.Client.Index, ID)
+            objCharacter.GetWorld.ClientSetGroup(objCharacter.Client.Index, ID)
         End Sub
 
 
@@ -112,32 +112,32 @@ Public Module WC_Group
         End Sub
 #End Region
 
-        Public Sub Join(ByRef c As CharacterObject)
+        Public Sub Join(ByRef objCharacter As CharacterObject)
             For i As Byte = 0 To Members.Length - 1
                 If Members(i) Is Nothing Then
-                    Members(i) = c
-                    c.Group = Me
-                    c.GroupAssistant = False
+                    Members(i) = objCharacter
+                    objCharacter.Group = Me
+                    objCharacter.GroupAssistant = False
                     Exit For
                 End If
             Next
 
             WorldServer.GroupSendUpdate(ID)
 
-            c.GetWorld.ClientSetGroup(c.Client.Index, ID)
+            objCharacter.GetWorld.ClientSetGroup(objCharacter.Client.Index, ID)
 
             SendGroupList()
         End Sub
-        Public Sub Leave(ByRef c As CharacterObject)
+        Public Sub Leave(ByRef objCharacter As CharacterObject)
             If GetMembersCount() = 2 Then
                 Dispose()
                 Exit Sub
             End If
 
             For i As Byte = 0 To Members.Length - 1
-                If Members(i) Is c Then
+                If Members(i) Is objCharacter Then
 
-                    c.Group = Nothing
+                    objCharacter.Group = Nothing
                     Members(i) = Nothing
 
                     'DONE: If current is leader then choose new
@@ -148,9 +148,9 @@ Public Module WC_Group
                     'DONE: If current is lootMaster then choose new
                     If i = LootMaster Then LootMaster = Leader
 
-                    If c.Client IsNot Nothing Then
+                    If objCharacter.Client IsNot Nothing Then
                         Dim packet As New PacketClass(OPCODES.SMSG_GROUP_UNINVITE)
-                        c.Client.Send(packet)
+                        objCharacter.Client.Send(packet)
                         packet.Dispose()
                     End If
 
@@ -160,7 +160,7 @@ Public Module WC_Group
 
             WorldServer.GroupSendUpdate(ID)
 
-            c.GetWorld.ClientSetGroup(c.Client.Index, -1)
+            objCharacter.GetWorld.ClientSetGroup(objCharacter.Client.Index, -1)
 
             CheckMembers()
         End Sub
@@ -216,16 +216,16 @@ Public Module WC_Group
             Type = GroupType.RAID
         End Sub
 
-        Public Sub SetLeader(ByRef c As CharacterObject)
+        Public Sub SetLeader(ByRef objCharacter As CharacterObject)
             For i As Byte = 0 To Members.Length
-                If Members(i) Is c Then
+                If Members(i) Is objCharacter Then
                     Leader = i
                     Exit For
                 End If
             Next
 
             Dim packet As New PacketClass(OPCODES.SMSG_GROUP_SET_LEADER)
-            packet.AddString(c.Name)
+            packet.AddString(objCharacter.Name)
             Broadcast(packet)
             packet.Dispose()
 
@@ -233,10 +233,10 @@ Public Module WC_Group
 
             SendGroupList()
         End Sub
-        Public Sub SetLootMaster(ByRef c As CharacterObject)
+        Public Sub SetLootMaster(ByRef objCharacter As CharacterObject)
             LootMaster = Leader
             For i As Byte = 0 To Members.Length - 1
-                If Members(i) Is c Then
+                If Members(i) Is objCharacter Then
                     LootMaster = i
                     Exit For
                 End If
@@ -282,15 +282,15 @@ Public Module WC_Group
                 If Members(i) IsNot Nothing AndAlso Members(i).Client IsNot Nothing Then Members(i).Client.SendMultiplyPackets(packet)
             Next
         End Sub
-        Public Sub BroadcastToOther(ByRef packet As PacketClass, ByRef c As CharacterObject)
+        Public Sub BroadcastToOther(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
             For i As Byte = 0 To Members.Length - 1
-                If (Not Members(i) Is Nothing) AndAlso (Members(i) IsNot c) AndAlso (Members(i).Client IsNot Nothing) Then Members(i).Client.SendMultiplyPackets(packet)
+                If (Not Members(i) Is Nothing) AndAlso (Members(i) IsNot objCharacter) AndAlso (Members(i).Client IsNot Nothing) Then Members(i).Client.SendMultiplyPackets(packet)
             Next
         End Sub
-        Public Sub BroadcastToOutOfRange(ByRef packet As PacketClass, ByRef c As CharacterObject)
+        Public Sub BroadcastToOutOfRange(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
             For i As Byte = 0 To Members.Length - 1
-                If Members(i) IsNot Nothing AndAlso Members(i) IsNot c AndAlso Members(i).Client IsNot Nothing Then
-                    If c.Map <> Members(i).Map OrElse Math.Sqrt((c.PositionX - Members(i).PositionX) ^ 2 + (c.PositionY - Members(i).PositionY) ^ 2) > DEFAULT_DISTANCE_VISIBLE Then
+                If Members(i) IsNot Nothing AndAlso Members(i) IsNot objCharacter AndAlso Members(i).Client IsNot Nothing Then
+                    If objCharacter.Map <> Members(i).Map OrElse Math.Sqrt((objCharacter.PositionX - Members(i).PositionX) ^ 2 + (objCharacter.PositionY - Members(i).PositionY) ^ 2) > DEFAULT_DISTANCE_VISIBLE Then
                         Members(i).Client.SendMultiplyPackets(packet)
                     End If
                 End If

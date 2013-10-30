@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -177,8 +177,8 @@ Namespace MPQ
             Dim seed1 As Long = &H7FED7FED
             Dim seed2 As Long = &HEEEEEEEE
 
-            For Each c As Char In Input
-                Dim val As Long = Asc(Char.ToUpper(c))
+            For Each objCharacter As Char In Input
+                Dim val As Long = Asc(Char.ToUpper(objCharacter))
 
                 seed1 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes((sStormBuffer(Offset + val) Xor CType((seed1 + seed2) And &HFFFFFFFF, Long))), 0))
                 seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes((val + seed1 + seed2 + (seed2 << 5) + 3)), 0))

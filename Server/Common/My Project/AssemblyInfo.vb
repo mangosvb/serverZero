@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("Common Library part of MaNGOSvb Server Emulator")> 
 <Assembly: AssemblyCompany("getMaNGOS")> 
 <Assembly: AssemblyProduct("MaNGOSvb Server Pack")> 
-<Assembly: AssemblyCopyright("Copyright (C) 2013, getMaNGOS")> 
+<Assembly: AssemblyCopyright("Copyright (objCharacter) 2013, getMaNGOS")> 
 <Assembly: AssemblyTrademark("")> 
 <Assembly: ComVisible(False)> 
 

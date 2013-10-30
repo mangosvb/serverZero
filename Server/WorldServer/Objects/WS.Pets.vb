@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -255,36 +255,36 @@ Public Module WS_Pets
 
 #End Region
 #Region "WS.Pets.Owner"
-    Public Sub LoadPet(ByRef c As CharacterObject)
-        If c.Pet IsNot Nothing Then Exit Sub
+    Public Sub LoadPet(ByRef objCharacter As CharacterObject)
+        If objCharacter.Pet IsNot Nothing Then Exit Sub
 
         Dim PetQuery As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT * FROM characters_pets WHERE pet_owner = '{0}';", c.GUID), PetQuery)
+        CharacterDatabase.Query(String.Format("SELECT * FROM characters_pets WHERE pet_owner = '{0}';", objCharacter.GUID), PetQuery)
         If PetQuery.Rows.Count = 0 Then Exit Sub
         Dim PetInfo As DataRow = PetQuery.Rows(0)
 
-        c.Pet = New PetObject(CULng(PetInfo.Item("pet_guid")) + GUID_PET, CInt(PetInfo.Item("pet_entry")))
-        c.Pet.Owner = c
-        c.Pet.SummonedBy = c.GUID
-        c.Pet.CreatedBy = c.GUID
-        c.Pet.Level = PetInfo.Item("pet_level")
-        c.Pet.XP = PetInfo.Item("pet_xp")
+        objCharacter.Pet = New PetObject(CULng(PetInfo.Item("pet_guid")) + GUID_PET, CInt(PetInfo.Item("pet_entry")))
+        objCharacter.Pet.Owner = objCharacter
+        objCharacter.Pet.SummonedBy = objCharacter.GUID
+        objCharacter.Pet.CreatedBy = objCharacter.GUID
+        objCharacter.Pet.Level = PetInfo.Item("pet_level")
+        objCharacter.Pet.XP = PetInfo.Item("pet_xp")
 
-        c.Pet.PetName = PetInfo.Item("pet_name")
+        objCharacter.Pet.PetName = PetInfo.Item("pet_name")
         If CByte(PetInfo.Item("pet_renamed")) = 0 Then
-            c.Pet.Renamed = False
+            objCharacter.Pet.Renamed = False
         Else
-            c.Pet.Renamed = True
+            objCharacter.Pet.Renamed = True
         End If
 
-        c.Pet.Faction = c.Faction
+        objCharacter.Pet.Faction = objCharacter.Faction
 
-        c.Pet.positionX = c.positionX
-        c.Pet.positionY = c.positionY
-        c.Pet.positionZ = c.positionZ
-        c.Pet.MapID = c.MapID
+        objCharacter.Pet.positionX = objCharacter.positionX
+        objCharacter.Pet.positionY = objCharacter.positionY
+        objCharacter.Pet.positionZ = objCharacter.positionZ
+        objCharacter.Pet.MapID = objCharacter.MapID
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "Loaded pet [{0}] for character [{1}].", c.Pet.GUID, c.GUID)
+        Log.WriteLine(BaseWriter.LogType.DEBUG, "Loaded pet [{0}] for character [{1}].", objCharacter.Pet.GUID, objCharacter.GUID)
     End Sub
 
     Public Sub SendPetInitialize(ByRef Caster As CharacterObject, ByRef Pet As BaseUnit)

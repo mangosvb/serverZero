@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -975,12 +975,12 @@ Public Module WS_Items
             AddEnchantBonus(slot)
         End Sub
 
-        Public Sub AddEnchantBonus(ByVal slot As Byte, Optional ByRef c As CharacterObject = Nothing)
-            If c Is Nothing Then
+        Public Sub AddEnchantBonus(ByVal slot As Byte, Optional ByRef objCharacter As CharacterObject = Nothing)
+            If objCharacter Is Nothing Then
                 If CHARACTERs.ContainsKey(OwnerGUID) = False Then Exit Sub
-                c = CHARACTERs(OwnerGUID)
+                objCharacter = CHARACTERs(OwnerGUID)
             End If
-            If c IsNot Nothing AndAlso SpellItemEnchantments.ContainsKey(Enchantments(Slot).ID) Then
+            If objCharacter IsNot Nothing AndAlso SpellItemEnchantments.ContainsKey(Enchantments(Slot).ID) Then
                 For i As Byte = 0 To 2
                     If SpellItemEnchantments(Enchantments(Slot).ID).SpellID(i) <> 0 Then
                         If SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(Slot).ID).SpellID(i)) Then
@@ -990,7 +990,7 @@ Public Module WS_Items
                                 If Not (spellInfo.SpellEffects(j) Is Nothing) Then
                                     Select Case spellInfo.SpellEffects(j).ID
                                         Case SpellEffects_Names.SPELL_EFFECT_APPLY_AURA
-                                            AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(c, c,
+                                            AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(objCharacter, objCharacter,
                                                                                                    spellInfo.
                                                                                                       SpellEffects(j),
                                                                                                    spellInfo.ID, 1,
@@ -1723,7 +1723,7 @@ Public Module WS_Items
     End Sub
 
 
-    Public Sub SendInventoryChangeFailure(ByRef c As CharacterObject, ByVal errorCode As InventoryChangeFailure,
+    Public Sub SendInventoryChangeFailure(ByRef objCharacter As CharacterObject, ByVal errorCode As InventoryChangeFailure,
                                           ByVal guid1 As ULong, ByVal guid2 As ULong)
         Dim packet As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
         packet.AddInt8(errorCode)
@@ -1735,29 +1735,29 @@ Public Module WS_Items
         packet.AddUInt64(guid1)
         packet.AddUInt64(GUID2)
         packet.AddInt8(0)
-        c.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
 
-    'Public Sub SendEnchantmentLog(ByRef c As CharacterObject, ByVal iGUID As ULong, ByVal iEntry As Integer,
+    'Public Sub SendEnchantmentLog(ByRef objCharacter As CharacterObject, ByVal iGUID As ULong, ByVal iEntry As Integer,
     '                              ByVal iSpellID As Integer)
     '    Dim packet As New PacketClass(OPCODES.SMSG_ENCHANTMENTLOG)
     '    packet.AddUInt64(iGUID)
-    '    packet.AddUInt64(c.GUID)
+    '    packet.AddUInt64(objCharacter.GUID)
     '    packet.AddInt32(iEntry)
     '    packet.AddInt32(iSpellID)
     '    packet.AddInt8(0)
-    '    c.Client.Send(packet)
+    '    objCharacter.Client.Send(packet)
     '    packet.Dispose()
     'End Sub
 
-    'Public Sub SendEnchantmentTimeUpdate(ByRef c As CharacterObject, ByVal iGUID As ULong, ByVal iSlot As Integer,
+    'Public Sub SendEnchantmentTimeUpdate(ByRef objCharacter As CharacterObject, ByVal iGUID As ULong, ByVal iSlot As Integer,
     '                                     ByVal iTime As Integer)
     '    Dim packet As New PacketClass(OPCODES.SMSG_ITEM_ENCHANT_TIME_UPDATE)
     '    packet.AddUInt64(iGUID)
     '    packet.AddInt32(iSlot)
     '    packet.AddInt32(iTime)
-    '    c.Client.Send(packet)
+    '    objCharacter.Client.Send(packet)
     '    packet.Dispose()
     'End Sub
 

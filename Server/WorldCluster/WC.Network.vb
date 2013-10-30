@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -180,16 +180,16 @@ Public Module WC_Network
 
                 'DONE: Disconnecting clients
                 SyncLock CType(CLIENTs, ICollection).SyncRoot
-                    For Each c As KeyValuePair(Of UInteger, ClientClass) In CLIENTs
-                        If Not c.Value.Character Is Nothing AndAlso _
-                        c.Value.Character.IsInWorld AndAlso _
-                        c.Value.Character.Map = Map Then
+                    For Each objCharacter As KeyValuePair(Of UInteger, ClientClass) In CLIENTs
+                        If Not objCharacter.Value.Character Is Nothing AndAlso _
+                        objCharacter.Value.Character.IsInWorld AndAlso _
+                        objCharacter.Value.Character.Map = Map Then
                             Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-                            c.Value.Send(SMSG_LOGOUT_COMPLETE)
+                            objCharacter.Value.Send(SMSG_LOGOUT_COMPLETE)
                             SMSG_LOGOUT_COMPLETE.Dispose()
 
-                            c.Value.Character.Dispose()
-                            c.Value.Character = Nothing
+                            objCharacter.Value.Character.Dispose()
+                            objCharacter.Value.Character = Nothing
                         End If
                     Next
                 End SyncLock
@@ -304,8 +304,8 @@ Public Module WC_Network
 
         Public Sub Broadcast(ByVal p As PacketClass)
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-            For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If c.Value.IsInWorld AndAlso c.Value.Client IsNot Nothing Then c.Value.Client.SendMultiplyPackets(p)
+            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then objCharacter.Value.Client.SendMultiplyPackets(p)
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
@@ -313,11 +313,11 @@ Public Module WC_Network
         Public Sub Broadcast(ByVal Data() As Byte) Implements ICluster.Broadcast
             Dim b As Byte()
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-            For Each c As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
 
-                If c.Value.IsInWorld AndAlso c.Value.Client IsNot Nothing Then
+                If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then
                     b = Data.Clone
-                    c.Value.Client.Send(Data)
+                    objCharacter.Value.Client.Send(Data)
                 End If
 
             Next

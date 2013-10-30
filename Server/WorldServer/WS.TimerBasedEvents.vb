@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ Public Module WS_TimerBasedEvents
                             'Mana
                             If .ManaRegen = 0 Then .UpdateManaRegen()
                             'DONE: Don't regenerate while casting, 5 second rule
-                            'TODO: If c.ManaRegenerationWhileCastingPercent > 0 ...
+                            'TODO: If objCharacter.ManaRegenerationWhileCastingPercent > 0 ...
                             If .spellCastManaRegeneration = 0 Then
                                 If (.ManaType = ManaTypes.TYPE_MANA OrElse .Classe = Classes.CLASS_DRUID) AndAlso .Mana.Current < .Mana.Maximum Then
                                     .Mana.Increment(.ManaRegen * REGENERATION_TIMER)
@@ -112,7 +112,7 @@ Public Module WS_TimerBasedEvents
 
                             'Life
                             'DONE: Don't regenerate in combat
-                            'TODO: If c.LifeRegenWhileFightingPercent > 0 ...
+                            'TODO: If objCharacter.LifeRegenWhileFightingPercent > 0 ...
                             If .Life.Current < .Life.Maximum AndAlso (.cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) = 0 Then
                                 Select Case .Classe
                                     Case Classes.CLASS_MAGE
@@ -299,72 +299,72 @@ Public Module WS_TimerBasedEvents
         End Sub
 #End Region
 
-        Private Sub UpdateSpells(ByRef c As BaseUnit)
+        Private Sub UpdateSpells(ByRef objCharacter As BaseUnit)
 
-            If TypeOf c Is TotemObject Then
-                CType(c, TotemObject).Update()
+            If TypeOf objCharacter Is TotemObject Then
+                CType(objCharacter, TotemObject).Update()
             Else
                 For i As Integer = 0 To MAX_AURA_EFFECTs - 1
-                    If c.ActiveSpells(i) IsNot Nothing Then
+                    If objCharacter.ActiveSpells(i) IsNot Nothing Then
 
                         'DONE: Count aura duration
-                        If c.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then
-                            c.ActiveSpells(i).SpellDuration -= UPDATE_TIMER
+                        If objCharacter.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then
+                            objCharacter.ActiveSpells(i).SpellDuration -= UPDATE_TIMER
 
                             'DONE: Cast aura (check if: there is aura; aura is periodic; time for next activation)
                             For j As Byte = 0 To 2
-                                If c.ActiveSpells(i) IsNot Nothing AndAlso c.ActiveSpells(i).Aura(j) IsNot Nothing AndAlso _
-                                c.ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso c.ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso _
-                                ((c.ActiveSpells(i).GetSpellInfo.GetDuration - c.ActiveSpells(i).SpellDuration) Mod c.ActiveSpells(i).Aura_Info(j).Amplitude) = 0 Then
-                                    c.ActiveSpells(i).Aura(j).Invoke(c, c.ActiveSpells(i).SpellCaster, c.ActiveSpells(i).Aura_Info(j), c.ActiveSpells(i).SpellID, c.ActiveSpells(i).StackCount + 1, WS_Spells.AuraAction.AURA_UPDATE)
+                                If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura(j) IsNot Nothing AndAlso _
+                                objCharacter.ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso _
+                                ((objCharacter.ActiveSpells(i).GetSpellInfo.GetDuration - objCharacter.ActiveSpells(i).SpellDuration) Mod objCharacter.ActiveSpells(i).Aura_Info(j).Amplitude) = 0 Then
+                                    objCharacter.ActiveSpells(i).Aura(j).Invoke(objCharacter, objCharacter.ActiveSpells(i).SpellCaster, objCharacter.ActiveSpells(i).Aura_Info(j), objCharacter.ActiveSpells(i).SpellID, objCharacter.ActiveSpells(i).StackCount + 1, WS_Spells.AuraAction.AURA_UPDATE)
                                 End If
                             Next j
 
                             'DONE: Remove finished aura
-                            If c.ActiveSpells(i) IsNot Nothing AndAlso c.ActiveSpells(i).SpellDuration <= 0 AndAlso c.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then c.RemoveAura(i, c.ActiveSpells(i).SpellCaster, True)
+                            If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).SpellDuration <= 0 AndAlso objCharacter.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster, True)
                         End If
 
                         'DONE: Check if there are units that are out of range for the area aura
                         For j As Byte = 0 To 2
-                            If c.ActiveSpells(i) IsNot Nothing AndAlso c.ActiveSpells(i).Aura_Info(j) IsNot Nothing Then
-                                If c.ActiveSpells(i).Aura_Info(j).ID = SpellEffects_Names.SPELL_EFFECT_APPLY_AREA_AURA Then
-                                    If c.ActiveSpells(i).SpellCaster Is c Then
+                            If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura_Info(j) IsNot Nothing Then
+                                If objCharacter.ActiveSpells(i).Aura_Info(j).ID = SpellEffects_Names.SPELL_EFFECT_APPLY_AREA_AURA Then
+                                    If objCharacter.ActiveSpells(i).SpellCaster Is objCharacter Then
                                         'DONE: Check if there are friendly targets around you that does not have your aura
                                         Dim Targets As New List(Of BaseUnit)
-                                        If TypeOf c Is CharacterObject Then
-                                            Targets = GetPartyMembersAroundMe(CType(c, CharacterObject), c.ActiveSpells(i).Aura_Info(j).GetRadius)
-                                        ElseIf (TypeOf c Is TotemObject) AndAlso CType(c, TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(c, TotemObject).Caster Is CharacterObject) Then
-                                            Targets = GetPartyMembersAtPoint(CType(c, TotemObject).Caster, c.ActiveSpells(i).Aura_Info(j).GetRadius, c.positionX, c.positionY, c.positionZ)
+                                        If TypeOf objCharacter Is CharacterObject Then
+                                            Targets = GetPartyMembersAroundMe(CType(objCharacter, CharacterObject), objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius)
+                                        ElseIf (TypeOf objCharacter Is TotemObject) AndAlso CType(objCharacter, TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(objCharacter, TotemObject).Caster Is CharacterObject) Then
+                                            Targets = GetPartyMembersAtPoint(CType(objCharacter, TotemObject).Caster, objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ)
                                         End If
 
                                         For Each Unit As BaseUnit In Targets
-                                            If Unit.HaveAura(c.ActiveSpells(i).SpellID) = False Then
-                                                ApplyAura(Unit, c, c.ActiveSpells(i).Aura_Info(j), c.ActiveSpells(i).SpellID)
+                                            If Unit.HaveAura(objCharacter.ActiveSpells(i).SpellID) = False Then
+                                                ApplyAura(Unit, objCharacter, objCharacter.ActiveSpells(i).Aura_Info(j), objCharacter.ActiveSpells(i).SpellID)
                                             End If
                                         Next
                                     Else
                                         'DONE: Check if your aura source is too far away, has removed the aura or you / the source left the group
-                                        If c.ActiveSpells(i).SpellCaster IsNot Nothing AndAlso c.ActiveSpells(i).SpellCaster.Exist Then
+                                        If objCharacter.ActiveSpells(i).SpellCaster IsNot Nothing AndAlso objCharacter.ActiveSpells(i).SpellCaster.Exist Then
                                             Dim caster As CharacterObject = Nothing
-                                            If TypeOf c.ActiveSpells(i).SpellCaster Is CharacterObject Then
-                                                caster = CType(c.ActiveSpells(i).SpellCaster, CharacterObject)
-                                            ElseIf (TypeOf c.ActiveSpells(i).SpellCaster Is TotemObject) AndAlso CType(c.ActiveSpells(i).SpellCaster, TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(c.ActiveSpells(i).SpellCaster, TotemObject).Caster Is CharacterObject) Then
-                                                caster = CType(CType(c.ActiveSpells(i).SpellCaster, TotemObject).Caster, CharacterObject)
+                                            If TypeOf objCharacter.ActiveSpells(i).SpellCaster Is CharacterObject Then
+                                                caster = CType(objCharacter.ActiveSpells(i).SpellCaster, CharacterObject)
+                                            ElseIf (TypeOf objCharacter.ActiveSpells(i).SpellCaster Is TotemObject) AndAlso CType(objCharacter.ActiveSpells(i).SpellCaster, TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(objCharacter.ActiveSpells(i).SpellCaster, TotemObject).Caster Is CharacterObject) Then
+                                                caster = CType(CType(objCharacter.ActiveSpells(i).SpellCaster, TotemObject).Caster, CharacterObject)
                                             End If
 
-                                            If caster Is Nothing OrElse caster.Group Is Nothing OrElse caster.Group.LocalMembers.Contains(c.GUID) = False Then
-                                                c.RemoveAura(i, c.ActiveSpells(i).SpellCaster)
+                                            If caster Is Nothing OrElse caster.Group Is Nothing OrElse caster.Group.LocalMembers.Contains(objCharacter.GUID) = False Then
+                                                objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster)
                                             Else
-                                                If c.ActiveSpells(i).SpellCaster.HaveAura(c.ActiveSpells(i).SpellID) = False Then
-                                                    c.RemoveAura(i, c.ActiveSpells(i).SpellCaster)
+                                                If objCharacter.ActiveSpells(i).SpellCaster.HaveAura(objCharacter.ActiveSpells(i).SpellID) = False Then
+                                                    objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster)
                                                 Else
-                                                    If GetDistance(c, c.ActiveSpells(i).SpellCaster) > c.ActiveSpells(i).Aura_Info(j).GetRadius Then
-                                                        c.RemoveAura(i, c.ActiveSpells(i).SpellCaster)
+                                                    If GetDistance(objCharacter, objCharacter.ActiveSpells(i).SpellCaster) > objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius Then
+                                                        objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster)
                                                     End If
                                                 End If
                                             End If
                                         Else
-                                            c.RemoveAura(i, c.ActiveSpells(i).SpellCaster)
+                                            objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster)
                                         End If
                                     End If
                                 End If

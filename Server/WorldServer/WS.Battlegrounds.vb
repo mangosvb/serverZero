@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -65,13 +65,13 @@ Public Module WS_Battlegrounds
             BroadcastTeam2(p)
         End Sub
         Public Sub BroadcastTeam1(ByVal p As PacketClass)
-            For Each c As CharacterObject In MembersTeam1.ToArray
-                c.Client.SendMultiplyPackets(p)
+            For Each objCharacter As CharacterObject In MembersTeam1.ToArray
+                objCharacter.Client.SendMultiplyPackets(p)
             Next
         End Sub
         Public Sub BroadcastTeam2(ByVal p As PacketClass)
-            For Each c As CharacterObject In MembersTeam2.ToArray
-                c.Client.SendMultiplyPackets(p)
+            For Each objCharacter As CharacterObject In MembersTeam2.ToArray
+                objCharacter.Client.SendMultiplyPackets(p)
             Next
         End Sub
 

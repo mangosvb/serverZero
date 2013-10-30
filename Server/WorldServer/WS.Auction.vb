@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -135,11 +135,11 @@ Module WS_Auction
 
 #End Region
 #Region "WS.Auction.Framework"
-    Public Sub SendShowAuction(ByRef c As CharacterObject, ByVal GUID As ULong)
+    Public Sub SendShowAuction(ByRef objCharacter As CharacterObject, ByVal GUID As ULong)
         Dim packet As New PacketClass(OPCODES.MSG_AUCTION_HELLO)
         packet.AddUInt64(GUID)
         packet.AddInt32(GetAuctionSide(GUID))          'AuctionID (on this is based the fees shown in client side)
-        c.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
 
@@ -199,7 +199,7 @@ Module WS_Auction
         Client.Send(response)
         response.Dispose()
     End Sub
-    Public Sub SendAuctionBidderNotification(ByRef c As CharacterObject)
+    Public Sub SendAuctionBidderNotification(ByRef objCharacter As CharacterObject)
         'Displays: "Outbid on <Item>."
 
         Dim packet As New PacketClass(OPCODES.SMSG_AUCTION_BIDDER_NOTIFICATION)
@@ -210,10 +210,10 @@ Module WS_Auction
         packet.AddInt32(0)          'Diff
         packet.AddInt32(0)          'ItemID
         packet.AddInt32(0)          'RandomProperyID
-        c.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
-    Public Sub SendAuctionOwnerNotification(ByRef c As CharacterObject)
+    Public Sub SendAuctionOwnerNotification(ByRef objCharacter As CharacterObject)
         'Displays: "Your auction of <Item> sold."
 
         Dim packet As New PacketClass(OPCODES.SMSG_AUCTION_OWNER_NOTIFICATION)
@@ -224,17 +224,17 @@ Module WS_Auction
         packet.AddInt32(0)
         packet.AddInt32(0)          'ItemID
         packet.AddInt32(0)          'RandomProperyID
-        c.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
-    Public Sub SendAuctionRemovedNotification(ByRef c As CharacterObject)
+    Public Sub SendAuctionRemovedNotification(ByRef objCharacter As CharacterObject)
         'Displays: "Auction of <Item> canceled by the seller."
 
         Dim packet As New PacketClass(OPCODES.SMSG_AUCTION_REMOVED_NOTIFICATION)
         packet.AddInt32(0)          'AutionID
         packet.AddInt32(0)          'ItemID
         packet.AddInt32(0)          'RandomProperyID
-        c.Client.Send(packet)
+        objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
     Public Sub SendAuctionListOwnerItems(ByRef Client As ClientClass)

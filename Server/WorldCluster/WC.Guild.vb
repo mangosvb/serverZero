@@ -1,7 +1,7 @@
 ﻿Imports mangosVB.Common
 
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -110,31 +110,31 @@ Public Module WC_Guild
 #End Region
 
     'Basic Guild Framework
-    Public Sub AddCharacterToGuild(ByRef c As CharacterObject, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", GuildID, c.GUID, GuildRank))
+    Public Sub AddCharacterToGuild(ByRef objCharacter As CharacterObject, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", GuildID, objCharacter.GUID, GuildRank))
 
         If GUILDs.ContainsKey(GuildID) = False Then
             Dim tmpGuild As New Guild(GuildID)
         End If
 
-        c.Guild = GUILDs(GuildID)
-        c.Guild.Members.Add(c.GUID)
-        c.GuildRank = GuildRank
+        objCharacter.Guild = GUILDs(GuildID)
+        objCharacter.Guild.Members.Add(objCharacter.GUID)
+        objCharacter.GuildRank = GuildRank
 
-        c.SendGuildUpdate()
+        objCharacter.SendGuildUpdate()
     End Sub
 
     Public Sub AddCharacterToGuild(ByVal GUID As ULong, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", GuildID, GUID, GuildRank))
     End Sub
 
-    Public Sub RemoveCharacterFromGuild(ByRef c As CharacterObject)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, c.GUID))
+    Public Sub RemoveCharacterFromGuild(ByRef objCharacter As CharacterObject)
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, objCharacter.GUID))
 
-        c.Guild.Members.Remove(c.GUID)
-        c.Guild = Nothing
-        c.GuildRank = 0
-        c.SendGuildUpdate()
+        objCharacter.Guild.Members.Remove(objCharacter.GUID)
+        objCharacter.Guild = Nothing
+        objCharacter.GuildRank = 0
+        objCharacter.SendGuildUpdate()
     End Sub
 
     Public Sub RemoveCharacterFromGuild(ByVal GUID As ULong)
@@ -224,31 +224,31 @@ Public Module WC_Guild
         response.Dispose()
     End Sub
 
-    Public Sub SendGuildRoster(ByRef c As CharacterObject)
-        If Not c.IsInGuild Then Exit Sub
+    Public Sub SendGuildRoster(ByRef objCharacter As CharacterObject)
+        If Not objCharacter.IsInGuild Then Exit Sub
 
         'DONE: Count the ranks
         Dim guildRanksCount As Byte = 0
         For i As Integer = 0 To 9
-            If c.Guild.Ranks(i) <> "" Then guildRanksCount += 1
+            If objCharacter.Guild.Ranks(i) <> "" Then guildRanksCount += 1
         Next
 
         'DONE: Count the members
         Dim Members As New DataTable
-        CharacterDatabase.Query("SELECT char_online, char_guid, char_name, char_class, char_level, char_zone_id, char_logouttime, char_guildRank, char_guildPNote, char_guildOffNote FROM characters WHERE char_guildId = " & c.Guild.ID & ";", Members)
+        CharacterDatabase.Query("SELECT char_online, char_guid, char_name, char_class, char_level, char_zone_id, char_logouttime, char_guildRank, char_guildPNote, char_guildOffNote FROM characters WHERE char_guildId = " & objCharacter.Guild.ID & ";", Members)
 
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_ROSTER)
         response.AddInt32(Members.Rows.Count)
-        response.AddString(c.Guild.Motd)
-        response.AddString(c.Guild.Info)
+        response.AddString(objCharacter.Guild.Motd)
+        response.AddString(objCharacter.Guild.Info)
         response.AddInt32(guildRanksCount)
         For i As Integer = 0 To 9
-            If c.Guild.Ranks(i) <> "" Then
-                response.AddUInt32(c.Guild.RankRights(i))
+            If objCharacter.Guild.Ranks(i) <> "" Then
+                response.AddUInt32(objCharacter.Guild.RankRights(i))
             End If
         Next
 
-        Dim Officer As Boolean = c.IsGuildRightSet(GuildRankRights.GR_RIGHT_VIEWOFFNOTE)
+        Dim Officer As Boolean = objCharacter.IsGuildRightSet(GuildRankRights.GR_RIGHT_VIEWOFFNOTE)
         For i As Integer = 0 To Members.Rows.Count - 1
             If CByte(Members.Rows(i).Item("char_online")) = 1 Then
                 response.AddUInt64(Members.Rows(i).Item("char_guid"))
@@ -285,7 +285,7 @@ Public Module WC_Guild
             End If
         Next
 
-        c.Client.Send(response)
+        objCharacter.Client.Send(response)
         response.Dispose()
     End Sub
 
@@ -333,17 +333,17 @@ Public Module WC_Guild
         response.Dispose()
     End Sub
 
-    Public Sub NotifyGuildStatus(ByRef c As CharacterObject, ByVal Status As GuildEvent)
-        If c.Guild Is Nothing Then Exit Sub
+    Public Sub NotifyGuildStatus(ByRef objCharacter As CharacterObject, ByVal Status As GuildEvent)
+        If objCharacter.Guild Is Nothing Then Exit Sub
 
         Dim statuspacket As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
         statuspacket.AddInt8(Status)
         statuspacket.AddInt8(1)
-        statuspacket.AddString(c.Name)
+        statuspacket.AddString(objCharacter.Name)
         statuspacket.AddInt8(0)
         statuspacket.AddInt8(0)
         statuspacket.AddInt8(0)
-        BroadcastToGuild(statuspacket, c.Guild, c.GUID)
+        BroadcastToGuild(statuspacket, objCharacter.Guild, objCharacter.GUID)
         statuspacket.Dispose()
     End Sub
 
@@ -358,14 +358,14 @@ Public Module WC_Guild
     End Sub
 
     'Members Options
-    Public Sub SendGuildMOTD(ByRef c As CharacterObject)
-        If c.IsInGuild Then
-            If c.Guild.Motd <> "" Then
+    Public Sub SendGuildMOTD(ByRef objCharacter As CharacterObject)
+        If objCharacter.IsInGuild Then
+            If objCharacter.Guild.Motd <> "" Then
                 Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
                 response.AddInt8(GuildEvent.MOTD)
                 response.AddInt8(1)
-                response.AddString(c.Guild.Motd)
-                c.Client.Send(response)
+                response.AddString(objCharacter.Guild.Motd)
+                objCharacter.Client.Send(response)
                 response.Dispose()
             End If
         End If

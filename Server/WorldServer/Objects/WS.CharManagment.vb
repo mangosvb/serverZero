@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
+' Copyright (objCharacter) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -55,19 +55,19 @@ Public Module WS_CharManagment
     Public DEFAULT_MAX_LEVEL As Integer = 60 'Max Player Level
     Public XPTable(DEFAULT_MAX_LEVEL) As Integer 'Max XPTable Level from Database
 
-    Public Function CalculateStartingLIFE(ByRef c As CharacterObject, ByVal baseLIFE As Integer) As Integer
-        If (c.Stamina.Base < 20) Then
-            Return baseLIFE + (c.Stamina.Base - 20)
+    Public Function CalculateStartingLIFE(ByRef objCharacter As CharacterObject, ByVal baseLIFE As Integer) As Integer
+        If (objCharacter.Stamina.Base < 20) Then
+            Return baseLIFE + (objCharacter.Stamina.Base - 20)
         Else
-            Return baseLIFE + 10 * (c.Stamina.Base - 20)
+            Return baseLIFE + 10 * (objCharacter.Stamina.Base - 20)
         End If
     End Function
 
-    Public Function CalculateStartingMANA(ByRef c As CharacterObject, ByVal baseMANA As Integer) As Integer
-        If (c.Intellect.Base < 20) Then
-            Return baseMANA + (c.Intellect.Base - 20)
+    Public Function CalculateStartingMANA(ByRef objCharacter As CharacterObject, ByVal baseMANA As Integer) As Integer
+        If (objCharacter.Intellect.Base < 20) Then
+            Return baseMANA + (objCharacter.Intellect.Base - 20)
         Else
-            Return baseMANA + 15 * (c.Intellect.Base - 20)
+            Return baseMANA + 15 * (objCharacter.Intellect.Base - 20)
         End If
     End Function
     Private Function gainStat(ByVal level As Integer, ByVal a3 As Double, ByVal a2 As Double, ByVal a1 As Double, ByVal a0 As Double) As Integer
@@ -75,165 +75,165 @@ Public Module WS_CharManagment
                 CType(Math.Round(a3 * (level - 1) * (level - 1) * (level - 1) + a2 * (level - 1) * (level - 1) + a1 * (level - 1) + a0), Integer)
     End Function
 
-    Public Sub CalculateOnLevelUP(ByRef c As CharacterObject)
-        Dim baseInt As Integer = c.Intellect.Base
-        'Dim baseStr As Integer = c.Strength.Base
-        'Dim baseSta As Integer = c.Stamina.Base
-        Dim baseSpi As Integer = c.Spirit.Base
-        Dim baseAgi As Integer = c.Agility.Base
-        'Dim baseMana As Integer = c.Mana.Maximum
-        Dim baseLife As Integer = c.Life.Maximum
+    Public Sub CalculateOnLevelUP(ByRef objCharacter As CharacterObject)
+        Dim baseInt As Integer = objCharacter.Intellect.Base
+        'Dim baseStr As Integer = objCharacter.Strength.Base
+        'Dim baseSta As Integer = objCharacter.Stamina.Base
+        Dim baseSpi As Integer = objCharacter.Spirit.Base
+        Dim baseAgi As Integer = objCharacter.Agility.Base
+        'Dim baseMana As Integer = objCharacter.Mana.Maximum
+        Dim baseLife As Integer = objCharacter.Life.Maximum
 
-        Select Case c.Classe
+        Select Case objCharacter.Classe
             Case Classes.CLASS_DRUID
-                If c.Level <= 17 Then
-                    c.Life.Base += 17
+                If objCharacter.Level <= 17 Then
+                    objCharacter.Life.Base += 17
                 Else
-                    c.Life.Base += c.Level
+                    objCharacter.Life.Base += objCharacter.Level
                 End If
-                If c.Level <= 25 Then
-                    c.Mana.Base += 20 + c.Level
+                If objCharacter.Level <= 25 Then
+                    objCharacter.Mana.Base += 20 + objCharacter.Level
                 Else
-                    c.Mana.Base += 45
+                    objCharacter.Mana.Base += 45
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000021, 0.003009, 0.486493, -0.400003)
-                c.Intellect.Base += gainStat(c.Level, 0.000038, 0.005145, 0.871006, -0.832029)
-                c.Agility.Base += gainStat(c.Level, 0.000041, 0.00044, 0.512076, -1.000317)
-                c.Stamina.Base += gainStat(c.Level, 0.000023, 0.003345, 0.56005, -0.562058)
-                c.Spirit.Base += gainStat(c.Level, 0.000059, 0.004044, 1.04, -1.488504)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000021, 0.003009, 0.486493, -0.400003)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.000038, 0.005145, 0.871006, -0.832029)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000041, 0.00044, 0.512076, -1.000317)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000023, 0.003345, 0.56005, -0.562058)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000059, 0.004044, 1.04, -1.488504)
             Case Classes.CLASS_HUNTER
-                If c.Level <= 13 Then
-                    c.Life.Base += 17
+                If objCharacter.Level <= 13 Then
+                    objCharacter.Life.Base += 17
                 Else
-                    c.Life.Base += c.Level + 4
+                    objCharacter.Life.Base += objCharacter.Level + 4
                 End If
-                If c.Level <= 27 Then
-                    c.Mana.Base += 18 + c.Level
+                If objCharacter.Level <= 27 Then
+                    objCharacter.Mana.Base += 18 + objCharacter.Level
                 Else
-                    c.Mana.Base += 45
+                    objCharacter.Mana.Base += 45
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000022, 0.0018, 0.407867, -0.550889)
-                c.Intellect.Base += gainStat(c.Level, 0.00002, 0.003007, 0.505215, -0.500642)
-                c.Agility.Base += gainStat(c.Level, 0.00004, 0.007416, 1.125108, -1.003045)
-                c.Stamina.Base += gainStat(c.Level, 0.000031, 0.00448, 0.78004, -0.800471)
-                c.Spirit.Base += gainStat(c.Level, 0.000017, 0.003803, 0.536846, -0.490026)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000022, 0.0018, 0.407867, -0.550889)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.00002, 0.003007, 0.505215, -0.500642)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.00004, 0.007416, 1.125108, -1.003045)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000031, 0.00448, 0.78004, -0.800471)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000017, 0.003803, 0.536846, -0.490026)
             Case Classes.CLASS_MAGE
-                If c.Level <= 25 Then
-                    c.Life.Base += 15
+                If objCharacter.Level <= 25 Then
+                    objCharacter.Life.Base += 15
                 Else
-                    c.Life.Base += c.Level - 8
+                    objCharacter.Life.Base += objCharacter.Level - 8
                 End If
-                If c.Level <= 27 Then
-                    c.Mana.Base += 23 + c.Level
+                If objCharacter.Level <= 27 Then
+                    objCharacter.Mana.Base += 23 + objCharacter.Level
                 Else
-                    c.Mana.Base += 51
+                    objCharacter.Mana.Base += 51
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000002, 0.001003, 0.10089, -0.076055)
-                c.Intellect.Base += gainStat(c.Level, 0.00004, 0.007416, 1.125108, -1.003045)
-                c.Agility.Base += gainStat(c.Level, 0.000008, 0.001001, 0.16319, -0.06428)
-                c.Stamina.Base += gainStat(c.Level, 0.000006, 0.002031, 0.27836, -0.340077)
-                c.Spirit.Base += gainStat(c.Level, 0.000039, 0.006981, 1.09009, -1.00607)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000002, 0.001003, 0.10089, -0.076055)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.00004, 0.007416, 1.125108, -1.003045)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000008, 0.001001, 0.16319, -0.06428)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000006, 0.002031, 0.27836, -0.340077)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000039, 0.006981, 1.09009, -1.00607)
             Case Classes.CLASS_PALADIN
-                If c.Level <= 14 Then
-                    c.Life.Base += 18
+                If objCharacter.Level <= 14 Then
+                    objCharacter.Life.Base += 18
                 Else
-                    c.Life.Base += c.Level + 4
+                    objCharacter.Life.Base += objCharacter.Level + 4
                 End If
-                If c.Level <= 25 Then
-                    c.Mana.Base += 17 + c.Level
+                If objCharacter.Level <= 25 Then
+                    objCharacter.Mana.Base += 17 + objCharacter.Level
                 Else
-                    c.Mana.Base += 42
+                    objCharacter.Mana.Base += 42
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000037, 0.005455, 0.940039, -1.00009)
-                c.Intellect.Base += gainStat(c.Level, 0.000023, 0.003345, 0.56005, -0.562058)
-                c.Agility.Base += gainStat(c.Level, 0.00002, 0.003007, 0.505215, -0.500642)
-                c.Stamina.Base += gainStat(c.Level, 0.000038, 0.005145, 0.871006, -0.832029)
-                c.Spirit.Base += gainStat(c.Level, 0.000032, 0.003025, 0.61589, -0.640307)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000037, 0.005455, 0.940039, -1.00009)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.000023, 0.003345, 0.56005, -0.562058)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.00002, 0.003007, 0.505215, -0.500642)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000038, 0.005145, 0.871006, -0.832029)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000032, 0.003025, 0.61589, -0.640307)
             Case Classes.CLASS_PRIEST
-                If c.Level <= 22 Then
-                    c.Life.Base += 15
+                If objCharacter.Level <= 22 Then
+                    objCharacter.Life.Base += 15
                 Else
-                    c.Life.Base += c.Level - 6
+                    objCharacter.Life.Base += objCharacter.Level - 6
                 End If
-                If c.Level <= 33 Then
-                    c.Mana.Base += 22 + c.Level
+                If objCharacter.Level <= 33 Then
+                    objCharacter.Mana.Base += 22 + objCharacter.Level
                 Else
-                    c.Mana.Base += 54
+                    objCharacter.Mana.Base += 54
                 End If
-                If c.Level = 34 Then c.Mana.Base += 15
-                c.Strength.Base += gainStat(c.Level, 0.000008, 0.001001, 0.16319, -0.06428)
-                c.Intellect.Base += gainStat(c.Level, 0.000039, 0.006981, 1.09009, -1.00607)
-                c.Agility.Base += gainStat(c.Level, 0.000022, 0.000022, 0.260756, -0.494)
-                c.Stamina.Base += gainStat(c.Level, 0.000024, 0.000981, 0.364935, -0.5709)
-                c.Spirit.Base += gainStat(c.Level, 0.00004, 0.007416, 1.125108, -1.003045)
+                If objCharacter.Level = 34 Then objCharacter.Mana.Base += 15
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000008, 0.001001, 0.16319, -0.06428)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.000039, 0.006981, 1.09009, -1.00607)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000022, 0.000022, 0.260756, -0.494)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000024, 0.000981, 0.364935, -0.5709)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.00004, 0.007416, 1.125108, -1.003045)
             Case Classes.CLASS_ROGUE
-                If c.Level <= 15 Then
-                    c.Life.Base += 17
+                If objCharacter.Level <= 15 Then
+                    objCharacter.Life.Base += 17
                 Else
-                    c.Life.Base += c.Level + 2
+                    objCharacter.Life.Base += objCharacter.Level + 2
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000025, 0.00417, 0.654096, -0.601491)
-                c.Intellect.Base += gainStat(c.Level, 0.000008, 0.001001, 0.16319, -0.06428)
-                c.Agility.Base += gainStat(c.Level, 0.000038, 0.007834, 1.191028, -1.20394)
-                c.Stamina.Base += gainStat(c.Level, 0.000032, 0.003025, 0.61589, -0.640307)
-                c.Spirit.Base += gainStat(c.Level, 0.000024, 0.000981, 0.364935, -0.5709)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000025, 0.00417, 0.654096, -0.601491)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.000008, 0.001001, 0.16319, -0.06428)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000038, 0.007834, 1.191028, -1.20394)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000032, 0.003025, 0.61589, -0.640307)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000024, 0.000981, 0.364935, -0.5709)
             Case Classes.CLASS_SHAMAN
-                If c.Level <= 16 Then
-                    c.Life.Base += 17
+                If objCharacter.Level <= 16 Then
+                    objCharacter.Life.Base += 17
                 Else
-                    c.Life.Base += c.Level + 1
+                    objCharacter.Life.Base += objCharacter.Level + 1
                 End If
-                If c.Level <= 32 Then
-                    c.Mana.Base += 19 + c.Level
+                If objCharacter.Level <= 32 Then
+                    objCharacter.Mana.Base += 19 + objCharacter.Level
                 Else
-                    c.Mana.Base += 52
+                    objCharacter.Mana.Base += 52
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000035, 0.003641, 0.73431, -0.800626)
-                c.Intellect.Base += gainStat(c.Level, 0.000031, 0.00448, 0.78004, -0.800471)
-                c.Agility.Base += gainStat(c.Level, 0.000022, 0.0018, 0.407867, -0.550889)
-                c.Stamina.Base += gainStat(c.Level, 0.00002, 0.00603, 0.80957, -0.80922)
-                c.Spirit.Base += gainStat(c.Level, 0.000038, 0.005145, 0.871006, -0.832029)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000035, 0.003641, 0.73431, -0.800626)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.000031, 0.00448, 0.78004, -0.800471)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000022, 0.0018, 0.407867, -0.550889)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.00002, 0.00603, 0.80957, -0.80922)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000038, 0.005145, 0.871006, -0.832029)
             Case Classes.CLASS_WARLOCK
-                If c.Level <= 17 Then
-                    c.Life.Base += 15
+                If objCharacter.Level <= 17 Then
+                    objCharacter.Life.Base += 15
                 Else
-                    c.Life.Base += c.Level - 2
+                    objCharacter.Life.Base += objCharacter.Level - 2
                 End If
-                If c.Level <= 30 Then
-                    c.Mana.Base += 21 + c.Level
+                If objCharacter.Level <= 30 Then
+                    objCharacter.Mana.Base += 21 + objCharacter.Level
                 Else
-                    c.Mana.Base += 51
+                    objCharacter.Mana.Base += 51
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000006, 0.002031, 0.27836, -0.340077)
-                c.Intellect.Base += gainStat(c.Level, 0.000059, 0.004044, 1.04, -1.488504)
-                c.Agility.Base += gainStat(c.Level, 0.000024, 0.000981, 0.364935, -0.5709)
-                c.Stamina.Base += gainStat(c.Level, 0.000021, 0.003009, 0.486493, -0.400003)
-                c.Spirit.Base += gainStat(c.Level, 0.00004, 0.006404, 1.038791, -1.039076)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000006, 0.002031, 0.27836, -0.340077)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.000059, 0.004044, 1.04, -1.488504)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000024, 0.000981, 0.364935, -0.5709)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000021, 0.003009, 0.486493, -0.400003)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.00004, 0.006404, 1.038791, -1.039076)
             Case Classes.CLASS_WARRIOR
-                If c.Level <= 14 Then
-                    c.Life.Base += 19
+                If objCharacter.Level <= 14 Then
+                    objCharacter.Life.Base += 19
                 Else
-                    c.Life.Base += c.Level + 10
+                    objCharacter.Life.Base += objCharacter.Level + 10
                 End If
-                c.Strength.Base += gainStat(c.Level, 0.000039, 0.006902, 1.08004, -1.051701)
-                c.Intellect.Base += gainStat(c.Level, 0.000002, 0.001003, 0.10089, -0.076055)
-                c.Agility.Base += gainStat(c.Level, 0.000022, 0.0046, 0.655333, -0.600356)
-                c.Stamina.Base += gainStat(c.Level, 0.000059, 0.004044, 1.04, -1.488504)
-                c.Spirit.Base += gainStat(c.Level, 0.000006, 0.002031, 0.27836, -0.340077)
+                objCharacter.Strength.Base += gainStat(objCharacter.Level, 0.000039, 0.006902, 1.08004, -1.051701)
+                objCharacter.Intellect.Base += gainStat(objCharacter.Level, 0.000002, 0.001003, 0.10089, -0.076055)
+                objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000022, 0.0046, 0.655333, -0.600356)
+                objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000059, 0.004044, 1.04, -1.488504)
+                objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000006, 0.002031, 0.27836, -0.340077)
         End Select
 
         'Calculate new spi/int gain
-        If c.Agility.Base <> baseAgi Then c.Resistances(DamageTypes.DMG_PHYSICAL).Base += (c.Agility.Base - baseAgi) * 2
-        If c.Spirit.Base <> baseSpi Then c.Life.Base += 10 * (c.Spirit.Base - baseSpi)
-        If c.Intellect.Base <> baseInt AndAlso c.ManaType = ManaTypes.TYPE_MANA Then c.Mana.Base += 15 * (c.Intellect.Base - baseInt)
+        If objCharacter.Agility.Base <> baseAgi Then objCharacter.Resistances(DamageTypes.DMG_PHYSICAL).Base += (objCharacter.Agility.Base - baseAgi) * 2
+        If objCharacter.Spirit.Base <> baseSpi Then objCharacter.Life.Base += 10 * (objCharacter.Spirit.Base - baseSpi)
+        If objCharacter.Intellect.Base <> baseInt AndAlso objCharacter.ManaType = ManaTypes.TYPE_MANA Then objCharacter.Mana.Base += 15 * (objCharacter.Intellect.Base - baseInt)
 
-        c.Damage.Minimum += 1
-        c.RangedDamage.Minimum += 1
-        c.Damage.Maximum += 1
-        c.RangedDamage.Maximum += 1
-        If c.Level > 9 Then c.TalentPoints += 1
+        objCharacter.Damage.Minimum += 1
+        objCharacter.RangedDamage.Minimum += 1
+        objCharacter.Damage.Maximum += 1
+        objCharacter.RangedDamage.Maximum += 1
+        If objCharacter.Level > 9 Then objCharacter.TalentPoints += 1
 
-        For Each Skill As KeyValuePair(Of Integer, TSkill) In c.Skills
+        For Each Skill As KeyValuePair(Of Integer, TSkill) In objCharacter.Skills
             If SkillLines(CType(Skill.Key, Integer)) = SKILL_LineCategory.WEAPON_SKILLS Then
                 CType(Skill.Value, TSkill).Base += 5
             End If
@@ -253,18 +253,18 @@ Public Module WS_CharManagment
         End Select
     End Function
 
-    Public Sub InitializeReputations(ByRef c As CharacterObject)
+    Public Sub InitializeReputations(ByRef objCharacter As CharacterObject)
         For i As Byte = 0 To 63
-            c.Reputation(i) = New TReputation
-            c.Reputation(i).Value = 0
-            c.Reputation(i).Flags = 0
+            objCharacter.Reputation(i) = New TReputation
+            objCharacter.Reputation(i).Value = 0
+            objCharacter.Reputation(i).Flags = 0
 
             For Each tmpFactionInfo As KeyValuePair(Of Integer, TFaction) In FactionInfo
                 If tmpFactionInfo.Value.VisibleID = i Then
                     For j As Byte = 0 To 3
-                        If HaveFlag(tmpFactionInfo.Value.flags(j), c.Race - 1) Then
-                            c.Reputation(i).Flags = tmpFactionInfo.Value.rep_flags(j)
-                            c.Reputation(i).Value = tmpFactionInfo.Value.rep_stats(j)
+                        If HaveFlag(tmpFactionInfo.Value.flags(j), objCharacter.Race - 1) Then
+                            objCharacter.Reputation(i).Flags = tmpFactionInfo.Value.rep_flags(j)
+                            objCharacter.Reputation(i).Value = tmpFactionInfo.Value.rep_stats(j)
                             Exit For
                         End If
                     Next
@@ -759,18 +759,18 @@ Public Module WS_CharManagment
         End Try
     End Sub
 
-    Public Sub InitializeTalentSpells(ByVal objChar As CharacterObject)
+    Public Sub InitializeTalentSpells(ByVal objCharacter As CharacterObject)
         Dim t As New SpellTargets
-        t.SetTarget_SELF(CType(objChar, CharacterObject))
+        t.SetTarget_SELF(CType(objCharacter, CharacterObject))
 
-        For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In objChar.Spells
+        For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In objCharacter.Spells
             If SPELLs.ContainsKey(Spell.Key) AndAlso (SPELLs(Spell.Key).IsPassive) Then
                 'DONE: Add passive spell we don't have
                 'DONE: Remove passive spells we can't have anymore
-                If objChar.HavePassiveAura(Spell.Key) = False AndAlso SPELLs(Spell.Key).CanCast(objChar, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
-                    SPELLs(Spell.Key).Apply(CType(objChar, CharacterObject), t)
-                ElseIf objChar.HavePassiveAura(Spell.Key) AndAlso SPELLs(Spell.Key).CanCast(objChar, t, False) <> SpellFailedReason.SPELL_NO_ERROR Then
-                    objChar.RemoveAuraBySpell(Spell.Key)
+                If objCharacter.HavePassiveAura(Spell.Key) = False AndAlso SPELLs(Spell.Key).CanCast(objCharacter, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
+                    SPELLs(Spell.Key).Apply(CType(objCharacter, CharacterObject), t)
+                ElseIf objCharacter.HavePassiveAura(Spell.Key) AndAlso SPELLs(Spell.Key).CanCast(objCharacter, t, False) <> SpellFailedReason.SPELL_NO_ERROR Then
+                    objCharacter.RemoveAuraBySpell(Spell.Key)
                 End If
             End If
         Next
@@ -1412,62 +1412,62 @@ Public Module WS_CharManagment
             End If
         End Sub
 
-        Public Overrides Function CanSee(ByRef c As BaseObject) As Boolean
-            If GUID = c.GUID Then Return False
-            If instance <> c.instance Then Return False
-            If c.MapID <> MapID Then Return False
+        Public Overrides Function CanSee(ByRef objCharacter As BaseObject) As Boolean
+            If GUID = objCharacter.GUID Then Return False
+            If instance <> objCharacter.instance Then Return False
+            If objCharacter.MapID <> MapID Then Return False
 
-            If TypeOf c Is CreatureObject Then
-                If Not CType(c, CreatureObject).aiScript Is Nothing Then
-                    If CType(c, CreatureObject).aiScript.State = TBaseAI.AIState.AI_RESPAWN Then Return False
+            If TypeOf objCharacter Is CreatureObject Then
+                If Not CType(objCharacter, CreatureObject).aiScript Is Nothing Then
+                    If CType(objCharacter, CreatureObject).aiScript.State = TBaseAI.AIState.AI_RESPAWN Then Return False
                 End If
-            ElseIf TypeOf c Is GameObjectObject Then
-                If CType(c, GameObjectObject).Despawned Then Return False
+            ElseIf TypeOf objCharacter Is GameObjectObject Then
+                If CType(objCharacter, GameObjectObject).Despawned Then Return False
             End If
 
-            Dim distance As Single = GetDistance(Me, c)
+            Dim distance As Single = GetDistance(Me, objCharacter)
 
             'DONE: See party members
-            If (Group IsNot Nothing) AndAlso (TypeOf c Is CharacterObject) Then
-                If (CType(c, CharacterObject).Group Is Group) Then
-                    If distance > c.VisibleDistance Then Return False Else Return True
+            If (Group IsNot Nothing) AndAlso (TypeOf objCharacter Is CharacterObject) Then
+                If (CType(objCharacter, CharacterObject).Group Is Group) Then
+                    If distance > objCharacter.VisibleDistance Then Return False Else Return True
                 End If
             End If
 
             'DONE: Check dead
             If DEAD AndAlso corpseGUID <> 0UL Then
                 'DONE: See only dead
-                If corpseGUID = c.GUID Then Return True
-                If GetDistance(c, corpsePositionX, corpsePositionY, corpsePositionZ) < c.VisibleDistance Then
+                If corpseGUID = objCharacter.GUID Then Return True
+                If GetDistance(objCharacter, corpsePositionX, corpsePositionY, corpsePositionZ) < objCharacter.VisibleDistance Then
                     'DONE: GM and DEAD invisibility
-                    If c.Invisibility > CanSeeInvisibility Then Return False
+                    If objCharacter.Invisibility > CanSeeInvisibility Then Return False
                     'DONE: Stealth Detection
-                    If c.Invisibility = InvisibilityLevel.STEALTH AndAlso (distance < Me.GetStealthDistance(c)) Then Return True
+                    If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso (distance < Me.GetStealthDistance(objCharacter)) Then Return True
                     'DONE: Check invisibility
-                    If c.Invisibility = InvisibilityLevel.INIVISIBILITY AndAlso c.Invisibility_Value > CanSeeInvisibility_Invisibility Then Return False
-                    If c.Invisibility = InvisibilityLevel.STEALTH AndAlso CanSeeStealth = False Then Return False
+                    If objCharacter.Invisibility = InvisibilityLevel.INIVISIBILITY AndAlso objCharacter.Invisibility_Value > CanSeeInvisibility_Invisibility Then Return False
+                    If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso CanSeeStealth = False Then Return False
                     Return True
                 End If
-                If c.Invisibility <> InvisibilityLevel.DEAD Then Return False
+                If objCharacter.Invisibility <> InvisibilityLevel.DEAD Then Return False
             ElseIf Invisibility = InvisibilityLevel.INIVISIBILITY Then
                 'DONE: See only invisible, or people who can see invisibility
-                If c.Invisibility <> InvisibilityLevel.INIVISIBILITY Then
-                    If c.CanSeeInvisibility_Invisibility >= Invisibility_Value Then Return True
+                If objCharacter.Invisibility <> InvisibilityLevel.INIVISIBILITY Then
+                    If objCharacter.CanSeeInvisibility_Invisibility >= Invisibility_Value Then Return True
                     Return False
                 End If
-                If Invisibility_Value < c.Invisibility_Value Then Return False
+                If Invisibility_Value < objCharacter.Invisibility_Value Then Return False
             Else
                 'DONE: GM and DEAD invisibility
-                If c.Invisibility > CanSeeInvisibility Then Return False
+                If objCharacter.Invisibility > CanSeeInvisibility Then Return False
                 'DONE: Stealth Detection
-                If c.Invisibility = InvisibilityLevel.STEALTH AndAlso (distance < Me.GetStealthDistance(c)) Then Return True
+                If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso (distance < Me.GetStealthDistance(objCharacter)) Then Return True
                 'DONE: Check invisibility
-                If c.Invisibility = InvisibilityLevel.INIVISIBILITY AndAlso c.Invisibility_Value > CanSeeInvisibility_Invisibility Then Return False
-                If c.Invisibility = InvisibilityLevel.STEALTH AndAlso CanSeeStealth = False Then Return False
+                If objCharacter.Invisibility = InvisibilityLevel.INIVISIBILITY AndAlso objCharacter.Invisibility_Value > CanSeeInvisibility_Invisibility Then Return False
+                If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso CanSeeStealth = False Then Return False
             End If
 
             'DONE: Check distance
-            If distance > c.VisibleDistance Then Return False
+            If distance > objCharacter.VisibleDistance Then Return False
             Return True
         End Function
 
@@ -6083,10 +6083,10 @@ DoneAmmo:
             End Get
         End Property
 
-        Public Function GetStealthDistance(ByRef c As BaseUnit) As Single
+        Public Function GetStealthDistance(ByRef objCharacter As BaseUnit) As Single
             Dim VisibleDistance As Single = 10.5 - (Me.Invisibility_Value / 100)
-            VisibleDistance += CInt(c.Level) - CInt(Me.Level)
-            VisibleDistance += (c.CanSeeInvisibility_Stealth - Me.Invisibility_Bonus) / 5
+            VisibleDistance += CInt(objCharacter.Level) - CInt(Me.Level)
+            VisibleDistance += (objCharacter.CanSeeInvisibility_Stealth - Me.Invisibility_Bonus) / 5
             Return VisibleDistance
         End Function
 
@@ -6288,32 +6288,32 @@ DoneAmmo:
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_STANDSTATECHANGE [{2}]", Client.IP, Client.Port, Client.Character.StandState)
     End Sub
 
-    Public Function CanUseAmmo(ByRef c As CharacterObject, ByVal AmmoID As Integer) As InventoryChangeFailure
-        If c.DEAD Then Return InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD
+    Public Function CanUseAmmo(ByRef objCharacter As CharacterObject, ByVal AmmoID As Integer) As InventoryChangeFailure
+        If objCharacter.DEAD Then Return InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD
         If ITEMDatabase.ContainsKey(AmmoID) = False Then Return InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND
         If ITEMDatabase(AmmoID).InventoryType <> INVENTORY_TYPES.INVTYPE_AMMO Then Return InventoryChangeFailure.EQUIP_ERR_ONLY_AMMO_CAN_GO_HERE
-        If ITEMDatabase(AmmoID).AvailableClasses <> 0 AndAlso (ITEMDatabase(AmmoID).AvailableClasses And c.ClassMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
-        If ITEMDatabase(AmmoID).AvailableRaces <> 0 AndAlso (ITEMDatabase(AmmoID).AvailableRaces And c.RaceMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
+        If ITEMDatabase(AmmoID).AvailableClasses <> 0 AndAlso (ITEMDatabase(AmmoID).AvailableClasses And objCharacter.ClassMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
+        If ITEMDatabase(AmmoID).AvailableRaces <> 0 AndAlso (ITEMDatabase(AmmoID).AvailableRaces And objCharacter.RaceMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
 
         If ITEMDatabase(AmmoID).ReqSkill <> 0 Then
-            If c.HaveSkill(ITEMDatabase(AmmoID).ReqSkill) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
-            If c.HaveSkill(ITEMDatabase(AmmoID).ReqSkill, ITEMDatabase(AmmoID).ReqSkillRank) = False Then Return InventoryChangeFailure.EQUIP_ERR_SKILL_ISNT_HIGH_ENOUGH
+            If objCharacter.HaveSkill(ITEMDatabase(AmmoID).ReqSkill) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
+            If objCharacter.HaveSkill(ITEMDatabase(AmmoID).ReqSkill, ITEMDatabase(AmmoID).ReqSkillRank) = False Then Return InventoryChangeFailure.EQUIP_ERR_SKILL_ISNT_HIGH_ENOUGH
         End If
         If ITEMDatabase(AmmoID).ReqSpell <> 0 Then
-            If c.HaveSpell(ITEMDatabase(AmmoID).ReqSpell) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
+            If objCharacter.HaveSpell(ITEMDatabase(AmmoID).ReqSpell) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
         End If
-        If ITEMDatabase(AmmoID).ReqLevel > c.Level Then Return InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N
-        If c.HavePassiveAura(46699) Then Return InventoryChangeFailure.EQUIP_ERR_BAG_FULL6 'Required no ammoe
+        If ITEMDatabase(AmmoID).ReqLevel > objCharacter.Level Then Return InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N
+        If objCharacter.HavePassiveAura(46699) Then Return InventoryChangeFailure.EQUIP_ERR_BAG_FULL6 'Required no ammoe
 
         Return InventoryChangeFailure.EQUIP_ERR_OK
     End Function
 
-    Public Function CheckAmmoCompatibility(ByRef c As CharacterObject, ByVal AmmoID As Integer) As Boolean
+    Public Function CheckAmmoCompatibility(ByRef objCharacter As CharacterObject, ByVal AmmoID As Integer) As Boolean
         If ITEMDatabase.ContainsKey(AmmoID) = False Then Return False
-        If c.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) = False OrElse c.Items(EQUIPMENT_SLOT_RANGED).IsBroken Then Return False
-        If c.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON Then Return False
+        If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) = False OrElse objCharacter.Items(EQUIPMENT_SLOT_RANGED).IsBroken Then Return False
+        If objCharacter.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON Then Return False
 
-        Select Case c.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass
+        Select Case objCharacter.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass
             Case ITEM_SUBCLASS.ITEM_SUBCLASS_BOW, ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW
                 If ITEMDatabase(AmmoID).SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_ARROW Then Return False
             Case ITEM_SUBCLASS.ITEM_SUBCLASS_GUN
@@ -6421,7 +6421,7 @@ DoneAmmo:
         Return AuthResponseCodes.CHAR_CREATE_SUCCESS
     End Function
 
-    Public Sub CreateCharacter(ByRef c As CharacterObject)
+    Public Sub CreateCharacter(ByRef objCharacter As CharacterObject)
         Dim CreateInfo As New DataTable
         Dim CreateInfoBars As New DataTable
         Dim CreateInfoSkills As New DataTable
@@ -6430,92 +6430,92 @@ DoneAmmo:
 
         Dim ButtonPos As Integer = 0
 
-        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0} AND class = {1};", CType(c.Race, Integer), CType(c.Classe, Integer)), CreateInfo)
+        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfo)
         If CreateInfo.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo table for race={0}, class={1}", c.Race, c.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
         End If
 
-        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_action WHERE race = {0} AND class = {1} ORDER BY button;", CType(c.Race, Integer), CType(c.Classe, Integer)), CreateInfoBars)
+        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_action WHERE race = {0} AND class = {1} ORDER BY button;", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoBars)
         If CreateInfoBars.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_action table for race={0}, class={1}", c.Race, c.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_action table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
         End If
 
-        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_skill WHERE race = {0} AND class = {1};", CType(c.Race, Integer), CType(c.Classe, Integer)), CreateInfoSkills)
+        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_skill WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSkills)
         If CreateInfoSkills.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_skill table for race={0}, class={1}", c.Race, c.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_skill table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
         End If
 
-        WorldDatabase.Query(String.Format("SELECT * FROM player_levelstats WHERE race = {0} AND class = {1} AND level = {2};", CType(c.Race, Integer), CType(c.Classe, Integer), CType(c.Level, Integer)), LevelStats)
+        WorldDatabase.Query(String.Format("SELECT * FROM player_levelstats WHERE race = {0} AND class = {1} AND level = {2};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), LevelStats)
         If LevelStats.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for race={0}, class={1}, level={2}", c.Race, c.Classe, c.Level)
+            Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for race={0}, class={1}, level={2}", objCharacter.Race, objCharacter.Classe, objCharacter.Level)
         End If
 
-        WorldDatabase.Query(String.Format("SELECT * FROM player_classlevelstats WHERE class = {0} AND level = {1};", CType(c.Classe, Integer), CType(c.Level, Integer)), ClassLevelStats)
+        WorldDatabase.Query(String.Format("SELECT * FROM player_classlevelstats WHERE class = {0} AND level = {1};", CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), ClassLevelStats)
         If ClassLevelStats.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for class={0}, level={1}", c.Classe, c.Level)
+            Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for class={0}, level={1}", objCharacter.Classe, objCharacter.Level)
         End If
 
         ' Initialize Character Variables
-        c.Copper = 0
-        c.XP = 0
-        c.Size = 1.0F
-        c.Life.Base = 0
-        c.Life.Current = 0
-        c.Mana.Base = 0
-        c.Mana.Current = 0
-        c.Rage.Current = 0
-        c.Rage.Base = 0
-        c.Energy.Current = 0
-        c.Energy.Base = 0
-        c.ManaType = GetClassManaType(c.Classe)
+        objCharacter.Copper = 0
+        objCharacter.XP = 0
+        objCharacter.Size = 1.0F
+        objCharacter.Life.Base = 0
+        objCharacter.Life.Current = 0
+        objCharacter.Mana.Base = 0
+        objCharacter.Mana.Current = 0
+        objCharacter.Rage.Current = 0
+        objCharacter.Rage.Base = 0
+        objCharacter.Energy.Current = 0
+        objCharacter.Energy.Base = 0
+        objCharacter.ManaType = GetClassManaType(objCharacter.Classe)
 
         ' Set Character Create Information
-        c.Model = GetRaceModel(c.Race, c.Gender)
+        objCharacter.Model = GetRaceModel(objCharacter.Race, objCharacter.Gender)
 
-        c.Faction = CharRaces(c.Race).FactionID
-        c.MapID = CreateInfo.Rows(0).Item("map")
-        c.ZoneID = CreateInfo.Rows(0).Item("zone")
-        c.positionX = CreateInfo.Rows(0).Item("position_x")
-        c.positionY = CreateInfo.Rows(0).Item("position_y")
-        c.positionZ = CreateInfo.Rows(0).Item("position_z")
-        c.bindpoint_map_id = c.MapID
-        c.bindpoint_zone_id = c.ZoneID
-        c.bindpoint_positionX = c.positionX
-        c.bindpoint_positionY = c.positionY
-        c.bindpoint_positionZ = c.positionZ
-        c.Strength.Base = LevelStats.Rows(0).Item("str")
-        c.Agility.Base = LevelStats.Rows(0).Item("agi")
-        c.Stamina.Base = LevelStats.Rows(0).Item("sta")
-        c.Intellect.Base = LevelStats.Rows(0).Item("inte")
-        c.Spirit.Base = LevelStats.Rows(0).Item("spi")
-        c.Life.Base = ClassLevelStats.Rows(0).Item("basehp")
-        c.Life.Current = c.Life.Maximum
+        objCharacter.Faction = CharRaces(objCharacter.Race).FactionID
+        objCharacter.MapID = CreateInfo.Rows(0).Item("map")
+        objCharacter.ZoneID = CreateInfo.Rows(0).Item("zone")
+        objCharacter.positionX = CreateInfo.Rows(0).Item("position_x")
+        objCharacter.positionY = CreateInfo.Rows(0).Item("position_y")
+        objCharacter.positionZ = CreateInfo.Rows(0).Item("position_z")
+        objCharacter.bindpoint_map_id = objCharacter.MapID
+        objCharacter.bindpoint_zone_id = objCharacter.ZoneID
+        objCharacter.bindpoint_positionX = objCharacter.positionX
+        objCharacter.bindpoint_positionY = objCharacter.positionY
+        objCharacter.bindpoint_positionZ = objCharacter.positionZ
+        objCharacter.Strength.Base = LevelStats.Rows(0).Item("str")
+        objCharacter.Agility.Base = LevelStats.Rows(0).Item("agi")
+        objCharacter.Stamina.Base = LevelStats.Rows(0).Item("sta")
+        objCharacter.Intellect.Base = LevelStats.Rows(0).Item("inte")
+        objCharacter.Spirit.Base = LevelStats.Rows(0).Item("spi")
+        objCharacter.Life.Base = ClassLevelStats.Rows(0).Item("basehp")
+        objCharacter.Life.Current = objCharacter.Life.Maximum
 
-        Select Case c.ManaType
+        Select Case objCharacter.ManaType
             Case ManaTypes.TYPE_MANA
-                c.Mana.Base = ClassLevelStats.Rows(0).Item("basemana")
-                c.Mana.Current = c.Mana.Maximum
+                objCharacter.Mana.Base = ClassLevelStats.Rows(0).Item("basemana")
+                objCharacter.Mana.Current = objCharacter.Mana.Maximum
             Case ManaTypes.TYPE_RAGE
-                c.Rage.Base = ClassLevelStats.Rows(0).Item("basemana")
-                c.Rage.Current = 0
+                objCharacter.Rage.Base = ClassLevelStats.Rows(0).Item("basemana")
+                objCharacter.Rage.Current = 0
             Case ManaTypes.TYPE_ENERGY
-                c.Energy.Base = ClassLevelStats.Rows(0).Item("basemana")
-                c.Energy.Current = 0
+                objCharacter.Energy.Base = ClassLevelStats.Rows(0).Item("basemana")
+                objCharacter.Energy.Current = 0
         End Select
 
         'TODO: Get damage min and maximum
-        c.Damage.Minimum = 5
-        c.Damage.Maximum = 10
+        objCharacter.Damage.Minimum = 5
+        objCharacter.Damage.Maximum = 10
 
         ' Set Player Create Skills
         For Each SkillRow As DataRow In CreateInfoSkills.Rows
-            c.LearnSkill(SkillRow.Item("Skill"), SkillRow.Item("SkillMin"), SkillRow.Item("SkillMax"))
+            objCharacter.LearnSkill(SkillRow.Item("Skill"), SkillRow.Item("SkillMin"), SkillRow.Item("SkillMax"))
         Next
 
         ' Set Player Taxi Zones
         For i As Integer = 0 To 31
-            If (CharRaces(c.Race).TaxiMask And (1 << i)) Then
-                c.TaxiZones.Set(i + 1, True)
+            If (CharRaces(objCharacter.Race).TaxiMask And (1 << i)) Then
+                objCharacter.TaxiZones.Set(i + 1, True)
             End If
         Next
 
@@ -6523,32 +6523,32 @@ DoneAmmo:
         For Each BarRow As DataRow In CreateInfoBars.Rows
             If BarRow.Item("action") > 0 Then
                 ButtonPos = BarRow.Item("button")
-                c.ActionButtons(ButtonPos) = New TActionButton(BarRow.Item("action"), BarRow.Item("type"), BarRow.Item("misc"))
+                objCharacter.ActionButtons(ButtonPos) = New TActionButton(BarRow.Item("action"), BarRow.Item("type"), BarRow.Item("misc"))
             End If
         Next
 
     End Sub
 
-    Public Sub CreateCharacterSpells(ByRef c As CharacterObject)
+    Public Sub CreateCharacterSpells(ByRef objCharacter As CharacterObject)
         Dim CreateInfoSpells As New DataTable
 
-        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_spell WHERE race = {0} AND class = {1};", CType(c.Race, Integer), CType(c.Classe, Integer)), CreateInfoSpells)
+        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_spell WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSpells)
         If CreateInfoSpells.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_spell table for race={0}, class={1}", c.Race, c.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_spell table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
         End If
 
         ' Set Player Create Spells
         For Each SpellRow As DataRow In CreateInfoSpells.Rows
-            c.LearnSpell(SpellRow.Item("Spell"))
+            objCharacter.LearnSpell(SpellRow.Item("Spell"))
         Next
     End Sub
 
-    Public Sub CreateCharacterItems(ByRef c As CharacterObject)
+    Public Sub CreateCharacterItems(ByRef objCharacter As CharacterObject)
 
         Dim CreateInfoItems As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_item WHERE race = {0} AND class = {1};", CType(c.Race, Integer), CType(c.Classe, Integer)), CreateInfoItems)
+        WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_item WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoItems)
         If CreateInfoItems.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_item table for race={0}, class={1}", c.Race, c.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_item table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
         End If
 
         ' Set Player Create Items
@@ -6568,8 +6568,8 @@ DoneAmmo:
             If ITEMDatabase(Item.Key).ContainerSlots > 0 Then
                 Dim Slots() As Byte = ITEMDatabase(Item.Key).GetSlots
                 For Each tmpSlot As Byte In Slots
-                    If Not c.Items.ContainsKey(tmpSlot) Then
-                        c.ItemADD(Item.Key, CType(0, Byte), tmpSlot, Item.Value)
+                    If Not objCharacter.Items.ContainsKey(tmpSlot) Then
+                        objCharacter.ItemADD(Item.Key, CType(0, Byte), tmpSlot, Item.Value)
                         Used.Add(Item.Key)
                         Exit For
                     End If
@@ -6583,12 +6583,12 @@ DoneAmmo:
 
             Dim Slots() As Byte = ITEMDatabase(Item.Key).GetSlots
             For Each tmpSlot As Byte In Slots
-                If Not c.Items.ContainsKey(tmpSlot) Then
-                    c.ItemADD(Item.Key, CType(0, Byte), tmpSlot, Item.Value)
+                If Not objCharacter.Items.ContainsKey(tmpSlot) Then
+                    objCharacter.ItemADD(Item.Key, CType(0, Byte), tmpSlot, Item.Value)
                     GoTo nextitem
                 End If
             Next
-            c.ItemADD(Item.Key, 255, 255, Item.Value)
+            objCharacter.ItemADD(Item.Key, 255, 255, Item.Value)
 NextItem:
         Next
 
