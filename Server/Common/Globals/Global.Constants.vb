@@ -1,50 +1,61 @@
 ﻿
 
 Public Module Constants
-    Public Function GuidIsCreature(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_UNIT Then Return True
+    Public Function GuidIsCreature(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_UNIT Then Return True
         Return False
     End Function
-    Public Function GuidIsPet(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_PET Then Return True
+
+    Public Function GuidIsPet(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_PET Then Return True
         Return False
     End Function
-    Public Function GuidIsItem(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_ITEM Then Return True
+
+    Public Function GuidIsItem(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_ITEM Then Return True
         Return False
     End Function
-    Public Function GuidIsGameObject(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_GAMEOBJECT Then Return True
+
+    Public Function GuidIsGameObject(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_GAMEOBJECT Then Return True
         Return False
     End Function
-    Public Function GuidIsDnyamicObject(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_DYNAMICOBJECT Then Return True
+
+    Public Function GuidIsDnyamicObject(ByVal guid As ULong) As Boolean
+        If GuidHigh2(GUID) = GUID_DYNAMICOBJECT Then Return True
         Return False
     End Function
-    Public Function GuidIsTransport(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_TRANSPORT Then Return True
+
+    Public Function GuidIsTransport(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_TRANSPORT Then Return True
         Return False
     End Function
-    Public Function GuidIsMoTransport(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_MO_TRANSPORT Then Return True
+
+    Public Function GuidIsMoTransport(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_MO_TRANSPORT Then Return True
         Return False
     End Function
-    Public Function GuidIsCorpse(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_CORPSE Then Return True
+
+    Public Function GuidIsCorpse(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_CORPSE Then Return True
         Return False
     End Function
-    Public Function GuidIsPlayer(ByVal GUID As ULong) As Boolean
-        If GuidHIGH2(GUID) = GUID_PLAYER Then Return True
+
+    Public Function GuidIsPlayer(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_PLAYER Then Return True
         Return False
     End Function
-    Public Function GuidHIGH2(ByVal GUID As ULong) As ULong
-        Return (GUID And GUID_MASK_HIGH)
+
+    Public Function GuidHigh2(ByVal guid As ULong) As ULong
+        Return (guid And GUID_MASK_HIGH)
     End Function
-    Public Function GuidHIGH(ByVal GUID As ULong) As UInteger
-        Return CUInt((GUID And GUID_MASK_HIGH) >> 32UL)
+
+    Public Function GuidHigh(ByVal guid As ULong) As UInteger
+        Return CUInt((guid And GUID_MASK_HIGH) >> 32UL)
     End Function
-    Public Function GuidLOW(ByVal GUID As ULong) As UInteger
-        Return (GUID And GUID_MASK_LOW)
+
+    Public Function GuidLow(ByVal guid As ULong) As UInteger
+        Return (guid And GUID_MASK_LOW)
     End Function
 
     Public Const GUID_ITEM As ULong = &H4000000000000000UL
@@ -209,8 +220,6 @@ Public Module Constants
     Public Const QUEST_SLOTS As Integer = 24
     Public Const QUEST_SHARING_DISTANCE As Integer = 10
 
-
-
     Public Enum AuthLoginCodes
         CHAR_LOGIN_FAILED = 0                       'Login failed
         CHAR_LOGIN_NO_WORLD = 1                     'World server is down
@@ -221,6 +230,7 @@ Public Module Constants
         CHAR_LOGIN_LOCKED_FOR_TRANSFER = 6
         CHAR_LOGIN_LOCKED_BY_BILLING = 7
     End Enum
+
     Public Enum AuthResponseCodes
         RESPONSE_SUCCESS = &H0                      'Success
         RESPONSE_FAILURE = &H1                      'Failure
@@ -312,12 +322,11 @@ Public Module Constants
     End Enum
 
 #Region "Player.Enums"
-
-
     Public Enum Genders As Byte
         GENDER_MALE = 0
         GENDER_FEMALE = 1
     End Enum
+
     Public Enum Classes As Byte
         CLASS_WARRIOR = 1
         CLASS_PALADIN = 2
@@ -329,6 +338,7 @@ Public Module Constants
         CLASS_WARLOCK = 9
         CLASS_DRUID = 11
     End Enum
+
     Public Enum Races As Byte
         RACE_HUMAN = 1
         RACE_ORC = 2
@@ -339,6 +349,7 @@ Public Module Constants
         RACE_GNOME = 7
         RACE_TROLL = 8
     End Enum
+
     <Flags()> _
     Public Enum PlayerFlags As Integer
         PLAYER_FLAG_GROUP_LEADER = &H1
@@ -357,14 +368,13 @@ Public Module Constants
         PLAYER_FLAG_NEED_REST_5_HOURS = &H2000
         PLAYER_FLAG_PVP = &H40000
     End Enum
+
     Public Enum PlayerHonorRank As Byte
         RANK_NONE = 0
-
         RANK_PARIAH = 1
         RANK_OUTLAW = 2
         RANK_EXILED = 3
         RANK_DISHONORED = 4
-
         RANK_A_RIVATE = 5
         RANK_H_SCOUT = 5
         RANK_A_CORPORAL = 6
@@ -405,6 +415,7 @@ Public Module Constants
         DMG_ARCANE = 6
     End Enum
 
+    <Flags()> _
     Public Enum DamageMasks As Integer
         DMG_NORMAL = &H0
         DMG_PHYSICAL = &H1
@@ -415,9 +426,9 @@ Public Module Constants
         DMG_SHADOW = &H20
         DMG_ARCANE = &H40
     End Enum
+
     Public Enum SpellLogTypes As Integer
         NON_MELEE = 0
-
     End Enum
 
     Public Enum StandStates As Byte
@@ -529,8 +540,8 @@ Public Module Constants
     End Enum
 
 #End Region
-#Region "Player.Groups"
 
+#Region "Player.Groups"
     <Flags()> _
     Public Enum GroupType As Byte
         PARTY = 0
@@ -570,6 +581,7 @@ Public Module Constants
     End Enum
 
 #End Region
+
 #Region "Player.Chat"
 
     Public Enum LANGUAGES As Integer
@@ -628,8 +640,8 @@ Public Module Constants
     End Enum
 
 #End Region
-#Region "Object.Flags"
 
+#Region "Object.Flags"
     Public Enum DynamicFlags   'Dynamic flags for units
         'Unit has blinking stars effect showing lootable
         UNIT_DYNFLAG_LOOTABLE = &H1
@@ -645,19 +657,20 @@ Public Module Constants
         UNIT_DYNFLAG_DEAD = &H20
     End Enum
 
+    <Flags()> _
     Public Enum UnitFlags   'Flags for units
         UNIT_FLAG_NONE = &H0
         UNIT_FLAG_UNK1 = &H1
-        UNIT_FLAG_NOT_ATTACKABLE = &H2                                                  'Unit is not attackable
-        UNIT_FLAG_DISABLE_MOVE = &H4                                                    'Unit is frozen, rooted or stunned
-        UNIT_FLAG_ATTACKABLE = &H8                                                      'Unit becomes temporarily hostile, shows in red, allows attack
+        UNIT_FLAG_NOT_ATTACKABLE = &H2                                              'Unit is not attackable
+        UNIT_FLAG_DISABLE_MOVE = &H4                                                'Unit is frozen, rooted or stunned
+        UNIT_FLAG_ATTACKABLE = &H8                                                  'Unit becomes temporarily hostile, shows in red, allows attack
         UNIT_FLAG_RENAME = &H10
         UNIT_FLAG_RESTING = &H20
         UNIT_FLAG_UNK5 = &H40
-        UNIT_FLAG_NOT_ATTACKABLE_1 = &H80                                               'Unit cannot be attacked by player, shows no attack cursor
+        UNIT_FLAG_NOT_ATTACKABLE_1 = &H80                                           'Unit cannot be attacked by player, shows no attack cursor
         UNIT_FLAG_UNK6 = &H100
         UNIT_FLAG_UNK7 = &H200
-        UNIT_FLAG_NON_PVP_PLAYER = UNIT_FLAG_ATTACKABLE + UNIT_FLAG_NOT_ATTACKABLE_1    'Unit cannot be attacked by player, shows in blue
+        UNIT_FLAG_NON_PVP_PLAYER = UNIT_FLAG_ATTACKABLE + UNIT_FLAG_NOT_ATTACKABLE_1 'Unit cannot be attacked by player, shows in blue
         UNIT_FLAG_LOOTING = &H400
         UNIT_FLAG_PET_IN_COMBAT = &H800
         UNIT_FLAG_PVP = &H1000
@@ -683,6 +696,7 @@ Public Module Constants
         UNIT_FLAG_SHEATHE = &H40000000
     End Enum
 
+    <Flags()> _
     Public Enum NPCFlags
         UNIT_NPC_FLAG_NONE = &H0
         UNIT_NPC_FLAG_GOSSIP = &H1
@@ -703,6 +717,7 @@ Public Module Constants
     End Enum
 
 #End Region
+
 #Region "Creatures.Types"
 
     Public Enum TrainerTypes
@@ -711,6 +726,7 @@ Public Module Constants
         TRAINER_TYPE_TRADESKILLS = 2
         TRAINER_TYPE_PETS = 3
     End Enum
+
     Public Enum UNIT_TYPE
         NOUNITTYPE = 0
         BEAST = 1
@@ -812,7 +828,7 @@ Public Module Constants
         Legs = 6
         MainHand = 15
         Neck = 1
-        None = -1
+        None = - 1
         OffHand = 16
         Ranged = 17
         Shirt = 3
@@ -848,7 +864,6 @@ Public Module Constants
         BATTLEGROUND_AlteracValley = 1
         BATTLEGROUND_WarsongGulch = 2
         BATTLEGROUND_ArathiBasin = 3
-        BATTLEGROUND_EyeOfTheStorm = 7
     End Enum
 
     Public Enum GuildEvent As Byte
@@ -877,6 +892,7 @@ Public Module Constants
         DIALOG_STATUS_REWARD = 6                ' Quest has been finished. - Yellow dot on the minimap
     End Enum
 
+    <Flags()> _
     Public Enum QuestObjectiveFlag 'These flags are custom and are only used for MangosVB
         QUEST_OBJECTIVE_KILL = 1 'You have to kill creatures
         QUEST_OBJECTIVE_EXPLORE = 2 'You have to explore an area
@@ -887,6 +903,7 @@ Public Module Constants
         QUEST_OBJECTIVE_EMOTE = 64 'You do an emote to a creature
     End Enum
 
+    <Flags()> _
     Public Enum QuestSpecialFlag As Integer
         QUEST_SPECIALFLAGS_NONE = 0
         QUEST_SPECIALFLAGS_DELIVER = 1
@@ -962,8 +979,6 @@ Public Module Constants
     Public Const CMD_GRUNT_PROVESESSION As Integer = &H21     'server
     Public Const CMD_GRUNT_KICK As Integer = &H24             'server
 
-
-
     Public Enum ActivateTaxiReplies As Byte
         ERR_TAXIOK = 0
         ERR_TAXIUNSPECIFIEDSERVERERROR = 1
@@ -979,7 +994,6 @@ Public Module Constants
         ERR_TAXISAMENODE = 11
         ERR_TAXINOTSTANDING = 12
     End Enum
-
 
 #Region "NPC Constants"
     Public Enum SELL_ERROR As Byte
@@ -1169,6 +1183,7 @@ Public Module Constants
         SHADOW_DAMAGE = 5
         ARCANE_DAMAGE = 6
     End Enum
+
     Public Enum ITEM_QUALITY_NAMES As Byte
         ITEM_QUALITY_POOR_GREY = 0
         ITEM_QUALITY_NORMAL_WHITE = 1
@@ -1179,6 +1194,7 @@ Public Module Constants
         ITEM_QUALITY_ARTIFACT_LIGHT_YELLOW = 6
         ITEM_QUALITY_HEIRLOOM = 7
     End Enum
+
     Public Enum ITEM_STAT_TYPE As Byte
         HEALTH = 1
         UNKNOWN = 2
@@ -1213,6 +1229,7 @@ Public Module Constants
         RESILIENCE = 35
         HITHASTERATING = 36
     End Enum
+
     Public Enum ITEM_SPELLTRIGGER_TYPE As Byte
         USE = 0
         ON_EQUIP = 1
@@ -1221,6 +1238,7 @@ Public Module Constants
         NO_DELAY_USE = 5
         LEARN_SPELL = 6
     End Enum
+
     Public Enum ITEM_BONDING_TYPE As Byte
         NO_BIND = 0
         BIND_WHEN_PICKED_UP = 1
@@ -1229,6 +1247,7 @@ Public Module Constants
         BIND_UNK_QUESTITEM1 = 4
         BIND_UNK_QUESTITEM2 = 5
     End Enum
+
     Public Enum SHEATHE_TYPE As Byte
         SHEATHETYPE_NONE = 0
         SHEATHETYPE_MAINHAND = 1
@@ -1239,11 +1258,13 @@ Public Module Constants
         SHEATHETYPE_HIPWEAPONRIGHT = 6
         SHEATHETYPE_SHIELD = 7
     End Enum
+
     Public Enum SHEATHE_SLOT As Byte
         SHEATHE_NONE = 0
         SHEATHE_WEAPON = 1
         SHEATHE_RANGED = 2
     End Enum
+
     Public Enum INVENTORY_TYPES As Byte
         INVTYPE_NON_EQUIP = &H0
         INVTYPE_HEAD = &H1
@@ -1296,6 +1317,7 @@ Public Module Constants
         ITEM_CLASS_PERMANENT = 14
         ITEM_CLASS_JUNK = 15
     End Enum
+
     Public Enum ITEM_SUBCLASS As Byte
         ' Consumable
         ITEM_SUBCLASS_CONSUMABLE = 0
@@ -1417,6 +1439,8 @@ Public Module Constants
         ITEM_SUBCLASS_OTHER = 4
         ITEM_SUBCLASS_MOUNT = 5
     End Enum
+
+    <Flags()> _
     Public Enum ITEM_FLAGS As Integer
         ITEM_FLAGS_BINDED = &H1
         ITEM_FLAGS_CONJURED = &H2
@@ -1428,6 +1452,7 @@ Public Module Constants
         ITEM_FLAGS_THROWABLE = &H400000 ' not used in game for check trow possibility, only for item in game tooltip
         ITEM_FLAGS_SPECIALUSE = &H800000
     End Enum
+
     Public Enum ITEM_BAG As Integer
         NONE = 0
         ARROW = 1
@@ -1440,6 +1465,7 @@ Public Module Constants
         JEWELCRAFTING = 10
         MINNING = 11
     End Enum
+
     Public Enum EnchantSlots As Byte
         ENCHANTMENT_PERM = 0
         ENCHANTMENT_TEMP = 1
