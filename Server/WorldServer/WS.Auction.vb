@@ -461,19 +461,15 @@ Module WS_Auction
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_ITEMS [{2} ({3}-{4})]", Client.IP, Client.Port, Name, LevelMIN, LevelMAX)
 
-
-
-
-
         Dim response As New PacketClass(OPCODES.SMSG_AUCTION_LIST_RESULT)
-        Dim QueryString As String = "SELECT auctionhouse.* FROM auctionhouse, items WHERE items.entry = auctionhouse.auction_itemId"
-        If Name <> "" Then QueryString += " AND items.item_name LIKE '%" & Name & "%'"
-        If LevelMIN <> 0 Then QueryString += " AND items.item_level > " & (LevelMIN - 1)
-        If LevelMAX <> 0 Then QueryString += " AND items.item_level < " & (LevelMAX + 1)
-        If itemSlot <> -1 Then QueryString += " AND items.item_inventoryType = " & itemSlot
-        If itemClass <> -1 Then QueryString += " AND items.item_class = " & itemClass
-        If itemSubClass <> -1 Then QueryString += " AND items.item_subclass = " & itemSubClass
-        If itemQuality <> -1 Then QueryString += " AND items.item_quality = " & itemQuality
+        Dim QueryString As String = "SELECT auctionhouse.* FROM " & CharacterDatabase.SQLDBName & ".auctionhouse, " & WorldDatabase.SQLDBName & ".item_template WHERE item_template.entry = auctionhouse.auction_itemId"
+        If Name <> "" Then QueryString += " AND item_template.name LIKE '%" & Name & "%'"
+        If LevelMIN <> 0 Then QueryString += " AND item_template.itemlevel > " & (LevelMIN - 1)
+        If LevelMAX <> 0 Then QueryString += " AND item_template.itemlevel < " & (LevelMAX + 1)
+        If itemSlot <> -1 Then QueryString += " AND item_template.inventoryType = " & itemSlot
+        If itemClass <> -1 Then QueryString += " AND item_template.class = " & itemClass
+        If itemSubClass <> -1 Then QueryString += " AND item_template.subclass = " & itemSubClass
+        If itemQuality <> -1 Then QueryString += " AND item_template.quality = " & itemQuality
 
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query(QueryString & ";", MySQLQuery)
