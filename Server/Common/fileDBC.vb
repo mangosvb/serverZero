@@ -55,15 +55,15 @@ Namespace DBC
 
                 If tmpRowRead <> Row Then ReadRow(Row)
 
-                Array.Copy(tmpRow, Column * 4, Buffer, 0, 4)
+                Array.Copy(tmpRow, Column * 4, buffer, 0, 4)
 
                 Select Case ValueType
                     Case DBCValueType.DBC_INTEGER
-                        Return BitConverter.ToInt32(Buffer, 0)
+                        Return BitConverter.ToInt32(buffer, 0)
                     Case DBCValueType.DBC_FLOAT
-                        Return BitConverter.ToSingle(Buffer, 0)
+                        Return BitConverter.ToSingle(buffer, 0)
                     Case DBCValueType.DBC_STRING
-                        Dim Offset As Integer = BitConverter.ToInt32(Buffer, 0)
+                        Dim Offset As Integer = BitConverter.ToInt32(buffer, 0)
                         fs.Seek(20 + Rows * RowLength + Offset, SeekOrigin.Begin)
 
                         Dim strByte As Byte = 0
@@ -76,7 +76,6 @@ Namespace DBC
                         Return strResult
                     Case Else
                         Throw New ApplicationException("DBC: Undefined DBC field type.")
-                        Return Nothing
                 End Select
 
             End Get
@@ -148,7 +147,6 @@ Namespace DBC
                         Return strResult
                     Case Else
                         Throw New ApplicationException("DBCReader: Undefined DBC field type.")
-                        Return Nothing
                 End Select
             End Get
         End Property
@@ -170,8 +168,6 @@ Namespace DBC
 
         Protected buffer(3) As Byte
         Protected tmpOffset As Long = 0
-
-
 
 #Region "IDisposable Support"
         Private _disposedValue As Boolean ' To detect redundant calls
@@ -212,7 +208,7 @@ Namespace DBC
         Protected Sub ReadHeader()
             Try
                 fs.Read(buffer, 0, 4)
-                fType = System.Text.Encoding.ASCII.GetString(buffer)
+                fType = Text.Encoding.ASCII.GetString(buffer)
                 fs.Read(buffer, 0, 4)
                 Rows = BitConverter.ToInt32(buffer, 0)
                 fs.Read(buffer, 0, 4)
@@ -245,11 +241,13 @@ Namespace DBC
                     Case DBCValueType.DBC_INTEGER
                         Return BitConverter.ToInt32(buffer, 0)
                     Case DBCValueType.DBC_STRING
-                        Dim Offset As Integer = BitConverter.ToInt32(buffer, 0)
-                        fs.Seek(20 + Rows * RowLength + Offset, SeekOrigin.Begin)
+                        Dim offset As Integer = BitConverter.ToInt32(buffer, 0)
+                        fs.Seek(20 + Rows * RowLength + offset, SeekOrigin.Begin)
 
-                        Dim strByte As Byte = 0
-                        Dim strResult As String = ""
+                        Dim strByte As Byte
+                        Dim strResult As String
+			strByte = 0
+                        strResult = ""
                         Do
                             strByte = fs.ReadByte()
                             strResult &= Chr(strByte)
@@ -258,7 +256,6 @@ Namespace DBC
                         Return strResult
                     Case Else
                         Throw New ApplicationException("DBCReader: Undefined DBC field type.")
-                        Return Nothing
                 End Select
             End Get
         End Property

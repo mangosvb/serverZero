@@ -86,7 +86,7 @@ Public Class BaseWriter
                     Log = New FileWriter(LogConfig)
                 Case "TELNET"
                     Dim info As String() = Split(LogConfig, ":")
-                    Log = New TelnetWriter(System.Net.IPAddress.Parse(info(0)), info(1))
+                    Log = New TelnetWriter(Net.IPAddress.Parse(info(0)), info(1))
                 Case "IRC"
                     Dim info As String() = Split(LogConfig, ":")
                     Dim server As String = info(0)

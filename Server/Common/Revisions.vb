@@ -40,7 +40,7 @@ Public Class Revisions
         Dim mySqlQuery As New DataTable
         thisDatabase.Query(String.Format("SELECT column_name FROM information_schema.columns WHERE table_name='" & thisTableName & "'  AND TABLE_SCHEMA='" & thisDatabase.SQLDBName & "'"), mySqlQuery)
 
-        'Check database version against code version 
+        'Check database version against code version
         Dim dtVersion As String = ""
         If mySqlQuery.Rows.Count > 0 Then
             For Each row As DataRow In mySqlQuery.Rows

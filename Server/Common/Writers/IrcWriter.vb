@@ -75,7 +75,7 @@ Public Class IrcWriter
     End Sub
     Public Overrides Function ReadLine() As String
         While (message Is Nothing)
-            System.Threading.Thread.Sleep(100)
+            Thread.Sleep(100)
         End While
 
         Dim msg As String = message

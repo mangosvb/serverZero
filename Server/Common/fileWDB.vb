@@ -65,11 +65,11 @@ Namespace WDB
                 bs = New BufferedStream(fs)
 
                 fs.Read(buffer, 0, 4)
-                fType = System.Text.Encoding.ASCII.GetString(buffer)
+                fType = Text.Encoding.ASCII.GetString(buffer)
                 fs.Read(buffer, 0, 4)
                 fBuild = BitConverter.ToInt32(buffer, 0)
                 fs.Read(buffer, 0, 4)
-                fLocale = System.Text.Encoding.Default.GetString(buffer)
+                fLocale = Text.Encoding.Default.GetString(buffer)
 
                 fs.Read(buffer, 0, 4)
                 fUnk1 = BitConverter.ToInt32(buffer, 0)
@@ -127,7 +127,6 @@ Namespace WDB
                         Return strResult
                     Case Else
                         Throw New ApplicationException("WDBReader: Undefined WDB field type.")
-                        Return Nothing
                 End Select
             End Get
         End Property

@@ -25,7 +25,6 @@ Imports System.Collections
 Imports System.IO
 Imports System.ComponentModel
 Imports System
-Imports ICSharpCode.SharpZipLib.BZip2
 Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 Namespace MPQ
@@ -94,7 +93,7 @@ Namespace MPQ
             'Load block table
             mStream.Seek(mHeader.BlockTablePos, SeekOrigin.Begin)
             Dim blockdata As Byte() = br.ReadBytes(mHeader.BlockTableSize * MpqBlock.Size)
-            MPQArchive.DecryptTable(blockdata, "(block table)")
+            DecryptTable(blockdata, "(block table)")
 
             br2 = New BinaryReader(New MemoryStream(blockdata))
             ReDim mBlocks(mHeader.BlockTableSize - 1)
@@ -127,7 +126,7 @@ Namespace MPQ
             Return False
         End Function
         Public Function OpenFile(ByVal Filename As String) As MpqStream
-            Dim hash As MpqHash = Me.GetHashEntry(Filename)
+            Dim hash As MpqHash = GetHashEntry(Filename)
             Dim blockIndex As Long = hash.BlockIndex
 
             If (blockIndex = UINT32_MAX) Then
@@ -154,13 +153,13 @@ Namespace MPQ
         End Property
 
         Private Function GetHashEntry(ByVal Filename As String) As MpqHash
-            Dim index As Long = MPQArchive.HashString(Filename, 0)
+            Dim index As Long = HashString(Filename, 0)
             index = (index And (mHeader.HashTableSize - 1))
-            Dim name1 As Long = MPQArchive.HashString(Filename, &H100)
-            Dim name2 As Long = MPQArchive.HashString(Filename, &H200)
+            Dim name1 As Long = HashString(Filename, &H100)
+            Dim name2 As Long = HashString(Filename, &H200)
 
             Dim i As Long = index
-            Do While (i < Me.mHashes.Length)
+            Do While (i < mHashes.Length)
                 Dim hash As MpqHash = mHashes(i)
                 If ((hash.Name1 = name1) AndAlso (hash.Name2 = name2)) Then
                     Return hash
@@ -180,7 +179,7 @@ Namespace MPQ
             For Each objCharacter As Char In Input
                 Dim val As Long = Asc(Char.ToUpper(objCharacter))
 
-                seed1 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes((sStormBuffer(Offset + val) Xor CType((seed1 + seed2) And &HFFFFFFFF, Long))), 0))
+                seed1 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes((sStormBuffer(Offset + val) Xor (seed1 + seed2) And &HFFFFFFFF)), 0))
                 seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes((val + seed1 + seed2 + (seed2 << 5) + 3)), 0))
             Next
             Return seed1
@@ -194,11 +193,11 @@ Namespace MPQ
             'the remainder is not encrypted
             Dim i As Integer = 0
             Do While (i < (Data.Length - 3))
-                seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(seed2 + MPQArchive.sStormBuffer(&H400 + (Seed1 And &HFF))), 0))
+                seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(seed2 + sStormBuffer(&H400 + (Seed1 And &HFF))), 0))
                 Dim result As Long = Convert.ToInt64(BitConverter.ToUInt32(Data, i))
                 result = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(result Xor (Seed1 + seed2)), 0))
 
-                Seed1 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(((CType(Not Seed1, Long) << 21) + &H11111111) Or (Seed1 >> 11)), 0))
+                Seed1 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes((((Not Seed1) << 21) + &H11111111) Or (Seed1 >> 11)), 0))
                 seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(((result + seed2) + (seed2 << 5)) + 3), 0))
                 If BitConverter.IsLittleEndian Then
                     Data(i) = CByte(result And &HFF)
@@ -221,7 +220,7 @@ Namespace MPQ
 
             Dim i As Integer = 0
             Do While (i < Data.Length)
-                seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(seed2 + MPQArchive.sStormBuffer(&H400 + (Seed1 And &HFF))), 0))
+                seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(seed2 + sStormBuffer(&H400 + (Seed1 And &HFF))), 0))
                 Dim result As Long = Data(i)
                 result = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(result Xor (Seed1 + seed2)), 0))
 
@@ -245,8 +244,8 @@ Namespace MPQ
 
             Dim i As Integer = 0
             Do While (i < &H100)
-                Dim seed1 As Long = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(temp - MPQArchive.sStormBuffer((&H400 + i))), 0))
-                Dim seed2 As Long = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(&HEEEEEEEE + MPQArchive.sStormBuffer(&H400 + (seed1 And &HFF))), 0))
+                Dim seed1 As Long = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(temp - sStormBuffer((&H400 + i))), 0))
+                Dim seed2 As Long = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(&HEEEEEEEE + sStormBuffer(&H400 + (seed1 And &HFF))), 0))
                 Dim result As Long = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(value0 Xor (seed1 + seed2)), 0))
 
                 If (result = Decrypted) Then
@@ -255,7 +254,7 @@ Namespace MPQ
                     Dim saveSeed As Long = seed1
                     seed1 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(((Not seed1 << 21) + &H11111111) Or (seed1 >> 11)), 0))
                     seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(((result + seed2) + (seed2 << 5)) + 3), 0))
-                    seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(seed2 + MPQArchive.sStormBuffer(&H400 + (seed1 And &HFF))), 0))
+                    seed2 = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(seed2 + sStormBuffer(&H400 + (seed1 And &HFF))), 0))
                     result = Convert.ToInt64(BitConverter.ToUInt32(BitConverter.GetBytes(value1 Xor (seed1 + seed2)), 0))
                     If ((result And &HFFFF0000) = 0) Then
                         Return saveSeed
@@ -627,7 +626,7 @@ Namespace MPQ
             BufferData()
 
             Dim localposition As Integer = CInt((mPosition Mod CLng(mBlockSize)))
-            Me.mPosition += 1
+            mPosition += 1
             Return mCurrentData(localposition)
         End Function
         Private Function ReadInternal(ByVal Buffer As Byte(), ByVal Offset As Integer, ByVal Count As Integer) As Integer
@@ -668,7 +667,7 @@ Namespace MPQ
             If (target < 0) Then
                 Throw New ArgumentOutOfRangeException("Attmpted to Seek before the beginning of the stream")
             End If
-            If (target >= Me.Length) Then
+            If (target >= Length) Then
                 Throw New ArgumentOutOfRangeException("Attmpted to Seek beyond the end of the stream")
             End If
             mPosition = target
@@ -714,7 +713,7 @@ Namespace MPQ
         End Property
         Public Overrides ReadOnly Property Length() As Long
             Get
-                Return CLng(Me.mBlock.FileSize)
+                Return CLng(mBlock.FileSize)
             End Get
         End Property
         Public Overrides Property Position() As Long

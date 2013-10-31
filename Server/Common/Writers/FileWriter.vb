@@ -15,7 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports System.Runtime.CompilerServices
 Imports System.IO
 
 'Using this logging type, all logs are saved in files numbered by date.
@@ -23,7 +22,7 @@ Imports System.IO
 Public Class FileWriter
     Inherits BaseWriter
 
-    Protected Output As IO.StreamWriter
+    Protected Output As StreamWriter
     Protected LastDate As Date = #1/1/2007#
     Protected Filename As String = ""
 
@@ -32,14 +31,14 @@ Public Class FileWriter
         Output = New StreamWriter(String.Format("{0}-{1}.log", Filename, Format(LastDate, "yyyy-MM-dd")), True)
         Output.AutoFlush = True
 
-        Me.WriteLine(LogType.INFORMATION, "Log started successfully.")
+        WriteLine(LogType.INFORMATION, "Log started successfully.")
     End Sub
 
     Public Sub New(ByVal filename_ As String)
         Filename = filename_
         CreateNewFile()
     End Sub
-    
+
     Private _disposedValue As Boolean ' To detect redundant calls
 
     ' IDisposable

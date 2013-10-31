@@ -27,7 +27,7 @@ Public Class TelnetWriter
     Protected socket As Socket = Nothing
     Protected Const SLEEP_TIME As Integer = 1000
 
-    Public Sub New(ByVal host As System.Net.IPAddress, ByVal port As Integer)
+    Public Sub New(ByVal host As Net.IPAddress, ByVal port As Integer)
         conn = New TcpListener(host, port)
         conn.Start()
         ThreadPool.QueueUserWorkItem(AddressOf ConnWaitListen)
@@ -52,7 +52,7 @@ Public Class TelnetWriter
         If socket Is Nothing Then Return
 
         Try
-            socket.Send(System.Text.Encoding.UTF8.GetBytes(String.Format(formatStr, arg).ToCharArray))
+            socket.Send(Text.Encoding.UTF8.GetBytes(String.Format(formatStr, arg).ToCharArray))
         Catch
             socket = Nothing
         End Try
@@ -62,7 +62,7 @@ Public Class TelnetWriter
         If socket Is Nothing Then Return
 
         Try
-            socket.Send(System.Text.Encoding.UTF8.GetBytes(String.Format(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr & vbNewLine, arg).ToCharArray))
+            socket.Send(Text.Encoding.UTF8.GetBytes(String.Format(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr & vbNewLine, arg).ToCharArray))
         Catch
             socket = Nothing
         End Try
@@ -74,7 +74,7 @@ Public Class TelnetWriter
 
         Dim buffer(socket.Available) As Byte
         socket.Receive(buffer)
-        Return System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length)
+        Return Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length)
     End Function
 
     Protected Sub ConnWaitListen(ByVal state As Object)

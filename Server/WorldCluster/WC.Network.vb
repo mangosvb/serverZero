@@ -514,8 +514,6 @@ Public Module WC_Network
 
 #End Region
 #Region "WS.Analyzer"
-
-
     Public Enum AccessLevel As Byte
         Trial = 0
         Player = 1
@@ -640,13 +638,13 @@ Public Module WC_Network
                         Array.Copy(SocketBuffer, PacketLen, SocketBuffer, 0, SocketBytes)
 
                     End While
-					
-					If SocketBuffer.Length > 1 Then
-                    Socket.BeginReceive(SocketBuffer, 0, SocketBuffer.Length, SocketFlags.None, AddressOf OnData, Nothing)
 
-                    If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
+                    If SocketBuffer.Length > 1 Then
+                        Socket.BeginReceive(SocketBuffer, 0, SocketBuffer.Length, SocketFlags.None, AddressOf OnData, Nothing)
+
+                        If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
+                    End If
                 End If
-			End If
             Catch Err As Exception
 #If DEBUG Then
                 'NOTE: If it's a error here it means the connection is closed?
@@ -655,7 +653,7 @@ Public Module WC_Network
                 Me.Dispose()
             End Try
         End Sub
-  
+
         <MethodImplAttribute(MethodImplOptions.Synchronized)> _
         Public Sub OnPacket(state As Object)
             HandingPackets = True
