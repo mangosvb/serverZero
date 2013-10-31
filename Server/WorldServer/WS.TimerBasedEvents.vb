@@ -16,10 +16,8 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.NativeMethods
 
 Public Module WS_TimerBasedEvents
 
@@ -33,7 +31,7 @@ Public Module WS_TimerBasedEvents
     Public Class TRegenerator
         Implements IDisposable
 
-        Private RegenerationTimer As Threading.Timer = Nothing
+        Private RegenerationTimer As Timer = Nothing
         Private RegenerationWorking As Boolean = False
 
         Private operationsCount As Integer
@@ -49,7 +47,7 @@ Public Module WS_TimerBasedEvents
         Public Const REGENERATION_ENERGY As Integer = 20        'Base energy regeneration rate
         Public Const REGENERATION_RAGE As Integer = 25          'Base rage degeneration rate (Rage = 1000 but shows only as 100 in game)
         Public Sub New()
-            RegenerationTimer = New Threading.Timer(AddressOf Regenerate, Nothing, 10000, REGENERATION_TIMER * 1000)
+            RegenerationTimer = New Timer(AddressOf Regenerate, Nothing, 10000, REGENERATION_TIMER * 1000)
         End Sub
         Private Sub Regenerate(ByVal state As Object)
             If RegenerationWorking Then
@@ -66,7 +64,6 @@ Public Module WS_TimerBasedEvents
                     'DONE: If dead don't regenerate
                     If (Not Character.Value.DEAD) AndAlso (Character.Value.underWaterTimer Is Nothing) AndAlso (Character.Value.LogoutTimer Is Nothing) AndAlso (Character.Value.Client IsNot Nothing) Then
                         With CType(Character.Value, CharacterObject)
-
 
                             BaseMana = .Mana.Current
                             BaseRage = .Rage.Current
@@ -160,7 +157,6 @@ Public Module WS_TimerBasedEvents
 
                             If _updateFlag Then .SendCharacterUpdate()
 
-
                             'DONE: Duel counter
                             If .DuelOutOfBounds <> DUEL_COUNTER_DISABLED Then
                                 .DuelOutOfBounds -= REGENERATION_TIMER
@@ -210,17 +206,16 @@ Public Module WS_TimerBasedEvents
 #End Region
     End Class
 
-
     'NOTE: Manages spell durations and DOT spells
     Public Class TSpellManager
         Implements IDisposable
 
-        Private SpellManagerTimer As Threading.Timer = Nothing
+        Private SpellManagerTimer As Timer = Nothing
         Private SpellManagerWorking As Boolean = False
 
         Public Const UPDATE_TIMER As Integer = 1000        'Timer period (ms)
         Public Sub New()
-            SpellManagerTimer = New Threading.Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
+            SpellManagerTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
         End Sub
         Private Sub Update(ByVal state As Object)
             If SpellManagerWorking Then
@@ -316,7 +311,7 @@ Public Module WS_TimerBasedEvents
                                 If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura(j) IsNot Nothing AndAlso _
                                 objCharacter.ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso _
                                 ((objCharacter.ActiveSpells(i).GetSpellInfo.GetDuration - objCharacter.ActiveSpells(i).SpellDuration) Mod objCharacter.ActiveSpells(i).Aura_Info(j).Amplitude) = 0 Then
-                                    objCharacter.ActiveSpells(i).Aura(j).Invoke(objCharacter, objCharacter.ActiveSpells(i).SpellCaster, objCharacter.ActiveSpells(i).Aura_Info(j), objCharacter.ActiveSpells(i).SpellID, objCharacter.ActiveSpells(i).StackCount + 1, WS_Spells.AuraAction.AURA_UPDATE)
+                                    objCharacter.ActiveSpells(i).Aura(j).Invoke(objCharacter, objCharacter.ActiveSpells(i).SpellCaster, objCharacter.ActiveSpells(i).Aura_Info(j), objCharacter.ActiveSpells(i).SpellID, objCharacter.ActiveSpells(i).StackCount + 1, AuraAction.AURA_UPDATE)
                                 End If
                             Next j
 
@@ -378,17 +373,16 @@ Public Module WS_TimerBasedEvents
         End Sub
     End Class
 
-
     'NOTE: Manages ai movement
     Public Class TAIManager
         Implements IDisposable
 
-        Public AIManagerTimer As Threading.Timer = Nothing
+        Public AIManagerTimer As Timer = Nothing
         Private AIManagerWorking As Boolean = False
 
         Public Const UPDATE_TIMER As Integer = 1000     'Timer period (ms)
         Public Sub New()
-            AIManagerTimer = New Threading.Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
+            AIManagerTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
         End Sub
         Private Sub Update(ByVal state As Object)
             If AIManagerWorking Then
@@ -464,17 +458,16 @@ Public Module WS_TimerBasedEvents
         'End Sub
     End Class
 
-
     'NOTE: Manages character savings
     Public Class TCharacterSaver
         Implements IDisposable
 
-        Public CharacterSaverTimer As Threading.Timer = Nothing
+        Public CharacterSaverTimer As Timer = Nothing
         Private CharacterSaverWorking As Boolean = False
 
         Public UPDATE_TIMER As Integer = Config.SaveTimer     'Timer period (ms)
         Public Sub New()
-            CharacterSaverTimer = New Threading.Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
+            CharacterSaverTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
         End Sub
         Private Sub Update(ByVal state As Object)
             If CharacterSaverWorking Then
@@ -524,17 +517,16 @@ Public Module WS_TimerBasedEvents
 
     End Class
 
-
     'NOTE: Manages the weather
     Public Class TWeatherChanger
         Implements IDisposable
 
-        Public WeatherTimer As Threading.Timer = Nothing
+        Public WeatherTimer As Timer = Nothing
         Private WeatherWorking As Boolean = False
 
         Public UPDATE_TIMER As Integer = Config.WeatherTimer     'Timer period (ms)
         Public Sub New()
-            WeatherTimer = New Threading.Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
+            WeatherTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
         End Sub
         Private Sub Update(ByVal state As Object)
             If WeatherWorking Then
@@ -579,5 +571,3 @@ Public Module WS_TimerBasedEvents
     'TODO: Timer for weather change
 
 End Module
-
-

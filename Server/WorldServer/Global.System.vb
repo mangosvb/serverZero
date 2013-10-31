@@ -15,10 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.Reflection
-Imports System.CodeDom
 Imports System.CodeDom.Compiler
 Imports mangosVB.Common.BaseWriter
 
@@ -39,7 +37,7 @@ Public Class ScriptedObject
         Dim LastDate As Date
         Dim AssemblyFile As String = "mangosVB.Scripts.dll"
 
-        Dim AssemblySources As String() = System.IO.Directory.GetFiles(System.AppDomain.CurrentDomain.BaseDirectory() & "\Scripts\", "*.vb", SearchOption.AllDirectories)
+        Dim AssemblySources As String() = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory() & "\Scripts\", "*.vb", SearchOption.AllDirectories)
         For Each Source As String In AssemblySources
             If LastDate < FileDateTime(Source) Then
                 LastDate = FileDateTime(Source)
@@ -55,14 +53,14 @@ Public Class ScriptedObject
         Log.WriteLine(LogType.SUCCESS, "Compiling: \Scripts\*.*")
 
         Try
-            Dim VBcp As New Microsoft.VisualBasic.VBCodeProvider
-            Dim CScp As New Microsoft.CSharp.CSharpCodeProvider
+            Dim vBcp As New Microsoft.VisualBasic.VBCodeProvider
+            'Dim CScp As New Microsoft.CSharp.CSharpCodeProvider
 
             Dim cParameters As New CompilerParameters
             Dim cResults As CompilerResults
 
-            For Each Include As String In Config.CompilerInclude
-                cParameters.ReferencedAssemblies.Add(Include)
+            For Each include As String In Config.CompilerInclude
+                cParameters.ReferencedAssemblies.Add(include)
             Next
             cParameters.OutputAssembly = AssemblyFile
             cParameters.ReferencedAssemblies.Add(AppDomain.CurrentDomain.FriendlyName)
@@ -74,10 +72,10 @@ Public Class ScriptedObject
             cParameters.IncludeDebugInformation = false
 #End If
 
-            cResults = VBcp.CompileAssemblyFromFile(cParameters, AssemblySources)
+            cResults = vBcp.CompileAssemblyFromFile(cParameters, AssemblySources)
 
             If cResults.Errors.HasErrors = True Then
-                For Each err As System.CodeDom.Compiler.CompilerError In cResults.Errors
+                For Each err As CompilerError In cResults.Errors
                     Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1} in {3}:{0}{2}", vbNewLine, err.Line, err.ErrorText, err.FileName)
                 Next
             Else
@@ -87,6 +85,7 @@ Public Class ScriptedObject
             Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, vbNewLine)
         End Try
     End Sub
+
     Public Sub New(ByVal AssemblySourceFile As String, ByVal AssemblyFile As String, ByVal InMemory As Boolean)
         If (Not InMemory) AndAlso (Dir(AssemblyFile) <> "") AndAlso (FileDateTime(AssemblySourceFile) < FileDateTime(AssemblyFile)) Then
             'DONE: We have latest source compiled already
@@ -118,16 +117,16 @@ Public Class ScriptedObject
 #End If
 
             If AssemblySourceFile.IndexOf(".cs") <> -1 Then
-                cResults = CScp.CompileAssemblyFromFile(cParameters, System.AppDomain.CurrentDomain.BaseDirectory() & AssemblySourceFile)
+                cResults = CScp.CompileAssemblyFromFile(cParameters, AppDomain.CurrentDomain.BaseDirectory() & AssemblySourceFile)
             ElseIf AssemblySourceFile.IndexOf(".vb") <> -1 Then
-                cResults = VBcp.CompileAssemblyFromFile(cParameters, System.AppDomain.CurrentDomain.BaseDirectory() & AssemblySourceFile)
+                cResults = VBcp.CompileAssemblyFromFile(cParameters, AppDomain.CurrentDomain.BaseDirectory() & AssemblySourceFile)
             Else
                 Log.WriteLine(LogType.FAILED, "Compiling: Unsupported file type: {0}", AssemblySourceFile)
                 Return
             End If
 
             If cResults.Errors.HasErrors = True Then
-                For Each err As System.CodeDom.Compiler.CompilerError In cResults.Errors
+                For Each err As CodeDom.Compiler.CompilerError In cResults.Errors
                     Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1}:{0}{2}", vbNewLine, err.Line, err.ErrorText)
                 Next
             Else
@@ -206,7 +205,6 @@ Public Class ScriptedObject
         End Try
     End Sub
 
-
 #Region "IDisposable Support"
     Private _disposedValue As Boolean ' To detect redundant calls
 
@@ -227,18 +225,3 @@ Public Class ScriptedObject
     End Sub
 #End Region
 End Class
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

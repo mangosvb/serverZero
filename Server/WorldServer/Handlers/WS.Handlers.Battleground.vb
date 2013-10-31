@@ -19,12 +19,12 @@
 Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Battleground
-    Public Sub On_CMSG_BATTLEMASTER_HELLO(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_BATTLEMASTER_HELLO(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_HELLO [{2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_HELLO [{2:X}]", client.IP, client.Port, GUID)
 
         If WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
         If (WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BATTLEFIELDPERSON) = 0 Then Exit Sub
@@ -33,7 +33,7 @@ Public Module WS_Handlers_Battleground
         Dim BGType As Byte = Battlemasters(WORLD_CREATUREs(GUID).ID)
         If Battlegrounds.ContainsKey(BGType) = False Then Exit Sub
 
-        If Battlegrounds(BGType).MinLevel > Client.Character.Level OrElse Battlegrounds(BGType).MaxLevel < Client.Character.Level Then
+        If Battlegrounds(BGType).MinLevel > client.Character.Level OrElse Battlegrounds(BGType).MaxLevel < client.Character.Level Then
             SendMessageNotification(Client, "You don't meet Battleground level requirements")
             Exit Sub
         End If
@@ -57,7 +57,7 @@ Public Module WS_Handlers_Battleground
                 Next
             End If
 
-            Client.Send(response)
+            client.Send(response)
         Finally
             response.Dispose()
         End Try

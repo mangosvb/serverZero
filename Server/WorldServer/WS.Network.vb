@@ -17,20 +17,11 @@
 '
 
 Imports System.Threading
-Imports System.Reflection
-Imports System.Text.RegularExpressions
-Imports System.Net.Sockets
-Imports System.Xml.Serialization
-Imports System.IO
-Imports System.Net
 Imports System.Runtime.Remoting
-Imports System.Runtime.CompilerServices
 Imports System.Collections.Generic
 Imports System.Security.Permissions
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
-
 
 Public Module WS_Network
 
@@ -48,7 +39,6 @@ Public Module WS_Network
         Inherits MarshalByRefObject
         Implements IWorld
         Implements IDisposable
-
 
         <CLSCompliant(False)> _
         Public _flagStopListen As Boolean = False
@@ -197,7 +187,7 @@ Public Module WS_Network
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", ID, GUID)
 
             Try
-                Dim Client As ClientClass = CLIENTs(ID)
+                Dim client As ClientClass = CLIENTs(ID)
                 Dim Character As New CharacterObject(Client, GUID)
 
                 CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
@@ -212,7 +202,7 @@ Public Module WS_Network
 
                 Character.Login()
 
-                Log.WriteLine(LogType.USER, "[{0}:{1}] Player login complete [0x{2:X}]", Client.IP, Client.Port, GUID)
+                Log.WriteLine(LogType.USER, "[{0}:{1}] Player login complete [0x{2:X}]", client.IP, client.Port, GUID)
             Catch e As Exception
                 Log.WriteLine(LogType.FAILED, "Error on login: {0}", e.ToString)
             End Try
@@ -299,17 +289,17 @@ Public Module WS_Network
             Else
                 Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G{1:00000}]", ID, GroupID)
 
-                If Not GROUPs.ContainsKey(GroupID) Then
+                If Not Groups.ContainsKey(GroupID) Then
                     Dim Group As New Group(GroupID)
                     Cluster.GroupRequestUpdate(ID)
                 End If
 
-                CLIENTs(ID).Character.Group = GROUPs(GroupID)
+                CLIENTs(ID).Character.Group = Groups(GroupID)
                 InstanceMapEnter(CLIENTs(ID).Character)
             End If
         End Sub
         Public Sub GroupUpdate(ByVal GroupID As Long, ByVal GroupType As Byte, ByVal GroupLeader As ULong, ByVal Members() As ULong) Implements IWorld.GroupUpdate
-            If GROUPs.ContainsKey(GroupID) Then
+            If Groups.ContainsKey(GroupID) Then
 
                 Dim list As New List(Of ULong)
                 For Each GUID As ULong In Members
@@ -319,27 +309,27 @@ Public Module WS_Network
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update [{2}, {1} local members]", GroupID, list.Count, CType(GroupType, GroupType))
 
                 If list.Count = 0 Then
-                    GROUPs(GroupID).Dispose()
+                    Groups(GroupID).Dispose()
                 Else
-                    GROUPs(GroupID).Type = GroupType
-                    GROUPs(GroupID).Leader = GroupLeader
-                    GROUPs(GroupID).LocalMembers = list
+                    Groups(GroupID).Type = GroupType
+                    Groups(GroupID).Leader = GroupLeader
+                    Groups(GroupID).LocalMembers = list
                 End If
             End If
         End Sub
         Public Sub GroupUpdateLoot(ByVal GroupID As Long, ByVal Difficulty As Byte, ByVal Method As Byte, ByVal Threshold As Byte, ByVal Master As ULong) Implements IWorld.GroupUpdateLoot
-            If GROUPs.ContainsKey(GroupID) Then
+            If Groups.ContainsKey(GroupID) Then
 
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
-                GROUPs(GroupID).DungeonDifficulty = Difficulty
-                GROUPs(GroupID).LootMethod = Method
-                GROUPs(GroupID).LootThreshold = Threshold
+                Groups(GroupID).DungeonDifficulty = Difficulty
+                Groups(GroupID).LootMethod = Method
+                Groups(GroupID).LootThreshold = Threshold
 
                 If CHARACTERs.ContainsKey(Master) Then
-                    GROUPs(GroupID).LocalLootMaster = CHARACTERs(Master)
+                    Groups(GroupID).LocalLootMaster = CHARACTERs(Master)
                 Else
-                    GROUPs(GroupID).LocalLootMaster = Nothing
+                    Groups(GroupID).LocalLootMaster = Nothing
                 End If
             End If
         End Sub
@@ -378,7 +368,6 @@ Public Module WS_Network
     Class ClientClass
         Inherits ClientInfo
         Implements IDisposable
-
 
         Public Character As CharacterObject
         Public Packets As New Queue(Of PacketClass)
@@ -511,7 +500,6 @@ Public Module WS_Network
             Me.Delete()
         End Sub
 
-
         Public Sub New()
             Log.WriteLine(LogType.WARNING, "Creating debug connection!", Nothing)
             DEBUG_CONNECTION = True
@@ -524,6 +512,5 @@ Public Module WS_Network
             Port = ci.Port
         End Sub
     End Class
-
 
 End Module

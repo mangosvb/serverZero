@@ -17,7 +17,6 @@
 '
 
 Imports System.IO
-Imports System.Runtime.InteropServices
 Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
 
@@ -87,7 +86,7 @@ Public Module VMAP_Module
                 b = New BinaryReader(f)
 
                 Dim result As Boolean = True
-                fileVersion = System.Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
+                fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
                 Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
 
                 If fileVersion <> VMAP_MAGIC Then Throw New FileLoadException()
@@ -95,7 +94,7 @@ Public Module VMAP_Module
                 flags = b.ReadUInt32()
                 'POS
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "POS: {0}", System.Text.Encoding.ASCII.GetString(chunk))
+                Log.WriteLine(LogType.DEBUG, "POS: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
                 iBasePosition = New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())
                 Log.WriteLine(LogType.DEBUG, "Position: {0}", iBasePosition)
@@ -109,7 +108,7 @@ Public Module VMAP_Module
 
                 '---- Box
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "BOX: {0}", System.Text.Encoding.ASCII.GetString(chunk))
+                Log.WriteLine(LogType.DEBUG, "BOX: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
                 Dim low As New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())
                 Dim high As New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())
@@ -123,7 +122,7 @@ Public Module VMAP_Module
 
                 '---- TreeNodes
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "NODE: {0}", System.Text.Encoding.ASCII.GetString(chunk))
+                Log.WriteLine(LogType.DEBUG, "NODE: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
 
                 numNodes = b.ReadInt32()
@@ -149,7 +148,7 @@ Public Module VMAP_Module
 
                 '---- TriangleBoxes
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "TRIB: {0}", System.Text.Encoding.ASCII.GetString(chunk))
+                Log.WriteLine(LogType.DEBUG, "TRIB: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
 
                 numTriangles = b.ReadInt32()
@@ -174,7 +173,7 @@ Public Module VMAP_Module
 
                 '---- SubModel
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "SUBM: {0}", System.Text.Encoding.ASCII.GetString(chunk))
+                Log.WriteLine(LogType.DEBUG, "SUBM: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
 
                 numSubModels = b.ReadInt32()
@@ -412,7 +411,7 @@ Public Module VMAP_Module
                 Me.sortAxis = sortAxis
             End Sub
 
-            Public Function Compare(ByVal x As BaseCollision, ByVal y As BaseCollision) As Integer Implements System.Collections.Generic.IComparer(Of BaseCollision).Compare
+            Public Function Compare(ByVal x As BaseCollision, ByVal y As BaseCollision) As Integer Implements IComparer(Of BaseCollision).Compare
                 Dim a As Single = x.Bounds.Center(sortAxis)
                 Dim b As Single = y.Bounds.Center(sortAxis)
 
@@ -438,7 +437,7 @@ Public Module VMAP_Module
                 Me.sortLocation = l
             End Sub
 
-            Public Function Compare(ByVal x As BaseCollision, ByVal y As BaseCollision) As Integer Implements System.Collections.Generic.IComparer(Of BaseCollision).Compare
+            Public Function Compare(ByVal x As BaseCollision, ByVal y As BaseCollision) As Integer Implements IComparer(Of BaseCollision).Compare
                 Dim box As AABox = y.Bounds
 
                 If box.High(sortAxis) < sortLocation Then
@@ -715,9 +714,6 @@ Public Module VMAP_Module
                     child(1).VerifyNode(newLo, hi)
                 End If
             End Sub
-
-
-
 
 #Region "IDisposable Support"
             Private _disposedValue As Boolean ' To detect redundant calls

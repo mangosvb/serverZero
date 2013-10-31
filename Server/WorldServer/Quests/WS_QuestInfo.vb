@@ -120,8 +120,6 @@ Public Class WS_QuestInfo
         StartScript = 0
         CompleteScript = 0
 
-
-
         ID = QuestID
         PreQuests = New List(Of Integer)
         Dim MySQLQuery As New DataTable
@@ -327,7 +325,7 @@ Public Class WS_QuestInfo
     ''' <summary>
     ''' Determines whether this instance Character can see the quest.
     ''' </summary>
-    ''' <param name="objChar">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <returns></returns>
     Public Function CanSeeQuest(ByRef objCharacter As CharacterObject) As Boolean
         Try
@@ -366,7 +364,7 @@ Public Class WS_QuestInfo
     ''' <summary>
     ''' Satisfies the quest level.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <returns>Boolean</returns>
     Public Function SatisfyQuestLevel(ByRef objCharacter As CharacterObject) As Boolean
         If objCharacter.Level < Level_Start Then Return False

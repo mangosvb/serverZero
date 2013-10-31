@@ -57,7 +57,7 @@ Public Module WS_Totems
                             If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).Aura(j) IsNot Nothing AndAlso _
                             ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso _
                             ((Duration - ActiveSpells(i).SpellDuration) Mod ActiveSpells(i).Aura_Info(j).Amplitude) = 0 Then
-                                ActiveSpells(i).Aura(j).Invoke(Me, ActiveSpells(i).SpellCaster, ActiveSpells(i).Aura_Info(j), ActiveSpells(i).SpellID, ActiveSpells(i).StackCount + 1, WS_Spells.AuraAction.AURA_UPDATE)
+                                ActiveSpells(i).Aura(j).Invoke(Me, ActiveSpells(i).SpellCaster, ActiveSpells(i).Aura_Info(j), ActiveSpells(i).SpellID, ActiveSpells(i).StackCount + 1, AuraAction.AURA_UPDATE)
                             End If
                         Next
 

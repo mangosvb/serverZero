@@ -35,10 +35,9 @@ Public Module WS_Group
         Public LocalMembers As List(Of ULong)
         Public LocalLootMaster As CharacterObject
 
-
         Public Sub New(ByVal groupID As Long)
             ID = groupID
-            GROUPs.Add(ID, Me)
+            Groups.Add(ID, Me)
         End Sub
 
 #Region "IDisposable Support"
@@ -49,7 +48,7 @@ Public Module WS_Group
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                GROUPs.Remove(ID)
+                Groups.Remove(ID)
             End If
             _disposedValue = True
         End Sub
@@ -106,35 +105,34 @@ Public Module WS_Group
         End Function
     End Class
 
-
     ''' <summary>
     ''' Builds the party member stats.
     ''' </summary>
-    ''' <param name="c">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <param name="flag">The flag.</param>
     ''' <returns></returns>
     Function BuildPartyMemberStats(ByRef objCharacter As CharacterObject, ByVal flag As UInteger) As PacketClass
         Dim opCode As OPCODES = OPCODES.SMSG_PARTY_MEMBER_STATS
-        If Flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL OrElse Flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL_PET Then
+        If flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL OrElse flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL_PET Then
             opCode = OPCODES.SMSG_PARTY_MEMBER_STATS_FULL
 
-            If objCharacter.ManaType <> ManaTypes.TYPE_MANA Then Flag = Flag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE
+            If objCharacter.ManaType <> ManaTypes.TYPE_MANA Then flag = flag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE
         End If
 
         Dim packet As New PacketClass(opCode)
         packet.AddPackGUID(objCharacter.GUID)
-        packet.AddUInt32(Flag)
+        packet.AddUInt32(flag)
 
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS) Then
             Dim memberFlags As Byte = PartyMemberStatsStatus.STATUS_ONLINE
             If objCharacter.isPvP Then memberFlags = memberFlags Or PartyMemberStatsStatus.STATUS_PVP
             If objCharacter.DEAD Then memberFlags = memberFlags Or PartyMemberStatsStatus.STATUS_DEAD
             packet.AddInt8(memberFlags)
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP) Then packet.AddUInt16(objCharacter.Life.Current)
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP) Then packet.AddUInt16(objCharacter.Life.Maximum)
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE) Then packet.AddInt8(objCharacter.ManaType)
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP) Then packet.AddUInt16(objCharacter.Life.Current)
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP) Then packet.AddUInt16(objCharacter.Life.Maximum)
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE) Then packet.AddInt8(objCharacter.ManaType)
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER) Then
             If objCharacter.ManaType = ManaTypes.TYPE_RAGE Then
                 packet.AddUInt16(objCharacter.Rage.Current)
             ElseIf objCharacter.ManaType = ManaTypes.TYPE_ENERGY Then
@@ -143,7 +141,7 @@ Public Module WS_Group
                 packet.AddUInt16(objCharacter.Mana.Current)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER) Then
             If objCharacter.ManaType = ManaTypes.TYPE_RAGE Then
                 packet.AddUInt16(objCharacter.Rage.Maximum)
             ElseIf objCharacter.ManaType = ManaTypes.TYPE_ENERGY Then
@@ -152,13 +150,13 @@ Public Module WS_Group
                 packet.AddUInt16(objCharacter.Mana.Maximum)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL) Then packet.AddUInt16(objCharacter.Level)
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE) Then packet.AddUInt16(objCharacter.ZoneID)
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL) Then packet.AddUInt16(objCharacter.Level)
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE) Then packet.AddUInt16(objCharacter.ZoneID)
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION) Then
             packet.AddInt16(Fix(objCharacter.positionX))
             packet.AddInt16(Fix(objCharacter.positionY))
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS) Then
             Dim auraMask As ULong = 0
             Dim auraPos As Integer = packet.Data.Length
             packet.AddUInt64(0) 'AuraMask (is set after the loop)
@@ -171,63 +169,63 @@ Public Module WS_Group
             Next
             packet.AddUInt64(auraMask, auraPos) 'Set the AuraMask
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_GUID) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_GUID) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddUInt64(objCharacter.Pet.GUID)
             Else
                 packet.AddInt64(0)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_NAME) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_NAME) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddString(objCharacter.Pet.PetName)
             Else
                 packet.AddString("")
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MODEL_ID) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MODEL_ID) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddUInt16(objCharacter.Pet.Model)
             Else
                 packet.AddInt16(0)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_HP) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_HP) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddUInt16(objCharacter.Pet.Life.Current)
             Else
                 packet.AddInt16(0)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_HP) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_HP) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddUInt16(objCharacter.Pet.Life.Maximum)
             Else
                 packet.AddInt16(0)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_POWER_TYPE) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_POWER_TYPE) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddInt8(ManaTypes.TYPE_FOCUS)
             Else
                 packet.AddInt8(0)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_POWER) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_POWER) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddUInt16(objCharacter.Pet.Mana.Current)
             Else
                 packet.AddInt16(0)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_POWER) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_POWER) Then
             If objCharacter.Pet IsNot Nothing Then
                 packet.AddUInt16(objCharacter.Pet.Mana.Maximum)
             Else
                 packet.AddInt16(0)
             End If
         End If
-        If (Flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS) Then
+        If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS) Then
             If objCharacter.Pet IsNot Nothing Then
                 Dim auraMask As ULong = 0
                 Dim auraPos As Integer = packet.Data.Length

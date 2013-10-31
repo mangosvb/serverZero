@@ -270,7 +270,7 @@ Public Class BigInteger
         Dim biRadix As New BigInteger(radix)
 
         Dim charSet As String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        Dim result As New System.Text.StringBuilder()
+        Dim result As New Text.StringBuilder()
 
         While bytes.Length > 0
             BN_div(quotient.IntPtr, remainder.IntPtr, a.IntPtr, biRadix.IntPtr, ctx, "")
@@ -297,7 +297,7 @@ Public Class BigInteger
         Dim bytes() As Byte = Me.GetBytes()
         If bytes.Length = 0 Then Return "00"
 
-        Dim sHEX As New System.Text.StringBuilder(bytes.Length * 2)
+        Dim sHEX As New Text.StringBuilder(bytes.Length * 2)
         For i As Integer = bytes.Length - 1 To 0 Step -1
             sHEX.Append(bytes(i).ToString("X2"))
         Next

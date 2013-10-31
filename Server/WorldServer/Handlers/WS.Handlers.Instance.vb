@@ -16,13 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Instance
-
-
 
     Public Sub InstanceMapUpdate()
         Dim q As New DataTable
@@ -48,7 +44,7 @@ Public Module WS_Handlers_Instance
         'DONE: Load map data
         For x As Short = 0 To 63
             For y As Short = 0 To 63
-                If Maps(Map).TileUsed(x, y) = False AndAlso System.IO.File.Exists(String.Format("maps\{0}{1}{2}.map", Format(Map, "000"), Format(x, "00"), Format(y, "00"))) Then
+                If Maps(Map).TileUsed(x, y) = False AndAlso IO.File.Exists(String.Format("maps\{0}{1}{2}.map", Format(Map, "000"), Format(x, "00"), Format(y, "00"))) Then
                     Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x, y, Map)
                     Maps(Map).TileUsed(x, y) = True
                     Maps(Map).Tiles(x, y) = New TMapTile(x, y, Map)
@@ -80,7 +76,6 @@ Public Module WS_Handlers_Instance
                 Next
                 If Not empty Then Exit For
             Next
-
 
             If empty Then
                 'DONE: Delete the instance if there are no players
@@ -172,8 +167,6 @@ Public Module WS_Handlers_Instance
                 End If
             End If
 
-
-
             'DONE Create new instance
             Dim instanceNewID As Integer = InstanceMapCreate(objCharacter.MapID)
             Dim instanceNewResetTime As Integer = GetTimestamp(Now) + Maps(objCharacter.MapID).ResetTime()
@@ -203,9 +196,7 @@ Public Module WS_Handlers_Instance
         'TODO: Start teleport timer
     End Sub
 
-
     'SMSG_INSTANCE_DIFFICULTY
-
 
     Public Enum ResetFailedReason As UInteger
         INSTANCE_RESET_FAILED_ZONING = 0
@@ -213,36 +204,36 @@ Public Module WS_Handlers_Instance
         INSTANCE_RESET_FAILED = 2
         INSTANCE_RESET_SUCCESS = 3
     End Enum
-    Public Sub SendResetInstanceSuccess(ByRef Client As ClientClass, ByVal Map As UInteger)
+    Public Sub SendResetInstanceSuccess(ByRef client As ClientClass, ByVal Map As UInteger)
         'Dim p As New PacketClass(OPCODES.SMSG_INSTANCE_RESET)
         'p.AddUInt32(Map)
         'Client.Send(p)
         'p.Dispose()
     End Sub
-    Public Sub SendResetInstanceFailed(ByRef Client As ClientClass, ByVal Map As UInteger, ByVal Reason As ResetFailedReason)
+    Public Sub SendResetInstanceFailed(ByRef client As ClientClass, ByVal Map As UInteger, ByVal Reason As ResetFailedReason)
         'Dim p As New PacketClass(OPCODES.SMSG_INSTANCE_RESET)
         'p.AddUInt32(Reason)
         'p.AddUInt32(Map)
         'Client.Send(p)
         'p.Dispose()
     End Sub
-    Public Sub SendResetInstanceFailedNotify(ByRef Client As ClientClass, ByVal Map As UInteger)
+    Public Sub SendResetInstanceFailedNotify(ByRef client As ClientClass, ByVal Map As UInteger)
         'Dim p As New PacketClass(OPCODES.SMSG_RESET_FAILED_NOTIFY)
         'p.AddUInt32(Map)
         'Client.Send(p)
         'p.Dispose()
     End Sub
 
-    Private Sub SendUpdateInstanceOwnership(ByRef Client As ClientClass, ByVal Saved As UInteger)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_INSTANCE_OWNERSHIP", Client.IP, Client.Port)
+    Private Sub SendUpdateInstanceOwnership(ByRef client As ClientClass, ByVal Saved As UInteger)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_INSTANCE_OWNERSHIP", client.IP, client.Port)
 
         'Dim p As New PacketClass(OPCODES.SMSG_UPDATE_INSTANCE_OWNERSHIP)
         'p.AddUInt32(Saved)                  'True/False if have been saved
         'Client.Send(p)
         'p.Dispose()
     End Sub
-    Private Sub SendUpdateLastInstance(ByRef Client As ClientClass, ByVal Map As UInteger)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_LAST_INSTANCE", Client.IP, Client.Port)
+    Private Sub SendUpdateLastInstance(ByRef client As ClientClass, ByVal Map As UInteger)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_LAST_INSTANCE", client.IP, client.Port)
 
         'Dim p As New PacketClass(OPCODES.SMSG_UPDATE_LAST_INSTANCE)
         'p.AddUInt32(Map)
@@ -266,7 +257,7 @@ Public Module WS_Handlers_Instance
         RAID_INSTANCE_WARNING_MIN_SOON = 3      ' WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
         RAID_INSTANCE_WELCOME = 4               ' Welcome to %s. This raid instance is scheduled to reset in %s.
     End Enum
-    Public Sub SendInstanceMessage(ByRef Client As ClientClass, ByVal Map As UInteger, ByVal Time As Integer)
+    Public Sub SendInstanceMessage(ByRef client As ClientClass, ByVal Map As UInteger, ByVal Time As Integer)
         Dim Type As RaidInstanceMessage
 
         If Time < 0 Then
@@ -287,6 +278,5 @@ Public Module WS_Handlers_Instance
         'Client.Send(p)
         'p.Dispose()
     End Sub
-
 
 End Module

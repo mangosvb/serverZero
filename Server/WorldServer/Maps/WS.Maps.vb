@@ -153,7 +153,7 @@ Public Module WS_Maps
 
             Dim fileName As String
             Dim fileVersion As String
-            Dim f As IO.FileStream
+            Dim f As FileStream
             Dim b As BinaryReader
             Dim x, y As Integer
 
@@ -162,10 +162,10 @@ Public Module WS_Maps
             If Not File.Exists("maps\" & fileName) Then
                 Log.WriteLine(LogType.WARNING, "Map file [{0}] not found", fileName)
             Else
-                f = New IO.FileStream("maps\" & fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 82704, FileOptions.SequentialScan)
+                f = New FileStream("maps\" & fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 82704, FileOptions.SequentialScan)
                 b = New BinaryReader(f)
 
-                fileVersion = System.Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
+                fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
                 Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
 
                 For x = 0 To RESOLUTION_FLAGS
@@ -192,9 +192,6 @@ Public Module WS_Maps
                 '                f.Close()
                 '                f.Dispose()
             End If
-
-
-
 
 #If ENABLE_PPOINTS Then
             'DONE: Initializing PPoints to unused values
@@ -349,7 +346,7 @@ Public Module WS_Maps
                         '* Zul'Gurub: Every 3 days at 3:00AM
                         '* Ruins of Ahn'Qiraj: Every 3 days at 3:00AM
                         '* Temple of Ahn'Qiraj: Every Tuesday at 3:00AM or during weekly maintenance
-                        '* Naxxramas: Every Tuesday at 3:00AM or during weekly maintenance 
+                        '* Naxxramas: Every Tuesday at 3:00AM or during weekly maintenance
                         Select Case ID
                             Case 249 'Onyxia's Lair
                                 Return GetNextDate(5, 3).Subtract(Now).TotalSeconds
@@ -485,10 +482,10 @@ Public Module WS_Maps
 
                 Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
-            Catch e As System.IO.DirectoryNotFoundException
-                Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Catch e As DirectoryNotFoundException
+                Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("DBC File : Map missing.")
-                Console.ForegroundColor = System.ConsoleColor.Gray
+                Console.ForegroundColor = ConsoleColor.Gray
             End Try
         End Sub
 
@@ -521,7 +518,7 @@ Public Module WS_Maps
 #End Region
     End Class
 
-    Public Maps As New Collections.Generic.Dictionary(Of UInteger, TMap)
+    Public Maps As New Dictionary(Of UInteger, TMap)
     Public MapList As String
 
     Public Sub InitializeMaps()
@@ -535,9 +532,9 @@ Public Module WS_Maps
             End While
         End If
 
-        'DONE: Loading maps
-        For Each ID As UInteger In Config.Maps
-            Dim Map As New TMap(ID)
+        ''DONE: Loading maps
+        For Each id As UInteger In Config.Maps
+            Dim map As New TMap(id)
         Next
 
         Log.WriteLine(LogType.INFORMATION, "Initalizing: {0} Maps initialized.", Maps.Count)
@@ -1060,7 +1057,6 @@ Public Module WS_Maps
             MaxY = tmpSng
         End If
 
-
         Try
             WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Creature As KeyValuePair(Of ULong, CreatureObject) In WORLD_CREATUREs
@@ -1074,7 +1070,6 @@ Public Module WS_Maps
             WORLD_CREATUREs_Lock.ReleaseReaderLock()
         End Try
 
-
         For Each Gameobject As KeyValuePair(Of ULong, GameObjectObject) In WORLD_GAMEOBJECTs
             If CType(Gameobject.Value, GameObjectObject).MapID = TileMap AndAlso CType(Gameobject.Value, GameObjectObject).positionX >= MinX AndAlso CType(Gameobject.Value, GameObjectObject).positionX <= MaxX AndAlso CType(Gameobject.Value, GameObjectObject).positionY >= MinY AndAlso CType(Gameobject.Value, GameObjectObject).positionY <= MaxY Then
                 CType(Gameobject.Value, GameObjectObject).Destroy(Gameobject)
@@ -1087,14 +1082,11 @@ Public Module WS_Maps
             End If
         Next
 
-
     End Sub
-
 
 #End Region
 
 #Region "Instances"
-
 
     Public Enum TransferAbortReason As Short
         TRANSFER_ABORT_MAX_PLAYERS = &H1                ' Transfer Aborted: instance is full
@@ -1106,19 +1098,18 @@ Public Module WS_Maps
         TRANSFER_ABORT_DIFFICULTY2 = &H107              ' Heroic difficulty mode is not available for %s.
         TRANSFER_ABORT_DIFFICULTY3 = &H207              ' Epic difficulty mode is not available for %s.
     End Enum
-    Public Sub SendTransferAborted(ByRef Client As ClientClass, ByVal Map As Integer, ByVal Reason As TransferAbortReason)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRANSFER_ABORTED [{2}:{3}]", Client.IP, Client.Port, Map, Reason)
+    Public Sub SendTransferAborted(ByRef client As ClientClass, ByVal Map As Integer, ByVal Reason As TransferAbortReason)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRANSFER_ABORTED [{2}:{3}]", client.IP, client.Port, Map, Reason)
 
         Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_ABORTED)
         Try
             p.AddInt32(Map)
             p.AddInt16(Reason)
-            Client.Send(p)
+            client.Send(p)
         Finally
             p.Dispose()
         End Try
     End Sub
-
 
 #End Region
 

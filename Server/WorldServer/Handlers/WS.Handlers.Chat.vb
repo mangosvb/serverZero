@@ -16,12 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Chat
-
 
     Public Function GetChatFlag(ByVal objCharacter As CharacterObject) As Byte
         If objCharacter.GM Then
@@ -34,60 +31,60 @@ Public Module WS_Handlers_Chat
             Return 0
         End If
     End Function
-    Public Sub On_CMSG_MESSAGECHAT(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT", Client.IP, Client.Port)
+    Public Sub On_CMSG_MESSAGECHAT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT", client.IP, client.Port)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
 
         Dim msgType As ChatMsg = packet.GetInt32()
         Dim msgLanguage As LANGUAGES = packet.GetInt32()
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT [{2}:{3}]", Client.IP, Client.Port, msgType, msgLanguage)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT [{2}:{3}]", client.IP, client.Port, msgType, msgLanguage)
 
         'TODO: Check if we really are able to speak this language!
 
         'DONE: Changing language
-        If Client.Character.Spell_Language <> -1 Then msgLanguage = Client.Character.Spell_Language
+        If client.Character.Spell_Language <> -1 Then msgLanguage = client.Character.Spell_Language
 
         Select Case msgType
             Case ChatMsg.CHAT_MSG_SAY, ChatMsg.CHAT_MSG_YELL, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_WHISPER
                 Dim Message As String = packet.GetString()
                 'Handle admin/gm commands
-                If Message.StartsWith(Config.CommandCharacter) AndAlso Client.Character.Access > AccessLevel.Player Then
+                If Message.StartsWith(Config.CommandCharacter) AndAlso client.Character.Access > AccessLevel.Player Then
                     Message = Message.Remove(0, 1) ' Remove Command Start Character From Message
                     Dim toCommand As PacketClass = BuildChatMessage(SystemGUID, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
                     Try
-                        Client.Send(toCommand)
+                        client.Send(toCommand)
                     Finally
                         toCommand.Dispose()
                     End Try
                     OnCommand(Client, Message)
                     Exit Sub
                 Else
-                    Client.Character.SendChatMessage(Client.Character, Message, msgType, msgLanguage, "", True)
+                    client.Character.SendChatMessage(Client.Character, Message, msgType, msgLanguage, "", True)
                 End If
                 Exit Select
 
             Case ChatMsg.CHAT_MSG_AFK
                 Dim Message As String = packet.GetString()
-                If (Message = "" OrElse Client.Character.AFK = False) AndAlso Client.Character.IsInCombat = False Then
-                    Client.Character.AFK = Not Client.Character.AFK
-                    If Client.Character.AFK AndAlso Client.Character.DND Then
-                        Client.Character.DND = False
+                If (Message = "" OrElse client.Character.AFK = False) AndAlso client.Character.IsInCombat = False Then
+                    client.Character.AFK = Not client.Character.AFK
+                    If client.Character.AFK AndAlso client.Character.DND Then
+                        client.Character.DND = False
                     End If
-                    Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, Client.Character.cPlayerFlags)
-                    Client.Character.SendCharacterUpdate()
+                    client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
+                    client.Character.SendCharacterUpdate()
                 End If
                 Exit Select
 
             Case ChatMsg.CHAT_MSG_DND
                 Dim Message As String = packet.GetString()
-                If Message = "" OrElse Client.Character.DND = False Then
-                    Client.Character.DND = Not Client.Character.DND
-                    If Client.Character.DND AndAlso Client.Character.AFK Then
-                        Client.Character.AFK = False
+                If Message = "" OrElse client.Character.DND = False Then
+                    client.Character.DND = Not client.Character.DND
+                    If client.Character.DND AndAlso client.Character.AFK Then
+                        client.Character.AFK = False
                     End If
-                    Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, Client.Character.cPlayerFlags)
-                    Client.Character.SendCharacterUpdate()
+                    client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
+                    client.Character.SendCharacterUpdate()
                 End If
                 Exit Select
 
@@ -96,11 +93,10 @@ Public Module WS_Handlers_Chat
                 Exit Select
 
             Case Else
-                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", Client.IP, Client.Port, msgType, msgLanguage)
+                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
                 DumpPacket(packet.Data, Client)
         End Select
 
     End Sub
-
 
 End Module

@@ -17,9 +17,7 @@
 '
 
 Imports System.Threading
-Imports System.Runtime.CompilerServices
 Imports mangosVB.Common
-Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Creatures_AI
 
@@ -113,7 +111,6 @@ Public Module WS_Creatures_AI
         Public Sub New()
         End Sub
     End Class
-
 
 #End Region
 
@@ -219,7 +216,7 @@ Public Module WS_Creatures_AI
                 'DONE: Reset values and move to spawn
                 'TODO: Evade
                 'TODO: Remove all buffs & debuffs
-                Me.State = TBaseAI.AIState.AI_MOVING_TO_SPAWN
+                State = AIState.AI_MOVING_TO_SPAWN
                 aiCreature.Life.Current = aiCreature.Life.Maximum
                 aiCreature.Heal(0) 'So players get the health update
 
@@ -234,7 +231,7 @@ Public Module WS_Creatures_AI
         End Sub
         Public Overrides Sub OnGenerateHate(ByRef Attacker As BaseUnit, ByVal HateValue As Integer)
             If Attacker Is aiCreature Then Exit Sub
-            If Me.State <> TBaseAI.AIState.AI_DEAD AndAlso Me.State <> TBaseAI.AIState.AI_RESPAWN AndAlso Me.State <> AIState.AI_MOVING_TO_SPAWN Then
+            If Me.State <> AIState.AI_DEAD AndAlso Me.State <> AIState.AI_RESPAWN AndAlso Me.State <> AIState.AI_MOVING_TO_SPAWN Then
                 aiCreature.SetToRealPosition()
                 LastHitX = aiCreature.positionX
                 LastHitY = aiCreature.positionY
@@ -402,7 +399,7 @@ Public Module WS_Creatures_AI
                 Case AIState.AI_DO_NOTHING
                 Case Else
                     aiCreature.SendChatMessage("Unknown AI mode!", ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL)
-                    Me.State = TBaseAI.AIState.AI_DO_NOTHING
+                    State = AIState.AI_DO_NOTHING
             End Select
         End Sub
 
@@ -517,7 +514,7 @@ Public Module WS_Creatures_AI
                 End While
 
                 If aiCreature.CanMoveTo(selectedX, selectedY, selectedZ) Then
-                    Me.State = TBaseAI.AIState.AI_WANDERING
+                    Me.State = AIState.AI_WANDERING
                     aiTimer = aiCreature.MoveTo(selectedX, selectedY, selectedZ, , False)
                 Else
                     aiTimer = AI_INTERVAL_MOVE
@@ -536,11 +533,11 @@ Public Module WS_Creatures_AI
 
                 'DONE: Do targeted movement to attack target
                 Dim distance As Single = 1000 * aiCreature.CreatureInfo.RunSpeed
-                Dim distanceToTarget As Single = GetDistance(CType(aiCreature, CreatureObject), CType(aiTarget, BaseUnit))
+                Dim distanceToTarget As Single = GetDistance(aiCreature, aiTarget)
 
                 If distanceToTarget < distance Then
                     'DONE: Move to target
-                    Me.State = TBaseAI.AIState.AI_ATTACKING
+                    Me.State = AIState.AI_ATTACKING
 
                     Dim destDist As Single = BaseUnit.CombatReach_Base + aiCreature.CombatReach + aiTarget.BoundingRadius
                     If distanceToTarget <= destDist Then
@@ -569,7 +566,7 @@ Public Module WS_Creatures_AI
 
                 Else
                     'DONE: Move to target by vector
-                    Me.State = TBaseAI.AIState.AI_MOVE_FOR_ATTACK
+                    Me.State = AIState.AI_MOVE_FOR_ATTACK
 
                     Dim angle As Single = GetOrientation(aiCreature.positionX, aiTarget.positionX, aiCreature.positionY, aiTarget.positionY)
                     aiCreature.orientation = angle
@@ -746,7 +743,7 @@ Public Module WS_Creatures_AI
                 Case AIState.AI_DO_NOTHING
                 Case Else
                     aiCreature.SendChatMessage("Unknown AI mode!", ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL)
-                    Me.State = TBaseAI.AIState.AI_DO_NOTHING
+                    Me.State = AIState.AI_DO_NOTHING
             End Select
         End Sub
 

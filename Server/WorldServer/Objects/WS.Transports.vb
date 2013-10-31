@@ -46,10 +46,10 @@ Public Module WS_Transports
             Next
 
             Log.WriteLine(LogType.INFORMATION, "Database: {0} Transports initialized.", TransportQuery.Rows.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As IO.DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("Database : TransportQuery missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -164,7 +164,7 @@ Public Module WS_Transports
             Dim PathID As Integer = Sound(0)
             Dim ShipSpeed As Single = CSng(Sound(1))
             If TaxiPaths.ContainsKey(PathID) = False Then
-                Log.WriteLine(BaseWriter.LogType.CRITICAL, "An transport [{0} - {1}] is created with an invalid TaxiPath.", ID, TransportName)
+                Log.WriteLine(LogType.CRITICAL, "An transport [{0} - {1}] is created with an invalid TaxiPath.", ID, TransportName)
                 Return False
             End If
 
@@ -572,7 +572,7 @@ Public Module WS_Transports
                         'TODO: What more?
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(BaseWriter.LogType.CRITICAL, "Failed to transfer player [0x{0:X}].{1}{2}", tmpUnit.GUID, vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Failed to transfer player [0x{0:X}].{1}{2}", tmpUnit.GUID, vbNewLine, ex.ToString)
                 End Try
             Next
 

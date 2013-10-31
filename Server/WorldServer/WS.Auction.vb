@@ -192,14 +192,14 @@ Module WS_Auction
         End If
 
     End Sub
-    Public Sub SendAuctionCommandResult(ByRef Client As ClientClass, ByVal AuctionID As Integer, ByVal AuctionAction As AuctionAction, ByVal AuctionError As AuctionError, ByVal BidError As Integer)
+    Public Sub SendAuctionCommandResult(ByRef client As ClientClass, ByVal AuctionID As Integer, ByVal AuctionAction As AuctionAction, ByVal AuctionError As AuctionError, ByVal BidError As Integer)
         Dim response As New PacketClass(OPCODES.SMSG_AUCTION_COMMAND_RESULT)
         response.AddInt32(AuctionID)
         response.AddInt32(AuctionAction)
         response.AddInt32(AuctionError)
         'If AuctionError <> AuctionError.AUCTION_OK AndAlso AuctionAction <> AuctionAction.AUCTION_SELL_ITEM Then
         response.AddInt32(BidError)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
     Public Sub SendAuctionBidderNotification(ByRef objCharacter As CharacterObject)
@@ -240,10 +240,10 @@ Module WS_Auction
         objCharacter.Client.Send(packet)
         packet.Dispose()
     End Sub
-    Public Sub SendAuctionListOwnerItems(ByRef Client As ClientClass)
+    Public Sub SendAuctionListOwnerItems(ByRef client As ClientClass)
         Dim response As New PacketClass(OPCODES.SMSG_AUCTION_OWNER_LIST_RESULT)
         Dim MySQLQuery As New DataTable
-        CharacterDatabase.Query("SELECT * FROM auctionhouse WHERE auction_owner = " & Client.Character.GUID & ";", MySQLQuery)
+        CharacterDatabase.Query("SELECT * FROM auctionhouse WHERE auction_owner = " & client.Character.GUID & ";", MySQLQuery)
         If MySQLQuery.Rows.Count > 50 Then
             response.AddInt32(50)                               'Count
         Else
@@ -257,15 +257,15 @@ Module WS_Auction
             If count = 50 Then Exit For
         Next
         response.AddInt32(MySQLQuery.Rows.Count)            'AllCount
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_AUCTION_OWNER_LIST_RESULT", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_AUCTION_OWNER_LIST_RESULT", client.IP, client.Port)
     End Sub
-    Public Sub SendAuctionListBidderItems(ByRef Client As ClientClass)
+    Public Sub SendAuctionListBidderItems(ByRef client As ClientClass)
         Dim response As New PacketClass(OPCODES.SMSG_AUCTION_BIDDER_LIST_RESULT)
         Dim MySQLQuery As New DataTable
-        CharacterDatabase.Query("SELECT * FROM auctionhouse WHERE auction_bidder = " & Client.Character.GUID & ";", MySQLQuery)
+        CharacterDatabase.Query("SELECT * FROM auctionhouse WHERE auction_bidder = " & client.Character.GUID & ";", MySQLQuery)
         If MySQLQuery.Rows.Count > 50 Then
             response.AddInt32(50)                               'Count
         Else
@@ -279,27 +279,27 @@ Module WS_Auction
             If count = 50 Then Exit For
         Next
         response.AddInt32(MySQLQuery.Rows.Count)            'AllCount
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_AUCTION_BIDDER_LIST_RESULT", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_AUCTION_BIDDER_LIST_RESULT", client.IP, client.Port)
     End Sub
 
 
 #End Region
 #Region "WS.Auction.Handlers"
 
-    Public Sub On_MSG_AUCTION_HELLO(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_AUCTION_HELLO(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
-        Dim GUID As ULong = packet.GetUInt64
+        Dim guid As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_AUCTION_HELLO [GUID={2}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_AUCTION_HELLO [GUID={2}]", client.IP, client.Port, guid)
 
-        SendShowAuction(Client.Character, GUID)
+        SendShowAuction(Client.Character, guid)
     End Sub
 
-    Public Sub On_CMSG_AUCTION_SELL_ITEM(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_AUCTION_SELL_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 33 Then Exit Sub
         packet.GetInt16()
         Dim cGUID As ULong = packet.GetUInt64
@@ -311,7 +311,7 @@ Module WS_Auction
         'DONE: Calculate deposit with time in hours
         Dim Deposit As Integer = GetAuctionDeposit(cGUID, CType(WORLD_ITEMs(iGUID), ItemObject).ItemInfo.SellPrice, CType(WORLD_ITEMs(iGUID), ItemObject).StackCount, Time)
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_SELL_ITEM [Bid={2} BuyOut={3} Time={4}]", Client.IP, Client.Port, Bid, Buyout, Time)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_SELL_ITEM [Bid={2} BuyOut={3} Time={4}]", client.IP, client.Port, Bid, Buyout, Time)
 
         'DONE: Convert time in seconds left
         Time = Time * 60
@@ -322,19 +322,19 @@ Module WS_Auction
             Return
         End If
         'DONE: Check deposit
-        If Client.Character.Copper < Deposit Then
+        If client.Character.Copper < Deposit Then
             SendAuctionCommandResult(Client, 0, AuctionAction.AUCTION_SELL_ITEM, AuctionError.AUCTION_NOT_ENOUGHT_MONEY, 0)
             Return
         End If
 
         'DONE: Get 5% deposit per 2h in auction (http://www.wowwiki.com/Formulas:Auction_House)
-        Client.Character.Copper -= Deposit
+        client.Character.Copper -= Deposit
 
         'DONE: Remove item from inventory
-        Client.Character.ItemREMOVE(iGUID, False, True)
+        client.Character.ItemREMOVE(iGUID, False, True)
 
         'DONE: Add auction entry into table
-        CharacterDatabase.Update(String.Format("INSERT INTO auctionhouse (auction_bid, auction_buyout, auction_timeleft, auction_bidder, auction_owner, auction_itemId, auction_itemGuid, auction_itemCount) VALUES ({0},{1},{2},{3},{4},{5},{6},{7});", Bid, Buyout, Time, 0, Client.Character.GUID, CType(WORLD_ITEMs(iGUID), ItemObject).ItemEntry, iGUID - GUID_ITEM, CType(WORLD_ITEMs(iGUID), ItemObject).StackCount))
+        CharacterDatabase.Update(String.Format("INSERT INTO auctionhouse (auction_bid, auction_buyout, auction_timeleft, auction_bidder, auction_owner, auction_itemId, auction_itemGuid, auction_itemCount) VALUES ({0},{1},{2},{3},{4},{5},{6},{7});", Bid, Buyout, Time, 0, client.Character.GUID, CType(WORLD_ITEMs(iGUID), ItemObject).ItemEntry, iGUID - GUID_ITEM, CType(WORLD_ITEMs(iGUID), ItemObject).StackCount))
 
         'DONE: Send result packet
         Dim MySQLQuery As New DataTable
@@ -346,13 +346,13 @@ Module WS_Auction
         'NOTE: Not needed, client would request it
         'SendAuctionListOwnerItems(Client)
     End Sub
-    Public Sub On_CMSG_AUCTION_REMOVE_ITEM(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_AUCTION_REMOVE_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
         Dim AuctionID As Integer = packet.GetInt32
         Dim MailTime As Integer = GetTimestamp(Now) + (86400 * 30)
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_REMOVE_ITEM [GUID={2} AuctionID={3}]", Client.IP, Client.Port, GUID, AuctionID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_REMOVE_ITEM [GUID={2} AuctionID={3}]", client.IP, client.Port, GUID, AuctionID)
 
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query("SELECT * FROM auctionhouse WHERE auction_id = " & AuctionID & ";", MySQLQuery)
@@ -378,7 +378,7 @@ Module WS_Auction
         'NOTE: Not needed, client would request it
         'SendAuctionListOwnerItems(Client)
     End Sub
-    Public Sub On_CMSG_AUCTION_PLACE_BID(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_AUCTION_PLACE_BID(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim cGUID As ULong = packet.GetUInt64
         Dim AuctionID As Integer = packet.GetInt32
@@ -386,9 +386,9 @@ Module WS_Auction
         Dim MailTime As Integer = GetTimestamp(Now) + (86400 * 30)
 
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_PLACE_BID [AuctionID={2} Bid={3}]", Client.IP, Client.Port, AuctionID, Bid)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_PLACE_BID [AuctionID={2} Bid={3}]", client.IP, client.Port, AuctionID, Bid)
 
-        If Client.Character.Copper < Bid Then Exit Sub
+        If client.Character.Copper < Bid Then Exit Sub
 
 
         Dim MySQLQuery As New DataTable
@@ -416,10 +416,10 @@ Module WS_Auction
             buffer = BitConverter.GetBytes(CType(MySQLQuery.Rows(0).Item("auction_owner"), Long))
             Array.Reverse(buffer)
             bodyText = BitConverter.ToString(buffer).Replace("-", "") & ":" & Bid & ":" & MySQLQuery.Rows(0).Item("auction_buyout")
-            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_type, mail_stationary, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read) VALUES ({0},{1},{2},62,'{3}','{4}',{5},{6},{7},{8});", AuctionID, Client.Character.GUID, 2, MySQLQuery.Rows(0).Item("auction_itemId") & ":0:1", bodyText, 0, 0, MailTime, 0))
+            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_type, mail_stationary, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read) VALUES ({0},{1},{2},62,'{3}','{4}',{5},{6},{7},{8});", AuctionID, client.Character.GUID, 2, MySQLQuery.Rows(0).Item("auction_itemId") & ":0:1", bodyText, 0, 0, MailTime, 0))
 
             Dim MailQuery As New DataTable
-            CharacterDatabase.Query("SELECT mail_id FROM characters_mail WHERE mail_receiver = " & Client.Character.GUID & ";", MailQuery)
+            CharacterDatabase.Query("SELECT mail_id FROM characters_mail WHERE mail_receiver = " & client.Character.GUID & ";", MailQuery)
             Dim MailID As Integer = MailQuery.Rows(0).Item("mail_id")
 
             CharacterDatabase.Update(String.Format("INSERT INTO mail_items (mail_id, item_guid) VALUES ({0},{1});", MailID, MySQLQuery.Rows(0).Item("auction_itemGuid")))
@@ -432,12 +432,12 @@ Module WS_Auction
             'NOTE: Here is using external timer or web page script to count what time is left and to do the actual buy
 
             'DONE: Set bidder in auction table, update bid value
-            CharacterDatabase.Update(String.Format("UPDATE auctionhouse SET auction_bidder = {1}, auction_bid = {2} WHERE auction_id = {0};", AuctionID, Client.Character.GUID, Bid))
+            CharacterDatabase.Update(String.Format("UPDATE auctionhouse SET auction_bidder = {1}, auction_bid = {2} WHERE auction_id = {0};", AuctionID, client.Character.GUID, Bid))
         End If
 
-        Client.Character.Copper -= Bid
-        Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
-        Client.Character.SendCharacterUpdate(False)
+        client.Character.Copper -= Bid
+        client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
+        client.Character.SendCharacterUpdate(False)
 
         'DONE: Send result packet
         SendAuctionCommandResult(Client, MySQLQuery.Rows(0).Item("auction_id"), AuctionAction.AUCTION_PLACE_BID, AuctionError.AUCTION_OK, 0)
@@ -445,7 +445,7 @@ Module WS_Auction
         'NOTE: Not needed, client would request it
         'SendAuctionListBidderItems(Client)
     End Sub
-    Public Sub On_CMSG_AUCTION_LIST_ITEMS(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_AUCTION_LIST_ITEMS(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 18 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
@@ -462,7 +462,7 @@ Module WS_Auction
 
         Dim mustBeUsable As Integer = packet.GetInt8
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_ITEMS [{2} ({3}-{4})]", Client.IP, Client.Port, Name, LevelMIN, LevelMAX)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_ITEMS [{2} ({3}-{4})]", client.IP, client.Port, Name, LevelMIN, LevelMAX)
 
         Dim response As New PacketClass(OPCODES.SMSG_AUCTION_LIST_RESULT)
         Dim QueryString As String = "SELECT auctionhouse.* FROM " & CharacterDatabase.SQLDBName & ".auctionhouse, " & WorldDatabase.SQLDBName & ".item_template WHERE item_template.entry = auctionhouse.auction_itemId"
@@ -489,26 +489,26 @@ Module WS_Auction
             If count = 32 Then Exit For
         Next
         response.AddInt32(MySQLQuery.Rows.Count)            'AllCount
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
-    Public Sub On_CMSG_AUCTION_LIST_OWNER_ITEMS(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_AUCTION_LIST_OWNER_ITEMS(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_OWNER_ITEMS [GUID={2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_OWNER_ITEMS [GUID={2:X}]", client.IP, client.Port, GUID)
 
         SendAuctionListOwnerItems(Client)
 
     End Sub
-    Public Sub On_CMSG_AUCTION_LIST_BIDDER_ITEMS(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_AUCTION_LIST_BIDDER_ITEMS(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
         Dim Unk As Long = packet.GetInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_BIDDER_ITEMS [GUID={2:X} UNK={3}]", Client.IP, Client.Port, GUID, Unk)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_BIDDER_ITEMS [GUID={2:X} UNK={3}]", client.IP, client.Port, GUID, Unk)
 
         SendAuctionListBidderItems(Client)
     End Sub

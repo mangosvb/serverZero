@@ -226,7 +226,7 @@ Public Module WS_Weather
         End Sub
     End Class
 
-    Public Sub SendWeather(ByVal ZoneID As Integer, ByRef Client As ClientClass)
+    Public Sub SendWeather(ByVal ZoneID As Integer, ByRef client As ClientClass)
         If Not WeatherZones.ContainsKey(ZoneID) Then Exit Sub
         Dim Weather As WeatherZone = WeatherZones(ZoneID)
 
@@ -234,7 +234,7 @@ Public Module WS_Weather
         SMSG_WEATHER.AddInt32(Weather.CurrentWeather)
         SMSG_WEATHER.AddSingle(Weather.Intensity)
         SMSG_WEATHER.AddInt32(Weather.GetSound())
-        Client.Send(SMSG_WEATHER)
+        client.Send(SMSG_WEATHER)
         SMSG_WEATHER.Dispose()
     End Sub
 

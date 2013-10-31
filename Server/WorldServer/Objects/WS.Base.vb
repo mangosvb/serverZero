@@ -17,7 +17,6 @@
 '
 
 Imports mangosVB.Common.BaseWriter
-Imports System.Threading
 Imports System.Collections.Generic
 
 Public Module WS_Base
@@ -164,7 +163,6 @@ Public Module WS_Base
             End Get
         End Property
 
-
         'cBytes1 subfields
         Public Overridable Property StandState() As Byte
             Get
@@ -270,7 +268,7 @@ Public Module WS_Base
 
         Public ReadOnly Property IsInFeralForm() As Boolean
             Get
-                Return (ShapeshiftForm = WS_Spells.ShapeshiftForm.FORM_CAT OrElse ShapeshiftForm = WS_Spells.ShapeshiftForm.FORM_BEAR OrElse ShapeshiftForm = WS_Spells.ShapeshiftForm.FORM_DIREBEAR)
+                Return (ShapeshiftForm = ShapeshiftForm.FORM_CAT OrElse ShapeshiftForm = ShapeshiftForm.FORM_BEAR OrElse ShapeshiftForm = ShapeshiftForm.FORM_DIREBEAR)
             End Get
         End Property
 

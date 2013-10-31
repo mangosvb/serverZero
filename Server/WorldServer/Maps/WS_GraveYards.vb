@@ -15,7 +15,7 @@ Public Class WS_GraveYards
         Private _locationMapID As Integer
 
         Sub New(locationPosX As Single, locationPosY As Single, locationPosZ As Single, locationMapID As Integer)
-            ' TODO: Complete member initialization 
+            ' TODO: Complete member initialization
             _locationPosX = locationPosX
             _locationPosY = locationPosY
             _locationPosZ = locationPosZ
@@ -32,7 +32,7 @@ Public Class WS_GraveYards
                 Return Me._locationPosX
             End Get
             Set(value As Integer)
-                Me._locationPosX = x
+                Me._locationPosX = X
             End Set
         End Property
 
@@ -46,7 +46,7 @@ Public Class WS_GraveYards
                 Return Me._locationPosY
             End Get
             Set(value As Integer)
-                Me._locationPosY = y
+                Me._locationPosY = Y
             End Set
         End Property
 
@@ -60,7 +60,7 @@ Public Class WS_GraveYards
                 Return Me._locationPosZ
             End Get
             Set(value As Integer)
-                Me._locationPosZ = z
+                Me._locationPosZ = Z
             End Set
         End Property
 
@@ -79,7 +79,6 @@ Public Class WS_GraveYards
         End Property
     End Structure
 
-
     ''' <summary>
     ''' Adds the coords.
     ''' </summary>
@@ -89,7 +88,7 @@ Public Class WS_GraveYards
     ''' <param name="locationPosZ">The location pos Z.</param>
     ''' <param name="locationMapID">The location map ID.</param>
     Public Sub AddGraveYard(ID As Integer, locationPosX As Single, locationPosY As Single, locationPosZ As Single, locationMapID As Integer)
-        ' TODO: Complete member initialization 
+        ' TODO: Complete member initialization
         Me.Graveyards.Add(ID, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
     End Sub
 
@@ -124,7 +123,7 @@ Public Class WS_GraveYards
             Dim locationIndex As Integer
 
             Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
-            For i as Integer = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 locationIndex = tmpDBC.Item(i, 0)
                 locationMapID = tmpDBC.Item(i, 1)
                 locationPosX = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
@@ -140,14 +139,13 @@ Public Class WS_GraveYards
 
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As IO.DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : WorldSafeLocs missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
-
 
     Public Sub GoToNearestGraveyard(ByRef Character As CharacterObject, ByVal Alive As Boolean, ByVal Teleport As Boolean)
         Character.ZoneCheck()

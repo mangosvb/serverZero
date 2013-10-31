@@ -17,7 +17,6 @@
 '
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
-Imports mangosVB.Common.SQL
 
 Public Module WS_DBCDatabase
 
@@ -1918,11 +1917,11 @@ Public Module WS_DBCDatabase
         InitializeDurabilityCosts()
         LoadSpellItemEnchantments()
         LoadItemSet()
-        LoadItemDisplayInfoDBC()
-        LoadItemRandomPropertiesDBC()
-        LoadTalentDBC()
+        LoadItemDisplayInfoDbc()
+        LoadItemRandomPropertiesDbc()
+        LoadTalentDbc()
         LoadTalentTabDbc()
-        LoadAuctionHouseDBC()
+        LoadAuctionHouseDbc()
         LoadLootStores()
         LoadWeather()
 
@@ -1930,7 +1929,7 @@ Public Module WS_DBCDatabase
         InitializeBattlegrounds()
         InitializeTeleportCoords()
         InitializeMonsterSayCombat()
-        LoadCreatureFamilyDBC()
+        LoadCreatureFamilyDbc()
 
         InitializeSpellRadius()
         InitializeSpellDuration()

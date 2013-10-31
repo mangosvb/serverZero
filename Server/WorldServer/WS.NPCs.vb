@@ -131,7 +131,7 @@ Public Module WS_NPCs
     ''' <summary>
     ''' Sends the trainer list.
     ''' </summary>
-    ''' <param name="objChar">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <param name="cGuid">The objCharacter GUID.</param>
     ''' <returns></returns>
     Private Sub SendTrainerList(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
@@ -489,7 +489,7 @@ Public Module WS_NPCs
         Dim count As Byte = packet.GetInt8
         If WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse ((WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 AndAlso (WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) = 0) Then Exit Sub
         If ITEMDatabase.ContainsKey(itemID) = False Then Exit Sub
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_ITEM_IN_SLOT [vendorGuid={2:X} ItemID={3} Count={4} Slot={5}]", Client.IP, Client.Port, vendorGuid, itemID, count, slot)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_ITEM_IN_SLOT [vendorGuid={2:X} ItemID={3} Count={4} Slot={5}]", client.IP, client.Port, vendorGuid, itemID, count, slot)
 
         'DONE: No count cheating
         If count > ITEMDatabase(itemID).Stackable Then count = ITEMDatabase(itemID).Stackable
@@ -511,12 +511,12 @@ Public Module WS_NPCs
         Dim discountMod As Single = client.Character.GetDiscountMod(WORLD_CREATUREs(vendorGuid).Faction)
         itemPrice = ITEMDatabase(itemID).BuyPrice * discountMod
 
-        If Client.Character.Copper < (itemPrice * count) Then
+        If client.Character.Copper < (itemPrice * count) Then
             Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
             errorPckt.AddUInt64(vendorGuid)
             errorPckt.AddInt32(itemID)
             errorPckt.AddInt8(BUY_ERROR.BUY_ERR_NOT_ENOUGHT_MONEY)
-            Client.Send(errorPckt)
+            client.Send(errorPckt)
             errorPckt.Dispose()
             Exit Sub
         End If
@@ -524,15 +524,15 @@ Public Module WS_NPCs
         Dim errCode As Byte = 0
         Dim bag As Byte = 0
 
-        If clientGUID = Client.Character.GUID Then
+        If clientGuid = client.Character.GUID Then
             'Store in inventory
             bag = 0
-            If Client.Character.Items.ContainsKey(slot) Then
+            If client.Character.Items.ContainsKey(slot) Then
                 Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
                 errorPckt.AddUInt64(vendorGuid)
                 errorPckt.AddInt32(itemID)
                 errorPckt.AddInt8(BUY_ERROR.BUY_ERR_CANT_CARRY_MORE)
-                Client.Send(errorPckt)
+                client.Send(errorPckt)
                 errorPckt.Dispose()
                 Exit Sub
             End If
@@ -540,7 +540,7 @@ Public Module WS_NPCs
             'Store in bag
             Dim i As Byte
             For i = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_4
-                If Client.Character.Items(i).GUID = clientGUID Then
+                If client.Character.Items(i).GUID = clientGuid Then
                     bag = i
                     Exit For
                 End If
@@ -550,25 +550,25 @@ Public Module WS_NPCs
                 okPckt.AddUInt64(vendorGuid)
                 okPckt.AddInt32(itemID)
                 okPckt.AddInt8(BUY_ERROR.BUY_ERR_CANT_FIND_ITEM)
-                Client.Send(okPckt)
+                client.Send(okPckt)
                 okPckt.Dispose()
                 Exit Sub
             End If
-            If Client.Character.Items(bag).Items.ContainsKey(slot) Then
+            If client.Character.Items(bag).Items.ContainsKey(slot) Then
                 Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
                 errorPckt.AddUInt64(vendorGuid)
                 errorPckt.AddInt32(itemID)
                 errorPckt.AddInt8(BUY_ERROR.BUY_ERR_CANT_CARRY_MORE)
-                Client.Send(errorPckt)
+                client.Send(errorPckt)
                 errorPckt.Dispose()
                 Exit Sub
             End If
         End If
 
-        Dim tmpItem As New ItemObject(itemID, Client.Character.GUID)
+        Dim tmpItem As New ItemObject(itemID, client.Character.GUID)
         tmpItem.StackCount = count
 
-        errCode = Client.Character.ItemCANEQUIP(tmpItem, bag, slot)
+        errCode = client.Character.ItemCANEQUIP(tmpItem, bag, slot)
         If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
             If errCode <> InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N Then
                 Dim errorPckt As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
@@ -576,28 +576,28 @@ Public Module WS_NPCs
                 errorPckt.AddUInt64(0)
                 errorPckt.AddUInt64(0)
                 errorPckt.AddInt8(0)
-                Client.Send(errorPckt)
+                client.Send(errorPckt)
                 errorPckt.Dispose()
             End If
             tmpItem.Delete()
             Exit Sub
         Else
-            Client.Character.Copper -= (itemPrice * count)
-            Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+            client.Character.Copper -= (itemPrice * count)
+            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
-            If Not Client.Character.ItemSETSLOT(tmpItem, slot, bag) Then
+            If Not client.Character.ItemSETSLOT(tmpItem, slot, bag) Then
                 tmpItem.Delete()
-                Client.Character.Copper += itemPrice
-                Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+                client.Character.Copper += itemPrice
+                client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
             Else
                 Dim okPckt As New PacketClass(OPCODES.SMSG_BUY_ITEM)
                 okPckt.AddUInt64(vendorGuid)
                 okPckt.AddInt32(itemID)
                 okPckt.AddInt32(count)
-                Client.Send(okPckt)
+                client.Send(okPckt)
                 okPckt.Dispose()
             End If
-            Client.Character.SendCharacterUpdate(False)
+            client.Character.SendCharacterUpdate(False)
         End If
     End Sub
 
@@ -671,7 +671,7 @@ Public Module WS_NPCs
         Dim vendorGuid As ULong = packet.GetUInt64
         Dim itemGuid As ULong = packet.GetUInt64
         If WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse (WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 Then Exit Sub
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPAIR_ITEM [vendorGuid={2:X} itemGuid={3:X}]", Client.IP, Client.Port, vendorGuid, itemGuid)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPAIR_ITEM [vendorGuid={2:X} itemGuid={3:X}]", client.IP, client.Port, vendorGuid, itemGuid)
 
         'DONE: Reputation discount
         Dim discountMod As Single = client.Character.GetDiscountMod(WORLD_CREATUREs(vendorGuid).Faction)
@@ -708,16 +708,16 @@ Public Module WS_NPCs
     ''' <summary>
     ''' Sends the list inventory.
     ''' </summary>
-    ''' <param name="objChar">The obj char.</param>
+    ''' <param name="objCharacter">The obj char.</param>
     ''' <param name="guid">The GUID.</param>
     ''' <returns></returns>
     Private Sub SendListInventory(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
         Try
             Dim packet As New PacketClass(OPCODES.SMSG_LIST_INVENTORY)
-            packet.AddUInt64(Guid)
+            packet.AddUInt64(guid)
 
             Dim mySqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM npc_vendor WHERE entry = {0};", WORLD_CREATUREs(Guid).ID), mySqlQuery)
+            WorldDatabase.Query(String.Format("SELECT * FROM npc_vendor WHERE entry = {0};", WORLD_CREATUREs(guid).ID), mySqlQuery)
             Dim dataPos As Integer = packet.Data.Length
             packet.AddInt8(0) 'Will be updated later
 
@@ -744,7 +744,7 @@ Public Module WS_NPCs
                     End If
 
                     'DONE: Discount on reputation
-                    Dim discountMod As Single = objCharacter.GetDiscountMod(WORLD_CREATUREs(Guid).Faction)
+                    Dim discountMod As Single = objCharacter.GetDiscountMod(WORLD_CREATUREs(guid).Faction)
                     packet.AddInt32(CInt(ITEMDatabase(itemID).BuyPrice * discountMod))
                     packet.AddInt32(-1) 'Durability
                     packet.AddInt32(ITEMDatabase(itemID).BuyCount)
@@ -792,7 +792,7 @@ Public Module WS_NPCs
         Dim srcSlot As Byte = packet.GetInt8
         If srcBag = 0 Then srcBag = 0
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BANK_ITEM [srcSlot={2}:{3}]", Client.IP, Client.Port, srcBag, srcSlot)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BANK_ITEM [srcSlot={2}:{3}]", client.IP, client.Port, srcBag, srcSlot)
 
         'TODO: Do real moving
     End Sub
@@ -806,16 +806,16 @@ Public Module WS_NPCs
     Public Sub On_CMSG_BUY_BANK_SLOT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_BANK_SLOT", client.IP, client.Port)
 
-        If Client.Character.Items_AvailableBankSlots < DbcBankBagSlotsMax AndAlso _
-           Client.Character.Copper >= DbcBankBagSlotPrices(Client.Character.Items_AvailableBankSlots) Then
-            Client.Character.Copper -= DbcBankBagSlotPrices(Client.Character.Items_AvailableBankSlots)
-            Client.Character.Items_AvailableBankSlots += 1
+        If client.Character.Items_AvailableBankSlots < DbcBankBagSlotsMax AndAlso _
+           client.Character.Copper >= DbcBankBagSlotPrices(client.Character.Items_AvailableBankSlots) Then
+            client.Character.Copper -= DbcBankBagSlotPrices(client.Character.Items_AvailableBankSlots)
+            client.Character.Items_AvailableBankSlots += 1
 
             CharacterDatabase.Update(String.Format("UPDATE characters SET char_bankSlots = {0}, char_copper = {1};", client.Character.Items_AvailableBankSlots, client.Character.Copper))
 
-            Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
-            Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_BYTES_2, Client.Character.cPlayerBytes2)
-            Client.Character.SendCharacterUpdate(False)
+            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
+            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_BYTES_2, client.Character.cPlayerBytes2)
+            client.Character.SendCharacterUpdate(False)
         Else
             Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
             Try
@@ -848,7 +848,7 @@ Public Module WS_NPCs
     ''' <summary>
     ''' Sends the opcode to show the bank.
     ''' </summary>
-    ''' <param name="objChar">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <param name="guid">The GUID.</param>
     ''' <returns></returns>
     Private Sub SendShowBank(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
@@ -866,7 +866,7 @@ Public Module WS_NPCs
     ''' <summary>
     ''' Sends the bind point confirm.
     ''' </summary>
-    ''' <param name="objChar">The obj char.</param>
+    ''' <param name="objCharacter">The obj char.</param>
     ''' <param name="guid">The GUID.</param>
     ''' <returns></returns>
     Private Sub SendBindPointConfirm(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
@@ -908,7 +908,7 @@ Public Module WS_NPCs
     ''' <summary>
     ''' Sends the talent wipe confirm.
     ''' </summary>
-    ''' <param name="objChar">The obj char.</param>
+    ''' <param name="objCharacter">The obj char.</param>
     ''' <param name="cost">The cost.</param>
     ''' <returns></returns>
     Private Sub SendTalentWipeConfirm(ByRef objCharacter As CharacterObject, ByVal cost As Integer)
@@ -938,7 +938,7 @@ Public Module WS_NPCs
 
             'DONE: Removing all talents
             For Each talentInfo As KeyValuePair(Of Integer, TalentInfo) In Talents
-                For i as Integer = 0 To 4
+                For i As Integer = 0 To 4
                     If talentInfo.Value.RankID(i) <> 0 Then
                         If client.Character.HaveSpell(talentInfo.Value.RankID(i)) Then
                             client.Character.UnLearnSpell(talentInfo.Value.RankID(i))
@@ -998,7 +998,7 @@ Public Module WS_NPCs
         ''' <summary>
         ''' Called when [gossip hello].
         ''' </summary>
-        ''' <param name="objChar">The obj char.</param>
+        ''' <param name="objCharacter">The obj char.</param>
         ''' <param name="cGuid">The objCharacter GUID.</param>
         ''' <returns></returns>
         Public Overrides Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
@@ -1179,7 +1179,7 @@ Public Module WS_NPCs
         ''' <summary>
         ''' Called when [gossip select].
         ''' </summary>
-        ''' <param name="objChar">The objCharacter.</param>
+        ''' <param name="objCharacter">The objCharacter.</param>
         ''' <param name="cGUID">The objCharacter GUID.</param>
         ''' <param name="selected">The selected.</param>
         ''' <returns></returns>
@@ -1228,5 +1228,3 @@ Public Module WS_NPCs
     End Class
 #End Region
 End Module
-
-

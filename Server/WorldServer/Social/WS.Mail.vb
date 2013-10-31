@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Mail
@@ -55,18 +54,16 @@ Public Module WS_Mail
         AUCTION = 2
     End Enum
 
-
 #End Region
 #Region "WS.Mail.Handlers"
 
-
-    Public Sub On_CMSG_MAIL_RETURN_TO_SENDER(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_MAIL_RETURN_TO_SENDER(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
         Dim MailID As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_RETURN_TO_SENDER [MailID={2}]", Client.IP, Client.Port, MailID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_RETURN_TO_SENDER [MailID={2}]", client.IP, client.Port, MailID)
 
         'A = 1
         'B = 2
@@ -74,23 +71,23 @@ Public Module WS_Mail
         'B = A - B '3-2=1
         'A = A - B '3-1=2
 
-        Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 30) 'Set expiredate to today + 30 days
+        Dim MailTime As Integer = GetTimestamp(Now) + (Common.Constants.DAY * 30) 'Set expiredate to today + 30 days
         CharacterDatabase.Update(String.Format("UPDATE characters_mail SET mail_time = {1}, mail_read = 0, mail_receiver = (mail_receiver + mail_sender), mail_sender = (mail_receiver - mail_sender), mail_receiver = (mail_receiver - mail_sender) WHERE mail_id = {0};", MailID, MailTime))
 
         Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
         response.AddInt32(MailID)
         response.AddInt32(MailResult.MAIL_RETURNED)
         response.AddInt32(0)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
-    Public Sub On_CMSG_MAIL_DELETE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_MAIL_DELETE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
         Dim MailID As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_DELETE [MailID={2}]", Client.IP, Client.Port, MailID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_DELETE [MailID={2}]", client.IP, client.Port, MailID)
 
         CharacterDatabase.Update(String.Format("DELETE FROM characters_mail WHERE mail_id = {0};", MailID))
 
@@ -98,28 +95,28 @@ Public Module WS_Mail
         response.AddInt32(MailID)
         response.AddInt32(MailResult.MAIL_DELETED)
         response.AddInt32(0)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
-    Public Sub On_CMSG_MAIL_MARK_AS_READ(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_MAIL_MARK_AS_READ(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
         Dim MailID As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_MARK_AS_READ [MailID={2}]", Client.IP, Client.Port, MailID)
-        Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 3) 'Set expiredate to today + 3 days
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_MARK_AS_READ [MailID={2}]", client.IP, client.Port, MailID)
+        Dim MailTime As Integer = GetTimestamp(Now) + (Common.Constants.DAY * 3) 'Set expiredate to today + 3 days
         CharacterDatabase.Update(String.Format("UPDATE characters_mail SET mail_read = 1, mail_time = {1} WHERE mail_id = {0} AND mail_read < 2;", MailID, MailTime))
     End Sub
-    Public Sub On_MSG_QUERY_NEXT_MAIL_TIME(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_QUERY_NEXT_MAIL_TIME", Client.IP, Client.Port)
+    Public Sub On_MSG_QUERY_NEXT_MAIL_TIME(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_QUERY_NEXT_MAIL_TIME", client.IP, client.Port)
 
         Dim MySQLQuery As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM characters_mail WHERE mail_read = 0 AND mail_receiver = {0} AND mail_time > {1};", Client.Character.GUID, GetTimestamp(Now)), MySQLQuery)
+        CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM characters_mail WHERE mail_read = 0 AND mail_receiver = {0} AND mail_time > {1};", client.Character.GUID, GetTimestamp(Now)), MySQLQuery)
         If MySQLQuery.Rows(0).Item(0) > 0 Then
             Dim response As New PacketClass(OPCODES.MSG_QUERY_NEXT_MAIL_TIME)
             response.AddInt32(0)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
         Else
             Dim response As New PacketClass(OPCODES.MSG_QUERY_NEXT_MAIL_TIME)
@@ -127,16 +124,16 @@ Public Module WS_Mail
             response.AddInt8(&HC0)
             response.AddInt8(&HA8)
             response.AddInt8(&HC7)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
         End If
     End Sub
-    Public Sub On_CMSG_GET_MAIL_LIST(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GET_MAIL_LIST(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GET_MAIL_LIST [GUID={2:X}]", Client.IP, Client.Port, GameObjectGUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GET_MAIL_LIST [GUID={2:X}]", client.IP, client.Port, GameObjectGUID)
 
         Try
             'Done: Check for old mails, and delete those that have expired
@@ -148,7 +145,7 @@ Public Module WS_Mail
                 Next
             End If
 
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_mail WHERE mail_receiver = {0};", Client.Character.GUID), MySQLQuery)
+            CharacterDatabase.Query(String.Format("SELECT * FROM characters_mail WHERE mail_receiver = {0};", client.Character.GUID), MySQLQuery)
 
             Dim response As New PacketClass(OPCODES.SMSG_MAIL_LIST_RESULT)
             response.AddInt8(MySQLQuery.Rows.Count)
@@ -207,59 +204,59 @@ Public Module WS_Mail
                     response.AddUInt32(CUInt(MySQLQuery.Rows(i).Item("mail_money")))    'Money on delivery
                     response.AddUInt32(CUInt(MySQLQuery.Rows(i).Item("mail_COD")))      'Money as COD
                     response.AddInt32(CInt(MySQLQuery.Rows(i).Item("mail_read")))
-                    response.AddSingle(((CType(MySQLQuery.Rows(i).Item("mail_time"), UInteger) - GetTimestamp(Now)) / mangosVB.Common.Constants.DAY))
+                    response.AddSingle(((CType(MySQLQuery.Rows(i).Item("mail_time"), UInteger) - GetTimestamp(Now)) / Common.Constants.DAY))
                     response.AddInt32(0) 'Mail template ID
                 Next
             End If
 
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
 
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error getting mail list: {0}{1}", vbNewLine, e.ToString)
         End Try
     End Sub
-    Public Sub On_CMSG_MAIL_TAKE_ITEM(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_MAIL_TAKE_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
         Dim MailID As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_TAKE_ITEM [MailID={2}]", Client.IP, Client.Port, MailID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_TAKE_ITEM [MailID={2}]", client.IP, client.Port, MailID)
 
         Try
             'DONE: Check if it's the receiver that is trying to get the item
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT mail_cod, mail_sender, item_guid FROM characters_mail WHERE mail_id = {0} AND mail_receiver = {1};", MailID, Client.Character.GUID), MySQLQuery)
+            CharacterDatabase.Query(String.Format("SELECT mail_cod, mail_sender, item_guid FROM characters_mail WHERE mail_id = {0} AND mail_receiver = {1};", MailID, client.Character.GUID), MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then 'The mail didn't exit, wrong owner trying to get someone elses item?
                 Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                 response.AddInt32(MailID)
                 response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                 response.AddInt32(MailSentError.INTERNAL_ERROR)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             End If
 
             'DONE: Check for COD
             If MySQLQuery.Rows(0).Item("mail_cod") <> 0 Then
-                If Client.Character.Copper < MySQLQuery.Rows(0).Item("mail_cod") Then
+                If client.Character.Copper < MySQLQuery.Rows(0).Item("mail_cod") Then
                     Dim noMoney As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     noMoney.AddInt32(MailID)
                     noMoney.AddInt32(MailResult.MAIL_SENT)
                     noMoney.AddInt32(MailSentError.NOT_ENOUGHT_MONEY)
-                    Client.Send(noMoney)
+                    client.Send(noMoney)
                     noMoney.Dispose()
                     Exit Sub
                 Else
                     'DONE: Pay COD and save
-                    Client.Character.Copper -= MySQLQuery.Rows(0).Item("mail_cod")
+                    client.Character.Copper -= MySQLQuery.Rows(0).Item("mail_cod")
                     CharacterDatabase.Update(String.Format("UPDATE characters_mail SET mail_cod = 0 WHERE mail_id = {0};", MailID))
 
                     'DONE: Send COD to sender
                     'TODO: Edit text to be more blizzlike
-                    Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 30) 'Set expiredate to today + 30 days
-                    CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body,  mail_item_guid, mail_money, mail_COD, mail_time, mail_read, mail_type) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},{9});", Client.Character.GUID, MySQLQuery.Rows(0).Item("mail_sender"), "", "", 0, MySQLQuery.Rows(0).Item("mail_cod"), 0, MailTime, MailReadInfo.COD, 0))
+                    Dim MailTime As Integer = GetTimestamp(Now) + (Common.Constants.DAY * 30) 'Set expiredate to today + 30 days
+                    CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body,  mail_item_guid, mail_money, mail_COD, mail_time, mail_read, mail_type) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},{9});", client.Character.GUID, MySQLQuery.Rows(0).Item("mail_sender"), "", "", 0, MySQLQuery.Rows(0).Item("mail_cod"), 0, MailTime, MailReadInfo.COD, 0))
                 End If
             End If
 
@@ -269,24 +266,24 @@ Public Module WS_Mail
                 response.AddInt32(MailID)
                 response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                 response.AddInt32(MailSentError.INTERNAL_ERROR)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             End If
 
             Dim tmpItem As ItemObject = LoadItemByGUID(CType(MySQLQuery.Rows(0).Item("item_guid"), ULong))
-            tmpItem.OwnerGUID = Client.Character.GUID
+            tmpItem.OwnerGUID = client.Character.GUID
             tmpItem.Save()
 
             'DONE: Send error message if no slots
-            If Client.Character.ItemADD(tmpItem) Then
+            If client.Character.ItemADD(tmpItem) Then
                 CharacterDatabase.Update(String.Format("UPDATE characters_mail SET item_guid = 0 WHERE mail_id = {0};", MailID))
 
                 Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                 response.AddInt32(MailID)
                 response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                 response.AddInt32(MailSentError.NO_ERROR)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
             Else
                 tmpItem.Dispose()
@@ -295,48 +292,48 @@ Public Module WS_Mail
                 response.AddInt32(MailID)
                 response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                 response.AddInt32(MailSentError.BAG_FULL)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
             End If
-            Client.Character.Save()
+            client.Character.Save()
 
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error getting item from mail: {0}{1}", vbNewLine, e.ToString)
         End Try
     End Sub
-    Public Sub On_CMSG_MAIL_TAKE_MONEY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_MAIL_TAKE_MONEY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
         Dim MailID As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_TAKE_MONEY [MailID={2}]", Client.IP, Client.Port, MailID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_TAKE_MONEY [MailID={2}]", client.IP, client.Port, MailID)
 
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query(String.Format("SELECT mail_money FROM characters_mail WHERE mail_id = {0}; UPDATE characters_mail SET mail_money = 0 WHERE mail_id = {0};", MailID), MySQLQuery)
         If (CLng(Client.Character.Copper) + CLng(MySQLQuery.Rows(0).Item("mail_money"))) > UInteger.MaxValue Then
-            Client.Character.Copper = UInteger.MaxValue
+            client.Character.Copper = UInteger.MaxValue
         Else
-            Client.Character.Copper += CUInt(MySQLQuery.Rows(0).Item("mail_money"))
+            client.Character.Copper += CUInt(MySQLQuery.Rows(0).Item("mail_money"))
         End If
-        Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+        client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
         Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
         response.AddInt32(MailID)
         response.AddInt32(MailResult.MAIL_MONEY_REMOVED)
         response.AddInt32(0)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
 
-        Client.Character.SaveCharacter()
+        client.Character.SaveCharacter()
     End Sub
-    Public Sub On_CMSG_ITEM_TEXT_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_ITEM_TEXT_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
         Dim MailID As Integer = packet.GetInt32
         'Dim GameObjectGUID as ulong = packet.GetuInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ITEM_TEXT_QUERY [MailID={2}]", Client.IP, Client.Port, MailID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ITEM_TEXT_QUERY [MailID={2}]", client.IP, client.Port, MailID)
 
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query(String.Format("SELECT mail_body FROM characters_mail WHERE mail_id = {0};", MailID), MySQLQuery)
@@ -345,34 +342,34 @@ Public Module WS_Mail
         Dim response As New PacketClass(OPCODES.SMSG_ITEM_TEXT_QUERY_RESPONSE)
         response.AddInt32(MailID)
         response.AddString(MySQLQuery.Rows(0).Item("mail_body"))
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
-    Public Sub On_CMSG_MAIL_CREATE_TEXT_ITEM(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_MAIL_CREATE_TEXT_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
         Dim MailID As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_CREATE_TEXT_ITEM [MailID={2}]", Client.IP, Client.Port, MailID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_CREATE_TEXT_ITEM [MailID={2}]", client.IP, client.Port, MailID)
 
         'DONE: Create Item with ITEM_FIELD_ITEM_TEXT_ID = MailID
-        Dim tmpItem As New ItemObject(ITEM_MAILTEXT_ITEMID, Client.Character.GUID)
+        Dim tmpItem As New ItemObject(ITEM_MAILTEXT_ITEMID, client.Character.GUID)
         tmpItem.ItemText = MailID
-        If Not Client.Character.ItemADD(tmpItem) Then
+        If Not client.Character.ItemADD(tmpItem) Then
             Dim response As New PacketClass(OPCODES.SMSG_ITEM_TEXT_QUERY_RESPONSE)
             response.AddInt32(MailID)
             response.AddInt32(0)
             response.AddInt32(1)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
 
             tmpItem.Delete()
         Else
-            Client.Character.SendItemUpdate(tmpItem)
+            client.Character.SendItemUpdate(tmpItem)
         End If
     End Sub
-    Public Sub On_CMSG_SEND_MAIL(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_SEND_MAIL(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -389,7 +386,7 @@ Public Module WS_Mail
         Dim COD As UInteger = packet.GetUInt32()
 
         Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SEND_MAIL [Receiver={2} Subject={3}]", Client.IP, Client.Port, Receiver, Subject)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SEND_MAIL [Receiver={2} Subject={3}]", client.IP, client.Port, Receiver, Subject)
 
             Dim MySQLQuery As New DataTable
             CharacterDatabase.Query("SELECT char_guid, char_race FROM characters WHERE char_name LIKE '" & Receiver & "';", MySQLQuery)
@@ -399,29 +396,29 @@ Public Module WS_Mail
                 response.AddInt32(0)
                 response.AddInt32(MailResult.MAIL_SENT)
                 response.AddInt32(MailSentError.CHARACTER_NOT_FOUND)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             End If
             Dim ReceiverGUID As ULong = MySQLQuery.Rows(0).Item("char_guid")
             Dim ReceiverSide As Boolean = GetCharacterSide(CType(MySQLQuery.Rows(0).Item("char_race"), Byte))
 
-            If Client.Character.GUID = ReceiverGUID Then
+            If client.Character.GUID = ReceiverGUID Then
                 Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                 response.AddInt32(0)
                 response.AddInt32(MailResult.MAIL_SENT)
                 response.AddInt32(MailSentError.CANNOT_SEND_TO_SELF)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             End If
 
-            If Client.Character.Copper < (Money + 30) Then
+            If client.Character.Copper < (Money + 30) Then
                 Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                 response.AddInt32(0)
                 response.AddInt32(MailResult.MAIL_SENT)
                 response.AddInt32(MailSentError.NOT_ENOUGHT_MONEY)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             End If
@@ -433,39 +430,39 @@ Public Module WS_Mail
                 response.AddInt32(0)
                 response.AddInt32(MailResult.MAIL_SENT)
                 response.AddInt32(MailSentError.INTERNAL_ERROR)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             End If
 
             'You can only send mails to characters with your same faction, but GMs can ofc
-            If Client.Access >= AccessLevel.GameMaster AndAlso Client.Character.IsHorde <> ReceiverSide Then
+            If client.Access >= AccessLevel.GameMaster AndAlso client.Character.IsHorde <> ReceiverSide Then
                 Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                 response.AddInt32(0)
                 response.AddInt32(MailResult.MAIL_SENT)
                 response.AddInt32(MailSentError.NOT_YOUR_ALLIANCE)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             End If
 
             'Check if the item exists
-            If Client.Character.ItemGETByGUID(itemGuid) Is Nothing Then itemGuid = 0
+            If client.Character.ItemGETByGUID(itemGuid) Is Nothing Then itemGuid = 0
 
-            Client.Character.Copper -= 30 + Money
-            Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
+            client.Character.Copper -= 30 + Money
+            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
-            Dim MailTime As Integer = GetTimestamp(Now) + (mangosVB.Common.Constants.DAY * 30) 'Add 30 days to the current date/time
-            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, mail_type, mail_stationary, item_guid) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},41,'{9}');", Client.Character.GUID, ReceiverGUID, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), 0, itemGuid - GUID_ITEM))
+            Dim MailTime As Integer = GetTimestamp(Now) + (Common.Constants.DAY * 30) 'Add 30 days to the current date/time
+            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, mail_type, mail_stationary, item_guid) VALUES ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},41,'{9}');", client.Character.GUID, ReceiverGUID, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), 0, itemGuid - GUID_ITEM))
 
-            If itemGuid > 0 Then Client.Character.ItemREMOVE(itemGuid, False, True)
+            If itemGuid > 0 Then client.Character.ItemREMOVE(itemGuid, False, True)
 
             'Tell the client we succeded
             Dim sendOK As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
             sendOK.AddInt32(0)
             sendOK.AddInt32(MailResult.MAIL_SENT)
             sendOK.AddInt32(MailSentError.NO_ERROR)
-            Client.Send(sendOK)
+            client.Send(sendOK)
             sendOK.Dispose()
 
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
@@ -488,6 +485,5 @@ Public Module WS_Mail
     'End Sub
 
 #End Region
-
 
 End Module

@@ -18,7 +18,6 @@
 
 Imports mangosVB.Common.BaseWriter
 
-
 Public Module WS_Guilds
 
 #Region "WS.Guilds.Constants"
@@ -79,17 +78,17 @@ Public Module WS_Guilds
         packet.Dispose()
     End Sub
 
-    Public Sub On_CMSG_PETITION_SHOWLIST(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PETITION_SHOWLIST(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SHOWLIST [GUID={2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SHOWLIST [GUID={2:X}]", client.IP, client.Port, GUID)
 
         SendPetitionActivate(Client.Character, GUID)
     End Sub
 
-    Public Sub On_CMSG_PETITION_BUY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PETITION_BUY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 26 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
@@ -108,11 +107,11 @@ Public Module WS_Guilds
         packet.GetInt32()
         If WORLD_CREATUREs.ContainsKey(GUID) = False OrElse (WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_PETITIONER) = 0 Then Exit Sub
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_BUY [GuildName={2}]", Client.IP, Client.Port, Name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_BUY [GuildName={2}]", client.IP, client.Port, Name)
 
         Dim CharterID As Integer = 0
         Dim CharterPrice As Integer = 0
-        If Client.Character.GuildID <> 0 Then Exit Sub
+        If client.Character.GuildID <> 0 Then Exit Sub
         CharterID = PETITION_GUILD
         CharterPrice = PETITION_GUILD_PRICE
 
@@ -131,32 +130,32 @@ Public Module WS_Guilds
             response.AddUInt64(GUID)
             response.AddInt32(CharterID)
             response.AddInt8(BUY_ERROR.BUY_ERR_CANT_FIND_ITEM)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
             Exit Sub
         End If
 
-        If Client.Character.Copper < CharterPrice Then
+        If client.Character.Copper < CharterPrice Then
             Dim response As New PacketClass(OPCODES.SMSG_BUY_FAILED)
             response.AddUInt64(GUID)
             response.AddInt32(CharterID)
             response.AddInt8(BUY_ERROR.BUY_ERR_NOT_ENOUGHT_MONEY)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
             Exit Sub
         End If
 
-        Client.Character.Copper -= CharterPrice
-        Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Client.Character.Copper)
-        Client.Character.SendCharacterUpdate(False)
+        client.Character.Copper -= CharterPrice
+        client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
+        client.Character.SendCharacterUpdate(False)
 
         'Client.Character.AddItem(PETITION_GUILD)
-        Dim tmpItem As New ItemObject(CharterID, Client.Character.GUID)
+        Dim tmpItem As New ItemObject(CharterID, client.Character.GUID)
         tmpItem.StackCount = 1
         tmpItem.AddEnchantment(tmpItem.GUID - GUID_ITEM, 0, 0, 0)
-        If Client.Character.ItemADD(tmpItem) Then
+        If client.Character.ItemADD(tmpItem) Then
             'Save petition into database
-            CharacterDatabase.Update(String.Format("INSERT INTO petitions (petition_id, petition_itemGuid, petition_owner, petition_name, petition_type, petition_signedMembers) VALUES ({0}, {0}, {1}, '{2}', {3}, 0);", tmpItem.GUID - GUID_ITEM, Client.Character.GUID - GUID_PLAYER, Name, 9))
+            CharacterDatabase.Update(String.Format("INSERT INTO petitions (petition_id, petition_itemGuid, petition_owner, petition_name, petition_type, petition_signedMembers) VALUES ({0}, {0}, {1}, '{2}', {3}, 0);", tmpItem.GUID - GUID_ITEM, client.Character.GUID - GUID_PLAYER, Name, 9))
         Else
             'No free inventory slot
             tmpItem.Delete()
@@ -183,23 +182,23 @@ Public Module WS_Guilds
         response.Dispose()
     End Sub
 
-    Public Sub On_CMSG_PETITION_SHOW_SIGNATURES(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PETITION_SHOW_SIGNATURES(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SHOW_SIGNATURES [GUID={2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SHOW_SIGNATURES [GUID={2:X}]", client.IP, client.Port, GUID)
 
         SendPetitionSignatures(Client.Character, GUID)
     End Sub
 
-    Public Sub On_CMSG_PETITION_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PETITION_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim PetitionGUID As Integer = packet.GetInt32
         Dim itemGuid As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_QUERY [pGUID={3} iGUID={2:X}]", Client.IP, Client.Port, itemGuid, PetitionGUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_QUERY [pGUID={3} iGUID={2:X}]", client.IP, client.Port, itemGuid, PetitionGUID)
 
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";", MySQLQuery)
@@ -234,18 +233,17 @@ Public Module WS_Guilds
         Else
             response.AddInt32(1)
         End If
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
-
-    Public Sub On_MSG_PETITION_RENAME(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_PETITION_RENAME(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
         Dim itemGuid As ULong = packet.GetUInt64
         Dim NewName As String = packet.GetString
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_PETITION_RENAME [NewName={3} GUID={2:X}]", Client.IP, Client.Port, itemGuid, NewName)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_PETITION_RENAME [NewName={3} GUID={2:X}]", client.IP, client.Port, itemGuid, NewName)
 
         CharacterDatabase.Update("UPDATE petitions SET petition_name = '" & NewName & "' WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";")
 
@@ -254,11 +252,11 @@ Public Module WS_Guilds
         response.AddUInt64(itemGuid)
         response.AddString(NewName)
         response.AddInt32(itemGuid - GUID_ITEM)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
-    Public Sub On_CMSG_OFFER_PETITION(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_OFFER_PETITION(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
         Dim PetitionType As Integer = packet.GetInt32
@@ -266,14 +264,14 @@ Public Module WS_Guilds
         Dim GUID As ULong = packet.GetUInt64
         If CHARACTERs.ContainsKey(GUID) = False Then Exit Sub
         'If CHARACTERs(GUID).IgnoreList.Contains(Client.Character.GUID) Then Exit Sub
-        If CHARACTERs(GUID).IsHorde <> Client.Character.IsHorde Then Exit Sub
+        If CHARACTERs(GUID).IsHorde <> client.Character.IsHorde Then Exit Sub
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OFFER_PETITION [GUID={2:X} Petition={3}]", Client.IP, Client.Port, GUID, itemGuid)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OFFER_PETITION [GUID={2:X} Petition={3}]", client.IP, client.Port, GUID, itemGuid)
 
         SendPetitionSignatures(CHARACTERs(GUID), itemGuid)
     End Sub
 
-    Public Sub On_CMSG_PETITION_SIGN(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PETITION_SIGN(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
         Dim itemGuid As ULong = packet.GetUInt64
@@ -281,30 +279,30 @@ Public Module WS_Guilds
 
         'TODO: Check if the player already has signed
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SIGN [GUID={2:X} Unk={3}]", Client.IP, Client.Port, itemGuid, Unk)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SIGN [GUID={2:X} Unk={3}]", client.IP, client.Port, itemGuid, Unk)
 
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query("SELECT petition_signedMembers, petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";", MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-        CharacterDatabase.Update("UPDATE petitions SET petition_signedMembers = petition_signedMembers + 1, petition_signedMember" & (MySQLQuery.Rows(0).Item("petition_signedMembers") + 1) & " = " & Client.Character.GUID & " WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";")
+        CharacterDatabase.Update("UPDATE petitions SET petition_signedMembers = petition_signedMembers + 1, petition_signedMember" & (MySQLQuery.Rows(0).Item("petition_signedMembers") + 1) & " = " & client.Character.GUID & " WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";")
 
         'DONE: Send result to both players
         Dim response As New PacketClass(OPCODES.SMSG_PETITION_SIGN_RESULTS)
         response.AddUInt64(itemGuid)
         response.AddUInt64(Client.Character.GUID)
         response.AddInt32(PetitionSignError.PETITIONSIGN_OK)
-        Client.SendMultiplyPackets(response)
+        client.SendMultiplyPackets(response)
         If CHARACTERs.ContainsKey(CType(MySQLQuery.Rows(0).Item("petition_owner"), ULong)) Then CHARACTERs(CType(MySQLQuery.Rows(0).Item("petition_owner"), ULong)).Client.SendMultiplyPackets(response)
         response.Dispose()
     End Sub
 
-    Public Sub On_MSG_PETITION_DECLINE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_PETITION_DECLINE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim itemGuid As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_PETITION_DECLINE [GUID={2:X}]", Client.IP, Client.Port, itemGuid)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_PETITION_DECLINE [GUID={2:X}]", client.IP, client.Port, itemGuid)
 
         'DONE: Get petition owner
         Dim q As New DataTable
@@ -317,14 +315,14 @@ Public Module WS_Guilds
         response.Dispose()
     End Sub
 
-    Public Sub On_CMSG_TURN_IN_PETITION(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_TURN_IN_PETITION(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim itemGuid As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TURN_IN_PETITION [GUID={2:X}]", Client.IP, Client.Port, itemGuid)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TURN_IN_PETITION [GUID={2:X}]", client.IP, client.Port, itemGuid)
 
-        Client.Character.ItemREMOVE(itemGuid, True, True)
+        client.Character.ItemREMOVE(itemGuid, True, True)
     End Sub
 
 #End Region
@@ -339,12 +337,12 @@ Public Module WS_Guilds
         packet.Dispose()
     End Sub
 
-    Public Sub On_MSG_TABARDVENDOR_ACTIVATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_TABARDVENDOR_ACTIVATE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_TABARDVENDOR_ACTIVATE [GUID={2}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_TABARDVENDOR_ACTIVATE [GUID={2}]", client.IP, client.Port, GUID)
 
         SendTabardActivate(Client.Character, GUID)
     End Sub
@@ -403,12 +401,12 @@ Public Module WS_Guilds
         GUILD_NOT_ALLIED = &HC
     End Enum
 
-    Public Sub SendGuildResult(ByRef Client As ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
+    Public Sub SendGuildResult(ByRef client As ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_COMMAND_RESULT)
         response.AddInt32(Command)
         response.AddString(Text)
         response.AddInt32(Result)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 

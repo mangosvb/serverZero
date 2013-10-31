@@ -25,6 +25,7 @@ Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
+Imports mangosVB.Common.NativeMethods
 
 Public Module WC_Network
 

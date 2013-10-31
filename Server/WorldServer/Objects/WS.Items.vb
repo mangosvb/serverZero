@@ -47,7 +47,6 @@ Public Module WS_Items
 
 #Region "WS.Items.TypeDef"
 
-
     'WARNING: Use only with ITEMDatabase()
     Public Class ItemInfo
         Implements IDisposable
@@ -87,7 +86,7 @@ Public Module WS_Items
             Quality = mySqlQuery.Rows(0).Item("quality") _
             '0=Grey-Poor 1=White-Common 2=Green-Uncommon 3=Blue-Rare 4=Purple-Epic 5=Orange-Legendary 6=Red-Artifact
             Material = mySqlQuery.Rows(0).Item("Material") _
-            '-1=Consumables 1=Metal 2=Wood 3=Liquid 4=Jewelry 5=Chain 6=Plate 7=Cloth 8=Leather 
+            '-1=Consumables 1=Metal 2=Wood 3=Liquid 4=Jewelry 5=Chain 6=Plate 7=Cloth 8=Leather
             Durability = mySqlQuery.Rows(0).Item("MaxDurability")
             Sheath = mySqlQuery.Rows(0).Item("sheath")
             Bonding = mySqlQuery.Rows(0).Item("bonding")
@@ -124,7 +123,7 @@ Public Module WS_Items
             Block = mySqlQuery.Rows(0).Item("block")
             ItemSet = mySqlQuery.Rows(0).Item("itemset")
             PageMaterial = mySqlQuery.Rows(0).Item("PageMaterial") _
-            'The background of the page window: 1=Parchment 2=Stone 3=Marble 4=Silver 5=Bronze                
+            'The background of the page window: 1=Parchment 2=Stone 3=Marble 4=Silver 5=Bronze
             StartQuest = mySqlQuery.Rows(0).Item("startquest")
             ContainerSlots = mySqlQuery.Rows(0).Item("ContainerSlots")
             LanguageID = mySqlQuery.Rows(0).Item("LanguageID")
@@ -315,7 +314,7 @@ Public Module WS_Items
 
         'Item's Spells
         Public ReadOnly Spells(4) As TItemSpellInfo
-        Private _reqDisenchantSkill As Integer = - 1
+        Private _reqDisenchantSkill As Integer = -1
         Public ArmorDamageModifier As Single = 0
         Public ExistingDuration As Integer = 0
 
@@ -515,21 +514,21 @@ Public Module WS_Items
 
         Public Sub FillAllUpdateFlags(ByRef update As UpdateClass)
             If ItemInfo.ContainerSlots > 0 Then
-                Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
+                update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
                 update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, ObjectType.TYPE_CONTAINER + ObjectType.TYPE_OBJECT)
-                Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_ENTRY, ItemEntry)
-                Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, 1.0F)
+                update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_ENTRY, ItemEntry)
+                update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, 1.0F)
 
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_OWNER, OwnerGUID)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_CONTAINED, OwnerGUID)
-                If CreatorGUID > 0 Then Update.SetUpdateFlag(EItemFields.ITEM_FIELD_CREATOR, CreatorGUID)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_GIFTCREATOR, GiftCreatorGUID)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_STACK_COUNT, StackCount)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_OWNER, OwnerGUID)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_CONTAINED, OwnerGUID)
+                If CreatorGUID > 0 Then update.SetUpdateFlag(EItemFields.ITEM_FIELD_CREATOR, CreatorGUID)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_GIFTCREATOR, GiftCreatorGUID)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_STACK_COUNT, StackCount)
                 'Update.SetUpdateFlag(EItemFields.ITEM_FIELD_DURATION, 0)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
                 'Update.SetUpdateFlag(EItemFields.ITEM_FIELD_ITEM_TEXT_ID, ItemText)
 
-                Update.SetUpdateFlag(EContainerFields.CONTAINER_FIELD_NUM_SLOTS, ItemInfo.ContainerSlots)
+                update.SetUpdateFlag(EContainerFields.CONTAINER_FIELD_NUM_SLOTS, ItemInfo.ContainerSlots)
                 'DONE: Here list in bag items
                 For i As Byte = 0 To 35
                     If Items.ContainsKey(i) Then
@@ -539,40 +538,40 @@ Public Module WS_Items
                     End If
                 Next
             Else
-                Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
+                update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
                 update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, ObjectType.TYPE_ITEM + ObjectType.TYPE_OBJECT)
-                Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_ENTRY, ItemEntry)
-                Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, 1.0F)
+                update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_ENTRY, ItemEntry)
+                update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, 1.0F)
 
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_OWNER, OwnerGUID)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_CONTAINED, OwnerGUID)
-                If CreatorGUID > 0 Then Update.SetUpdateFlag(EItemFields.ITEM_FIELD_CREATOR, CreatorGUID)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_GIFTCREATOR, GiftCreatorGUID)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_STACK_COUNT, StackCount)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_OWNER, OwnerGUID)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_CONTAINED, OwnerGUID)
+                If CreatorGUID > 0 Then update.SetUpdateFlag(EItemFields.ITEM_FIELD_CREATOR, CreatorGUID)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_GIFTCREATOR, GiftCreatorGUID)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_STACK_COUNT, StackCount)
                 'Update.SetUpdateFlag(EItemFields.ITEM_FIELD_DURATION, 0)
                 For i As Integer = 0 To 4
                     If _
                         ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
                         ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE Then
-                        Update.SetUpdateFlag(EItemFields.ITEM_FIELD_SPELL_CHARGES + i, ChargesLeft)
+                        update.SetUpdateFlag(EItemFields.ITEM_FIELD_SPELL_CHARGES + i, ChargesLeft)
                     Else
-                        Update.SetUpdateFlag(EItemFields.ITEM_FIELD_SPELL_CHARGES + i, - 1)
+                        update.SetUpdateFlag(EItemFields.ITEM_FIELD_SPELL_CHARGES + i, -1)
                     End If
                 Next
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
 
                 'Update.SetUpdateFlag(EItemFields.ITEM_FIELD_PROPERTY_SEED, 0)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_RANDOM_PROPERTIES_ID, RandomProperties)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_RANDOM_PROPERTIES_ID, RandomProperties)
 
                 For Each enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
-                    update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key*3, enchant.Value.ID)
-                    update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key*3 + 1, enchant.Value.Duration)
-                    update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key*3 + 2, enchant.Value.Charges)
+                    update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key * 3, enchant.Value.ID)
+                    update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key * 3 + 1, enchant.Value.Duration)
+                    update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key * 3 + 2, enchant.Value.Charges)
                 Next
 
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_ITEM_TEXT_ID, ItemText)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_DURABILITY, Durability)
-                Update.SetUpdateFlag(EItemFields.ITEM_FIELD_MAXDURABILITY, ITEMDatabase(ItemEntry).Durability)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_ITEM_TEXT_ID, ItemText)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_DURABILITY, Durability)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_MAXDURABILITY, ITEMDatabase(ItemEntry).Durability)
             End If
         End Sub
 
@@ -651,7 +650,7 @@ Public Module WS_Items
 
         Public ReadOnly Property GetSlot() As Integer
             Get
-                If CHARACTERs.ContainsKey(OwnerGUID) = False Then Return - 1
+                If CHARACTERs.ContainsKey(OwnerGUID) = False Then Return -1
 
                 With CHARACTERs(OwnerGUID)
                     For i As Byte = EQUIPMENT_SLOT_START To INVENTORY_SLOT_ITEM_END - 1
@@ -677,7 +676,7 @@ Public Module WS_Items
                     Next
                 End With
 
-                Return - 1
+                Return -1
             End Get
         End Property
 
@@ -742,7 +741,6 @@ Public Module WS_Items
                 Next i
             End If
 
-
             'DONE: Load ItemID in cashe if not loaded
             If ITEMDatabase.ContainsKey(ItemEntry) = False Then
                 'TODO: This needs to actually do something
@@ -772,7 +770,7 @@ Public Module WS_Items
                 Dim tmpItem As New ItemInfo(itemId)
             End If
             ItemEntry = itemId
-            OwnerGUID = Owner
+            OwnerGUID = owner
             Durability = ITEMDatabase(ItemEntry).Durability
 
             For i As Integer = 0 To 4
@@ -786,7 +784,7 @@ Public Module WS_Items
                 End If
             Next i
 
-            'DONE: Create new GUID 
+            'DONE: Create new GUID
             GUID = GetNewGUID()
             InitializeBag()
             SaveAsNew()
@@ -817,7 +815,6 @@ Public Module WS_Items
             tmpCmd = tmpCmd & ", item_flags"
             tmpValues = tmpValues & ", " & _flags
 
-
             'DONE: Saving enchanments
             Dim temp As New ArrayList
             For Each enchantment As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
@@ -828,7 +825,6 @@ Public Module WS_Items
             tmpValues = tmpValues & ", '" & Join(temp.ToArray, " ") & "'"
             tmpCmd = tmpCmd & ", item_textId"
             tmpValues = tmpValues & ", " & ItemText
-
 
             tmpCmd = tmpCmd & ") " & tmpValues & ");"
             CharacterDatabase.Update(tmpCmd)
@@ -846,7 +842,6 @@ Public Module WS_Items
             tmp = tmp & ", item_random_properties=" & RandomProperties
             tmp = tmp & ", item_flags=" & _flags
 
-
             'DONE: Saving enchanments
             Dim temp As New ArrayList
             For Each enchantment As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
@@ -855,7 +850,6 @@ Public Module WS_Items
             Next
             tmp = tmp & ", item_enchantment=""" & Join(temp.ToArray, " ") & """"
             tmp = tmp & ", item_textId=" & ItemText
-
 
             tmp = tmp & " WHERE item_guid = """ & (GUID - GUID_ITEM) & """;"
 
@@ -919,19 +913,19 @@ Public Module WS_Items
 
         Public Sub ModifyDurability(ByVal percent As Single, ByRef client As ClientClass)
             If ITEMDatabase(ItemEntry).Durability > 0 Then
-                Durability -= Fix(ITEMDatabase(ItemEntry).Durability*percent)
+                Durability -= Fix(ITEMDatabase(ItemEntry).Durability * percent)
                 If Durability < 0 Then Durability = 0
                 If Durability > ITEMDatabase(ItemEntry).Durability Then Durability = ITEMDatabase(ItemEntry).Durability
-                UpdateDurability(Client)
+                UpdateDurability(client)
             End If
         End Sub
 
         Public Sub ModifyToDurability(ByVal percent As Single, ByRef client As ClientClass)
             If ITEMDatabase(ItemEntry).Durability > 0 Then
-                Durability = Fix(ITEMDatabase(ItemEntry).Durability*percent)
+                Durability = Fix(ITEMDatabase(ItemEntry).Durability * percent)
                 If Durability < 0 Then Durability = 0
                 If Durability > ITEMDatabase(ItemEntry).Durability Then Durability = ITEMDatabase(ItemEntry).Durability
-                UpdateDurability(Client)
+                UpdateDurability(client)
             End If
         End Sub
 
@@ -969,7 +963,7 @@ Public Module WS_Items
             'DONE: Replace if an enchant already is placed in this slot
             If Enchantments.ContainsKey(slot) Then RemoveEnchantment(slot)
             'DONE: Add the enchantment
-            Enchantments.Add(slot, New TEnchantmentInfo(ID, duration, charges))
+            Enchantments.Add(slot, New TEnchantmentInfo(id, duration, charges))
             'DONE: Add the bonuses to the character if it's equipped
             AddEnchantBonus(slot)
         End Sub
@@ -979,12 +973,12 @@ Public Module WS_Items
                 If CHARACTERs.ContainsKey(OwnerGUID) = False Then Exit Sub
                 objCharacter = CHARACTERs(OwnerGUID)
             End If
-            If objCharacter IsNot Nothing AndAlso SpellItemEnchantments.ContainsKey(Enchantments(Slot).ID) Then
+            If objCharacter IsNot Nothing AndAlso SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
                 For i As Byte = 0 To 2
-                    If SpellItemEnchantments(Enchantments(Slot).ID).SpellID(i) <> 0 Then
-                        If SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(Slot).ID).SpellID(i)) Then
+                    If SpellItemEnchantments(Enchantments(slot).ID).SpellID(i) <> 0 Then
+                        If SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i)) Then
                             Dim spellInfo As SpellInfo
-                            spellInfo = SPELLs(SpellItemEnchantments(Enchantments(Slot).ID).SpellID(i))
+                            spellInfo = SPELLs(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i))
                             For j As Byte = 0 To 2
                                 If Not (spellInfo.SpellEffects(j) Is Nothing) Then
                                     Select Case spellInfo.SpellEffects(j).ID
@@ -1004,10 +998,10 @@ Public Module WS_Items
         End Sub
 
         Public Sub RemoveEnchantBonus(ByVal slot As Byte)
-            If CHARACTERs.ContainsKey(OwnerGUID) AndAlso SpellItemEnchantments.ContainsKey(Enchantments(Slot).ID) Then
+            If CHARACTERs.ContainsKey(OwnerGUID) AndAlso SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
                 For i As Byte = 0 To 2
-                    If SpellItemEnchantments(Enchantments(Slot).ID).SpellID(i) <> 0 Then
-                        If SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(Slot).ID).SpellID(i)) Then
+                    If SpellItemEnchantments(Enchantments(slot).ID).SpellID(i) <> 0 Then
+                        If SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i)) Then
                             Dim spellInfo As SpellInfo
                             spellInfo = SPELLs(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i))
                             For j As Byte = 0 To 2
@@ -1031,11 +1025,11 @@ Public Module WS_Items
         End Sub
 
         Private Sub RemoveEnchantment(ByVal slot As Byte)
-            If Enchantments.ContainsKey(Slot) = False Then Exit Sub
+            If Enchantments.ContainsKey(slot) = False Then Exit Sub
             'DONE: Remove the bonuses from the character
-            RemoveEnchantBonus(Slot)
+            RemoveEnchantBonus(slot)
             'DONE: Remove the enchant
-            Enchantments.Remove(Slot)
+            Enchantments.Remove(slot)
             'DONE: Send the update to the client about it
             If CHARACTERs.ContainsKey(OwnerGUID) Then
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
@@ -1043,9 +1037,9 @@ Public Module WS_Items
                 packet.AddInt8(0)
 
                 Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
-                tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (Slot * 3), 0)
-                tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (Slot * 3) + 1, 0)
-                tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (Slot * 3) + 2, 0)
+                tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3), 0)
+                tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 1, 0)
+                tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 2, 0)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
 
                 CHARACTERs(OwnerGUID).Client.Send(packet)
@@ -1062,7 +1056,7 @@ Public Module WS_Items
             Save()
 
             'DONE: Sending update to character
-            If Not Client Is Nothing Then
+            If Not client Is Nothing Then
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
@@ -1071,7 +1065,7 @@ Public Module WS_Items
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
 
-                Client.Send(packet)
+                client.Send(packet)
                 packet.Dispose()
                 tmpUpdate.Dispose()
             End If
@@ -1106,12 +1100,11 @@ Public Module WS_Items
     Public Class TItemSpellInfo
         Public SpellID As Integer = 0
         Public SpellTrigger As ITEM_SPELLTRIGGER_TYPE = 0
-        Public SpellCharges As Integer = - 1
+        Public SpellCharges As Integer = -1
         Public SpellCooldown As Integer = 0
         Public SpellCategory As Integer = 0
         Public SpellCategoryCooldown As Integer = 0
     End Class
-
 
 #End Region
 
@@ -1129,7 +1122,7 @@ Public Module WS_Items
             Return WORLD_ITEMs(guid + GUID_ITEM)
         End If
 
-        Dim tmpItem As New ItemObject(guid, Owner, equipped)
+        Dim tmpItem As New ItemObject(guid, owner, equipped)
         Return tmpItem
     End Function
 
@@ -1138,10 +1131,10 @@ Public Module WS_Items
 
         Dim item As ItemInfo
 
-        If ITEMDatabase.ContainsKey(ItemID) = False Then
-            item = New ItemInfo(ItemID)
+        If ITEMDatabase.ContainsKey(itemID) = False Then
+            item = New ItemInfo(itemID)
         Else
-            item = ITEMDatabase(ItemID)
+            item = ITEMDatabase(itemID)
         End If
 
         response.AddInt32(item.Id)
@@ -1251,7 +1244,7 @@ Public Module WS_Items
         packet.GetInt16()
         Dim itemID As Integer = packet.GetInt32
 
-        SendItemInfo(Client, itemID)
+        SendItemInfo(client, itemID)
     End Sub
 
     Public Sub On_CMSG_ITEM_NAME_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -1271,7 +1264,7 @@ Public Module WS_Items
         response.AddInt32(itemID)
         response.AddString(item.Name)
         response.AddInt32(item.InventoryType)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
@@ -1280,10 +1273,10 @@ Public Module WS_Items
         packet.GetInt16()
         Dim srcSlot As Byte = packet.GetInt8
         Dim dstSlot As Byte = packet.GetInt8
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_INV_ITEM [srcSlot=0:{2}, dstSlot=0:{3}]", Client.IP,
-                      Client.Port, srcSlot, dstSlot)
+        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_INV_ITEM [srcSlot=0:{2}, dstSlot=0:{3}]", client.IP,
+                      client.Port, srcSlot, dstSlot)
 
-        Client.Character.ItemSWAP(0, srcSlot, 0, dstSlot)
+        client.Character.ItemSWAP(0, srcSlot, 0, dstSlot)
     End Sub
 
     Public Sub On_CMSG_AUTOEQUIP_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -1293,21 +1286,21 @@ Public Module WS_Items
             Dim srcBag As Byte = packet.GetInt8
             Dim srcSlot As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
-            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_AUTOEQUIP_ITEM [srcSlot={3}:{2}]", Client.IP,
-                          Client.Port, srcSlot, srcBag)
+            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_AUTOEQUIP_ITEM [srcSlot={3}:{2}]", client.IP,
+                          client.Port, srcSlot, srcBag)
 
             Dim errCode As Byte = InventoryChangeFailure.EQUIP_ERR_ITEM_CANT_BE_EQUIPPED
 
             'DONE: Check owner of the item
-            If Client.Character.ItemGET(srcBag, srcSlot).OwnerGUID <> Client.Character.GUID Then
+            If client.Character.ItemGET(srcBag, srcSlot).OwnerGUID <> client.Character.GUID Then
                 errCode = InventoryChangeFailure.EQUIP_ERR_DONT_OWN_THAT_ITEM
             Else
 
-                If srcBag = 0 AndAlso Client.Character.Items.ContainsKey(srcSlot) Then
-                    Dim slots() As Byte = Client.Character.Items(srcSlot).ItemInfo.GetSlots
+                If srcBag = 0 AndAlso client.Character.Items.ContainsKey(srcSlot) Then
+                    Dim slots() As Byte = client.Character.Items(srcSlot).ItemInfo.GetSlots
                     For Each tmpSlot As Byte In slots
-                        If Not Client.Character.Items.ContainsKey(tmpSlot) Then
-                            Client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
+                        If Not client.Character.Items.ContainsKey(tmpSlot) Then
+                            client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
                             errCode = InventoryChangeFailure.EQUIP_ERR_OK
                             Exit For
                         Else
@@ -1316,16 +1309,16 @@ Public Module WS_Items
                     Next
                     If errCode = InventoryChangeFailure.EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE Then
                         For Each tmpSlot As Byte In slots
-                            Client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
+                            client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
                             errCode = InventoryChangeFailure.EQUIP_ERR_OK
                             Exit For
                         Next
                     End If
                 ElseIf srcBag > 0 Then
-                    Dim slots() As Byte = Client.Character.Items(srcBag).Items(srcSlot).ItemInfo.GetSlots
+                    Dim slots() As Byte = client.Character.Items(srcBag).Items(srcSlot).ItemInfo.GetSlots
                     For Each tmpSlot As Byte In slots
-                        If Not Client.Character.Items.ContainsKey(tmpSlot) Then
-                            Client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
+                        If Not client.Character.Items.ContainsKey(tmpSlot) Then
+                            client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
                             errCode = InventoryChangeFailure.EQUIP_ERR_OK
                             Exit For
                         Else
@@ -1334,7 +1327,7 @@ Public Module WS_Items
                     Next
                     If errCode = InventoryChangeFailure.EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE Then
                         For Each tmpSlot As Byte In slots
-                            Client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
+                            client.Character.ItemSWAP(srcBag, srcSlot, 0, tmpSlot)
                             errCode = InventoryChangeFailure.EQUIP_ERR_OK
                             Exit For
                         Next
@@ -1348,14 +1341,14 @@ Public Module WS_Items
             If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
                 Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                 response.AddInt8(errCode)
-                response.AddUInt64(Client.Character.ItemGetGUID(srcBag, srcSlot))
+                response.AddUInt64(client.Character.ItemGetGUID(srcBag, srcSlot))
                 response.AddUInt64(0)
                 response.AddInt8(0)
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
             End If
         Catch err As Exception
-            Log.WriteLine(BaseWriter.LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", Client.IP, Client.Port,
+            Log.WriteLine(BaseWriter.LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", client.IP, client.Port,
                           vbNewLine, err.ToString)
         End Try
     End Sub
@@ -1369,12 +1362,12 @@ Public Module WS_Items
         If srcBag = 255 Then srcBag = 0
         If dstBag = 255 Then dstBag = 0
         Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BAG_ITEM [srcSlot={3}:{2}, dstBag={4}]",
-                      Client.IP, Client.Port, srcSlot, srcBag, dstBag)
+                      client.IP, client.Port, srcSlot, srcBag, dstBag)
 
-        If Client.Character.ItemADD_AutoBag(WORLD_ITEMs(Client.Character.ItemGetGUID(srcBag, srcSlot)), dstBag) Then
-            Client.Character.ItemREMOVE(srcBag, srcSlot, False, True)
-            SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_OK,
-                                       Client.Character.ItemGetGUID(srcBag, srcSlot), 0)
+        If client.Character.ItemADD_AutoBag(WORLD_ITEMs(client.Character.ItemGetGUID(srcBag, srcSlot)), dstBag) Then
+            client.Character.ItemREMOVE(srcBag, srcSlot, False, True)
+            SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_OK,
+                                       client.Character.ItemGetGUID(srcBag, srcSlot), 0)
         End If
     End Sub
 
@@ -1388,9 +1381,9 @@ Public Module WS_Items
         If dstBag = 255 Then dstBag = 0
         If srcBag = 255 Then srcBag = 0
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_ITEM [srcSlot={4}:{2}, dstSlot={5}:{3}]", Client.IP,
-                      Client.Port, srcSlot, dstSlot, srcBag, dstBag)
-        Client.Character.ItemSWAP(srcBag, srcSlot, dstBag, dstSlot)
+        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_ITEM [srcSlot={4}:{2}, dstSlot={5}:{3}]", client.IP,
+                      client.Port, srcSlot, dstSlot, srcBag, dstBag)
+        client.Character.ItemSWAP(srcBag, srcSlot, dstBag, dstSlot)
     End Sub
 
     Public Sub On_CMSG_SPLIT_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -1405,9 +1398,9 @@ Public Module WS_Items
         If srcBag = 255 Then srcBag = 0
 
         Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SPLIT_ITEM [srcSlot={3}:{2}, dstBag={5}:{4}, count={6}]",
-                      Client.IP, Client.Port, srcSlot, srcBag, dstSlot, dstBag, count)
+                      client.IP, client.Port, srcSlot, srcBag, dstSlot, dstBag, count)
         If srcBag = dstBag AndAlso srcSlot = dstSlot Then Return
-        If count > 0 Then Client.Character.ItemSPLIT(srcBag, srcSlot, dstBag, dstSlot, count)
+        If count > 0 Then client.Character.ItemSPLIT(srcBag, srcSlot, dstBag, dstSlot, count)
     End Sub
 
     Public Sub On_CMSG_READ_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -1416,7 +1409,7 @@ Public Module WS_Items
         Dim srcBag As Byte = packet.GetInt8
         Dim srcSlot As Byte = packet.GetInt8
         If srcBag = 255 Then srcBag = 0
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_READ_ITEM [srcSlot={3}:{2}]", Client.IP, Client.Port,
+        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_READ_ITEM [srcSlot={3}:{2}]", client.IP, client.Port,
                       srcSlot, srcBag)
 
         'TODO: If InCombat/Dead
@@ -1452,8 +1445,8 @@ Public Module WS_Items
         packet.GetInt16()
         Dim pageID As Integer = packet.GetInt32
         Dim itemGuid As ULong = packet.GetUInt64
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGuid={3:X}]", Client.IP,
-                      Client.Port, pageID, itemGuid)
+        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGuid={3:X}]", client.IP,
+                      client.Port, pageID, itemGuid)
 
         Dim mySqlQuery As New DataTable
         WorldDatabase.Query(String.Format("SELECT * FROM itempages WHERE entry = ""{0}"";", pageID), mySqlQuery)
@@ -1464,7 +1457,7 @@ Public Module WS_Items
             response.AddString("Page " & pageID & " not found! Please report this to database devs.")
         If mySqlQuery.Rows.Count <> 0 Then response.AddInt32(mySqlQuery.Rows(0).Item("next_page")) Else _
             response.AddInt32(0)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
@@ -1478,16 +1471,15 @@ Public Module WS_Items
         If giftBag = 255 Then giftBag = 0
         If itemBag = 255 Then itemBag = 0
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_WRAP_ITEM [{2}:{3} -> {4}{5}]", Client.IP, Client.Port,
+        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_WRAP_ITEM [{2}:{3} -> {4}{5}]", client.IP, client.Port,
                       giftBag, giftSlot, itemBag, itemSlot)
 
-        Dim gift As ItemObject = Client.Character.ItemGET(giftBag, giftSlot)
-        Dim item As ItemObject = Client.Character.ItemGET(itemBag, itemSlot)
+        Dim gift As ItemObject = client.Character.ItemGET(giftBag, giftSlot)
+        Dim item As ItemObject = client.Character.ItemGET(itemBag, itemSlot)
 
         If gift Is Nothing Or item Is Nothing Then
-            SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND, 0, 0)
+            SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND, 0, 0)
         End If
-
 
         'if(item==gift)                                          // not possable with pacjket from real client
         '{
@@ -1554,39 +1546,39 @@ Public Module WS_Items
             Dim srcSlot As Byte = packet.GetInt8
             Dim count As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
-            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_DESTROYITEM [srcSlot={3}:{2}  count={4}]", Client.IP,
-                          Client.Port, srcSlot, srcBag, count)
+            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_DESTROYITEM [srcSlot={3}:{2}  count={4}]", client.IP,
+                          client.Port, srcSlot, srcBag, count)
 
             If srcBag = 0 Then
-                If Client.Character.Items.ContainsKey(srcSlot) = False Then Exit Sub
+                If client.Character.Items.ContainsKey(srcSlot) = False Then Exit Sub
                 'DONE: Fire quest event to check for if this item is required for quest
                 'NOTE: Not only quest items are needed for quests
-                ALLQUESTS.OnQuestItemRemove(Client.Character, Client.Character.Items(srcSlot).ItemEntry, count)
+                ALLQUESTS.OnQuestItemRemove(client.Character, client.Character.Items(srcSlot).ItemEntry, count)
 
-                If count = 0 Or count >= Client.Character.Items(srcSlot).StackCount Then
+                If count = 0 Or count >= client.Character.Items(srcSlot).StackCount Then
                     If srcSlot < INVENTORY_SLOT_BAG_END Then _
-                        Client.Character.UpdateRemoveItemStats(Client.Character.Items(srcSlot), srcSlot)
-                    Client.Character.ItemREMOVE(srcBag, srcSlot, True, True)
+                        client.Character.UpdateRemoveItemStats(client.Character.Items(srcSlot), srcSlot)
+                    client.Character.ItemREMOVE(srcBag, srcSlot, True, True)
                 Else
-                    Client.Character.Items(srcSlot).StackCount -= count
-                    Client.Character.SendItemUpdate(Client.Character.Items(srcSlot))
-                    Client.Character.Items(srcSlot).Save()
+                    client.Character.Items(srcSlot).StackCount -= count
+                    client.Character.SendItemUpdate(client.Character.Items(srcSlot))
+                    client.Character.Items(srcSlot).Save()
                 End If
 
             Else
-                If Client.Character.Items.ContainsKey(srcBag) = False Then Exit Sub
-                If Client.Character.Items(srcBag).Items.ContainsKey(srcSlot) = False Then Exit Sub
+                If client.Character.Items.ContainsKey(srcBag) = False Then Exit Sub
+                If client.Character.Items(srcBag).Items.ContainsKey(srcSlot) = False Then Exit Sub
                 'DONE: Fire quest event to check for if this item is required for quest
                 'NOTE: Not only quest items are needed for quests
-                ALLQUESTS.OnQuestItemRemove(Client.Character, Client.Character.Items(srcBag).Items(srcSlot).ItemEntry,
+                ALLQUESTS.OnQuestItemRemove(client.Character, client.Character.Items(srcBag).Items(srcSlot).ItemEntry,
                                             count)
 
-                If count = 0 Or count >= Client.Character.Items(srcBag).Items(srcSlot).StackCount Then
-                    Client.Character.ItemREMOVE(srcBag, srcSlot, True, True)
+                If count = 0 Or count >= client.Character.Items(srcBag).Items(srcSlot).StackCount Then
+                    client.Character.ItemREMOVE(srcBag, srcSlot, True, True)
                 Else
-                    Client.Character.Items(srcBag).Items(srcSlot).StackCount -= count
-                    Client.Character.SendItemUpdate(Client.Character.Items(srcBag).Items(srcSlot))
-                    Client.Character.Items(srcBag).Items(srcSlot).Save()
+                    client.Character.Items(srcBag).Items(srcSlot).StackCount -= count
+                    client.Character.SendItemUpdate(client.Character.Items(srcBag).Items(srcSlot))
+                    client.Character.Items(srcBag).Items(srcSlot).Save()
                 End If
             End If
 
@@ -1604,14 +1596,14 @@ Public Module WS_Items
             Dim slot As Byte = packet.GetInt8
             Dim tmp3 As Byte = packet.GetInt8
 
-            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_USE_ITEM [bag={2} slot={3} tmp3={4}]", Client.IP,
-                          Client.Port, bag, slot, tmp3)
-            If (Client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_TAXI_FLIGHT) Then Exit Sub _
+            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_USE_ITEM [bag={2} slot={3} tmp3={4}]", client.IP,
+                          client.Port, bag, slot, tmp3)
+            If (client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_TAXI_FLIGHT) Then Exit Sub _
             'Don't allow item usage when on a taxi
 
-            Dim itemGuid As ULong = Client.Character.ItemGetGUID(bag, slot)
+            Dim itemGuid As ULong = client.Character.ItemGetGUID(bag, slot)
             If WORLD_ITEMs.ContainsKey(itemGuid) = False Then
-                SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND, 0, 0)
+                SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND, 0, 0)
                 Exit Sub
             End If
             Dim itemInfo As ItemInfo = WORLD_ITEMs(itemGuid).ItemInfo
@@ -1621,12 +1613,12 @@ Public Module WS_Items
 
             For i As Byte = 0 To 4
                 If SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
-                    If ((Client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) = UnitFlags.UNIT_FLAG_IN_COMBAT) _
+                    If ((client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) = UnitFlags.UNIT_FLAG_IN_COMBAT) _
                         Then
                         If _
                             (CType(SPELLs(itemInfo.Spells(i).SpellID), SpellInfo).Attributes And
                              SpellAttributes.SPELL_ATTR_NOT_WHILE_COMBAT) Then
-                            SendInventoryChangeFailure(Client.Character,
+                            SendInventoryChangeFailure(client.Character,
                                                        InventoryChangeFailure.EQUIP_ERR_CANT_DO_IN_COMBAT, itemGuid, 0)
                             Exit Sub
                         End If
@@ -1634,8 +1626,8 @@ Public Module WS_Items
                 End If
             Next
 
-            If Client.Character.DEAD = True Then
-                SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, itemGuid, 0)
+            If client.Character.DEAD = True Then
+                SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, itemGuid, 0)
                 Exit Sub
             End If
 
@@ -1643,12 +1635,12 @@ Public Module WS_Items
                 'DONE: Bind item to player
                 If _
                     WORLD_ITEMs(itemGuid).ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_WHEN_USED AndAlso
-                    WORLD_ITEMs(itemGuid).IsSoulBound = False Then WORLD_ITEMs(itemGuid).SoulbindItem(Client)
+                    WORLD_ITEMs(itemGuid).IsSoulBound = False Then WORLD_ITEMs(itemGuid).SoulbindItem(client)
             End If
 
             'DONE: Read spell targets
             Dim targets As New SpellTargets
-            targets.ReadTargets(packet, Client.Character)
+            targets.ReadTargets(packet, client.Character)
 
             For i As Byte = 0 To 4
                 If _
@@ -1658,31 +1650,31 @@ Public Module WS_Items
                     If SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
                         'DONE: If there's no more charges
                         If itemInfo.Spells(i).SpellCharges > 0 AndAlso WORLD_ITEMs(itemGuid).ChargesLeft = 0 Then
-                            SendCastResult(SpellFailedReason.SPELL_FAILED_NO_CHARGES_REMAIN, Client,
+                            SendCastResult(SpellFailedReason.SPELL_FAILED_NO_CHARGES_REMAIN, client,
                                            itemInfo.Spells(i).SpellID)
                             Exit Sub
                         End If
 
                         Dim tmpSpell As _
-                                New CastSpellParameters(targets, Client.Character, itemInfo.Spells(i).SpellID,
+                                New CastSpellParameters(targets, client.Character, itemInfo.Spells(i).SpellID,
                                                         WORLD_ITEMs(itemGuid), InstantCast)
 
                         Dim castResult As Byte = SpellFailedReason.SPELL_NO_ERROR
                         Try
-                            castResult = SPELLs(itemInfo.Spells(i).SpellID).CanCast(Client.Character, targets, True)
+                            castResult = SPELLs(itemInfo.Spells(i).SpellID).CanCast(client.Character, targets, True)
 
                             'Only instant cast send ERR_OK for cast result?
                             If castResult = SpellFailedReason.SPELL_NO_ERROR Then
                                 'DONE: Enqueue spell casting function
                                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
                             Else
-                                SendCastResult(castResult, Client, itemInfo.Spells(i).SpellID)
+                                SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
                             End If
 
                         Catch e As Exception
                             Log.WriteLine(BaseWriter.LogType.DEBUG, "Error casting spell {0}.{1}",
                                           itemInfo.Spells(i).SpellID, vbNewLine & e.ToString)
-                            SendCastResult(castResult, Client, itemInfo.Spells(i).SpellID)
+                            SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
                         End Try
                         Exit Sub
                     End If
@@ -1701,25 +1693,24 @@ Public Module WS_Items
         If bag = 255 Then bag = 0
         Dim slot As Byte = packet.GetInt8
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", Client.IP, Client.Port,
+        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", client.IP, client.Port,
                       bag, slot)
 
         Dim itemGuid As ULong = 0
         If bag = 0 Then
-            itemGuid = Client.Character.Items(slot).GUID
+            itemGuid = client.Character.Items(slot).GUID
         Else
-            itemGuid = Client.Character.Items(bag).Items(slot).GUID
+            itemGuid = client.Character.Items(bag).Items(slot).GUID
         End If
         If itemGuid = 0 OrElse WORLD_ITEMs.ContainsKey(itemGuid) = False Then Exit Sub
 
         If WORLD_ITEMs(itemGuid).GenerateLoot Then
-            LootTable(itemGuid).SendLoot(Client)
+            LootTable(itemGuid).SendLoot(client)
             Exit Sub
         End If
 
-        SendEmptyLoot(itemGuid, LootType.LOOTTYPE_CORPSE, Client)
+        SendEmptyLoot(itemGuid, LootType.LOOTTYPE_CORPSE, client)
     End Sub
-
 
     Public Sub SendInventoryChangeFailure(ByRef objCharacter As CharacterObject, ByVal errorCode As InventoryChangeFailure,
                                           ByVal guid1 As ULong, ByVal guid2 As ULong)
@@ -1731,7 +1722,7 @@ Public Module WS_Items
         End If
 
         packet.AddUInt64(guid1)
-        packet.AddUInt64(GUID2)
+        packet.AddUInt64(guid2)
         packet.AddInt8(0)
         objCharacter.Client.Send(packet)
         packet.Dispose()
@@ -1758,7 +1749,6 @@ Public Module WS_Items
     '    objCharacter.Client.Send(packet)
     '    packet.Dispose()
     'End Sub
-
 
 #End Region
 End Module

@@ -26,7 +26,7 @@ Imports mangosVB.Common.NativeMethods
 
 <AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)> _
 Public Class ChatCommandAttribute
-    Inherits System.Attribute
+    Inherits Attribute
 
     Private Command As String = ""
     Private CommandHelp As String = "No information available."
@@ -105,7 +105,7 @@ Public Module WS_Commands
 
                         ChatCommands.Add(UCase(info.cmdName), cmd)
 #If DEBUG Then
-                        Log.WriteLine(mangosVB.Common.BaseWriter.LogType.INFORMATION, "Command found: {0}", UCase(info.cmdName))
+                        Log.WriteLine(LogType.INFORMATION, "Command found: {0}", UCase(info.cmdName))
 #End If
                     Next
                 End If
@@ -114,7 +114,7 @@ Public Module WS_Commands
 
     End Sub
 
-    Public Sub OnCommand(ByRef Client As ClientClass, ByVal Message As String)
+    Public Sub OnCommand(ByRef client As ClientClass, ByVal Message As String)
         Try
             'DONE: Find the command
             Dim tmp() As String = Split(Message, " ", 2)
@@ -128,25 +128,23 @@ Public Module WS_Commands
             If tmp.Length = 2 Then Arguments = Trim(tmp(1))
 
             'DONE: Get character name (there can be no character after the command)
-            Dim Name As String = Client.Character.Name
-
+            Dim Name As String = client.Character.Name
 
             If Command Is Nothing Then
-                Client.Character.CommandResponse("Unknown command.")
-            ElseIf Command.CommandAccess > Client.Character.Access Then
-                Client.Character.CommandResponse("This command is not available for your access level.")
+                client.Character.CommandResponse("Unknown command.")
+            ElseIf Command.CommandAccess > client.Character.Access Then
+                client.Character.CommandResponse("This command is not available for your access level.")
             ElseIf Not Command.CommandDelegate(Client.Character, Arguments) Then
-                Client.Character.CommandResponse(Command.CommandHelp)
+                client.Character.CommandResponse(Command.CommandHelp)
             Else
-                Log.WriteLine(LogType.USER, "[{0}:{1}] {2} used command: {3}", Client.IP, Client.Port, Name, Message)
+                Log.WriteLine(LogType.USER, "[{0}:{1}] {2} used command: {3}", client.IP, client.Port, Name, Message)
             End If
 
         Catch err As Exception
-            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Client command caused error! {3}{2}", Client.IP, Client.Port, err.ToString, vbNewLine)
-            Client.Character.CommandResponse(String.Format("Your command caused error:" & vbNewLine & " [{0}]", err.Message))
+            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Client command caused error! {3}{2}", client.IP, client.Port, err.ToString, vbNewLine)
+            client.Character.CommandResponse(String.Format("Your command caused error:" & vbNewLine & " [{0}]", err.Message))
         End Try
     End Sub
-
 
 #End Region
 
@@ -484,7 +482,6 @@ Public Module WS_Commands
         If tmp.Length <> 2 Then Return False
         Dim Type As Integer = tmp(0)
         Dim Text As String = tmp(1)
-
 
         Dim packet As New PacketClass(OPCODES.SMSG_SERVER_MESSAGE)
         packet.AddInt32(Type)
@@ -986,7 +983,6 @@ Public Module WS_Commands
     Public Function cmdLearnSkill(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
 
-
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
             Dim tmp() As String
             tmp = Split(Trim(Message), " ")
@@ -1074,7 +1070,7 @@ Public Module WS_Commands
     <ChatCommandAttribute("SetRunSpeed", "SETRUNSPEED <VALUE> - Change your run speed.", AccessLevel.GameMaster)> _
     Public Function cmdSetRunSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
-        objCharacter.ChangeSpeedForced(WS_CharManagment.CharacterObject.ChangeSpeedType.RUN, Message)
+        objCharacter.ChangeSpeedForced(CharacterObject.ChangeSpeedType.RUN, Message)
         objCharacter.CommandResponse("Your RunSpeed is changed to " & Message)
         Return True
     End Function
@@ -1082,7 +1078,7 @@ Public Module WS_Commands
     <ChatCommandAttribute("SetSwimSpeed", "SETSWIMSPEED <VALUE> - Change your swim speed.", AccessLevel.GameMaster)> _
     Public Function cmdSetSwimSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
-        objCharacter.ChangeSpeedForced(WS_CharManagment.CharacterObject.ChangeSpeedType.SWIM, Message)
+        objCharacter.ChangeSpeedForced(CharacterObject.ChangeSpeedType.SWIM, Message)
         objCharacter.CommandResponse("Your SwimSpeed is changed to " & Message)
         Return True
     End Function
@@ -1090,7 +1086,7 @@ Public Module WS_Commands
     <ChatCommandAttribute("SetRunBackSpeed", "SETRUNBACKSPEED <VALUE> - Change your run back speed.", AccessLevel.GameMaster)> _
     Public Function cmdSetRunBackSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
-        objCharacter.ChangeSpeedForced(WS_CharManagment.CharacterObject.ChangeSpeedType.SWIMBACK, Message)
+        objCharacter.ChangeSpeedForced(CharacterObject.ChangeSpeedType.SWIMBACK, Message)
         objCharacter.CommandResponse("Your RunBackSpeed is changed to " & Message)
         Return True
     End Function
@@ -1139,9 +1135,9 @@ Public Module WS_Commands
         End If
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Life.Current -= CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Life.Maximum * 0.1
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Life.Current)
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SendCharacterUpdate()
+            CHARACTERs(objCharacter.TargetGUID).Life.Current -= CHARACTERs(objCharacter.TargetGUID).Life.Maximum * 0.1
+            CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Life.Current)
+            CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate()
             Return True
         End If
 
@@ -1394,17 +1390,17 @@ Public Module WS_Commands
         Dim CellY As Byte = GetMapTileY(objCharacter.positionY)
 
         Dim fileName As String = String.Format("{0}_{1}_{2}.vmdir", Format(CellMap, "000"), Format(CellX, "00"), Format(CellY, "00"))
-        If Not System.IO.File.Exists("vmaps\" & fileName) Then
+        If Not IO.File.Exists("vmaps\" & fileName) Then
             objCharacter.CommandResponse(String.Format("VMap file [{0}] not found", fileName))
             fileName = String.Format("{0}.vmdir", Format(CellMap, "000"))
         End If
 
-        If Not System.IO.File.Exists("vmaps\" & fileName) Then
+        If Not IO.File.Exists("vmaps\" & fileName) Then
             objCharacter.CommandResponse(String.Format("VMap file [{0}] not found", fileName))
         Else
             objCharacter.CommandResponse(String.Format("VMap file [{0}] found!", fileName))
             Dim map As TMap = Maps(CellMap)
-            fileName = Trim(System.IO.File.ReadAllText("vmaps\" & fileName))
+            fileName = Trim(IO.File.ReadAllText("vmaps\" & fileName))
 
             objCharacter.CommandResponse(String.Format("Full file: '{0}'", fileName))
             If fileName.Contains(vbLf) Then
@@ -1413,7 +1409,7 @@ Public Module WS_Commands
 
             objCharacter.CommandResponse(String.Format("First line: '{0}'", fileName))
             Dim newModelLoaded As Boolean = False
-            If fileName.Length > 0 AndAlso System.IO.File.Exists("vmaps\" & fileName) Then
+            If fileName.Length > 0 AndAlso IO.File.Exists("vmaps\" & fileName) Then
                 objCharacter.CommandResponse(String.Format("VMap file [{0}] found!", fileName))
 
                 If Maps(CellMap).ContainsModelContainer(fileName) Then
@@ -1487,7 +1483,7 @@ Public Module WS_Commands
     ''' <summary>
     ''' Teleports the player to a location.
     ''' </summary>
-    ''' <param name="objChar">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <param name="location">The location. Use PortByName list to get a list of locations (can use * as wildcard).</param>
     ''' <returns></returns>
     <ChatCommandAttribute("PortByName", "PORT <LocationName> - Teleports Character To The LocationName Location. Use PortByName list to get a list of locations (can use * as wildcard).", AccessLevel.GameMaster)> _
@@ -1892,9 +1888,6 @@ Public Module WS_Commands
 
         End If
 
-
-
-
         Return True
     End Function
 
@@ -2060,8 +2053,8 @@ Public Module WS_Commands
         If result.Rows.Count > 0 Then
             objCharacter.CommandResponse(String.Format("Account [{0}] already exists.", aName))
         Else
-            Dim passwordStr() As Byte = System.Text.Encoding.ASCII.GetBytes(aName.ToUpper & ":" & aPassword.ToUpper)
-            Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
+            Dim passwordStr() As Byte = Text.Encoding.ASCII.GetBytes(aName.ToUpper & ":" & aPassword.ToUpper)
+            Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
             Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
             AccountDatabase.Insert(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
@@ -2089,8 +2082,8 @@ Public Module WS_Commands
             If targetLevel >= objCharacter.Access Then
                 objCharacter.CommandResponse("You cannot change password for accounts with the same or a higher access level than yourself.")
             Else
-                Dim passwordStr() As Byte = System.Text.Encoding.ASCII.GetBytes(aName.ToUpper & ":" & aPassword.ToUpper)
-                Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
+                Dim passwordStr() As Byte = Text.Encoding.ASCII.GetBytes(aName.ToUpper & ":" & aPassword.ToUpper)
+                Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                 Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
                 AccountDatabase.Update(String.Format("UPDATE account SET password='{0}' WHERE id={1}", hashStr, result.Rows(0).Item("id")))
@@ -2161,7 +2154,7 @@ Public Module WS_Commands
         packet.Dispose()
     End Sub
 
-    Public Function SetUpdateValue(ByVal GUID As ULong, ByVal Index As Integer, ByVal Value As Integer, ByVal Client As ClientClass) As Boolean
+    Public Function SetUpdateValue(ByVal GUID As ULong, ByVal Index As Integer, ByVal Value As Integer, ByVal client As ClientClass) As Boolean
         Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
         packet.AddInt32(1)      'Operations.Count
         packet.AddInt8(0)
@@ -2169,24 +2162,20 @@ Public Module WS_Commands
         UpdateData.SetUpdateFlag(Index, Value)
 
         If GuidIsCreature(GUID) Then
-            UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(WORLD_CREATUREs(GUID), CreatureObject))
+            UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
         ElseIf GuidIsPlayer(GUID) Then
-            If GUID = Client.Character.GUID Then
-                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(CHARACTERs(GUID), CharacterObject))
+            If GUID = client.Character.GUID Then
+                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CHARACTERs(GUID))
             Else
-                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(CHARACTERs(GUID), CharacterObject))
+                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CHARACTERs(GUID))
             End If
         End If
 
-        Client.Send(packet)
+        client.Send(packet)
         packet.Dispose()
         UpdateData.Dispose()
     End Function
 
-
 #End Region
 
-
 End Module
-
-

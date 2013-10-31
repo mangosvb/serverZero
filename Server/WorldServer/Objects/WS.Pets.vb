@@ -16,9 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports mangosVB.Common
-Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Pets
 
@@ -31,23 +29,23 @@ Public Module WS_Pets
     Public LevelStartLoyalty(6) As Integer
 
     Public Sub InitializeLevelUpLoyalty()
-        WS_Pets.LevelUpLoyalty(0) = 0
-        WS_Pets.LevelUpLoyalty(1) = 5500
-        WS_Pets.LevelUpLoyalty(2) = 11500
-        WS_Pets.LevelUpLoyalty(3) = 17000
-        WS_Pets.LevelUpLoyalty(4) = 23500
-        WS_Pets.LevelUpLoyalty(5) = 31000
-        WS_Pets.LevelUpLoyalty(6) = 39500
+        LevelUpLoyalty(0) = 0
+        LevelUpLoyalty(1) = 5500
+        LevelUpLoyalty(2) = 11500
+        LevelUpLoyalty(3) = 17000
+        LevelUpLoyalty(4) = 23500
+        LevelUpLoyalty(5) = 31000
+        LevelUpLoyalty(6) = 39500
     End Sub
 
     Public Sub InitializeLevelStartLoyalty()
-        WS_Pets.LevelStartLoyalty(0) = 0
-        WS_Pets.LevelStartLoyalty(1) = 2000
-        WS_Pets.LevelStartLoyalty(2) = 4500
-        WS_Pets.LevelStartLoyalty(3) = 7000
-        WS_Pets.LevelStartLoyalty(4) = 10000
-        WS_Pets.LevelStartLoyalty(5) = 13500
-        WS_Pets.LevelStartLoyalty(6) = 17500
+        LevelStartLoyalty(0) = 0
+        LevelStartLoyalty(1) = 2000
+        LevelStartLoyalty(2) = 4500
+        LevelStartLoyalty(3) = 7000
+        LevelStartLoyalty(4) = 10000
+        LevelStartLoyalty(5) = 13500
+        LevelStartLoyalty(6) = 17500
     End Sub
 
     Public Enum PetType As Byte
@@ -98,7 +96,6 @@ Public Module WS_Pets
         PET_TALK_SPECIAL_SPELL = 0
         PET_TALK_ATTACK = 1
     End Enum
-
 
 #End Region
 #Region "WS.Pets.TypeDef"
@@ -152,7 +149,7 @@ Public Module WS_Pets
 #End Region
 #Region "WS.Pets.Handlers"
 
-    Public Sub On_CMSG_PET_NAME_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_NAME_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim PetNumber As Integer = packet.GetInt32()
         Dim PetGUID As ULong = packet.GetUInt64()
@@ -162,13 +159,13 @@ Public Module WS_Pets
         SendPetNameQuery(Client, PetGUID, PetNumber)
     End Sub
 
-    Public Sub On_CMSG_REQUEST_PET_INFO(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_REQUEST_PET_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_REQUEST_PET_INFO")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
 
-    Public Sub On_CMSG_PET_ACTION(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_ACTION(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim PetGUID As ULong = packet.GetUInt64()
         Dim SpellID As UShort = packet.GetUInt16()
@@ -178,20 +175,20 @@ Public Module WS_Pets
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_ACTION [GUID={0:X} Spell={1} Flag={2:X} Target={3:X}]", PetGUID, SpellID, SpellFlag, TargetGUID)
     End Sub
 
-    Public Sub On_CMSG_PET_CANCEL_AURA(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_CANCEL_AURA(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_CANCEL_AURA")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
 
-    Public Sub On_CMSG_PET_ABANDON(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_ABANDON(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim PetGUID As ULong = packet.GetUInt64()
 
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_ABANDON [GUID={0:X}]", PetGUID)
     End Sub
 
-    Public Sub On_CMSG_PET_RENAME(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_RENAME(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim PetGUID As ULong = packet.GetUInt64()
         Dim PetName As String = packet.GetString()
@@ -199,7 +196,7 @@ Public Module WS_Pets
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_RENAME [GUID={0:X} Name={1}]", PetGUID, PetName)
     End Sub
 
-    Public Sub On_CMSG_PET_SET_ACTION(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_SET_ACTION(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim PetGUID As ULong = packet.GetUInt64()
         Dim Position As Integer = packet.GetInt32()
@@ -209,25 +206,25 @@ Public Module WS_Pets
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_SET_ACTION [GUID={0:X} Pos={1} Spell={2} Action={3}]", PetGUID, Position, SpellID, ActionState)
     End Sub
 
-    Public Sub On_CMSG_PET_SPELL_AUTOCAST(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_SPELL_AUTOCAST(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_SPELL_AUTOCAST")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
 
-    Public Sub On_CMSG_PET_STOP_ATTACK(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_STOP_ATTACK(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_STOP_ATTACK")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
 
-    Public Sub On_CMSG_PET_UNLEARN(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PET_UNLEARN(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_UNLEARN")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
 
-    Public Sub SendPetNameQuery(ByRef Client As ClientClass, ByVal PetGUID As ULong, ByVal PetNumber As Integer)
+    Public Sub SendPetNameQuery(ByRef client As ClientClass, ByVal PetGUID As ULong, ByVal PetNumber As Integer)
         If WORLD_CREATUREs.ContainsKey(PetGUID) = False Then Exit Sub
         If Not TypeOf WORLD_CREATUREs(PetGUID) Is PetObject Then Exit Sub
 
@@ -235,7 +232,7 @@ Public Module WS_Pets
         response.AddInt32(PetNumber)
         response.AddString(CType(WORLD_CREATUREs(PetGUID), PetObject).PetName) 'Pet name
         response.AddInt32(timeGetTime("")) 'Pet name timestamp
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
@@ -342,4 +339,3 @@ Public Module WS_Pets
 #End Region
 
 End Module
-

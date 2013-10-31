@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
 
@@ -128,8 +127,6 @@ Public Module WS_Corpses
             Next
             tmpCmd = tmpCmd & ", corpse_items"
             tmpValues = tmpValues & ", """ & Join(temp, " ") & """"
-
-
 
             tmpCmd = tmpCmd & ") " & tmpValues & ");"
             CharacterDatabase.Update(tmpCmd)

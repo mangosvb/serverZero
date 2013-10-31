@@ -41,17 +41,17 @@ Public Module WS_Handlers_Taxi
     ''' <summary>
     ''' Sends the taxi status.
     ''' </summary>
-    ''' <param name="c">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <param name="cGuid">The objCharacter GUID.</param>
     ''' <returns></returns>
     Private Sub SendTaxiStatus(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
-        If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Exit Sub
+        If WORLD_CREATUREs.ContainsKey(cGuid) = False Then Exit Sub
 
-        Dim currentTaxi As Integer = GetNearestTaxi(WORLD_CREATUREs(cGUID).positionX, WORLD_CREATUREs(cGUID).positionY, WORLD_CREATUREs(cGUID).MapID)
+        Dim currentTaxi As Integer = GetNearestTaxi(WORLD_CREATUREs(cGuid).positionX, WORLD_CREATUREs(cGuid).positionY, WORLD_CREATUREs(cGuid).MapID)
 
         Dim SMSG_TAXINODE_STATUS As New PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
         Try
-            SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
+            SMSG_TAXINODE_STATUS.AddUInt64(cGuid)
             If objCharacter.TaxiZones.Item(currentTaxi) = False Then SMSG_TAXINODE_STATUS.AddInt8(0) Else SMSG_TAXINODE_STATUS.AddInt8(1)
             objCharacter.Client.Send(SMSG_TAXINODE_STATUS)
         Finally
@@ -62,13 +62,13 @@ Public Module WS_Handlers_Taxi
     ''' <summary>
     ''' Sends the taxi menu.
     ''' </summary>
-    ''' <param name="c">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <param name="cGuid">The objCharacter GUID.</param>
     ''' <returns></returns>
     Public Sub SendTaxiMenu(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
-        If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Exit Sub
+        If WORLD_CREATUREs.ContainsKey(cGuid) = False Then Exit Sub
 
-        Dim currentTaxi As Integer = GetNearestTaxi(WORLD_CREATUREs(cGUID).positionX, WORLD_CREATUREs(cGUID).positionY, WORLD_CREATUREs(cGUID).MapID)
+        Dim currentTaxi As Integer = GetNearestTaxi(WORLD_CREATUREs(cGuid).positionX, WORLD_CREATUREs(cGuid).positionY, WORLD_CREATUREs(cGuid).MapID)
 
         If objCharacter.TaxiZones.Item(currentTaxi) = False Then
             objCharacter.TaxiZones.Set(currentTaxi, True)
@@ -82,7 +82,7 @@ Public Module WS_Handlers_Taxi
 
             Dim SMSG_TAXINODE_STATUS As New PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
             Try
-                SMSG_TAXINODE_STATUS.AddUInt64(cGUID)
+                SMSG_TAXINODE_STATUS.AddUInt64(cGuid)
                 SMSG_TAXINODE_STATUS.AddInt8(1)
                 objCharacter.Client.Send(SMSG_TAXINODE_STATUS)
             Finally
@@ -94,7 +94,7 @@ Public Module WS_Handlers_Taxi
         Dim SMSG_SHOWTAXINODES As New PacketClass(OPCODES.SMSG_SHOWTAXINODES)
         Try
             SMSG_SHOWTAXINODES.AddInt32(1)
-            SMSG_SHOWTAXINODES.AddUInt64(cGUID)
+            SMSG_SHOWTAXINODES.AddUInt64(cGuid)
             SMSG_SHOWTAXINODES.AddInt32(currentTaxi)
             SMSG_SHOWTAXINODES.AddBitArray(objCharacter.TaxiZones, 8 * 4)
             objCharacter.Client.Send(SMSG_SHOWTAXINODES)
@@ -219,11 +219,11 @@ Public Module WS_Handlers_Taxi
         End If
         client.Character.Copper -= totalCost
 
-        Client.Character.TaxiNodes.Clear()
-        Client.Character.TaxiNodes.Enqueue(srcNode)
-        Client.Character.TaxiNodes.Enqueue(dstNode)
+        client.Character.TaxiNodes.Clear()
+        client.Character.TaxiNodes.Enqueue(srcNode)
+        client.Character.TaxiNodes.Enqueue(dstNode)
 
-        SendActivateTaxiReply(Client, ActivateTaxiReplies.ERR_TAXIOK)
+        SendActivateTaxiReply(client, ActivateTaxiReplies.ERR_TAXIOK)
 
         'DONE: Mount up, disable move and spell casting
         TaxiTake(client.Character, mount)
@@ -280,7 +280,6 @@ Public Module WS_Handlers_Taxi
                 Exit Sub
             End If
 
-
             'DONE: Load nodes
             Dim nodes As New List(Of Integer)
             For i As Integer = 0 To nodeCount - 1
@@ -288,7 +287,6 @@ Public Module WS_Handlers_Taxi
             Next
             Dim srcNode As Integer = nodes(0)
             Dim dstNode As Integer = nodes(1)
-
 
             For Each node As Integer In client.Character.TaxiNodes
                 If Not TaxiNodes.ContainsKey(node) Then
@@ -337,16 +335,16 @@ Public Module WS_Handlers_Taxi
             End If
             client.Character.Copper -= totalCost
 
-            Client.Character.TaxiNodes.Clear()
+            client.Character.TaxiNodes.Clear()
             For Each node As Integer In nodes
                 client.Character.TaxiNodes.Enqueue(node)
             Next
 
-            SendActivateTaxiReply(Client, ActivateTaxiReplies.ERR_TAXIOK)
+            SendActivateTaxiReply(client, ActivateTaxiReplies.ERR_TAXIOK)
 
             'DONE: Mount up, disable move and spell casting
             TaxiTake(client.Character, mount)
-            TaxiMove(Client.Character, discountMod)
+            TaxiMove(client.Character, discountMod)
 
         Catch e As Exception
             Log.WriteLine(LogType.CRITICAL, "Error when taking a long taxi.{0}", vbNewLine & e.ToString)
@@ -359,8 +357,8 @@ Public Module WS_Handlers_Taxi
     ''' <param name="packet">The packet.</param>
     ''' <param name="Client">The client.</param>
     ''' <returns></returns>
-    Public Sub On_CMSG_MOVE_SPLINE_DONE(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_SPLINE_DONE", Client.IP, Client.Port)
+    Public Sub On_CMSG_MOVE_SPLINE_DONE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_SPLINE_DONE", client.IP, client.Port)
     End Sub
 
     ''' <summary>
@@ -369,13 +367,13 @@ Public Module WS_Handlers_Taxi
     ''' <param name="character">The character.</param>
     ''' <returns></returns>
     Private Sub TaxiLand(ByVal character As CharacterObject)
-        Character.TaxiNodes.Clear()
-        Character.Mount = 0
-        Character.cUnitFlags = Character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_DISABLE_MOVE)
-        Character.cUnitFlags = Character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-        Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_MOUNTDISPLAYID, Character.Mount)
-        Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Character.cUnitFlags)
-        Character.SendCharacterUpdate()
+        character.TaxiNodes.Clear()
+        character.Mount = 0
+        character.cUnitFlags = character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_DISABLE_MOVE)
+        character.cUnitFlags = character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+        character.SetUpdateFlag(EUnitFields.UNIT_FIELD_MOUNTDISPLAYID, character.Mount)
+        character.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, character.cUnitFlags)
+        character.SendCharacterUpdate()
     End Sub
 
     ''' <summary>
@@ -385,7 +383,7 @@ Public Module WS_Handlers_Taxi
     ''' <param name="mount">The mount.</param>
     ''' <returns></returns>
     Private Sub TaxiTake(ByVal character As CharacterObject, ByVal mount As Integer)
-        character.Mount = Mount
+        character.Mount = mount
         character.cUnitFlags = character.cUnitFlags Or UnitFlags.UNIT_FLAG_DISABLE_MOVE
         character.cUnitFlags = character.cUnitFlags Or UnitFlags.UNIT_FLAG_TAXI_FLIGHT
         character.SetUpdateFlag(EUnitFields.UNIT_FIELD_MOUNTDISPLAYID, character.Mount)
@@ -427,7 +425,6 @@ Public Module WS_Handlers_Taxi
                     End If
                 Next
             End While
-
 
             'DONE: Do move on paths
             For Each path As Integer In waypointPaths

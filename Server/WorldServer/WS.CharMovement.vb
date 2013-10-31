@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
 
@@ -46,48 +45,47 @@ Module WS_CharMovement
         MOVEMENTFLAG_SPLINE = &H4000000
     End Enum
 
-    Public Sub OnMovementPacket(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub OnMovementPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
 
-        If Client.Character.MindControl IsNot Nothing Then
-            OnControlledMovementPacket(packet, Client.Character.MindControl, Client.Character)
+        If client.Character.MindControl IsNot Nothing Then
+            OnControlledMovementPacket(packet, client.Character.MindControl, client.Character)
             Exit Sub
         End If
 
-        Client.Character.movementFlags = packet.GetInt32()
+        client.Character.movementFlags = packet.GetInt32()
         Dim Time As UInteger = packet.GetUInt32()
-        Client.Character.positionX = packet.GetFloat()
-        Client.Character.positionY = packet.GetFloat()
-        Client.Character.positionZ = packet.GetFloat()
-        Client.Character.orientation = packet.GetFloat()
+        client.Character.positionX = packet.GetFloat()
+        client.Character.positionY = packet.GetFloat()
+        client.Character.positionZ = packet.GetFloat()
+        client.Character.orientation = packet.GetFloat()
 
         'DONE: If character is falling below the world
-        If Client.Character.positionZ < -500.0F Then
+        If client.Character.positionZ < -500.0F Then
             AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
             Exit Sub
         End If
 
-        If Client.Character.Pet IsNot Nothing Then
-            If Client.Character.Pet.FollowOwner Then
-                Dim angle As Single = Client.Character.orientation - PId2
+        If client.Character.Pet IsNot Nothing Then
+            If client.Character.Pet.FollowOwner Then
+                Dim angle As Single = client.Character.orientation - PId2
                 If angle < 0 Then angle += PIx2
 
-                Client.Character.Pet.SetToRealPosition()
+                client.Character.Pet.SetToRealPosition()
 
-                Dim tmpX As Single = Client.Character.positionX + Math.Cos(angle) * 2.0F
-                Dim tmpY As Single = Client.Character.positionY + Math.Sin(angle) * 2.0F
-                Client.Character.Pet.MoveTo(tmpX, tmpY, Client.Character.positionZ, Client.Character.orientation, True)
+                Dim tmpX As Single = client.Character.positionX + Math.Cos(angle) * 2.0F
+                Dim tmpY As Single = client.Character.positionY + Math.Sin(angle) * 2.0F
+                client.Character.Pet.MoveTo(tmpX, tmpY, client.Character.positionZ, client.Character.orientation, True)
             End If
         End If
 
 #If ENABLE_PPOINTS Then
         If (Client.Character.movementFlags And groundFlagsMask) = 0 AndAlso _
-           Math.Abs(GetZCoord(Client.Character.positionX, Client.Character.positionY, Client.Character.positionZ, Client.Character.MapID) - Client.Character.positionZ) > PPOINT_LIMIT Then
-            Log.WriteLine(LogType.DEBUG, "PPoints: {0} [MapZ = {1}]", Client.Character.positionZ, GetZCoord(Client.Character.positionX, Client.Character.positionY, Client.Character.MapID))
-            SetZCoord_PP(Client.Character.positionX, Client.Character.positionY, Client.Character.MapID, Client.Character.positionZ)
+           Math.Abs(GetZCoord(Client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) - client.Character.positionZ) > PPOINT_LIMIT Then
+            Log.WriteLine(LogType.DEBUG, "PPoints: {0} [MapZ = {1}]", client.Character.positionZ, GetZCoord(Client.Character.positionX, client.Character.positionY, client.Character.MapID))
+            SetZCoord_PP(Client.Character.positionX, client.Character.positionY, client.Character.MapID, client.Character.positionZ)
         End If
 #End If
-
 
         If (Client.Character.movementFlags And MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
             Dim transportGUID As ULong = packet.GetUInt64
@@ -96,36 +94,36 @@ Module WS_CharMovement
             Dim transportZ As Single = packet.GetFloat
             Dim transportO As Single = packet.GetFloat
 
-            Client.Character.transportX = transportX
-            Client.Character.transportY = transportY
-            Client.Character.transportZ = transportZ
-            Client.Character.transportO = transportO
+            client.Character.transportX = transportX
+            client.Character.transportY = transportY
+            client.Character.transportZ = transportZ
+            client.Character.transportO = transportO
 
             'DONE: Boarding transport
-            If Client.Character.OnTransport Is Nothing Then
+            If client.Character.OnTransport Is Nothing Then
                 If GuidIsMoTransport(transportGUID) AndAlso WORLD_TRANSPORTs.ContainsKey(transportGUID) Then
-                    Client.Character.OnTransport = WORLD_TRANSPORTs(transportGUID)
+                    client.Character.OnTransport = WORLD_TRANSPORTs(transportGUID)
 
                     'DONE: Unmount when boarding
-                    Client.Character.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOUNTED)
+                    client.Character.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOUNTED)
 
                     CType(Client.Character.OnTransport, TransportObject).AddPassenger(Client.Character)
                 ElseIf GuidIsTransport(transportGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(transportGUID) Then
-                    Client.Character.OnTransport = WORLD_GAMEOBJECTs(transportGUID)
+                    client.Character.OnTransport = WORLD_GAMEOBJECTs(transportGUID)
                 End If
             End If
-        ElseIf Client.Character.OnTransport IsNot Nothing Then
+        ElseIf client.Character.OnTransport IsNot Nothing Then
             'DONE: Unboarding transport
-            If TypeOf Client.Character.OnTransport Is TransportObject Then
+            If TypeOf client.Character.OnTransport Is TransportObject Then
                 CType(Client.Character.OnTransport, TransportObject).RemovePassenger(Client.Character)
             End If
-            Client.Character.OnTransport = Nothing
+            client.Character.OnTransport = Nothing
         End If
 
         If (Client.Character.movementFlags And (MovementFlags.MOVEMENTFLAG_SWIMMING)) Then
             Dim swimAngle As Single = packet.GetFloat
             '#If DEBUG Then
-            '                Console.WriteLine("[{0}] [{1}:{2}] Client swim angle:{3}", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, swimAngle)
+            '                Console.WriteLine("[{0}] [{1}:{2}] Client swim angle:{3}", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, swimAngle)
             '#End If
         End If
 
@@ -137,7 +135,7 @@ Module WS_CharMovement
             Dim cosAngle As Single = packet.GetFloat
             Dim xySpeed As Single = packet.GetFloat
             '#If DEBUG Then
-            '                Console.WriteLine("[{0}] [{1}:{2}] Client jump: 0x{3:X} {4} {5} {6}", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, unk, sinAngle, cosAngle, xySpeed)
+            '                Console.WriteLine("[{0}] [{1}:{2}] Client jump: 0x{3:X} {4} {5} {6}", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, unk, sinAngle, cosAngle, xySpeed)
             '#End If
         End If
 
@@ -145,8 +143,8 @@ Module WS_CharMovement
             Dim unk1 As Single = packet.GetFloat
         End If
 
-        If Client.Character.exploreCheckQueued_ AndAlso (Not Client.Character.DEAD) Then
-            Dim exploreFlag As Integer = GetAreaFlag(Client.Character.positionX, Client.Character.positionY, Client.Character.MapID)
+        If client.Character.exploreCheckQueued_ AndAlso (Not client.Character.DEAD) Then
+            Dim exploreFlag As Integer = GetAreaFlag(Client.Character.positionX, client.Character.positionY, client.Character.MapID)
 
             'DONE: Checking Explore System
             If exploreFlag <> &HFFFF Then
@@ -162,11 +160,11 @@ Module WS_CharMovement
                     Dim SMSG_EXPLORATION_EXPERIENCE As New PacketClass(OPCODES.SMSG_EXPLORATION_EXPERIENCE)
                     SMSG_EXPLORATION_EXPERIENCE.AddInt32(AreaTable(exploreFlag).ID)
                     SMSG_EXPLORATION_EXPERIENCE.AddInt32(GainedXP)
-                    Client.Send(SMSG_EXPLORATION_EXPERIENCE)
+                    client.Send(SMSG_EXPLORATION_EXPERIENCE)
                     SMSG_EXPLORATION_EXPERIENCE.Dispose()
 
-                    Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_EXPLORED_ZONES_1 + areaFlagOffset, Client.Character.ZonesExplored(areaFlagOffset))
-                    Client.Character.AddXP(GainedXP, 0, 0, True)
+                    client.Character.SetUpdateFlag(EPlayerFields.PLAYER_EXPLORED_ZONES_1 + areaFlagOffset, client.Character.ZonesExplored(areaFlagOffset))
+                    client.Character.AddXP(GainedXP, 0, 0, True)
 
                     'DONE: Fire quest event to check for if this area is used in explore area quest
                     ALLQUESTS.OnQuestExplore(Client.Character, exploreFlag)
@@ -175,29 +173,29 @@ Module WS_CharMovement
         End If
 
         'If character is moving
-        If Client.Character.isMoving Then
+        If client.Character.isMoving Then
             'DONE: Stop emotes if moving
-            If Client.Character.cEmoteState > 0 Then
-                Client.Character.cEmoteState = 0
-                Client.Character.SetUpdateFlag(EUnitFields.UNIT_NPC_EMOTESTATE, Client.Character.cEmoteState)
-                Client.Character.SendCharacterUpdate(True)
+            If client.Character.cEmoteState > 0 Then
+                client.Character.cEmoteState = 0
+                client.Character.SetUpdateFlag(EUnitFields.UNIT_NPC_EMOTESTATE, client.Character.cEmoteState)
+                client.Character.SendCharacterUpdate(True)
             End If
 
             'DONE: Stop casting
-            If Client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL) IsNot Nothing Then
-                With Client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL)
+            If client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL) IsNot Nothing Then
+                With client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL)
                     If .Finished = False And (SPELLs(.SpellID).interruptFlags And SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT) Then
-                        Client.Character.FinishSpell(CurrentSpellTypes.CURRENT_GENERIC_SPELL)
+                        client.Character.FinishSpell(CurrentSpellTypes.CURRENT_GENERIC_SPELL)
                     End If
                 End With
             End If
 
-            Client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE)
+            client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE)
         End If
 
         'If character is turning
-        If Client.Character.isTurning Then
-            Client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING)
+        If client.Character.isTurning Then
+            client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING)
         End If
 
         'DONE: Movement time calculation
@@ -212,17 +210,17 @@ Module WS_CharMovement
         Dim tempArray(packet.Data.Length - 6) As Byte
         Array.Copy(packet.Data, 6, tempArray, 0, packet.Data.Length - 6)
         response.AddByteArray(tempArray)
-        Client.Character.SendToNearPlayers(response, , False)
+        client.Character.SendToNearPlayers(response, , False)
         response.Dispose()
 
         'NOTE: They may slow the movement down so let's do them after the packet is sent
         'DONE: Remove auras that requires you to not move
-        If Client.Character.isMoving Then
-            Client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE)
+        If client.Character.isMoving Then
+            client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE)
         End If
         'DONE: Remove auras that requires you to not turn
-        If Client.Character.isTurning Then
-            Client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING)
+        If client.Character.isTurning Then
+            client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING)
         End If
     End Sub
 
@@ -267,43 +265,43 @@ Module WS_CharMovement
         response.Dispose()
     End Sub
 
-    Public Sub OnStartSwim(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub OnStartSwim(ByRef packet As PacketClass, ByRef client As ClientClass)
         OnMovementPacket(packet, Client)
 
-        If Client.Character.positionZ < GetWaterLevel(Client.Character.positionX, Client.Character.positionY, Client.Character.MapID) Then
-            If (Client.Character.underWaterTimer Is Nothing) AndAlso (Not Client.Character.underWaterBreathing) AndAlso (Not Client.Character.DEAD) Then
-                Client.Character.underWaterTimer = New TDrowningTimer(Client.Character)
+        If client.Character.positionZ < GetWaterLevel(Client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
+            If (Client.Character.underWaterTimer Is Nothing) AndAlso (Not client.Character.underWaterBreathing) AndAlso (Not client.Character.DEAD) Then
+                client.Character.underWaterTimer = New TDrowningTimer(Client.Character)
             End If
         Else
-            If Client.Character.underWaterTimer IsNot Nothing Then
-                Client.Character.underWaterTimer.Dispose()
-                Client.Character.underWaterTimer = Nothing
+            If client.Character.underWaterTimer IsNot Nothing Then
+                client.Character.underWaterTimer.Dispose()
+                client.Character.underWaterTimer = Nothing
             End If
         End If
     End Sub
 
-    Public Sub OnStopSwim(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        If Client.Character.underWaterTimer IsNot Nothing Then
-            Client.Character.underWaterTimer.Dispose()
-            Client.Character.underWaterTimer = Nothing
+    Public Sub OnStopSwim(ByRef packet As PacketClass, ByRef client As ClientClass)
+        If client.Character.underWaterTimer IsNot Nothing Then
+            client.Character.underWaterTimer.Dispose()
+            client.Character.underWaterTimer = Nothing
         End If
 
         OnMovementPacket(packet, Client)
     End Sub
 
-    Public Sub OnChangeSpeed(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub OnChangeSpeed(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
 
-        If GUID <> Client.Character.GUID Then Exit Sub 'Skip it, it's not our packet
+        If GUID <> client.Character.GUID Then Exit Sub 'Skip it, it's not our packet
 
         packet.GetInt32()
         Dim flags As Integer = packet.GetInt32()
         Dim time As Integer = packet.GetInt32()
-        Client.Character.positionX = packet.GetFloat()
-        Client.Character.positionY = packet.GetFloat()
-        Client.Character.positionZ = packet.GetFloat()
-        Client.Character.orientation = packet.GetFloat()
+        client.Character.positionX = packet.GetFloat()
+        client.Character.positionY = packet.GetFloat()
+        client.Character.positionZ = packet.GetFloat()
+        client.Character.orientation = packet.GetFloat()
 
         If (flags And MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
             packet.GetInt64() 'GUID
@@ -327,45 +325,45 @@ Module WS_CharMovement
 
         Dim newSpeed As Single = packet.GetFloat()
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] {3} [{2}]", Client.IP, Client.Port, newSpeed, packet.OpCode)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] {3} [{2}]", client.IP, client.Port, newSpeed, packet.OpCode)
 
         'DONE: Anti hack
-        If Client.Character.antiHackSpeedChanged_ <= 0 Then
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Possible speed hack detected!", Client.IP, Client.Port)
-            Client.Character.Logout(Nothing)
+        If client.Character.antiHackSpeedChanged_ <= 0 Then
+            Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Possible speed hack detected!", client.IP, client.Port)
+            client.Character.Logout(Nothing)
             Exit Sub
         End If
 
         'DONE: Update speed value and create packet
-        Client.Character.antiHackSpeedChanged_ -= 1
+        client.Character.antiHackSpeedChanged_ -= 1
         Select Case packet.OpCode
             Case OPCODES.CMSG_FORCE_RUN_SPEED_CHANGE_ACK
-                Client.Character.RunSpeed = newSpeed
+                client.Character.RunSpeed = newSpeed
             Case OPCODES.CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK
-                Client.Character.RunBackSpeed = newSpeed
+                client.Character.RunBackSpeed = newSpeed
             Case OPCODES.CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK
-                Client.Character.SwimBackSpeed = newSpeed
+                client.Character.SwimBackSpeed = newSpeed
             Case OPCODES.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK
-                Client.Character.SwimSpeed = newSpeed
+                client.Character.SwimSpeed = newSpeed
             Case OPCODES.CMSG_FORCE_TURN_RATE_CHANGE_ACK
-                Client.Character.TurnRate = newSpeed
+                client.Character.TurnRate = newSpeed
         End Select
     End Sub
 
-    Public Sub SendAreaTriggerMessage(ByRef Client As ClientClass, ByVal Text As String)
+    Public Sub SendAreaTriggerMessage(ByRef client As ClientClass, ByVal Text As String)
         Dim p As New PacketClass(OPCODES.SMSG_AREA_TRIGGER_MESSAGE)
         p.AddInt32(Text.Length)
         p.AddString(Text)
-        Client.Send(p)
+        client.Send(p)
         p.Dispose()
     End Sub
 
-    Public Sub On_CMSG_AREATRIGGER(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_AREATRIGGER(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim triggerID As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AREATRIGGER [triggerID={2}]", Client.IP, Client.Port, triggerID)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AREATRIGGER [triggerID={2}]", client.IP, client.Port, triggerID)
 
             'TODO: Check if in combat?
 
@@ -383,9 +381,9 @@ Module WS_CharMovement
             q.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_tavern WHERE id = {0};", triggerID), q)
             If q.Rows.Count > 0 Then
-                Client.Character.cPlayerFlags = Client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_RESTING
-                Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, Client.Character.cPlayerFlags)
-                Client.Character.SendCharacterUpdate(True)
+                client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_RESTING
+                client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
+                client.Character.SendCharacterUpdate(True)
                 Exit Sub
             End If
 
@@ -393,8 +391,8 @@ Module WS_CharMovement
             q.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_teleport WHERE id = {0};", triggerID), q)
             If q.Rows.Count > 0 Then
-                If Client.Character.DEAD Then
-                    If Client.Character.corpseMapID = q.Rows(0).Item("target_map") Then
+                If client.Character.DEAD Then
+                    If client.Character.corpseMapID = q.Rows(0).Item("target_map") Then
                         CharacterResurrect(Client.Character)
                     Else
                         AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
@@ -402,31 +400,30 @@ Module WS_CharMovement
                     End If
                 End If
 
-                If q.Rows(0).Item("required_level") <> 0 AndAlso Client.Character.Level < q.Rows(0).Item("required_level") Then
+                If q.Rows(0).Item("required_level") <> 0 AndAlso client.Character.Level < q.Rows(0).Item("required_level") Then
                     SendAreaTriggerMessage(Client, "Your level is too low")
                     Exit Sub
                 End If
 
                 If CSng(q.Rows(0).Item("target_position_x")) <> 0 OrElse CSng(q.Rows(0).Item("target_position_y")) <> 0 OrElse CSng(q.Rows(0).Item("target_position_z")) <> 0 Then
-                    Client.Character.Teleport(q.Rows(0).Item("target_position_x"), q.Rows(0).Item("target_position_y"), q.Rows(0).Item("target_position_z"), _
+                    client.Character.Teleport(q.Rows(0).Item("target_position_x"), q.Rows(0).Item("target_position_y"), q.Rows(0).Item("target_position_z"), _
                                               q.Rows(0).Item("target_orientation"), q.Rows(0).Item("target_map"))
                 End If
                 Exit Sub
             End If
 
-
             'DONE: Handling all other scripted triggers
             If AreaTriggers.ContainsMethod("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID)) Then
                 AreaTriggers.InvokeFunction("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID), New Object() {Client.Character.GUID})
             Else
-                Log.WriteLine(LogType.WARNING, "[{0}:{1}] AreaTrigger [{2}] not found!", Client.IP, Client.Port, triggerID)
+                Log.WriteLine(LogType.WARNING, "[{0}:{1}] AreaTrigger [{2}] not found!", client.IP, client.Port, triggerID)
             End If
         Catch e As Exception
             Log.WriteLine(LogType.CRITICAL, "Error when entering areatrigger.{0}", vbNewLine & e.ToString)
         End Try
     End Sub
 
-    Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
             OnMovementPacket(packet, Client)
 
@@ -450,9 +447,9 @@ Module WS_CharMovement
             Dim FallTime As Integer = packet.GetInt32()
 
             'DONE: If FallTime > 1100 and not Dead
-            If FallTime > 1100 AndAlso (Not Client.Character.DEAD) AndAlso Client.Character.positionZ > GetWaterLevel(Client.Character.positionX, Client.Character.positionY, Client.Character.MapID) Then
-                If Client.Character.HaveAuraType(AuraEffects_Names.SPELL_AURA_FEATHER_FALL) = False Then
-                    Dim safe_fall As Integer = Client.Character.GetAuraModifier(AuraEffects_Names.SPELL_AURA_SAFE_FALL)
+            If FallTime > 1100 AndAlso (Not client.Character.DEAD) AndAlso client.Character.positionZ > GetWaterLevel(Client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
+                If client.Character.HaveAuraType(AuraEffects_Names.SPELL_AURA_FEATHER_FALL) = False Then
+                    Dim safe_fall As Integer = client.Character.GetAuraModifier(AuraEffects_Names.SPELL_AURA_SAFE_FALL)
                     If safe_fall > 0 Then
                         If FallTime > (safe_fall * 10) Then
                             FallTime -= (safe_fall * 10)
@@ -463,29 +460,29 @@ Module WS_CharMovement
                     If FallTime > 1100 Then
                         'DONE: Caluclate fall damage
                         Dim FallPerc As Single = FallTime / 1100
-                        Dim FallDamage As Integer = (FallPerc * FallPerc - 1) / 9 * Client.Character.Life.Maximum
+                        Dim FallDamage As Integer = (FallPerc * FallPerc - 1) / 9 * client.Character.Life.Maximum
 
                         If FallDamage > 0 Then
                             'Prevent the fall damage to be more than your maximum health
-                            If FallDamage > Client.Character.Life.Maximum Then FallDamage = Client.Character.Life.Maximum
+                            If FallDamage > client.Character.Life.Maximum Then FallDamage = client.Character.Life.Maximum
                             'Deal the damage
-                            Client.Character.LogEnvironmentalDamage(EnviromentalDamage.DAMAGE_FALL, FallDamage)
-                            Client.Character.DealDamage(FallDamage)
+                            client.Character.LogEnvironmentalDamage(EnviromentalDamage.DAMAGE_FALL, FallDamage)
+                            client.Character.DealDamage(FallDamage)
 
 #If DEBUG Then
-                            Log.WriteLine(LogType.USER, "[{0}:{1}] Client fall time: {2}  Damage: {3}", Client.IP, Client.Port, FallTime, FallDamage)
+                            Log.WriteLine(LogType.USER, "[{0}:{1}] Client fall time: {2}  Damage: {3}", client.IP, client.Port, FallTime, FallDamage)
 #End If
                         End If
                     End If
                 End If
             End If
 
-            If Not Client.Character.underWaterTimer Is Nothing Then
-                Client.Character.underWaterTimer.Dispose()
-                Client.Character.underWaterTimer = Nothing
+            If Not client.Character.underWaterTimer Is Nothing Then
+                client.Character.underWaterTimer.Dispose()
+                client.Character.underWaterTimer = Nothing
             End If
 
-            If Not Client.Character.LogoutTimer Is Nothing Then
+            If Not client.Character.LogoutTimer Is Nothing Then
                 'DONE: Initialize packet
                 Dim UpdateData As New UpdateClass
                 Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
@@ -494,15 +491,15 @@ Module WS_CharMovement
                     SMSG_UPDATE_OBJECT.AddInt8(0)
 
                     'DONE: Disable Turn
-                    Client.Character.cUnitFlags = Client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
-                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Client.Character.cUnitFlags)
+                    client.Character.cUnitFlags = client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, client.Character.cUnitFlags)
                     'DONE: StandState -> Sit
-                    Client.Character.StandState = StandStates.STANDSTATE_SIT
-                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, Client.Character.cBytes1)
+                    client.Character.StandState = StandStates.STANDSTATE_SIT
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, client.Character.cBytes1)
 
                     'DONE: Send packet
-                    UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, Client.Character)
-                    Client.Send(SMSG_UPDATE_OBJECT)
+                    UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, client.Character)
+                    client.Send(SMSG_UPDATE_OBJECT)
                 Finally
                     SMSG_UPDATE_OBJECT.Dispose()
                 End Try
@@ -510,7 +507,7 @@ Module WS_CharMovement
                 Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
                 Try
                     packetACK.AddInt8(StandStates.STANDSTATE_SIT)
-                    Client.Send(packetACK)
+                    client.Send(packetACK)
                 Finally
                     packetACK.Dispose()
                 End Try
@@ -520,18 +517,18 @@ Module WS_CharMovement
         End Try
     End Sub
 
-    Public Sub On_CMSG_ZONEUPDATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_ZONEUPDATE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
         Dim newZone As Integer = packet.GetInt32
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ZONEUPDATE [newZone={2}]", Client.IP, Client.Port, newZone)
-        Client.Character.ZoneID = newZone
-        Client.Character.exploreCheckQueued_ = True
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ZONEUPDATE [newZone={2}]", client.IP, client.Port, newZone)
+        client.Character.ZoneID = newZone
+        client.Character.exploreCheckQueued_ = True
 
-        Client.Character.ZoneCheck()
+        client.Character.ZoneCheck()
 
         'DONE: Update zone on cluster
-        WorldServer.Cluster.ClientUpdate(Client.Index, Client.Character.ZoneID, Client.Character.Level)
+        WorldServer.Cluster.ClientUpdate(Client.Index, client.Character.ZoneID, client.Character.Level)
 
         'DONE: Send weather
         If WeatherZones.ContainsKey(newZone) Then
@@ -539,42 +536,42 @@ Module WS_CharMovement
         End If
     End Sub
 
-    Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef client As ClientClass)
         OnMovementPacket(packet, Client)
 
-        If Client.Character.CellX <> GetMapTileX(Client.Character.positionX) Or Client.Character.CellY <> GetMapTileY(Client.Character.positionY) Then
+        If client.Character.CellX <> GetMapTileX(Client.Character.positionX) Or client.Character.CellY <> GetMapTileY(Client.Character.positionY) Then
             MoveCell(Client.Character)
         End If
         UpdateCell(Client.Character)
 
-        Client.Character.GroupUpdateFlag = Client.Character.GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION
+        client.Character.GroupUpdateFlag = client.Character.GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION
 
-        Client.Character.ZoneCheck()
+        client.Character.ZoneCheck()
 
         'DONE: Check for out of continent - coordinates from WorldMapContinent.dbc
         If IsOutsideOfMap(CType(Client.Character, CharacterObject)) Then
-            If Client.Character.outsideMapID_ = False Then
-                Client.Character.outsideMapID_ = True
-                Client.Character.StartMirrorTimer(MirrorTimer.FATIGUE, 30000)
+            If client.Character.outsideMapID_ = False Then
+                client.Character.outsideMapID_ = True
+                client.Character.StartMirrorTimer(MirrorTimer.FATIGUE, 30000)
             End If
         Else
-            If Client.Character.outsideMapID_ = True Then
-                Client.Character.outsideMapID_ = False
-                Client.Character.StopMirrorTimer(MirrorTimer.FATIGUE)
+            If client.Character.outsideMapID_ = True Then
+                client.Character.outsideMapID_ = False
+                client.Character.StopMirrorTimer(MirrorTimer.FATIGUE)
             End If
         End If
 
         'DONE: Duel check
-        If Client.Character.IsInDuel Then CheckDuelDistance(Client.Character)
+        If client.Character.IsInDuel Then CheckDuelDistance(Client.Character)
 
         'DONE: Aggro range
-        For Each cGUID As ULong In Client.Character.creaturesNear.ToArray
+        For Each cGUID As ULong In client.Character.creaturesNear.ToArray
             If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso ((TypeOf WORLD_CREATUREs(cGUID).aiScript Is DefaultAI) OrElse (TypeOf WORLD_CREATUREs(cGUID).aiScript Is GuardAI)) Then
                 If WORLD_CREATUREs(cGUID).isDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
-                    If Client.Character.inCombatWith.Contains(cGUID) Then Continue For
-                    If Client.Character.GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(WORLD_CREATUREs(cGUID), Client.Character) <= WORLD_CREATUREs(cGUID).AggroRange(Client.Character) Then
+                    If client.Character.inCombatWith.Contains(cGUID) Then Continue For
+                    If client.Character.GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(WORLD_CREATUREs(cGUID), client.Character) <= WORLD_CREATUREs(cGUID).AggroRange(Client.Character) Then
                         WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Client.Character, 1)
-                        Client.Character.AddToCombat(WORLD_CREATUREs(cGUID))
+                        client.Character.AddToCombat(WORLD_CREATUREs(cGUID))
                         WORLD_CREATUREs(cGUID).aiScript.State = TBaseAI.AIState.AI_ATTACKING
                         WORLD_CREATUREs(cGUID).aiScript.DoThink()
                     End If
@@ -583,10 +580,10 @@ Module WS_CharMovement
         Next
 
         'DONE: Creatures that are following you will have a more smooth movement
-        For Each CombatUnit As ULong In Client.Character.inCombatWith.ToArray
+        For Each CombatUnit As ULong In client.Character.inCombatWith.ToArray
             If GuidIsCreature(CombatUnit) AndAlso WORLD_CREATUREs.ContainsKey(CombatUnit) AndAlso CType(WORLD_CREATUREs(CombatUnit), CreatureObject).aiScript IsNot Nothing Then
                 With CType(WORLD_CREATUREs(CombatUnit), CreatureObject)
-                    If (Not .aiScript.aiTarget Is Nothing) AndAlso .aiScript.aiTarget Is Client.Character Then
+                    If (Not .aiScript.aiTarget Is Nothing) AndAlso .aiScript.aiTarget Is client.Character Then
                         .SetToRealPosition() 'Make sure it moves from it's location and not from where it was already heading before this
                         .aiScript.State = TBaseAI.AIState.AI_MOVE_FOR_ATTACK
                         .aiScript.DoMove()
@@ -596,10 +593,8 @@ Module WS_CharMovement
         Next
     End Sub
 
-
 #End Region
 #Region "WS.CharacterMovement.CellFramework"
-
 
     Public Sub MAP_Load(ByVal x As Byte, ByVal y As Byte, ByVal Map As UInteger)
         For i As Short = -1 To 1
@@ -677,7 +672,6 @@ Module WS_CharMovement
         Next
         Character.playersNear.Clear()
         Character.SeenBy.Clear()
-
 
         'DONE: Removing from creatures wich can see it
         list = Character.creaturesNear.ToArray
@@ -848,7 +842,6 @@ Module WS_CharMovement
             UpdateCorpseObjectsInCell(Maps(Character.MapID).Tiles(Character.CellX, Character.CellY), Character)
         End If
 
-
         If CellXAdd <> 0 Then
             'DONE: Load cell if needed
             If Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY) Is Nothing Then
@@ -886,7 +879,6 @@ Module WS_CharMovement
                 UpdateCorpseObjectsInCell(Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd), Character)
             End If
         End If
-
 
         If CellYAdd <> 0 AndAlso CellXAdd <> 0 Then
             'DONE: Load cell if needed
@@ -1034,8 +1026,8 @@ Module WS_CharMovement
         Dim list() As ULong
 
         With MapTile
-            List = .CreaturesHere.ToArray
-            For Each GUID As ULong In List
+            list = .CreaturesHere.ToArray
+            For Each GUID As ULong In list
 
                 If Not Character.creaturesNear.Contains(GUID) Then
                     If Character.CanSee(WORLD_CREATUREs(GUID)) Then
@@ -1062,8 +1054,8 @@ Module WS_CharMovement
 
             Dim list() As ULong
 
-            List = .GameObjectsHere.ToArray
-            For Each GUID As ULong In List
+            list = .GameObjectsHere.ToArray
+            For Each GUID As ULong In list
 
                 If Not Character.gameObjectsNear.Contains(GUID) Then
                     If GuidIsGameObject(GUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(GUID) AndAlso Character.CanSee(WORLD_GAMEOBJECTs(GUID)) Then
@@ -1092,8 +1084,8 @@ Module WS_CharMovement
 
             Dim list() As ULong
 
-            List = .CorpseObjectsHere.ToArray
-            For Each GUID As ULong In List
+            list = .CorpseObjectsHere.ToArray
+            For Each GUID As ULong In list
 
                 If Not Character.corpseObjectsNear.Contains(GUID) Then
                     If Character.CanSee(WORLD_CORPSEOBJECTs(GUID)) Then

@@ -1030,7 +1030,7 @@ Public Module WS_DBCLoad
                 'SpellID(5) = DBC.Item(i, 32)
                 'SpellID(6) = DBC.Item(i, 33)
                 'SpellID(7) = DBC.Item(i, 34)
-                'ItemCount(0) = DBC.Item(i, 35) ' Items To Trigger Spell? 
+                'ItemCount(0) = DBC.Item(i, 35) ' Items To Trigger Spell?
                 'ItemCount(1) = DBC.Item(i, 36)
                 'ItemCount(2) = DBC.Item(i, 37)
                 'ItemCount(3) = DBC.Item(i, 38)

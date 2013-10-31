@@ -16,28 +16,17 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Net.Sockets
-Imports System.Xml.Serialization
-Imports System.IO
-Imports System.Net
-Imports System.Reflection
-Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
-
-
 Public Module WS_Handlers
-
 
     Public Sub IntializePacketHandlers()
         'NOTE: These opcodes are not used in any way
-        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_ROOT_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_UNROOT_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_MOVE_WATER_WALK_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
-        PacketHandlers(OPCODES.MSG_MOVE_TELEPORT_ACK) = CType(AddressOf WS_Handlers.OnUnhandledPacket, HandlePacket)
-
+        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_ROOT_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_FORCE_MOVE_UNROOT_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_MOVE_WATER_WALK_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
+        PacketHandlers(OPCODES.MSG_MOVE_TELEPORT_ACK) = CType(AddressOf OnUnhandledPacket, HandlePacket)
 
         'NOTE: These opcodes below must be exluded form Cluster
         PacketHandlers(OPCODES.CMSG_WARDEN_DATA) = CType(AddressOf On_CMSG_WARDEN_DATA, HandlePacket)
@@ -242,14 +231,12 @@ Public Module WS_Handlers
         'NOTE: These opcodes are partialy handled by cluster
         '   none
 
-
         'TODO:
         'CMSG_LOOT_MASTER_GIVE
     End Sub
 
-    Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", Client.IP, Client.Port, CType(packet.OpCode, OPCODES))
+    Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, CType(packet.OpCode, OPCODES))
     End Sub
-
 
 End Module

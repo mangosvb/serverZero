@@ -171,13 +171,13 @@ Public Module WS_DynamicObjects
             For Each Effect As SpellEffect In Effects
                 If Effect.GetRadius = 0 Then
                     If Effect.Amplitude = 0 OrElse ((SPELLs(SpellID).GetDuration - Duration) Mod Effect.Amplitude) = 0 Then
-                        AURAs(Effect.ApplyAuraIndex).Invoke(Caster, Me, Effect, SpellID, 1, WS_Spells.AuraAction.AURA_UPDATE)
+                        AURAs(Effect.ApplyAuraIndex).Invoke(Caster, Me, Effect, SpellID, 1, AuraAction.AURA_UPDATE)
                     End If
                 Else
                     Dim Targets As List(Of BaseUnit) = GetEnemyAtPoint(Caster, positionX, positionY, positionZ, Effect.GetRadius)
                     For Each Target As BaseUnit In Targets
                         If Effect.Amplitude = 0 OrElse ((SPELLs(SpellID).GetDuration - Duration) Mod Effect.Amplitude) = 0 Then
-                            AURAs(Effect.ApplyAuraIndex).Invoke(Target, Me, Effect, SpellID, 1, WS_Spells.AuraAction.AURA_UPDATE)
+                            AURAs(Effect.ApplyAuraIndex).Invoke(Target, Me, Effect, SpellID, 1, AuraAction.AURA_UPDATE)
                         End If
                     Next
                 End If

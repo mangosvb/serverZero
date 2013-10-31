@@ -15,7 +15,6 @@ Public Class WS_Quests
         Log.WriteLine(LogType.WARNING, "Loading Quests...")
         WorldDatabase.Query(String.Format("SELECT entry FROM quests;"), cQuests)
 
-
         For Each cRow As DataRow In cQuests.Rows
             Dim questID As Integer = CInt(cRow.Item("entry"))
             tmpQuest = New WS_QuestInfo(questID)
@@ -64,7 +63,7 @@ Public Class WS_Quests
     ''' </summary>
     ''' <param name="questID"></param>
     ''' <returns>Bool</returns>
-    ''' <remarks></remarks>    
+    ''' <remarks></remarks>
     Public Function IsValidQuest(ByVal questID As Integer) As Boolean
         Dim ret As Boolean = False
         For Each thisQuest As WS_QuestInfo In _quests
@@ -107,14 +106,12 @@ Public Class WS_Quests
         Return ret
     End Function
 
-
     ''' Rewritten Code above this line
-
 
     ''' <summary>
     ''' Gets the quest menu.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="GUID">The unique identifier.</param>
     ''' <returns></returns>
     Public Function GetQuestMenu(ByRef objCharacter As CharacterObject, ByVal guid As ULong) As QuestMenu
@@ -165,7 +162,7 @@ Public Class WS_Quests
     ''' <summary>
     ''' Gets the quest menu go.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="GUID">The unique identifier.</param>
     ''' <returns></returns>
     Public Function GetQuestMenuGO(ByRef objCharacter As CharacterObject, ByVal guid As ULong) As QuestMenu
@@ -212,7 +209,7 @@ Public Class WS_Quests
     ''' <summary>
     ''' Sends the quest menu.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="GUID">The unique identifier.</param>
     ''' <param name="Title">The title.</param>
     ''' <param name="QuestMenu">The quest menu.</param>
@@ -341,7 +338,6 @@ Public Class WS_Quests
             packet.Dispose()
         End Try
     End Sub
-
 
     ''' <summary>
     ''' Sends the quest.
@@ -733,7 +729,6 @@ Public Class WS_Quests
                     Dim tmpQuest As WS_QuestInfo
                     tmpQuest = ReturnQuestInfoById(questID)
 
-
                     'DONE: Initialize quest info
                     CreateQuest(objCharacter.TalkQuests(i), tmpQuest)
 
@@ -767,7 +762,7 @@ Public Class WS_Quests
     ''' <summary>
     ''' Called when [quest kill].
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="Creature">The creature.</param>
     Public Sub OnQuestKill(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject)
         'HANDLERS: Added to DealDamage sub
@@ -794,7 +789,6 @@ Public Class WS_Quests
                 End If
             End If
         Next i
-
 
         Exit Sub  'For now next is disabled
 
@@ -825,7 +819,7 @@ Public Class WS_Quests
     ''' <summary>
     ''' Called when [quest cast spell].
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="Creature">The creature.</param>
     ''' <param name="SpellID">The spell identifier.</param>
     Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject, ByVal spellID As Integer)
@@ -856,7 +850,7 @@ Public Class WS_Quests
     ''' <summary>
     ''' Called when [quest cast spell].
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="GameObject">The game object.</param>
     ''' <param name="SpellID">The spell identifier.</param>
     Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef gameObject As GameObjectObject, ByVal spellID As Integer)
@@ -922,7 +916,7 @@ Public Class WS_Quests
     ''' <summary>
     ''' Determines whether the item is needed for quest for the specified character.
     ''' </summary>
-    ''' <param name="objChar">The Character.</param>
+    ''' <param name="objCharacter">The Character.</param>
     ''' <param name="ItemEntry">The item entry.</param>
     ''' <returns></returns>
     Public Function IsItemNeededForQuest(ByRef objCharacter As CharacterObject, ByRef itemEntry As Integer) As Boolean
@@ -1379,7 +1373,6 @@ Public Class WS_Quests
                             SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                         End If
 
-
                         Exit For
                     End If
                 End If
@@ -1393,7 +1386,6 @@ Public Class WS_Quests
                         If objCharacter.TalkCurrentQuest Is Nothing Then objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
                         If objCharacter.TalkCurrentQuest.ID <> questID Then objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
 
-
                         If objCharacter.TalkQuests(i).Complete Then
                             'DONE: Show completion dialog
                             If (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
@@ -1406,7 +1398,6 @@ Public Class WS_Quests
                             'DONE: Just show incomplete text with disabled complete button
                             SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                         End If
-
 
                         Exit For
                     End If
@@ -1514,7 +1505,6 @@ Public Class WS_Quests
                     End If
                 Next
 
-
                 'DONE: Adding reward choice
                 If client.Character.TalkCurrentQuest.RewardItems(rewardIndex) <> 0 Then
                     Dim tmpItem As New ItemObject(client.Character.TalkCurrentQuest.RewardItems(rewardIndex), client.Character.GUID)
@@ -1537,7 +1527,7 @@ Public Class WS_Quests
                 'DONE: Add honor
                 If client.Character.TalkCurrentQuest.RewardHonor <> 0 Then
                     client.Character.HonorPoints += client.Character.TalkCurrentQuest.RewardHonor
-                    'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, Client.Character.HonorCurrency)
+                    'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, client.Character.HonorCurrency)
                 End If
 
                 'DONE: Cast spell
@@ -1674,7 +1664,6 @@ Public Class WS_Quests
                     End If
                 Next
 
-
                 'DONE: Adding reward choice
                 If client.Character.TalkCurrentQuest.RewardItems(rewardIndex) <> 0 Then
                     Dim tmpItem As New ItemObject(client.Character.TalkCurrentQuest.RewardItems(rewardIndex), client.Character.GUID)
@@ -1697,7 +1686,7 @@ Public Class WS_Quests
                 'DONE: Add honor
                 If client.Character.TalkCurrentQuest.RewardHonor <> 0 Then
                     client.Character.HonorPoints += client.Character.TalkCurrentQuest.RewardHonor
-                    'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, Client.Character.HonorCurrency)
+                    'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, client.Character.HonorCurrency)
                 End If
 
                 'DONE: Cast spell
@@ -1834,7 +1823,6 @@ Public Class WS_Quests
                             End If
                         End If
 
-
                         'DONE: Send error if present
                         If message <> QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST Then
                             Dim errorPacket As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
@@ -1878,7 +1866,6 @@ Public Class WS_Quests
                             End If
                         End If
 
-
                         'DONE: Send error if present
                         If message <> QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST Then
                             Dim errorPacket As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
@@ -1910,7 +1897,6 @@ Public Class WS_Quests
         client.Send(response)
         response.Dispose()
     End Sub
-
 
 #End Region
 

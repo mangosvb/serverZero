@@ -22,8 +22,6 @@ Imports mangosVB.Common.Races
 Imports mangosVB.Common.Classes
 Imports mangosVB.Common
 
-
-
 Public Module Functions
 
 #Region "System"
@@ -118,18 +116,18 @@ Public Module Functions
     End Function
     Public Function GetTimestamp(ByVal fromDateTime As DateTime) As UInteger
         Dim startDate As DateTime = #1/1/1970#
-        Dim timeSpan As System.TimeSpan
+        Dim timeSpan As TimeSpan
 
         timeSpan = fromDateTime.Subtract(startDate)
         Return CType(Math.Abs(timeSpan.TotalSeconds()), UInteger)
     End Function
     Public Function GetDateFromTimestamp(ByVal unixTimestamp As UInteger) As DateTime
-        Dim timeSpan As System.TimeSpan
+        Dim timeSpan As TimeSpan
         Dim startDate As Date = #1/1/1970#
 
         If unixTimestamp = 0 Then Return startDate
 
-        timeSpan = New System.TimeSpan(0, 0, unixTimestamp)
+        timeSpan = New TimeSpan(0, 0, unixTimestamp)
         Return startDate.Add(timeSpan)
     End Function
     Public Function GetTimeLeftString(ByVal seconds As UInteger) As String
@@ -214,7 +212,7 @@ Public Module Functions
                 GetClassName = "Druid"
             Case CLASS_HUNTER
                 GetClassName = "Hunter"
-            Case mangosVB.Common.Classes.CLASS_MAGE
+            Case CLASS_MAGE
                 GetClassName = "Mage"
             Case CLASS_PALADIN
                 GetClassName = "Paladin"
@@ -254,7 +252,7 @@ Public Module Functions
                 GetRaceName = "Unknown Race"
         End Select
     End Function
-    Public Function GetRaceModel(ByVal Race As mangosVB.Common.Races, ByVal Gender As Integer) As Integer
+    Public Function GetRaceModel(ByVal Race As Races, ByVal Gender As Integer) As Integer
         Select Case Race
             Case RACE_HUMAN
                 Return 49 + Gender
@@ -323,15 +321,15 @@ Public Module Functions
 #End Region
 #Region "Packets"
 
-    Public Sub SendMessageMOTD(ByRef Client As ClientClass, ByVal Message As String)
+    Public Sub SendMessageMOTD(ByRef client As ClientClass, ByVal Message As String)
         Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
-        Client.Send(packet)
+        client.Send(packet)
     End Sub
-    Public Sub SendMessageNotification(ByRef Client As ClientClass, ByVal Message As String)
+    Public Sub SendMessageNotification(ByRef client As ClientClass, ByVal Message As String)
         Dim packet As New PacketClass(OPCODES.SMSG_NOTIFICATION)
         Try
             packet.AddString(Message)
-            Client.Send(packet)
+            client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -351,12 +349,12 @@ Public Module Functions
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
     End Sub
-    Public Sub SendAccountMD5(ByRef Client As ClientClass, ByRef Character As CharacterObject)
+    Public Sub SendAccountMD5(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim FoundData As Boolean = False
 
         'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
         'Dim AccData As New DataTable
-        'AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", Client.Account), AccData)
+        'AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), AccData)
         'If AccData.Rows.Count > 0 Then
         '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
 
@@ -389,34 +387,34 @@ Public Module Functions
             'md5hash.Clear()
             'md5hash = Nothing
 
-            Client.Send(SMSG_ACCOUNT_DATA_TIMES)
+            client.Send(SMSG_ACCOUNT_DATA_TIMES)
         Finally
             SMSG_ACCOUNT_DATA_TIMES.Dispose()
         End Try
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
     End Sub
-    Public Sub SendTrigerCinematic(ByRef Client As ClientClass, ByRef Character As CharacterObject)
+    Public Sub SendTrigerCinematic(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
         Try
             If CharRaces.ContainsKey(Character.Race) Then
                 packet.AddInt32(CharRaces(Character.Race).CinematicID)
             Else
-                Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", Client.IP, Client.Port, Character.Race, Character.Classe)
+                Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, Character.Race, Character.Classe)
                 Exit Sub
             End If
 
-            Client.Send(packet)
+            client.Send(packet)
         Finally
             packet.Dispose()
         End Try
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", client.IP, client.Port)
     End Sub
-    Public Sub SendTimeSyncReq(ByRef Client As ClientClass)
+    Public Sub SendTimeSyncReq(ByRef client As ClientClass)
         'Dim packet As New PacketClass(OPCODES.SMSG_TIME_SYNC_REQ)
         'packet.AddInt32(0)
         'Client.Send(packet)
     End Sub
-    Public Sub SendGameTime(ByRef Client As ClientClass, ByRef Character As CharacterObject)
+    Public Sub SendGameTime(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_LOGIN_SETTIMESPEED As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
         Try
             Dim time As DateTime = DateTime.Now
@@ -431,33 +429,33 @@ Public Module Functions
             SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Month << 20)) + (Year << 24)), Integer))
             SMSG_LOGIN_SETTIMESPEED.AddSingle(0.01666667F)
 
-            Client.Send(SMSG_LOGIN_SETTIMESPEED)
+            client.Send(SMSG_LOGIN_SETTIMESPEED)
         Finally
             SMSG_LOGIN_SETTIMESPEED.Dispose()
         End Try
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
     End Sub
-    Public Sub SendProficiency(ByRef Client As ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
+    Public Sub SendProficiency(ByRef client As ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
         Dim packet As New PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
         Try
             packet.AddInt8(ProficiencyType)
             packet.AddInt32(ProficiencyFlags)
 
-            Client.Send(packet)
+            client.Send(packet)
         Finally
             packet.Dispose()
         End Try
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
     End Sub
-    Public Sub SendCorpseReclaimDelay(ByRef Client As ClientClass, ByRef Character As CharacterObject, Optional ByVal Seconds As Integer = 30)
+    Public Sub SendCorpseReclaimDelay(ByRef client As ClientClass, ByRef Character As CharacterObject, Optional ByVal Seconds As Integer = 30)
         Dim packet As New PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
         Try
             packet.AddInt32(Seconds * 1000)
-            Client.Send(packet)
+            client.Send(packet)
         Finally
             packet.Dispose()
         End Try
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", Client.IP, Client.Port, Seconds)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, Seconds)
     End Sub
     Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
         Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
@@ -481,7 +479,7 @@ Public Module Functions
                     Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
             End Select
 
-            packet.AddUInt32(System.Text.Encoding.UTF8.GetByteCount(Message) + 1)
+            packet.AddUInt32(Text.Encoding.UTF8.GetByteCount(Message) + 1)
             packet.AddString(Message)
 
             packet.AddInt8(Flag)
@@ -556,4 +554,3 @@ Public Module Functions
 #End Region
 
 End Module
-

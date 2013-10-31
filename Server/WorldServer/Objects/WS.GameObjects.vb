@@ -112,7 +112,7 @@ Public Module WS_GameObjects
 
         Public IncludesQuestItems As New List(Of Integer)
 
-        Private RespawnTimer As Threading.Timer = Nothing
+        Private RespawnTimer As Timer = Nothing
 
         Public ReadOnly Property ObjectInfo() As GameObjectInfo
             Get
@@ -501,7 +501,7 @@ Public Module WS_GameObjects
             SendToNearPlayers(packet)
             packet.Dispose()
         End Sub
-  
+
         Public Sub CloseDoor(state As Object, timedOut As Boolean)
             Flags = Flags And (Not GameObjectFlags.GO_FLAG_IN_USE)
             state = GameObjectLootState.DOOR_CLOSED
@@ -560,7 +560,7 @@ Public Module WS_GameObjects
 
             State = GameObjectLootState.DOOR_CLOSED
         End Sub
-  
+
         Public Sub SetFishHooked(state As Object, timedOut As Boolean)
             If state <> GameObjectLootState.DOOR_CLOSED Then Exit Sub
 
@@ -598,7 +598,7 @@ Public Module WS_GameObjects
             Dim FishEscapeTime As Integer = 2000
             ThreadPool.RegisterWaitForSingleObject(New AutoResetEvent(False), New WaitOrTimerCallback(AddressOf SetFishEscaped), Nothing, FishEscapeTime, True)
         End Sub
-  
+
         Public Sub SetFishEscaped(state As Object, timedOut As Boolean)
             If state <> GameObjectLootState.DOOR_OPEN Then Exit Sub
 
@@ -652,7 +652,7 @@ Public Module WS_GameObjects
 
             'DONE: Add to world
             Loot = Nothing
-            State = GameObjectLootState.LOOT_UNLOOTED
+            state = GameObjectLootState.LOOT_UNLOOTED
             AddToWorld()
 
             'DONE: Recalculate mines remaining
@@ -674,14 +674,14 @@ Public Module WS_GameObjects
 
                 'DONE: Start the respawn timer
                 If SpawnTime > 0 Then
-                    RespawnTimer = New Threading.Timer(New TimerCallback(AddressOf Respawn), Nothing, SpawnTime, Timeout.Infinite)
+                    RespawnTimer = New Timer(New TimerCallback(AddressOf Respawn), Nothing, SpawnTime, Timeout.Infinite)
                 End If
             Else
                 ToDespawn = True
-                RespawnTimer = New Threading.Timer(New TimerCallback(AddressOf Destroy), Nothing, Delay, Timeout.Infinite)
+                RespawnTimer = New Timer(New TimerCallback(AddressOf Destroy), Nothing, Delay, Timeout.Infinite)
             End If
         End Sub
-  
+
         Public Sub Destroy(state As Object)
             'DONE: Remove the timer
             If RespawnTimer IsNot Nothing Then
@@ -750,8 +750,6 @@ Public Module WS_GameObjects
         LOOT_UNLOOTED = 1
         LOOT_LOOTED = 2
     End Enum
-
-
 
 #End Region
 #Region "WS.GameObjects.HelperSubs"
@@ -852,7 +850,7 @@ Public Module WS_GameObjects
         End If
     End Function
 
-    Public Sub On_CMSG_GAMEOBJECT_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GAMEOBJECT_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         Dim response As New PacketClass(OPCODES.SMSG_GAMEOBJECT_QUERY_RESPONSE)
 
@@ -864,10 +862,10 @@ Public Module WS_GameObjects
             Dim GameObject As GameObjectInfo
 
             If GAMEOBJECTSDatabase.ContainsKey(GameObjectID) = False Then
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GAMEOBJECT_QUERY [GameObject {2} not loaded.]", Client.IP, Client.Port, GameObjectID)
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GAMEOBJECT_QUERY [GameObject {2} not loaded.]", client.IP, client.Port, GameObjectID)
 
                 response.AddUInt32((GameObjectID Or &H80000000))
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             Else
@@ -886,24 +884,24 @@ Public Module WS_GameObjects
                 response.AddUInt32(GameObject.Fields(i))
             Next i
 
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
-            'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_GAMEOBJECT_QUERY_RESPONSE", Client.IP, Client.Port)
+            'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_GAMEOBJECT_QUERY_RESPONSE", client.IP, client.Port)
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Unknown Error: Unable to find GameObjectID={0} in database.", GameObjectID)
         End Try
     End Sub
-    Public Sub On_CMSG_GAMEOBJ_USE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GAMEOBJ_USE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GameObjectGUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GAMEOBJ_USE [GUID={2:X}]", Client.IP, Client.Port, GameObjectGUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GAMEOBJ_USE [GUID={2:X}]", client.IP, client.Port, GameObjectGUID)
 
         If WORLD_GAMEOBJECTs.ContainsKey(GameObjectGUID) = False Then Exit Sub
         Dim GO As GameObjectObject = WORLD_GAMEOBJECTs(GameObjectGUID)
 
-        Client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_USE)
+        client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_USE)
 
         Log.WriteLine(LogType.DEBUG, "GameObjectType: {0}", CType(WORLD_GAMEOBJECTs(GameObjectGUID).Type, GameObjectType))
         Select Case CType(GO.Type, GameObjectType)
@@ -917,8 +915,8 @@ Public Module WS_GameObjects
                 Dim StandState As New PacketClass(OPCODES.CMSG_STANDSTATECHANGE)
                 Try
                     StandState.AddInt8(4 + CType(WORLD_GAMEOBJECTs(GameObjectGUID), GameObjectObject).Sound(1))
-                    Client.Character.Teleport(GO.positionX, GO.positionY, GO.positionZ, GO.orientation, GO.MapID)
-                    Client.Send(StandState)
+                    client.Character.Teleport(GO.positionX, GO.positionY, GO.positionZ, GO.orientation, GO.MapID)
+                    client.Send(StandState)
                 Finally
                     StandState.Dispose()
                 End Try
@@ -926,7 +924,7 @@ Public Module WS_GameObjects
                 Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
                 Try
                     packetACK.AddInt8(4 + GO.Sound(1))
-                    Client.Send(packetACK)
+                    client.Send(packetACK)
                 Finally
                     packetACK.Dispose()
                 End Try
@@ -939,20 +937,20 @@ Public Module WS_GameObjects
             Case GameObjectType.GAMEOBJECT_TYPE_CAMERA
                 Dim cinematicPacket As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
                 cinematicPacket.AddUInt32(GO.Sound(1))
-                Client.Send(cinematicPacket)
+                client.Send(cinematicPacket)
                 cinematicPacket.Dispose()
 
             Case GameObjectType.GAMEOBJECT_TYPE_RITUAL
                 Log.WriteLine(LogType.DEBUG, "Clicked a ritual.")
                 'DONE: You can only click on rituals by group members
-                If GO.Owner <> Client.Character.GUID AndAlso Client.Character.IsInGroup = False Then Exit Sub
-                If GO.Owner <> Client.Character.GUID Then
+                If GO.Owner <> client.Character.GUID AndAlso client.Character.IsInGroup = False Then Exit Sub
+                If GO.Owner <> client.Character.GUID Then
                     If CHARACTERs.ContainsKey(GO.Owner) = False OrElse CHARACTERs(GO.Owner).IsInGroup = False Then Exit Sub
-                    If Not CHARACTERs(GO.Owner).Group Is Client.Character.Group Then Exit Sub
+                    If Not CHARACTERs(GO.Owner).Group Is client.Character.Group Then Exit Sub
                 End If
 
                 Log.WriteLine(LogType.DEBUG, "Casting ritual spell.")
-                Client.Character.CastOnSelf(GO.Sound(1))
+                client.Character.CastOnSelf(GO.Sound(1))
 
             Case GameObjectType.GAMEOBJECT_TYPE_SPELLCASTER
                 Log.WriteLine(LogType.DEBUG, "Clicked a spellcaster.")
@@ -962,40 +960,40 @@ Public Module WS_GameObjects
                 'DONE: Check if you're in the same party
                 If GO.Sound(2) Then
                     Log.WriteLine(LogType.DEBUG, "Spellcaster requires same group.")
-                    Log.WriteLine(LogType.DEBUG, "Owner: {0:X}  You: {1:X}", WORLD_GAMEOBJECTs(GameObjectGUID).Owner, Client.Character.GUID)
-                    If GO.Owner <> Client.Character.GUID AndAlso Client.Character.IsInGroup = False Then Exit Sub
-                    If GO.Owner <> Client.Character.GUID Then
+                    Log.WriteLine(LogType.DEBUG, "Owner: {0:X}  You: {1:X}", WORLD_GAMEOBJECTs(GameObjectGUID).Owner, client.Character.GUID)
+                    If GO.Owner <> client.Character.GUID AndAlso client.Character.IsInGroup = False Then Exit Sub
+                    If GO.Owner <> client.Character.GUID Then
                         If CHARACTERs.ContainsKey(GO.Owner) = False OrElse CHARACTERs(GO.Owner).IsInGroup = False Then Exit Sub
-                        If Not CHARACTERs(GO.Owner).Group Is Client.Character.Group Then Exit Sub
+                        If Not CHARACTERs(GO.Owner).Group Is client.Character.Group Then Exit Sub
                     End If
                 End If
 
                 Log.WriteLine(LogType.DEBUG, "Casted spellcaster spell.")
-                Client.Character.CastOnSelf(GO.Sound(0))
+                client.Character.CastOnSelf(GO.Sound(0))
 
                 'TODO: Remove one charge
 
             Case GameObjectType.GAMEOBJECT_TYPE_MEETINGSTONE
-                If Client.Character.Level < GO.Sound(0) Then 'Too low level
+                If client.Character.Level < GO.Sound(0) Then 'Too low level
                     'TODO: Send the correct packet.
                     SendCastResult(SpellFailedReason.SPELL_FAILED_LEVEL_REQUIREMENT, Client, 23598)
                     Exit Sub
                 End If
-                If Client.Character.Level > WORLD_GAMEOBJECTs(GameObjectGUID).Sound(1) Then 'Too high level
+                If client.Character.Level > WORLD_GAMEOBJECTs(GameObjectGUID).Sound(1) Then 'Too high level
                     'TODO: Send the correct packet.
                     SendCastResult(SpellFailedReason.SPELL_FAILED_LEVEL_REQUIREMENT, Client, 23598)
                     Exit Sub
                 End If
-                Client.Character.CastOnSelf(23598)
+                client.Character.CastOnSelf(23598)
 
             Case GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE
-                If GO.Owner <> Client.Character.GUID Then Exit Sub
+                If GO.Owner <> client.Character.GUID Then Exit Sub
 
                 If GO.Loot Is Nothing Then
                     If GO.State = GameObjectLootState.DOOR_CLOSED Then
                         GO.State = GameObjectLootState.DOOR_OPEN
                         Dim fishNotHookedPacket As New PacketClass(OPCODES.SMSG_FISH_NOT_HOOKED)
-                        Client.Send(fishNotHookedPacket)
+                        client.Send(fishNotHookedPacket)
                         fishNotHookedPacket.Dispose()
                     End If
                 Else
@@ -1019,7 +1017,7 @@ Public Module WS_GameObjects
                         Log.WriteLine(LogType.CRITICAL, "No fishing entry in 'skill_fishing_base_level' for area [{0}] in zone [{1}]", AreaTable(AreaFlag).ID, AreaTable(AreaFlag).Zone)
                     End If
 
-                    Dim skill As Integer = Client.Character.Skills(SKILL_IDs.SKILL_FISHING).CurrentWithBonus
+                    Dim skill As Integer = client.Character.Skills(SKILL_IDs.SKILL_FISHING).CurrentWithBonus
                     Dim chance As Integer = skill - zoneSkill + 5
                     Dim roll As Integer = Rnd.Next(1, 101)
 
@@ -1028,31 +1026,25 @@ Public Module WS_GameObjects
                         GO.Loot.SendLoot(Client)
 
                         'DONE: Update skill!
-                        Client.Character.UpdateSkill(SKILL_IDs.SKILL_FISHING, 0.01)
+                        client.Character.UpdateSkill(SKILL_IDs.SKILL_FISHING, 0.01)
                     Else
                         GO.State = GameObjectLootState.DOOR_CLOSED
 
                         Dim fishEscaped As New PacketClass(OPCODES.SMSG_FISH_ESCAPED)
-                        Client.Send(fishEscaped)
+                        client.Send(fishEscaped)
                         fishEscaped.Dispose()
                     End If
                 End If
 
                 'Stop channeling!
-                Client.Character.FinishSpell(CurrentSpellTypes.CURRENT_CHANNELED_SPELL, True)
+                client.Character.FinishSpell(CurrentSpellTypes.CURRENT_CHANNELED_SPELL, True)
 
         End Select
     End Sub
 
 #End Region
 
-
 End Module
-
-
 
 #Region "WS.GameObjects.HelperTypes"
 #End Region
-
-
-

@@ -25,9 +25,7 @@ Public Module WS_Creatures
 
 #Region "WS.Cretures.Constants"
 
-
     Public Const SKILL_DETECTION_PER_LEVEL As Integer = 5
-
 
 #End Region
 #Region "WS.Creatures.TypeDef"
@@ -130,7 +128,7 @@ Public Module WS_Creatures
 
             'AIScriptSource = MySQLQuery.Rows(0).Item("ScriptName")
 
-            If System.IO.File.Exists("scripts\gossip\" & FixName(Name) & ".vb") Then
+            If IO.File.Exists("scripts\gossip\" & FixName(Name) & ".vb") Then
                 Dim tmpScript As New ScriptedObject("scripts\gossip\" & FixName(Name) & ".vb", "", True)
                 TalkScript = tmpScript.InvokeConstructor("TalkScript")
                 tmpScript.Dispose()
@@ -422,7 +420,7 @@ Public Module WS_Creatures
             Return True
         End Function
 
-        Public Overrides Function IsEnemyTo(ByRef Unit As WS_Base.BaseUnit) As Boolean
+        Public Overrides Function IsEnemyTo(ByRef Unit As BaseUnit) As Boolean
             If Unit Is Me Then Return False
 
             If TypeOf Unit Is CharacterObject Then
@@ -986,7 +984,6 @@ Public Module WS_Creatures
             'DONE: XP Rate config
             XP *= Config.XPRate
 
-
             If Not Character.IsInGroup Then
                 'DONE: Rested
                 Dim RestedXP As Integer = 0
@@ -1123,14 +1120,14 @@ Public Module WS_Creatures
             Select Case msgType
                 Case ChatMsg.CHAT_MSG_MONSTER_SAY, ChatMsg.CHAT_MSG_MONSTER_EMOTE, ChatMsg.CHAT_MSG_MONSTER_YELL
                     packet.AddUInt64(GUID)
-                    packet.AddInt32(System.Text.Encoding.UTF8.GetByteCount(Name) + 1)
+                    packet.AddInt32(Text.Encoding.UTF8.GetByteCount(Name) + 1)
                     packet.AddString(Name)
                     packet.AddUInt64(SecondGUID)
                 Case Else
                     Log.WriteLine(LogType.WARNING, "Creature.SendChatMessage() must not handle this chat type!")
             End Select
 
-            packet.AddInt32(System.Text.Encoding.UTF8.GetByteCount(Message) + 1)
+            packet.AddInt32(Text.Encoding.UTF8.GetByteCount(Message) + 1)
             packet.AddString(Message)
             packet.AddInt8(flag)
             SendToNearPlayers(packet)
@@ -1190,7 +1187,7 @@ Public Module WS_Creatures
                 'DONE: Load scripted AI
                 If CREATURESDatabase(ID).AIScriptSource <> "" Then
                     aiScript = AI.InvokeConstructor(CREATURESDatabase(ID).AIScriptSource, New Object() {Me})
-                ElseIf System.IO.File.Exists("scripts\creatures\" & FixName(Name) & ".vb") Then
+                ElseIf IO.File.Exists("scripts\creatures\" & FixName(Name) & ".vb") Then
                     Dim tmpScript As New ScriptedObject("scripts\creatures\" & FixName(Name) & ".vb", "", True)
                     aiScript = tmpScript.InvokeConstructor("CreatureAI", New Object() {Me})
                     tmpScript.Dispose()
@@ -1371,7 +1368,7 @@ Public Module WS_Creatures
 
             'TODO: Duration
             If Duration > 0 Then
-                ExpireTimer = New Threading.Timer(AddressOf Destroy, Nothing, Duration, Duration)
+                ExpireTimer = New Timer(AddressOf Destroy, Nothing, Duration, Duration)
             End If
 
             Try
@@ -1566,7 +1563,7 @@ Public Module WS_Creatures
 #Region "WS.Creatures.HelperSubs"
     Public CorpseDecay() As Integer = {30, 150, 150, 150, 1800}
 
-    Public Sub On_CMSG_CREATURE_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_CREATURE_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         Dim response As New PacketClass(OPCODES.SMSG_CREATURE_QUERY_RESPONSE)
 
@@ -1578,15 +1575,15 @@ Public Module WS_Creatures
             Dim Creature As CreatureInfo
 
             If CREATURESDatabase.ContainsKey(CreatureID) = False Then
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [Creature {2} not loaded.]", Client.IP, Client.Port, CreatureID)
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [Creature {2} not loaded.]", client.IP, client.Port, CreatureID)
 
                 response.AddUInt32((CreatureID Or &H80000000))
-                Client.Send(response)
+                client.Send(response)
                 response.Dispose()
                 Exit Sub
             Else
                 Creature = CREATURESDatabase(CreatureID)
-                'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [CreatureID={2} CreatureGUID={3:X}]", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port, CreatureID, CreatureGUID - GUID_UNIT)
+                'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [CreatureID={2} CreatureGUID={3:X}]", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, CreatureID, CreatureGUID - GUID_UNIT)
             End If
 
             response.AddInt32(Creature.Id)
@@ -1610,51 +1607,51 @@ Public Module WS_Creatures
             response.AddSingle(1.0F)                    'Unk
             response.AddInt8(Creature.Leader)           'RacialLeader
 
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
-            'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CREATURE_QUERY_RESPONSE", Client.IP, Client.Port)
+            'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CREATURE_QUERY_RESPONSE", client.IP, client.Port)
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Unknown Error: Unable to find CreatureID={0} in database.", CreatureID)
         End Try
     End Sub
-    Public Sub On_CMSG_NPC_TEXT_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_NPC_TEXT_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim TextID As Long = packet.GetInt32
         Dim TargetGUID As ULong = packet.GetUInt64
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NPC_TEXT_QUERY [TextID={2}]", Client.IP, Client.Port, TextID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NPC_TEXT_QUERY [TextID={2}]", client.IP, client.Port, TextID)
 
-        Client.Character.SendTalking(TextID)
+        client.Character.SendTalking(TextID)
     End Sub
 
-    Public Sub On_CMSG_GOSSIP_HELLO(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GOSSIP_HELLO(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GOSSIP_HELLO [GUID={2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GOSSIP_HELLO [GUID={2:X}]", client.IP, client.Port, GUID)
         If WORLD_CREATUREs.ContainsKey(GUID) = False OrElse WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags = 0 Then
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Client tried to speak with a creature that didn't exist or couldn't interact with. [GUID={2:X}  ID={3}]", Client.IP, Client.Port, GUID, WORLD_CREATUREs(GUID).ID)
+            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Client tried to speak with a creature that didn't exist or couldn't interact with. [GUID={2:X}  ID={3}]", client.IP, client.Port, GUID, WORLD_CREATUREs(GUID).ID)
             Exit Sub
         End If
         If WORLD_CREATUREs(GUID).Evade Then Exit Sub
 
         WORLD_CREATUREs(GUID).StopMoving()
-        Client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TALK)
+        client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TALK)
 
         Try
             If CREATURESDatabase(WORLD_CREATUREs(GUID).ID).TalkScript Is Nothing Then
                 Dim test As New PacketClass(OPCODES.SMSG_NPC_WONT_TALK)
                 test.AddUInt64(GUID)
                 test.AddInt8(1)
-                Client.Send(test)
+                client.Send(test)
                 test.Dispose()
 
                 If NPCTexts.ContainsKey(34) = False Then
                     Dim tmpText As New NPCText(34, "Hi $N, I'm not yet scripted to talk with you.")
                 End If
-                Client.Character.SendTalking(34)
+                client.Character.SendTalking(34)
 
-                Client.Character.SendGossip(GUID, 34)
+                client.Character.SendGossip(GUID, 34)
             Else
                 CREATURESDatabase(WORLD_CREATUREs(GUID).ID).TalkScript.OnGossipHello(Client.Character, GUID)
             End If
@@ -1662,14 +1659,14 @@ Public Module WS_Creatures
             Log.WriteLine(LogType.CRITICAL, "Error in gossip hello.{0}{1}", vbNewLine, ex.ToString)
         End Try
     End Sub
-    Public Sub On_CMSG_GOSSIP_SELECT_OPTION(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GOSSIP_SELECT_OPTION(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
         Dim SelOption As Integer = packet.GetInt32
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GOSSIP_SELECT_OPTION [SelOption={3} GUID={2:X}]", Client.IP, Client.Port, GUID, SelOption)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GOSSIP_SELECT_OPTION [SelOption={3} GUID={2:X}]", client.IP, client.Port, GUID, SelOption)
         If WORLD_CREATUREs.ContainsKey(GUID) = False OrElse WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags = 0 Then
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Client tried to speak with a creature that didn't exist or couldn't interact with. [GUID={2:X}  ID={3}]", Client.IP, Client.Port, GUID, WORLD_CREATUREs(GUID).ID)
+            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Client tried to speak with a creature that didn't exist or couldn't interact with. [GUID={2:X}  ID={3}]", client.IP, client.Port, GUID, WORLD_CREATUREs(GUID).ID)
             Exit Sub
         End If
 
@@ -1679,15 +1676,15 @@ Public Module WS_Creatures
             CREATURESDatabase(WORLD_CREATUREs(GUID).ID).TalkScript.OnGossipSelect(Client.Character, GUID, SelOption)
         End If
     End Sub
-    Public Sub On_CMSG_SPIRIT_HEALER_ACTIVATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_SPIRIT_HEALER_ACTIVATE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SPIRIT_HEALER_ACTIVATE [GUID={2}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SPIRIT_HEALER_ACTIVATE [GUID={2}]", client.IP, client.Port, GUID)
 
         Try
             For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
-                If Client.Character.Items.ContainsKey(i) Then Client.Character.Items(i).ModifyDurability(0.25F, Client)
+                If client.Character.Items.ContainsKey(i) Then client.Character.Items(i).ModifyDurability(0.25F, Client)
             Next
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error activating spirit healer: {0}", e.ToString)
@@ -1695,10 +1692,8 @@ Public Module WS_Creatures
 
         CharacterResurrect(Client.Character)
 
-        Client.Character.ApplySpell(15007)
+        client.Character.ApplySpell(15007)
     End Sub
-
-
 
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _
     Private Function GetNewGUID() As ULong
@@ -1793,10 +1788,7 @@ Public Module WS_Creatures
     End Class
 #End Region
 
-
 End Module
-
-
 
 #Region "WS.Creatures.HelperTypes"
 Public Enum InvisibilityLevel As Byte
@@ -1849,7 +1841,6 @@ Public Class TBaseTalk
     End Function
 End Class
 
-
 Public Enum MenuIcon As Integer
     MENUICON_GOSSIP = &H0
     MENUICON_VENDOR = &H1
@@ -1866,5 +1857,3 @@ Public Enum MenuIcon As Integer
     MENUICON_GOSSIP3 = &HC
 End Enum
 #End Region
-
-

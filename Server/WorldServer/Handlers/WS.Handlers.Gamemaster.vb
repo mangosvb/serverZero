@@ -16,16 +16,14 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Gamemaster
 
-    Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", Client.IP, Client.Port)
+    Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", client.IP, client.Port)
 
-        If Client.Access >= Common.AccessLevel.GameMaster Then
+        If client.Access >= Common.AccessLevel.GameMaster Then
             packet.GetInt16()
             Dim Time As Integer = packet.GetInt32
             Dim Map As UInteger = packet.GetUInt32
@@ -34,11 +32,10 @@ Public Module WS_Handlers_Gamemaster
             Dim Z As Single = packet.GetFloat
             Dim O As Single = packet.GetFloat
 
-            Client.Character.Teleport(X, Y, Z, O, Map)
+            client.Character.Teleport(X, Y, Z, O, Map)
         Else
             'Do we need to notify client that he is using GM command... i think no :)
         End If
     End Sub
-
 
 End Module

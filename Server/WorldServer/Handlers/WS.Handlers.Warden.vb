@@ -16,12 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Runtime.CompilerServices
 Imports System.Security.Cryptography
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
-Imports System.Runtime.InteropServices
-
 
 Public Module WS_Handlers_Warden
 
@@ -29,20 +26,20 @@ Public Module WS_Handlers_Warden
     Private InKeyAdr As Integer
 
 #Region "Warden.Handlers"
-    Public Sub On_CMSG_WARDEN_DATA(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_WARDEN_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
         'START Warden Decryption
         Dim b(packet.Data.Length - 6 - 1) As Byte
         Buffer.BlockCopy(packet.Data, 6, b, 0, b.Length)
-        RC4.Crypt(b, Client.Character.WardenData.KeyOut)
+        RC4.Crypt(b, client.Character.WardenData.KeyOut)
         Buffer.BlockCopy(b, 0, packet.Data, 6, b.Length)
         'END
 
         packet.GetInt16()
         Dim Response As MaievResponse = packet.GetInt8
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WARDEN_DATA [{2}]", Client.IP, Client.Port, Response)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WARDEN_DATA [{2}]", client.IP, client.Port, Response)
 
-        If Client.Character.WardenData.Ready Then
+        If client.Character.WardenData.Ready Then
             Select Case Response
                 Case MaievResponse.MAIEV_RESPONSE_FAILED_OR_MISSING
                     MaievSendTransfer(Client.Character)
@@ -77,7 +74,7 @@ Public Module WS_Handlers_Warden
                     Maiev.ReadXorByte(Client.Character)
                     Maiev.ReadKeys(Client.Character)
 
-                    Log.WriteLine(LogType.DEBUG, "[WARDEN] XorByte: {0}", Client.Character.WardenData.xorByte)
+                    Log.WriteLine(LogType.DEBUG, "[WARDEN] XorByte: {0}", client.Character.WardenData.xorByte)
 
                     Dim HashCorrect As Boolean = True
                     For i As Integer = 0 To 19
@@ -228,7 +225,6 @@ Public Module WS_Handlers_Warden
 #End Region
 #Region "Mediv.MOD"
 
-
     Public Class WardenData
         Public Failed As Byte = 0
         Public Ready As Boolean = False
@@ -302,7 +298,6 @@ Public Module WS_Handlers_Warden
 #End Region
 #Region "RC4"
 
-
     Public Class RC4
         'http://www.skullsecurity.org/wiki/index.php/Crypto_and_Hashing
 
@@ -366,7 +361,6 @@ Public Module WS_Handlers_Warden
             Next
         End Sub
     End Class
-
 
 #End Region
 #Region "WardenSHA1"

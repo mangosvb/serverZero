@@ -17,9 +17,7 @@
 '
 
 Imports System.Threading
-Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Combat
 
@@ -339,7 +337,7 @@ Public Module WS_Combat
             Case Is < chanceToMiss + chanceToDodge + chanceToParry + chanceToGlancingBlow + chanceToBlock
                 'DONE: Block (http://www.wowwiki.com/Formulas:Block)
                 If TypeOf Victim Is CharacterObject Then
-                    result.Blocked = CType(Victim, CharacterObject).combatBlockValue + (CType(Victim, CharacterObject).Strength.Base / 20)     '... hits you for 60. (40 blocked) 
+                    result.Blocked = CType(Victim, CharacterObject).combatBlockValue + (CType(Victim, CharacterObject).Strength.Base / 20)     '... hits you for 60. (40 blocked)
                     If CType(Victim, CharacterObject).combatBlockValue <> 0 Then
                         DoEmote(Emotes.ONESHOT_PARRYSHIELD, CType(Victim, BaseUnit))
                     Else
@@ -474,7 +472,6 @@ Public Module WS_Combat
                     Else
                         Return 5 - skillDiference * 0.2F
                     End If
-
 
                 End If
             End With
@@ -699,7 +696,6 @@ Public Module WS_Combat
         HIT_CRUSHING_BLOW = HITINFO_CRUSHING
         HIT_GLANCING_BLOW = HITINFO_GLANCING
 
-
         HITINFO_NORMALSWING = &H0
         HITINFO_UNK = &H1
         HITINFO_HITANIMATION = &H2
@@ -776,13 +772,13 @@ Public Module WS_Combat
 #End Region
 
         Public Sub New(ByRef Victim_ As BaseObject, ByRef Character_ As CharacterObject)
-            NextAttackTimer = New Threading.Timer(AddressOf DoAttack, Nothing, 1000, Timeout.Infinite)
+            NextAttackTimer = New Timer(AddressOf DoAttack, Nothing, 1000, Timeout.Infinite)
             Victim = Victim_
             Character = Character_
         End Sub
 
         Public Sub New(ByRef Character_ As CharacterObject)
-            NextAttackTimer = New Threading.Timer(AddressOf DoAttack, Nothing, Timeout.Infinite, Timeout.Infinite)
+            NextAttackTimer = New Timer(AddressOf DoAttack, Nothing, Timeout.Infinite, Timeout.Infinite)
             Character = Character_
             Victim = Nothing
         End Sub
@@ -1162,65 +1158,65 @@ Public Module WS_Combat
 
 #Region "WS.Combat.Handlers"
 
-    Public Sub On_CMSG_SET_SELECTION(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_SET_SELECTION(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
-        Client.Character.TargetGUID = packet.GetUInt64
-        Client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, Client.Character.TargetGUID)
-        Client.Character.SendCharacterUpdate()
+        client.Character.TargetGUID = packet.GetUInt64
+        client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, client.Character.TargetGUID)
+        client.Character.SendCharacterUpdate()
     End Sub
 
-    Public Sub On_CMSG_ATTACKSWING(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_ATTACKSWING(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSWING [GUID={2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSWING [GUID={2:X}]", client.IP, client.Port, GUID)
 
-        If Client.Character.Spell_Pacifyed Then
+        If client.Character.Spell_Pacifyed Then
             Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
-            Client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
+            client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
             SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
             SendAttackStop(Client.Character.GUID, GUID, Client)
             Exit Sub
         End If
 
         If GuidIsCreature(GUID) Then
-            Client.Character.attackState.AttackStart(WORLD_CREATUREs(GUID))
+            client.Character.attackState.AttackStart(WORLD_CREATUREs(GUID))
         ElseIf GuidIsPlayer(GUID) Then
-            Client.Character.attackState.AttackStart(CHARACTERs(GUID))
+            client.Character.attackState.AttackStart(CHARACTERs(GUID))
         Else
             Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
-            Client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
+            client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
             SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
             SendAttackStop(Client.Character.GUID, GUID, Client)
         End If
     End Sub
 
-    Public Sub On_CMSG_ATTACKSTOP(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_ATTACKSTOP(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
             packet.GetInt16()
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSTOP", Client.IP, Client.Port)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSTOP", client.IP, client.Port)
 
-            SendAttackStop(Client.Character.GUID, Client.Character.TargetGUID, Client)
-            Client.Character.attackState.AttackStop()
+            SendAttackStop(Client.Character.GUID, client.Character.TargetGUID, Client)
+            client.Character.attackState.AttackStop()
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error stopping attack: {0}", e.ToString)
         End Try
     End Sub
 
-    Public Sub On_CMSG_SET_AMMO(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_SET_AMMO(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
         Dim AmmoID As Integer = packet.GetInt32
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_AMMO [{2}]", Client.IP, Client.Port, AmmoID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_AMMO [{2}]", client.IP, client.Port, AmmoID)
 
-        If Client.Character.isDead Then
+        If client.Character.isDead Then
             SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, 0, 0)
             Exit Sub
         End If
 
         If AmmoID Then 'Set Ammo
-            Client.Character.AmmoID = AmmoID
+            client.Character.AmmoID = AmmoID
             If ITEMDatabase.ContainsKey(AmmoID) = False Then
                 'TODO: Another one of these useless bits of code, needs to be implemented correctly
                 Dim tmpItem As ItemInfo = New ItemInfo(AmmoID)
@@ -1234,32 +1230,32 @@ Public Module WS_Combat
             If ITEMDatabase.ContainsKey(AmmoID) = True AndAlso ITEMDatabase(AmmoID).ObjectClass = ITEM_CLASS.ITEM_CLASS_PROJECTILE OrElse CheckAmmoCompatibility(Client.Character, AmmoID) Then
                 currentDPS = ITEMDatabase(AmmoID).Damage(0).Minimum
             End If
-            If Client.Character.AmmoDPS <> currentDPS Then
-                Client.Character.AmmoDPS = currentDPS
+            If client.Character.AmmoDPS <> currentDPS Then
+                client.Character.AmmoDPS = currentDPS
                 CalculateMinMaxDamage(Client.Character, WeaponAttackType.RANGED_ATTACK)
             End If
 
-            Client.Character.AmmoID = AmmoID
-            Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_AMMO_ID, Client.Character.AmmoID)
-            Client.Character.SendCharacterUpdate(False)
+            client.Character.AmmoID = AmmoID
+            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_AMMO_ID, client.Character.AmmoID)
+            client.Character.SendCharacterUpdate(False)
 
         Else 'Remove Ammo
-            If Client.Character.AmmoID Then
-                Client.Character.AmmoDPS = 0
+            If client.Character.AmmoID Then
+                client.Character.AmmoDPS = 0
                 CalculateMinMaxDamage(Client.Character, WeaponAttackType.RANGED_ATTACK)
 
-                Client.Character.AmmoID = 0
-                Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_AMMO_ID, 0)
-                Client.Character.SendCharacterUpdate(False)
+                client.Character.AmmoID = 0
+                client.Character.SetUpdateFlag(EPlayerFields.PLAYER_AMMO_ID, 0)
+                client.Character.SendCharacterUpdate(False)
             End If
         End If
     End Sub
 
-    Public Sub On_CMSG_SETSHEATHED(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_SETSHEATHED(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
         Dim sheathed As SHEATHE_SLOT = packet.GetInt32
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SETSHEATHED [{2}]", Client.IP, Client.Port, sheathed)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SETSHEATHED [{2}]", client.IP, client.Port, sheathed)
 
         SetSheath(Client.Character, sheathed)
     End Sub
@@ -1312,7 +1308,6 @@ Public Module WS_Combat
                 SetVirtualItemInfo(objCharacter, 2, Nothing)
         End Select
 
-
         objCharacter.SendCharacterUpdate(True)
     End Sub
 
@@ -1329,28 +1324,28 @@ Public Module WS_Combat
         End If
     End Sub
 
-    Public Sub SendAttackStop(ByVal attackerGUID As ULong, ByVal victimGUID As ULong, ByRef Client As ClientClass)
+    Public Sub SendAttackStop(ByVal attackerGUID As ULong, ByVal victimGUID As ULong, ByRef client As ClientClass)
         'AttackerGUID stopped attacking victimGUID
         Dim SMSG_ATTACKSTOP As New PacketClass(OPCODES.SMSG_ATTACKSTOP)
         SMSG_ATTACKSTOP.AddPackGUID(attackerGUID)
         SMSG_ATTACKSTOP.AddPackGUID(victimGUID)
         SMSG_ATTACKSTOP.AddInt32(0)
         SMSG_ATTACKSTOP.AddInt8(0)
-        Client.Character.SendToNearPlayers(SMSG_ATTACKSTOP)
+        client.Character.SendToNearPlayers(SMSG_ATTACKSTOP)
         SMSG_ATTACKSTOP.Dispose()
     End Sub
 
-    Public Sub SendAttackStart(ByVal attackerGUID As ULong, ByVal victimGUID As ULong, Optional ByRef Client As ClientClass = Nothing)
+    Public Sub SendAttackStart(ByVal attackerGUID As ULong, ByVal victimGUID As ULong, Optional ByRef client As ClientClass = Nothing)
         Dim SMSG_ATTACKSTART As New PacketClass(OPCODES.SMSG_ATTACKSTART)
         SMSG_ATTACKSTART.AddUInt64(attackerGUID)
         SMSG_ATTACKSTART.AddUInt64(victimGUID)
 
-        Client.Character.SendToNearPlayers(SMSG_ATTACKSTART)
+        client.Character.SendToNearPlayers(SMSG_ATTACKSTART)
 
         SMSG_ATTACKSTART.Dispose()
     End Sub
 
-    Public Sub SendAttackerStateUpdate(ByRef Attacker As BaseObject, ByRef Victim As BaseObject, ByVal damageInfo As DamageInfo, Optional ByRef Client As ClientClass = Nothing)
+    Public Sub SendAttackerStateUpdate(ByRef Attacker As BaseObject, ByRef Victim As BaseObject, ByVal damageInfo As DamageInfo, Optional ByRef client As ClientClass = Nothing)
         Dim packet As New PacketClass(OPCODES.SMSG_ATTACKERSTATEUPDATE)
         packet.AddInt32(damageInfo.HitInfo)
         packet.AddPackGUID(Attacker.GUID)
@@ -1375,7 +1370,7 @@ Public Module WS_Combat
         packet.AddInt32(damageInfo.Blocked)                                 'Damage amount blocked
 
         If Client IsNot Nothing Then
-            Client.Character.SendToNearPlayers(packet)
+            client.Character.SendToNearPlayers(packet)
         Else
             Attacker.SendToNearPlayers(packet)
         End If

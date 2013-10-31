@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
-
 Public Module WS_Battlegrounds
 
     Public BATTLEFIELDs As New Dictionary(Of Integer, Battlefield)
@@ -66,17 +64,15 @@ Public Module WS_Battlegrounds
         End Sub
         Public Sub BroadcastTeam1(ByVal p As PacketClass)
             For Each objCharacter As CharacterObject In MembersTeam1.ToArray
-                objCharacter.Client.SendMultiplyPackets(p)
+                objCharacter.client.SendMultiplyPackets(p)
             Next
         End Sub
         Public Sub BroadcastTeam2(ByVal p As PacketClass)
             For Each objCharacter As CharacterObject In MembersTeam2.ToArray
-                objCharacter.Client.SendMultiplyPackets(p)
+                objCharacter.client.SendMultiplyPackets(p)
             Next
         End Sub
 
     End Class
-
-
 
 End Module
