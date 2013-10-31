@@ -607,8 +607,7 @@ Public Module WS_CharManagment
     Public Sub SendActionButtons(ByRef Client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_ACTION_BUTTONS)
         Try
-            Dim i As Byte
-            For i = 0 To 119    'or 480 ?
+            For i As Byte = 0 To 119    'or 480 ?
                 If Character.ActionButtons.ContainsKey(i) Then
                     packet.AddUInt16(Character.ActionButtons(i).Action)
                     packet.AddInt8(Character.ActionButtons(i).ActionType)
@@ -1600,8 +1599,7 @@ Public Module WS_CharManagment
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                Dim i As Byte
-                For i = 0 To INVENTORY_SLOT_ITEM_END - 1
+                For i As Byte = 0 To INVENTORY_SLOT_ITEM_END - 1
                     If Items.ContainsKey(i) Then
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
                         If i < EQUIPMENT_SLOT_END Then
@@ -1778,8 +1776,7 @@ Public Module WS_CharManagment
         End Sub                                     'Used for this player's stats updates
 
         Public Sub FillAllUpdateFlags()
-            Dim i As Byte
-
+            
             SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
             SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, CType(25, Integer))
             SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Size)
@@ -1860,7 +1857,7 @@ Public Module WS_CharManagment
             SetUpdateFlag(EPlayerFields.PLAYER_RANGED_CRIT_PERCENTAGE, GetBasePercentCrit(Me, 0))
             'SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_HEALING_DONE_POS, healing.PositiveBonus)
 
-            For i = 0 To 6
+            For i As Byte = 0 To 6
                 'SetUpdateFlag(EPlayerFields.PLAYER_SPELL_CRIT_PERCENTAGE1 + i, CType(0, Single))
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, spellDamage(i).PositiveBonus)
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, spellDamage(i).NegativeBonus)
@@ -1915,7 +1912,7 @@ Public Module WS_CharManagment
             SetUpdateFlag(EUnitFields.UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0F)
             SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 0.0F)
 
-            For i = 0 To QUEST_SLOTS
+            For i As Byte = 0 To QUEST_SLOTS
                 If TalkQuests(i) Is Nothing Then
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_1 + i * 3, 0) 'ID
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + i * 3, 0) 'State
@@ -1931,7 +1928,7 @@ Public Module WS_CharManagment
             SetUpdateFlag(EPlayerFields.PLAYER_DODGE_PERCENTAGE, GetBasePercentDodge(Me, 0))
             SetUpdateFlag(EPlayerFields.PLAYER_PARRY_PERCENTAGE, GetBasePercentParry(Me, 0))
 
-            For i = 0 To PLAYER_EXPLORED_ZONES_SIZE
+            For i As Byte = 0 To PLAYER_EXPLORED_ZONES_SIZE
                 SetUpdateFlag(EPlayerFields.PLAYER_EXPLORED_ZONES_1 + i, ZonesExplored(i))
             Next i
 
@@ -1947,7 +1944,7 @@ Public Module WS_CharManagment
             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_YESTERDAY_CONTRIBUTION, HonorPointsYesterday)
             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_LAST_WEEK_RANK, StandingLastWeek)
 
-            For i = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
+            For i As Byte = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
                 If Items.ContainsKey(i) Then
                     If i < EQUIPMENT_SLOT_END Then
                         SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
@@ -1972,15 +1969,15 @@ Public Module WS_CharManagment
 
             SetUpdateFlag(EPlayerFields.PLAYER_AMMO_ID, AmmoID)
 
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
                     SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + i, ActiveSpells(i).SpellID)
                 End If
             Next
-            For i = 0 To MAX_AURA_EFFECT_FLAGs - 1
+            For i As Byte = 0 To MAX_AURA_EFFECT_FLAGs - 1
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + i, ActiveSpells_Flags(i))
             Next
-            For i = 0 To MAX_AURA_EFFECT_LEVELSs - 1
+            For i As Byte = 0 To MAX_AURA_EFFECT_LEVELSs - 1
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + i, ActiveSpells_Count(i))
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + i, ActiveSpells_Level(i))
             Next
@@ -1988,8 +1985,6 @@ Public Module WS_CharManagment
         End Sub                                       'Used for this player's update packets
 
         Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)
-            Dim i As Byte
-
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Size)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, CType(25, Integer))
@@ -2034,7 +2029,7 @@ Public Module WS_CharManagment
             Update.SetUpdateFlag(EPlayerFields.PLAYER_GUILDID, GuildID)
             Update.SetUpdateFlag(EPlayerFields.PLAYER_GUILDRANK, GuildRank)
 
-            For i = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
+            For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
                 If Items.ContainsKey(i) Then
                     If i < EQUIPMENT_SLOT_END Then
                         Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
@@ -2055,15 +2050,15 @@ Public Module WS_CharManagment
                 End If
             Next
 
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
                     Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + i, ActiveSpells(i).SpellID)
                 End If
             Next
-            For i = 0 To MAX_AURA_EFFECT_FLAGs - 1
+            For i As Byte = 0 To MAX_AURA_EFFECT_FLAGs - 1
                 Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + i, ActiveSpells_Flags(i))
             Next
-            For i = 0 To MAX_AURA_EFFECT_LEVELSs - 1
+            For i As Byte = 0 To MAX_AURA_EFFECT_LEVELSs - 1
                 Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + i, ActiveSpells_Count(i))
                 Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + i, ActiveSpells_Level(i))
             Next
@@ -2118,14 +2113,13 @@ Public Module WS_CharManagment
 
             If UPDATETYPE = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT Or UPDATETYPE = ObjectUpdateType.UPDATETYPE_VALUES Or UPDATETYPE = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF Then
                 Dim UpdateCount As Integer = 0
-                Dim i As Integer
-                For i = 0 To UpdateMask.Count - 1
+                For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then UpdateCount = i
                 Next
 
                 packet.AddInt8(CType((UpdateCount + 32) \ 32, Byte))
                 packet.AddBitArray(UpdateMask, CType((UpdateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
-                For i = 0 To UpdateMask.Count - 1
+                For i as Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
                         If TypeOf UpdateData(i) Is UInteger Then
                             packet.AddUInt32(UpdateData(i))
@@ -2515,6 +2509,7 @@ Public Module WS_CharManagment
             Else
 
                 'DONE: Learn this skill as new
+                'TODO: Needs to be tidied up
                 Dim i As Short = 0
                 For i = 0 To PLAYER_SKILL_INFO_SIZE
                     If Not SkillsPositions.ContainsValue(i) Then
@@ -3845,8 +3840,7 @@ CheckXPAgain:
         End Function
         Public Sub UpdateAddItemStats(ByRef Item As ItemObject, ByVal slot As Byte)
             'TODO: Fill in the other item stat types also
-            Dim i As Byte
-            For i = 0 To 9
+            For i As Byte = 0 To 9
                 Select Case Item.ItemInfo.ItemBonusStatType(i)
                     Case ITEM_STAT_TYPE.HEALTH
                         Life.Bonus += Item.ItemInfo.ItemBonusStatValue(i)
@@ -3873,7 +3867,7 @@ CheckXPAgain:
                 End Select
             Next
 
-            For i = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
+            For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
                 Resistances(i).Base += CType(Item.ItemInfo, ItemInfo).Resistances(i)
             Next
 
@@ -3890,7 +3884,7 @@ CheckXPAgain:
             End If
 
             'DONE: Add the equip spells to the character
-            For i = 0 To 4
+            For i As Byte = 0 To 4
                 If CType(Item.ItemInfo, ItemInfo).Spells(i).SpellID > 0 Then
                     If WS_Spells.SPELLs.ContainsKey(Item.ItemInfo.Spells(i).SpellID) Then
                         Dim SpellInfo As SpellInfo = WS_Spells.SPELLs(Item.ItemInfo.Spells(i).SpellID)
@@ -3930,8 +3924,7 @@ CheckXPAgain:
         End Sub
         Public Sub UpdateRemoveItemStats(ByRef Item As ItemObject, ByVal slot As Byte)
             'TODO: Add the other item stat types here also
-            Dim i As Byte
-            For i = 0 To 9
+            For i As Byte = 0 To 9
                 Select Case CType(Item.ItemInfo, ItemInfo).ItemBonusStatType(i)
                     Case ITEM_STAT_TYPE.HEALTH
                         Life.Bonus -= Item.ItemInfo.ItemBonusStatValue(i)
@@ -3958,7 +3951,7 @@ CheckXPAgain:
                 End Select
             Next
 
-            For i = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
+            For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
                 Resistances(i).Base -= CType(Item.ItemInfo, ItemInfo).Resistances(i)
             Next
 
@@ -3975,7 +3968,7 @@ CheckXPAgain:
             End If
 
             'DONE: Remove the equip spells to the character
-            For i = 0 To 4
+            For i As Byte = 0 To 4
                 If CType(Item.ItemInfo, ItemInfo).Spells(i).SpellID > 0 Then
                     If WS_Spells.SPELLs.ContainsKey(Item.ItemInfo.Spells(i).SpellID) Then
                         Dim SpellInfo As SpellInfo = WS_Spells.SPELLs(Item.ItemInfo.Spells(i).SpellID)
@@ -4672,8 +4665,7 @@ CheckXPAgain:
 
             'DONE: 10% Durability lost, and only if the killer is a creature or you died by enviromental damage
             If Attacker Is Nothing OrElse TypeOf Attacker Is CreatureObject Then
-                Dim i As Byte
-                For i = 0 To EQUIPMENT_SLOT_END - 1
+                For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
                     If Items.ContainsKey(i) Then Items(i).ModifyDurability(0.1F, Client)
                 Next
                 Dim SMSG_DURABILITY_DAMAGE_DEATH As New PacketClass(OPCODES.SMSG_DURABILITY_DAMAGE_DEATH)
@@ -5166,8 +5158,6 @@ DoneAmmo:
         End Sub
 
         Public Sub New(ByRef ClientVal As ClientClass, ByVal GuidVal As ULong)
-            Dim i As Integer
-
             'DONE: Add space for passive auras
             ReDim ActiveSpells(MAX_AURA_EFFECTs - 1)
 
@@ -5176,7 +5166,7 @@ DoneAmmo:
             GUID = GuidVal
             Client.Character = Me
 
-            For i = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
+            For i As Integer = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
                 spellDamage(i) = New TDamageBonus
                 Resistances(i) = New TStat
             Next
@@ -5276,7 +5266,7 @@ DoneAmmo:
             'DONE: Get SkillList -> Saved as STRING like "SkillID1:Current:Maximum SkillID2:Current:Maximum SkillID3:Current:Maximum"
             tmp = Split(CType(MySQLQuery.Rows(0).Item("char_skillList"), String), " ")
             If tmp.Length > 0 Then
-                For i = 0 To tmp.Length - 1
+                For i as Integer = 0 To tmp.Length - 1
                     If Trim(tmp(i)) <> "" Then
                         Dim tmp2() As String = Split(tmp(i), ":")
                         If tmp2.Length = 3 Then
@@ -5291,7 +5281,7 @@ DoneAmmo:
             tmp = Split(CType(MySQLQuery.Rows(0).Item("char_auraList"), String), " ")
             If tmp.Length > 0 Then
                 Dim currentTimestamp As UInteger = GetTimestamp(Now)
-                For i = 0 To tmp.Length - 1
+                For i as Integer = 0 To tmp.Length - 1
                     If Trim(tmp(i)) <> "" Then
                         Dim tmp2() As String = Split(tmp(i), ":")
                         If tmp2.Length = 3 Then
@@ -5324,7 +5314,7 @@ DoneAmmo:
             'DONE: Get TutorialFlags -> Saved as STRING like "Flag1 Flag2 Flag3"
             tmp = Split(CType(MySQLQuery.Rows(0).Item("char_tutorialFlags"), String), " ")
             If tmp.Length > 0 Then
-                For i = 0 To tmp.Length - 1
+                For i as Integer = 0 To tmp.Length - 1
                     If Trim(tmp(i)) <> "" Then TutorialFlags(i) = tmp(i)
                 Next i
             End If
@@ -5332,7 +5322,7 @@ DoneAmmo:
             'DONE: Get TaxiFlags -> Saved as STRING like "Flag1 Flag2 Flag3"
             tmp = Split(CType(MySQLQuery.Rows(0).Item("char_taxiFlags"), String), " ")
             If tmp.Length > 0 Then
-                For i = 0 To tmp.Length - 1
+                For i as Integer = 0 To tmp.Length - 1
                     If Trim(tmp(i)) <> "" Then
                         For j As Byte = 0 To 7
                             If (tmp(i) And (1 << j)) Then
@@ -5346,7 +5336,7 @@ DoneAmmo:
             'DONE: Get ZonesExplored -> Saved as STRING like "Flag1 Flag2 Flag3"
             tmp = Split(CType(MySQLQuery.Rows(0).Item("char_mapExplored"), String), " ")
             If tmp.Length > 0 Then
-                For i = 0 To tmp.Length - 1
+                For i as Integer = 0 To tmp.Length - 1
                     If Trim(tmp(i)) <> "" Then ZonesExplored(i) = UInteger.Parse(tmp(i))
                 Next i
             End If
@@ -5354,7 +5344,7 @@ DoneAmmo:
             'DONE: Get ActionButtons -> Saved as STRING like "Button1:Action1:Type1:Misc1 Button2:Action2:Type2:Misc2"
             tmp = Split(CType(MySQLQuery.Rows(0).Item("char_actionBar"), String), " ")
             If tmp.Length > 0 Then
-                For i = 0 To tmp.Length - 1
+                For i as Integer = 0 To tmp.Length - 1
                     If Trim(tmp(i)) <> "" Then
                         Dim tmp2() As String
                         tmp2 = Split(tmp(i), ":")
@@ -5365,7 +5355,7 @@ DoneAmmo:
 
             'DONE: Get ReputationPoints -> Saved as STRING like "Flags1:Standing1 Flags2:Standing2"
             tmp = Split(CType(MySQLQuery.Rows(0).Item("char_reputation"), String), " ")
-            For i = 0 To 63
+            For i as Integer = 0 To 63
                 Dim tmp2() As String
                 tmp2 = Split(tmp(i), ":")
                 Reputation(i) = New TReputation
@@ -5803,8 +5793,7 @@ DoneAmmo:
         Public QuestsCompleted As New List(Of Integer)
         Public TalkCurrentQuest As WS_QuestInfo = Nothing
         Public Function TalkAddQuest(ByRef Quest As WS_QuestInfo) As Boolean
-            Dim i As Integer
-            For i = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QUEST_SLOTS
                 If TalkQuests(i) Is Nothing Then
                     'DONE: Initialize quest info
                     ALLQUESTS.CreateQuest(TalkQuests(i), Quest)
@@ -5970,8 +5959,7 @@ DoneAmmo:
         End Function
 
         Public Function IsQuestInProgress(ByVal QuestID As Integer) As Boolean
-            Dim i As Integer
-            For i = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QUEST_SLOTS
                 If Not TalkQuests(i) Is Nothing Then
                     If TalkQuests(i).ID = QuestID Then Return True
                 End If

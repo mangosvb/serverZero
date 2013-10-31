@@ -190,14 +190,13 @@ Public Module Packets
 
             If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT OrElse updateType = ObjectUpdateType.UPDATETYPE_VALUES Then
                 Dim updateCount As Integer = 0
-                Dim i As Integer
-                For i = 0 To UpdateMask.Count - 1
+                For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
                 packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
-                For i = 0 To UpdateMask.Count - 1
+                For i as Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
                         If TypeOf UpdateData(i) Is UInteger Then
                             packet.AddUInt32(UpdateData(i))
@@ -261,20 +260,19 @@ Public Module Packets
                 packet.AddSingle(updateObject.SwimBackSpeed)
                 packet.AddSingle(updateObject.TurnRate)
 
-                packet.AddUInt32(GuidLOW(updateObject.GUID))
+                packet.AddUInt32(GuidLow(updateObject.GUID))
             End If
 
 
             If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT OrElse updateType = ObjectUpdateType.UPDATETYPE_VALUES OrElse updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF Then
                 Dim updateCount As Integer = 0
-                Dim i As Integer
-                For i = 0 To UpdateMask.Count - 1
+                For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
                 packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
-                For i = 0 To UpdateMask.Count - 1
+                For i as Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
                         If TypeOf UpdateData(i) Is UInteger Then
                             packet.AddUInt32(UpdateData(i))
@@ -316,14 +314,13 @@ Public Module Packets
 
             If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT Or updateType = ObjectUpdateType.UPDATETYPE_VALUES Then
                 Dim updateCount As Integer = 0
-                Dim i As Integer
-                For i = 0 To UpdateMask.Count - 1
+                For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
                 packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
-                For i = 0 To UpdateMask.Count - 1
+                For i as Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
                         If TypeOf UpdateData(i) Is UInteger Then
                             packet.AddUInt32(UpdateData(i))
@@ -380,7 +377,7 @@ Public Module Packets
                 End If
 
                 'packet.AddUInt64(updateObject.GUID)
-                packet.AddUInt32(GuidHIGH(updateObject.GUID))
+                packet.AddUInt32(GuidHigh(updateObject.GUID))
 
                 If updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_TRANSPORT OrElse updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_MO_TRANSPORT Then
                     packet.AddInt32(msTime)
@@ -389,14 +386,13 @@ Public Module Packets
 
             If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT OrElse updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF OrElse updateType = ObjectUpdateType.UPDATETYPE_VALUES Then
                 Dim updateCount As Integer = 0
-                Dim i As Integer
-                For i = 0 To UpdateMask.Count - 1
+                For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
                 packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
-                For i = 0 To UpdateMask.Count - 1
+                For i as Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
                         If TypeOf UpdateData(i) Is UInteger Then
                             packet.AddUInt32(UpdateData(i))
@@ -438,14 +434,13 @@ Public Module Packets
 
             If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT OrElse updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF OrElse updateType = ObjectUpdateType.UPDATETYPE_VALUES Then
                 Dim updateCount As Integer = 0
-                Dim i As Integer
-                For i = 0 To UpdateMask.Count - 1
+                For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
                 packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
-                For i = 0 To UpdateMask.Count - 1
+                For i as Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
                         If TypeOf UpdateData(i) Is UInteger Then
                             packet.AddUInt32(UpdateData(i))
@@ -488,14 +483,13 @@ Public Module Packets
 
             If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT Or updateType = ObjectUpdateType.UPDATETYPE_VALUES Then
                 Dim updateCount As Integer = 0
-                Dim i As Integer
-                For i = 0 To UpdateMask.Count - 1
+                For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
                 packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
-                For i = 0 To UpdateMask.Count - 1
+                For i as Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
                         If TypeOf UpdateData(i) Is UInteger Then
                             packet.AddUInt32(UpdateData(i))
@@ -685,8 +679,7 @@ Public Module Packets
 
                 ReDim Preserve Data(Data.Length + bytes.Length)
 
-                Dim i As Integer
-                For i = 0 To bytes.Length - 1
+                For i As Integer = 0 To bytes.Length - 1
                     Data(Data.Length - 1 - bytes.Length + i) = bytes(i)
                 Next i
 
@@ -708,8 +701,7 @@ Public Module Packets
                 ReDim Preserve Data(Data.Length + bytes.Length)
 
                 Data(Data.Length - 1 - bytes.Length) = bytes.Length
-                Dim i As Integer
-                For i = 0 To bytes.Length - 1
+                For i As Integer = 0 To bytes.Length - 1
                     Data(Data.Length - bytes.Length + i) = bytes(i)
                 Next i
             End If
@@ -747,9 +739,8 @@ Public Module Packets
             Dim flags As New BitArray(8)
             Dim offsetStart As Integer = Data.Length
             Dim offsetNewSize As Integer = offsetStart
-            Dim i As Byte
 
-            For i = 0 To 7
+            For i As Byte = 0 To 7
                 flags(i) = (guid(i) <> 0)
                 If flags(i) Then offsetNewSize += 1
             Next
@@ -759,7 +750,7 @@ Public Module Packets
             flags.CopyTo(Data, offsetStart)
             offsetStart += 1
 
-            For i = 0 To 7
+            For i as Byte = 0 To 7
                 If flags(i) Then
                     Data(offsetStart) = guid(i)
                     offsetStart += 1

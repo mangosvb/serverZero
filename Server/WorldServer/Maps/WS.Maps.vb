@@ -472,8 +472,7 @@ Public Module WS_Maps
                 Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Map.dbc")
                 Dim tmpMap As Integer
 
-                Dim i As Integer = 0
-                For i = 0 To tmpDBC.Rows - 1
+                For i As Integer = 0 To tmpDBC.Rows - 1
                     tmpMap = tmpDBC.Item(i, 0)
 
                     If tmpMap = Map Then
@@ -484,8 +483,8 @@ Public Module WS_Maps
                     End If
                 Next i
 
+                Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
-                Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", i)
             Catch e As System.IO.DirectoryNotFoundException
                 Console.ForegroundColor = System.ConsoleColor.DarkRed
                 Console.WriteLine("DBC File : Map missing.")

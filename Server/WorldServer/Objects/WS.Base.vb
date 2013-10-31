@@ -375,8 +375,7 @@ Public Module WS_Base
         End Function
 
         Public Function HaveAuraType(ByVal AuraIndex As AuraEffects_Names) As Boolean
-            Dim i As Integer
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If Not ActiveSpells(i) Is Nothing Then
                     For j As Byte = 0 To 2
                         If ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraIndex Then
@@ -449,8 +448,7 @@ Public Module WS_Base
 
         Public Sub RemoveAurasByMechanic(ByVal Mechanic As Integer)
             'DONE: Removing SpellAuras of a certain mechanic
-            Dim i As Integer
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing AndAlso SPELLs(ActiveSpells(i).SpellID).Mechanic = Mechanic Then
                     RemoveAura(i, ActiveSpells(i).SpellCaster)
                 End If
@@ -459,8 +457,7 @@ Public Module WS_Base
 
         Public Sub RemoveAurasByDispellType(ByVal DispellType As Integer, ByVal Amount As Integer)
             'DONE: Removing SpellAuras of a certain dispelltype
-            Dim i As Integer
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing AndAlso SPELLs(ActiveSpells(i).SpellID).DispellType = DispellType Then
                     RemoveAura(i, ActiveSpells(i).SpellCaster)
                     Amount -= 1
@@ -471,8 +468,7 @@ Public Module WS_Base
 
         Public Sub RemoveAurasByInterruptFlag(ByVal AuraInterruptFlag As Integer)
             'DONE: Removing SpellAuras with a certain interruptflag
-            Dim i As Integer
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
                     If SPELLs.ContainsKey(ActiveSpells(i).SpellID) AndAlso (CType(SPELLs(ActiveSpells(i).SpellID), SpellInfo).auraInterruptFlags And AuraInterruptFlag) Then
                         If (CType(SPELLs(ActiveSpells(i).SpellID), SpellInfo).procFlags And SpellAuraProcFlags.AURA_PROC_REMOVEONUSE) = 0 Then
@@ -500,8 +496,7 @@ Public Module WS_Base
 
         Public Function GetAuraModifier(ByVal AuraIndex As AuraEffects_Names) As Integer
             Dim Modifier As Integer = 0
-            Dim i As Integer
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
                     For j As Byte = 0 To 2
                         If (Not ActiveSpells(i).Aura_Info(j) Is Nothing) AndAlso ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraIndex Then
@@ -515,8 +510,7 @@ Public Module WS_Base
 
         Public Function GetAuraModifierByMiscMask(ByVal AuraIndex As AuraEffects_Names, ByVal Mask As Integer) As Integer
             Dim Modifier As Integer = 0
-            Dim i As Integer
-            For i = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
                     For j As Byte = 0 To 2
                         If (Not ActiveSpells(i).Aura_Info(j) Is Nothing) AndAlso ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraIndex AndAlso (ActiveSpells(i).Aura_Info(j).MiscValue And Mask) = Mask Then

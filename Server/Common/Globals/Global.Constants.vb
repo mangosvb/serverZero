@@ -375,7 +375,7 @@ Public Module Constants
         RANK_OUTLAW = 2
         RANK_EXILED = 3
         RANK_DISHONORED = 4
-        RANK_A_RIVATE = 5
+        RANK_A_PRIVATE = 5
         RANK_H_SCOUT = 5
         RANK_A_CORPORAL = 6
         RANK_H_GRUNT = 6

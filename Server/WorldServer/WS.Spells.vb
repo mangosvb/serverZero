@@ -2430,8 +2430,7 @@ SkipShapeShift:
 
 
     Public Sub InitializeSpellDB()
-        Dim i As Integer
-        For i = 0 To SPELL_EFFECT_COUNT
+        For i As Integer = 0 To SPELL_EFFECT_COUNT
             SPELL_EFFECTs(i) = AddressOf SPELL_EFFECT_NOTHING
         Next
 
@@ -2575,7 +2574,7 @@ SkipShapeShift:
         SPELL_EFFECTs(137) = AddressOf SPELL_EFFECT_ENERGIZE_PCT
 
 
-        For i = 0 To AURAs_COUNT
+        For i as Integer = 0 To AURAs_COUNT
             AURAs(i) = AddressOf SPELL_AURA_NONE
         Next
 
@@ -3569,8 +3568,8 @@ SkipShapeShift:
             Log.WriteLine(LogType.DEBUG, "[DEBUG] Lock {0} did not exist.", lockID)
             Return SpellFailedReason.SPELL_FAILED_ERROR
         End If
-        Dim i As Byte
-        For i = 0 To 4
+
+        For i As Byte = 0 To 4
             If Item IsNot Nothing AndAlso Locks(lockID).KeyType(i) = LockKeyType.LOCK_KEY_ITEM AndAlso Locks(lockID).Keys(i) = Item.ItemEntry Then
                 'TODO: Send loot for items
                 If GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
@@ -7831,7 +7830,7 @@ SkipShapeShift:
             Dim CurrentTalentPoints As Byte = Client.Character.TalentPoints
             Dim SpellID As Integer
             Dim ReSpellID As Integer
-            Dim i As Integer, j As Integer
+            Dim j As Integer
             Dim HasEnoughRank As Boolean
             Dim DependsOn As Integer
             Dim SpentPoints As Integer
@@ -7853,7 +7852,7 @@ SkipShapeShift:
                 If CType(Talents(TalentID), TalentInfo).RequiredTalent(j) > 0 Then
                     HasEnoughRank = False
                     DependsOn = CType(Talents(TalentID), TalentInfo).RequiredTalent(j)
-                    For i = CType(Talents(TalentID), TalentInfo).RequiredPoints(j) To 4
+                    For i As Integer = CType(Talents(TalentID), TalentInfo).RequiredPoints(j) To 4
                         If CType(Talents(DependsOn), TalentInfo).RankID(i) <> 0 Then
                             If Client.Character.HaveSpell(CType(Talents(DependsOn), TalentInfo).RankID(i)) Then
                                 HasEnoughRank = True
@@ -7870,7 +7869,7 @@ SkipShapeShift:
             If CType(Talents(TalentID), TalentInfo).Row > 0 Then
                 For Each TalentInfo As KeyValuePair(Of Integer, TalentInfo) In Talents
                     If CType(Talents(TalentID), TalentInfo).TalentTab = CType(TalentInfo.Value, TalentInfo).TalentTab Then
-                        For i = 0 To 4
+                        For i as Integer = 0 To 4
                             If CType(TalentInfo.Value, TalentInfo).RankID(i) <> 0 Then
                                 If Client.Character.HaveSpell(CType(TalentInfo.Value, TalentInfo).RankID(i)) Then
                                     SpentPoints += i + 1

@@ -161,12 +161,11 @@ Public NotInheritable Class AuthEngineClass
         ngHash = New Byte(20 - 1) {}
         Dim userHash As Byte()
         userHash = New Byte(20 - 1) {}
-        Dim i As Integer
 
         nHash = algorithm1.ComputeHash(N)
         gHash = algorithm1.ComputeHash(g)
         userHash = algorithm1.ComputeHash(_Username)
-        For i = 0 To 19
+        For i As Integer = 0 To 19
             ngHash(i) = nHash(i) Xor gHash(i)
         Next i
 

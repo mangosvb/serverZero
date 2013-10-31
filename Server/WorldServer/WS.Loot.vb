@@ -264,8 +264,7 @@ Public Module WS_Loot
             response.AddInt32(Money)
             response.AddInt8(Items.Count)
 
-            Dim i As Byte
-            For i = 0 To Items.Count - 1
+            For i As Byte = 0 To Items.Count - 1
                 If Items(i) Is Nothing Then
                     response.AddInt8(i)
                     response.AddInt32(0)
@@ -296,7 +295,7 @@ Public Module WS_Loot
                 If Client.Character.Group.LootMethod = GroupLootMethod.LOOT_NEED_BEFORE_GREED Or Client.Character.Group.LootMethod = GroupLootMethod.LOOT_GROUP Then
 
                     'DONE: Check threshold if in group
-                    For i = 0 To Items.Count - 1
+                    For i As Byte = 0 To Items.Count - 1
                         If Not Items(i) Is Nothing Then
                             If CType(ITEMDatabase(Items(i).ItemID), ItemInfo).Quality >= Client.Character.Group.LootThreshold Then
                                 GroupLootInfo(i) = New GroupLootInfo

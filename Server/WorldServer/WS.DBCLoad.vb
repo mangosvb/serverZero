@@ -17,7 +17,6 @@
 '
 Imports System
 Imports System.IO
-Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.DBC
 
@@ -26,267 +25,260 @@ Public Module WS_DBCLoad
 #Region "Spells"
     Public Sub InitializeSpellRadius()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellRadius.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRadius.dbc")
 
             Dim radiusID As Integer
             Dim radiusValue As Single
-            Dim radiusValue2 As Single
+            'Dim radiusValue2 As Single
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 radiusID = tmpDBC.Item(i, 0)
-                radiusValue = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_FLOAT)
-                radiusValue2 = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_FLOAT) ' May be needed in the future
+                radiusValue = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT)
+                '   radiusValue2 = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT) ' May be needed in the future
 
                 SpellRadius(radiusID) = radiusValue
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SpellRadius missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub InitializeSpellCastTime()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellCastTimes.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellCastTimes.dbc")
 
             Dim spellCastID As Integer
             Dim spellCastTimeS As Integer
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 spellCastID = tmpDBC.Item(i, 0)
                 spellCastTimeS = tmpDBC.Item(i, 1)
 
                 SpellCastTime(spellCastID) = spellCastTimeS
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SpellCastTimes missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub InitializeSpellRange()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellRange.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRange.dbc")
 
             Dim spellRangeIndex As Integer
-            Dim spellRangeMin As Single
+            'Dim spellRangeMin As Single
             Dim spellRangeMax As Single
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 spellRangeIndex = tmpDBC.Item(i, 0)
-                spellRangeMin = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_FLOAT) ' Added back may be needed in the future
-                spellRangeMax = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
+                '   spellRangeMin = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT) ' Added back may be needed in the future
+                spellRangeMax = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
 
                 SpellRange(spellRangeIndex) = spellRangeMax
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SpellRanges missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub InitializeSpellShapeShift()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellShapeshiftForm.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellShapeshiftForm.dbc")
 
-            Dim ID As Integer
-            Dim Flags1 As Integer
-            Dim CreatureType As Integer
-            Dim AttackSpeed As Integer
+            Dim id As Integer
+            Dim flags1 As Integer
+            Dim creatureType As Integer
+            Dim attackSpeed As Integer
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
-                ID = tmpDBC.Item(i, 0)
-                Flags1 = tmpDBC.Item(i, 11)
-                CreatureType = tmpDBC.Item(i, 12)
-                AttackSpeed = tmpDBC.Item(i, 13)
+            For i As Integer = 0 To tmpDBC.Rows - 1
+                id = tmpDBC.Item(i, 0)
+                flags1 = tmpDBC.Item(i, 11)
+                creatureType = tmpDBC.Item(i, 12)
+                attackSpeed = tmpDBC.Item(i, 13)
 
-                SpellShapeShiftForm.Add(New TSpellShapeshiftForm(ID, Flags1, CreatureType, AttackSpeed))
+                SpellShapeShiftForm.Add(New TSpellShapeshiftForm(id, flags1, creatureType, attackSpeed))
             Next i
 
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellShapeshiftForms initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellShapeshiftForms initialized.", tmpDBC.Rows - 1)
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SpellShapeshiftForms missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub InitializeSpellFocusObject()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellFocusObject.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellFocusObject.dbc")
 
             Dim spellFocusIndex As Integer
             Dim spellFocusObjectName As String
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 spellFocusIndex = tmpDBC.Item(i, 0)
-                spellFocusObjectName = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_STRING)
+                spellFocusObjectName = tmpDBC.Item(i, 1, DBCValueType.DBC_STRING)
 
                 SpellFocusObject(spellFocusIndex) = spellFocusObjectName
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SpellFocusObjects missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub InitializeSpellDuration()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellDuration.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellDuration.dbc")
 
-            Dim SpellDurationIndex As Integer
-            Dim SpellDurationValue As Integer
-            Dim SpellDurationValue2 As Integer
-            Dim SpellDurationValue3 As Integer
+            Dim spellDurationIndex As Integer
+            Dim spellDurationValue As Integer
+            '            Dim SpellDurationValue2 As Integer
+            '            Dim SpellDurationValue3 As Integer
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
-                SpellDurationIndex = tmpDBC.Item(i, 0)
-                SpellDurationValue = tmpDBC.Item(i, 1)
-                SpellDurationValue2 = tmpDBC.Item(i, 2) ' May be needed in the future
-                SpellDurationValue3 = tmpDBC.Item(i, 3) ' May be needed in the future
+            For i As Integer = 0 To tmpDBC.Rows - 1
+                spellDurationIndex = tmpDBC.Item(i, 0)
+                spellDurationValue = tmpDBC.Item(i, 1)
+                '    SpellDurationValue2 = tmpDBC.Item(i, 2) ' May be needed in the future
+                '    SpellDurationValue3 = tmpDBC.Item(i, 3) ' May be needed in the future
 
-                SpellDuration(SpellDurationIndex) = SpellDurationValue
+                SpellDuration(spellDurationIndex) = spellDurationValue
             Next i
 
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellDurations initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellDurations initialized.", tmpDBC.Rows - 1)
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SpellDurations missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeSpells()
         Try
-            Dim SpellDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Spell.dbc")
+            Dim spellDBC As BufferedDBC = New BufferedDBC("dbc\Spell.dbc")
             'Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & SpellDBC.GetFileInformation)
             Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
 
-            Dim i As Long
-            Dim ID As Integer
-            For i = 0 To SpellDBC.Rows - 1
+            Dim id As Integer
+            For i As Long = 0 To spellDBC.Rows - 1
                 Try
-                    ID = SpellDBC.Item(i, 0)
-                    SPELLs(ID) = New SpellInfo
-                    SPELLs(ID).ID = ID
-                    SPELLs(ID).School = SpellDBC.Item(i, 1)
-                    SPELLs(ID).Category = SpellDBC.Item(i, 2)
+                    id = spellDBC.Item(i, 0)
+                    SPELLs(id) = New SpellInfo
+                    SPELLs(id).ID = id
+                    SPELLs(id).School = spellDBC.Item(i, 1)
+                    SPELLs(id).Category = spellDBC.Item(i, 2)
                     ' 3 = Not Used
-                    SPELLs(ID).DispellType = SpellDBC.Item(i, 4)
-                    SPELLs(ID).Mechanic = SpellDBC.Item(i, 5)
-                    SPELLs(ID).Attributes = SpellDBC.Item(i, 6)
-                    SPELLs(ID).AttributesEx = SpellDBC.Item(i, 7)
-                    SPELLs(ID).AttributesEx2 = SpellDBC.Item(i, 8)
+                    SPELLs(id).DispellType = spellDBC.Item(i, 4)
+                    SPELLs(id).Mechanic = spellDBC.Item(i, 5)
+                    SPELLs(id).Attributes = spellDBC.Item(i, 6)
+                    SPELLs(id).AttributesEx = spellDBC.Item(i, 7)
+                    SPELLs(id).AttributesEx2 = spellDBC.Item(i, 8)
                     ' AttributesEx3 = SpellDBC.Item(i, 9)
                     ' AttributesEx4 = SpellDBC.Item(i, 10)
-                    SPELLs(ID).RequredCasterStance = SpellDBC.Item(i, 11) ' RequiredShapeShift
-                    SPELLs(ID).ShapeshiftExclude = SpellDBC.Item(i, 12)
-                    SPELLs(ID).Target = SpellDBC.Item(i, 13)
-                    SPELLs(ID).TargetCreatureType = SpellDBC.Item(i, 14)
-                    SPELLs(ID).FocusObjectIndex = SpellDBC.Item(i, 15)
-                    SPELLs(ID).CasterAuraState = SpellDBC.Item(i, 16)
-                    SPELLs(ID).TargetAuraState = SpellDBC.Item(i, 17)
-                    SPELLs(ID).SpellCastTimeIndex = SpellDBC.Item(i, 18)
-                    SPELLs(ID).SpellCooldown = SpellDBC.Item(i, 19)
-                    SPELLs(ID).CategoryCooldown = SpellDBC.Item(i, 20)
-                    SPELLs(ID).interruptFlags = SpellDBC.Item(i, 21)
-                    SPELLs(ID).auraInterruptFlags = SpellDBC.Item(i, 22)
-                    SPELLs(ID).channelInterruptFlags = SpellDBC.Item(i, 23)
-                    SPELLs(ID).procFlags = SpellDBC.Item(i, 24)
-                    SPELLs(ID).procChance = SpellDBC.Item(i, 25)
-                    SPELLs(ID).procCharges = SpellDBC.Item(i, 26)
-                    SPELLs(ID).maxLevel = SpellDBC.Item(i, 27)
-                    SPELLs(ID).baseLevel = SpellDBC.Item(i, 28)
-                    SPELLs(ID).spellLevel = SpellDBC.Item(i, 29)
-                    SPELLs(ID).DurationIndex = SpellDBC.Item(i, 30)
-                    SPELLs(ID).powerType = SpellDBC.Item(i, 31)
-                    SPELLs(ID).manaCost = SpellDBC.Item(i, 32)
-                    SPELLs(ID).manaCostPerlevel = SpellDBC.Item(i, 33)
-                    SPELLs(ID).manaPerSecond = SpellDBC.Item(i, 34)
-                    SPELLs(ID).manaPerSecondPerLevel = SpellDBC.Item(i, 35)
-                    SPELLs(ID).rangeIndex = SpellDBC.Item(i, 36)
-                    SPELLs(ID).Speed = SpellDBC.Item(i, 37, DBC.DBCValueType.DBC_FLOAT)
-                    SPELLs(ID).modalNextSpell = SpellDBC.Item(i, 38) ' Not Used
-                    SPELLs(ID).maxStack = SpellDBC.Item(i, 39)
-                    SPELLs(ID).Totem(0) = SpellDBC.Item(i, 40)
-                    SPELLs(ID).Totem(1) = SpellDBC.Item(i, 41)
+                    SPELLs(id).RequredCasterStance = spellDBC.Item(i, 11) ' RequiredShapeShift
+                    SPELLs(id).ShapeshiftExclude = spellDBC.Item(i, 12)
+                    SPELLs(id).Target = spellDBC.Item(i, 13)
+                    SPELLs(id).TargetCreatureType = spellDBC.Item(i, 14)
+                    SPELLs(id).FocusObjectIndex = spellDBC.Item(i, 15)
+                    SPELLs(id).CasterAuraState = spellDBC.Item(i, 16)
+                    SPELLs(id).TargetAuraState = spellDBC.Item(i, 17)
+                    SPELLs(id).SpellCastTimeIndex = spellDBC.Item(i, 18)
+                    SPELLs(id).SpellCooldown = spellDBC.Item(i, 19)
+                    SPELLs(id).CategoryCooldown = spellDBC.Item(i, 20)
+                    SPELLs(id).interruptFlags = spellDBC.Item(i, 21)
+                    SPELLs(id).auraInterruptFlags = spellDBC.Item(i, 22)
+                    SPELLs(id).channelInterruptFlags = spellDBC.Item(i, 23)
+                    SPELLs(id).procFlags = spellDBC.Item(i, 24)
+                    SPELLs(id).procChance = spellDBC.Item(i, 25)
+                    SPELLs(id).procCharges = spellDBC.Item(i, 26)
+                    SPELLs(id).maxLevel = spellDBC.Item(i, 27)
+                    SPELLs(id).baseLevel = spellDBC.Item(i, 28)
+                    SPELLs(id).spellLevel = spellDBC.Item(i, 29)
+                    SPELLs(id).DurationIndex = spellDBC.Item(i, 30)
+                    SPELLs(id).powerType = spellDBC.Item(i, 31)
+                    SPELLs(id).manaCost = spellDBC.Item(i, 32)
+                    SPELLs(id).manaCostPerlevel = spellDBC.Item(i, 33)
+                    SPELLs(id).manaPerSecond = spellDBC.Item(i, 34)
+                    SPELLs(id).manaPerSecondPerLevel = spellDBC.Item(i, 35)
+                    SPELLs(id).rangeIndex = spellDBC.Item(i, 36)
+                    SPELLs(id).Speed = spellDBC.Item(i, 37, DBCValueType.DBC_FLOAT)
+                    SPELLs(id).modalNextSpell = spellDBC.Item(i, 38) ' Not Used
+                    SPELLs(id).maxStack = spellDBC.Item(i, 39)
+                    SPELLs(id).Totem(0) = spellDBC.Item(i, 40)
+                    SPELLs(id).Totem(1) = spellDBC.Item(i, 41)
 
                     '-CORRECT-
-                    SPELLs(ID).Reagents(0) = SpellDBC.Item(i, 42)
-                    SPELLs(ID).Reagents(1) = SpellDBC.Item(i, 43)
-                    SPELLs(ID).Reagents(2) = SpellDBC.Item(i, 44)
-                    SPELLs(ID).Reagents(3) = SpellDBC.Item(i, 45)
-                    SPELLs(ID).Reagents(4) = SpellDBC.Item(i, 46)
-                    SPELLs(ID).Reagents(5) = SpellDBC.Item(i, 47)
-                    SPELLs(ID).Reagents(6) = SpellDBC.Item(i, 48)
-                    SPELLs(ID).Reagents(7) = SpellDBC.Item(i, 49)
+                    SPELLs(id).Reagents(0) = spellDBC.Item(i, 42)
+                    SPELLs(id).Reagents(1) = spellDBC.Item(i, 43)
+                    SPELLs(id).Reagents(2) = spellDBC.Item(i, 44)
+                    SPELLs(id).Reagents(3) = spellDBC.Item(i, 45)
+                    SPELLs(id).Reagents(4) = spellDBC.Item(i, 46)
+                    SPELLs(id).Reagents(5) = spellDBC.Item(i, 47)
+                    SPELLs(id).Reagents(6) = spellDBC.Item(i, 48)
+                    SPELLs(id).Reagents(7) = spellDBC.Item(i, 49)
 
-                    SPELLs(ID).ReagentsCount(0) = SpellDBC.Item(i, 50)
-                    SPELLs(ID).ReagentsCount(1) = SpellDBC.Item(i, 51)
-                    SPELLs(ID).ReagentsCount(2) = SpellDBC.Item(i, 52)
-                    SPELLs(ID).ReagentsCount(3) = SpellDBC.Item(i, 53)
-                    SPELLs(ID).ReagentsCount(4) = SpellDBC.Item(i, 54)
-                    SPELLs(ID).ReagentsCount(5) = SpellDBC.Item(i, 55)
-                    SPELLs(ID).ReagentsCount(6) = SpellDBC.Item(i, 56)
-                    SPELLs(ID).ReagentsCount(7) = SpellDBC.Item(i, 57)
+                    SPELLs(id).ReagentsCount(0) = spellDBC.Item(i, 50)
+                    SPELLs(id).ReagentsCount(1) = spellDBC.Item(i, 51)
+                    SPELLs(id).ReagentsCount(2) = spellDBC.Item(i, 52)
+                    SPELLs(id).ReagentsCount(3) = spellDBC.Item(i, 53)
+                    SPELLs(id).ReagentsCount(4) = spellDBC.Item(i, 54)
+                    SPELLs(id).ReagentsCount(5) = spellDBC.Item(i, 55)
+                    SPELLs(id).ReagentsCount(6) = spellDBC.Item(i, 56)
+                    SPELLs(id).ReagentsCount(7) = spellDBC.Item(i, 57)
                     '-/CORRECT-
 
-                    SPELLs(ID).EquippedItemClass = SpellDBC.Item(i, 58) 'Value
-                    SPELLs(ID).EquippedItemSubClass = SpellDBC.Item(i, 59) 'Mask
-                    SPELLs(ID).EquippedItemInventoryType = SpellDBC.Item(i, 60) 'Mask
+                    SPELLs(id).EquippedItemClass = spellDBC.Item(i, 58) 'Value
+                    SPELLs(id).EquippedItemSubClass = spellDBC.Item(i, 59) 'Mask
+                    SPELLs(id).EquippedItemInventoryType = spellDBC.Item(i, 60) 'Mask
 
                     For j As Integer = 0 To 2
-                        If CInt(SpellDBC.Item(i, 61 + j)) <> 0 Then
-                            SPELLs(ID).SpellEffects(j) = New SpellEffect(SPELLs(ID))
+                        If CInt(spellDBC.Item(i, 61 + j)) <> 0 Then
+                            SPELLs(id).SpellEffects(j) = New SpellEffect(SPELLs(id))
 
-                            SPELLs(ID).SpellEffects(j).ID = SpellDBC.Item(i, 61 + j)
-                            SPELLs(ID).SpellEffects(j).valueDie = SpellDBC.Item(i, 64 + j)
-                            SPELLs(ID).SpellEffects(j).diceBase = SpellDBC.Item(i, 67 + j)
-                            SPELLs(ID).SpellEffects(j).dicePerLevel = SpellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT)
-                            SPELLs(ID).SpellEffects(j).valuePerLevel = SpellDBC.Item(i, 73 + j, DBC.DBCValueType.DBC_FLOAT)
-                            SPELLs(ID).SpellEffects(j).valueBase = SpellDBC.Item(i, 76 + j)
-                            SPELLs(ID).SpellEffects(j).Mechanic = SpellDBC.Item(i, 79 + j)
-                            SPELLs(ID).SpellEffects(j).implicitTargetA = SpellDBC.Item(i, 82 + j)
-                            SPELLs(ID).SpellEffects(j).implicitTargetB = SpellDBC.Item(i, 85 + j)
-                            SPELLs(ID).SpellEffects(j).RadiusIndex = SpellDBC.Item(i, 88 + j) ' spellradius.dbc
-                            SPELLs(ID).SpellEffects(j).ApplyAuraIndex = SpellDBC.Item(i, 91 + j)
-                            SPELLs(ID).SpellEffects(j).Amplitude = SpellDBC.Item(i, 94 + j)
-                            SPELLs(ID).SpellEffects(j).MultipleValue = SpellDBC.Item(i, 97 + j)
-                            SPELLs(ID).SpellEffects(j).ChainTarget = SpellDBC.Item(i, 100 + j)
-                            SPELLs(ID).SpellEffects(j).ItemType = SpellDBC.Item(i, 103 + j)
-                            SPELLs(ID).SpellEffects(j).MiscValue = SpellDBC.Item(i, 106 + j)
-                            SPELLs(ID).SpellEffects(j).TriggerSpell = SpellDBC.Item(i, 109 + j)
-                            SPELLs(ID).SpellEffects(j).valuePerComboPoint = SpellDBC.Item(i, 112 + j)
+                            SPELLs(id).SpellEffects(j).ID = spellDBC.Item(i, 61 + j)
+                            SPELLs(id).SpellEffects(j).valueDie = spellDBC.Item(i, 64 + j)
+                            SPELLs(id).SpellEffects(j).diceBase = spellDBC.Item(i, 67 + j)
+                            SPELLs(id).SpellEffects(j).dicePerLevel = spellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT)
+                            SPELLs(id).SpellEffects(j).valuePerLevel = spellDBC.Item(i, 73 + j, DBCValueType.DBC_FLOAT)
+                            SPELLs(id).SpellEffects(j).valueBase = spellDBC.Item(i, 76 + j)
+                            SPELLs(id).SpellEffects(j).Mechanic = spellDBC.Item(i, 79 + j)
+                            SPELLs(id).SpellEffects(j).implicitTargetA = spellDBC.Item(i, 82 + j)
+                            SPELLs(id).SpellEffects(j).implicitTargetB = spellDBC.Item(i, 85 + j)
+                            SPELLs(id).SpellEffects(j).RadiusIndex = spellDBC.Item(i, 88 + j) ' spellradius.dbc
+                            SPELLs(id).SpellEffects(j).ApplyAuraIndex = spellDBC.Item(i, 91 + j)
+                            SPELLs(id).SpellEffects(j).Amplitude = spellDBC.Item(i, 94 + j)
+                            SPELLs(id).SpellEffects(j).MultipleValue = spellDBC.Item(i, 97 + j)
+                            SPELLs(id).SpellEffects(j).ChainTarget = spellDBC.Item(i, 100 + j)
+                            SPELLs(id).SpellEffects(j).ItemType = spellDBC.Item(i, 103 + j)
+                            SPELLs(id).SpellEffects(j).MiscValue = spellDBC.Item(i, 106 + j)
+                            SPELLs(id).SpellEffects(j).TriggerSpell = spellDBC.Item(i, 109 + j)
+                            SPELLs(id).SpellEffects(j).valuePerComboPoint = spellDBC.Item(i, 112 + j)
                         Else
-                            SPELLs(ID).SpellEffects(j) = Nothing
+                            SPELLs(id).SpellEffects(j) = Nothing
                         End If
                     Next
 
-                    SPELLs(ID).SpellVisual = SpellDBC.Item(i, 115)
+                    SPELLs(id).SpellVisual = spellDBC.Item(i, 115)
                     '116 = Always zero? - SpellVisual2 - Not Used
-                    SPELLs(ID).SpellIconID = SpellDBC.Item(i, 117)
-                    SPELLs(ID).ActiveIconID = SpellDBC.Item(i, 118)
+                    SPELLs(id).SpellIconID = spellDBC.Item(i, 117)
+                    SPELLs(id).ActiveIconID = spellDBC.Item(i, 118)
                     '119 = spellPriority
-                    SPELLs(ID).Name = SpellDBC.Item(i, 120, DBCValueType.DBC_STRING)
+                    SPELLs(id).Name = spellDBC.Item(i, 120, DBCValueType.DBC_STRING)
                     '121 = Always zero?
                     '122 = Always zero?
                     '123 = Always zero?
@@ -295,7 +287,7 @@ Public Module WS_DBCLoad
                     '126 = Always zero?
                     '127 = Always zero?
                     '128 = Always zero?
-                    SPELLs(ID).Rank = SpellDBC.Item(i, 129, DBCValueType.DBC_STRING)
+                    SPELLs(id).Rank = spellDBC.Item(i, 129, DBCValueType.DBC_STRING)
                     '130 = Always zero?
                     '131 = Always zero?
                     '132 = Always zero?
@@ -322,20 +314,20 @@ Public Module WS_DBCLoad
                     '153 = Always zero?
                     '154 = Always zero?
                     '155 = ToolTipFlags - Not Used
-                    SPELLs(ID).manaCostPercent = SpellDBC.Item(i, 156)
-                    SPELLs(ID).StartRecoveryCategory = SpellDBC.Item(i, 157)
-                    SPELLs(ID).StartRecoveryTime = SpellDBC.Item(i, 158)
-                    SPELLs(ID).AffectedTargetLevel = SpellDBC.Item(i, 159)
-                    SPELLs(ID).SpellFamilyName = SpellDBC.Item(i, 160)
-                    SPELLs(ID).SpellFamilyFlags = SpellDBC.Item(i, 161) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
-                    SPELLs(ID).MaxTargets = SpellDBC.Item(i, 163)
-                    SPELLs(ID).DamageType = SpellDBC.Item(i, 164) ' defenseType
+                    SPELLs(id).manaCostPercent = spellDBC.Item(i, 156)
+                    SPELLs(id).StartRecoveryCategory = spellDBC.Item(i, 157)
+                    SPELLs(id).StartRecoveryTime = spellDBC.Item(i, 158)
+                    SPELLs(id).AffectedTargetLevel = spellDBC.Item(i, 159)
+                    SPELLs(id).SpellFamilyName = spellDBC.Item(i, 160)
+                    SPELLs(id).SpellFamilyFlags = spellDBC.Item(i, 161) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
+                    SPELLs(id).MaxTargets = spellDBC.Item(i, 163)
+                    SPELLs(id).DamageType = spellDBC.Item(i, 164) ' defenseType
                     'SPELLs(ID).PreventionType = SpellDBC.Item(i, 165)
                     '166 = StanceBarOrder - Not Used
 
                     For j As Integer = 0 To 2
-                        If SPELLs(ID).SpellEffects(j) IsNot Nothing Then
-                            SPELLs(ID).SpellEffects(j).DamageMultiplier = SpellDBC.Item(i, 167 + j, DBCValueType.DBC_FLOAT)
+                        If SPELLs(id).SpellEffects(j) IsNot Nothing Then
+                            SPELLs(id).SpellEffects(j).DamageMultiplier = spellDBC.Item(i, 167 + j, DBCValueType.DBC_FLOAT)
                         End If
                     Next
 
@@ -343,7 +335,7 @@ Public Module WS_DBCLoad
                     '171 = MinReputation - Not Used
                     '172 = RequiredAuraVision - Not Used
 
-                    SPELLs(ID).InitCustomAttributes()
+                    SPELLs(id).InitCustomAttributes()
 
                 Catch e As Exception
                     Log.WriteLine(LogType.FAILED, "Line {0} caused error: {1}", i, e.ToString)
@@ -351,29 +343,29 @@ Public Module WS_DBCLoad
 
             Next i
 
-            SpellDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Spells initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Spells initialized.", spellDBC.Rows - 1)
+            spellDBC.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : Spells missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeSpellChains()
         Try
-            Dim SpellChainQuery As New DataTable
-            WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", SpellChainQuery)
+            Dim spellChainQuery As New DataTable
+            WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", spellChainQuery)
 
-            For Each SpellChain As DataRow In SpellChainQuery.Rows
-                SpellChains.Add(CInt(SpellChain.Item("spell_id")), CInt(SpellChain.Item("prev_spell")))
+            For Each spellChain As DataRow In spellChainQuery.Rows
+                SpellChains.Add(CInt(spellChain.Item("spell_id")), CInt(spellChain.Item("prev_spell")))
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} SpellChains initialized.", SpellChainQuery.Rows.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "Database: {0} SpellChains initialized.", spellChainQuery.Rows.Count)
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("Database : SpellChains missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -381,51 +373,49 @@ Public Module WS_DBCLoad
 #Region "Taxi"
     Public Sub InitializeTaxiNodes()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\TaxiNodes.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiNodes.dbc")
 
             Dim taxiPosX As Single
             Dim taxiPosY As Single
             Dim taxiPosZ As Single
             Dim taxiMapID As Integer
             Dim taxiNode As Integer
-            Dim taxiMountType_Horde As Integer
-            Dim taxiMountType_Alliance As Integer
+            Dim taxiMountTypeHorde As Integer
+            Dim taxiMountTypeAlliance As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 taxiNode = tmpDBC.Item(i, 0)
                 taxiMapID = tmpDBC.Item(i, 1)
-                taxiPosX = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
-                taxiPosY = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_FLOAT)
-                taxiPosZ = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_FLOAT)
-                taxiMountType_Horde = tmpDBC.Item(i, 14)
-                taxiMountType_Alliance = tmpDBC.Item(i, 15)
+                taxiPosX = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
+                taxiPosY = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT)
+                taxiPosZ = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
+                taxiMountTypeHorde = tmpDBC.Item(i, 14)
+                taxiMountTypeAlliance = tmpDBC.Item(i, 15)
 
                 If Config.Maps.Contains(taxiMapID.ToString) Then
-                    TaxiNodes.Add(taxiNode, New TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountType_Horde, taxiMountType_Alliance))
+                    TaxiNodes.Add(taxiNode, New TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountTypeHorde, taxiMountTypeAlliance))
                 End If
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiNodes initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiNodes initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : TaxiNodes missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeTaxiPaths()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\TaxiPath.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPath.dbc")
 
             Dim taxiNode As Integer
             Dim taxiFrom As Integer
             Dim taxiTo As Integer
             Dim taxiPrice As Integer
-            Dim i As Integer = 0
 
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 taxiNode = tmpDBC.Item(i, 0)
                 taxiFrom = tmpDBC.Item(i, 1)
                 taxiTo = tmpDBC.Item(i, 2)
@@ -435,20 +425,20 @@ Public Module WS_DBCLoad
 
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPaths initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPaths initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : TaxiPath missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeTaxiPathNodes()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\TaxiPathNode.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPathNode.dbc")
 
-            Dim taxiNode As Integer
+            'Dim taxiNode As Integer
             Dim taxiPath As Integer
             Dim taxiSeq As Integer
             Dim taxiMapID As Integer
@@ -457,16 +447,15 @@ Public Module WS_DBCLoad
             Dim taxiPosZ As Single
             Dim taxiAction As Integer
             Dim taxiWait As Integer
-            Dim i As Integer = 0
 
-            For i = 0 To tmpDBC.Rows - 1
-                taxiNode = tmpDBC.Item(i, 0)
+            For i As Integer = 0 To tmpDBC.Rows - 1
+                'taxiNode = tmpDBC.Item(i, 0)
                 taxiPath = tmpDBC.Item(i, 1)
                 taxiSeq = tmpDBC.Item(i, 2)
                 taxiMapID = tmpDBC.Item(i, 3)
-                taxiPosX = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_FLOAT)
-                taxiPosY = tmpDBC.Item(i, 5, DBC.DBCValueType.DBC_FLOAT)
-                taxiPosZ = tmpDBC.Item(i, 6, DBC.DBCValueType.DBC_FLOAT)
+                taxiPosX = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
+                taxiPosY = tmpDBC.Item(i, 5, DBCValueType.DBC_FLOAT)
+                taxiPosZ = tmpDBC.Item(i, 6, DBCValueType.DBC_FLOAT)
                 taxiAction = tmpDBC.Item(i, 7)
                 taxiWait = tmpDBC.Item(i, 8)
 
@@ -478,12 +467,12 @@ Public Module WS_DBCLoad
                 End If
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPathNodes initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPathNodes initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : TaxiPathNode missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -491,46 +480,42 @@ Public Module WS_DBCLoad
 #Region "Skills"
     Public Sub InitializeSkillLines()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SkillLine.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLine.dbc")
 
             Dim skillID As Integer
             Dim skillLine As Integer
             'Dim skillUnk1 As Integer
-            Dim skillName As String
-            Dim skillDescription As String
-            Dim skillSpellIcon As Integer
+            'Dim skillName As String
+            'Dim skillDescription As String
+            'Dim skillSpellIcon As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 skillID = tmpDBC.Item(i, 0)
                 skillLine = tmpDBC.Item(i, 1) ' Type or Category?
                 'skillUnk1 = tmpDBC.Item(i, 2) ' May be needed in the future
                 'skillName = tmpDBC.Item(i, 3) ' May be needed in the future
-                skillName = tmpDBC.Item(i, 3, DBCValueType.DBC_STRING)
-                skillDescription = tmpDBC.Item(i, 12, DBCValueType.DBC_STRING)
-                skillSpellIcon = tmpDBC.Item(i, 21)
+                'skillName = tmpDBC.Item(i, 3, DBCValueType.DBC_STRING)
+                'skillDescription = tmpDBC.Item(i, 12, DBCValueType.DBC_STRING)
+                'skillSpellIcon = tmpDBC.Item(i, 21)
 
                 SkillLines(skillID) = skillLine
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SkillLines missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeSkillLineAbility()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SkillLineAbility.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLineAbility.dbc")
 
-            Dim tmpSkillLineAbility As New TSkillLineAbility
-
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
-                tmpSkillLineAbility = New TSkillLineAbility
+            For i As Integer = 0 To tmpDBC.Rows - 1
+                Dim tmpSkillLineAbility As New TSkillLineAbility
 
                 tmpSkillLineAbility.ID = tmpDBC.Item(i, 0)
                 tmpSkillLineAbility.SkillID = tmpDBC.Item(i, 1)
@@ -548,12 +533,12 @@ Public Module WS_DBCLoad
                 SkillLineAbility.Add(tmpSkillLineAbility.ID, tmpSkillLineAbility)
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SkillLineAbility missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -562,7 +547,7 @@ Public Module WS_DBCLoad
 #Region "Locks"
     Public Sub InitializeLocks()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Lock.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Lock.dbc")
 
             Dim lockID As Integer
             Dim keyType(4) As Byte
@@ -570,8 +555,7 @@ Public Module WS_DBCLoad
             Dim reqMining As Integer
             Dim reqLockSkill As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 lockID = tmpDBC.Item(i, 0)
                 keyType(0) = CByte(tmpDBC.Item(i, 1))
                 keyType(1) = CByte(tmpDBC.Item(i, 2))
@@ -589,12 +573,12 @@ Public Module WS_DBCLoad
                 Locks(lockID) = New TLock(keyType, key, reqMining, reqLockSkill)
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : Locks missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -602,7 +586,7 @@ Public Module WS_DBCLoad
 #Region "AreaTable"
     Public Sub InitializeAreaTable()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\AreaTable.dbc")
+            Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\AreaTable.dbc")
 
             Dim areaID As Integer
             'Dim areaMapID As Integer
@@ -614,19 +598,18 @@ Public Module WS_DBCLoad
             'Dim areaTeam As Integer
             'Dim areaName As String
 
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
-                areaID = tmpDBC.Item(i, 0)
+            For i As Integer = 0 To tmpDbc.Rows - 1
+                areaID = tmpDbc.Item(i, 0)
                 'areaMapID = tmpDBC.Item(i, 1) ' May be needed in the future
-                areaZone = tmpDBC.Item(i, 2)
-                areaExploreFlag = tmpDBC.Item(i, 3)
-                areaZoneType = tmpDBC.Item(i, 4) ' 312 For Cities - Flags
+                areaZone = tmpDbc.Item(i, 2)
+                areaExploreFlag = tmpDbc.Item(i, 3)
+                areaZoneType = tmpDbc.Item(i, 4) ' 312 For Cities - Flags
                 ' 5        m_SoundProviderPref
                 ' 6        m_SoundProviderPrefUnderwater
                 ' 7        m_AmbienceID
                 'areaEXP = tmpDBC.Item(i, 8) ' May be needed in the future - m_ZoneMusic
                 ' 9        m_IntroSound
-                areaLevel = tmpDBC.Item(i, 10)
+                areaLevel = tmpDbc.Item(i, 10)
                 'areaName = tmpDBC.Item(i, 11) ' May be needed in the future
                 ' 19 string flags
                 'areaTeam = tmpDBC.Item(i, 20)
@@ -643,12 +626,12 @@ Public Module WS_DBCLoad
                 AreaTable(areaExploreFlag).ZoneType = areaZoneType
                 'AreaTable(areaExploreFlag).Team = areaTeam
             Next i
-            tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", tmpDbc.Rows - 1)
+            tmpDbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : AreaTable missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -656,57 +639,55 @@ Public Module WS_DBCLoad
 #Region "Emotes"
     Public Sub InitializeEmotes()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Emotes.dbc")
-            Dim EmoteID As Integer
-            Dim EmoteState As Integer
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Emotes.dbc")
+            Dim emoteID As Integer
+            Dim emoteState As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
-                EmoteID = tmpDBC.Item(i, 0)
-                EmoteState = tmpDBC.Item(i, 4)
+            For i As Integer = 0 To tmpDBC.Rows - 1
+                emoteID = tmpDBC.Item(i, 0)
+                emoteState = tmpDBC.Item(i, 4)
 
-                If EmoteID <> 0 Then EmotesState(EmoteID) = EmoteState
+                If emoteID <> 0 Then EmotesState(emoteID) = emoteState
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : Emotes missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeEmotesText()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\EmotesText.dbc")
+            Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\EmotesText.dbc")
             Dim textEmoteID As Integer
-            Dim EmoteID As Integer
+            Dim emoteID As Integer
             'Dim EmoteID2 As Integer
             'Dim EmoteID3 As Integer
             'Dim EmoteID4 As Integer
             'Dim EmoteID5 As Integer
             'Dim EmoteID6 As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To tmpDBC.Rows - 1
-                textEmoteID = tmpDBC.Item(i, 0)
-                EmoteID = tmpDBC.Item(i, 2)
+            For i As Integer = 0 To tmpDbc.Rows - 1
+                textEmoteID = tmpDbc.Item(i, 0)
+                emoteID = tmpDbc.Item(i, 2)
                 'EmoteID2 = tmpDBC.Item(i, 3) ' May be needed in the future
                 'EmoteID3 = tmpDBC.Item(i, 4) ' May be needed in the future
                 'EmoteID4 = tmpDBC.Item(i, 5) ' May be needed in the future
                 'EmoteID5 = tmpDBC.Item(i, 7) ' May be needed in the future
                 'EmoteID6 = tmpDBC.Item(i, 8) ' May be needed in the future
 
-                If EmoteID <> 0 Then EmotesText(textEmoteID) = EmoteID
+                If emoteID <> 0 Then EmotesText(textEmoteID) = emoteID
             Next i
 
-            tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", tmpDbc.Rows - 1)
+            tmpDbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : EmotesText missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -714,60 +695,55 @@ Public Module WS_DBCLoad
 #Region "Factions"
     Public Sub InitializeFactions()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Faction.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Faction.dbc")
 
             Dim factionID As Integer
             Dim factionFlag As Integer
-            Dim Flags(3) As Integer
-            Dim ReputationStats(3) As Integer
-            Dim ReputationFlags(3) As Integer
-            Dim factionTeam As Integer
+            Dim flags(3) As Integer
+            Dim reputationStats(3) As Integer
+            Dim reputationFlags(3) As Integer
             'Dim factionName As String
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 factionID = tmpDBC.Item(i, 0)
                 factionFlag = tmpDBC.Item(i, 1)
-                Flags(0) = tmpDBC.Item(i, 2)
-                Flags(1) = tmpDBC.Item(i, 3)
-                Flags(2) = tmpDBC.Item(i, 4)
-                Flags(3) = tmpDBC.Item(i, 5)
-                ReputationStats(0) = tmpDBC.Item(i, 10)
-                ReputationStats(1) = tmpDBC.Item(i, 11)
-                ReputationStats(2) = tmpDBC.Item(i, 12)
-                ReputationStats(3) = tmpDBC.Item(i, 13)
-                ReputationFlags(0) = tmpDBC.Item(i, 14)
-                ReputationFlags(1) = tmpDBC.Item(i, 15)
-                ReputationFlags(2) = tmpDBC.Item(i, 16)
-                ReputationFlags(3) = tmpDBC.Item(i, 17)
-                factionTeam = tmpDBC.Item(i, 18)
+                flags(0) = tmpDBC.Item(i, 2)
+                flags(1) = tmpDBC.Item(i, 3)
+                flags(2) = tmpDBC.Item(i, 4)
+                flags(3) = tmpDBC.Item(i, 5)
+                reputationStats(0) = tmpDBC.Item(i, 10)
+                reputationStats(1) = tmpDBC.Item(i, 11)
+                reputationStats(2) = tmpDBC.Item(i, 12)
+                reputationStats(3) = tmpDBC.Item(i, 13)
+                reputationFlags(0) = tmpDBC.Item(i, 14)
+                reputationFlags(1) = tmpDBC.Item(i, 15)
+                reputationFlags(2) = tmpDBC.Item(i, 16)
+                reputationFlags(3) = tmpDBC.Item(i, 17)
                 'factionName = tmpDBC.Item(i, 19) ' May be needed in the future
 
-                FactionInfo(factionID) = New WS_DBCDatabase.TFaction(factionID, factionFlag, _
-                   Flags(0), Flags(1), Flags(2), Flags(3), _
-                   ReputationStats(0), ReputationStats(1), ReputationStats(2), ReputationStats(3), _
-                   ReputationFlags(0), ReputationFlags(1), ReputationFlags(2), ReputationFlags(3))
+                FactionInfo(factionID) = New TFaction(factionID, factionFlag, _
+                   flags(0), flags(1), flags(2), flags(3), _
+                   reputationStats(0), reputationStats(1), reputationStats(2), reputationStats(3), _
+                   reputationFlags(0), reputationFlags(1), reputationFlags(2), reputationFlags(3))
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Factions initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Factions initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : Factions missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeFactionTemplates()
         Try
-            Dim i As Integer
-
             'Loading from DBC
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\FactionTemplate.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\FactionTemplate.dbc")
 
             Dim templateID As Integer
 
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 templateID = tmpDBC.Item(i, 0)
                 FactionTemplatesInfo.Add(templateID, New TFactionTemplate)
                 FactionTemplatesInfo(templateID).FactionID = tmpDBC.Item(i, 1)
@@ -784,21 +760,19 @@ Public Module WS_DBCLoad
                 FactionTemplatesInfo(templateID).friendFaction4 = tmpDBC.Item(i, 13)
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : FactionsTemplates missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeCharRaces()
         Try
-            Dim i As Integer
-
             'Loading from DBC
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\ChrRaces.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrRaces.dbc")
 
             Dim raceID As Integer
             Dim factionID As Integer
@@ -809,7 +783,7 @@ Public Module WS_DBCLoad
             Dim cinematicID As Integer
             Dim name As String
 
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 raceID = tmpDBC.Item(i, 0)
                 factionID = tmpDBC.Item(i, 2)
                 modelM = tmpDBC.Item(i, 4)
@@ -822,38 +796,36 @@ Public Module WS_DBCLoad
                 CharRaces(CByte(raceID)) = New TCharRace(CShort(factionID), modelM, modelF, CByte(teamID), taxiMask, cinematicID, name)
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : CharRaces missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub InitializeCharClasses()
         Try
-            Dim i As Integer
-
             'Loading from DBC
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\ChrClasses.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrClasses.dbc")
 
             Dim classID As Integer
             Dim cinematicID As Integer
 
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 classID = tmpDBC.Item(i, 0)
                 cinematicID = tmpDBC.Item(i, 5)
 
                 CharClasses(CByte(classID)) = New TCharClass(cinematicID)
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : CharRaces missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -861,14 +833,13 @@ Public Module WS_DBCLoad
 #Region "DurabilityCosts"
     Public Sub InitializeDurabilityCosts()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\DurabilityCosts.dbc")
+            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\DurabilityCosts.dbc")
 
             Dim itemBroken As Integer
             Dim itemType As Integer
             Dim itemPrice As Integer
 
-            Dim i As Integer
-            For i = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDBC.Rows - 1
                 itemBroken = tmpDBC.Item(i, 0)
 
                 For itemType = 1 To tmpDBC.Columns - 1
@@ -878,111 +849,111 @@ Public Module WS_DBCLoad
 
             Next i
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} DurabilityCosts initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} DurabilityCosts initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : DurabilityCosts missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
 
 #Region "Talents"
-    Public Sub LoadTalentDBC()
+    Public Sub LoadTalentDbc()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Talent.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\Talent.dbc")
 
             Dim tmpInfo As TalentInfo
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
+            For i As Integer = 0 To dbc.Rows - 1
                 tmpInfo = New TalentInfo
 
-                tmpInfo.TalentID = DBC.Item(i, 0)
-                tmpInfo.TalentTab = DBC.Item(i, 1)
-                tmpInfo.Row = DBC.Item(i, 2)
-                tmpInfo.Col = DBC.Item(i, 3)
-                tmpInfo.RankID(0) = DBC.Item(i, 4)
-                tmpInfo.RankID(1) = DBC.Item(i, 5)
-                tmpInfo.RankID(2) = DBC.Item(i, 6)
-                tmpInfo.RankID(3) = DBC.Item(i, 7)
-                tmpInfo.RankID(4) = DBC.Item(i, 8)
+                tmpInfo.TalentID = dbc.Item(i, 0)
+                tmpInfo.TalentTab = dbc.Item(i, 1)
+                tmpInfo.Row = dbc.Item(i, 2)
+                tmpInfo.Col = dbc.Item(i, 3)
+                tmpInfo.RankID(0) = dbc.Item(i, 4)
+                tmpInfo.RankID(1) = dbc.Item(i, 5)
+                tmpInfo.RankID(2) = dbc.Item(i, 6)
+                tmpInfo.RankID(3) = dbc.Item(i, 7)
+                tmpInfo.RankID(4) = dbc.Item(i, 8)
 
-                tmpInfo.RequiredTalent(0) = DBC.Item(i, 13) ' dependson
+                tmpInfo.RequiredTalent(0) = dbc.Item(i, 13) ' dependson
                 'tmpInfo.RequiredTalent(1) = DBC.Item(i, 14) ' ???
                 'tmpInfo.RequiredTalent(2) = DBC.Item(i, 15) ' ???
-                tmpInfo.RequiredPoints(0) = DBC.Item(i, 16) ' dependsonrank
+                tmpInfo.RequiredPoints(0) = dbc.Item(i, 16) ' dependsonrank
                 'tmpInfo.RequiredPoints(1) = DBC.Item(i, 17) ' ???
                 'tmpInfo.RequiredPoints(2) = DBC.Item(i, 18) ' ???
 
                 Talents.Add(tmpInfo.TalentID, tmpInfo)
             Next i
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : Talents missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
-    Public Sub LoadTalentTabDBC()
+    Public Sub LoadTalentTabDbc()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\TalentTab.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\TalentTab.dbc")
 
-            Dim TalentTab As Integer
-            Dim TalentMask As Integer
-            Dim TalentTabPage As Integer
+            Dim talentTab As Integer
+            Dim talentMask As Integer
+            'Dim TalentTabPage As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
-                TalentTab = DBC.Item(i, 0)
-                TalentMask = DBC.Item(i, 12)
-                TalentTabPage = DBC.Item(i, 13) ' May be needed in the future
+            For i As Integer = 0 To dbc.Rows - 1
+                talentTab = dbc.Item(i, 0)
+                talentMask = dbc.Item(i, 12)
+                '   TalentTabPage = dbc.Item(i, 13) ' May be needed in the future
 
-                TalentsTab.Add(TalentTab, TalentMask)
+                TalentsTab.Add(talentTab, talentMask)
             Next i
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : TalentTab missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
 
 #Region "AuctionHouse"
-    Public Sub LoadAuctionHouseDBC()
+    Public Sub LoadAuctionHouseDbc()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\AuctionHouse.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\AuctionHouse.dbc")
 
-            Dim AHId As Integer
-            Dim unk As Integer
+            Dim ahId As Integer
             Dim fee As Integer
             Dim tax As Integer
 
             'What the hell is this doing? o_O
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
-                AHId = DBC.Item(i, 0)
-                unk = DBC.Item(i, 1)
-                fee = DBC.Item(i, 2)
-                tax = DBC.Item(i, 3)
+            For i As Integer = 0 To dbc.Rows - 1
+                ahId = dbc.Item(i, 0)
+                fee = dbc.Item(i, 2)
+                tax = dbc.Item(i, 3)
 
-                AuctionID = AHId
+                'TODO: This needs to be put into a class or dictionary collection
+                AuctionID = ahId
+                AuctionFee = fee
+                AuctionTax = tax
+
             Next i
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} AuctionHouses initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} AuctionHouses initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : AuctionHouse missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -991,68 +962,66 @@ Public Module WS_DBCLoad
 #Region "Items"
     Public Sub LoadSpellItemEnchantments()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellItemEnchantment.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\SpellItemEnchantment.dbc")
 
-            Dim ID As Integer
-            Dim Type(2) As Integer
-            Dim Amount(2) As Integer
-            Dim SpellID(2) As Integer
-            Dim AuraID As Integer
-            Dim Slot As Integer
+            Dim id As Integer
+            Dim type(2) As Integer
+            Dim amount(2) As Integer
+            Dim spellID(2) As Integer
+            Dim auraID As Integer
+            Dim slot As Integer
             'Dim EnchantmentConditions As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
-                ID = DBC.Item(i, 0)
-                Type(0) = DBC.Item(i, 1)
-                Type(1) = DBC.Item(i, 2)
+            For i As Integer = 0 To dbc.Rows - 1
+                id = dbc.Item(i, 0)
+                type(0) = dbc.Item(i, 1)
+                type(1) = dbc.Item(i, 2)
                 'Type(2) = DBC.Item(i, 3)
-                Amount(0) = DBC.Item(i, 4)
-                Amount(1) = DBC.Item(i, 7)
+                amount(0) = dbc.Item(i, 4)
+                amount(1) = dbc.Item(i, 7)
                 'Amount(2) = DBC.Item(i, 6)
-                SpellID(0) = DBC.Item(i, 10)
-                SpellID(1) = DBC.Item(i, 11)
+                spellID(0) = dbc.Item(i, 10)
+                spellID(1) = dbc.Item(i, 11)
                 'SpellID(2) = DBC.Item(i, 12)
-                AuraID = DBC.Item(i, 22)
-                Slot = DBC.Item(i, 23)
+                auraID = dbc.Item(i, 22)
+                slot = dbc.Item(i, 23)
                 'EnchantmentConditions = DBC.Item(i, 23) ' TODO: Correct?
 
-                SpellItemEnchantments.Add(ID, New TSpellItemEnchantment(Type, Amount, SpellID, AuraID, Slot)) ', EnchantmentConditions))
+                SpellItemEnchantments.Add(id, New TSpellItemEnchantment(type, amount, spellID, auraID, slot)) ', EnchantmentConditions))
             Next
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : SpellItemEnchantments missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
     Public Sub LoadItemSet()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\ItemSet.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemSet.dbc")
 
-            Dim ID As Integer
-            Dim Name As String
-            Dim ItemID(7) As Integer
-            Dim SpellID(7) As Integer
-            Dim ItemCount(7) As Integer
-            Dim Required_Skill_ID As Integer
-            Dim Required_Skill_Value As Integer
+            Dim id As Integer
+            Dim name As String
+            Dim itemID(7) As Integer
+            Dim spellID(7) As Integer
+            Dim itemCount(7) As Integer
+            Dim requiredSkillID As Integer
+            Dim requiredSkillValue As Integer
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
-                ID = DBC.Item(i, 0)
-                Name = DBC.Item(i, 1, DBCValueType.DBC_STRING)
-                ItemID(0) = DBC.Item(i, 10) ' 10 - 26
-                ItemID(1) = DBC.Item(i, 11)
-                ItemID(2) = DBC.Item(i, 12)
-                ItemID(3) = DBC.Item(i, 13)
-                ItemID(4) = DBC.Item(i, 14)
-                ItemID(5) = DBC.Item(i, 15)
-                ItemID(6) = DBC.Item(i, 16)
-                ItemID(7) = DBC.Item(i, 17)
+            For i As Integer = 0 To dbc.Rows - 1
+                id = dbc.Item(i, 0)
+                name = dbc.Item(i, 1, DBCValueType.DBC_STRING)
+                itemID(0) = dbc.Item(i, 10) ' 10 - 26
+                itemID(1) = dbc.Item(i, 11)
+                itemID(2) = dbc.Item(i, 12)
+                itemID(3) = dbc.Item(i, 13)
+                itemID(4) = dbc.Item(i, 14)
+                itemID(5) = dbc.Item(i, 15)
+                itemID(6) = dbc.Item(i, 16)
+                itemID(7) = dbc.Item(i, 17)
                 'SpellID(0) = DBC.Item(i, 27) ' 27 - 34
                 'SpellID(1) = DBC.Item(i, 28)
                 'SpellID(2) = DBC.Item(i, 29)
@@ -1072,68 +1041,66 @@ Public Module WS_DBCLoad
                 'Required_Skill_ID = DBC.Item(i, 43)
                 'Required_Skill_Value = DBC.Item(i, 44)
 
-                ItemSet.Add(ID, New TItemSet(Name, ItemID, SpellID, ItemCount, Required_Skill_ID, Required_Skill_Value))
+                ItemSet.Add(id, New TItemSet(name, itemID, spellID, itemCount, requiredSkillID, requiredSkillValue))
             Next
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : ItemSet missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
-    Public Sub LoadItemDisplayInfoDBC()
+    Public Sub LoadItemDisplayInfoDbc()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\ItemDisplayInfo.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemDisplayInfo.dbc")
 
             Dim tmpItemDisplayInfo As TItemDisplayInfo
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
+            For i As Integer = 0 To dbc.Rows - 1
                 tmpItemDisplayInfo = New TItemDisplayInfo
 
-                tmpItemDisplayInfo.ID = DBC.Item(i, 0)
-                tmpItemDisplayInfo.RandomPropertyChance = DBC.Item(i, 11)
-                tmpItemDisplayInfo.Unknown = DBC.Item(i, 22)
+                tmpItemDisplayInfo.ID = dbc.Item(i, 0)
+                tmpItemDisplayInfo.RandomPropertyChance = dbc.Item(i, 11)
+                tmpItemDisplayInfo.Unknown = dbc.Item(i, 22)
 
                 ItemDisplayInfo.Add(tmpItemDisplayInfo.ID, tmpItemDisplayInfo)
             Next i
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : ItemDisplayInfo missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
-    Public Sub LoadItemRandomPropertiesDBC()
+    Public Sub LoadItemRandomPropertiesDbc()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\ItemRandomProperties.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemRandomProperties.dbc")
 
             Dim tmpInfo As TItemRandomPropertiesInfo
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
+            For i As Integer = 0 To dbc.Rows - 1
                 tmpInfo = New TItemRandomPropertiesInfo
 
-                tmpInfo.ID = DBC.Item(i, 0)
-                tmpInfo.Enchant_ID(0) = DBC.Item(i, 2)
-                tmpInfo.Enchant_ID(1) = DBC.Item(i, 3)
-                tmpInfo.Enchant_ID(2) = DBC.Item(i, 4)
+                tmpInfo.ID = dbc.Item(i, 0)
+                tmpInfo.Enchant_ID(0) = dbc.Item(i, 2)
+                tmpInfo.Enchant_ID(1) = dbc.Item(i, 3)
+                tmpInfo.Enchant_ID(2) = dbc.Item(i, 4)
 
                 ItemRandomPropertiesInfo.Add(tmpInfo.ID, tmpInfo)
             Next i
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : ItemRandomProperties missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -1142,86 +1109,85 @@ Public Module WS_DBCLoad
 #Region "Creatures"
     Public Sub LoadCreatureGossip()
         Try
-            Dim GossipQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM npc_gossip;", GossipQuery)
+            Dim gossipQuery As New DataTable
+            WorldDatabase.Query("SELECT * FROM npc_gossip;", gossipQuery)
 
-            Dim GUID As ULong
-            For Each Gossip As DataRow In GossipQuery.Rows
-                GUID = Gossip.Item("npc_guid")
-                If CreatureGossip.ContainsKey(GUID) = False Then
-                    CreatureGossip.Add(GUID, Gossip.Item("textid"))
+            Dim guid As ULong
+            For Each gossip As DataRow In gossipQuery.Rows
+                guid = gossip.Item("npc_guid")
+                If CreatureGossip.ContainsKey(guid) = False Then
+                    CreatureGossip.Add(guid, gossip.Item("textid"))
                 End If
             Next
 
             Log.WriteLine(LogType.INFORMATION, "Database: {0} creature gossips initialized.", CreatureGossip.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("Database : Waypoint_Data missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
-    Public Sub LoadCreatureFamilyDBC()
+    Public Sub LoadCreatureFamilyDbc()
         Try
-            Dim DBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\CreatureFamily.dbc")
+            Dim dbc As BufferedDBC = New BufferedDBC("dbc\CreatureFamily.dbc")
 
             Dim tmpInfo As CreatureFamilyInfo
 
-            Dim i As Integer = 0
-            For i = 0 To DBC.Rows - 1
+            For i As Integer = 0 To dbc.Rows - 1
                 tmpInfo = New CreatureFamilyInfo
 
-                tmpInfo.ID = DBC.Item(i, 0)
-                tmpInfo.Unknown1 = DBC.Item(i, 5)
-                tmpInfo.Unknown2 = DBC.Item(i, 6)
-                tmpInfo.PetFoodID = DBC.Item(i, 7)
-                tmpInfo.Name = DBC.Item(i, 12, DBCValueType.DBC_STRING)
+                tmpInfo.ID = dbc.Item(i, 0)
+                tmpInfo.Unknown1 = dbc.Item(i, 5)
+                tmpInfo.Unknown2 = dbc.Item(i, 6)
+                tmpInfo.PetFoodID = dbc.Item(i, 7)
+                tmpInfo.Name = dbc.Item(i, 12, DBCValueType.DBC_STRING)
 
                 CreaturesFamily.Add(tmpInfo.ID, tmpInfo)
             Next i
 
-            DBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", i)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", dbc.Rows - 1)
+            dbc.Dispose()
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : CreatureFamily missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub LoadCreatureMovements()
         Try
-            Dim MovementsQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM waypoint_data ORDER BY id, point;", MovementsQuery)
+            Dim movementsQuery As New DataTable
+            WorldDatabase.Query("SELECT * FROM waypoint_data ORDER BY id, point;", movementsQuery)
 
-            Dim ID As Integer
-            For Each Movement As DataRow In MovementsQuery.Rows
-                ID = CType(Movement.Item("id"), Integer)
-                If CreatureMovement.ContainsKey(ID) = False Then
-                    CreatureMovement.Add(ID, New Dictionary(Of Integer, CreatureMovePoint))
+            Dim id As Integer
+            For Each movement As DataRow In movementsQuery.Rows
+                id = CType(movement.Item("id"), Integer)
+                If CreatureMovement.ContainsKey(id) = False Then
+                    CreatureMovement.Add(id, New Dictionary(Of Integer, CreatureMovePoint))
                 End If
-                CreatureMovement(ID).Add(Movement.Item("point"), New CreatureMovePoint(Movement.Item("position_x"), Movement.Item("position_y"), Movement.Item("position_z"), Movement.Item("delay"), Movement.Item("move_flag"), Movement.Item("action"), Movement.Item("action_chance")))
+                CreatureMovement(id).Add(movement.Item("point"), New CreatureMovePoint(movement.Item("position_x"), movement.Item("position_y"), movement.Item("position_z"), movement.Item("delay"), movement.Item("move_flag"), movement.Item("action"), movement.Item("action_chance")))
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} creature movements for {1} creatures initialized.", MovementsQuery.Rows.Count, CreatureMovement.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "Database: {0} creature movements for {1} creatures initialized.", movementsQuery.Rows.Count, CreatureMovement.Count)
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("Database : Waypoint_Data missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
     Public Sub LoadCreatureEquipTable()
         Try
-            Dim EquipQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM creature_equip_template_raw;", EquipQuery)
+            Dim equipQuery As New DataTable
+            WorldDatabase.Query("SELECT * FROM creature_equip_template_raw;", equipQuery)
 
-            Dim Entry As Integer
-            For Each EquipInfo As DataRow In EquipQuery.Rows
-                Entry = CType(EquipInfo.Item("entry"), Integer)
-                If CreatureEquip.ContainsKey(Entry) Then Continue For
-                CreatureEquip.Add(Entry, New CreatureEquipInfo(EquipInfo.Item("equipmodel1"), EquipInfo.Item("equipmodel2"), EquipInfo.Item("equipmodel3"), EquipInfo.Item("equipinfo1"), EquipInfo.Item("equipinfo2"), EquipInfo.Item("equipinfo3"), EquipInfo.Item("equipslot1"), EquipInfo.Item("equipslot2"), EquipInfo.Item("equipslot3")))
+            Dim entry As Integer
+            For Each equipInfo As DataRow In equipQuery.Rows
+                entry = CType(equipInfo.Item("entry"), Integer)
+                If CreatureEquip.ContainsKey(entry) Then Continue For
+                CreatureEquip.Add(entry, New CreatureEquipInfo(equipInfo.Item("equipmodel1"), equipInfo.Item("equipmodel2"), equipInfo.Item("equipmodel3"), equipInfo.Item("equipinfo1"), equipInfo.Item("equipinfo2"), equipInfo.Item("equipinfo3"), equipInfo.Item("equipslot1"), equipInfo.Item("equipslot2"), equipInfo.Item("equipslot3")))
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", EquipQuery.Rows.Count)
+            Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", equipQuery.Rows.Count)
         Catch e As DirectoryNotFoundException
             Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("Database : Creature_Equip_Template_raw missing.")
@@ -1230,21 +1196,21 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub LoadCreatureModelInfo()
         Try
-            Dim ModelQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM creature_model_info;", ModelQuery)
+            Dim modelQuery As New DataTable
+            WorldDatabase.Query("SELECT * FROM creature_model_info;", modelQuery)
 
-            Dim Entry As Integer
-            For Each ModelInfo As DataRow In ModelQuery.Rows
-                Entry = CType(ModelInfo.Item("modelid"), Integer)
-                If CreatureModel.ContainsKey(Entry) Then Continue For
-                CreatureModel.Add(Entry, New CreatureModelInfo(ModelInfo.Item("bounding_radius"), ModelInfo.Item("combat_reach"), ModelInfo.Item("gender"), ModelInfo.Item("modelid_other_gender")))
+            Dim entry As Integer
+            For Each modelInfo As DataRow In modelQuery.Rows
+                entry = CType(modelInfo.Item("modelid"), Integer)
+                If CreatureModel.ContainsKey(entry) Then Continue For
+                CreatureModel.Add(entry, New CreatureModelInfo(modelInfo.Item("bounding_radius"), modelInfo.Item("combat_reach"), modelInfo.Item("gender"), modelInfo.Item("modelid_other_gender")))
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} creature models initialized.", ModelQuery.Rows.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "Database: {0} creature models initialized.", modelQuery.Rows.Count)
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("Database : Creature_Model_Info missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region
@@ -1318,27 +1284,27 @@ Public Module WS_DBCLoad
 #Region "Weather"
     Public Sub LoadWeather()
         Try
-            Dim WeatherQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM game_weather;", WeatherQuery)
+            Dim weatherQuery As New DataTable
+            WorldDatabase.Query("SELECT * FROM game_weather;", weatherQuery)
 
-            For Each Weather As DataRow In WeatherQuery.Rows
-                Dim Zone As Integer = Weather.Item("zone")
+            For Each weather As DataRow In weatherQuery.Rows
+                Dim zone As Integer = weather.Item("zone")
 
-                If WeatherZones.ContainsKey(Zone) = False Then
-                    Dim ZoneChanges As New WeatherZone(Zone)
-                    ZoneChanges.Seasons(0) = New WeatherSeasonChances(Weather.Item("spring_rain_chance"), Weather.Item("spring_snow_chance"), Weather.Item("spring_storm_chance"))
-                    ZoneChanges.Seasons(1) = New WeatherSeasonChances(Weather.Item("summer_rain_chance"), Weather.Item("summer_snow_chance"), Weather.Item("summer_storm_chance"))
-                    ZoneChanges.Seasons(2) = New WeatherSeasonChances(Weather.Item("fall_rain_chance"), Weather.Item("fall_snow_chance"), Weather.Item("fall_storm_chance"))
-                    ZoneChanges.Seasons(3) = New WeatherSeasonChances(Weather.Item("winter_rain_chance"), Weather.Item("winter_snow_chance"), Weather.Item("winter_storm_chance"))
-                    WeatherZones.Add(Zone, ZoneChanges)
+                If WeatherZones.ContainsKey(zone) = False Then
+                    Dim zoneChanges As New WeatherZone(zone)
+                    zoneChanges.Seasons(0) = New WeatherSeasonChances(weather.Item("spring_rain_chance"), weather.Item("spring_snow_chance"), weather.Item("spring_storm_chance"))
+                    zoneChanges.Seasons(1) = New WeatherSeasonChances(weather.Item("summer_rain_chance"), weather.Item("summer_snow_chance"), weather.Item("summer_storm_chance"))
+                    zoneChanges.Seasons(2) = New WeatherSeasonChances(weather.Item("fall_rain_chance"), weather.Item("fall_snow_chance"), weather.Item("fall_storm_chance"))
+                    zoneChanges.Seasons(3) = New WeatherSeasonChances(weather.Item("winter_rain_chance"), weather.Item("winter_snow_chance"), weather.Item("winter_storm_chance"))
+                    WeatherZones.Add(zone, zoneChanges)
                 End If
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} Weather zones initialized.", WeatherQuery.Rows.Count)
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Log.WriteLine(LogType.INFORMATION, "Database: {0} Weather zones initialized.", weatherQuery.Rows.Count)
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("Database : TransportQuery missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 #End Region

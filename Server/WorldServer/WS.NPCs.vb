@@ -687,8 +687,7 @@ Public Module WS_NPCs
                 WORLD_ITEMs(itemGuid).ModifyToDurability(100.0F, client)
             End If
         Else
-            Dim i As Byte
-            For i = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
                 If client.Character.Items.ContainsKey(i) Then
                     price = (client.Character.Items(i).GetDurabulityCost * discountMod)
 
@@ -933,14 +932,13 @@ Public Module WS_NPCs
         Try
             packet.GetInt16()
             Dim guid As ULong = packet.GetPackGuid
-            Dim i As Integer
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_TALENT_WIPE_CONFIRM [GUID={2:X}]", client.IP, client.Port, guid)
             If client.Character.Level < 10 Then Exit Sub
 
             'DONE: Removing all talents
             For Each talentInfo As KeyValuePair(Of Integer, TalentInfo) In Talents
-                For i = 0 To 4
+                For i as Integer = 0 To 4
                     If talentInfo.Value.RankID(i) <> 0 Then
                         If client.Character.HaveSpell(talentInfo.Value.RankID(i)) Then
                             client.Character.UnLearnSpell(talentInfo.Value.RankID(i))

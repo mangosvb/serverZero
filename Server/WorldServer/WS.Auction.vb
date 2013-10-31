@@ -23,6 +23,9 @@ Module WS_Auction
 
 #Region "WS.Auction.Constants"
     Public AuctionID As Integer
+    Public AuctionFee As Integer
+    Public AuctionTax As Integer
+
     Public Enum AuctionHouses As Integer
         AUCTION_UNDEFINED = 0
         AUCTION_ALLIANCE = 2

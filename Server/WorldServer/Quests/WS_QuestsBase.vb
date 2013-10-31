@@ -100,7 +100,7 @@ Public Class WS_QuestsBase
         ''TODO: Fix this below
         'If (Quest.Flags And QuestFlag.QUEST_FLAGS_EVENT) Then
         '    ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_EVENT
-        '    For i = 0 To 3
+        '    For i as Integer = 0 To 3
         '        If ObjectivesType(i) = 0 Then
         '            ObjectivesType(i) = QuestObjectiveFlag.QUEST_OBJECTIVE_EVENT
         '            ObjectivesCount(i) = 1
@@ -154,7 +154,6 @@ Public Class WS_QuestsBase
     ''' </summary>
     ''' <param name="objCharacter">The Character.</param>
     Public Sub Initialize(ByRef objCharacter As CharacterObject)
-        Dim i As Byte
         If ObjectivesDeliver > 0 Then
             Dim tmpItem As New ItemObject(ObjectivesDeliver, objCharacter.GUID)
             If Not objCharacter.ItemADD(tmpItem) Then
@@ -172,7 +171,7 @@ Public Class WS_QuestsBase
             End If
         End If
 
-        For i = 0 To 3
+        For i As Byte = 0 To 3
             If ObjectivesItem(i) <> 0 Then ProgressItem(i) = objCharacter.ItemCOUNT(ObjectivesItem(i))
         Next
 

@@ -799,10 +799,9 @@ Public Module WC_Network
         End Sub
 
         Public Sub Decode(ByRef data() As Byte)
-            Dim i As Integer
             Dim tmp As Integer
 
-            For i = 0 To 6 - 1
+            For i As Integer = 0 To 6 - 1
                 tmp = data(i)
                 data(i) = SS_Hash(Key(1)) Xor CByte((256 + CInt(data(i)) - Key(0)) Mod 256)
                 Me.Key(0) = tmp
@@ -810,8 +809,7 @@ Public Module WC_Network
             Next i
         End Sub
         Public Sub Encode(ByRef data() As Byte)
-            Dim i As Integer
-            For i = 0 To 4 - 1
+            For i As Integer = 0 To 4 - 1
                 data(i) = (CInt(SS_Hash(Key(3)) Xor data(i)) + Key(2)) Mod 256
 
                 Me.Key(2) = data(i)

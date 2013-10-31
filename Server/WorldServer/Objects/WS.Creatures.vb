@@ -1686,8 +1686,7 @@ Public Module WS_Creatures
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SPIRIT_HEALER_ACTIVATE [GUID={2}]", Client.IP, Client.Port, GUID)
 
         Try
-            Dim i As Byte
-            For i = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
                 If Client.Character.Items.ContainsKey(i) Then Client.Character.Items(i).ModifyDurability(0.25F, Client)
             Next
         Catch e As Exception

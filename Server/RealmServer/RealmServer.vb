@@ -367,7 +367,6 @@ Public Module RS_Main
 #Region "RS_OPCODES"
 
     Private Sub On_RS_LOGON_CHALLENGE(ByRef data() As Byte, ByRef client As ClientClass)
-        Dim i As Integer
         Dim iUpper As Integer = (CInt(data(33)) - 1)
         'Dim packetSize As Integer = BitConverter.ToInt16(New Byte() {data(3), data(2)}, 0)
         Dim packetAccount As String
@@ -377,7 +376,7 @@ Public Module RS_Main
 
         'Read account name from packet
         packetAccount = ""
-        For i = 0 To iUpper
+        For i As Integer = 0 To iUpper
             packetAccount = packetAccount + Chr(data(34 + i))
         Next i
         client.Account = packetAccount
@@ -440,7 +439,7 @@ Public Module RS_Main
                         client.Access = result.Rows(0).Item("gmlevel")
 
                         Dim hash() As Byte = New Byte(19) {}
-                        For i = 0 To 39 Step 2
+                        For i As Integer = 0 To 39 Step 2
                             hash(i \ 2) = CInt("&H" & pwHash.Substring(i, 2))
                         Next
 
@@ -547,7 +546,7 @@ Public Module RS_Main
 
                 dataResponse(0) = CMD_XFER_INITIATE
                 'Name Len 0x05 -> sizeof(Patch)
-                i = 1
+                Dim i As Integer = 1
                 ToBytes(CType(5, Byte), dataResponse, i)
                 'Name 'Patch'
                 ToBytes("Patch", dataResponse, i)
@@ -600,8 +599,7 @@ Public Module RS_Main
 
         'Check M1=ClientM1
         Dim passCheck As Boolean = True
-        Dim i As Byte
-        For i = 0 To 19
+        For i As Byte = 0 To 19
             If m1(i) <> client.AuthEngine.M1(i) Then
                 passCheck = False
                 Exit For
@@ -623,8 +621,8 @@ Public Module RS_Main
             client.Send(dataResponse, "RS_LOGON_PROOF-OK")
             'Set SSHash in DB
             Dim sshash As String = ""
-            'For i = 0 To Client.AuthEngine.SS_Hash.Length - 1
-            For i = 0 To 40 - 1
+            'For i as Integer = 0 To Client.AuthEngine.SS_Hash.Length - 1
+            For i as Integer = 0 To 40 - 1
                 If client.AuthEngine.SsHash(i) < 16 Then
                     sshash = sshash + "0" + Hex(client.AuthEngine.SsHash(i))
                 Else

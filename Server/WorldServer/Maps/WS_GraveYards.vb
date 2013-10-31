@@ -123,9 +123,8 @@ Public Class WS_GraveYards
             Dim locationMapID As Integer
             Dim locationIndex As Integer
 
-            Dim i As Integer = 0
             Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
-            For i = 0 To tmpDBC.Rows - 1
+            For i as Integer = 0 To tmpDBC.Rows - 1
                 locationIndex = tmpDBC.Item(i, 0)
                 locationMapID = tmpDBC.Item(i, 1)
                 locationPosX = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
@@ -139,8 +138,8 @@ Public Class WS_GraveYards
             Next i
             Log.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.Rows - 1)
 
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", i)
         Catch e As System.IO.DirectoryNotFoundException
             Console.ForegroundColor = System.ConsoleColor.DarkRed
             Console.WriteLine("DBC File : WorldSafeLocs missing.")

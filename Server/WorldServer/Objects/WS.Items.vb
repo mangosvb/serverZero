@@ -531,12 +531,11 @@ Public Module WS_Items
 
                 Update.SetUpdateFlag(EContainerFields.CONTAINER_FIELD_NUM_SLOTS, ItemInfo.ContainerSlots)
                 'DONE: Here list in bag items
-                Dim i As Byte
-                For i = 0 To 35
+                For i As Byte = 0 To 35
                     If Items.ContainsKey(i) Then
-                        Update.SetUpdateFlag(EContainerFields.CONTAINER_FIELD_SLOT_1 + i*2, CType(Items(i).GUID, Long))
+                        update.SetUpdateFlag(EContainerFields.CONTAINER_FIELD_SLOT_1 + i * 2, CType(Items(i).GUID, Long))
                     Else
-                        Update.SetUpdateFlag(EContainerFields.CONTAINER_FIELD_SLOT_1 + i*2, 0)
+                        update.SetUpdateFlag(EContainerFields.CONTAINER_FIELD_SLOT_1 + i * 2, 0)
                     End If
                 Next
             Else
@@ -1144,7 +1143,6 @@ Public Module WS_Items
         Else
             item = ITEMDatabase(ItemID)
         End If
-        Dim i As Integer
 
         response.AddInt32(item.Id)
         response.AddInt32(item.ObjectClass)
@@ -1180,17 +1178,17 @@ Public Module WS_Items
         response.AddInt32(item.Stackable)
         response.AddInt32(item.ContainerSlots)
 
-        For i = 0 To 9
+        For i As Integer = 0 To 9
             response.AddInt32(item.ItemBonusStatType(i))
             response.AddInt32(item.ItemBonusStatValue(i))
         Next
 
-        For i = 0 To 4
+        For i As Integer = 0 To 4
             response.AddSingle(item.Damage(i).Minimum)
             response.AddSingle(item.Damage(i).Maximum)
             response.AddInt32(item.Damage(i).Type)
         Next
-        For i = 0 To 6
+        For i As Integer = 0 To 6
             response.AddInt32(item.Resistances(i))
         Next
 
@@ -1198,7 +1196,7 @@ Public Module WS_Items
         response.AddInt32(item.AmmoType)
         response.AddSingle(item.Range)          'itemRangeModifier (Ranged Weapons = 100.0, Fishing Poles = 3.0)
 
-        For i = 0 To 4
+        For i As Integer = 0 To 4
             If SPELLs.ContainsKey(item.Spells(i).SpellID) = False Then
                 response.AddInt32(0)
                 response.AddInt32(0)

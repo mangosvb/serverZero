@@ -87,8 +87,7 @@ Public Module WS_Handlers_Trade
                 packet.AddUInt32(TargetGold)     'Gold
                 packet.AddInt32(0)
 
-                Dim i As Integer
-                For i = 0 To 6
+                For i As Integer = 0 To 6
                     packet.AddInt8(i)
                     If TargetSlots(i) > 0 Then
                         Dim mySlot As Byte = TargetSlots(i) And &HFF
@@ -139,8 +138,7 @@ Public Module WS_Handlers_Trade
                 packet.AddUInt32(TraderGold)     'Gold
                 packet.AddInt32(0)
 
-                Dim i As Integer
-                For i = 0 To 6
+                For i As Integer = 0 To 6
                     packet.AddInt8(i)
                     If TraderSlots(i) > 0 Then
                         Dim mySlot As Byte = TraderSlots(i) And &HFF

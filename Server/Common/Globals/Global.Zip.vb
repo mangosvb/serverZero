@@ -16,11 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 Imports System.IO
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.BaseWriter
-
+Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 Public Module Global_Zip
 

@@ -207,8 +207,7 @@ Public Module Packets
                 Data(0) = (Data.Length - 2) \ 256
                 Data(1) = (Data.Length - 2) Mod 256
 
-                Dim i As Integer
-                For i = 0 To Bytes.Length - 1
+                For i As Integer = 0 To Bytes.Length - 1
                     Data(Data.Length - 1 - Bytes.Length + i) = Bytes(i)
                 Next i
 
@@ -244,9 +243,8 @@ Public Module Packets
             Dim flags As New BitArray(8)
             Dim offsetStart As Integer = Data.Length
             Dim offsetNewSize As Integer = offsetStart
-            Dim i As Byte
 
-            For i = 0 To 7
+            For i As Byte = 0 To 7
                 flags(i) = (GUID(i) <> 0)
                 If flags(i) Then offsetNewSize += 1
             Next
@@ -256,7 +254,7 @@ Public Module Packets
             flags.CopyTo(Data, offsetStart)
             offsetStart += 1
 
-            For i = 0 To 7
+            For i As Byte = 0 To 7
                 If flags(i) Then
                     Data(offsetStart) = GUID(i)
                     offsetStart += 1
@@ -367,7 +365,7 @@ Public Module Packets
             End While
             Offset = Offset + 1
 
-            Return System.Text.Encoding.UTF8.GetString(Data, start, i)
+            Return Text.Encoding.UTF8.GetString(Data, start, i)
         End Function
         'Public Function GetString(ByVal Offset As Integer) As String
         '    Dim i As Integer = Offset

@@ -46,6 +46,7 @@ Public Module WC_Handlers_Group
             response.AddUInt32(r.Item("map"))                               'MapID
             response.AddUInt32(CInt(r.Item("expire")) - GetTimestamp(Now))  'TimeLeft
             response.AddUInt32(r.Item("instance"))                          'InstanceID
+            'TODO: Is this is a counter, shouldn't it be counting ?
             response.AddUInt32(i)                                           'Counter
         Next
         Client.Send(response)
@@ -268,15 +269,14 @@ Public Module WC_Handlers_Group
 
         If Client.Character.IsInGroup Then
             Dim j As Integer
-            Dim i As Integer
-
+            
             For j = subGroup * GROUP_SUBGROUPSIZE To ((subGroup + 1) * GROUP_SUBGROUPSIZE - 1)
                 If Client.Character.Group.Members(j) Is Nothing Then
                     Exit For
                 End If
             Next
 
-            For i = 0 To Client.Character.Group.Members.Length - 1
+            For i As Integer = 0 To Client.Character.Group.Members.Length - 1
                 If (Not Client.Character.Group.Members(i) Is Nothing) AndAlso Client.Character.Group.Members(i).Name = name Then
                     Client.Character.Group.Members(j) = Client.Character.Group.Members(i)
                     Client.Character.Group.Members(i) = Nothing
@@ -298,7 +298,6 @@ Public Module WC_Handlers_Group
 
         If Client.Character.IsInGroup Then
             Dim j As Integer
-            Dim i As Integer
 
             For j = 0 To Client.Character.Group.Members.Length - 1
                 If (Not Client.Character.Group.Members(j) Is Nothing) AndAlso Client.Character.Group.Members(j).Name = name2 Then
@@ -306,7 +305,7 @@ Public Module WC_Handlers_Group
                 End If
             Next
 
-            For i = 0 To Client.Character.Group.Members.Length - 1
+            For i As Integer = 0 To Client.Character.Group.Members.Length - 1
                 If (Not Client.Character.Group.Members(i) Is Nothing) AndAlso Client.Character.Group.Members(i).Name = name1 Then
                     Dim tmpPlayer As CharacterObject = Client.Character.Group.Members(j)
                     Client.Character.Group.Members(j) = Client.Character.Group.Members(i)

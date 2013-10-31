@@ -149,8 +149,7 @@ Public Module WS_Handlers_Misc
     Public Sub On_CMSG_TUTORIAL_CLEAR(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_CLEAR", Client.IP, Client.Port)
 
-        Dim i As Integer
-        For i = 0 To 31
+        For i As Integer = 0 To 31
             Client.Character.TutorialFlags(i) = 255
         Next
         Client.Character.SaveCharacter()
@@ -159,8 +158,7 @@ Public Module WS_Handlers_Misc
     Public Sub On_CMSG_TUTORIAL_RESET(ByRef packet As PacketClass, ByRef Client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_RESET", Client.IP, Client.Port)
 
-        Dim i As Integer
-        For i = 0 To 31
+        For i As Integer = 0 To 31
             Client.Character.TutorialFlags(i) = 0
         Next
         Client.Character.SaveCharacter()

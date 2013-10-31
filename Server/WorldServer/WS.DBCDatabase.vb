@@ -1921,7 +1921,7 @@ Public Module WS_DBCDatabase
         LoadItemDisplayInfoDBC()
         LoadItemRandomPropertiesDBC()
         LoadTalentDBC()
-        LoadTalentTabDBC()
+        LoadTalentTabDbc()
         LoadAuctionHouseDBC()
         LoadLootStores()
         LoadWeather()

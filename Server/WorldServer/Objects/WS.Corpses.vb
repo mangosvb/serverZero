@@ -48,8 +48,7 @@ Public Module WS_Corpses
             Update.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_POS_Z, positionZ)
             Update.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_DISPLAY_ID, Model)
 
-            Dim i As Integer
-            For i = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Integer = 0 To EQUIPMENT_SLOT_END - 1
                 Update.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_ITEM + i, Items(i))
             Next
 
@@ -67,8 +66,7 @@ Public Module WS_Corpses
 
             Flags = 5
             Owner = 0
-            Dim i As Integer
-            For i = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Integer = 0 To EQUIPMENT_SLOT_END - 1
                 Items(i) = 0
             Next
 
@@ -80,7 +78,7 @@ Public Module WS_Corpses
                 Try
                     tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_OWNER, 0)
                     tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_FLAGS, 5)
-                    For i = 0 To EQUIPMENT_SLOT_END - 1
+                    For i As Integer = 0 To EQUIPMENT_SLOT_END - 1
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_ITEM + i, 0)
                     Next
                     tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -93,48 +91,48 @@ Public Module WS_Corpses
                 packet.Dispose()
             End Try
         End Sub
+
         Public Sub Save()
             'Only for creating New Character
-            Dim tmpCMD As String = "INSERT INTO tmpspawnedcorpses (corpse_guid"
+            Dim tmpCmd As String = "INSERT INTO tmpspawnedcorpses (corpse_guid"
             Dim tmpValues As String = " VALUES (" & (GUID - GUID_CORPSE)
 
-            tmpCMD = tmpCMD & ", corpse_owner"
+            tmpCmd = tmpCmd & ", corpse_owner"
             tmpValues = tmpValues & ", " & Owner
 
-            tmpCMD = tmpCMD & ", corpse_positionX"
+            tmpCmd = tmpCmd & ", corpse_positionX"
             tmpValues = tmpValues & ", " & Trim(Str(positionX))
-            tmpCMD = tmpCMD & ", corpse_positionY"
+            tmpCmd = tmpCmd & ", corpse_positionY"
             tmpValues = tmpValues & ", " & Trim(Str(positionY))
-            tmpCMD = tmpCMD & ", corpse_positionZ"
+            tmpCmd = tmpCmd & ", corpse_positionZ"
             tmpValues = tmpValues & ", " & Trim(Str(positionZ))
-            tmpCMD = tmpCMD & ", corpse_mapid"
+            tmpCmd = tmpCmd & ", corpse_mapid"
             tmpValues = tmpValues & ", " & MapID
-            tmpCMD = tmpCMD & ", corpse_instance"
+            tmpCmd = tmpCmd & ", corpse_instance"
             tmpValues = tmpValues & ", " & instance
-            tmpCMD = tmpCMD & ", corpse_orientation"
+            tmpCmd = tmpCmd & ", corpse_orientation"
             tmpValues = tmpValues & ", " & Trim(Str(orientation))
 
-            tmpCMD = tmpCMD & ", corpse_bytes1"
+            tmpCmd = tmpCmd & ", corpse_bytes1"
             tmpValues = tmpValues & ", " & Bytes1
-            tmpCMD = tmpCMD & ", corpse_bytes2"
+            tmpCmd = tmpCmd & ", corpse_bytes2"
             tmpValues = tmpValues & ", " & Bytes2
-            tmpCMD = tmpCMD & ", corpse_model"
+            tmpCmd = tmpCmd & ", corpse_model"
             tmpValues = tmpValues & ", " & Model
-            tmpCMD = tmpCMD & ", corpse_guild"
+            tmpCmd = tmpCmd & ", corpse_guild"
             tmpValues = tmpValues & ", " & Guild
 
-            Dim i As Byte
             Dim temp(EQUIPMENT_SLOT_END - 1) As String
-            For i = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
                 temp(i) = Items(i)
             Next
-            tmpCMD = tmpCMD & ", corpse_items"
+            tmpCmd = tmpCmd & ", corpse_items"
             tmpValues = tmpValues & ", """ & Join(temp, " ") & """"
 
 
 
-            tmpCMD = tmpCMD & ") " & tmpValues & ");"
-            CharacterDatabase.Update(tmpCMD)
+            tmpCmd = tmpCmd & ") " & tmpValues & ");"
+            CharacterDatabase.Update(tmpCmd)
         End Sub
         Public Sub Destroy()
             Dim packet As New PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
@@ -188,8 +186,7 @@ Public Module WS_Corpses
             Character.corpsePositionZ = positionZ
             Character.corpseMapID = MapID
 
-            Dim i As Byte
-            For i = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
                 If Character.Items.ContainsKey(i) Then
                     Items(i) = Character.Items(i).ItemInfo.Model + (CType(Character.Items(i).ItemInfo.InventoryType, Integer) << 24)
                 Else
@@ -229,9 +226,8 @@ Public Module WS_Corpses
             Guild = Info.Item("corpse_guild")
 
             Dim tmp() As String
-            Dim i As Integer
             tmp = Split(CType(Info.Item("corpse_items"), String), " ")
-            For i = 0 To tmp.Length - 1
+            For i As Integer = 0 To tmp.Length - 1
                 Items(i) = tmp(i)
             Next i
 

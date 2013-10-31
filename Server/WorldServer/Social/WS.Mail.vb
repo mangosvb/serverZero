@@ -141,10 +141,9 @@ Public Module WS_Mail
         Try
             'Done: Check for old mails, and delete those that have expired
             Dim MySQLQuery As New DataTable
-            Dim i As Byte = 0
             CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_time < {0};", GetTimestamp(Now)), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
-                For i = 0 To MySQLQuery.Rows.Count - 1
+                For i As Byte = 0 To MySQLQuery.Rows.Count - 1
                     CharacterDatabase.Update(String.Format("DELETE FROM characters_mail WHERE mail_id = {0};", MySQLQuery.Rows(i).Item("mail_id")))
                 Next
             End If
@@ -156,7 +155,7 @@ Public Module WS_Mail
 
             Dim tmpItem As ItemObject
             If MySQLQuery.Rows.Count > 0 Then
-                For i = 0 To MySQLQuery.Rows.Count - 1
+                For i As Byte = 0 To MySQLQuery.Rows.Count - 1
                     response.AddInt32(CType(MySQLQuery.Rows(i).Item("mail_id"), Integer))
                     response.AddInt8(CType(MySQLQuery.Rows(i).Item("mail_type"), Byte))
 

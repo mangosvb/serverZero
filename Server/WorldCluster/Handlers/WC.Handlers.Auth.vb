@@ -46,7 +46,6 @@ Public Module WC_Handlers_Auth
     End Sub
 
     Public Sub On_CMSG_AUTH_SESSION(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Dim i As Integer
         'Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
 
         packet.GetInt16()
@@ -55,7 +54,7 @@ Public Module WC_Handlers_Auth
         Dim clientAccount As String = packet.GetString
         Dim clientSeed As Integer = packet.GetInt32
         Dim clientHash(19) As Byte
-        For i = 0 To 19
+        For i As Integer = 0 To 19
             clientHash(i) = packet.GetInt8
         Next
         Dim clientAddOnsSize As Integer = packet.GetInt32
@@ -97,7 +96,7 @@ Public Module WC_Handlers_Auth
             Exit Sub
         End If
         ReDim Client.SS_Hash(39)
-        For i = 0 To Len(tmp) - 1 Step 2
+        For i As Integer = 0 To Len(tmp) - 1 Step 2
             Client.SS_Hash(i \ 2) = Val("&H" & Mid(tmp, i + 1, 2))
         Next
         Client.Encryption = True
@@ -119,7 +118,7 @@ Public Module WC_Handlers_Auth
         'Dim ShaDigest() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(temp)
         'Log.WriteLine(LogType.DEBUG, "Client Hash: {0}", BitConverter.ToString(clientHash).Replace("-", ""))
         'Log.WriteLine(LogType.DEBUG, "Server Hash: {0}", BitConverter.ToString(ShaDigest).Replace("-", ""))
-        'For i = 0 To 19
+        'For i as Integer = 0 To 19
         '    If clientHash(i) <> ShaDigest(i) Then
         '        Dim responseFail As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
         '        responseFail.AddInt8(AuthResponseCodes.AUTH_FAILED)
@@ -159,7 +158,7 @@ Public Module WC_Handlers_Auth
 
         'DONE: Send packet
         Dim addOnsEnable As New PacketClass(OPCODES.SMSG_ADDON_INFO)
-        For i = 0 To AddOnsNames.Count - 1
+        For i As Integer = 0 To AddOnsNames.Count - 1
             If IO.File.Exists(String.Format("interface\{0}.pub", AddOnsNames(i))) AndAlso (AddOnsHashes(i) <> &H1C776D01UI) Then
                 'We have hash data
                 addOnsEnable.AddInt8(2)                    'AddOn Type [1-enabled, 0-banned, 2-blizzard]
