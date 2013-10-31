@@ -15,7 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports System.Threading
 Imports System.Reflection
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
@@ -26,7 +25,7 @@ Public Module WC_Character
         Implements IDisposable
 
         Public GUID As ULong
-        Public Client As ClientClass
+        Public client As ClientClass
 
         Public IsInWorld As Boolean = False
         Public Map As UInteger
@@ -92,7 +91,7 @@ Public Module WC_Character
 
         Public ReadOnly Property IsGuildRightSet(ByVal Rights As UInteger) As Boolean
             Get
-                Return ((Guild IsNot Nothing) AndAlso (Guild.RankRights(guildrank) And Rights) = Rights)
+                Return ((Guild IsNot Nothing) AndAlso (Guild.RankRights(GuildRank) And Rights) = Rights)
             End Get
         End Property
 
@@ -155,7 +154,7 @@ Public Module WC_Character
             Client = objCharacter
 
             ReLoad()
-            Access = Client.Access
+            Access = client.Access
 
             LoadIgnoreList(Me)
 
@@ -224,11 +223,11 @@ Public Module WC_Character
         Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
             Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
             p.AddInt32(map)
-            Client.Send(p)
+            client.Send(p)
             p.Dispose()
 
             'Actions Here
-            Me.IsInWorld = False
+            IsInWorld = False
             GetWorld.ClientDisconnect(Client.Index)
 
             CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};", _
@@ -282,7 +281,7 @@ Public Module WC_Character
                         tmpGroup.Value.SendGroupList()
 
                         Dim response As New PacketClass(0)
-                        response.Data = Me.GetWorld.GroupMemberStats(GUID, 0)
+                        response.Data = GetWorld.GroupMemberStats(GUID, 0)
                         tmpGroup.Value.BroadcastToOther(response, Me)
                         response.Dispose()
                         Exit Sub
@@ -319,7 +318,7 @@ Public Module WC_Character
             Dim msgChatFlag As ChatFlag = ChatFlag
             If msgType = ChatMsg.CHAT_MSG_WHISPER_INFORM OrElse msgType = ChatMsg.CHAT_MSG_WHISPER Then msgChatFlag = CHARACTERs(GUID).ChatFlag
             Dim packet As PacketClass = BuildChatMessage(GUID, Message, msgType, msgLanguage, msgChatFlag, ChannelName)
-            Client.Send(packet)
+            client.Send(packet)
             packet.Dispose()
         End Sub
     End Class

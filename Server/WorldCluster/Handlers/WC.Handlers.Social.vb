@@ -19,7 +19,6 @@
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
-
 Public Module WC_Handlers_Social
 
 #Region "Framework"
@@ -68,7 +67,7 @@ Public Module WC_Handlers_Social
         SOCIAL_FLAG_IGNORED = &H2
     End Enum
 
-    Public Sub SendFriendList(ByRef Client As ClientClass, ByRef Character As CharacterObject)
+    Public Sub SendFriendList(ByRef client As ClientClass, ByRef Character As CharacterObject)
         'DONE: Query DB
         Dim q As New DataTable
         CharacterDatabase.Query(String.Format("SELECT * FROM characters_social WHERE char_guid = {0} AND (flags & {1}) > 0;", Character.GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
@@ -100,13 +99,13 @@ Public Module WC_Handlers_Social
             SMSG_FRIEND_LIST.AddInt8(0)
         End If
 
-        Client.Send(SMSG_FRIEND_LIST)
+        client.Send(SMSG_FRIEND_LIST)
         SMSG_FRIEND_LIST.Dispose()
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_LIST", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_LIST", client.IP, client.Port)
     End Sub
 
-    Public Sub SendIgnoreList(ByRef Client As ClientClass, ByRef Character As CharacterObject)
+    Public Sub SendIgnoreList(ByRef client As ClientClass, ByRef Character As CharacterObject)
         'DONE: Query DB
         Dim q As New DataTable
         CharacterDatabase.Query(String.Format("SELECT * FROM characters_social WHERE char_guid = {0} AND (flags & {1}) > 0;", Character.GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Integer)), q)
@@ -123,10 +122,10 @@ Public Module WC_Handlers_Social
             SMSG_IGNORE_LIST.AddInt8(0)
         End If
 
-        Client.Send(SMSG_IGNORE_LIST)
+        client.Send(SMSG_IGNORE_LIST)
         SMSG_IGNORE_LIST.Dispose()
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_IGNORE_LIST", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_IGNORE_LIST", client.IP, client.Port)
     End Sub
 
     Public Sub NotifyFriendStatus(ByRef objCharacter As CharacterObject, ByVal s As FriendStatus)
@@ -144,15 +143,13 @@ Public Module WC_Handlers_Social
             End If
         Next
         friendpacket.Dispose()
-    End Sub 
-
+    End Sub
 
 #End Region
 
 #Region "Handlers"
 
-
-    Public Sub On_CMSG_WHO(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_WHO(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim LevelMinimum As UInteger = packet.GetUInt32()       '0
         Dim LevelMaximum As UInteger = packet.GetUInt32()       '100
@@ -173,14 +170,14 @@ Public Module WC_Handlers_Social
             Strings.Add(UCase(EscapeString(packet.GetString())))
         Next
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WHO [P:'{2}' G:'{3}' L:{4}-{5} C:{6:X} R:{7:X}]", Client.IP, Client.Port, NamePlayer, NameGuild, LevelMinimum, LevelMaximum, MaskClass, MaskRace)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WHO [P:'{2}' G:'{3}' L:{4}-{5} C:{6:X} R:{7:X}]", client.IP, client.Port, NamePlayer, NameGuild, LevelMinimum, LevelMaximum, MaskClass, MaskRace)
 
         'TODO: Don't show GMs?
         Dim results As New List(Of ULong)
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
         For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
             If Not objCharacter.Value.IsInWorld Then Continue For
-            If (GetCharacterSide(objCharacter.Value.Race) <> GetCharacterSide(Client.Character.Race)) AndAlso Client.Character.Access < AccessLevel.GameMaster Then Continue For
+            If (GetCharacterSide(objCharacter.Value.Race) <> GetCharacterSide(Client.Character.Race)) AndAlso client.Character.Access < AccessLevel.GameMaster Then Continue For
             If NamePlayer <> "" AndAlso UCase(objCharacter.Value.Name).IndexOf(UCase(NamePlayer)) = -1 Then Continue For
             If NameGuild <> "" AndAlso (objCharacter.Value.Guild Is Nothing OrElse UCase(objCharacter.Value.Guild.Name).IndexOf(UCase(NameGuild)) = -1) Then Continue For
             If objCharacter.Value.Level < LevelMinimum Then Continue For
@@ -206,7 +203,6 @@ Public Module WC_Handlers_Social
             results.Add(objCharacter.Value.GUID)
         Next
 
-
         Dim response As New PacketClass(OPCODES.SMSG_WHO)
         response.AddInt32(results.Count)
         response.AddInt32(results.Count)
@@ -225,18 +221,18 @@ Public Module WC_Handlers_Social
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
 
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
-    Public Sub On_CMSG_ADD_FRIEND(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_ADD_FRIEND(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
 
         Dim response As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
         Dim name As String = packet.GetString()
         Dim GUID As ULong = 0
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ADD_FRIEND [{2}]", Client.IP, Client.Port, name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ADD_FRIEND [{2}]", client.IP, client.Port, name)
 
         'DONE: Get GUID from DB
         Dim q As New DataTable
@@ -250,9 +246,9 @@ Public Module WC_Handlers_Social
             CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE flags = {0}", CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
             Dim NumberOfFriends As Integer = q.Rows.Count
             q.Clear()
-            CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE char_guid = {0} AND guid = {1} AND flags = {2};", Client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
+            CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE char_guid = {0} AND guid = {1} AND flags = {2};", client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
 
-            If GUID = Client.Character.GUID Then
+            If GUID = client.Character.GUID Then
                 response.AddInt8(FriendResult.FRIEND_SELF)
                 response.AddUInt64(GUID)
             ElseIf q.Rows.Count > 0 Then
@@ -278,31 +274,31 @@ Public Module WC_Handlers_Social
                 response.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Zone)
                 response.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Level)
                 response.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Classe)
-                CharacterDatabase.Update(String.Format("INSERT INTO characters_social (char_guid, guid, flags) VALUES ({0}, {1}, {2});", Client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
+                CharacterDatabase.Update(String.Format("INSERT INTO characters_social (char_guid, guid, flags) VALUES ({0}, {1}, {2});", client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
             Else
-                    response.AddInt8(FriendResult.FRIEND_ADDED_OFFLINE)
-                    response.AddUInt64(GUID)
-                    response.AddString(name)
-                    CharacterDatabase.Update(String.Format("INSERT INTO characters_social (char_guid, guid, flags) VALUES ({0}, {1}, {2});", Client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
-                End If
+                response.AddInt8(FriendResult.FRIEND_ADDED_OFFLINE)
+                response.AddUInt64(GUID)
+                response.AddString(name)
+                CharacterDatabase.Update(String.Format("INSERT INTO characters_social (char_guid, guid, flags) VALUES ({0}, {1}, {2});", client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
+            End If
         Else
             response.AddInt8(FriendResult.FRIEND_NOT_FOUND)
             response.AddUInt64(GUID)
         End If
 
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
         q.Dispose()
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_ADD_IGNORE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_ADD_IGNORE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
         Dim response As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
         Dim name As String = packet.GetString()
         Dim GUID As ULong = 0
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ADD_IGNORE [{2}]", Client.IP, Client.Port, name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ADD_IGNORE [{2}]", client.IP, client.Port, name)
 
         'DONE: Get GUID from DB
         Dim q As New DataTable
@@ -314,9 +310,9 @@ Public Module WC_Handlers_Social
             CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE flags = {0}", CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
             Dim NumberOfFriends As Integer = q.Rows.Count
             q.Clear()
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_social WHERE char_guid = {0} AND guid = {1} AND flags = {2};", Client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
+            CharacterDatabase.Query(String.Format("SELECT * FROM characters_social WHERE char_guid = {0} AND guid = {1} AND flags = {2};", client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
 
-            If GUID = Client.Character.GUID Then
+            If GUID = client.Character.GUID Then
                 response.AddInt8(FriendResult.FRIEND_IGNORE_SELF)
                 response.AddUInt64(GUID)
             ElseIf q.Rows.Count > 0 Then
@@ -329,22 +325,22 @@ Public Module WC_Handlers_Social
                 response.AddInt8(FriendResult.FRIEND_IGNORE_ADDED)
                 response.AddUInt64(GUID)
 
-                CharacterDatabase.Update(String.Format("INSERT INTO characters_social (char_guid, guid, flags) VALUES ({0}, {1}, {2});", Client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)))
-                Client.Character.IgnoreList.Add(GUID)
+                CharacterDatabase.Update(String.Format("INSERT INTO characters_social (char_guid, guid, flags) VALUES ({0}, {1}, {2});", client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)))
+                client.Character.IgnoreList.Add(GUID)
             End If
         Else
             response.AddInt8(FriendResult.FRIEND_IGNORE_NOT_FOUND)
             response.AddUInt64(GUID)
         End If
 
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
         q.Dispose()
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_DEL_FRIEND(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DEL_FRIEND", Client.IP, Client.Port)
+    Public Sub On_CMSG_DEL_FRIEND(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DEL_FRIEND", client.IP, client.Port)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim response As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
@@ -352,15 +348,15 @@ Public Module WC_Handlers_Social
 
         Try
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE char_guid = {0} AND guid = {1};", Client.Character.GUID, GUID), q)
+            CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE char_guid = {0} AND guid = {1};", client.Character.GUID, GUID), q)
 
             If q.Rows.Count > 0 Then
                 Dim flags As Integer = CType(q.Rows(0).Item("flags"), Integer)
                 Dim newFlags As Integer = (flags And (Not SocialFlag.SOCIAL_FLAG_FRIEND))
                 If (newFlags And (SocialFlag.SOCIAL_FLAG_FRIEND Or SocialFlag.SOCIAL_FLAG_IGNORED)) = 0 Then
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_social WHERE guid = {1} AND char_guid = {0};", Client.Character.GUID, GUID))
+                    CharacterDatabase.Update(String.Format("DELETE FROM characters_social WHERE guid = {1} AND char_guid = {0};", client.Character.GUID, GUID))
                 Else
-                    CharacterDatabase.Update(String.Format("UPDATE characters_social SET flags = {2} WHERE guid = {1} AND char_guid = {0};", Client.Character.GUID, GUID, newFlags))
+                    CharacterDatabase.Update(String.Format("UPDATE characters_social SET flags = {2} WHERE guid = {1} AND char_guid = {0};", client.Character.GUID, GUID, newFlags))
                 End If
                 response.AddInt8(FriendResult.FRIEND_REMOVED)
             Else
@@ -372,13 +368,13 @@ Public Module WC_Handlers_Social
 
         response.AddUInt64(GUID)
 
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_DEL_IGNORE(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DEL_IGNORE", Client.IP, Client.Port)
+    Public Sub On_CMSG_DEL_IGNORE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DEL_IGNORE", client.IP, client.Port)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim response As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
@@ -386,15 +382,15 @@ Public Module WC_Handlers_Social
 
         Try
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE char_guid = {0} AND guid = {1};", Client.Character.GUID, GUID), q)
+            CharacterDatabase.Query(String.Format("SELECT flags FROM characters_social WHERE char_guid = {0} AND guid = {1};", client.Character.GUID, GUID), q)
 
             If q.Rows.Count > 0 Then
                 Dim flags As Integer = CType(q.Rows(0).Item("flags"), Integer)
                 Dim newFlags As Integer = (flags And (Not SocialFlag.SOCIAL_FLAG_IGNORED))
                 If (newFlags And (SocialFlag.SOCIAL_FLAG_FRIEND Or SocialFlag.SOCIAL_FLAG_IGNORED)) = 0 Then
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_social WHERE guid = {1} AND char_guid = {0};", Client.Character.GUID, GUID))
+                    CharacterDatabase.Update(String.Format("DELETE FROM characters_social WHERE guid = {1} AND char_guid = {0};", client.Character.GUID, GUID))
                 Else
-                    CharacterDatabase.Update(String.Format("UPDATE characters_social SET flags = {2} WHERE guid = {1} AND char_guid = {0};", Client.Character.GUID, GUID, newFlags))
+                    CharacterDatabase.Update(String.Format("UPDATE characters_social SET flags = {2} WHERE guid = {1} AND char_guid = {0};", client.Character.GUID, GUID, newFlags))
                 End If
                 response.AddInt8(FriendResult.FRIEND_IGNORE_REMOVED)
             Else
@@ -405,17 +401,16 @@ Public Module WC_Handlers_Social
         End Try
         response.AddUInt64(GUID)
 
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_STATUS", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_FRIEND_LIST(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_FRIEND_LIST", Client.IP, Client.Port)
-        SendFriendList(Client, Client.Character)
-        SendIgnoreList(Client, Client.Character)
+    Public Sub On_CMSG_FRIEND_LIST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_FRIEND_LIST", client.IP, client.Port)
+        SendFriendList(Client, client.Character)
+        SendIgnoreList(Client, client.Character)
     End Sub
-
 
 #End Region
 

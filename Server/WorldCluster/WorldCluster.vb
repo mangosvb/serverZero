@@ -17,19 +17,13 @@
 '
 
 Imports System.Threading
-Imports System.Net.Sockets
 Imports System.Xml.Serialization
 Imports System.IO
-Imports System.Net
 Imports System.Reflection
-Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
 
-
 Public Module WorldCluster
-
 
 #Region "Global.Variables"
     'Players' containers
@@ -45,7 +39,7 @@ Public Module WorldCluster
     Public Log As New BaseWriter
     Public PacketHandlers As New Dictionary(Of OPCODES, HandlePacket)
     Public Rnd As New Random
-    Delegate Sub HandlePacket(ByRef Packet As PacketClass, ByRef Client As ClientClass)
+    Delegate Sub HandlePacket(ByRef Packet As PacketClass, ByRef client As ClientClass)
 
 #End Region
 
@@ -76,7 +70,7 @@ Public Module WorldCluster
 
         'Logging Settings
         <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = mangosVB.Common.BaseWriter.LogType.NETWORK
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = BaseWriter.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
         <XmlElement(ElementName:="PacketLogging")> Public PacketLogging As Boolean = False
         <XmlElement(ElementName:="GMLogging")> Public GMLogging As Boolean = False
@@ -85,7 +79,7 @@ Public Module WorldCluster
     Public Sub LoadConfig()
         Try
             'Make sure WorldCluster.ini exists
-            If System.IO.File.Exists("WorldCluster.ini") = False Then
+            If File.Exists("WorldCluster.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "WorldCluster.ini")
                 Console.WriteLine("Please copy the ini files into the same directory as the mangosVB exe files.")
@@ -107,9 +101,7 @@ Public Module WorldCluster
             Config = oXS.Deserialize(oStmR)
             oStmR.Close()
 
-
             Console.WriteLine(".[done]")
-
 
             'DONE: Setting SQL Connections
             Dim AccountDBSettings() As String = Split(Config.AccountDatabase, ";")
@@ -149,7 +141,7 @@ Public Module WorldCluster
             End If
 
             'DONE: Creating logger
-            BaseWriter.CreateLog(Config.LogType, Config.LogConfig, Log)
+            CreateLog(Config.LogType, Config.LogConfig, Log)
             Log.LogLevel = Config.LogLevel
 
             'DONE: Cleaning up the packet log
@@ -195,19 +187,19 @@ Public Module WorldCluster
     End Sub
 #End Region
 
-    <System.MTAThreadAttribute()> _
+    <MTAThreadAttribute()> _
     Sub Main()
         timeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
 
-        Console.BackgroundColor = System.ConsoleColor.Black
+        Console.BackgroundColor = ConsoleColor.Black
         Console.Title = String.Format("{0} v{1}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 
-        Console.ForegroundColor = System.ConsoleColor.Yellow
+        Console.ForegroundColor = ConsoleColor.Yellow
         Console.WriteLine("{0}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyProductAttribute), False)(0), AssemblyProductAttribute).Product)
         Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyCopyrightAttribute), False)(0), AssemblyCopyrightAttribute).Copyright)
         Console.WriteLine()
 
-        Console.ForegroundColor = System.ConsoleColor.Yellow
+        Console.ForegroundColor = ConsoleColor.Yellow
 
         Console.WriteLine(" ####       ####            ###     ###   ########    #######     ######## ")
         Console.WriteLine(" #####     #####            ####    ###  ##########  #########   ##########")
@@ -231,17 +223,15 @@ Public Module WorldCluster
         Console.WriteLine("   Forum: http://community.getmangos.co.uk                     ##    ##### ")
         Console.WriteLine("")
 
+        Console.ForegroundColor = ConsoleColor.Magenta
 
-        Console.ForegroundColor = System.ConsoleColor.Magenta
-
-        Console.ForegroundColor = System.ConsoleColor.White
-        Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(System.Reflection.AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title)
+        Console.ForegroundColor = ConsoleColor.White
+        Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title)
         Console.WriteLine("version {0}", [Assembly].GetExecutingAssembly().GetName().Version)
-        Console.ForegroundColor = System.ConsoleColor.White
-
+        Console.ForegroundColor = ConsoleColor.White
 
         Console.WriteLine("")
-        Console.ForegroundColor = System.ConsoleColor.Gray
+        Console.ForegroundColor = ConsoleColor.Gray
 
         Dim dateTimeStarted As Date = Now
         Log.WriteLine(LogType.INFORMATION, "[{0}] World Cluster Starting...", Format(TimeOfDay, "HH:mm:ss"))
@@ -250,7 +240,7 @@ Public Module WorldCluster
         AddHandler currentDomain.UnhandledException, AddressOf GenericExceptionHandler
 
         LoadConfig()
-        Console.ForegroundColor = System.ConsoleColor.Gray
+        Console.ForegroundColor = ConsoleColor.Gray
         AddHandler AccountDatabase.SQLMessage, AddressOf AccountSQLEventHandler
         AddHandler CharacterDatabase.SQLMessage, AddressOf CharacterSQLEventHandler
         AddHandler WorldDatabase.SQLMessage, AddressOf WorldSQLEventHandler
@@ -329,36 +319,36 @@ Public Module WorldCluster
                         Select Case cmds(0).ToLower
                             Case "createaccount", "/createaccount"
                                 If cmd.Length <> 3 Then
-                                    Console.ForegroundColor = System.ConsoleColor.Yellow
+                                    Console.ForegroundColor = ConsoleColor.Yellow
                                     Console.WriteLine("[{0}] USAGE: createaccount <account> <password> <email>", Format(TimeOfDay, "HH:mm:ss"))
                                 Else
-                                    Dim passwordStr() As Byte = System.Text.Encoding.ASCII.GetBytes(cmd(0).ToUpper & ":" & cmd(1).ToUpper)
-                                    Dim passwordHash() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
+                                    Dim passwordStr() As Byte = Text.Encoding.ASCII.GetBytes(cmd(0).ToUpper & ":" & cmd(1).ToUpper)
+                                    Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                                     Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
                                     AccountDatabase.InsertSQL([String].Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
                                     If AccountDatabase.QuerySQL("SELECT id FROM account WHERE username = """ & cmd(0) & """;") Then
-                                        Console.ForegroundColor = System.ConsoleColor.Green
+                                        Console.ForegroundColor = ConsoleColor.Green
                                         Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
-                                        Console.ForegroundColor = System.ConsoleColor.Gray
+                                        Console.ForegroundColor = ConsoleColor.Gray
                                     Else
-                                        Console.ForegroundColor = System.ConsoleColor.Red
+                                        Console.ForegroundColor = ConsoleColor.Red
                                         Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] could not be created.")
-                                        Console.ForegroundColor = System.ConsoleColor.Gray
+                                        Console.ForegroundColor = ConsoleColor.Gray
                                     End If
                                 End If
                             Case "gccollect"
                                 GC.Collect()
-                                Console.ForegroundColor = System.ConsoleColor.Blue
+                                Console.ForegroundColor = ConsoleColor.Blue
                                 Console.WriteLine("'WorldCluster' Command list:")
-                                Console.ForegroundColor = System.ConsoleColor.White
+                                Console.ForegroundColor = ConsoleColor.White
                                 Console.WriteLine("---------------------------------")
                                 Console.WriteLine("")
                                 Console.WriteLine("'createaccount <user> <password> <email>' or '/createaccount <user> <password> <email>' - Creates an account with the specified username <user>, password <password>, and email <email>.")
                             Case Else
-                                Console.ForegroundColor = System.ConsoleColor.Red
+                                Console.ForegroundColor = ConsoleColor.Red
                                 Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'WorldCluster' console commands.")
-                                Console.ForegroundColor = System.ConsoleColor.White
+                                Console.ForegroundColor = ConsoleColor.White
                         End Select
                         '<<<<<<<<<<</END COMMAND STRUCTURE>>>>>>>>>>>>
                     End If

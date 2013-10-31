@@ -16,26 +16,17 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Net.Sockets
-Imports System.Xml.Serialization
-Imports System.IO
-Imports System.Net
-Imports System.Reflection
-Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
-
 Public Module WC_Handlers_Group
 
-
-    Public Sub On_CMSG_REQUEST_RAID_INFO(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_RAID_INFO", Client.IP, Client.Port)
+    Public Sub On_CMSG_REQUEST_RAID_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_RAID_INFO", client.IP, client.Port)
 
         Dim q As New DataTable
-        If Client.Character IsNot Nothing Then
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", Client.Character.GUID), q)
+        If client.Character IsNot Nothing Then
+            CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", client.Character.GUID), q)
         End If
 
         Dim response As New PacketClass(OPCODES.SMSG_RAID_INSTANCE_INFO)
@@ -49,7 +40,7 @@ Public Module WC_Handlers_Group
             'TODO: Is this is a counter, shouldn't it be counting ?
             response.AddUInt32(i)                                           'Counter
         Next
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
 
     End Sub
@@ -80,12 +71,12 @@ Public Module WC_Handlers_Group
         response.Dispose()
     End Sub
 
-    Public Sub On_CMSG_GROUP_INVITE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GROUP_INVITE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
         Dim Name As String = CapitalizeName(packet.GetString)
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_INVITE [{2}]", Client.IP, Client.Port, Name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_INVITE [{2}]", client.IP, client.Port, Name)
 
         Dim GUID As ULong = 0
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
@@ -96,7 +87,6 @@ Public Module WC_Handlers_Group
             End If
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
-
 
         Dim errCode As PartyCommandResult = PartyCommandResult.INVITE_OK
         'TODO: InBattlegrounds: INVITE_RESTRICTED
@@ -116,17 +106,17 @@ Public Module WC_Handlers_Group
         ElseIf CHARACTERs(GUID).IgnoreList.Contains(Client.Character.GUID) Then
             errCode = PartyCommandResult.INVITE_IGNORED
         Else
-            If Not Client.Character.IsInGroup Then
+            If Not client.Character.IsInGroup Then
                 Dim g As New Group(Client.Character)
-                CHARACTERs(GUID).Group = Client.Character.Group
+                CHARACTERs(GUID).Group = client.Character.Group
                 CHARACTERs(GUID).GroupInvitedFlag = True
             Else
-                If Client.Character.Group.IsFull Then
+                If client.Character.Group.IsFull Then
                     errCode = PartyCommandResult.INVITE_PARTY_FULL
-                ElseIf Client.Character.IsGroupLeader = False AndAlso Client.Character.GroupAssistant = False Then
+                ElseIf client.Character.IsGroupLeader = False AndAlso client.Character.GroupAssistant = False Then
                     errCode = PartyCommandResult.INVITE_NOT_LEADER
                 Else
-                    CHARACTERs(GUID).Group = Client.Character.Group
+                    CHARACTERs(GUID).Group = client.Character.Group
                     CHARACTERs(GUID).GroupInvitedFlag = True
                 End If
             End If
@@ -143,51 +133,51 @@ Public Module WC_Handlers_Group
             invited.Dispose()
         End If
     End Sub
-    Public Sub On_CMSG_GROUP_CANCEL(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_CANCEL", Client.IP, Client.Port)
+    Public Sub On_CMSG_GROUP_CANCEL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_CANCEL", client.IP, client.Port)
     End Sub
-    Public Sub On_CMSG_GROUP_ACCEPT(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_ACCEPT", Client.IP, Client.Port)
-        If Client.Character.GroupInvitedFlag AndAlso Not Client.Character.Group.IsFull Then
-            Client.Character.Group.Join(Client.Character)
+    Public Sub On_CMSG_GROUP_ACCEPT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_ACCEPT", client.IP, client.Port)
+        If client.Character.GroupInvitedFlag AndAlso Not client.Character.Group.IsFull Then
+            client.Character.Group.Join(Client.Character)
         Else
-            SendPartyResult(Client, Client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_PARTY_FULL)
-            Client.Character.Group = Nothing
+            SendPartyResult(Client, client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_PARTY_FULL)
+            client.Character.Group = Nothing
         End If
 
-        Client.Character.GroupInvitedFlag = False
+        client.Character.GroupInvitedFlag = False
     End Sub
-    Public Sub On_CMSG_GROUP_DECLINE(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_DECLINE", Client.IP, Client.Port)
-        If Client.Character.GroupInvitedFlag Then
+    Public Sub On_CMSG_GROUP_DECLINE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_DECLINE", client.IP, client.Port)
+        If client.Character.GroupInvitedFlag Then
             Dim response As New PacketClass(OPCODES.SMSG_GROUP_DECLINE)
             response.AddString(Client.Character.Name)
-            Client.Character.Group.GetLeader.Client.Send(response)
+            client.Character.Group.GetLeader.Client.Send(response)
             response.Dispose()
 
-            Client.Character.Group.CheckMembers()
-            Client.Character.Group = Nothing
-            Client.Character.GroupInvitedFlag = False
+            client.Character.Group.CheckMembers()
+            client.Character.Group = Nothing
+            client.Character.GroupInvitedFlag = False
         End If
     End Sub
-    Public Sub On_CMSG_GROUP_DISBAND(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_DISBAND", Client.IP, Client.Port)
+    Public Sub On_CMSG_GROUP_DISBAND(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_DISBAND", client.IP, client.Port)
 
-        If Client.Character.IsInGroup Then
+        If client.Character.IsInGroup Then
             'TODO: InBattlegrounds: INVITE_RESTRICTED
-            If Client.Character.Group.GetMembersCount > 2 Then
-                Client.Character.Group.Leave(Client.Character)
+            If client.Character.Group.GetMembersCount > 2 Then
+                client.Character.Group.Leave(Client.Character)
             Else
-                Client.Character.Group.Dispose()
+                client.Character.Group.Dispose()
             End If
         End If
     End Sub
-    Public Sub On_CMSG_GROUP_UNINVITE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GROUP_UNINVITE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
         Dim Name As String = packet.GetString
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_UNINVITE [{2}]", Client.IP, Client.Port, Name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_UNINVITE [{2}]", client.IP, client.Port, Name)
 
         Dim GUID As ULong = 0
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
@@ -199,195 +189,194 @@ Public Module WC_Handlers_Group
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
 
-
         'TODO: InBattlegrounds: INVITE_RESTRICTED
         If GUID = 0 Then
             SendPartyResult(Client, Name, PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
-        ElseIf Not Client.Character.IsGroupLeader Then
+        ElseIf Not client.Character.IsGroupLeader Then
             SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_LEADER)
         Else
-            Client.Character.Group.Leave(CHARACTERs(GUID))
+            client.Character.Group.Leave(CHARACTERs(GUID))
         End If
 
     End Sub
-    Public Sub On_CMSG_GROUP_UNINVITE_GUID(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GROUP_UNINVITE_GUID(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_UNINVITE_GUID [0x{2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_UNINVITE_GUID [0x{2:X}]", client.IP, client.Port, GUID)
 
         'TODO: InBattlegrounds: INVITE_RESTRICTED
         If GUID = 0 Then
             SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
         ElseIf CHARACTERs.ContainsKey(GUID) = False Then
             SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
-        ElseIf Not Client.Character.IsGroupLeader Then
+        ElseIf Not client.Character.IsGroupLeader Then
             SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_LEADER)
         Else
-            Client.Character.Group.Leave(CHARACTERs(GUID))
+            client.Character.Group.Leave(CHARACTERs(GUID))
         End If
     End Sub
-    Public Sub On_CMSG_GROUP_SET_LEADER(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GROUP_SET_LEADER(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
         Dim Name As String = packet.GetString()
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_SET_LEADER [Name={2}]", Client.IP, Client.Port, Name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_SET_LEADER [Name={2}]", client.IP, client.Port, Name)
 
         Dim GUID As ULong = GetCharacterGUIDByName(Name)
         If GUID = 0 Then
             SendPartyResult(Client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_FOUND)
         ElseIf CHARACTERs.ContainsKey(GUID) = False Then
             SendPartyResult(Client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_FOUND)
-        ElseIf Not Client.Character.IsGroupLeader Then
-            SendPartyResult(Client, Client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_LEADER)
+        ElseIf Not client.Character.IsGroupLeader Then
+            SendPartyResult(Client, client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_LEADER)
         Else
-            Client.Character.Group.SetLeader(CHARACTERs(GUID))
+            client.Character.Group.SetLeader(CHARACTERs(GUID))
         End If
     End Sub
-    Public Sub On_CMSG_GROUP_RAID_CONVERT(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_RAID_CONVERT", Client.IP, Client.Port)
+    Public Sub On_CMSG_GROUP_RAID_CONVERT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_RAID_CONVERT", client.IP, client.Port)
 
-        If Client.Character.IsInGroup Then
+        If client.Character.IsInGroup Then
             SendPartyResult(Client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_OK)
 
-            Client.Character.Group.ConvertToRaid()
-            Client.Character.Group.SendGroupList()
+            client.Character.Group.ConvertToRaid()
+            client.Character.Group.SendGroupList()
 
             WorldServer.GroupSendUpdate(Client.Character.Group.ID)
         End If
     End Sub
-    Public Sub On_CMSG_GROUP_CHANGE_SUB_GROUP(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GROUP_CHANGE_SUB_GROUP(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
         Dim name As String = packet.GetString
         If (packet.Data.Length - 1) < (6 + name.Length + 1) Then Exit Sub
         Dim subGroup As Byte = packet.GetInt8
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_CHANGE_SUB_GROUP [{2}:{3}]", Client.IP, Client.Port, name, subGroup)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_CHANGE_SUB_GROUP [{2}:{3}]", client.IP, client.Port, name, subGroup)
 
-        If Client.Character.IsInGroup Then
+        If client.Character.IsInGroup Then
             Dim j As Integer
-            
+
             For j = subGroup * GROUP_SUBGROUPSIZE To ((subGroup + 1) * GROUP_SUBGROUPSIZE - 1)
-                If Client.Character.Group.Members(j) Is Nothing Then
+                If client.Character.Group.Members(j) Is Nothing Then
                     Exit For
                 End If
             Next
 
-            For i As Integer = 0 To Client.Character.Group.Members.Length - 1
-                If (Not Client.Character.Group.Members(i) Is Nothing) AndAlso Client.Character.Group.Members(i).Name = name Then
-                    Client.Character.Group.Members(j) = Client.Character.Group.Members(i)
-                    Client.Character.Group.Members(i) = Nothing
-                    If Client.Character.Group.Leader = i Then Client.Character.Group.Leader = j
-                    Client.Character.Group.SendGroupList()
+            For i As Integer = 0 To client.Character.Group.Members.Length - 1
+                If (Not client.Character.Group.Members(i) Is Nothing) AndAlso client.Character.Group.Members(i).Name = name Then
+                    client.Character.Group.Members(j) = client.Character.Group.Members(i)
+                    client.Character.Group.Members(i) = Nothing
+                    If client.Character.Group.Leader = i Then client.Character.Group.Leader = j
+                    client.Character.Group.SendGroupList()
                     Exit For
                 End If
             Next
         End If
     End Sub
-    Public Sub On_CMSG_GROUP_SWAP_SUB_GROUP(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_GROUP_SWAP_SUB_GROUP(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
         Dim name1 As String = packet.GetString
         If (packet.Data.Length - 1) < (6 + name1.Length + 1) Then Exit Sub
         Dim name2 As String = packet.GetString
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_SWAP_SUB_GROUP [{2}:{3}]", Client.IP, Client.Port, name1, name2)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_SWAP_SUB_GROUP [{2}:{3}]", client.IP, client.Port, name1, name2)
 
-        If Client.Character.IsInGroup Then
+        If client.Character.IsInGroup Then
             Dim j As Integer
 
-            For j = 0 To Client.Character.Group.Members.Length - 1
-                If (Not Client.Character.Group.Members(j) Is Nothing) AndAlso Client.Character.Group.Members(j).Name = name2 Then
+            For j = 0 To client.Character.Group.Members.Length - 1
+                If (Not client.Character.Group.Members(j) Is Nothing) AndAlso client.Character.Group.Members(j).Name = name2 Then
                     Exit For
                 End If
             Next
 
-            For i As Integer = 0 To Client.Character.Group.Members.Length - 1
-                If (Not Client.Character.Group.Members(i) Is Nothing) AndAlso Client.Character.Group.Members(i).Name = name1 Then
-                    Dim tmpPlayer As CharacterObject = Client.Character.Group.Members(j)
-                    Client.Character.Group.Members(j) = Client.Character.Group.Members(i)
-                    Client.Character.Group.Members(i) = tmpPlayer
+            For i As Integer = 0 To client.Character.Group.Members.Length - 1
+                If (Not client.Character.Group.Members(i) Is Nothing) AndAlso client.Character.Group.Members(i).Name = name1 Then
+                    Dim tmpPlayer As CharacterObject = client.Character.Group.Members(j)
+                    client.Character.Group.Members(j) = client.Character.Group.Members(i)
+                    client.Character.Group.Members(i) = tmpPlayer
                     tmpPlayer = Nothing
 
-                    If Client.Character.Group.Leader = i Then
-                        Client.Character.Group.Leader = j
-                    ElseIf Client.Character.Group.Leader = j Then
-                        Client.Character.Group.Leader = i
+                    If client.Character.Group.Leader = i Then
+                        client.Character.Group.Leader = j
+                    ElseIf client.Character.Group.Leader = j Then
+                        client.Character.Group.Leader = i
                     End If
 
-                    Client.Character.Group.SendGroupList()
+                    client.Character.Group.SendGroupList()
                     Exit For
                 End If
             Next
         End If
     End Sub
-    Public Sub On_CMSG_LOOT_METHOD(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_LOOT_METHOD(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
         Dim Method As Integer = packet.GetInt32
         Dim Master As ULong = packet.GetUInt64
         Dim Threshold As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_METHOD [Method={2}, Master=0x{3:X}, Threshold={4}]", Client.IP, Client.Port, Method, Master, Threshold)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_METHOD [Method={2}, Master=0x{3:X}, Threshold={4}]", client.IP, client.Port, Method, Master, Threshold)
 
-        If Not Client.Character.IsGroupLeader Then
+        If Not client.Character.IsGroupLeader Then
             Exit Sub
         End If
 
-        Client.Character.Group.SetLootMaster(Master)
-        Client.Character.Group.LootMethod = Method
-        Client.Character.Group.LootThreshold = Threshold
-        Client.Character.Group.SendGroupList()
+        client.Character.Group.SetLootMaster(Master)
+        client.Character.Group.LootMethod = Method
+        client.Character.Group.LootThreshold = Threshold
+        client.Character.Group.SendGroupList()
 
         WorldServer.GroupSendUpdateLoot(Client.Character.Group.ID)
     End Sub
 
-    Public Sub On_MSG_MINIMAP_PING(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_MINIMAP_PING(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim x As Single = packet.GetFloat
         Dim y As Single = packet.GetFloat
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MINIMAP_PING [{2}:{3}]", Client.IP, Client.Port, x, y)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MINIMAP_PING [{2}:{3}]", client.IP, client.Port, x, y)
 
-        If Client.Character.IsInGroup Then
+        If client.Character.IsInGroup Then
             Dim response As New PacketClass(OPCODES.MSG_MINIMAP_PING)
             response.AddUInt64(Client.Character.GUID)
             response.AddSingle(x)
             response.AddSingle(y)
-            Client.Character.Group.Broadcast(response)
+            client.Character.Group.Broadcast(response)
             response.Dispose()
         End If
 
     End Sub
-    Public Sub On_MSG_RANDOM_ROLL(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_RANDOM_ROLL(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim minRoll As Integer = packet.GetInt32
         Dim maxRoll As Integer = packet.GetInt32
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_RANDOM_ROLL [min={2} max={3}]", Client.IP, Client.Port, minRoll, maxRoll)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_RANDOM_ROLL [min={2} max={3}]", client.IP, client.Port, minRoll, maxRoll)
 
         Dim response As New PacketClass(OPCODES.MSG_RANDOM_ROLL)
         response.AddInt32(minRoll)
         response.AddInt32(maxRoll)
         response.AddInt32(Rnd.Next(minRoll, maxRoll))
         response.AddUInt64(Client.Character.GUID)
-        If Client.Character.IsInGroup Then
-            Client.Character.Group.Broadcast(response)
+        If client.Character.IsInGroup Then
+            client.Character.Group.Broadcast(response)
         Else
-            Client.SendMultiplyPackets(response)
+            client.SendMultiplyPackets(response)
         End If
         response.Dispose()
     End Sub
-    Public Sub On_MSG_RAID_READY_CHECK(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_RAID_READY_CHECK(ByRef packet As PacketClass, ByRef client As ClientClass)
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_RAID_READY_CHECK", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_RAID_READY_CHECK", client.IP, client.Port)
 
-        If Client.Character.IsGroupLeader Then
-            Client.Character.Group.BroadcastToOther(packet, Client.Character)
+        If client.Character.IsGroupLeader Then
+            client.Character.Group.BroadcastToOther(packet, client.Character)
         Else
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             packet.GetInt16()
@@ -395,19 +384,19 @@ Public Module WC_Handlers_Group
 
             If result = 0 Then
                 'DONE: Not ready
-                Client.Character.Group.GetLeader.Client.Send(packet)
+                client.Character.Group.GetLeader.Client.Send(packet)
             Else
                 'DONE: Ready
                 Dim response As New PacketClass(OPCODES.MSG_RAID_READY_CHECK)
                 response.AddUInt64(Client.Character.GUID)
-                Client.Character.Group.GetLeader.Client.Send(response)
+                client.Character.Group.GetLeader.Client.Send(response)
                 response.Dispose()
             End If
         End If
     End Sub
-    Public Sub On_MSG_RAID_ICON_TARGET(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_RAID_ICON_TARGET(ByRef packet As PacketClass, ByRef client As ClientClass)
         If packet.Data.Length < 7 Then Exit Sub 'Too short packet
-        If Client.Character.Group Is Nothing Then Exit Sub
+        If client.Character.Group Is Nothing Then Exit Sub
         packet.GetInt16()
         Dim icon As Byte = packet.GetInt8()
 
@@ -416,12 +405,12 @@ Public Module WC_Handlers_Group
             Dim response As New PacketClass(OPCODES.MSG_RAID_ICON_TARGET)
             response.AddInt8(1) 'Target list
             For i As Byte = 0 To 7
-                If Client.Character.Group.TargetIcons(i) = 0 Then Continue For
+                If client.Character.Group.TargetIcons(i) = 0 Then Continue For
 
                 response.AddInt8(i)
                 response.AddUInt64(Client.Character.Group.TargetIcons(i))
             Next
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
         Else
             If icon > 7 Then Exit Sub 'Not a valid icon
@@ -429,13 +418,13 @@ Public Module WC_Handlers_Group
             Dim GUID As ULong = packet.GetUInt64()
 
             'DONE: Set the raid icon target
-            Client.Character.Group.TargetIcons(icon) = GUID
+            client.Character.Group.TargetIcons(icon) = GUID
 
             Dim response As New PacketClass(OPCODES.MSG_RAID_ICON_TARGET)
             response.AddInt8(0) 'Set target
             response.AddInt8(icon)
             response.AddUInt64(GUID)
-            Client.Character.Group.Broadcast(response)
+            client.Character.Group.Broadcast(response)
             response.Dispose()
         End If
     End Sub
@@ -445,31 +434,29 @@ Public Module WC_Handlers_Group
         MainAssist = 1
     End Enum
 
-
-    Public Sub On_CMSG_REQUEST_PARTY_MEMBER_STATS(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_REQUEST_PARTY_MEMBER_STATS(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_PARTY_MEMBER_STATS [{2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_PARTY_MEMBER_STATS [{2:X}]", client.IP, client.Port, GUID)
 
         If Not CHARACTERs.ContainsKey(GUID) Then
             'Character is offline
             Dim response As PacketClass = BuildPartyMemberStatsOffline(GUID)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
         ElseIf CHARACTERs(GUID).IsInWorld = False Then
             'Character is offline (not in world)
             Dim response As PacketClass = BuildPartyMemberStatsOffline(GUID)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
         Else
             'Request information from WorldServer
             Dim response As New PacketClass(0)
             response.Data = CHARACTERs(GUID).GetWorld.GroupMemberStats(GUID, 0)
-            Client.Send(response)
+            client.Send(response)
             response.Dispose()
         End If
     End Sub
-
 
 End Module

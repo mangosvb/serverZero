@@ -16,17 +16,13 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.IO
-Imports System.Runtime.InteropServices
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WS_DBCDatabase
 
-
 #Region "Maps"
-
 
     Public Maps As New Dictionary(Of Integer, MapInfo)
     Public Sub InitializeMaps()
@@ -47,9 +43,9 @@ Public Module WS_DBCDatabase
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
         Catch e As DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : Maps missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -83,10 +79,8 @@ Public Module WS_DBCDatabase
 
     End Class
 
-
 #End Region
 #Region "WorldMapArea"
-
 
     Public WorldSafeLocs As New Dictionary(Of Integer, TWorldSafeLoc)
     Public Sub InitializeWorldSafeLocs()
@@ -107,10 +101,10 @@ Public Module WS_DBCDatabase
 
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : WorldSafeLocs missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -123,10 +117,8 @@ Public Module WS_DBCDatabase
         Public z As Single
     End Class
 
-
 #End Region
 #Region "Battlegrounds"
-
 
     Public Battlegrounds As New Dictionary(Of Byte, TBattleground)
     Public Sub InitializeBattlegrounds()
@@ -167,7 +159,6 @@ Public Module WS_DBCDatabase
         Public HordeStartO As Single
     End Class
 
-
 #End Region
 #Region "Chat Channels"
 
@@ -200,10 +191,10 @@ Public Module WS_DBCDatabase
 
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : ChatChannels missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -212,7 +203,6 @@ Public Module WS_DBCDatabase
         Public Flags As Integer
         Public Name As String
     End Class
-
 
 #End Region
 #Region "Character"
@@ -241,10 +231,10 @@ Public Module WS_DBCDatabase
 
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : CharRaces missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -265,10 +255,10 @@ Public Module WS_DBCDatabase
 
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
-            Console.ForegroundColor = System.ConsoleColor.DarkRed
+        Catch e As DirectoryNotFoundException
+            Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : CharRaces missing.")
-            Console.ForegroundColor = System.ConsoleColor.Gray
+            Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
 
@@ -298,6 +288,5 @@ Public Module WS_DBCDatabase
         End Sub
     End Class
 #End Region
-
 
 End Module

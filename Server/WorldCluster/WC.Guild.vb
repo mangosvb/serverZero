@@ -199,7 +199,7 @@ Public Module WC_Guild
         packet.Dispose()
     End Sub
 
-    Public Sub SendGuildQuery(ByRef Client As ClientClass, ByVal GuildID As UInteger)
+    Public Sub SendGuildQuery(ByRef client As ClientClass, ByVal GuildID As UInteger)
         If GuildID = 0 Then Exit Sub
         'WARNING: This opcode is used also in character enum, so there must not be used any references to CharacterObject, only ClientClass
 
@@ -220,7 +220,7 @@ Public Module WC_Guild
         response.AddInt32(GUILDs(GuildID).BorderColor)
         response.AddInt32(GUILDs(GuildID).BackgroundColor)
         response.AddInt32(0)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
@@ -324,12 +324,12 @@ Public Module WC_Guild
         GUILD_NOT_ALLIED = &HC
     End Enum
 
-    Public Sub SendGuildResult(ByRef Client As ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
+    Public Sub SendGuildResult(ByRef client As ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_COMMAND_RESULT)
         response.AddInt32(Command)
         response.AddString(Text)
         response.AddInt32(Result)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 

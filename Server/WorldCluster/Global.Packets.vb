@@ -21,7 +21,7 @@ Imports mangosVB.Common
 
 Public Module Packets
 
-    Public Sub DumpPacket(ByVal data() As Byte, Optional ByRef Client As ClientClass = Nothing)
+    Public Sub DumpPacket(ByVal data() As Byte, Optional ByRef client As ClientClass = Nothing)
         '#If DEBUG Then
         Dim j As Integer
         Dim buffer As String = ""
@@ -29,23 +29,23 @@ Public Module Packets
             If Client Is Nothing Then
                 buffer = buffer + [String].Format("DEBUG: Packet Dump{0}", vbNewLine)
             Else
-                buffer = buffer + [String].Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", Client.IP, Client.Port, data.Length, vbNewLine)
+                buffer = buffer + [String].Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length, vbNewLine)
             End If
 
             If data.Length Mod 16 = 0 Then
                 For j = 0 To data.Length - 1 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & System.Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
                 Next
             Else
                 For j = 0 To data.Length - 1 - 16 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & System.Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
                 Next
 
                 buffer += "|  " & BitConverter.ToString(data, j, data.Length Mod 16).Replace("-", " ")
                 buffer += New String(" ", (16 - data.Length Mod 16) * 3)
-                buffer += " |  " & System.Text.Encoding.ASCII.GetString(data, j, data.Length Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
+                buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, data.Length Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
                 buffer += New String(" ", 16 - data.Length Mod 16)
                 buffer += " |" & vbNewLine
             End If
@@ -57,7 +57,7 @@ Public Module Packets
         End Try
     End Sub
 
-    Public Sub LogPacket(ByVal data() As Byte, ByVal Server As Boolean, Optional ByRef Client As ClientClass = Nothing)
+    Public Sub LogPacket(ByVal data() As Byte, ByVal Server As Boolean, Optional ByRef client As ClientClass = Nothing)
         Dim j As Integer
         Dim buffer As String = ""
         Try
@@ -71,7 +71,7 @@ Public Module Packets
             If Client Is Nothing Then
                 buffer = buffer + [String].Format("{4} Packet: (0x{0:X4}) {1} PacketSize = {2}{3}", CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
             Else
-                buffer = buffer + [String].Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", Client.IP, Client.Port, CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
+                buffer = buffer + [String].Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", client.IP, client.Port, CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
             End If
 
             buffer += "|------------------------------------------------|----------------|" & vbNewLine
@@ -81,11 +81,11 @@ Public Module Packets
                 If (j + 16 > data.Length) Then
                     buffer += "|" & BitConverter.ToString(data, j, data.Length - j).Replace("-", " ")
                     buffer += New String(" ", ((j + 16) - data.Length) * 3)
-                    buffer += " |" & FormatPacketStr(System.Text.Encoding.ASCII.GetString(data, j, data.Length - j))
+                    buffer += " |" & FormatPacketStr(Text.Encoding.ASCII.GetString(data, j, data.Length - j))
                     buffer += New String(" ", ((j + 16) - data.Length))
                 Else
                     buffer += "|" & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |" & FormatPacketStr(System.Text.Encoding.ASCII.GetString(data, j, 16))
+                    buffer += " |" & FormatPacketStr(Text.Encoding.ASCII.GetString(data, j, 16))
                 End If
                 buffer += "|" & vbNewLine
             Next
@@ -201,7 +201,7 @@ Public Module Packets
             If IsDBNull(buffer) Or buffer = "" Then
                 Me.AddInt8(0)
             Else
-                Dim Bytes As Byte() = System.Text.Encoding.UTF8.GetBytes(buffer.ToCharArray)
+                Dim Bytes As Byte() = Text.Encoding.UTF8.GetBytes(buffer.ToCharArray)
 
                 ReDim Preserve Data(Data.Length + Bytes.Length)
                 Data(0) = (Data.Length - 2) \ 256

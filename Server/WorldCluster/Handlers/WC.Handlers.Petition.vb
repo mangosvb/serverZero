@@ -16,17 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Net.Sockets
-Imports System.Xml.Serialization
-Imports System.IO
-Imports System.Net
-Imports System.Reflection
-Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common
-
-
 Public Module WC_Handlers_Petition
     'TODO: Need to code the petition handlers for guild creation
 End Module

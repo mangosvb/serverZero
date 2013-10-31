@@ -18,22 +18,16 @@
 
 Imports System.Threading
 Imports System.Net.Sockets
-Imports System.Xml.Serialization
-Imports System.IO
-Imports System.Net
-Imports System.Reflection
-Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
-
 
 Public Module WC_Handlers_Auth
 
     Const REQUIRED_BUILD_LOW As Integer = 5875 ' 1.12.1
     Const REQUIRED_BUILD_HIGH As Integer = 5875
 
-    Public Sub SendLoginOK(ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", Client.IP, Client.Port, Client.Account)
+    Public Sub SendLoginOK(ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
 
         Thread.Sleep(500)
 
@@ -42,11 +36,11 @@ Public Module WC_Handlers_Auth
         response.AddInt32(0)
         response.AddInt8(2) 'BillingPlanFlags
         response.AddUInt32(0) 'BillingTimeRested
-        Client.Send(response)
+        client.Send(response)
     End Sub
 
-    Public Sub On_CMSG_AUTH_SESSION(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        'Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+    Public Sub On_CMSG_AUTH_SESSION(ByRef packet As PacketClass, ByRef client As ClientClass)
+        'Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
 
         packet.GetInt16()
         Dim clientVersion As Integer = packet.GetInt32
@@ -59,7 +53,7 @@ Public Module WC_Handlers_Auth
         Next
         Dim clientAddOnsSize As Integer = packet.GetInt32
 
-        'DONE: Set Client.Account
+        'DONE: Set client.Account
         Dim tmp As String = clientAccount
 
         'DONE: Kick if existing
@@ -78,34 +72,34 @@ Public Module WC_Handlers_Auth
                 End If
             End If
         Next
-        Client.Account = tmp
+        client.Account = tmp
 
-        'DONE: Set Client.SS_Hash
+        'DONE: Set client.SS_Hash
         Dim result As New DataTable
         Dim query As String
-        query = "SELECT sessionkey, gmlevel FROM account WHERE username = '" & Client.Account & "';"
+        query = "SELECT sessionkey, gmlevel FROM account WHERE username = '" & client.Account & "';"
         AccountDatabase.Query(query, result)
         If result.Rows.Count > 0 Then
             tmp = result.Rows(0).Item("sessionkey")
-            Client.Access = result.Rows(0).Item("gmlevel")
+            client.Access = result.Rows(0).Item("gmlevel")
         Else
-            Log.WriteLine(LogType.USER, "[{0}:{1}] AUTH_UNKNOWN_ACCOUNT: Account not in DB!", Client.IP, Client.Port)
+            Log.WriteLine(LogType.USER, "[{0}:{1}] AUTH_UNKNOWN_ACCOUNT: Account not in DB!", client.IP, client.Port)
             Dim response_no_acc As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
             response_no_acc.AddInt8(AuthResponseCodes.AUTH_UNKNOWN_ACCOUNT)
-            Client.Send(response_no_acc)
+            client.Send(response_no_acc)
             Exit Sub
         End If
-        ReDim Client.SS_Hash(39)
+        ReDim client.SS_Hash(39)
         For i As Integer = 0 To Len(tmp) - 1 Step 2
-            Client.SS_Hash(i \ 2) = Val("&H" & Mid(tmp, i + 1, 2))
+            client.SS_Hash(i \ 2) = Val("&H" & Mid(tmp, i + 1, 2))
         Next
-        Client.Encryption = True
+        client.Encryption = True
 
         'DONE: Disconnect clients trying to enter with an invalid build
         If clientVersion < REQUIRED_BUILD_LOW OrElse clientVersion > REQUIRED_BUILD_HIGH Then
             Dim response_wrong_version As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
             response_wrong_version.AddInt8(AuthResponseCodes.AUTH_VERSION_MISMATCH)
-            Client.Send(response_wrong_version)
+            client.Send(response_wrong_version)
             Exit Sub
         End If
 
@@ -114,7 +108,7 @@ Public Module WC_Handlers_Auth
         'temp = Concat(temp, BitConverter.GetBytes(0))
         'temp = Concat(temp, BitConverter.GetBytes(clientSeed))
         'temp = Concat(temp, BitConverter.GetBytes(Client.Index))
-        'temp = Concat(temp, Client.SS_Hash)
+        'temp = Concat(temp, client.SS_Hash)
         'Dim ShaDigest() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(temp)
         'Log.WriteLine(LogType.DEBUG, "Client Hash: {0}", BitConverter.ToString(clientHash).Replace("-", ""))
         'Log.WriteLine(LogType.DEBUG, "Server Hash: {0}", BitConverter.ToString(ShaDigest).Replace("-", ""))
@@ -122,14 +116,14 @@ Public Module WC_Handlers_Auth
         '    If clientHash(i) <> ShaDigest(i) Then
         '        Dim responseFail As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
         '        responseFail.AddInt8(AuthResponseCodes.AUTH_FAILED)
-        '        Client.Send(responseFail)
+        '        client.Send(responseFail)
         '        Exit Sub
         '    End If
         'Next
 
         'DONE: If server full then queue, If GM/Admin let in
-        If CLIENTs.Count > Config.ServerPlayerLimit And Client.Access <= AccessLevel.Player Then
-            ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf Client.EnQueue))
+        If CLIENTs.Count > Config.ServerPlayerLimit And client.Access <= AccessLevel.Player Then
+            ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf client.EnQueue))
         Else
             SendLoginOK(Client)
         End If
@@ -143,7 +137,7 @@ Public Module WC_Handlers_Auth
 
         Dim AddOnsNames As New List(Of String)
         Dim AddOnsHashes As New List(Of UInteger)
-        'Dim AddOnsConsoleWrite As String = String.Format("[{0}:{1}] Client addons loaded:", Client.IP, Client.Port)
+        'Dim AddOnsConsoleWrite As String = String.Format("[{0}:{1}] Client addons loaded:", client.IP, client.Port)
         While packet.Offset < clientAddOnsSize
             AddOnsNames.Add(packet.GetString)
             AddOnsHashes.Add(packet.GetUInt32)
@@ -180,40 +174,40 @@ Public Module WC_Handlers_Auth
                 addOnsEnable.AddInt16(0)
             End If
         Next
-        Client.Send(addOnsEnable)
+        client.Send(addOnsEnable)
         addOnsEnable.Dispose()
     End Sub
 
-    Public Sub On_CMSG_PING(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PING(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
 
         Dim response As New PacketClass(OPCODES.SMSG_PONG)
         response.AddInt32(packet.GetInt32)
-        Client.Send(response)
+        client.Send(response)
 
-        If Not Client.Character Is Nothing Then
-            Client.Character.Latency = packet.GetInt32
+        If Not client.Character Is Nothing Then
+            client.Character.Latency = packet.GetInt32
         End If
 
-        'Log.WriteLine(LogType.NETWORK, "[{0}:{1}] SMSG_PONG [{2}]", Client.IP, Client.Port, Client.Character.Latency)
+        'Log.WriteLine(LogType.NETWORK, "[{0}:{1}] SMSG_PONG [{2}]", client.IP, client.Port, client.Character.Latency)
     End Sub
 
-    Public Sub On_CMSG_UPDATE_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_UPDATE_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim DataID As UInteger = packet.GetUInt32
             Dim UncompressedSize As UInteger = packet.GetUInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [ID={2} Size={3}]", Client.IP, Client.Port, DataID, UncompressedSize)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [ID={2} Size={3}]", client.IP, client.Port, DataID, UncompressedSize)
             If DataID > 7 Then Exit Sub
 
             'TODO: How does Mangos Zero Handle the Account Data For the Character?
             'Dim AccData As New DataTable
-            'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
+            'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", client.Account), AccData)
             'If AccData.Rows.Count = 0 Then
-            '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Account ID not found]", Client.IP, Client.Port)
+            '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Account ID not found]", client.IP, client.Port)
             '    Exit Sub
             'End If
 
@@ -228,7 +222,7 @@ Public Module WC_Handlers_Auth
 
             'DONE: Can not handle more than 65534 bytes
             'If UncompressedSize >= 65534 Then
-            '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Invalid uncompressed size]", Client.IP, Client.Port)
+            '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Invalid uncompressed size]", client.IP, client.Port)
             '    Exit Sub
             'End If
 
@@ -251,16 +245,16 @@ Public Module WC_Handlers_Auth
         End Try
     End Sub
 
-    Public Sub On_CMSG_REQUEST_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_REQUEST_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 9 Then Exit Sub
         packet.GetInt16()
         Dim DataID As UInteger = packet.GetUInt32
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_ACCOUNT_DATA [ID={2}]", Client.IP, Client.Port, DataID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_ACCOUNT_DATA [ID={2}]", client.IP, client.Port, DataID)
         If DataID > 7 Then Exit Sub
 
         Dim FoundData As Boolean = False
         'Dim AccData As New DataTable
-        'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", Client.Account), AccData)
+        'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", client.Account), AccData)
         'If AccData.Rows.Count > 0 Then
         '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
         '
@@ -290,7 +284,7 @@ Public Module WC_Handlers_Auth
         'End If
         'End If
 
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
@@ -338,8 +332,8 @@ Public Module WC_Handlers_Auth
         RESTRICT_HIDEHELM = &H10
     End Enum
 
-    Public Sub On_CMSG_CHAR_ENUM(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_ENUM", Client.IP, Client.Port)
+    Public Sub On_CMSG_CHAR_ENUM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_ENUM", client.IP, client.Port)
 
         'DONE: Query Characters DB
         Dim response As New PacketClass(OPCODES.SMSG_CHAR_ENUM)
@@ -347,7 +341,7 @@ Public Module WC_Handlers_Auth
         Dim Account_ID As Integer
 
         Try
-            AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = '{0}';", Client.Account), MySQLQuery)
+            AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = '{0}';", client.Account), MySQLQuery)
             Account_ID = CType(MySQLQuery.Rows(0).Item("id"), Integer)
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE account_id = '{0}' ORDER BY char_guid;", Account_ID), MySQLQuery)
@@ -446,18 +440,18 @@ Public Module WC_Handlers_Auth
             Next i
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to enum characters. [{2}]", Client.IP, Client.Port, e.Message)
+            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to enum characters. [{2}]", client.IP, client.Port, e.Message)
             'TODO: Find what opcode officials use
             response = New PacketClass(OPCODES.SMSG_CHAR_CREATE)
             response.AddInt8(AuthResponseCodes.CHAR_LIST_FAILED)
         End Try
 
-        Client.Send(response)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_ENUM", Client.IP, Client.Port)
+        client.Send(response)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_ENUM", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_CHAR_DELETE(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_DELETE", Client.IP, Client.Port)
+    Public Sub On_CMSG_CHAR_DELETE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_DELETE", client.IP, client.Port)
 
         Dim response As New PacketClass(OPCODES.SMSG_CHAR_DELETE)
         packet.GetInt16()
@@ -467,7 +461,7 @@ Public Module WC_Handlers_Auth
             Dim q As New DataTable
             'DISABLED : Just bans the account either way, sql query needs fixed?
             'DONE: Players can now only remove their own characters, not someone elses :)
-            'Database.Query(String.Format("SELECT accounts.account_id FROM accounts, characters WHERE account = ""{0}"" AND char_guid = {1} AND accounts.account_id = characters.account_id;", Client.Account, guid), q)
+            'Database.Query(String.Format("SELECT accounts.account_id FROM accounts, characters WHERE account = ""{0}"" AND char_guid = {1} AND accounts.account_id = characters.account_id;", client.Account, guid), q)
             'If q.Rows.Count = 0 Then
             'DONE: Ban and exit, showing nice message to player ;)
             'response.AddInt8(AuthResponseCodes.AUTH_BANNED)
@@ -517,15 +511,15 @@ Public Module WC_Handlers_Auth
             response.AddInt8(AuthResponseCodes.CHAR_DELETE_FAILED)
         End Try
 
-        Client.Send(response)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_DELETE [{2:X}]", Client.IP, Client.Port, guid)
+        client.Send(response)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_DELETE [{2:X}]", client.IP, client.Port, guid)
     End Sub
 
-    Public Sub On_CMSG_CHAR_RENAME(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_CHAR_RENAME(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim GUID As Long = packet.GetInt64()
         Dim Name As String = packet.GetString
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_RENAME [{2}:{3}]", Client.IP, Client.Port, GUID, Name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_RENAME [{2}:{3}]", client.IP, client.Port, GUID, Name)
 
         Dim ErrCode As Byte = AuthResponseCodes.RESPONSE_SUCCESS
 
@@ -542,18 +536,18 @@ Public Module WC_Handlers_Auth
         'DONE: Send response
         Dim response As New PacketClass(OPCODES.SMSG_CHAR_RENAME)
         response.AddInt8(ErrCode)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
 
         On_CMSG_CHAR_ENUM(Nothing, Client)
     End Sub
 
-    Public Sub On_CMSG_CHAR_CREATE(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_CHAR_CREATE(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
 
         Dim Name As String = packet.GetString
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_CREATE [{2}]", Client.IP, Client.Port, Name)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Name)
 
         Dim Race As Byte = packet.GetInt8
         Dim Classe As Byte = packet.GetInt8
@@ -576,63 +570,62 @@ Public Module WC_Handlers_Auth
             End If
         Catch ex As Exception
             result = AuthResponseCodes.CHAR_CREATE_ERROR
-            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Character creation failed!{2}{3}", Client.IP, Client.Port, vbNewLine, ex.ToString)
+            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Character creation failed!{2}{3}", client.IP, client.Port, vbNewLine, ex.ToString)
         End Try
 
         Dim response As New PacketClass(OPCODES.SMSG_CHAR_CREATE)
         response.AddInt8(result)
-        Client.Send(response)
+        client.Send(response)
     End Sub
 
-    Public Sub On_CMSG_PLAYER_LOGIN(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_PLAYER_LOGIN(ByRef packet As PacketClass, ByRef client As ClientClass)
         Dim GUID As ULong = 0
         packet.GetInt16()               'int16 unknown
         GUID = packet.GetUInt64()       'uint64 guid
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", client.IP, client.Port, GUID)
 
         Try
-            If Client.Character Is Nothing Then
-                Client.Character = New CharacterObject(GUID, Client)
+            If client.Character Is Nothing Then
+                client.Character = New CharacterObject(GUID, Client)
             Else
-                If Client.Character.GUID <> GUID Then
-                    Client.Character.Dispose()
-                    Client.Character = New CharacterObject(GUID, Client)
+                If client.Character.GUID <> GUID Then
+                    client.Character.Dispose()
+                    client.Character = New CharacterObject(GUID, Client)
                 Else
-                    Client.Character.ReLoad()
+                    client.Character.ReLoad()
                 End If
             End If
 
+            If WorldServer.InstanceCheck(Client, client.Character.Map) Then
+                client.Character.GetWorld.ClientConnect(Client.Index, client.GetClientInfo)
+                client.Character.IsInWorld = True
+                client.Character.GetWorld.ClientLogin(Client.Index, client.Character.GUID)
 
-            If WorldServer.InstanceCheck(Client, Client.Character.Map) Then
-                Client.Character.GetWorld.ClientConnect(Client.Index, Client.GetClientInfo)
-                Client.Character.IsInWorld = True
-                Client.Character.GetWorld.ClientLogin(Client.Index, Client.Character.GUID)
-
-                Client.Character.OnLogin()
+                client.Character.OnLogin()
             Else
-                Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: WORLD SERVER DOWN", Client.Index)
+                Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: WORLD SERVER DOWN", client.Index)
 
-                Client.Character.Dispose()
-                Client.Character = Nothing
+                client.Character.Dispose()
+                client.Character = Nothing
                 Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
                 Try
                     r.AddInt8(AuthLoginCodes.CHAR_LOGIN_NO_WORLD)
-                    Client.Send(r)
+                    client.Send(r)
                 Finally
                     r.Dispose()
                 End Try
             End If
 
         Catch ex As Exception
-            Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: {1}", Client.Index, ex.ToString)
+            Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: {1}", client.Index, ex.ToString)
 
-            Client.Character.Dispose()
-            Client.Character = Nothing
+            client.Character.Dispose()
+            client.Character = Nothing
 
             Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
             Try
                 r.AddInt8(AuthResponseCodes.CHAR_LOGIN_FAILED)
-                Client.Send(r)
+                client.Send(r)
             Finally
                 r.Dispose()
             End Try
@@ -641,31 +634,31 @@ Public Module WC_Handlers_Auth
 
     'Leak is with in this code. Needs a rewrite to correct the leak. This only effects the CPU Usage.
     'Happens when the client disconnects from the server.
-    Public Sub On_CMSG_PLAYER_LOGOUT(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGOUT", Client.IP, Client.Port)
-        Client.Character.OnLogout()
+    Public Sub On_CMSG_PLAYER_LOGOUT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGOUT", client.IP, client.Port)
+        client.Character.OnLogout()
 
-        Client.Character.GetWorld.ClientDisconnect(Client.Index) 'Likely the cause of it
-        Client.Character.Dispose()
-        Client.Character = Nothing
+        client.Character.GetWorld.ClientDisconnect(Client.Index) 'Likely the cause of it
+        client.Character.Dispose()
+        client.Character = Nothing
     End Sub
 
-    Public Sub On_MSG_MOVE_WORLDPORT_ACK(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MOVE_WORLDPORT_ACK", Client.IP, Client.Port)
+    Public Sub On_MSG_MOVE_WORLDPORT_ACK(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MOVE_WORLDPORT_ACK", client.IP, client.Port)
 
         Try
-            If Not WorldServer.InstanceCheck(Client, Client.Character.Map) Then Exit Sub
+            If Not WorldServer.InstanceCheck(Client, client.Character.Map) Then Exit Sub
 
-            If Client.Character.IsInWorld Then
+            If client.Character.IsInWorld Then
                 'Inside server transfer
-                Client.Character.GetWorld.ClientLogin(Client.Index, Client.Character.GUID)
+                client.Character.GetWorld.ClientLogin(Client.Index, client.Character.GUID)
             Else
                 'Inter-server transfer
-                Client.Character.ReLoad()
+                client.Character.ReLoad()
 
-                Client.Character.GetWorld.ClientConnect(Client.Index, Client.GetClientInfo)
-                Client.Character.IsInWorld = True
-                Client.Character.GetWorld.ClientLogin(Client.Index, Client.Character.GUID)
+                client.Character.GetWorld.ClientConnect(Client.Index, client.GetClientInfo)
+                client.Character.IsInWorld = True
+                client.Character.GetWorld.ClientLogin(Client.Index, client.Character.GUID)
             End If
         Catch ex As Exception
             Log.WriteLine(LogType.CRITICAL, "{0}", ex.ToString)

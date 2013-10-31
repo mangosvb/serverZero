@@ -17,7 +17,6 @@
 '
 
 Imports System
-Imports System.IO
 Imports System.Threading
 Imports System.Net
 Imports System.Net.Sockets
@@ -25,14 +24,11 @@ Imports System.Runtime.Remoting
 Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
-
 
 Public Module WC_Network
 
 #Region "WS.Sockets"
-
 
     Public WorldServer As WorldServerClass
     Public Authenticator As Authenticator
@@ -55,11 +51,11 @@ Public Module WC_Network
             Try
 
                 m_Socket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                m_Socket.Bind(New IPEndPoint(Net.IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort))
+                m_Socket.Bind(New IPEndPoint(IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort))
                 m_Socket.Listen(5)
                 m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-                Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", Net.IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
+                Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
 
                 'Create Remoting Channel
                 Select Case Config.ClusterListenMethod
@@ -105,7 +101,7 @@ Public Module WC_Network
 
             m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-            ThreadPool.QueueUserWorkItem(New System.Threading.WaitCallback(AddressOf m_Client.OnConnect))
+            ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf m_Client.OnConnect))
         End Sub
 
 #Region "IDisposable Support"
@@ -143,7 +139,7 @@ Public Module WC_Network
         Public Worlds As New Dictionary(Of UInteger, IWorld)
         Public WorldsInfo As New Dictionary(Of UInteger, WorldInfo)
 
-        Public Function Connect(ByVal URI As String, ByVal Maps As System.Collections.ICollection) As Boolean Implements ICluster.Connect
+        Public Function Connect(ByVal URI As String, ByVal Maps As ICollection) As Boolean Implements ICluster.Connect
             Try
                 Disconnect(URI, Maps)
 
@@ -171,7 +167,7 @@ Public Module WC_Network
 
             Return True
         End Function
-        Public Sub Disconnect(ByVal URI As String, ByVal Maps As System.Collections.ICollection) Implements ICluster.Disconnect
+        Public Sub Disconnect(ByVal URI As String, ByVal Maps As ICollection) Implements ICluster.Disconnect
             If Maps.Count = 0 Then Return
 
             'TODO: Unload arenas or battlegrounds that is hosted on this server!
@@ -301,7 +297,6 @@ Public Module WC_Network
             Return CLIENTs(ID).SS_Hash
         End Function
 
-
         Public Sub Broadcast(ByVal p As PacketClass)
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
@@ -352,22 +347,21 @@ Public Module WC_Network
             'TODO: Not implement yet
         End Sub
 
-
-        Public Function InstanceCheck(ByVal Client As ClientClass, ByVal MapID As UInteger) As Boolean
+        Public Function InstanceCheck(ByVal client As ClientClass, ByVal MapID As UInteger) As Boolean
             If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
                 'We don't create new continents
                 If IsContinentMap(MapID) Then
-                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] is a continent", Client.Index, MapID)
+                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] is a continent", client.Index, MapID)
 
                     Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-                    Client.Send(SMSG_LOGOUT_COMPLETE)
+                    client.Send(SMSG_LOGOUT_COMPLETE)
                     SMSG_LOGOUT_COMPLETE.Dispose()
 
-                    Client.Character.IsInWorld = False
+                    client.Character.IsInWorld = False
                     Return False
                 End If
 
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Requesting Instance Map [{1}]", Client.Index, MapID)
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Requesting Instance Map [{1}]", client.Index, MapID)
                 Dim ParentMap As IWorld = Nothing
                 Dim ParentMapInfo As WorldInfo = Nothing
 
@@ -384,13 +378,13 @@ Public Module WC_Network
                 End If
 
                 If ParentMap Is Nothing Then
-                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] can't be loaded", Client.Index, MapID)
+                    Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] can't be loaded", client.Index, MapID)
 
                     Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-                    Client.Send(SMSG_LOGOUT_COMPLETE)
+                    client.Send(SMSG_LOGOUT_COMPLETE)
                     SMSG_LOGOUT_COMPLETE.Dispose()
 
-                    Client.Character.IsInWorld = False
+                    client.Character.IsInWorld = False
                     Return False
                 End If
 
@@ -461,7 +455,7 @@ Public Module WC_Network
 
                 Try
                     CLIENTs(ID).Character.GetWorld.GroupUpdate(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.Type, CLIENTs(ID).Character.Group.GetLeader.GUID, CLIENTs(ID).Character.Group.GetMembers)
-                    CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.GUID)
+                    CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.ID, Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.GUID)
                 Catch
                     WorldServer.Disconnect("NULL", New Integer() {CLIENTs(ID).Character.Map})
                 End Try
@@ -511,9 +505,9 @@ Public Module WC_Network
         Public MemoryUsage As ULong
     End Class
 
-
 #End Region
 #Region "WS.Analyzer"
+
     Public Enum AccessLevel As Byte
         Trial = 0
         Player = 1
@@ -526,7 +520,6 @@ Public Module WC_Network
     Class ClientClass
         Inherits ClientInfo
         Implements IDisposable
-
 
         Public Socket As Socket = Nothing
         Public Queue As New Queue
@@ -557,7 +550,6 @@ Public Module WC_Network
             Return ci
         End Function
 
-
         Public Sub OnConnect(ByVal state As Object)
             IP = CType(Socket.RemoteEndPoint, IPEndPoint).Address
             Port = CType(Socket.RemoteEndPoint, IPEndPoint).Port
@@ -570,7 +562,7 @@ Public Module WC_Network
                     LastConnections(IpInt) = Now.AddSeconds(5)
                 Else
                     Socket.Close()
-                    Me.Dispose()
+                    Dispose()
                     Exit Sub
                 End If
             Else
@@ -584,12 +576,12 @@ Public Module WC_Network
             'Send Auth Challenge
             Dim p As New PacketClass(OPCODES.SMSG_AUTH_CHALLENGE)
             p.AddInt32(Index)
-            Me.Send(p)
+            Send(p)
 
-            Me.Index = Interlocked.Increment(CLIETNIDs)
+            Index = Interlocked.Increment(CLIETNIDs)
 
             SyncLock CType(CLIENTs, ICollection).SyncRoot
-                CLIENTs.Add(Me.Index, Me)
+                CLIENTs.Add(Index, Me)
             End SyncLock
 
             ConnectionsIncrement()
@@ -650,7 +642,7 @@ Public Module WC_Network
                 'NOTE: If it's a error here it means the connection is closed?
                 Log.WriteLine(LogType.WARNING, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
 #End If
-                Me.Dispose()
+                Dispose()
             End Try
         End Sub
 
@@ -764,7 +756,7 @@ Public Module WC_Network
                 Socket = Nothing
 
                 SyncLock CType(CLIENTs, ICollection).SyncRoot
-                    CLIENTs.Remove(Me.Index)
+                    CLIENTs.Remove(Index)
                 End SyncLock
 
                 If Not Character Is Nothing Then
@@ -792,8 +784,8 @@ Public Module WC_Network
 
         Public Sub Delete()
             On Error Resume Next
-            Me.Socket.Close()
-            Me.Dispose()
+            Socket.Close()
+            Dispose()
         End Sub
 
         Public Sub Decode(ByRef data() As Byte)
@@ -802,36 +794,34 @@ Public Module WC_Network
             For i As Integer = 0 To 6 - 1
                 tmp = data(i)
                 data(i) = SS_Hash(Key(1)) Xor CByte((256 + CInt(data(i)) - Key(0)) Mod 256)
-                Me.Key(0) = tmp
-                Me.Key(1) = (Me.Key(1) + 1) Mod 40
+                Key(0) = tmp
+                Key(1) = (Key(1) + 1) Mod 40
             Next i
         End Sub
         Public Sub Encode(ByRef data() As Byte)
             For i As Integer = 0 To 4 - 1
                 data(i) = (CInt(SS_Hash(Key(3)) Xor data(i)) + Key(2)) Mod 256
 
-                Me.Key(2) = data(i)
-                Me.Key(3) = (Key(3) + 1) Mod 40
+                Key(2) = data(i)
+                Key(3) = (Key(3) + 1) Mod 40
             Next i
         End Sub
 
         Public Sub EnQueue(ByVal state As Object)
             While CHARACTERs.Count > Config.ServerPlayerLimit
-                If Not Me.Socket.Connected Then Exit Sub
+                If Not Socket.Connected Then Exit Sub
 
-                Dim response_full As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
-                response_full.AddInt8(AuthResponseCodes.AUTH_WAIT_QUEUE)
-                response_full.AddInt32(CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
-                Me.Send(response_full)
+                Dim responseFull As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
+                responseFull.AddInt8(AuthResponseCodes.AUTH_WAIT_QUEUE)
+                responseFull.AddInt32(CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
+                Send(responseFull)
 
-                Log.WriteLine(LogType.INFORMATION, "[{1}:{2}] AUTH_WAIT_QUEUE: Server player limit reached!", Me.IP, Me.Port)
+                Log.WriteLine(LogType.INFORMATION, "[{1}:{2}] AUTH_WAIT_QUEUE: Server player limit reached!", IP, Port)
                 Thread.Sleep(6000)
             End While
             SendLoginOK(Me)
         End Sub
     End Class
-
-
 
 #End Region
 

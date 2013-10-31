@@ -16,53 +16,43 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Net.Sockets
-Imports System.Xml.Serialization
-Imports System.IO
-Imports System.Net
-Imports System.Reflection
-Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
-
 
 Public Module WC_Handlers_Misc
 
-
-    Public Sub On_CMSG_QUERY_TIME(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUERY_TIME", Client.IP, Client.Port)
+    Public Sub On_CMSG_QUERY_TIME(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUERY_TIME", client.IP, client.Port)
         Dim response As New PacketClass(OPCODES.SMSG_QUERY_TIME_RESPONSE)
         response.AddInt32(timeGetTime("")) 'GetTimestamp(Now))
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUERY_TIME_RESPONSE", Client.IP, Client.Port)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUERY_TIME_RESPONSE", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_NEXT_CINEMATIC_CAMERA(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NEXT_CINEMATIC_CAMERA", Client.IP, Client.Port)
+    Public Sub On_CMSG_NEXT_CINEMATIC_CAMERA(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NEXT_CINEMATIC_CAMERA", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_COMPLETE_CINEMATIC(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_COMPLETE_CINEMATIC", Client.IP, Client.Port)
+    Public Sub On_CMSG_COMPLETE_CINEMATIC(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_COMPLETE_CINEMATIC", client.IP, client.Port)
     End Sub
 
-    Public Sub On_CMSG_PLAYED_TIME(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY", Client.IP, Client.Port)
+    Public Sub On_CMSG_PLAYED_TIME(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY", client.IP, client.Port)
 
         Dim response As New PacketClass(OPCODES.SMSG_PLAYED_TIME)
         response.AddInt32(1)
         response.AddInt32(1)
-        Client.Send(response)
+        client.Send(response)
         response.Dispose()
     End Sub
 
-    Public Sub On_CMSG_NAME_QUERY(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_NAME_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64()
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", client.IP, client.Port, GUID)
 
         If GuidIsPlayer(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
             Dim SMSG_NAME_QUERY_RESPONSE As New PacketClass(OPCODES.SMSG_NAME_QUERY_RESPONSE)
@@ -72,56 +62,56 @@ Public Module WC_Handlers_Misc
             SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Gender)
             SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Classe)
             SMSG_NAME_QUERY_RESPONSE.AddInt8(0)
-            Client.Send(SMSG_NAME_QUERY_RESPONSE)
+            client.Send(SMSG_NAME_QUERY_RESPONSE)
             SMSG_NAME_QUERY_RESPONSE.Dispose()
             Exit Sub
         Else
             'DONE: Send it to the world server if it wasn't found in the cluster
             Try
-                Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+                client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
             Catch
                 WorldServer.Disconnect("NULL", New Integer() {Client.Character.Map})
             End Try
         End If
     End Sub
 
-    Public Sub On_CMSG_INSPECT(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_CMSG_INSPECT(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_INSPECT [GUID={2:X}]", Client.IP, Client.Port, GUID)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_INSPECT [GUID={2:X}]", client.IP, client.Port, GUID)
     End Sub
 
-    Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef Client As ClientClass)
+    Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
-            Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+            client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
         Catch
             WorldServer.Disconnect("NULL", New Integer() {Client.Character.Map})
             Exit Sub
         End Try
 
         'DONE: Save location on cluster
-        Client.Character.PositionX = packet.GetFloat '(15)
-        Client.Character.PositionY = packet.GetFloat
-        Client.Character.PositionZ = packet.GetFloat
+        client.Character.PositionX = packet.GetFloat '(15)
+        client.Character.PositionY = packet.GetFloat
+        client.Character.PositionZ = packet.GetFloat
 
         'DONE: Sync your location to other party / raid members
-        If Client.Character.IsInGroup Then
+        If client.Character.IsInGroup Then
             Dim statsPacket As New PacketClass(OPCODES.MSG_NULL_ACTION)
-            statsPacket.Data = Client.Character.GetWorld.GroupMemberStats(Client.Character.GUID, PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION + PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE)
-            Client.Character.Group.BroadcastToOutOfRange(statsPacket, Client.Character)
+            statsPacket.Data = client.Character.GetWorld.GroupMemberStats(Client.Character.GUID, PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION + PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE)
+            client.Character.Group.BroadcastToOutOfRange(statsPacket, client.Character)
             statsPacket.Dispose()
         End If
     End Sub
 
-    Public Sub On_CMSG_CANCEL_TRADE(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        If Client.Character IsNot Nothing AndAlso Client.Character.IsInWorld Then
+    Public Sub On_CMSG_CANCEL_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        If client.Character IsNot Nothing AndAlso client.Character.IsInWorld Then
             Try
-                Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+                client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
             Catch
                 WorldServer.Disconnect("NULL", New Integer() {Client.Character.Map})
             End Try
         Else
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_TRADE", Client.IP, Client.Port)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_TRADE", client.IP, client.Port)
         End If
     End Sub
 

@@ -18,8 +18,6 @@
 
 Imports System.Threading
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
-
 
 Public Module WC_Battlegrounds
 
@@ -63,7 +61,6 @@ Public Module WC_Battlegrounds
 
             _bfTimer = New Timer(AddressOf Update, Nothing, 20000, 20000)
         End Sub
-
 
 #Region "IDisposable Support"
         Private _disposedValue As Boolean ' To detect redundant calls
@@ -116,7 +113,7 @@ Public Module WC_Battlegrounds
         ''' <summary>
         ''' Enqueues the specified obj char.
         ''' </summary>
-        ''' <param name="objChar">The obj char.</param>
+        ''' <param name="objCharacter">The obj char.</param>
         ''' <returns></returns>
         Public Sub Enqueue(ByVal objCharacter As CharacterObject)
             If GetCharacterSide(objCharacter.Race) Then
@@ -131,7 +128,7 @@ Public Module WC_Battlegrounds
         ''' <summary>
         ''' Joins the specified obj char.
         ''' </summary>
-        ''' <param name="objChar">The obj char.</param>
+        ''' <param name="objCharacter">The obj char.</param>
         ''' <returns></returns>
         Public Sub Join(ByVal objCharacter As CharacterObject)
             If _invitedTeam1.Contains(objCharacter) OrElse _invitedTeam2.Contains(objCharacter) Then
@@ -163,7 +160,7 @@ Public Module WC_Battlegrounds
         ''' <summary>
         ''' Leaves the specified obj char.
         ''' </summary>
-        ''' <param name="objChar">The obj char.</param>
+        ''' <param name="objCharacter">The obj char.</param>
         ''' <returns></returns>
         Public Sub Leave(ByVal objCharacter As CharacterObject)
             If _queueTeam1.Contains(objCharacter) OrElse _queueTeam2.Contains(objCharacter) Then
@@ -197,7 +194,7 @@ Public Module WC_Battlegrounds
         ''' <summary>
         ''' Sends the battleground status.
         ''' </summary>
-        ''' <param name="objChar">The obj char.</param>
+        ''' <param name="objCharacter">The obj char.</param>
         ''' <param name="slot">The slot.</param>
         ''' <returns></returns>
         Private Sub SendBattlegroundStatus(ByVal objCharacter As CharacterObject, ByVal slot As Byte)
@@ -248,7 +245,6 @@ Public Module WC_Battlegrounds
             End Try
         End Sub
     End Class
-
 
     ''' <summary>
     ''' Gets the battlefield.
@@ -326,7 +322,7 @@ Public Module WC_Battlegrounds
     ''' <summary>
     ''' Sends the battleground group joined.
     ''' </summary>
-    ''' <param name="objChar">The objCharacter.</param>
+    ''' <param name="objCharacter">The objCharacter.</param>
     ''' <returns></returns>
     Public Sub SendBattlegroundGroupJoined(ByVal objCharacter As CharacterObject)
         '0 - Your group has joined a battleground queue, but you are not eligible

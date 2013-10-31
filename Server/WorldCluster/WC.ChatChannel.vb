@@ -19,7 +19,6 @@
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
 
-
 Public Module WS_Channels
 
     Public CHAT_CHANNELs As New Dictionary(Of String, ChatChannelClass)
@@ -27,7 +26,6 @@ Public Module WS_Channels
     Private Function GetNexyChatChannelID() As Long
         Return Threading.Interlocked.Increment(CHAT_CHANNELs_Counter)
     End Function
-
 
     Public Class ChatChannelClass
         Implements IDisposable
@@ -234,7 +232,7 @@ Public Module WS_Channels
             'DONE: If free and not global - clear channel
             If HaveFlags(ChannelFlags, CHANNEL_FLAG.CHANNEL_FLAG_CUSTOM) AndAlso Joined.Count = 0 Then
                 CHAT_CHANNELs.Remove(ChannelName)
-                Me.Dispose()
+                Dispose()
             End If
         End Sub
 
@@ -700,7 +698,7 @@ Public Module WS_Channels
             CHANNEL_NOT_ON_FOR_NAME = 9             ' [%s] Player %s was not found.
             CHANNEL_NOT_OWNER = &HA                 ' [%s] You are not the channel owner.
             CHANNEL_WHO_OWNER = &HB                 ' [%s] Channel owner is %s.
-            CHANNEL_MODE_CHANGE = &HC               ' 
+            CHANNEL_MODE_CHANGE = &HC               '
             CHANNEL_ENABLE_ANNOUNCE = &HD           ' [%s] Channel announcements enabled by %s.
             CHANNEL_DISABLE_ANNOUNCE = &HE          ' [%s] Channel announcements disabled by %s.
             CHANNEL_MODERATED = &HF                 ' [%s] Channel moderation enabled by %s.
@@ -772,5 +770,3 @@ Public Module WS_Channels
     End Class
 
 End Module
-
-

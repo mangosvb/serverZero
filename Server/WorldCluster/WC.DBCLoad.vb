@@ -17,17 +17,13 @@
 '
 
 Imports System
-Imports System.IO
-Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
-
 
 Public Module WS_DBCLoad
 
     Public Sub InitializeInternalDatabase()
 
         InitializeLoadDBCs()
-
 
         Try
             'Set all characters offline
@@ -38,7 +34,7 @@ Public Module WS_DBCLoad
         End Try
     End Sub
 
-    Public Sub InitializeLoadDBCs()
+    Private Sub InitializeLoadDbCs()
         InitializeMaps()
         InitializeChatChannels()
         InitializeBattlegrounds()
@@ -46,6 +42,5 @@ Public Module WS_DBCLoad
         InitializeCharRaces()
         InitializeCharClasses()
     End Sub
-
 
 End Module

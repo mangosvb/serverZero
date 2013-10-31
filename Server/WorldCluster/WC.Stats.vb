@@ -19,14 +19,11 @@
 Imports System.Xml
 Imports System.Reflection
 Imports System.Threading
-Imports System.Diagnostics.PerformanceCounter
 Imports mangosVB.Common
-
 
 Public Module WC_Stats
 
     'http://www.15seconds.com/issue/050615.htm
-
 
     Private ConnectionsHandled As Integer = 0
     Private ConnectionsPeak As Integer = 0
@@ -41,7 +38,6 @@ Public Module WC_Stats
     Public Sub ConnectionsDecrement()
         Interlocked.Decrement(ConnectionsCurrent)
     End Sub
-
 
     Public DataTransferOut As Long = 0
     Public DataTransferIn As Long = 0
@@ -106,7 +102,6 @@ Public Module WC_Stats
         If CountPlayers > 1 Then
             Latency = Latency \ CountPlayers
         End If
-
 
         For Each objCharacter As KeyValuePair(Of UInteger, WorldInfo) In WorldServer.WorldsInfo
             If Not w.ContainsKey(objCharacter.Value) Then
@@ -201,8 +196,6 @@ Public Module WC_Stats
         '</cluster>
         f.WriteEndElement()
 
-
-
         '<world>
         f.WriteStartElement("world")
         Try
@@ -235,9 +228,7 @@ Public Module WC_Stats
         '</world>
         f.WriteEndElement()
 
-
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-
 
         f.WriteStartElement("users")
         For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
@@ -297,7 +288,5 @@ Public Module WC_Stats
 
         w.Clear()
     End Sub
-
-
 
 End Module

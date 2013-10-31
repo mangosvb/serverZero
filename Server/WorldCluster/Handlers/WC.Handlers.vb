@@ -16,16 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports System.Net.Sockets
-Imports System.Xml.Serialization
-Imports System.IO
-Imports System.Net
-Imports System.Reflection
-Imports System.Runtime.CompilerServices
+
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
-
 
 Public Module WC_Handlers
 
@@ -38,12 +31,9 @@ Public Module WC_Handlers
         PacketHandlers(OPCODES.CMSG_UPDATE_ACCOUNT_DATA) = CType(AddressOf On_CMSG_UPDATE_ACCOUNT_DATA, HandlePacket)
         PacketHandlers(OPCODES.CMSG_REQUEST_ACCOUNT_DATA) = CType(AddressOf On_CMSG_REQUEST_ACCOUNT_DATA, HandlePacket)
 
-
         'NOTE: These opcodes are only partialy handled by Cluster and must be handled by WorldServer
         PacketHandlers(OPCODES.MSG_MOVE_HEARTBEAT) = CType(AddressOf On_MSG_MOVE_HEARTBEAT, HandlePacket)
         PacketHandlers(OPCODES.CMSG_CANCEL_TRADE) = CType(AddressOf On_CMSG_CANCEL_TRADE, HandlePacket)
-
-
 
         'NOTE: These opcodes below must be exluded form WorldServer
         PacketHandlers(OPCODES.CMSG_PING) = CType(AddressOf On_CMSG_PING, HandlePacket)
@@ -145,24 +135,23 @@ Public Module WC_Handlers
         PacketHandlers(OPCODES.CMSG_CHANNEL_ANNOUNCEMENTS) = CType(AddressOf On_CMSG_CHANNEL_ANNOUNCEMENTS, HandlePacket)
         PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATE) = CType(AddressOf On_CMSG_CHANNEL_MODERATE, HandlePacket)
 
-
         'NOTE: TODO Opcodes
         '   none
 
     End Sub
 
-    Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", Client.IP, Client.Port, CType(packet.OpCode, OPCODES))
+    Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, CType(packet.OpCode, OPCODES))
     End Sub
 
-    Public Sub OnClusterPacket(ByRef packet As PacketClass, ByRef Client As ClientClass)
-        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Redirected Packet]", Client.IP, Client.Port, CType(packet.OpCode, OPCODES))
+    Public Sub OnClusterPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Redirected Packet]", client.IP, client.Port, CType(packet.OpCode, OPCODES))
 
-        If Client.Character Is Nothing OrElse Client.Character.IsInWorld = False Then
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", Client.IP, Client.Port, packet.OpCode, vbNewLine, packet.Length)
+        If client.Character Is Nothing OrElse client.Character.IsInWorld = False Then
+            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", client.IP, client.Port, packet.OpCode, vbNewLine, packet.Length)
             DumpPacket(packet.Data, Client)
         Else
-            Client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+            client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
         End If
     End Sub
 
