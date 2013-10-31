@@ -123,11 +123,6 @@
       <HintPath>..\..\ServerFiles\Emil.GMP.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.84.0.0, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ServerFiles\ICSharpCode.SharpZipLib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
