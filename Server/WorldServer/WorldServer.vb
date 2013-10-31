@@ -130,7 +130,7 @@ Public Module WS_Main
 
     Public Sub LoadConfig()
         Try
-            Dim FileName As String = "WorldServer.ini"
+            Dim FileName As String = "configs/WorldServer.ini"
 
             'Get filename from console arguments
             Dim args As String() = Environment.GetCommandLineArgs()

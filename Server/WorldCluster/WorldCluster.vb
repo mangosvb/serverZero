@@ -79,7 +79,7 @@ Public Module WorldCluster
     Public Sub LoadConfig()
         Try
             'Make sure WorldCluster.ini exists
-            If File.Exists("WorldCluster.ini") = False Then
+            If File.Exists("configs/WorldCluster.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "WorldCluster.ini")
                 Console.WriteLine("Please copy the ini files into the same directory as the mangosVB exe files.")
@@ -97,7 +97,7 @@ Public Module WorldCluster
 
             Console.Write("...")
             Dim oStmR As StreamReader
-            oStmR = New StreamReader("WorldCluster.ini")
+            oStmR = New StreamReader("configs/WorldCluster.ini")
             Config = oXS.Deserialize(oStmR)
             oStmR.Close()
 
