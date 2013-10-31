@@ -1729,6 +1729,7 @@ SkipShapeShift:
             If ItemInfo Is Nothing Then
                 If ITEMDatabase.ContainsKey(2512) = False Then
                     Dim tmpInfo As New ItemInfo(2512)
+                    ITEMDatabase.Add(2512, tmpInfo)
                 End If
                 ItemInfo = ITEMDatabase(2512)
 
@@ -4031,8 +4032,8 @@ SkipShapeShift:
         Dim Amount As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level - SPELLs(SpellID).spellLevel)
         If Amount < 0 Then Return SpellFailedReason.SPELL_FAILED_ERROR
         If ITEMDatabase.ContainsKey(SpellInfo.ItemType) = False Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
             Dim tmpInfo As New ItemInfo(SpellInfo.ItemType)
+            ITEMDatabase.Add(SpellInfo.ItemType, tmpInfo)
         End If
         If Amount > ITEMDatabase(SpellInfo.ItemType).Stackable Then Amount = ITEMDatabase(SpellInfo.ItemType).Stackable
 
@@ -4515,8 +4516,8 @@ SkipShapeShift:
         End If
 
         If CREATURESDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
-            'TODO: Another one of these useless bits of code, needs to be implemented correctly
             Dim tmpInfo As New CreatureInfo(SpellInfo.MiscValue)
+            CREATURESDatabase.Add(SpellInfo.MiscValue, tmpInfo)
         End If
         NewTotem.InitSpell(CREATURESDatabase(SpellInfo.MiscValue).Spells(0))
         NewTotem.AddToWorld()
@@ -5485,6 +5486,7 @@ SkipShapeShift:
             Case AuraAction.AURA_ADD
                 If Not CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
                     Dim creature As New CreatureInfo(EffectInfo.MiscValue)
+                    CREATURESDatabase.Add(EffectInfo.MiscValue, creature)
                 End If
                 Target.Model = CREATURESDatabase(EffectInfo.MiscValue).GetFirstModel
 
@@ -6005,8 +6007,8 @@ SkipShapeShift:
                 Target.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOUNTING)
 
                 If Not CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
-                    'TODO: Another of these currently 'DO NOTHING' lines, needs to be implemented correctly
                     Dim creature As New CreatureInfo(EffectInfo.MiscValue)
+                    CREATURESDatabase.Add(EffectInfo.MiscValue, creature)
                 End If
                 If CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
                     Target.Mount = CREATURESDatabase(EffectInfo.MiscValue).GetFirstModel

@@ -193,6 +193,7 @@ Public Module WC_Handlers_Chat
 
         If Not CHAT_CHANNELs.ContainsKey(channelName.ToUpper) Then
             Dim newChannel As New ChatChannelClass(channelName)
+            CHAT_CHANNELs.Add(channelName.ToUpper, newChannel)
         End If
         CHAT_CHANNELs(channelName.ToUpper).Join(client.Character, password)
     End Sub

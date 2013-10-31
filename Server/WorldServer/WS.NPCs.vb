@@ -729,6 +729,7 @@ Public Module WS_NPCs
                 If ITEMDatabase.ContainsKey(itemID) = False Then
                     'TODO: Another one of these lines that doesn't do anything, but should
                     Dim tmpItem As New ItemInfo(itemID)
+                    ITEMDatabase.Add(itemID, tmpItem)
                 End If
                 If (ITEMDatabase(itemID).AvailableClasses = 0 OrElse (ITEMDatabase(itemID).AvailableClasses And objCharacter.ClassMask)) Then
                     i += 1

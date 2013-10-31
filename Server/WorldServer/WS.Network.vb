@@ -258,8 +258,8 @@ Public Module WS_Network
 
         Public Sub InstanceCreate(ByVal MapID As UInteger) Implements IWorld.InstanceCreate
             If Not Maps.ContainsKey(MapID) Then
-                'TODO: Another one of these useless bits of code, needs to be implemented correctly
                 Dim Map As New TMap(MapID)
+                Maps.Add(MapID, Map)
             End If
         End Sub
         Public Sub InstanceDestroy(ByVal MapID As UInteger) Implements IWorld.InstanceDestroy
@@ -291,6 +291,7 @@ Public Module WS_Network
 
                 If Not Groups.ContainsKey(GroupID) Then
                     Dim Group As New Group(GroupID)
+                    Groups.Add(GroupID, Group)
                     Cluster.GroupRequestUpdate(ID)
                 End If
 

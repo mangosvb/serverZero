@@ -119,6 +119,7 @@ Public Module WS_Loot
                 If Not ITEMDatabase.ContainsKey(ItemID) Then
                     'TODO: Another one of these useless bits of code, needs to be implemented correctly
                     Dim tmpItem As New ItemInfo(ItemID)
+                    ITEMDatabase.Add(ItemID, tmpItem)
                 End If
                 Return ITEMDatabase(ItemID).Model
             End Get

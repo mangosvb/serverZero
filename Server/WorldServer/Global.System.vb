@@ -80,6 +80,7 @@ Public Class ScriptedObject
                 Next
             Else
                 ass = cResults.CompiledAssembly
+                Log.WriteLine(LogType.INFORMATION, "Compiling: {0} successfully", vbNewLine, ass.FullName)
             End If
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, vbNewLine)
