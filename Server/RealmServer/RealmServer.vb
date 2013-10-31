@@ -43,9 +43,7 @@ Public Module RS_Main
     Const RequiredBuildHigh As Integer = 5875
     Const ConnectionSleepTime As Integer = 100
 
-
-
-    Public ReadOnly Log As New BaseWriter
+    Private ReadOnly Log As New BaseWriter
 
     Private Enum AccountState As Byte
         'RealmServ Error Codes
@@ -175,7 +173,7 @@ Public Module RS_Main
                 If _lstConnection.Pending() Then
                     Dim client As New ClientClass
                     client.Socket = _lstConnection.AcceptSocket
-                    'lstThreadPool.QueueUserWorkItem(New System.Threading.WaitCallback(AddressOf Client.Process))
+                    'lstThreadPool.QueueUserWorkItem(New System.Threading.WaitCallback(AddressOf client.Process))
 
                     Dim newThread As New Thread(AddressOf client.Process)
                     newThread.Start()
@@ -218,7 +216,7 @@ Public Module RS_Main
     '    FrFr = 3
     'End Enum
 
-    NotInheritable Class ClientClass
+    Private NotInheritable Class ClientClass
         Implements IDisposable
 
         Public Socket As Socket
@@ -226,8 +224,8 @@ Public Module RS_Main
         Public Port As Int32 = 0
         Public AuthEngine As AuthEngineClass
         Public Account As String = ""
-        Public Language As String = "enGB"
-        Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
+        'Public Language As String = "enGB"
+        'Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
         Public UpdateFile As String = ""
         Public Access As AccessLevel = AccessLevel.Player
 
@@ -244,7 +242,7 @@ Public Module RS_Main
                     On_RS_REALMLIST(data, Me)
 
                 Case CMD_AUTH_UPDATESRV
-                    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+                    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
 
                 Case CMD_XFER_ACCEPT
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
@@ -257,7 +255,7 @@ Public Module RS_Main
                     On_CMD_XFER_CANCEL(data, Me)
                 Case Else
                     Console.ForegroundColor = ConsoleColor.Red
-                    Console.WriteLine("[{0}] [{1}:{2}] Unknown Opcode 0x{3}", Format(TimeOfDay, "hh:mm:ss"), IP, Port,
+                    Console.WriteLine("[{0}] [{1}:{2}] Unknown Opcode 0x{3}", Format(TimeOfDay, "hh:mm:ss"), Ip, Port,
                                       data(0))
                     Console.ForegroundColor = ConsoleColor.Gray
                     DumpPacket(data, Me)
@@ -265,12 +263,12 @@ Public Module RS_Main
         End Sub
 
         Public Sub Process()
-            IP = CType(Socket.RemoteEndPoint, IPEndPoint).Address
+            Ip = CType(Socket.RemoteEndPoint, IPEndPoint).Address
             Port = CType(Socket.RemoteEndPoint, IPEndPoint).Port
 
             'DONE: Connection spam protection
             Dim ipInt As UInteger
-            ipInt = Ip2Int(IP.ToString)
+            ipInt = Ip2Int(Ip.ToString)
             If LastConnections.ContainsKey(ipInt) Then
                 If Now > LastConnections(ipInt) Then
                     LastConnections(ipInt) = Now.AddSeconds(5)
@@ -284,13 +282,13 @@ Public Module RS_Main
             End If
 
             Dim buffer() As Byte
-            Dim bytes As Integer
+            Dim dummyBytes As Integer
 
             Console.ForegroundColor = ConsoleColor.DarkGray
-            Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
-            Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+            Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
+            Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.ForegroundColor = ConsoleColor.Gray
-            If Not _accountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = """ & IP.ToString & """;") Then
+            If Not _accountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = """ & Ip.ToString & """;") Then
 
                 While Not _realmServer.FlagStopListen
                     Thread.Sleep(ConnectionSleepTime)
@@ -299,7 +297,7 @@ Public Module RS_Main
                             Exit While
                         End If
                         ReDim buffer(Socket.Available - 1)
-                        bytes = Socket.Receive(buffer, buffer.Length, 0)
+                        dummyBytes = Socket.Receive(buffer, buffer.Length, 0)
                         OnData(buffer)
                     End If
                     If Not Socket.Connected Then Exit While
@@ -308,14 +306,14 @@ Public Module RS_Main
 
             Else
                 Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] [{1}:{2}] This ip is banned.", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+                Console.WriteLine("[{0}] [{1}:{2}] This ip is banned.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
                 Console.ForegroundColor = ConsoleColor.Gray
             End If
 
             Socket.Close()
 
             Console.ForegroundColor = ConsoleColor.DarkGray
-            Console.WriteLine("[{0}] Connection from [{1}:{2}] closed", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+            Console.WriteLine("[{0}] Connection from [{1}:{2}] closed", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.ForegroundColor = ConsoleColor.Gray
 
             Dispose()
@@ -327,7 +325,7 @@ Public Module RS_Main
 
 #If DEBUG Then
                 Console.ForegroundColor = ConsoleColor.DarkGray
-                Console.WriteLine("[{0}] [{1}:{2}] ({4}) Data sent, result code={3}", Format(TimeOfDay, "hh:mm:ss"), IP,
+                Console.WriteLine("[{0}] [{1}:{2}] ({4}) Data sent, result code={3}", Format(TimeOfDay, "hh:mm:ss"), Ip,
                                   Port, i, packetName)
                 Console.ForegroundColor = ConsoleColor.Gray
 #End If
@@ -393,7 +391,7 @@ Public Module RS_Main
         Dim clientLanguage As String = Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21))
 
         Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_CHALLENGE [{3}] [{4}], WoW Version [{5}.{6}.{7}.{8}] [{9}].",
-                          Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, packetAccount, packetIp,
+                          Format(TimeOfDay, "HH:mm:ss"), client.Ip, client.Port, packetAccount, packetIp,
                           bMajor.ToString, bMinor.ToString, bRevision.ToString, clientBuild.ToString, clientLanguage)
 
         'DONE: Check if our build can join the server
@@ -428,7 +426,7 @@ Public Module RS_Main
             'DONE: Send results to client
             Select Case accState
                 Case AccountState.LOGIN_OK
-                    Console.WriteLine("[{0}] [{1}:{2}] Account found [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.IP,
+                    Console.WriteLine("[{0}] [{1}:{2}] Account found [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip,
                                       client.Port, packetAccount)
 
                     Dim account(data(33) - 1) As Byte
@@ -443,12 +441,12 @@ Public Module RS_Main
                             hash(i \ 2) = CInt("&H" & pwHash.Substring(i, 2))
                         Next
 
-                        client.Language = clientLanguage
-                        If Not IsDBNull(result.Rows(0).Item("expansion")) Then
-                            client.Expansion = result.Rows(0).Item("expansion")
-                        Else
-                            client.Expansion = ExpansionLevel.NORMAL
-                        End If
+                        'client.Language = clientLanguage
+                        'If Not IsDBNull(result.Rows(0).Item("expansion")) Then
+                        '    client.Expansion = result.Rows(0).Item("expansion")
+                        'Else
+                        '    client.Expansion = ExpansionLevel.NORMAL
+                        'End If
 
                         Try
                             client.AuthEngine = New AuthEngineClass
@@ -470,14 +468,14 @@ Public Module RS_Main
                         Catch ex As Exception
                             Console.ForegroundColor = ConsoleColor.Red
                             Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}",
-                                              Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, vbNewLine, ex)
+                                              Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, vbNewLine, ex)
                             Console.ForegroundColor = ConsoleColor.White
                         End Try
                     Else 'Bail out with something meaningful
                         Console.ForegroundColor = ConsoleColor.Red
                         Console.WriteLine(
                             "[{0}] [{1}:{2}] Not a valid SHA1 password for account: '{3}' SHA1 Hash: '{4}'",
-                            Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, packetAccount, pwHash)
+                            Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount, pwHash)
                         Console.ForegroundColor = ConsoleColor.White
                         Dim dataResponse(1) As Byte
                         dataResponse(0) = CMD_AUTH_LOGON_PROOF
@@ -488,14 +486,14 @@ Public Module RS_Main
                     Exit Sub
                 Case AccountState.LOGIN_UNKNOWN_ACCOUNT
                     Console.WriteLine("[{0}] [{1}:{2}] Account not found [{3}]", Format(TimeOfDay, "hh:mm:ss"),
-                                      client.IP, client.Port, packetAccount)
+                                      client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
                     dataResponse(0) = CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-UNKNOWN_ACCOUNT")
                     Exit Sub
                 Case AccountState.LOGIN_BANNED
-                    Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.IP,
+                    Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip,
                                       client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
                     dataResponse(0) = CMD_AUTH_LOGON_PROOF
@@ -504,7 +502,7 @@ Public Module RS_Main
                     Exit Sub
                 Case AccountState.LOGIN_NOTIME
                     Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"),
-                                      client.IP, client.Port, packetAccount)
+                                      client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
                     dataResponse(0) = CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_NOTIME
@@ -512,14 +510,14 @@ Public Module RS_Main
                     Exit Sub
                 Case AccountState.LOGIN_ALREADYONLINE
                     Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]",
-                                      Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, packetAccount)
+                                      Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
                     dataResponse(0) = CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_ALREADYONLINE
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-ALREADYONLINE")
                     Exit Sub
                 Case Else
-                    Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.IP,
+                    Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip,
                                       client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
                     dataResponse(0) = CMD_AUTH_LOGON_PROOF
@@ -538,7 +536,7 @@ Public Module RS_Main
                     "." & data(9) & "." & data(10) & "." & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & " " _
                     & Chr(data(15)) & Chr(data(14)) & Chr(data(13)) & " " & Chr(data(19)) & Chr(data(18)) &
                     Chr(data(17)) & " " & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & "]" _
-                    , Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
+                    , Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
 
                 client.UpdateFile = "Updates/wow-patch-" & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & "-" &
                                     Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & ".mpq"
@@ -572,7 +570,7 @@ Public Module RS_Main
                     data(9) & "." & data(10) & "." & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & " " _
                     & Chr(data(15)) & Chr(data(14)) & Chr(data(13)) & " " & Chr(data(19)) & Chr(data(18)) &
                     Chr(data(17)) & " " & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & "]" _
-                    , Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
+                    , Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
                 Dim dataResponse(1) As Byte
                 dataResponse(0) = CMD_AUTH_LOGON_PROOF
                 dataResponse(1) = AccountState.LOGIN_BADVERSION
@@ -582,7 +580,7 @@ Public Module RS_Main
     End Sub
 
     Private Sub On_RS_LOGON_PROOF(ByRef data() As Byte, ByRef client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
         Dim a(31) As Byte
         Array.Copy(data, 1, a, 0, 32)
         Dim m1(19) As Byte
@@ -621,8 +619,8 @@ Public Module RS_Main
             client.Send(dataResponse, "RS_LOGON_PROOF-OK")
             'Set SSHash in DB
             Dim sshash As String = ""
-            'For i as Integer = 0 To Client.AuthEngine.SS_Hash.Length - 1
-            For i as Integer = 0 To 40 - 1
+            'For i as Integer = 0 To client.AuthEngine.SS_Hash.Length - 1
+            For i As Integer = 0 To 40 - 1
                 If client.AuthEngine.SsHash(i) < 16 Then
                     sshash = sshash + "0" + Hex(client.AuthEngine.SsHash(i))
                 Else
@@ -632,13 +630,13 @@ Public Module RS_Main
             _accountDatabase.Update(
                 [String].Format(
                     "UPDATE account SET sessionkey = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';",
-                    client.Account, sshash, client.IP.ToString, Format(Now, "yyyy-MM-dd")))
+                    client.Account, sshash, client.Ip.ToString, Format(Now, "yyyy-MM-dd")))
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"),
-                              client.IP, client.Port, client.Account, sshash)
+                              client.Ip, client.Port, client.Account, sshash)
         Else
             'Wrong pass
-            Console.WriteLine("[{0}] [{1}:{2}] Wrong password for user {3}.", Format(TimeOfDay, "hh:mm:ss"), client.IP,
+            Console.WriteLine("[{0}] [{1}:{2}] Wrong password for user {3}.", Format(TimeOfDay, "hh:mm:ss"), client.Ip,
                               client.Port, client.Account)
             Dim dataResponse(1) As Byte
             dataResponse(0) = CMD_AUTH_LOGON_PROOF
@@ -648,7 +646,7 @@ Public Module RS_Main
     End Sub
 
     Private Sub On_RS_REALMLIST(ByRef data() As Byte, ByRef client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_REALM_LIST", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_REALM_LIST", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
 
         Dim packetLen As Integer = 0
         Dim characterCount As Integer = 0
@@ -661,10 +659,10 @@ Public Module RS_Main
         Dim accountID As Integer = CType(result.Rows(0).Item("id"), Integer)
 
         If client.Access < AccessLevel.GameMaster Then
-            'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+            'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
             _accountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE allowedSecurityLevel = '0';"), result)
         Else
-            'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "HH:mm:ss"), Client.IP, Client.Port)
+            'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
             _accountDatabase.Query([String].Format("SELECT * FROM realmlist;"), result)
         End If
 
@@ -715,7 +713,7 @@ Public Module RS_Main
             ToBytes(CType(0, Byte), dataResponse, tmp)
             '(uint8) unk
             ToBytes(CType(0, Byte), dataResponse, tmp)
-            '(uint8) Realm Color 
+            '(uint8) Realm Color
             '   0 -> Green; 1 -> Red; 2 -> Offline;
             ToBytes(CType(host.Item("realmflags"), Byte), dataResponse, tmp)
             '(string) Realm Name (zero terminated)
@@ -724,7 +722,7 @@ Public Module RS_Main
             '(string) Realm Address ("ip:port", zero terminated)
             ToBytes(host.Item("address") & ":" & host.Item("port"), dataResponse, tmp)
             ToBytes(CType(0, Byte), dataResponse, tmp) '\0
-            '(float) Population 
+            '(float) Population
             '   400F -> Full; 5F -> Medium; 1.6F -> Low; 200F -> New; 2F -> High
             '   00 00 48 43 -> Recommended
             '   00 00 C8 43 -> Full
@@ -733,7 +731,7 @@ Public Module RS_Main
             ToBytes(CType(host.Item("population"), Single), dataResponse, tmp)
             '(byte) Number of character at this realm for this account
             ToBytes(CType(characterCount, Byte), dataResponse, tmp)
-            '(byte) Timezone 
+            '(byte) Timezone
             '   0x01 - Development
             '   0x02 - USA
             '   0x03 - Oceania
@@ -776,12 +774,14 @@ Public Module RS_Main
     End Sub
 
     Private Sub On_CMD_XFER_CANCEL(ByRef data() As Byte, ByRef client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
+        'TODO: data parameter is never used
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
         client.Socket.Close()
     End Sub
 
     Private Sub On_CMD_XFER_ACCEPT(ByRef data() As Byte, ByRef client As ClientClass)
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
+        'TODO: data parameter is never used
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
         Dim tmp As Integer = 1
         Dim buffer() As Byte
         Dim filelen As Integer
@@ -883,7 +883,7 @@ Public Module RS_Main
             buffer = buffer + [String].Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "hh:mm:ss"), vbNewLine)
         Else
             buffer = buffer +
-                     [String].Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "hh:mm:ss"), client.IP,
+                     [String].Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "hh:mm:ss"), client.Ip,
                                      client.Port, vbNewLine)
         End If
 
@@ -1030,7 +1030,6 @@ Public Module RS_Main
 
         AddHandler _accountDatabase.SQLMessage, AddressOf SqlEventHandler
         _accountDatabase.Connect()
-
 
         _realmServer = New RealmServerClass
 

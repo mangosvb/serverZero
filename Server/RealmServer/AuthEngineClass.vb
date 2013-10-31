@@ -26,7 +26,7 @@ Public NotInheritable Class AuthEngineClass
 
     Shared Sub New()
         CrcSalt = New Byte(16 - 1) {}
-        NativeMethods.RAND_bytes(CrcSalt, 16, "")
+        RAND_bytes(CrcSalt, 16, "")
     End Sub
 
     Public Sub New()
@@ -50,21 +50,21 @@ Public NotInheritable Class AuthEngineClass
 
     Private Sub CalculateB()
         ' Dim encoding1 As New UTF7Encoding
-        NativeMethods.RAND_bytes(_b, 20, "")
-        Dim ptr1 As IntPtr = NativeMethods.BN_new("")
-        Dim ptr2 As IntPtr = NativeMethods.BN_new("")
-        Dim ptr3 As IntPtr = NativeMethods.BN_new("")
+        RAND_bytes(_b, 20, "")
+        Dim ptr1 As IntPtr = BN_new("")
+        Dim ptr2 As IntPtr = BN_new("")
+        Dim ptr3 As IntPtr = BN_new("")
         ' Dim ptr4 As IntPtr = BN_new("")
-        _bnPublicB = NativeMethods.BN_new("")
-        Dim ptr5 As IntPtr = NativeMethods.BN_CTX_new("")
+        _bnPublicB = BN_new("")
+        Dim ptr5 As IntPtr = BN_CTX_new("")
         Array.Reverse(_b)
-        _bNb = NativeMethods.BN_bin2bn(_b, _b.Length, IntPtr.Zero, "")
+        _bNb = BN_bin2bn(_b, _b.Length, IntPtr.Zero, "")
         Array.Reverse(_b)
-        NativeMethods.BN_mod_exp(ptr1, _bNg, _bNb, _bNn, ptr5, "")
-        NativeMethods.BN_mul(ptr2, _bNk, _bNv, ptr5, "")
-        NativeMethods.BN_add(ptr3, ptr1, ptr2, "")
-        NativeMethods.BN_mod(_bnPublicB, ptr3, _bNn, ptr5, "")
-        NativeMethods.BN_bn2bin(_bnPublicB, PublicB, "")
+        BN_mod_exp(ptr1, _bNg, _bNb, _bNn, ptr5, "")
+        BN_mul(ptr2, _bNk, _bNv, ptr5, "")
+        BN_add(ptr3, ptr1, ptr2, "")
+        BN_mod(_bnPublicB, ptr3, _bNn, ptr5, "")
+        BN_bn2bin(_bnPublicB, PublicB, "")
         Array.Reverse(PublicB)
     End Sub
 
@@ -87,17 +87,17 @@ Public NotInheritable Class AuthEngineClass
     End Sub
 
     Private Sub CalculateS()
-        Dim ptr1 As IntPtr = NativeMethods.BN_new("")
-        Dim ptr2 As IntPtr = NativeMethods.BN_new("")
+        Dim ptr1 As IntPtr = BN_new("")
+        Dim ptr2 As IntPtr = BN_new("")
         'Dim ptr3 As IntPtr = BN_new("")
         'Dim ptr4 As IntPtr = BN_new("")
-        _bns = NativeMethods.BN_new("")
-        Dim ptr5 As IntPtr = NativeMethods.BN_CTX_new("")
+        _bns = BN_new("")
+        Dim ptr5 As IntPtr = BN_CTX_new("")
         _s = New Byte(32 - 1) {}
-        NativeMethods.BN_mod_exp(ptr1, _bNv, _bnu, _bNn, ptr5, "")
-        NativeMethods.BN_mul(ptr2, _bna, ptr1, ptr5, "")
-        NativeMethods.BN_mod_exp(_bns, ptr2, _bNb, _bNn, ptr5, "")
-        NativeMethods.BN_bn2bin(_bns, _s, "")
+        BN_mod_exp(ptr1, _bNv, _bnu, _bNn, ptr5, "")
+        BN_mul(ptr2, _bna, ptr1, ptr5, "")
+        BN_mod_exp(_bns, ptr2, _bNb, _bNn, ptr5, "")
+        BN_bn2bin(_bns, _s, "")
         Array.Reverse(_s)
         CalculateK()
     End Sub
@@ -110,23 +110,23 @@ Public NotInheritable Class AuthEngineClass
         Buffer.BlockCopy(PublicB, 0, buffer1, a.Length, PublicB.Length)
         _u = algorithm1.ComputeHash(buffer1)
         Array.Reverse(_u)
-        _bnu = NativeMethods.BN_bin2bn(_u, _u.Length, IntPtr.Zero, "")
+        _bnu = BN_bin2bn(_u, _u.Length, IntPtr.Zero, "")
         Array.Reverse(_u)
         Array.Reverse(a)
-        _bna = NativeMethods.BN_bin2bn(a, a.Length, IntPtr.Zero, "")
+        _bna = BN_bin2bn(a, a.Length, IntPtr.Zero, "")
         Array.Reverse(a)
         CalculateS()
     End Sub
 
     Private Sub CalculateV()
-        _bNv = NativeMethods.BN_new("")
-        Dim ptr1 As IntPtr = NativeMethods.BN_CTX_new("")
-        NativeMethods.BN_mod_exp(_bNv, _bNg, _bNx, _bNn, ptr1, "")
+        _bNv = BN_new("")
+        Dim ptr1 As IntPtr = BN_CTX_new("")
+        BN_mod_exp(_bNv, _bNg, _bNx, _bNn, ptr1, "")
         CalculateB()
     End Sub
 
     Public Sub CalculateX(ByVal username As Byte(), ByVal pwHash As Byte())
-        _Username = username
+        _username = username
 
         Dim algorithm1 As New SHA1Managed
         'Dim encoding1 As New UTF7Encoding
@@ -138,15 +138,15 @@ Public NotInheritable Class AuthEngineClass
         Buffer.BlockCopy(Salt, 0, buffer5, 0, Salt.Length)
         buffer3 = algorithm1.ComputeHash(buffer5)
         Array.Reverse(buffer3)
-        _bNx = NativeMethods.BN_bin2bn(buffer3, buffer3.Length, IntPtr.Zero, "")
+        _bNx = BN_bin2bn(buffer3, buffer3.Length, IntPtr.Zero, "")
         Array.Reverse(g)
-        _bNg = NativeMethods.BN_bin2bn(g, g.Length, IntPtr.Zero, "")
+        _bNg = BN_bin2bn(g, g.Length, IntPtr.Zero, "")
         Array.Reverse(g)
         Array.Reverse(_k)
-        _bNk = NativeMethods.BN_bin2bn(_k, _k.Length, IntPtr.Zero, "")
+        _bNk = BN_bin2bn(_k, _k.Length, IntPtr.Zero, "")
         Array.Reverse(_k)
         Array.Reverse(N)
-        _bNn = NativeMethods.BN_bin2bn(N, N.Length, IntPtr.Zero, "")
+        _bNn = BN_bin2bn(N, N.Length, IntPtr.Zero, "")
         Array.Reverse(N)
         CalculateV()
     End Sub
@@ -164,7 +164,7 @@ Public NotInheritable Class AuthEngineClass
 
         nHash = algorithm1.ComputeHash(N)
         gHash = algorithm1.ComputeHash(g)
-        userHash = algorithm1.ComputeHash(_Username)
+        userHash = algorithm1.ComputeHash(_username)
         For i As Integer = 0 To 19
             ngHash(i) = nHash(i) Xor gHash(i)
         Next i
