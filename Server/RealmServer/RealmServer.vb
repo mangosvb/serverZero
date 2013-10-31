@@ -89,10 +89,10 @@ Public Module RS_Main
     Private Sub LoadConfig()
         Try
             'Make sure RealmServer.ini exists
-            If File.Exists("RealmServer.ini") = False Then
+            If File.Exists("configs/RealmServer.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "hh:mm:ss"),
-                                  "RealmServer.ini")
+                                  "configs/RealmServer.ini")
                 Console.WriteLine("Please copy the ini files into the same directory as the MangosVB exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
@@ -107,7 +107,7 @@ Public Module RS_Main
             Dim oXs As XmlSerializer = New XmlSerializer(GetType(XmlConfigFile))
             Console.Write("...")
             Dim oStmR As StreamReader
-            oStmR = New StreamReader("RealmServer.ini")
+            oStmR = New StreamReader("configs/RealmServer.ini")
             _config = oXs.Deserialize(oStmR)
             oStmR.Close()
 
