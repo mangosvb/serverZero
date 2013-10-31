@@ -23,6 +23,7 @@ Imports System.Net.Sockets
 Imports System.Runtime.Remoting
 Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
+Imports System.Linq.Expressions
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
@@ -300,7 +301,7 @@ Public Module WC_Network
         Public Sub Broadcast(ByVal p As PacketClass)
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then objCharacter.Value.Client.SendMultiplyPackets(p)
+                If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.client IsNot Nothing Then objCharacter.Value.client.SendMultiplyPackets(p)
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
@@ -310,9 +311,9 @@ Public Module WC_Network
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
 
-                If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then
+                If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.client IsNot Nothing Then
                     b = Data.Clone
-                    objCharacter.Value.Client.Send(Data)
+                    objCharacter.Value.client.Send(Data)
                 End If
 
             Next
@@ -323,7 +324,7 @@ Public Module WC_Network
                 For i As Byte = 0 To .Members.Length - 1
                     If .Members(i) IsNot Nothing Then
                         Dim buffer() As Byte = Data.Clone
-                        .Members(i).Client.Send(buffer)
+                        .Members(i).client.Send(buffer)
                     End If
 
                 Next
@@ -332,9 +333,9 @@ Public Module WC_Network
         Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
             With GROUPs(GroupID)
                 For i As Byte = 0 To .Members.Length - 1
-                    If .Members(i) IsNot Nothing AndAlso .Members(i).Client IsNot Nothing Then
+                    If .Members(i) IsNot Nothing AndAlso .Members(i).client IsNot Nothing Then
                         Dim buffer() As Byte = Data.Clone
-                        .Members(i).Client.Send(buffer)
+                        .Members(i).client.Send(buffer)
                     End If
 
                 Next
@@ -632,9 +633,13 @@ Public Module WC_Network
                     End While
 
                     If SocketBuffer.Length > 1 Then
-                        Socket.BeginReceive(SocketBuffer, 0, SocketBuffer.Length, SocketFlags.None, AddressOf OnData, Nothing)
+                        Try
+                            Socket.BeginReceive(SocketBuffer, 0, SocketBuffer.Length, SocketFlags.None, AddressOf OnData, Nothing)
 
-                        If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
+                            If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
+                        Catch ex As Exception
+                            Log.WriteLine(LogType.WARNING, "Packet Disconnect from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                        End Try
                     End If
                 End If
             Catch Err As Exception

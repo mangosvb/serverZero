@@ -16,6 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+Imports System.Linq.Expressions
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
 
@@ -28,8 +29,8 @@ Public Module WC_Handlers_Chat
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAT_IGNORED [0x{2}]", client.IP, client.Port, GUID)
 
         If CHARACTERs.ContainsKey(GUID) Then
-            Dim response As PacketClass = BuildChatMessage(Client.Character.GUID, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, 0, "")
-            CHARACTERs(GUID).Client.Send(response)
+            Dim response As PacketClass = BuildChatMessage(client.Character.GUID, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, 0, "")
+            CHARACTERs(GUID).client.Send(response)
             response.Dispose()
         End If
     End Sub
@@ -79,7 +80,7 @@ Public Module WC_Handlers_Chat
 
                 If GUID > 0 AndAlso CHARACTERs.ContainsKey(GUID) Then
                     'DONE: Check if ignoring
-                    If CHARACTERs(GUID).IgnoreList.Contains(Client.Character.GUID) AndAlso client.Character.Access < AccessLevel.GameMaster Then
+                    If CHARACTERs(GUID).IgnoreList.Contains(client.Character.GUID) AndAlso client.Character.Access < AccessLevel.GameMaster Then
                         'Client.Character.SystemMessage(String.Format("{0} is ignoring you.", ToUser))
                         client.Character.SendChatMessage(GUID, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL)
                     Else
@@ -87,7 +88,7 @@ Public Module WC_Handlers_Chat
                         client.Character.SendChatMessage(GUID, Message, ChatMsg.CHAT_MSG_WHISPER_INFORM, msgLanguage)
                         If CHARACTERs(GUID).DND = False OrElse client.Character.Access >= AccessLevel.GameMaster Then
                             'From message
-                            CHARACTERs(GUID).SendChatMessage(Client.Character.GUID, Message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage)
+                            CHARACTERs(GUID).SendChatMessage(client.Character.GUID, Message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage)
                         Else
                             'DONE: Send the DND message
                             client.Character.SendChatMessage(GUID, CHARACTERs(GUID).AfkMessage, ChatMsg.CHAT_MSG_DND, msgLanguage)
@@ -113,7 +114,7 @@ Public Module WC_Handlers_Chat
                 End If
 
                 'DONE: Broadcast to party
-                client.Character.Group.SendChatMessage(Client.Character, Message, msgLanguage, msgType)
+                client.Character.Group.SendChatMessage(client.Character, Message, msgLanguage, msgType)
                 Exit Select
 
             Case ChatMsg.CHAT_MSG_AFK
@@ -134,7 +135,7 @@ Public Module WC_Handlers_Chat
                         client.Character.ChatFlag = ChatFlag.FLAG_NONE
                     End If
                     'DONE: Pass the packet to the world server so it also knows about it
-                    client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+                    client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
                 End If
                 Exit Select
 
@@ -155,31 +156,31 @@ Public Module WC_Handlers_Chat
                         client.Character.ChatFlag = ChatFlag.FLAG_NONE
                     End If
                     'DONE: Pass the packet to the world server so it also knows about it
-                    client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+                    client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
                 End If
                 Exit Select
 
             Case ChatMsg.CHAT_MSG_SAY, ChatMsg.CHAT_MSG_YELL, ChatMsg.CHAT_MSG_EMOTE
-                client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+                client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
                 Exit Select
 
             Case ChatMsg.CHAT_MSG_GUILD
                 Dim Message As String = packet.GetString()
 
                 'DONE: Broadcast to guild
-                BroadcastChatMessageGuild(Client.Character, Message, msgLanguage, client.Character.Guild.ID)
+                BroadcastChatMessageGuild(client.Character, Message, msgLanguage, client.Character.Guild.ID)
                 Exit Select
 
             Case ChatMsg.CHAT_MSG_OFFICER
                 Dim Message As String = packet.GetString()
 
                 'DONE: Broadcast to officer chat
-                BroadcastChatMessageOfficer(Client.Character, Message, msgLanguage, client.Character.Guild.ID)
+                BroadcastChatMessageOfficer(client.Character, Message, msgLanguage, client.Character.Guild.ID)
                 Exit Select
 
             Case Else
                 Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
-                DumpPacket(packet.Data, Client)
+                DumpPacket(packet.Data, client)
         End Select
 
     End Sub
@@ -192,8 +193,13 @@ Public Module WC_Handlers_Chat
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_JOIN_CHANNEL [{2}]", client.IP, client.Port, channelName)
 
         If Not CHAT_CHANNELs.ContainsKey(channelName.ToUpper) Then
-            Dim newChannel As New ChatChannelClass(channelName)
+            Dim newChannel As New ChatChannelClass(channelName.ToUpper)
+            Try
+                CHAT_CHANNELs.Remove(channelName.ToUpper())
+            Catch Ex As Exception
+            End Try
             CHAT_CHANNELs.Add(channelName.ToUpper, newChannel)
+
         End If
         CHAT_CHANNELs(channelName.ToUpper).Join(client.Character, password)
     End Sub
@@ -206,7 +212,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).Part(Client.Character)
+            CHAT_CHANNELs(ChannelName).Part(client.Character)
         End If
     End Sub
 
@@ -218,7 +224,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).List(Client.Character)
+            CHAT_CHANNELs(ChannelName).List(client.Character)
         End If
     End Sub
 
@@ -231,7 +237,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).SetPassword(Client.Character, ChannelNewPassword)
+            CHAT_CHANNELs(ChannelName).SetPassword(client.Character, ChannelNewPassword)
         End If
     End Sub
 
@@ -244,7 +250,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            If CHAT_CHANNELs(ChannelName).CanSetOwner(Client.Character, ChannelNewOwner) Then
+            If CHAT_CHANNELs(ChannelName).CanSetOwner(client.Character, ChannelNewOwner) Then
                 For Each GUID As ULong In CHAT_CHANNELs(ChannelName).Joined.ToArray
                     If CHARACTERs(GUID).Name.ToUpper = ChannelNewOwner.ToUpper Then
                         CHAT_CHANNELs(ChannelName).SetOwner(CHARACTERs(GUID))
@@ -263,7 +269,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).GetOwner(Client.Character)
+            CHAT_CHANNELs(ChannelName).GetOwner(client.Character)
         End If
     End Sub
 
@@ -276,7 +282,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).SetModerator(Client.Character, ChannelUser)
+            CHAT_CHANNELs(ChannelName).SetModerator(client.Character, ChannelUser)
         End If
     End Sub
 
@@ -289,7 +295,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).SetUnModerator(Client.Character, ChannelUser)
+            CHAT_CHANNELs(ChannelName).SetUnModerator(client.Character, ChannelUser)
         End If
     End Sub
 
@@ -302,7 +308,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).SetMute(Client.Character, ChannelUser)
+            CHAT_CHANNELs(ChannelName).SetMute(client.Character, ChannelUser)
         End If
     End Sub
 
@@ -315,7 +321,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).SetUnMute(Client.Character, ChannelUser)
+            CHAT_CHANNELs(ChannelName).SetUnMute(client.Character, ChannelUser)
         End If
     End Sub
 
@@ -330,7 +336,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).Invite(Client.Character, PlayerName)
+            CHAT_CHANNELs(ChannelName).Invite(client.Character, PlayerName)
         End If
     End Sub
 
@@ -345,7 +351,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).Kick(Client.Character, PlayerName)
+            CHAT_CHANNELs(ChannelName).Kick(client.Character, PlayerName)
         End If
     End Sub
 
@@ -357,7 +363,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).SetAnnouncements(Client.Character)
+            CHAT_CHANNELs(ChannelName).SetAnnouncements(client.Character)
         End If
     End Sub
 
@@ -372,7 +378,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).Ban(Client.Character, PlayerName)
+            CHAT_CHANNELs(ChannelName).Ban(client.Character, PlayerName)
         End If
     End Sub
 
@@ -387,7 +393,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).UnBan(Client.Character, PlayerName)
+            CHAT_CHANNELs(ChannelName).UnBan(client.Character, PlayerName)
         End If
     End Sub
 
@@ -399,7 +405,7 @@ Public Module WC_Handlers_Chat
 
         ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-            CHAT_CHANNELs(ChannelName).SetModeration(Client.Character)
+            CHAT_CHANNELs(ChannelName).SetModeration(client.Character)
         End If
     End Sub
 
