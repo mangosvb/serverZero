@@ -98,15 +98,15 @@ Public Class WS_QuestsBase
             Next
         End If
         ''TODO: Fix this below
-        'If (Quest.Flags And QuestFlag.QUEST_FLAGS_EVENT) Then
-        '    ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_EVENT
-        '    For i as Integer = 0 To 3
-        '        If ObjectivesType(i) = 0 Then
-        '            ObjectivesType(i) = QuestObjectiveFlag.QUEST_OBJECTIVE_EVENT
-        '            ObjectivesCount(i) = 1
-        '        End If
-        '    Next
-        'End If
+        If (Quest.SpecialFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EVENT) Then
+            ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_EVENT
+            For i As Integer = 0 To 3
+                If ObjectivesType(i) = 0 Then
+                    ObjectivesType(i) = QuestObjectiveFlag.QUEST_OBJECTIVE_EVENT
+                    ObjectivesCount(i) = 1
+                End If
+            Next
+        End If
 
         'No objective flags are set, complete it directly
         If ObjectiveFlags = 0 Then
