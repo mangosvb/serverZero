@@ -1281,7 +1281,7 @@ Public Module WS_CharManagment
 
         Public ReadOnly Property isResting() As Boolean
             Get
-                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAG_RESTING)
+                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING)
             End Get
         End Property
 
@@ -1326,7 +1326,7 @@ Public Module WS_CharManagment
                     If DuelPartner IsNot Nothing AndAlso DuelPartner Is Unit Then Return False
                     If .DuelPartner IsNot Nothing AndAlso .DuelPartner Is Me Then Return False
                     If IsInGroup AndAlso .IsInGroup AndAlso Group Is .Group Then Return True
-                    If HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAG_FREE_FOR_ALL_PVP) AndAlso HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAG_FREE_FOR_ALL_PVP) Then Return False
+                    If HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) AndAlso HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) Then Return False
                     If Team = .Team Then Return True
                     Return Not .isPvP
                 End With
@@ -1351,7 +1351,7 @@ Public Module WS_CharManagment
                     If DuelPartner IsNot Nothing AndAlso DuelPartner Is Unit Then Return True
                     If .DuelPartner IsNot Nothing AndAlso .DuelPartner Is Me Then Return True
                     If IsInGroup AndAlso .IsInGroup AndAlso Group Is .Group Then Return False
-                    If HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAG_FREE_FOR_ALL_PVP) AndAlso HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAG_FREE_FOR_ALL_PVP) Then Return True
+                    If HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) AndAlso HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) Then Return True
                     If Team = .Team Then Return False
                     Return .isPvP
                 End With
@@ -2129,42 +2129,42 @@ Public Module WS_CharManagment
         'Packets and Events
         Public Property AFK() As Boolean
             Get
-                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAG_AFK)
+                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_AFK)
             End Get
             Set(ByVal Value As Boolean)
                 If Value Then
-                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_AFK
-                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_AFK)
+                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_AFK
+                    WorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_AFK)
                 Else
-                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_AFK)
+                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_AFK)
                     WorldServer.Cluster.ClientSetChatFlag(Client.Index, 0)
                 End If
             End Set
         End Property
         Public Property DND() As Boolean
             Get
-                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAG_DND)
+                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_DND)
             End Get
             Set(ByVal Value As Boolean)
                 If Value Then
-                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_DND
-                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_DND)
+                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_DND
+                    WorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_DND)
                 Else
-                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_DND)
+                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_DND)
                     WorldServer.Cluster.ClientSetChatFlag(Client.Index, 0)
                 End If
             End Set
         End Property
         Public Property GM() As Boolean
             Get
-                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAG_GM)
+                Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_GM)
             End Get
             Set(ByVal Value As Boolean)
                 If Value Then
-                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_GM
-                    WorldServer.Cluster.ClientSetChatFlag(Client.Index, ChatFlag.FLAG_GM)
+                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_GM
+                    WorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_GM)
                 Else
-                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_GM)
+                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_GM)
                     WorldServer.Cluster.ClientSetChatFlag(Client.Index, 0)
                 End If
             End Set
@@ -4183,14 +4183,14 @@ CheckXPAgain:
 
             'DONE: Set rested in citys
             If AreaTable(ZoneFlag).IsCity Then
-                If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_RESTING) = 0 AndAlso Level < DEFAULT_MAX_LEVEL Then
-                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_RESTING
+                If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) = 0 AndAlso Level < DEFAULT_MAX_LEVEL Then
+                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_RESTING
                     SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                     SendCharacterUpdate()
                 End If
             Else
-                If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_RESTING) Then
-                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_RESTING)
+                If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) Then
+                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_RESTING)
                     SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                     SendCharacterUpdate()
                 End If
@@ -4212,8 +4212,8 @@ CheckXPAgain:
 
                 'DONE: Activate Arena PvP (Can attack people from your own faction)
                 If AreaTable(ZoneFlag).IsArena Then
-                    If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_PVP) = 0 Then
-                        cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_PVP
+                    If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_PVP_TIMER) = 0 Then
+                        cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_PVP_TIMER
                         SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                         SendCharacterUpdate()
 
@@ -5339,8 +5339,8 @@ DoneAmmo:
 
             'DONE: Get playerflags from force restrictions
             Dim ForceRestrictions As UInteger = MySQLQuery.Rows(0).Item("force_restrictions")
-            If (ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDECLOAK) Then cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_HIDE_CLOAK
-            If (ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDEHELM) Then cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_HIDE_HELM
+            If (ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDECLOAK) Then cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK
+            If (ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDEHELM) Then cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_HIDE_HELM
 
             'DONE: Get Items
             MySQLQuery.Clear()
@@ -5382,7 +5382,7 @@ DoneAmmo:
 
                 'DONE: Make Dead
                 DEAD = True
-                cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAG_DEAD
+                cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_DEAD
 
                 'DONE: Update to see only dead
                 Invisibility = InvisibilityLevel.DEAD
@@ -5535,8 +5535,8 @@ DoneAmmo:
             tmpValues = tmpValues & ", " & Spirit.RealBase
 
             Dim ForceRestrictions As UInteger = 0
-            If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_HIDE_CLOAK) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDECLOAK
-            If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
+            If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDECLOAK
+            If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
             tmpCMD = tmpCMD & ", force_restrictions"
             tmpValues = tmpValues & ", " & ForceRestrictions
 
@@ -5673,8 +5673,8 @@ DoneAmmo:
             tmp = tmp & ", char_talentpoints=" & TalentPoints
 
             Dim ForceRestrictions As UInteger = 0
-            If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_HIDE_CLOAK) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDECLOAK
-            If (cPlayerFlags And PlayerFlags.PLAYER_FLAG_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
+            If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDECLOAK
+            If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
             tmp = tmp & ", force_restrictions=" & ForceRestrictions
 
             tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)

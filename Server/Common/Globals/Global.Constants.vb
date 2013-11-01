@@ -352,21 +352,24 @@ Public Module Constants
 
     <Flags()> _
     Public Enum PlayerFlags As Integer
-        PLAYER_FLAG_GROUP_LEADER = &H1
-        PLAYER_FLAG_AFK = &H2
-        PLAYER_FLAG_DND = &H4
-        PLAYER_FLAG_GM = &H8
-        PLAYER_FLAG_DEAD = &H10
-        PLAYER_FLAG_RESTING = &H20
-        PLAYER_FLAG_UNKNOWN1 = &H40
-        PLAYER_FLAG_FREE_FOR_ALL_PVP = &H80
+        PLAYER_FLAGS_GROUP_LEADER = &H1
+        PLAYER_FLAGS_AFK = &H2
+        PLAYER_FLAGS_DND = &H4
+        PLAYER_FLAGS_GM = &H8                        'GM Prefix
+        PLAYER_FLAGS_DEAD = &H10
+        PLAYER_FLAGS_RESTING = &H20
+        PLAYER_FLAGS_UNK7 = &H40                    'Admin Prefix?
+        PLAYER_FLAGS_FFA_PVP = &H80
         PLAYER_FLAGS_CONTESTED_PVP = &H100
-        PLAYER_FLAG_PVP_TOGGLE = &H200
-        PLAYER_FLAG_HIDE_HELM = &H400
-        PLAYER_FLAG_HIDE_CLOAK = &H800
-        PLAYER_FLAG_NEED_REST_3_HOURS = &H1000
-        PLAYER_FLAG_NEED_REST_5_HOURS = &H2000
-        PLAYER_FLAG_PVP = &H40000
+        PLAYER_FLAGS_IN_PVP = &H200
+        PLAYER_FLAGS_HIDE_HELM = &H400
+        PLAYER_FLAGS_HIDE_CLOAK = &H800
+        PLAYER_FLAGS_PARTIAL_PLAY_TIME = &H1000
+        PLAYER_FLAGS_IS_OUT_OF_BOUNDS = &H4000      'Out of Bounds
+        PLAYER_FLAGS_UNK15 = &H8000                 'Dev Prefix?
+        PLAYER_FLAGS_SANCTUARY = &H10000
+        PLAYER_FLAGS_NO_PLAY_TIME = &H2000
+        PLAYER_FLAGS_PVP_TIMER = &H40000
     End Enum
 
     Public Enum PlayerHonorRank As Byte
@@ -553,12 +556,12 @@ Public Module Constants
         MEMBER_STATUS_OFFLINE = &H0
         MEMBER_STATUS_ONLINE = &H1
         MEMBER_STATUS_PVP = &H2
-        MEMBER_STATUS_UNK0 = &H4            ' dead? (health=0)
-        MEMBER_STATUS_UNK1 = &H8            ' ghost? (health=1)
-        MEMBER_STATUS_UNK2 = &H10           ' never seen
-        MEMBER_STATUS_UNK3 = &H20           ' never seen
-        MEMBER_STATUS_UNK4 = &H40           ' appears with dead and ghost flags
-        MEMBER_STATUS_UNK5 = &H80           ' never seen
+        MEMBER_STATUS_DEAD = &H4            ' dead (health=0)
+        MEMBER_STATUS_GHOST = &H8           ' ghost (health=1)
+        MEMBER_STATUS_PVP_FFA = &H10        ' pvp ffa
+        MEMBER_STATUS_UNK3 = &H20           ' unknown
+        MEMBER_STATUS_AFK = &H40            ' afk flag
+        MEMBER_STATUS_DND = &H80            ' dnd flag
     End Enum
 
     Public Enum GroupDungeonDifficulty As Byte
@@ -633,10 +636,10 @@ Public Module Constants
 
     <Flags()> _
     Public Enum ChatFlag As Byte
-        FLAG_NONE = 0
-        FLAG_AFK = 1
-        FLAG_DND = 2
-        FLAG_GM = 3
+        FLAGS_NONE = 0
+        FLAGS_AFK = 1
+        FLAGS_DND = 2
+        FLAGS_GM = 3
     End Enum
 
 #End Region
@@ -728,7 +731,7 @@ Public Module Constants
     End Enum
 
     Public Enum UNIT_TYPE
-        NOUNITTYPE = 0
+        NONE = 0
         BEAST = 1
         DRAGONKIN = 2
         DEMON = 3
@@ -738,7 +741,8 @@ Public Module Constants
         HUMANOID = 7
         CRITTER = 8
         MECHANICAL = 9
-        MOUNT = 10
+        NOT_SPECIFIED = 10
+        TOTEM = 11
     End Enum
 
     Public Enum CREATURE_FAMILY As Integer
@@ -765,6 +769,7 @@ Public Module Constants
         HYENA = 25
         OWL = 26
         WIND_SERPENT = 27
+        REMOTE_CONTROL = 28
     End Enum
 
     Public Enum CREATURE_ELITE As Integer

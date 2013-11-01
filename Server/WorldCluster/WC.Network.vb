@@ -482,7 +482,7 @@ Public Module WC_Network
             Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
             SyncLock CType(Worlds, ICollection).SyncRoot
-                Dim Difficulty As GroupDungeonDifficulty = GROUPs(GroupID).DungeonDifficulty
+                Dim Difficulty As GroupDungeonDifficulty = Group.DungeonDifficulty
                 Dim Method As GroupLootMethod = GROUPs(GroupID).LootMethod
                 Dim Threshold As GroupLootThreshold = GROUPs(GroupID).LootThreshold
                 Dim Master As ULong = GROUPs(GroupID).GetLootMaster.GUID
@@ -507,6 +507,7 @@ Public Module WC_Network
     End Class
 
 #End Region
+
 #Region "WS.Analyzer"
 
     Public Enum AccessLevel As Byte

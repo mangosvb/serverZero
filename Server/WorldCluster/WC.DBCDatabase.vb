@@ -61,11 +61,13 @@ Public Module WS_DBCDatabase
                 Return Type = MapTypes.MAP_INSTANCE OrElse Type = MapTypes.MAP_RAID
             End Get
         End Property
+
         Public ReadOnly Property IsRaid() As Boolean
             Get
                 Return Type = MapTypes.MAP_RAID
             End Get
         End Property
+
         Public ReadOnly Property IsBattleGround() As Boolean
             Get
                 Return Type = MapTypes.MAP_BATTLEGROUND
@@ -80,6 +82,7 @@ Public Module WS_DBCDatabase
     End Class
 
 #End Region
+
 #Region "WorldMapArea"
 
     Public WorldSafeLocs As New Dictionary(Of Integer, TWorldSafeLoc)
@@ -118,6 +121,7 @@ Public Module WS_DBCDatabase
     End Class
 
 #End Region
+
 #Region "Battlegrounds"
 
     Public Battlegrounds As New Dictionary(Of Byte, TBattleground)
@@ -160,6 +164,7 @@ Public Module WS_DBCDatabase
     End Class
 
 #End Region
+
 #Region "Chat Channels"
 
     <Flags()> _
@@ -175,6 +180,7 @@ Public Module WS_DBCDatabase
         FLAG_GUILD_REQ = &H20000        ' GuildRecruitment
         FLAG_LFG = &H40000              ' LookingForGroup
     End Enum
+
     Public ChatChannelsInfo As New Dictionary(Of Integer, ChatChannelInfo)
     Public Sub InitializeChatChannels()
         Try
@@ -205,6 +211,7 @@ Public Module WS_DBCDatabase
     End Class
 
 #End Region
+
 #Region "Character"
     Public Sub InitializeCharRaces()
         Try

@@ -381,7 +381,7 @@ Module WS_CharMovement
             q.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_tavern WHERE id = {0};", triggerID), q)
             If q.Rows.Count > 0 Then
-                client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_RESTING
+                client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_RESTING
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
                 client.Character.SendCharacterUpdate(True)
                 Exit Sub

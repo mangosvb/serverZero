@@ -313,7 +313,7 @@ Public Module WC_Character
         End Sub
 
         'Chat
-        Public ChatFlag As ChatFlag = ChatFlag.FLAG_NONE
+        Public ChatFlag As ChatFlag = ChatFlag.FLAGS_NONE
         Public Sub SendChatMessage(ByRef GUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As Integer, Optional ByVal ChannelName As String = "Global")
             Dim msgChatFlag As ChatFlag = ChatFlag
             If msgType = ChatMsg.CHAT_MSG_WHISPER_INFORM OrElse msgType = ChatMsg.CHAT_MSG_WHISPER Then msgChatFlag = CHARACTERs(GUID).ChatFlag

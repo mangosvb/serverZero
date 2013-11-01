@@ -130,9 +130,9 @@ Public Module WC_Handlers_Chat
                         client.Character.DND = False
                     End If
                     If client.Character.AFK Then
-                        client.Character.ChatFlag = ChatFlag.FLAG_AFK
+                        client.Character.ChatFlag = ChatFlag.FLAGS_AFK
                     Else
-                        client.Character.ChatFlag = ChatFlag.FLAG_NONE
+                        client.Character.ChatFlag = ChatFlag.FLAGS_NONE
                     End If
                     'DONE: Pass the packet to the world server so it also knows about it
                     client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
@@ -151,9 +151,9 @@ Public Module WC_Handlers_Chat
                         client.Character.AFK = False
                     End If
                     If client.Character.DND Then
-                        client.Character.ChatFlag = ChatFlag.FLAG_DND
+                        client.Character.ChatFlag = ChatFlag.FLAGS_DND
                     Else
-                        client.Character.ChatFlag = ChatFlag.FLAG_NONE
+                        client.Character.ChatFlag = ChatFlag.FLAGS_NONE
                     End If
                     'DONE: Pass the packet to the world server so it also knows about it
                     client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
