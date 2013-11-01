@@ -903,7 +903,7 @@ Public Module RealmServer
     End Sub
 
     Sub Main()
-        Dim log As New BaseWriter
+        Dim log As BaseWriter
 
         Console.Title = String.Format("{0} v{1}", [Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 
