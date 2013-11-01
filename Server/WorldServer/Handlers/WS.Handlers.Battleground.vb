@@ -48,7 +48,7 @@ Public Module WS_Handlers_Battleground
                 response.AddInt8(5)     'Unk
                 response.AddInt32(0)    'Unk
             Else
-                Dim Battlegrounds As List(Of Integer) = WorldServer.Cluster.BattlefieldList(BGType)
+                Dim Battlegrounds As List(Of Integer) = ClsWorldServer.Cluster.BattlefieldList(BGType)
                 response.AddInt8(0)                     'Unk
                 response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
 

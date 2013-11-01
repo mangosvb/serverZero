@@ -174,9 +174,6 @@
     </Compile>
     <Compile Include="Writers\ColoredConsoleWriter.vb" />
     <Compile Include="Writers\ConsoleWriter.vb" />
-    <Compile Include="fileADT.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="fileDBC.vb">
       <SubType>Code</SubType>
     </Compile>

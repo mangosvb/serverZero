@@ -162,18 +162,18 @@ Public Module WS_Network
             Cluster.ClientTransfer(ID, posX, posY, posZ, ori, map)
         End Sub
 
-        Public Sub ClientConnect(ByVal ID As UInteger, ByVal Client As ClientInfo) Implements IWorld.ClientConnect
-            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", ID)
+        Public Sub ClientConnect(ByVal id As UInteger, ByVal client As ClientInfo) Implements IWorld.ClientConnect
+            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", id)
 
             Dim objCharacter As New ClientClass(Client)
 
-            If CLIENTs.ContainsKey(ID) = True Then  'Ooops, the character is already loaded, remove it
-                CLIENTs.Remove(ID)
+            If CLIENTs.ContainsKey(id) = True Then  'Ooops, the character is already loaded, remove it
+                CLIENTs.Remove(id)
             End If
-            CLIENTs.Add(ID, objCharacter)
+            CLIENTs.Add(id, objCharacter)
         End Sub
 
-        Public Sub ClientDisconnect(ByVal ID As UInteger) Implements IWorld.ClientDisconnect
+        Public Sub ClientDisconnect(ByVal id As UInteger) Implements IWorld.ClientDisconnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", ID)
 
             If CLIENTs(ID).Character IsNot Nothing Then
@@ -183,19 +183,19 @@ Public Module WS_Network
             CLIENTs(ID).Delete()
             CLIENTs.Remove(ID)
         End Sub
-        Public Sub ClientLogin(ByVal ID As UInteger, ByVal GUID As ULong) Implements IWorld.ClientLogin
-            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", ID, GUID)
+        Public Sub ClientLogin(ByVal id As UInteger, ByVal guid As ULong) Implements IWorld.ClientLogin
+            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", id, GUID)
 
             Try
-                Dim client As ClientClass = CLIENTs(ID)
-                Dim Character As New CharacterObject(Client, GUID)
+                Dim client As ClientClass = CLIENTs(id)
+                Dim Character As New CharacterObject(client, GUID)
 
                 CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
                 CHARACTERs(GUID) = Character
                 CHARACTERs_Lock.ReleaseWriterLock()
 
                 'DONE: SMSG_CORPSE_RECLAIM_DELAY
-                SendCorpseReclaimDelay(Client, Character)
+                SendCorpseReclaimDelay(client, Character)
 
                 'DONE: Cast talents and racial passive spells
                 InitializeTalentSpells(Character)
@@ -207,28 +207,28 @@ Public Module WS_Network
                 Log.WriteLine(LogType.FAILED, "Error on login: {0}", e.ToString)
             End Try
         End Sub
-        Public Sub ClientLogout(ByVal ID As UInteger) Implements IWorld.ClientLogout
+        Public Sub ClientLogout(ByVal id As UInteger) Implements IWorld.ClientLogout
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client logout", ID)
 
             CLIENTs(ID).Character.Logout(Nothing)
         End Sub
-        Public Sub ClientPacket(ByVal ID As UInteger, ByVal Data() As Byte) Implements IWorld.ClientPacket
+        Public Sub ClientPacket(ByVal id As UInteger, ByVal data() As Byte) Implements IWorld.ClientPacket
             Dim p As New PacketClass(Data)
             Try
-                CLIENTs(ID).Packets.Enqueue(p)
-                ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(ID).OnPacket)
+                CLIENTs(id).Packets.Enqueue(p)
+                ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(id).OnPacket)
             Finally
                 p.Dispose()
             End Try
         End Sub
-        Public Function ClientCreateCharacter(ByVal Account As String, ByVal Name As String, ByVal Race As Byte, ByVal Classe As Byte, ByVal Gender As Byte, ByVal Skin As Byte, ByVal Face As Byte, ByVal HairStyle As Byte, ByVal HairColor As Byte, ByVal FacialHair As Byte, ByVal OutfitID As Byte) As Integer Implements IWorld.ClientCreateCharacter
-            Return CreateCharacter(Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitID)
+        Public Function ClientCreateCharacter(ByVal account As String, ByVal name As String, ByVal race As Byte, ByVal classe As Byte, ByVal gender As Byte, ByVal skin As Byte, ByVal face As Byte, ByVal hairStyle As Byte, ByVal hairColor As Byte, ByVal facialHair As Byte, ByVal outfitId As Byte) As Integer Implements IWorld.ClientCreateCharacter
+            Return CreateCharacter(account, name, race, classe, gender, Skin, face, hairStyle, hairColor, facialHair, outfitId)
         End Function
 
-        Public Function Ping(ByVal Timestamp As Integer, ByVal Latency As Integer) As Integer Implements IWorld.Ping
-            Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime("") - Timestamp)
+        Public Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer Implements IWorld.Ping
+            Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime("") - timestamp)
             LastPing = timeGetTime("")
-            WC_MsTime = Timestamp + Latency
+            WC_MsTime = timestamp + Latency
 
             Return timeGetTime("")
         End Function
@@ -251,8 +251,8 @@ Public Module WS_Network
             LastCPUTime = Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds
         End Sub
 
-        Public Sub ServerInfo(ByRef CPUUsage As Single, ByRef MemoryUsage As ULong) Implements IWorld.ServerInfo
-            MemoryUsage = CULng(Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024))
+        Public Sub ServerInfo(ByRef cpuUsage As Single, ByRef memoryUsage As ULong) Implements IWorld.ServerInfo
+            memoryUsage = CULng(Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024))
             CPUUsage = UsageCPU
         End Sub
 
@@ -414,11 +414,11 @@ Public Module WS_Network
         Public Sub Send(ByRef data() As Byte)
             SyncLock Me
                 Try
-                    WorldServer.Cluster.ClientSend(Index, data)
+                    ClsWorldServer.Cluster.ClientSend(Index, data)
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
-                    WorldServer.Cluster = Nothing
+                    ClsWorldServer.Cluster = Nothing
                     Me.Delete()
                 End Try
             End SyncLock
@@ -430,12 +430,12 @@ Public Module WS_Network
                     If packet.OpCode = OPCODES.SMSG_UPDATE_OBJECT Then packet.CompressUpdatePacket()
                     packet.UpdateLength()
 
-                    WorldServer.Cluster.ClientSend(Index, packet.Data)
+                    ClsWorldServer.Cluster.ClientSend(Index, packet.Data)
                     packet.Dispose()
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
-                    WorldServer.Cluster = Nothing
+                    ClsWorldServer.Cluster = Nothing
                     Me.Delete()
                 End Try
             End SyncLock
@@ -448,12 +448,12 @@ Public Module WS_Network
                     packet.UpdateLength()
 
                     Dim data() As Byte = packet.Data.Clone
-                    WorldServer.Cluster.ClientSend(Index, data)
+                    ClsWorldServer.Cluster.ClientSend(Index, data)
 
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
-                    WorldServer.Cluster = Nothing
+                    ClsWorldServer.Cluster = Nothing
                     Me.Delete()
                 End Try
             End SyncLock
@@ -469,7 +469,7 @@ Public Module WS_Network
                 ' TODO: set large fields to null.
                 Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
 
-                WorldServer.Cluster.ClientDrop(Index)
+                ClsWorldServer.Cluster.ClientDrop(Index)
                 CLIENTs.Remove(Index)
                 If Not Me.Character Is Nothing Then
                     Me.Character.Client = Nothing

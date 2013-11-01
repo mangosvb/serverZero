@@ -34,7 +34,7 @@ Public Module WC_Group
 
         Public ID As Long
         Public Type As GroupType = GroupType.PARTY
-        Public Const DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
+        Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
         Private LootMaster As Byte
         Public LootMethod As GroupLootMethod = GroupLootMethod.LOOT_GROUP
         Public LootThreshold As GroupLootThreshold = GroupLootThreshold.Uncommon
