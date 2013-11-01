@@ -1484,6 +1484,7 @@ Public Module Constants
         MAX_ENCHANTS = 8
     End Enum
 #End Region
+
     Public Enum AccountState As Byte
         'RealmServ Error Codes
         LOGIN_OK = &H0
