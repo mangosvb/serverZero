@@ -2132,12 +2132,20 @@ Public Module WS_CharManagment
                 Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_AFK)
             End Get
             Set(ByVal Value As Boolean)
+<<<<<<< HEAD
                 If Value Then
+=======
+                If Value Then
+>>>>>>> c26757a09b26a430da676e804702175099522b74
                     cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_AFK
                     ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_AFK)
                 Else
                     cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_AFK)
+<<<<<<< HEAD
                     ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+=======
+                    ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+>>>>>>> c26757a09b26a430da676e804702175099522b74
                 End If
             End Set
         End Property
@@ -2146,12 +2154,20 @@ Public Module WS_CharManagment
                 Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_DND)
             End Get
             Set(ByVal Value As Boolean)
+<<<<<<< HEAD
                 If Value Then
+=======
+                If Value Then
+>>>>>>> c26757a09b26a430da676e804702175099522b74
                     cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_DND
                     ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_DND)
                 Else
                     cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_DND)
+<<<<<<< HEAD
                     ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+=======
+                    ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+>>>>>>> c26757a09b26a430da676e804702175099522b74
                 End If
             End Set
         End Property
@@ -2160,12 +2176,20 @@ Public Module WS_CharManagment
                 Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_GM)
             End Get
             Set(ByVal Value As Boolean)
+<<<<<<< HEAD
                 If Value Then
+=======
+                If Value Then
+>>>>>>> c26757a09b26a430da676e804702175099522b74
                     cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_GM
                     ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_GM)
                 Else
                     cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_GM)
+<<<<<<< HEAD
                     ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+=======
+                    ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+>>>>>>> c26757a09b26a430da676e804702175099522b74
                 End If
             End Set
         End Property
