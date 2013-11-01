@@ -422,7 +422,7 @@ Public Module WS_Maps
         End Function
 #End If
 
-        Public Sub New(ByVal Map As UInteger)
+        Public Sub New(ByVal Map As Integer)
             Maps.Add(Map, Me)
 
             For x As Integer = 0 To 63
@@ -432,7 +432,7 @@ Public Module WS_Maps
             Next
 
             Try
-                Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Map.dbc")
+                Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
                 Dim tmpMap As Integer
 
                 For i As Integer = 0 To tmpDBC.Rows - 1

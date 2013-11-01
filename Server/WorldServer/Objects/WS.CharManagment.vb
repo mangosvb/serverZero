@@ -4003,8 +4003,8 @@ CheckXPAgain:
         Public Sub SendTalking(ByVal TextID As Integer)
 
             If NPCTexts.ContainsKey(TextID) = False Then
-                'TODO: Another of these currently 'DO NOTHING' lines, needs to be implemented correctly
                 Dim tmpText As New NPCText(TextID)
+                'The New does a an add to the .Containskey collection above
             End If
 
             'DONE: Load TextID
@@ -6260,8 +6260,8 @@ DoneAmmo:
         'First add bags
         For Each Item As KeyValuePair(Of Integer, Integer) In Items
             If ITEMDatabase.ContainsKey(Item.Key) = False Then
-                'TODO: Another of these currently 'DO NOTHING' lines, needs to be implemented correctly
                 Dim newItem As New ItemInfo(Item.Key)
+                'The New does a an add to the .Containskey collection above
             End If
 
             If ITEMDatabase(Item.Key).ContainerSlots > 0 Then

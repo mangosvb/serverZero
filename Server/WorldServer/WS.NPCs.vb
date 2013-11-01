@@ -727,9 +727,8 @@ Public Module WS_NPCs
                 itemID = CType(sellRow.Item("item"), Integer)
                 'DONE: You will now only see items for your class
                 If ITEMDatabase.ContainsKey(itemID) = False Then
-                    'TODO: Another one of these lines that doesn't do anything, but should
                     Dim tmpItem As New ItemInfo(itemID)
-                    '    ITEMDatabase.Add(itemID, tmpItem)
+                    'The New does a an add to the .Containskey collection above
                 End If
 
                 If (ITEMDatabase(itemID).AvailableClasses = 0 OrElse (ITEMDatabase(itemID).AvailableClasses And objCharacter.ClassMask)) Then

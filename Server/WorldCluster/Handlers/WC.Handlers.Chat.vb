@@ -194,12 +194,7 @@ Public Module WC_Handlers_Chat
 
         If Not CHAT_CHANNELs.ContainsKey(channelName.ToUpper) Then
             Dim newChannel As New ChatChannelClass(channelName.ToUpper)
-            Try
-                CHAT_CHANNELs.Remove(channelName.ToUpper())
-            Catch Ex As Exception
-            End Try
-            CHAT_CHANNELs.Add(channelName.ToUpper, newChannel)
-
+            'The New does a an add to the .Containskey collection above
         End If
         CHAT_CHANNELs(channelName.ToUpper).Join(client.Character, password)
     End Sub
