@@ -4245,49 +4245,50 @@ CheckXPAgain:
         End Sub
 
         Public Enum ChangeSpeedType As Byte
-            RUN
-            RUNBACK
-            SWIM
-            SWIMBACK
-            TURNRATE
+            RUN = 1
+            RUNBACK = 2
+            SWIM = 3
+            SWIMBACK = 4
+            TURNRATE = 5
         End Enum
 
-        Public Sub ChangeSpeed(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
-            Dim packet As PacketClass = Nothing
-            Try
-                Select Case Type
-                    Case ChangeSpeedType.RUN
-                        RunSpeed = NewSpeed
-                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_SPEED)
-                    Case ChangeSpeedType.RUNBACK
-                        RunBackSpeed = NewSpeed
-                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_BACK_SPEED)
-                    Case ChangeSpeedType.SWIM
-                        SwimSpeed = NewSpeed
-                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_SPEED)
-                    Case ChangeSpeedType.SWIMBACK
-                        SwimSpeed = NewSpeed
-                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_BACK_SPEED)
-                    Case ChangeSpeedType.TURNRATE
-                        TurnRate = NewSpeed
-                        packet = New PacketClass(OPCODES.MSG_MOVE_SET_TURN_RATE)
-                End Select
+        'Public Sub ChangeSpeed(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
+        '    Dim packet As PacketClass = Nothing
+        '    Try
+        '        Select Case Type
+        '            Case ChangeSpeedType.RUN
+        '                RunSpeed = NewSpeed
+        '                packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_SPEED)
+        '            Case ChangeSpeedType.RUNBACK
+        '                RunBackSpeed = NewSpeed
+        '                packet = New PacketClass(OPCODES.MSG_MOVE_SET_RUN_BACK_SPEED)
+        '            Case ChangeSpeedType.SWIM
+        '                SwimSpeed = NewSpeed
+        '                packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_SPEED)
+        '            Case ChangeSpeedType.SWIMBACK
+        '                SwimSpeed = NewSpeed
+        '                packet = New PacketClass(OPCODES.MSG_MOVE_SET_SWIM_BACK_SPEED)
+        '            Case ChangeSpeedType.TURNRATE
+        '                TurnRate = NewSpeed
+        '                packet = New PacketClass(OPCODES.MSG_MOVE_SET_TURN_RATE)
+        '        End Select
 
-                'DONE: Send to nearby players
-                packet.AddPackGUID(Client.Character.GUID)
-                packet.AddInt32(0) 'Movement flags
-                packet.AddInt32(msTime)
-                packet.AddSingle(positionX)
-                packet.AddSingle(positionY)
-                packet.AddSingle(positionZ)
-                packet.AddSingle(orientation)
-                packet.AddInt32(0) 'Unk flag
-                packet.AddSingle(NewSpeed)
-                client.Character.SendToNearPlayers(packet)
-            Finally
-                packet.Dispose()
-            End Try
-        End Sub
+        '        'DONE: Send to nearby players
+        '        packet.AddPackGUID(Client.Character.GUID)
+        '        packet.AddInt32(0) 'Movement flags
+        '        packet.AddInt32(msTime)
+        '        packet.AddSingle(positionX)
+        '        packet.AddSingle(positionY)
+        '        packet.AddSingle(positionZ)
+        '        packet.AddSingle(orientation)
+        '        packet.AddInt32(0) 'Unk flag
+        '        packet.AddSingle(NewSpeed)
+        '        client.Character.SendToNearPlayers(packet)
+        '    Finally
+        '        packet.Dispose()
+        '    End Try
+        '        End Sub
+
         Public Sub ChangeSpeedForced(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
             antiHackSpeedChanged_ += 1
             Dim packet As PacketClass = Nothing
