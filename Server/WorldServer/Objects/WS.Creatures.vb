@@ -28,6 +28,7 @@ Public Module WS_Creatures
     Public Const SKILL_DETECTION_PER_LEVEL As Integer = 5
 
 #End Region
+
 #Region "WS.Creatures.TypeDef"
     'WARNING: Use only with CREATUREsDatabase()
     Public Class CreatureInfo
@@ -146,6 +147,7 @@ Public Module WS_Creatures
                 End If
             End If
         End Sub
+
         Public Sub New()
             Damage.Minimum = (0.8F * BaseAttackTime / 1000.0F) * (LevelMin * 10.0F)
             Damage.Maximum = (1.2F * BaseAttackTime / 1000.0F) * (LevelMax * 10.0F)
@@ -241,7 +243,7 @@ Public Module WS_Creatures
         Public MaxMana As Integer = 1
         Public ManaType As Byte = 0
         Public Faction As Short = FactionTemplates.None
-        Public CreatureType As Byte = UNIT_TYPE.NOUNITTYPE
+        Public CreatureType As Byte = UNIT_TYPE.None
         Public CreatureFamily As Byte = CREATURE_FAMILY.NONE
         Public Elite As Byte = CREATURE_ELITE.NORMAL
         Public HonorRank As Byte = 0
@@ -348,6 +350,7 @@ Public Module WS_Creatures
                 End Select
             End Get
         End Property
+
         Public ReadOnly Property isAbleToWalkOnGround() As Boolean
             Get
                 'TODO: Fix family filter
@@ -359,11 +362,13 @@ Public Module WS_Creatures
                 End Select
             End Get
         End Property
+
         Public ReadOnly Property isCritter() As Boolean
             Get
                 Return (CreatureInfo.CreatureType = UNIT_TYPE.CRITTER)
             End Get
         End Property
+
         Public ReadOnly Property isGuard() As Boolean
             Get
                 Return (CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_GUARD) = NPCFlags.UNIT_NPC_FLAG_GUARD
@@ -375,6 +380,7 @@ Public Module WS_Creatures
                 'End Select
             End Get
         End Property
+
         Public Overrides ReadOnly Property isDead() As Boolean
             Get
                 If aiScript IsNot Nothing Then
@@ -384,6 +390,7 @@ Public Module WS_Creatures
                 End If
             End Get
         End Property
+
         Public ReadOnly Property Evade() As Boolean
             Get
                 If aiScript IsNot Nothing AndAlso aiScript.State = TBaseAI.AIState.AI_MOVING_TO_SPAWN Then
@@ -393,6 +400,7 @@ Public Module WS_Creatures
                 End If
             End Get
         End Property
+
         Public ReadOnly Property NPCTextID() As Integer
             Get
                 If CreatureGossip.ContainsKey(GUID - GUID_UNIT) Then Return CreatureGossip(GUID - GUID_UNIT)
@@ -610,6 +618,7 @@ Public Module WS_Creatures
                 positionZ = MoveZ
             End If
         End Sub
+
         Public Sub StopMoving()
             If aiScript Is Nothing Then Exit Sub
             If aiScript.InCombat Then Exit Sub
@@ -618,6 +627,7 @@ Public Module WS_Creatures
             SetToRealPosition(True)
             MoveToInstant(positionX, positionY, positionZ, orientation)
         End Sub
+
         Public Function MoveTo(ByVal x As Single, ByVal y As Single, ByVal z As Single, Optional ByVal o As Single = 0.0F, Optional ByVal Running As Boolean = False) As Integer
             Try
                 If Me.SeenBy.Count = 0 Then
@@ -687,6 +697,7 @@ Public Module WS_Creatures
             MoveCell()
             Return TimeToMove
         End Function
+
         Public Function CanMoveTo(ByVal x As Single, ByVal y As Single, ByVal z As Single) As Boolean
             If IsOutsideOfMap(Me) Then Return False
 
@@ -698,13 +709,16 @@ Public Module WS_Creatures
 
             Return True
         End Function
+
         Public Sub TurnTo(ByRef Target As BaseObject)
             TurnTo(Target.positionX, Target.positionY)
         End Sub
+
         Public Sub TurnTo(ByVal x As Single, ByVal y As Single)
             orientation = GetOrientation(positionX, x, positionY, y)
             TurnTo(orientation)
         End Sub
+
         Public Sub TurnTo(ByVal orientation_ As Single)
             orientation = orientation_
 
@@ -786,6 +800,7 @@ Public Module WS_Creatures
                 ALLQUESTS.OnQuestKill(Attacker, Me)
             End If
         End Sub
+
         Public Overrides Sub DealDamage(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
             If Life.Current = 0 Then Exit Sub
 
@@ -822,6 +837,7 @@ Public Module WS_Creatures
                 UpdateData.Dispose()
             End If
         End Sub
+
         Public Overrides Sub Heal(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
             If Life.Current = 0 Then Exit Sub
 
@@ -839,6 +855,7 @@ Public Module WS_Creatures
                 UpdateData.Dispose()
             End If
         End Sub
+
         Public Overrides Sub Energize(ByVal Damage As Integer, ByVal Power As ManaTypes, Optional ByRef Attacker As BaseUnit = Nothing)
             If ManaType <> Power Then Exit Sub
 
@@ -856,6 +873,7 @@ Public Module WS_Creatures
                 UpdateData.Dispose()
             End If
         End Sub
+
         Public Sub LootCorpse(ByRef Character As CharacterObject)
             If GenerateLoot(Character, LootType.LOOTTYPE_CORPSE) Then
                 cDynamicFlags = DynamicFlags.UNIT_DYNFLAG_LOOTABLE
@@ -920,6 +938,7 @@ Public Module WS_Creatures
             'DONE: Dispose packet
             packet.Dispose()
         End Sub
+
         Public Function GenerateLoot(ByRef Character As CharacterObject, ByVal LootType As LootType) As Boolean
             If CreatureInfo.LootID = 0 Then Return False
 
@@ -939,6 +958,7 @@ Public Module WS_Creatures
 
             Return True
         End Function
+
         Public Sub GiveXP(ByRef Character As CharacterObject)
             'NOTE: Formulas taken from http://www.wowwiki.com/Formulas:Mob_XP
             Dim XP As Integer = CInt(Level) * 5 + 45
@@ -1048,6 +1068,7 @@ Public Module WS_Creatures
 
             'TODO: Send interrupt to other players
         End Sub
+
         Public Sub ApplySpell(ByVal SpellID As Integer)
             'TODO: Check if the creature can cast the spell
 
@@ -1056,6 +1077,7 @@ Public Module WS_Creatures
             t.SetTarget_SELF(Me)
             SPELLs(SpellID).Apply(Me, t)
         End Sub
+
         Public Function CastSpellOnSelf(ByVal SpellID As Integer) As Integer
             If Spell_Silenced Then Return -1
 
@@ -1067,6 +1089,7 @@ Public Module WS_Creatures
             ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
             Return SPELLs(SpellID).GetCastTime
         End Function
+
         Public Function CastSpell(ByVal SpellID As Integer, ByVal Target As BaseUnit) As Integer
             If Spell_Silenced Then Return -1
             If Target Is Nothing Then Return -1
@@ -1083,6 +1106,7 @@ Public Module WS_Creatures
             ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
             Return SPELLs(SpellID).GetCastTime
         End Function
+
         Public Function CastSpell(ByVal SpellID As Integer, ByVal x As Single, ByVal y As Single, ByVal z As Single) As Integer
             If Spell_Silenced Then Return -1
 
@@ -1098,6 +1122,7 @@ Public Module WS_Creatures
             ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
             Return CType(SPELLs(SpellID), SpellInfo).GetCastTime
         End Function
+
         Public Sub SpawnCreature(ByVal Entry As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single)
             Dim tmpCreature As New CreatureObject(Entry, PosX, PosY, PosZ, 0.0F, MapID)
             tmpCreature.instance = instance
@@ -1110,6 +1135,7 @@ Public Module WS_Creatures
             tmpCreature.aiScript.State = TBaseAI.AIState.AI_ATTACKING
             tmpCreature.aiScript.DoThink()
         End Sub
+
         Public Sub SendChatMessage(ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal SecondGUID As ULong = 0)
             Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
             Dim flag As Byte = 0
@@ -1139,6 +1165,7 @@ Public Module WS_Creatures
             aiScript = New DefaultAI(Me)
             MoveType = 1
         End Sub
+
         Public Sub Initialize()
             'DONE: Database loading
             Me.Level = Rnd.Next(CREATURESDatabase(ID).LevelMin, CREATURESDatabase(ID).LevelMax)
@@ -1213,6 +1240,7 @@ Public Module WS_Creatures
                 End If
             End If
         End Sub
+
         Public Sub New(ByVal GUID_ As ULong, Optional ByRef Info As DataRow = Nothing)
             'WARNING: Use only for loading creature from DB
             MyBase.New()
@@ -1300,6 +1328,7 @@ Public Module WS_Creatures
             Catch
             End Try
         End Sub
+
         Public Sub New(ByVal GUID_ As ULong, ByVal ID_ As Integer)
             'WARNING: Use only for spawning new crature
             MyBase.New()
@@ -1321,6 +1350,7 @@ Public Module WS_Creatures
             Catch
             End Try
         End Sub
+
         Public Sub New(ByVal ID_ As Integer)
             'WARNING: Use only for spawning new crature
             MyBase.New()
@@ -1342,6 +1372,7 @@ Public Module WS_Creatures
             Catch
             End Try
         End Sub
+
         Public Sub New(ByVal ID_ As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Orientation As Single, ByVal Map As Integer, Optional ByVal Duration As Integer = 0)
             'WARNING: Use only for spawning new crature
             MyBase.New()
@@ -1429,6 +1460,7 @@ Public Module WS_Creatures
 
             Me.Dispose()
         End Sub
+
         Public Sub Despawn()
             RemoveFromWorld()
 
@@ -1445,6 +1477,7 @@ Public Module WS_Creatures
                 Me.Dispose()
             End If
         End Sub
+
         Public Sub Respawn()
             Life.Current = Life.Maximum
             Mana.Current = Mana.Maximum
@@ -1479,6 +1512,7 @@ Public Module WS_Creatures
                 AddToWorld()
             End If
         End Sub
+
         Public Sub AddToWorld()
             GetMapTile(positionX, positionY, CellX, CellY)
             If Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
@@ -1520,6 +1554,7 @@ Public Module WS_Creatures
             Next
 
         End Sub
+
         Public Sub RemoveFromWorld()
             GetMapTile(positionX, positionY, CellX, CellY)
             Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)
@@ -1537,6 +1572,7 @@ Public Module WS_Creatures
 
             SeenBy.Clear()
         End Sub
+
         Public Sub MoveCell()
             Try
                 If CellX <> GetMapTileX(positionX) OrElse CellY <> GetMapTileY(positionY) Then
@@ -1560,6 +1596,7 @@ Public Module WS_Creatures
         End Sub
     End Class
 #End Region
+
 #Region "WS.Creatures.HelperSubs"
     Public CorpseDecay() As Integer = {30, 150, 150, 150, 1800}
 
@@ -1614,6 +1651,7 @@ Public Module WS_Creatures
             Log.WriteLine(LogType.FAILED, "Unknown Error: Unable to find CreatureID={0} in database.", CreatureID)
         End Try
     End Sub
+
     Public Sub On_CMSG_NPC_TEXT_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
@@ -1659,6 +1697,7 @@ Public Module WS_Creatures
             Log.WriteLine(LogType.CRITICAL, "Error in gossip hello.{0}{1}", vbNewLine, ex.ToString)
         End Try
     End Sub
+
     Public Sub On_CMSG_GOSSIP_SELECT_OPTION(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 17 Then Exit Sub
         packet.GetInt16()
@@ -1676,6 +1715,7 @@ Public Module WS_Creatures
             CREATURESDatabase(WORLD_CREATUREs(GUID).ID).TalkScript.OnGossipSelect(Client.Character, GUID, SelOption)
         End If
     End Sub
+
     Public Sub On_CMSG_SPIRIT_HEALER_ACTIVATE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -1757,6 +1797,7 @@ Public Module WS_Creatures
         End Sub
     End Class
 #End Region
+
 #Region "WS.Creatures.MonsterSayCombat"
     Public MonsterSayCombat As New Dictionary(Of Integer, TMonsterSayCombat)
     Public Class TMonsterSayCombat
@@ -1799,6 +1840,7 @@ Public Enum InvisibilityLevel As Byte
     GM = 4
 End Enum
 #End Region
+
 #Region "WS.Creatures.Gossip"
 Public Class GossipMenu
     Public Sub AddMenu(ByVal menu As String, Optional ByVal icon As Byte = 0, Optional ByVal isCoded As Byte = 0, Optional ByVal cost As Integer = 0, Optional ByVal WarningMessage As String = "")
@@ -1814,6 +1856,7 @@ Public Class GossipMenu
     Public Costs As New ArrayList
     Public WarningMessages As New ArrayList
 End Class
+
 Public Class QuestMenu
     Public Sub AddMenu(ByVal QuestName As String, ByVal ID As Short, ByVal Level As Short, Optional ByVal Icon As Byte = 0)
         Names.Add(QuestName)
@@ -1826,6 +1869,7 @@ Public Class QuestMenu
     Public Icons As ArrayList = New ArrayList
     Public Levels As ArrayList = New ArrayList
 End Class
+
 Public Class TBaseTalk
     Public Overridable Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
 
@@ -1836,6 +1880,7 @@ Public Class TBaseTalk
     Public Overridable Function OnQuestStatus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Integer
         Return QuestgiverStatusFlag.DIALOG_STATUS_NONE
     End Function
+
     Public Overridable Function OnQuestHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Boolean
         Return True
     End Function

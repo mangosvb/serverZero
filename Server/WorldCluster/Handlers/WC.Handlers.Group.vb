@@ -49,6 +49,7 @@ Public Module WC_Handlers_Group
         PARTY_OP_INVITE = 0
         PARTY_OP_LEAVE = 2
     End Enum
+
     Public Enum PartyCommandResult As Byte
         INVITE_OK = 0                   'You have invited [name] to join your group.
         INVITE_NOT_FOUND = 1            'Cannot find [name].
@@ -62,6 +63,7 @@ Public Module WC_Handlers_Group
         INVITE_IGNORED = 9              'Test is ignoring you.
         INVITE_RESTRICTED = 13
     End Enum
+
     Public Sub SendPartyResult(ByVal objCharacter As ClientClass, ByVal Name As String, ByVal operation As PartyCommand, ByVal result As PartyCommandResult)
         Dim response As New PacketClass(OPCODES.SMSG_PARTY_COMMAND_RESULT)
         response.AddInt32(operation)
@@ -133,9 +135,11 @@ Public Module WC_Handlers_Group
             invited.Dispose()
         End If
     End Sub
+
     Public Sub On_CMSG_GROUP_CANCEL(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_CANCEL", client.IP, client.Port)
     End Sub
+
     Public Sub On_CMSG_GROUP_ACCEPT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_ACCEPT", client.IP, client.Port)
         If client.Character.GroupInvitedFlag AndAlso Not client.Character.Group.IsFull Then
@@ -147,6 +151,7 @@ Public Module WC_Handlers_Group
 
         client.Character.GroupInvitedFlag = False
     End Sub
+
     Public Sub On_CMSG_GROUP_DECLINE(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_DECLINE", client.IP, client.Port)
         If client.Character.GroupInvitedFlag Then
@@ -160,6 +165,7 @@ Public Module WC_Handlers_Group
             client.Character.GroupInvitedFlag = False
         End If
     End Sub
+
     Public Sub On_CMSG_GROUP_DISBAND(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_DISBAND", client.IP, client.Port)
 
@@ -172,6 +178,7 @@ Public Module WC_Handlers_Group
             End If
         End If
     End Sub
+
     Public Sub On_CMSG_GROUP_UNINVITE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -199,6 +206,7 @@ Public Module WC_Handlers_Group
         End If
 
     End Sub
+
     Public Sub On_CMSG_GROUP_UNINVITE_GUID(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -217,6 +225,7 @@ Public Module WC_Handlers_Group
             client.Character.Group.Leave(CHARACTERs(GUID))
         End If
     End Sub
+
     Public Sub On_CMSG_GROUP_SET_LEADER(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -235,6 +244,7 @@ Public Module WC_Handlers_Group
             client.Character.Group.SetLeader(CHARACTERs(GUID))
         End If
     End Sub
+
     Public Sub On_CMSG_GROUP_RAID_CONVERT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_RAID_CONVERT", client.IP, client.Port)
 
@@ -247,6 +257,7 @@ Public Module WC_Handlers_Group
             WorldServer.GroupSendUpdate(Client.Character.Group.ID)
         End If
     End Sub
+
     Public Sub On_CMSG_GROUP_CHANGE_SUB_GROUP(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -276,6 +287,7 @@ Public Module WC_Handlers_Group
             Next
         End If
     End Sub
+
     Public Sub On_CMSG_GROUP_SWAP_SUB_GROUP(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -313,6 +325,7 @@ Public Module WC_Handlers_Group
             Next
         End If
     End Sub
+
     Public Sub On_CMSG_LOOT_METHOD(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 21 Then Exit Sub
         packet.GetInt16()
@@ -351,6 +364,7 @@ Public Module WC_Handlers_Group
         End If
 
     End Sub
+
     Public Sub On_MSG_RANDOM_ROLL(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()
@@ -371,6 +385,7 @@ Public Module WC_Handlers_Group
         End If
         response.Dispose()
     End Sub
+
     Public Sub On_MSG_RAID_READY_CHECK(ByRef packet As PacketClass, ByRef client As ClientClass)
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_RAID_READY_CHECK", client.IP, client.Port)
@@ -394,6 +409,7 @@ Public Module WC_Handlers_Group
             End If
         End If
     End Sub
+
     Public Sub On_MSG_RAID_ICON_TARGET(ByRef packet As PacketClass, ByRef client As ClientClass)
         If packet.Data.Length < 7 Then Exit Sub 'Too short packet
         If client.Character.Group Is Nothing Then Exit Sub

@@ -329,8 +329,8 @@ Public Module WC_Network
                 Next
             End With
         End Sub
-        Public Sub BroadcastRaid(ByVal guildId As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
-            With GROUPs(guildId)
+        Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
+            With GROUPs(GroupID)
                 For i As Byte = 0 To .Members.Length - 1
                     If .Members(i) IsNot Nothing AndAlso .Members(i).client IsNot Nothing Then
                         Dim buffer() As Byte = Data.Clone
@@ -431,12 +431,12 @@ Public Module WC_Network
             End If
         End Function
 
-        Public Function BattlefieldList(ByVal type As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
+        Public Function BattlefieldList(ByVal MapType As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
             Dim tmpList As New List(Of Integer)
 
             BATTLEFIELDs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each BG As KeyValuePair(Of Integer, Battlefield) In BATTLEFIELDs
-                If BG.Value.MapType = Type Then
+                If BG.Value.MapType = MapType Then
                     tmpList.Add(BG.Value.ID)
                 End If
             Next

@@ -33,6 +33,7 @@ Public Module Functions
             Return 0
         End If
     End Function
+
     Public Function ToHex(ByVal bBytes() As Byte, Optional ByVal start As Integer = 0) As String
         If bBytes.Length = 0 Then Return "''"
         Dim tmpStr As String = "0x"
@@ -45,6 +46,7 @@ Public Module Functions
         Next
         Return tmpStr
     End Function
+
     Public Function ByteToCharArray(ByVal bBytes() As Byte) As Char()
         If bBytes.Length = 0 Then Return New Char() {}
         Dim bChar(bBytes.Length - 1) As Char
@@ -53,6 +55,7 @@ Public Module Functions
         Next
         Return bChar
     End Function
+
     Public Function ByteToIntArray(ByVal bBytes() As Byte) As Integer()
         If bBytes.Length = 0 Then Return New Integer() {}
         Dim bInt(((bBytes.Length - 1) \ 4)) As Integer
@@ -61,6 +64,7 @@ Public Module Functions
         Next
         Return bInt
     End Function
+
     Public Function IntToByteArray(ByVal bInt() As Integer) As Byte()
         If bInt.Length = 0 Then Return New Byte() {}
         Dim bBytes((bInt.Length * 4) - 1) As Byte
@@ -70,6 +74,7 @@ Public Module Functions
         Next
         Return bBytes
     End Function
+
     Public Function Concat(ByVal a As Byte(), ByVal b As Byte()) As Byte()
         Dim buffer1 As Byte() = New Byte((a.Length + b.Length) - 1) {}
         Dim num1 As Integer
@@ -82,6 +87,7 @@ Public Module Functions
         Next num2
         Return buffer1
     End Function
+
     Public Function HaveFlag(ByVal value As UInteger, ByVal flagPos As Byte) As Boolean
         value = value >> CUInt(flagPos)
         value = value Mod 2
@@ -92,9 +98,11 @@ Public Module Functions
             Return False
         End If
     End Function
+
     Public Function HaveFlags(ByVal value As Integer, ByVal flags As Integer) As Boolean
         Return ((value And flags) = flags)
     End Function
+
     Public Sub SetFlag(ByRef value As UInteger, ByVal flagPos As Byte, ByVal flagValue As Boolean)
         If flagValue Then
             value = (value Or (&H1UI << CUInt(flagPos)))
@@ -102,6 +110,7 @@ Public Module Functions
             value = (value And ((&H0UI << CUInt(flagPos)) And &HFFFFFFFFUI))
         End If
     End Sub
+
     Public Function GetNextDay(ByVal iDay As DayOfWeek, Optional ByVal Hour As Integer = 0) As DateTime
         Dim iDiff As Integer = CInt(iDay) - CInt(Today.DayOfWeek)
         If iDiff <= 0 Then iDiff += 7
@@ -109,11 +118,13 @@ Public Module Functions
         nextFriday = nextFriday.AddHours(Hour)
         Return nextFriday
     End Function
+
     Public Function GetNextDate(ByVal Days As Integer, Optional ByVal Hours As Integer = 0) As DateTime
         Dim nextDate As DateTime = Today.AddDays(Days)
         nextDate = nextDate.AddHours(Hours)
         Return nextDate
     End Function
+
     Public Function GetTimestamp(ByVal fromDateTime As DateTime) As UInteger
         Dim startDate As DateTime = #1/1/1970#
         Dim timeSpan As TimeSpan
@@ -121,6 +132,7 @@ Public Module Functions
         timeSpan = fromDateTime.Subtract(startDate)
         Return CType(Math.Abs(timeSpan.TotalSeconds()), UInteger)
     End Function
+
     Public Function GetDateFromTimestamp(ByVal unixTimestamp As UInteger) As DateTime
         Dim timeSpan As TimeSpan
         Dim startDate As Date = #1/1/1970#
@@ -130,6 +142,7 @@ Public Module Functions
         timeSpan = New TimeSpan(0, 0, unixTimestamp)
         Return startDate.Add(timeSpan)
     End Function
+
     Public Function GetTimeLeftString(ByVal seconds As UInteger) As String
         If seconds < 60 Then
             Return seconds & "s"
@@ -141,9 +154,11 @@ Public Module Functions
             Return (seconds \ 86400) & "d " & ((seconds \ 3600) Mod 24) & "h " & ((seconds \ 60) Mod 60) & "m " & (seconds Mod 60) & "s"
         End If
     End Function
+
     Public Function EscapeString(ByVal s As String) As String
         Return s.Replace("""", "").Replace("'", "")
     End Function
+
     Public Function CapitalizeName(ByRef Name As String) As String
         If Name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
             Return UCase(Left(Name, 1)) & LCase(Right(Name, Name.Length - 1))
@@ -163,9 +178,11 @@ Public Module Functions
         If strName.Length < 2 OrElse strName.Length > 16 Then Return False
         Return Regex_Guild.IsMatch(strName)
     End Function
+
     Public Function FixName(ByVal strName As String) As String
         Return strName.Replace("""", "'").Replace("<", "").Replace(">", "").Replace("*", "").Replace("/", "").Replace("\", "").Replace(":", "").Replace("|", "").Replace("?", "")
     End Function
+
     Public Sub RAND_bytes(ByRef bBytes() As Byte, ByVal length As Integer)
         If length = 0 Then Exit Sub
         bBytes = New Byte(length - 1) {}
@@ -176,11 +193,13 @@ Public Module Functions
             bBytes(i) = rnd.Next(0, 256)
         Next
     End Sub
+
     Public Function MathLerp(ByVal value1 As Single, ByVal value2 As Single, ByVal amount As Single) As Single
         Return value1 + (value2 - value1) * amount
     End Function
 
 #End Region
+
 #Region "Database"
 
     Public Sub Ban_Account(ByVal Name As String, ByVal Reason As String)
@@ -204,6 +223,7 @@ Public Module Functions
     End Sub
 
 #End Region
+
 #Region "Game"
 
     Public Function GetClassName(ByRef Classe As Integer) As String
@@ -230,6 +250,7 @@ Public Module Functions
                 GetClassName = "Unknown Class"
         End Select
     End Function
+
     Public Function GetRaceName(ByRef Race As Integer) As String
         Select Case Race
             Case RACE_DWARF
@@ -252,6 +273,7 @@ Public Module Functions
                 GetRaceName = "Unknown Race"
         End Select
     End Function
+
     Public Function GetRaceModel(ByVal Race As Races, ByVal Gender As Integer) As Integer
         Select Case Race
             Case RACE_HUMAN
@@ -271,9 +293,10 @@ Public Module Functions
             Case RACE_TROLL
                 Return 1478 + Gender
             Case Else
-                Return 16358                    'PinkPig
+                Return 16358                    'PinkPig? Lol
         End Select
     End Function
+
     Public Function GetCharacterSide(ByVal Race As Byte) As Boolean
         Select Case Race
             Case RACE_DWARF, RACE_GNOME, RACE_HUMAN, RACE_NIGHT_ELF
@@ -282,6 +305,7 @@ Public Module Functions
                 Return True
         End Select
     End Function
+
     Public Function IsContinentMap(ByVal Map As Integer) As Boolean
         Select Case Map
             Case 0, 1
@@ -290,6 +314,7 @@ Public Module Functions
                 Return False
         End Select
     End Function
+
     Public Function SetColor(ByVal Message As String, ByVal Red As Byte, ByVal Green As Byte, ByVal Blue As Byte) As String
         SetColor = "|cFF"
         If Red < 16 Then
@@ -319,12 +344,14 @@ Public Module Functions
     End Function
 
 #End Region
+
 #Region "Packets"
 
     Public Sub SendMessageMOTD(ByRef client As ClientClass, ByVal Message As String)
         Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
         client.Send(packet)
     End Sub
+
     Public Sub SendMessageNotification(ByRef client As ClientClass, ByVal Message As String)
         Dim packet As New PacketClass(OPCODES.SMSG_NOTIFICATION)
         Try
@@ -334,6 +361,7 @@ Public Module Functions
             packet.Dispose()
         End Try
     End Sub
+
     Public Sub SendMessageSystem(ByVal objCharacter As ClientClass, ByVal Message As String)
         Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
         Try
@@ -342,6 +370,7 @@ Public Module Functions
             packet.Dispose()
         End Try
     End Sub
+
     Public Sub Broadcast(ByVal Message As String)
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
         For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
@@ -349,6 +378,7 @@ Public Module Functions
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
     End Sub
+
     Public Sub SendAccountMD5(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim FoundData As Boolean = False
 
@@ -393,6 +423,7 @@ Public Module Functions
         End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
     End Sub
+
     Public Sub SendTrigerCinematic(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
         Try
@@ -409,11 +440,13 @@ Public Module Functions
         End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", client.IP, client.Port)
     End Sub
+
     Public Sub SendTimeSyncReq(ByRef client As ClientClass)
         'Dim packet As New PacketClass(OPCODES.SMSG_TIME_SYNC_REQ)
         'packet.AddInt32(0)
         'Client.Send(packet)
     End Sub
+
     Public Sub SendGameTime(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_LOGIN_SETTIMESPEED As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
         Try
@@ -435,6 +468,7 @@ Public Module Functions
         End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
     End Sub
+
     Public Sub SendProficiency(ByRef client As ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
         Dim packet As New PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
         Try
@@ -447,6 +481,7 @@ Public Module Functions
         End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
     End Sub
+
     Public Sub SendCorpseReclaimDelay(ByRef client As ClientClass, ByRef Character As CharacterObject, Optional ByVal Seconds As Integer = 30)
         Dim packet As New PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
         Try
@@ -457,6 +492,7 @@ Public Module Functions
         End Try
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, Seconds)
     End Sub
+
     Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
         Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
         Try

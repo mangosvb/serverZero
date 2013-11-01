@@ -22,11 +22,11 @@ Public Module WS_Handlers_Chat
 
     Public Function GetChatFlag(ByVal objCharacter As CharacterObject) As Byte
         If objCharacter.GM Then
-            Return ChatFlag.FLAG_GM
+            Return ChatFlag.FLAGS_GM
         ElseIf objCharacter.AFK Then
-            Return ChatFlag.FLAG_AFK
+            Return ChatFlag.FLAGS_AFK
         ElseIf objCharacter.DND Then
-            Return ChatFlag.FLAG_DND
+            Return ChatFlag.FLAGS_DND
         Else
             Return 0
         End If

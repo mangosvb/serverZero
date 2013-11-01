@@ -165,10 +165,10 @@ Public Module WS_Handlers_Misc
     Public Sub On_CMSG_TOGGLE_HELM(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_HELM", client.IP, client.Port)
 
-        If (Client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAG_HIDE_HELM) Then
-            client.Character.cPlayerFlags = client.Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_HIDE_HELM)
+        If (client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then
+            client.Character.cPlayerFlags = client.Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_HIDE_HELM)
         Else
-            client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_HIDE_HELM
+            client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_HIDE_HELM
         End If
 
         client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
@@ -178,10 +178,10 @@ Public Module WS_Handlers_Misc
     Public Sub On_CMSG_TOGGLE_CLOAK(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_CLOAK", client.IP, client.Port)
 
-        If (Client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAG_HIDE_CLOAK) Then
-            client.Character.cPlayerFlags = client.Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_HIDE_CLOAK)
+        If (client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then
+            client.Character.cPlayerFlags = client.Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK)
         Else
-            client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_HIDE_CLOAK
+            client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK
         End If
 
         client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
@@ -349,7 +349,7 @@ Public Module WS_Handlers_Misc
                 .DEAD = True
                 .cUnitFlags = &H8
                 .cDynamicFlags = 0
-                .cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAG_DEAD
+                .cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_DEAD
             End With
             SendCorpseReclaimDelay(Client, client.Character, 30)
 
@@ -413,7 +413,7 @@ Public Module WS_Handlers_Misc
         Character.Energy.Current = 0
         Character.Life.Current = Character.Life.Maximum / 2
         Character.DEAD = False
-        Character.cPlayerFlags = Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAG_DEAD)
+        Character.cPlayerFlags = Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_DEAD)
         Character.cUnitFlags = &H8
         Character.cDynamicFlags = 0
 
