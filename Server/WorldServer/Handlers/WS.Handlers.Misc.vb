@@ -26,11 +26,11 @@ Public Module WS_Handlers_Misc
         Dim TextCount As Integer = 0
         Dim RandomText As Integer = 0
 
-        If Trim((CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text0) <> "" Then TextCount += 1
-        If Trim((CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text1) <> "" Then TextCount += 1
-        If Trim((CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text2) <> "" Then TextCount += 1
-        If Trim((CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text3) <> "" Then TextCount += 1
-        If Trim((CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text4) <> "" Then TextCount += 1
+        If Trim((MonsterSayCombat(MonsterID)).Text0) <> "" Then TextCount += 1
+        If Trim((MonsterSayCombat(MonsterID)).Text1) <> "" Then TextCount += 1
+        If Trim((MonsterSayCombat(MonsterID)).Text2) <> "" Then TextCount += 1
+        If Trim((MonsterSayCombat(MonsterID)).Text3) <> "" Then TextCount += 1
+        If Trim((MonsterSayCombat(MonsterID)).Text4) <> "" Then TextCount += 1
 
         RandomText = Rnd.Next(1, TextCount + 1)
 
@@ -38,15 +38,15 @@ Public Module WS_Handlers_Misc
 
         Select Case RandomText
             Case 1
-                SelectMonsterSay = (CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text0
+                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text0
             Case 2
-                SelectMonsterSay = (CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text1
+                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text1
             Case 3
-                SelectMonsterSay = (CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text2
+                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text2
             Case 4
-                SelectMonsterSay = (CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text3
+                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text3
             Case 5
-                SelectMonsterSay = (CType(MonsterSayCombat(MonsterID), TMonsterSayCombat)).Text4
+                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text4
         End Select
 
     End Function

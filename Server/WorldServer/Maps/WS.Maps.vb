@@ -29,33 +29,8 @@ Public Module WS_Maps
         Public ZoneType As Integer
         Public Team As AreaTeam
         Public Name As String
-        Public Enum AreaTeam As Integer
-            AREATEAM_NONE = 0
-            AREATEAM_ALLY = 2
-            AREATEAM_HORDE = 4
-        End Enum
-        Public Enum AreaFlag As Integer
-            AREA_FLAG_SNOW = &H1                ' snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
-            AREA_FLAG_UNK1 = &H2                ' unknown, (only Naxxramas and Razorfen Downs)
-            AREA_FLAG_UNK2 = &H4                ' Only used on development map
-            AREA_FLAG_SLAVE_CAPITAL = &H8       ' slave capital city flag?
-            AREA_FLAG_UNK3 = &H10               ' unknown
-            AREA_FLAG_SLAVE_CAPITAL2 = &H20     ' slave capital city flag?
-            AREA_FLAG_UNK4 = &H40               ' many zones have this flag
-            AREA_FLAG_ARENA = &H80              ' arena, both instanced and world arenas
-            AREA_FLAG_CAPITAL = &H100           ' main capital city flag
-            AREA_FLAG_CITY = &H200              ' only for one zone named "City" (where it located?)
-            AREA_FLAG_OUTLAND = &H400           ' outland zones? (only Eye of the Storm not have this flag, but have 0x00004000 flag)
-            AREA_FLAG_SANCTUARY = &H800         ' sanctuary area (PvP disabled)
-            AREA_FLAG_NEED_FLY = &H1000         ' only Netherwing Ledge, Socrethar's Seat, Tempest Keep, The Arcatraz, The Botanica, The Mechanar, Sorrow Wing Point, Dragonspine Ridge, Netherwing Mines, Dragonmaw Base Camp, Dragonmaw Skyway
-            AREA_FLAG_UNUSED1 = &H2000          ' not used now (no area/zones with this flag set in 2.4.2)
-            AREA_FLAG_OUTLAND2 = &H4000         ' outland zones? (only Circle of Blood Arena not have this flag, but have 0x00000400 flag)
-            AREA_FLAG_PVP = &H8000              ' pvp objective area? (Death's Door also has this flag although it's no pvp object area)
-            AREA_FLAG_ARENA_INSTANCE = &H10000  ' used by instanced arenas only
-            AREA_FLAG_UNUSED2 = &H20000         ' not used now (no area/zones with this flag set in 2.4.2)
-            AREA_FLAG_UNK5 = &H40000            ' just used for Amani Pass, Hatchet Hills
-            AREA_FLAG_LOWLEVEL = &H100000       ' used for some starting areas with area_level <=15
-        End Enum
+
+
         Public Function IsMyLand(ByRef objCharacter As CharacterObject) As Boolean
             If Team = AreaTeam.AREATEAM_NONE Then Return False
             If objCharacter.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
@@ -78,10 +53,6 @@ Public Module WS_Maps
 
     Public RESOLUTION_ZMAP As Integer = 0
 
-    Public Const VMAP_MAGIC As String = "VMAP_2.0"
-    Public Const VMAP_MAX_CAN_FALL_DISTANCE As Single = 10.0F
-    Public Const VMAP_INVALID_HEIGHT As Single = -100000.0F 'for check
-    Public Const VMAP_INVALID_HEIGHT_VALUE As Single = -200000.0F 'real assigned value in unknown height case
 
 #Region "Continents"
 
@@ -90,11 +61,6 @@ Public Module WS_Maps
 
     Public Class TMapTile
         Implements IDisposable
-
-        Public Const SIZE As Single = 533.3333F
-        Public Const RESOLUTION_WATER As Integer = 128 - 1
-        Public Const RESOLUTION_FLAGS As Integer = 16 - 1
-        Public Const RESOLUTION_TERRAIN As Integer = 16 - 1
 
         'TMap contains 64x64 TMapTile(s)
         Public AreaFlag(RESOLUTION_FLAGS, RESOLUTION_FLAGS) As UShort
@@ -542,29 +508,29 @@ Public Module WS_Maps
 
     Public Sub GetMapTile(ByVal x As Single, ByVal y As Single, ByRef MapTileX As Byte, ByRef MapTileY As Byte)
         'How to calculate where is X,Y:
-        MapTileX = Fix(32 - (x / TMapTile.SIZE))
-        MapTileY = Fix(32 - (y / TMapTile.SIZE))
+        MapTileX = Fix(32 - (x / SIZE))
+        MapTileY = Fix(32 - (y / SIZE))
     End Sub
     Public Function GetMapTileX(ByVal x As Single) As Byte
-        Return Fix(32 - (x / TMapTile.SIZE))
+        Return Fix(32 - (x / SIZE))
     End Function
     Public Function GetMapTileY(ByVal y As Single) As Byte
-        Return Fix(32 - (y / TMapTile.SIZE))
+        Return Fix(32 - (y / SIZE))
     End Function
     Public Function GetSubMapTileX(ByVal x As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (x / TMapTile.SIZE) - Fix(32 - (x / TMapTile.SIZE))))
+        Return Fix(RESOLUTION_ZMAP * (32 - (x / SIZE) - Fix(32 - (x / SIZE))))
     End Function
     Public Function GetSubMapTileY(ByVal y As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (y / TMapTile.SIZE) - Fix(32 - (y / TMapTile.SIZE))))
+        Return Fix(RESOLUTION_ZMAP * (32 - (y / SIZE) - Fix(32 - (y / SIZE))))
     End Function
     Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
         Try
-            Dim MapTileX As Byte = Fix(32 - (x / TMapTile.SIZE))
-            Dim MapTileY As Byte = Fix(32 - (y / TMapTile.SIZE))
-            Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / TMapTile.SIZE) - MapTileX), Byte)
-            Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / TMapTile.SIZE) - MapTileY), Byte)
-            Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / TMapTile.SIZE) - MapTileX) - MapTile_LocalX
-            Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / TMapTile.SIZE) - MapTileY) - MapTile_LocalY
+            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+            Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX), Byte)
+            Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY), Byte)
+            Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
+            Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
 
             If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
 
@@ -588,28 +554,28 @@ Public Module WS_Maps
         End Try
     End Function
     Public Function GetWaterLevel(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Single
-        Dim MapTileX As Byte = Fix(32 - (x / TMapTile.SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / TMapTile.SIZE))
-        Dim MapTile_LocalX As Byte = CType(TMapTile.RESOLUTION_WATER * (32 - (x / TMapTile.SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(TMapTile.RESOLUTION_WATER * (32 - (y / TMapTile.SIZE) - MapTileY), Byte)
+        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+        Dim MapTile_LocalX As Byte = CType(RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX), Byte)
+        Dim MapTile_LocalY As Byte = CType(RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY), Byte)
 
         If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
         Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
     End Function
     Public Function GetTerrainType(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Byte
-        Dim MapTileX As Byte = Fix(32 - (x / TMapTile.SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / TMapTile.SIZE))
-        Dim MapTile_LocalX As Byte = CType(TMapTile.RESOLUTION_TERRAIN * (32 - (x / TMapTile.SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(TMapTile.RESOLUTION_TERRAIN * (32 - (y / TMapTile.SIZE) - MapTileY), Byte)
+        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+        Dim MapTile_LocalX As Byte = CType(RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX), Byte)
+        Dim MapTile_LocalY As Byte = CType(RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY), Byte)
 
         If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
         Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
     End Function
     Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
-        Dim MapTileX As Byte = Fix(32 - (x / TMapTile.SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / TMapTile.SIZE))
-        Dim MapTile_LocalX As Byte = CType(TMapTile.RESOLUTION_FLAGS * (32 - (x / TMapTile.SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(TMapTile.RESOLUTION_FLAGS * (32 - (y / TMapTile.SIZE) - MapTileY), Byte)
+        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+        Dim MapTile_LocalX As Byte = CType(RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX), Byte)
+        Dim MapTile_LocalY As Byte = CType(RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY), Byte)
 
         If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
         Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
@@ -794,12 +760,12 @@ Public Module WS_Maps
 #Else
     Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal Map As UInteger) As Single
         Try
-            Dim MapTileX As Byte = Fix(32 - (x / TMapTile.SIZE))
-            Dim MapTileY As Byte = Fix(32 - (y / TMapTile.SIZE))
-            Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / TMapTile.SIZE) - MapTileX), Byte)
-            Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / TMapTile.SIZE) - MapTileY), Byte)
-            Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / TMapTile.SIZE) - MapTileX) - MapTile_LocalX
-            Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / TMapTile.SIZE) - MapTileY) - MapTile_LocalY
+            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+            Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX), Byte)
+            Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY), Byte)
+            Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
+            Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
 
             If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then
                 'Return vmap height if one was found
@@ -947,10 +913,10 @@ Public Module WS_Maps
 
     Public Sub LoadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger, ByVal TileInstance As UInteger)
         'Caluclate (x1, y1) and (x2, y2)
-        Dim MinX As Single = ((32 - TileX) * TMapTile.SIZE)
-        Dim MaxX As Single = ((32 - (TileX + 1)) * TMapTile.SIZE)
-        Dim MinY As Single = ((32 - TileY) * TMapTile.SIZE)
-        Dim MaxY As Single = ((32 - (TileY + 1)) * TMapTile.SIZE)
+        Dim MinX As Single = ((32 - TileX) * SIZE)
+        Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
+        Dim MinY As Single = ((32 - TileY) * SIZE)
+        Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
         'We need the maximum value to be the largest value
         If MinX > MaxX Then
             Dim tmpSng As Single = MinX
@@ -1041,10 +1007,10 @@ Public Module WS_Maps
     End Sub
     Public Sub UnloadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger)
         'Caluclate (x1, y1) and (x2, y2)
-        Dim MinX As Single = ((32 - TileX) * TMapTile.SIZE)
-        Dim MaxX As Single = ((32 - (TileX + 1)) * TMapTile.SIZE)
-        Dim MinY As Single = ((32 - TileY) * TMapTile.SIZE)
-        Dim MaxY As Single = ((32 - (TileY + 1)) * TMapTile.SIZE)
+        Dim MinX As Single = ((32 - TileX) * SIZE)
+        Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
+        Dim MinY As Single = ((32 - TileY) * SIZE)
+        Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
         'We need the maximum value to be the largest value
         If MinX > MaxX Then
             Dim tmpSng As Single = MinX
@@ -1060,8 +1026,8 @@ Public Module WS_Maps
         Try
             WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Creature As KeyValuePair(Of ULong, CreatureObject) In WORLD_CREATUREs
-                If CType(Creature.Value, CreatureObject).MapID = TileMap AndAlso CType(Creature.Value, CreatureObject).SpawnX >= MinX AndAlso CType(Creature.Value, CreatureObject).SpawnX <= MaxX AndAlso CType(Creature.Value, CreatureObject).SpawnY >= MinY AndAlso CType(Creature.Value, CreatureObject).SpawnY <= MaxY Then
-                    CType(Creature.Value, CreatureObject).Destroy()
+                If Creature.Value.MapID = TileMap AndAlso Creature.Value.SpawnX >= MinX AndAlso Creature.Value.SpawnX <= MaxX AndAlso Creature.Value.SpawnY >= MinY AndAlso CType(Creature.Value, CreatureObject).SpawnY <= MaxY Then
+                    Creature.Value.Destroy()
                 End If
             Next
         Catch ex As Exception
@@ -1087,17 +1053,6 @@ Public Module WS_Maps
 #End Region
 
 #Region "Instances"
-
-    Public Enum TransferAbortReason As Short
-        TRANSFER_ABORT_MAX_PLAYERS = &H1                ' Transfer Aborted: instance is full
-        TRANSFER_ABORT_NOT_FOUND = &H2                  ' Transfer Aborted: instance not found
-        TRANSFER_ABORT_TOO_MANY_INSTANCES = &H3         ' You have entered too many instances recently.
-        TRANSFER_ABORT_ZONE_IN_COMBAT = &H5             ' Unable to zone in while an encounter is in progress.
-        TRANSFER_ABORT_INSUF_EXPAN_LVL1 = &H106         ' You must have TBC expansion installed to access this area.
-        TRANSFER_ABORT_DIFFICULTY1 = &H7                ' Normal difficulty mode is not available for %s.
-        TRANSFER_ABORT_DIFFICULTY2 = &H107              ' Heroic difficulty mode is not available for %s.
-        TRANSFER_ABORT_DIFFICULTY3 = &H207              ' Epic difficulty mode is not available for %s.
-    End Enum
     Public Sub SendTransferAborted(ByRef client As ClientClass, ByVal Map As Integer, ByVal Reason As TransferAbortReason)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRANSFER_ABORTED [{2}:{3}]", client.IP, client.Port, Map, Reason)
 

@@ -20,13 +20,6 @@
 
 Public Module WC_Guild
 
-#Region "WC.Guild.Constants"
-
-    Public Const GUILD_RANK_MAX As Integer = 9 'Max Ranks Per Guild
-    Public Const GUILD_RANK_MIN As Integer = 5 'Min Ranks Per Guild
-
-#End Region
-
 #Region "WC.Guild.Guild"
     Public GUILDs As New Dictionary(Of UInteger, Guild)
     Public Class Guild
@@ -288,41 +281,6 @@ Public Module WC_Guild
         objCharacter.Client.Send(response)
         response.Dispose()
     End Sub
-
-    'Default Guild Ranks
-    'TODO: Set the ranks during guild creation
-    Public Enum GuildDefaultRanks As Byte
-        GR_GUILDMASTER = 0
-        GR_OFFICER = 1
-        GR_VETERAN = 2
-        GR_MEMBER = 3
-        GR_INITIATE = 4
-    End Enum
-
-    'Helping Subs
-    Public Enum GuildCommand As Byte
-        GUILD_CREATE_S = &H0
-        GUILD_INVITE_S = &H1
-        GUILD_QUIT_S = &H2
-        GUILD_FOUNDER_S = &HC
-    End Enum
-
-    Public Enum GuildError As Byte
-        GUILD_PLAYER_NO_MORE_IN_GUILD = &H0
-        GUILD_INTERNAL = &H1
-        GUILD_ALREADY_IN_GUILD = &H2
-        ALREADY_IN_GUILD = &H3
-        INVITED_TO_GUILD = &H4
-        ALREADY_INVITED_TO_GUILD = &H5
-        GUILD_NAME_INVALID = &H6
-        GUILD_NAME_EXISTS = &H7
-        GUILD_LEADER_LEAVE = &H8
-        GUILD_PERMISSIONS = &H8
-        GUILD_PLAYER_NOT_IN_GUILD = &H9
-        GUILD_PLAYER_NOT_IN_GUILD_S = &HA
-        GUILD_PLAYER_NOT_FOUND = &HB
-        GUILD_NOT_ALLIED = &HC
-    End Enum
 
     Public Sub SendGuildResult(ByRef client As ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_COMMAND_RESULT)

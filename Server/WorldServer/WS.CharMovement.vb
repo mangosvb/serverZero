@@ -22,28 +22,8 @@ Imports mangosVB.Common.BaseWriter
 Module WS_CharMovement
 
 #Region "WS.CharacterMovement.MovementHandlers"
-
     Private Const PId2 As Single = Math.PI / 2
     Private Const PIx2 As Single = 2 * Math.PI
-
-    Public Enum MovementFlags As Integer
-        MOVEMENTFLAG_NONE = &H0
-        MOVEMENTFLAG_FORWARD = &H1
-        MOVEMENTFLAG_BACKWARD = &H2
-        MOVEMENTFLAG_STRAFE_LEFT = &H4
-        MOVEMENTFLAG_STRAFE_RIGHT = &H8
-        MOVEMENTFLAG_LEFT = &H10
-        MOVEMENTFLAG_RIGHT = &H20
-        MOVEMENTFLAG_PITCH_UP = &H40
-        MOVEMENTFLAG_PITCH_DOWN = &H80
-
-        MOVEMENTFLAG_WALK = &H100
-        MOVEMENTFLAG_JUMPING = &H2000
-        MOVEMENTFLAG_FALLING = &H4000
-        MOVEMENTFLAG_SWIMMING = &H200000
-        MOVEMENTFLAG_ONTRANSPORT = &H2000000
-        MOVEMENTFLAG_SPLINE = &H4000000
-    End Enum
 
     Public Sub OnMovementPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
@@ -53,7 +33,7 @@ Module WS_CharMovement
             Exit Sub
         End If
 
-        client.Character.movementFlags = packet.GetInt32()
+        client.Character.charMovementFlags = packet.GetInt32()
         Dim Time As UInteger = packet.GetUInt32()
         client.Character.positionX = packet.GetFloat()
         client.Character.positionY = packet.GetFloat()
@@ -62,7 +42,7 @@ Module WS_CharMovement
 
         'DONE: If character is falling below the world
         If client.Character.positionZ < -500.0F Then
-            AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
+            AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
             Exit Sub
         End If
 
@@ -87,7 +67,7 @@ Module WS_CharMovement
         End If
 #End If
 
-        If (Client.Character.movementFlags And MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
+        If (client.Character.charMovementFlags And MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
             Dim transportGUID As ULong = packet.GetUInt64
             Dim transportX As Single = packet.GetFloat
             Dim transportY As Single = packet.GetFloat
@@ -107,7 +87,7 @@ Module WS_CharMovement
                     'DONE: Unmount when boarding
                     client.Character.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOUNTED)
 
-                    CType(Client.Character.OnTransport, TransportObject).AddPassenger(Client.Character)
+                    CType(client.Character.OnTransport, TransportObject).AddPassenger(client.Character)
                 ElseIf GuidIsTransport(transportGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(transportGUID) Then
                     client.Character.OnTransport = WORLD_GAMEOBJECTs(transportGUID)
                 End If
@@ -115,12 +95,12 @@ Module WS_CharMovement
         ElseIf client.Character.OnTransport IsNot Nothing Then
             'DONE: Unboarding transport
             If TypeOf client.Character.OnTransport Is TransportObject Then
-                CType(Client.Character.OnTransport, TransportObject).RemovePassenger(Client.Character)
+                CType(client.Character.OnTransport, TransportObject).RemovePassenger(client.Character)
             End If
             client.Character.OnTransport = Nothing
         End If
 
-        If (Client.Character.movementFlags And (MovementFlags.MOVEMENTFLAG_SWIMMING)) Then
+        If (client.Character.charMovementFlags And (MovementFlags.MOVEMENTFLAG_SWIMMING)) Then
             Dim swimAngle As Single = packet.GetFloat
             '#If DEBUG Then
             '                Console.WriteLine("[{0}] [{1}:{2}] Client swim angle:{3}", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, swimAngle)
@@ -129,7 +109,7 @@ Module WS_CharMovement
 
         packet.GetInt32() 'Fall time
 
-        If (Client.Character.movementFlags And MovementFlags.MOVEMENTFLAG_JUMPING) Then
+        If (client.Character.charMovementFlags And MovementFlags.MOVEMENTFLAG_JUMPING) Then
             Dim airTime As UInteger = packet.GetUInt32
             Dim sinAngle As Single = packet.GetFloat
             Dim cosAngle As Single = packet.GetFloat
@@ -139,20 +119,20 @@ Module WS_CharMovement
             '#End If
         End If
 
-        If (Client.Character.movementFlags And MovementFlags.MOVEMENTFLAG_SPLINE) Then
+        If (client.Character.charMovementFlags And MovementFlags.MOVEMENTFLAG_SPLINE) Then
             Dim unk1 As Single = packet.GetFloat
         End If
 
         If client.Character.exploreCheckQueued_ AndAlso (Not client.Character.DEAD) Then
-            Dim exploreFlag As Integer = GetAreaFlag(Client.Character.positionX, client.Character.positionY, client.Character.MapID)
+            Dim exploreFlag As Integer = GetAreaFlag(client.Character.positionX, client.Character.positionY, client.Character.MapID)
 
             'DONE: Checking Explore System
             If exploreFlag <> &HFFFF Then
                 Dim areaFlag As Integer = exploreFlag Mod 32
                 Dim areaFlagOffset As Byte = exploreFlag \ 32
 
-                If Not HaveFlag(Client.Character.ZonesExplored(areaFlagOffset), areaFlag) Then
-                    SetFlag(Client.Character.ZonesExplored(areaFlagOffset), areaFlag, True)
+                If Not HaveFlag(client.Character.ZonesExplored(areaFlagOffset), areaFlag) Then
+                    SetFlag(client.Character.ZonesExplored(areaFlagOffset), areaFlag, True)
 
                     Dim GainedXP As Integer = AreaTable(exploreFlag).Level * 10
                     GainedXP = CInt(AreaTable(exploreFlag).Level) * 10
@@ -167,7 +147,7 @@ Module WS_CharMovement
                     client.Character.AddXP(GainedXP, 0, 0, True)
 
                     'DONE: Fire quest event to check for if this area is used in explore area quest
-                    ALLQUESTS.OnQuestExplore(Client.Character, exploreFlag)
+                    ALLQUESTS.OnQuestExplore(client.Character, exploreFlag)
                 End If
             End If
         End If
@@ -206,7 +186,7 @@ Module WS_CharMovement
 
         'DONE: Send to nearby players
         Dim response As New PacketClass(packet.OpCode)
-        response.AddPackGUID(Client.Character.GUID)
+        response.AddPackGUID(client.Character.GUID)
         Dim tempArray(packet.Data.Length - 6) As Byte
         Array.Copy(packet.Data, 6, tempArray, 0, packet.Data.Length - 6)
         response.AddByteArray(tempArray)
@@ -234,7 +214,7 @@ Module WS_CharMovement
 
         If TypeOf Controlled Is CharacterObject Then
             With CType(Controlled, CharacterObject)
-                .movementFlags = MovementFlags
+                .charMovementFlags = MovementFlags
                 .positionX = PositionX
                 .positionY = PositionY
                 .positionZ = PositionZ

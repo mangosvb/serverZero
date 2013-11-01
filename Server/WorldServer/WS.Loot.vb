@@ -32,63 +32,8 @@ Public Module WS_Loot
     Public LootTemplates_Skinning As LootStore 'DONE!
 
     Public LootTable As New Dictionary(Of ULong, LootObject)
-    Public Enum LootType As Byte
-        LOOTTYPE_CORPSE = 1
-        LOOTTYPE_PICKPOCKETING = 2
-        LOOTTYPE_FISHING = 3
-        LOOTTYPE_DISENCHANTING = 4
-        LOOTTYPE_SKINNING = 6
-    End Enum
 
-    Private Enum LootState As UInteger
-        NORMAL = 0
-        PASSING = 1
-    End Enum
 
-    Public Enum LockKeyType As Byte
-        LOCK_KEY_NONE = 0
-        LOCK_KEY_ITEM = 1
-        LOCK_KEY_SKILL = 2
-    End Enum
-
-    Public Enum LockType As Byte
-        LOCKTYPE_PICKLOCK = 1
-        LOCKTYPE_HERBALISM = 2
-        LOCKTYPE_MINING = 3
-        LOCKTYPE_DISARM_TRAP = 4
-        LOCKTYPE_OPEN = 5
-        LOCKTYPE_TREASURE = 6
-        LOCKTYPE_CALCIFIED_ELVEN_GEMS = 7
-        LOCKTYPE_CLOSE = 8
-        LOCKTYPE_ARM_TRAP = 9
-        LOCKTYPE_QUICK_OPEN = 10
-        LOCKTYPE_QUICK_CLOSE = 11
-        LOCKTYPE_OPEN_TINKERING = 12
-        LOCKTYPE_OPEN_KNEELING = 13
-        LOCKTYPE_OPEN_ATTACKING = 14
-        LOCKTYPE_GAHZRIDIAN = 15
-        LOCKTYPE_BLASTING = 16
-        LOCKTYPE_SLOW_OPEN = 17
-        LOCKTYPE_SLOW_CLOSE = 18
-        LOCKTYPE_FISHING = 19
-    End Enum
-
-    Public Enum ConditionType                   ' value1       value2  for the Condition enumed
-        CONDITION_NONE = 0                      ' 0            0
-        CONDITION_AURA = 1                      ' spell_id     effindex
-        CONDITION_ITEM = 2                      ' item_id      count
-        CONDITION_ITEM_EQUIPPED = 3             ' item_id      0
-        CONDITION_ZONEID = 4                    ' zone_id      0
-        CONDITION_REPUTATION_RANK = 5           ' faction_id   min_rank
-        CONDITION_TEAM = 6                      ' player_team  0,      (469 - Alliance 67 - Horde)
-        CONDITION_SKILL = 7                     ' skill_id     skill_value
-        CONDITION_QUESTREWARDED = 8             ' quest_id     0
-        CONDITION_QUESTTAKEN = 9                ' quest_id     0,      for condition true while quest active.
-        CONDITION_AD_COMMISSION_AURA = 10       ' 0            0,      for condition true while one from AD ñommission aura active
-        CONDITION_NO_AURA = 11                  ' spell_id     effindex
-        CONDITION_ACTIVE_EVENT = 12             ' event_id
-        CONDITION_INSTANCE_DATA = 13            ' entry        data
-    End Enum
 
     Public Locks As New Dictionary(Of Integer, TLock)
     Public Class TLock

@@ -1070,7 +1070,7 @@ Public Module WS_Commands
     <ChatCommandAttribute("SetRunSpeed", "SETRUNSPEED <VALUE> - Change your run speed.", AccessLevel.GameMaster)> _
     Public Function cmdSetRunSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
-        objCharacter.ChangeSpeedForced(CharacterObject.ChangeSpeedType.RUN, Message)
+        objCharacter.ChangeSpeedForced(ChangeSpeedType.RUN, Message)
         objCharacter.CommandResponse("Your RunSpeed is changed to " & Message)
         Return True
     End Function
@@ -1078,7 +1078,7 @@ Public Module WS_Commands
     <ChatCommandAttribute("SetSwimSpeed", "SETSWIMSPEED <VALUE> - Change your swim speed.", AccessLevel.GameMaster)> _
     Public Function cmdSetSwimSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
-        objCharacter.ChangeSpeedForced(CharacterObject.ChangeSpeedType.SWIM, Message)
+        objCharacter.ChangeSpeedForced(ChangeSpeedType.SWIM, Message)
         objCharacter.CommandResponse("Your SwimSpeed is changed to " & Message)
         Return True
     End Function
@@ -1086,7 +1086,7 @@ Public Module WS_Commands
     <ChatCommandAttribute("SetRunBackSpeed", "SETRUNBACKSPEED <VALUE> - Change your run back speed.", AccessLevel.GameMaster)> _
     Public Function cmdSetRunBackSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
-        objCharacter.ChangeSpeedForced(CharacterObject.ChangeSpeedType.SWIMBACK, Message)
+        objCharacter.ChangeSpeedForced(ChangeSpeedType.SWIMBACK, Message)
         objCharacter.CommandResponse("Your RunBackSpeed is changed to " & Message)
         Return True
     End Function

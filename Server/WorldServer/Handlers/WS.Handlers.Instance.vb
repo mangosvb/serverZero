@@ -197,13 +197,6 @@ Public Module WS_Handlers_Instance
     End Sub
 
     'SMSG_INSTANCE_DIFFICULTY
-
-    Public Enum ResetFailedReason As UInteger
-        INSTANCE_RESET_FAILED_ZONING = 0
-        INSTANCE_RESET_FAILED_OFFLINE = 1
-        INSTANCE_RESET_FAILED = 2
-        INSTANCE_RESET_SUCCESS = 3
-    End Enum
     Public Sub SendResetInstanceSuccess(ByRef client As ClientClass, ByVal Map As UInteger)
         'Dim p As New PacketClass(OPCODES.SMSG_INSTANCE_RESET)
         'p.AddUInt32(Map)
@@ -251,12 +244,6 @@ Public Module WS_Handlers_Instance
         Next
     End Sub
 
-    Private Enum RaidInstanceMessage As UInteger
-        RAID_INSTANCE_WARNING_HOURS = 1         ' WARNING! %s is scheduled to reset in %d hour(s).
-        RAID_INSTANCE_WARNING_MIN = 2           ' WARNING! %s is scheduled to reset in %d minute(s)!
-        RAID_INSTANCE_WARNING_MIN_SOON = 3      ' WARNING! %s is scheduled to reset in %d minute(s). Please exit the zone or you will be returned to your bind location!
-        RAID_INSTANCE_WELCOME = 4               ' Welcome to %s. This raid instance is scheduled to reset in %s.
-    End Enum
     Public Sub SendInstanceMessage(ByRef client As ClientClass, ByVal Map As UInteger, ByVal Time As Integer)
         Dim Type As RaidInstanceMessage
 

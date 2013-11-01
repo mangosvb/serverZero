@@ -150,8 +150,10 @@
     </Compile>
     <Compile Include="Global.BigInteger.vb" />
     <Compile Include="Gossip\WS.GuardGossip.vb" />
+    <Compile Include="Handlers\WS.Handlers.CharManagement.vb" />
     <Compile Include="Handlers\WS.Handlers.Warden.vb" />
     <Compile Include="Maps\WS_GraveYards.vb" />
+    <Compile Include="Objects\WS.ItemObject.vb" />
     <Compile Include="Objects\WS.Transports.vb" />
     <Compile Include="Quests\WS_Quests.vb" />
     <Compile Include="Quests\WS_QuestsBase.vb" />

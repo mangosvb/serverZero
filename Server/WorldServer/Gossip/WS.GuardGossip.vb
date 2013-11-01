@@ -19,111 +19,11 @@ Imports mangosVB.Common
 
 Public Module WS_GuardGossip
 
-    Public Enum Guards As Integer
-        Stormwind_Guard = 1423
-        Stormwind_City_Guard = 68
-        Stormwind_City_Patroller = 1976
-        Darnassus_Sentinel = 4262
-        Undercity_Guardian = 5624
-        Teldrassil_Sentinel = 3571
-        Shield_of_Velen = 20674
-        Orgrimmar_Grunt = 3296
-        Bluffwatcher = 3084
-        Brave_Wildrunner = 3222
-        Brave_Cloudmane = 3224
-        Brave_Darksky = 3220
-        Brave_Leaping_Deer = 3219
-        Brave_Dawn_Eagle = 3217
-        Brave_Strongbash = 3215
-        Brave_Swiftwind = 3218
-        Brave_Rockhorn = 3221
-        Brave_Rainchaser = 3223
-        Brave_IronHorn = 3212
-        Razor_Hill_Grunt = 5953
-        Deathguard_Lundmark = 5725
-        Deathguard_Terrence = 1738
-        Deathguard_Burgess = 1652
-        Deathguard_Cyrus = 1746
-        Deathguard_Morris = 1745
-        Deathguard_Lawrence = 1743
-        Deathguard_Mort = 1744
-        Deathguard_Dillinger = 1496
-        Deathguard_Bartholomew = 1742
-        Ironforge_Guard = 5595
-        Ironforge_Mountaineer = 727
-    End Enum
 
-    Public Enum Gossips As Integer
-        Thunderbluff = 0
-        Darnassus
-        DunMorogh
-        Durotar
-        ElwynnForest
-        Ironforge
-        Mulgore
-        Orgrimmar
-        Stormwind
-        Teldrassil
-        Tirisfall
-        Undercity
-    End Enum
 
     Public Class TGuardTalk
         Inherits TBaseTalk
-
-#Region "Contants"
-        Private Const GOSSIP_TEXT_BANK As String = "The Bank"
-        Private Const GOSSIP_TEXT_WINDRIDER As String = "Wind rider master"
-        Private Const GOSSIP_TEXT_GRYPHON As String = "Gryphon Master"
-        Private Const GOSSIP_TEXT_BATHANDLER As String = "Bat Handler"
-        Private Const GOSSIP_TEXT_HIPPOGRYPH As String = "Hippogryph Master"
-        Private Const GOSSIP_TEXT_FLIGHTMASTER As String = "Flight Master"
-        Private Const GOSSIP_TEXT_AUCTIONHOUSE As String = "Auction House"
-        Private Const GOSSIP_TEXT_GUILDMASTER As String = "Guild Master"
-        Private Const GOSSIP_TEXT_INN As String = "The Inn"
-        Private Const GOSSIP_TEXT_MAILBOX As String = "Mailbox"
-        Private Const GOSSIP_TEXT_STABLEMASTER As String = "Stable Master"
-        Private Const GOSSIP_TEXT_WEAPONMASTER As String = "Weapons Trainer"
-        Private Const GOSSIP_TEXT_BATTLEMASTER As String = "Battlemaster"
-        Private Const GOSSIP_TEXT_CLASSTRAINER As String = "Class Trainer"
-        Private Const GOSSIP_TEXT_PROFTRAINER As String = "Profession Trainer"
-        Private Const GOSSIP_TEXT_OFFICERS As String = "The officers` lounge"
-
-        Private Const GOSSIP_TEXT_ALTERACVALLEY As String = "Alterac Valley"
-        Private Const GOSSIP_TEXT_ARATHIBASIN As String = "Arathi Basin"
-        Private Const GOSSIP_TEXT_WARSONGULCH As String = "Warsong Gulch"
-
-        Private Const GOSSIP_TEXT_IRONFORGE_BANK As String = "Bank of Ironforge"
-        Private Const GOSSIP_TEXT_STORMWIND_BANK As String = "Bank of Stormwind"
-        Private Const GOSSIP_TEXT_DEEPRUNTRAM As String = "Deeprun Tram"
-        Private Const GOSSIP_TEXT_ZEPPLINMASTER As String = "Zeppelin master"
-        Private Const GOSSIP_TEXT_FERRY As String = "Rut'theran Ferry"
-
-        Private Const GOSSIP_TEXT_DRUID As String = "Druid"
-        Private Const GOSSIP_TEXT_HUNTER As String = "Hunter"
-        Private Const GOSSIP_TEXT_PRIEST As String = "Priest"
-        Private Const GOSSIP_TEXT_ROGUE As String = "Rogue"
-        Private Const GOSSIP_TEXT_WARRIOR As String = "Warrior"
-        Private Const GOSSIP_TEXT_PALADIN As String = "Paladin"
-        Private Const GOSSIP_TEXT_SHAMAN As String = "Shaman"
-        Private Const GOSSIP_TEXT_MAGE As String = "Mage"
-        Private Const GOSSIP_TEXT_WARLOCK As String = "Warlock"
-
-        Private Const GOSSIP_TEXT_ALCHEMY As String = "Alchemy"
-        Private Const GOSSIP_TEXT_BLACKSMITHING As String = "Blacksmithing"
-        Private Const GOSSIP_TEXT_COOKING As String = "Cooking"
-        Private Const GOSSIP_TEXT_ENCHANTING As String = "Enchanting"
-        Private Const GOSSIP_TEXT_ENGINEERING As String = "Engineering"
-        Private Const GOSSIP_TEXT_FIRSTAID As String = "First Aid"
-        Private Const GOSSIP_TEXT_HERBALISM As String = "Herbalism"
-        Private Const GOSSIP_TEXT_LEATHERWORKING As String = "Leatherworking"
-        Private Const GOSSIP_TEXT_POISONS As String = "Poisons"
-        Private Const GOSSIP_TEXT_TAILORING As String = "Tailoring"
-        Private Const GOSSIP_TEXT_MINING As String = "Mining"
-        Private Const GOSSIP_TEXT_FISHING As String = "Fishing"
-        Private Const GOSSIP_TEXT_SKINNING As String = "Skinning"
-#End Region
-
+        
 #Region "Gossip functions"
         Public Overrides Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
             Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
@@ -248,6 +148,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Stormwind(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Auctionhouse
                     objCharacter.SendPointOfInterest(-8811.46F, 667.46F, 6, 6, 0, "Stormwind Auction House")
@@ -422,6 +323,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Orgrimmar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendPointOfInterest(1631.51F, -4375.33F, 6, 6, 0, "Bank of Orgrimmar")
@@ -590,6 +492,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Thunderbluff(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendPointOfInterest(-1257.8F, 24.14F, 6, 6, 0, "Thunder Bluff Bank")
@@ -744,6 +647,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Darnassus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Auction House
                     objCharacter.SendPointOfInterest(9861.23F, 2334.55F, 6, 6, 0, "Darnassus Auction House")
@@ -887,6 +791,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Ironforge(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Auctionhouse
                     objCharacter.SendPointOfInterest(-4957.39F, -911.6F, 6, 6, 0, "Ironforge Auction House")
@@ -1053,6 +958,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Undercity(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendPointOfInterest(1595.64F, 232.45F, 6, 6, 0, "Undercity Bank")
@@ -1205,6 +1111,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Mulgore(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendGossip(cGUID, 4051)
@@ -1307,6 +1214,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Durotar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendGossip(cGUID, 4032)
@@ -1427,6 +1335,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_ElwynnForest(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendGossip(cGUID, 4260)
@@ -1553,6 +1462,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_DunMorogh(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendGossip(cGUID, 4288)
@@ -1673,6 +1583,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Tirisfall(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendGossip(cGUID, 4074)
@@ -1786,6 +1697,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Private Sub OnGossipSelect_Teldrassil(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
             Select Case objCharacter.TalkMenuTypes(Selected)
                 Case 1 'Bank
                     objCharacter.SendGossip(cGUID, 4317)

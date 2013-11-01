@@ -25,12 +25,6 @@ Public Module WS_Transports
         GetNewGUID = TransportGUIDCounter
     End Function
 
-    Public Enum TransportStates As Byte
-        TRANSPORT_MOVE_TO_DOCK = 0
-        TRANSPORT_DOCKED
-        TRANSPORT_MOVE_NEXT_MAP
-    End Enum
-
 #Region "Transports"
     Public Sub LoadTransports()
         Try

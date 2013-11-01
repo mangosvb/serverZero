@@ -230,7 +230,7 @@ Public Module Packets
             End If
 
             If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT OrElse updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF OrElse updateType = ObjectUpdateType.UPDATETYPE_MOVEMENT Then
-                Dim flags2 As Integer = updateObject.movementFlags And &HFF
+                Dim flags2 As Integer = updateObject.charMovementFlags And &HFF
                 If updateObject.OnTransport IsNot Nothing Then
                     flags2 = flags2 Or MovementFlags.MOVEMENTFLAG_ONTRANSPORT
                 End If
