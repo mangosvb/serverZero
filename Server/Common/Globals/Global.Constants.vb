@@ -220,70 +220,64 @@ Public Module Constants
     Public Const QUEST_SLOTS As Integer = 24
     Public Const QUEST_SHARING_DISTANCE As Integer = 10
 
-    Public Enum AuthLoginCodes
-        CHAR_LOGIN_FAILED = 0                       'Login failed
-        CHAR_LOGIN_NO_WORLD = 1                     'World server is down
-        CHAR_LOGIN_DUPLICATE_CHARACTER = 2          'A character with that name already exists
-        CHAR_LOGIN_NO_INSTANCES = 3                 'No instance servers are available
-        CHAR_LOGIN_DISABLED = 4                     'Login for that race and/or class is currently disabled
-        CHAR_LOGIN_NO_CHARACTER = 5                 'Character not found
-        CHAR_LOGIN_LOCKED_FOR_TRANSFER = 6
-        CHAR_LOGIN_LOCKED_BY_BILLING = 7
-    End Enum
-
     Public Enum AuthResponseCodes
-        RESPONSE_SUCCESS = &H0                      'Success
-        RESPONSE_FAILURE = &H1                      'Failure
-        RESPONSE_CANCELLED = &H2                    'Cancelled
-        RESPONSE_DISCONNECTED = &H3                 'Disconnected from server
-        RESPONSE_FAILED_TO_CONNECT = &H4            'Failed to connect
-        RESPONSE_CONNECTED = &H5                    'Connected
-        RESPONSE_VERSION_MISMATCH = &H6             'Wrong client version
-
-        CSTATUS_CONNECTING = &H7                    'Connecting to server...
-        CSTATUS_NEGOTIATING_SECURITY = &H8          'Negotiating Security
-        CSTATUS_NEGOTIATION_COMPLETE = &H9          'Security negotiation complete
-        CSTATUS_NEGOTIATION_FAILED = &HA            'Security negotiation failed
-        CSTATUS_AUTHENTICATING = &HB                'Authenticating
-
+        'Auth Codes
         AUTH_OK = &HC                               'Authentication successful
-        AUTH_FAILED = &HD                           'Authentication failed
-        AUTH_LOGIN_UNAVAILABLE = &HE                'Login unavailable
-        AUTH_BAD_SERVER_PROOF = &HF                 'Server is not valid
-        AUTH_UNAVAILABLE = &H10                     'System unavailable - please try again later
-        AUTH_SYSTEM_ERROR = &H11                    'System error
-        AUTH_BILLING_ERROR = &H12                   'Billing system error
-        AUTH_BILLING_EXPIRED = &H13                 'Account billing has expired
+        'AUTH_FAILED = &HD                           'Authentication failed
+        'AUTH_LOGIN_UNAVAILABLE = &HE                'Login unavailable
+        'AUTH_BAD_SERVER_PROOF = &HF                 'Server is not valid
+        'AUTH_UNAVAILABLE = &H10                     'System unavailable - please try again later
+        'AUTH_SYSTEM_ERROR = &H11                    'System error
+        'AUTH_BILLING_ERROR = &H12                   'Billing system error
+        'AUTH_BILLING_EXPIRED = &H13                 'Account billing has expired
         AUTH_VERSION_MISMATCH = &H14                'Wrong client version
         AUTH_UNKNOWN_ACCOUNT = &H15                 'Unknown account
-        AUTH_INCORRECT_PASSWORD = &H16              'Incorrect password
-        AUTH_SESSION_EXPIRED = &H17                 'Session expired
-        AUTH_SERVER_SHUTTING_DOWN = &H18            'Server shutting down
-        AUTH_ALREADY_LOGGING_IN = &H19              'Already logging in
-        AUTH_LOGIN_SERVER_NOT_FOUND = &H1A          'Invalid login server
+        'AUTH_INCORRECT_PASSWORD = &H16              'Incorrect password
+        'AUTH_SESSION_EXPIRED = &H17                 'Session expired
+        'AUTH_SERVER_SHUTTING_DOWN = &H18            'Server shutting down
+        'AUTH_ALREADY_LOGGING_IN = &H19              'Already logging in
+        'AUTH_LOGIN_SERVER_NOT_FOUND = &H1A          'Invalid login server
         AUTH_WAIT_QUEUE = &H1B                      'Position in queue - 0
-        AUTH_BANNED = &H1C                          'This account has been banned
-        AUTH_ALREADY_ONLINE = &H1D                  'This character is still logged on
-        AUTH_NO_TIME = &H1E                         'Your WoW subscription has expired
-        AUTH_DB_BUSY = &H1F                         'This session has timed out
-        AUTH_SUSPENDED = &H20                       'This account has been temporarily suspended
-        AUTH_PARENTAL_CONTROL = &H21                'Access to this account blocked by parental controls 
+        'AUTH_BANNED = &H1C                          'This account has been banned
+        'AUTH_ALREADY_ONLINE = &H1D                  'This character is still logged on
+        'AUTH_NO_TIME = &H1E                         'Your WoW subscription has expired
+        'AUTH_DB_BUSY = &H1F                         'This session has timed out
+        'AUTH_SUSPENDED = &H20                       'This account has been temporarily suspended
+        'AUTH_PARENTAL_CONTROL = &H21                'Access to this account blocked by parental controls
 
-        REALM_LIST_IN_PROGRESS = &H22               'Retrieving realm list
-        REALM_LIST_SUCCESS = &H23                   'Realm list retrieved
-        REALM_LIST_FAILED = &H24                    'Unable to connect to realm list server
-        REALM_LIST_INVALID = &H25                   'Invalid realm list
-        REALM_LIST_REALM_NOT_FOUND = &H26           'Realm is down
+        'Response Codes
+        RESPONSE_SUCCESS = &H0                      'Success
+        'RESPONSE_FAILURE = &H1                      'Failure
+        'RESPONSE_CANCELLED = &H2                    'Cancelled
+        'RESPONSE_DISCONNECTED = &H3                 'Disconnected from server
+        'RESPONSE_FAILED_TO_CONNECT = &H4            'Failed to connect
+        'RESPONSE_CONNECTED = &H5                    'Connected
+        'RESPONSE_VERSION_MISMATCH = &H6             'Wrong client version
 
-        ACCOUNT_CREATE_IN_PROGRESS = &H27           'Creating account
-        ACCOUNT_CREATE_SUCCESS = &H28               'Account created
-        ACCOUNT_CREATE_FAILED = &H29                'Account creation failed
+        'Not sure what this is? Not linked anywhere
+        'CSTATUS_CONNECTING = &H7                    'Connecting to server...
+        'CSTATUS_NEGOTIATING_SECURITY = &H8          'Negotiating Security
+        'CSTATUS_NEGOTIATION_COMPLETE = &H9          'Security negotiation complete
+        'CSTATUS_NEGOTIATION_FAILED = &HA            'Security negotiation failed
+        'CSTATUS_AUTHENTICATING = &HB                'Authenticating
 
-        CHAR_LIST_RETRIEVED = &H2A                  'Retrieving character list
-        CHAR_LIST_SUCCESS = &H2B                    'Character list retrieved
+        'Realm List Codes
+        'REALM_LIST_IN_PROGRESS = &H22               'Retrieving realm list
+        'REALM_LIST_SUCCESS = &H23                   'Realm list retrieved
+        'REALM_LIST_FAILED = &H24                    'Unable to connect to realm list server
+        'REALM_LIST_INVALID = &H25                   'Invalid realm list
+        'REALM_LIST_REALM_NOT_FOUND = &H26           'Realm is down
+
+        'ACCOUNT_CREATE_IN_PROGRESS = &H27           'Creating account
+        'ACCOUNT_CREATE_SUCCESS = &H28               'Account created
+        'ACCOUNT_CREATE_FAILED = &H29                'Account creation failed
+
+        'Character Codes
+        'CHAR_LIST_RETRIEVED = &H2A                  'Retrieving character list
+        'CHAR_LIST_SUCCESS = &H2B                    'Character list retrieved
         CHAR_LIST_FAILED = &H2C                     'Error retrieving character list
 
-        CHAR_CREATE_IN_PROGRESS = &H2D              'Creating character
+        'CHAR_CREATE_IN_PROGRESS = &H2D              'Creating character
         CHAR_CREATE_SUCCESS = &H2E                  'Character created
         CHAR_CREATE_ERROR = &H2F                    'Error creating character
         CHAR_CREATE_FAILED = &H30                   'Character creation failed
@@ -292,33 +286,33 @@ Public Module Constants
         CHAR_CREATE_PVP_TEAMS_VIOLATION = &H33      'You cannot have both horde and alliance character at pvp realm
         CHAR_CREATE_SERVER_LIMIT = &H34             'You already have maximum number of characters
         CHAR_CREATE_ACCOUNT_LIMIT = &H35            'You already have maximum number of characters
-        CHAR_CREATE_SERVER_QUEUE = &H36             'The server is currently queued
-        CHAR_CREATE_ONLY_EXISTING = &H37            'Only players who have characters on this realm..
+        'CHAR_CREATE_SERVER_QUEUE = &H36             'The server is currently queued
+        'CHAR_CREATE_ONLY_EXISTING = &H37            'Only players who have characters on this realm..
 
-        CHAR_DELETE_IN_PROGRESS = &H38              'Deleting character
+        'CHAR_DELETE_IN_PROGRESS = &H38              'Deleting character
         CHAR_DELETE_SUCCESS = &H39                  'Character deleted
         CHAR_DELETE_FAILED = &H3A                   'Char deletion failed
 
-        CHAR_LOGIN_IN_PROGRESS = &H3B               'Entering the World of Warcraft
-        CHAR_LOGIN_SUCCESS = &H3C                   'Login successful
+        'CHAR_LOGIN_IN_PROGRESS = &H3B               'Entering the World of Warcraft
+        'CHAR_LOGIN_SUCCESS = &H3C                   'Login successful
         CHAR_LOGIN_NO_WORLD = &H3D                  'World server is down
-        CHAR_LOGIN_DUPLICATE_CHARACTER = &H3E       'A character with that name already exists
-        CHAR_LOGIN_NO_INSTANCES = &H3F              'No instance servers are available
+        'CHAR_LOGIN_DUPLICATE_CHARACTER = &H3E       'A character with that name already exists
+        'CHAR_LOGIN_NO_INSTANCES = &H3F              'No instance servers are available
         CHAR_LOGIN_FAILED = &H40                    'Login failed
-        CHAR_LOGIN_DISABLED = &H41                  'Login for that race and/or class is currently disabled
-        CHAR_LOGIN_NO_CHARACTER = &H42              'Character not found
+        'CHAR_LOGIN_DISABLED = &H41                  'Login for that race and/or class is currently disabled
+        'CHAR_LOGIN_NO_CHARACTER = &H42              'Character not found
 
-        CHAR_NAME_NO_NAME = &H43                    'Enter a name for your character
-        CHAR_NAME_TOO_SHORT = &H44                  'Names must be atleast 2 characters long
-        CHAR_NAME_TOO_LONG = &H45                   'Names must be no more then 12 characters
+        'CHAR_NAME_NO_NAME = &H43                    'Enter a name for your character
+        'CHAR_NAME_TOO_SHORT = &H44                  'Names must be atleast 2 characters long
+        'CHAR_NAME_TOO_LONG = &H45                   'Names must be no more then 12 characters
         CHAR_NAME_INVALID_CHARACTER = &H46          'Names can only contain letters
-        CHAR_NAME_MIXED_LANGUAGES = &H47            'Names must contain only one language
-        CHAR_NAME_PROFANE = &H48                    'That name contains mature language
-        CHAR_NAME_RESERVED = &H49                   'That name is unavailable
-        CHAR_NAME_INVALID_APOSTROPHE = &H4A         'You cannot use an apostrophe
-        CHAR_NAME_MULTIPLE_APOSTROPHES = &H4B       'You can only have one apostrophe
-        CHAR_NAME_THREE_CONSECUTIVE = &H4C          'You cannot use the same letter three times consecutively
-        CHAR_NAME_INVALID_SPACE = &H4D              'You cannot use space as the first or last character of your name
+        'CHAR_NAME_MIXED_LANGUAGES = &H47            'Names must contain only one language
+        'CHAR_NAME_PROFANE = &H48                    'That name contains mature language
+        'CHAR_NAME_RESERVED = &H49                   'That name is unavailable
+        'CHAR_NAME_INVALID_APOSTROPHE = &H4A         'You cannot use an apostrophe
+        'CHAR_NAME_MULTIPLE_APOSTROPHES = &H4B       'You can only have one apostrophe
+        'CHAR_NAME_THREE_CONSECUTIVE = &H4C          'You cannot use the same letter three times consecutively
+        'CHAR_NAME_INVALID_SPACE = &H4D              'You cannot use space as the first or last character of your name
     End Enum
 
 #Region "Player.Enums"

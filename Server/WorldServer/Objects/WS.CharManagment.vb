@@ -6356,12 +6356,12 @@ DoneAmmo:
             Return AuthResponseCodes.CHAR_CREATE_SERVER_LIMIT
         End If
 
-        'TODO: Check for max characters in total on all realms
-        'MySQLQuery.Clear()
-        'Database.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
-        'If MySQLQuery.Rows.Count >= 10 Then
-        '    Return AuthResponseCodes.CHAR_CREATE_ACCOUNT_LIMIT
-        'End If
+        'DONE: Check for max characters in total on all realms
+        MySQLQuery.Clear()
+        CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
+        If MySQLQuery.Rows.Count >= 10 Then
+            Return AuthResponseCodes.CHAR_CREATE_ACCOUNT_LIMIT
+        End If
 
         'DONE: Generate GUID, MySQL Auto generation
         'DONE: Create Char
