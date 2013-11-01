@@ -16,17 +16,17 @@ End Enum
 Public Class Authenticator
     Inherits MarshalByRefObject
 
-    Private aObject As Object = Nothing
-    Private aPassword As String = ""
+    Private ReadOnly _aObject As Object = Nothing
+    Private ReadOnly _aPassword As String = ""
 
     Public Sub New(ByVal pObject As Object, ByVal pPassword As String)
-        aPassword = pPassword
-        aObject = pObject
+        _aPassword = pPassword
+        _aObject = pObject
     End Sub
 
-    Public Function Login(ByVal Password As String) As Object
-        If aPassword = Password Then
-            Return aObject
+    Public Function Login(ByVal password As String) As Object
+        If _aPassword = password Then
+            Return _aObject
         Else
             Return Nothing
         End If
@@ -41,63 +41,63 @@ End Class
 Public Interface ICluster
 
     <Description("Signal realm server for new world server.")> _
-    Function Connect(ByVal URI As String, ByVal Maps As ICollection) As Boolean
+    Function Connect(ByVal uri As String, ByVal maps As ICollection) As Boolean
     <Description("Signal realm server for disconected world server.")> _
-    Sub Disconnect(ByVal URI As String, ByVal Maps As ICollection)
+    Sub Disconnect(ByVal uri As String, ByVal maps As ICollection)
 
     <Description("Send data packet to client.")> _
-    Sub ClientSend(ByVal ID As UInteger, ByVal Data As Byte())
+    Sub ClientSend(ByVal id As UInteger, ByVal data As Byte())
     <Description("Notify client drop.")> _
-    Sub ClientDrop(ByVal ID As UInteger)
+    Sub ClientDrop(ByVal id As UInteger)
     <Description("Notify client transfer.")> _
-    Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger)
+    Sub ClientTransfer(ByVal id As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger)
     <Description("Notify client update.")> _
-    Sub ClientUpdate(ByVal ID As UInteger, ByVal Zone As UInteger, ByVal Level As Byte)
+    Sub ClientUpdate(ByVal id As UInteger, ByVal zone As UInteger, ByVal level As Byte)
     <Description("Set client chat flag.")> _
-    Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal Flag As Byte)
+    Sub ClientSetChatFlag(ByVal id As UInteger, ByVal flag As Byte)
     <Description("Get client crypt key.")> _
-    Function ClientGetCryptKey(ByVal ID As UInteger) As Byte()
+    Function ClientGetCryptKey(ByVal id As UInteger) As Byte()
 
-    Function BattlefieldList(ByVal Type As Byte) As List(Of Integer)
-    Sub BattlefieldFinish(ByVal BattlefieldID As Integer)
+    Function BattlefieldList(ByVal type As Byte) As List(Of Integer)
+    Sub BattlefieldFinish(ByVal battlefieldId As Integer)
 
     <Description("Send data packet to all clients online.")> _
-    Sub Broadcast(ByVal Data() As Byte)
+    Sub Broadcast(ByVal data() As Byte)
     <Description("Send data packet to all clients in specified client's group.")> _
-    Sub BroadcastGroup(ByVal GroupID As Long, ByVal Data() As Byte)
+    Sub BroadcastGroup(ByVal groupId As Long, ByVal data() As Byte)
     <Description("Send data packet to all clients in specified client's raid.")> _
-    Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte)
+    Sub BroadcastRaid(ByVal groupId As Long, ByVal data() As Byte)
     <Description("Send data packet to all clients in specified client's guild.")> _
-    Sub BroadcastGuild(ByVal GuildID As Long, ByVal Data() As Byte)
+    Sub BroadcastGuild(ByVal guildId As Long, ByVal data() As Byte)
     <Description("Send data packet to all clients in specified client's guild officers.")> _
-    Sub BroadcastGuildOfficers(ByVal GuildID As Long, ByVal Data() As Byte)
+    Sub BroadcastGuildOfficers(ByVal guildId As Long, ByVal data() As Byte)
 
     <Description("Send update for the requested group.")> _
-    Sub GroupRequestUpdate(ByVal ID As UInteger)
+    Sub GroupRequestUpdate(ByVal id As UInteger)
 
 End Interface
 Public Interface IWorld
 
     <Description("Initialize client object.")> _
-    Sub ClientConnect(ByVal ID As UInteger, ByVal Client As ClientInfo)
+    Sub ClientConnect(ByVal id As UInteger, ByVal client As ClientInfo)
     <Description("Destroy client object.")> _
-    Sub ClientDisconnect(ByVal ID As UInteger)
+    Sub ClientDisconnect(ByVal id As UInteger)
     <Description("Assing particular client to this world server (Use client ID).")> _
-    Sub ClientLogin(ByVal ID As UInteger, ByVal GUID As ULong)
+    Sub ClientLogin(ByVal id As UInteger, ByVal guid As ULong)
     <Description("Remove particular client from this world server (Use client ID).")> _
-    Sub ClientLogout(ByVal ID As UInteger)
+    Sub ClientLogout(ByVal id As UInteger)
     <Description("Transfer packet from Realm to World using client's ID.")> _
-    Sub ClientPacket(ByVal ID As UInteger, ByVal Data() As Byte)
+    Sub ClientPacket(ByVal id As UInteger, ByVal data() As Byte)
 
     <Description("Create CharacterObject.")> _
-    Function ClientCreateCharacter(ByVal Account As String, ByVal Name As String, ByVal Race As Byte, ByVal Classe As Byte, ByVal Gender As Byte, ByVal Skin As Byte, _
-                                   ByVal Face As Byte, ByVal HairStyle As Byte, ByVal HairColor As Byte, ByVal FacialHair As Byte, ByVal OutfitID As Byte) As Integer
+    Function ClientCreateCharacter(ByVal account As String, ByVal name As String, ByVal race As Byte, ByVal classe As Byte, ByVal gender As Byte, ByVal skin As Byte, _
+                                   ByVal face As Byte, ByVal hairStyle As Byte, ByVal hairColor As Byte, ByVal facialHair As Byte, ByVal outfitId As Byte) As Integer
 
     <Description("Respond to world server if still alive.")> _
-    Function Ping(ByVal Timestamp As Integer, ByVal Latency As Integer) As Integer
+    Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer
 
     <Description("Tell the cluster about your CPU & Memory Usage")> _
-    Sub ServerInfo(ByRef CPUUsage As Single, ByRef MemoryUsage As ULong)
+    Sub ServerInfo(ByRef cpuUsage As Single, ByRef memoryUsage As ULong)
 
     <Description("Make world create specific map.")> _
     Sub InstanceCreate(ByVal Map As UInteger)

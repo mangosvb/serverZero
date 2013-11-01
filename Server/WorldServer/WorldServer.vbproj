@@ -23,7 +23,7 @@
     <OptionExplicit>On</OptionExplicit>
     <OptionStrict>Off</OptionStrict>
     <RootNamespace>mangosVB.WorldServer</RootNamespace>
-    <StartupObject>mangosVB.WorldServer.WS_Main</StartupObject>
+    <StartupObject>mangosVB.WorldServer.WorldServer</StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <MyType>Console</MyType>

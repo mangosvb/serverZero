@@ -465,7 +465,7 @@ Public Module WS_Commands
         packet.AddInt8(0)
 
         packet.UpdateLength()
-        WorldServer.Cluster.Broadcast(packet.Data)
+        ClsWorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
         Return True
     End Function
@@ -488,7 +488,7 @@ Public Module WS_Commands
         packet.AddString(Text)
 
         packet.UpdateLength()
-        WorldServer.Cluster.Broadcast(packet.Data)
+        ClsWorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
 
         Return True
@@ -502,7 +502,7 @@ Public Module WS_Commands
         packet.AddString(Text)
 
         packet.UpdateLength()
-        WorldServer.Cluster.Broadcast(packet.Data)
+        ClsWorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
 
         Return True
@@ -2150,7 +2150,7 @@ Public Module WS_Commands
         Dim packet As PacketClass = BuildChatMessage(0, "System Message: " & Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
 
         packet.UpdateLength()
-        WorldServer.Cluster.Broadcast(packet.Data)
+        ClsWorldServer.Cluster.Broadcast(packet.Data)
         packet.Dispose()
     End Sub
 

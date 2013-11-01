@@ -528,7 +528,7 @@ Module WS_CharMovement
         client.Character.ZoneCheck()
 
         'DONE: Update zone on cluster
-        WorldServer.Cluster.ClientUpdate(Client.Index, client.Character.ZoneID, client.Character.Level)
+        ClsWorldServer.Cluster.ClientUpdate(client.Index, client.Character.ZoneID, client.Character.Level)
 
         'DONE: Send weather
         If WeatherZones.ContainsKey(newZone) Then

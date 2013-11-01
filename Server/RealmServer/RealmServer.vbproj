@@ -23,7 +23,7 @@
     <OptionExplicit>On</OptionExplicit>
     <OptionStrict>Off</OptionStrict>
     <RootNamespace>RealmServer</RootNamespace>
-    <StartupObject>RealmServer.RS_Main</StartupObject>
+    <StartupObject>RealmServer.RealmServer</StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <MyType>Console</MyType>

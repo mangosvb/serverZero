@@ -23,7 +23,6 @@ Imports System.Net.Sockets
 Imports System.Runtime.Remoting
 Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
-Imports System.Linq.Expressions
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
@@ -140,19 +139,19 @@ Public Module WC_Network
         Public Worlds As New Dictionary(Of UInteger, IWorld)
         Public WorldsInfo As New Dictionary(Of UInteger, WorldInfo)
 
-        Public Function Connect(ByVal URI As String, ByVal Maps As ICollection) As Boolean Implements ICluster.Connect
+        Public Function Connect(ByVal uri As String, ByVal maps As ICollection) As Boolean Implements ICluster.Connect
             Try
-                Disconnect(URI, Maps)
+                Disconnect(uri, Maps)
 
                 'NOTE: Password protected remoting
-                Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), URI)
+                Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), uri)
                 Dim WorldServer As IWorld = a.Login(Config.ClusterPassword)
 
                 'NOTE: Not protected remoting
                 'Dim WorldServer As IWorld = CType(RemotingServices.Connect(GetType(IWorld), URI), IWorld)
 
                 Dim WorldServerInfo As New WorldInfo
-                Log.WriteLine(LogType.INFORMATION, "Connected Map Server: {0}", URI)
+                Log.WriteLine(LogType.INFORMATION, "Connected Map Server: {0}", uri)
 
                 SyncLock CType(Worlds, ICollection).SyncRoot
                     For Each Map As UInteger In Maps
@@ -252,8 +251,8 @@ Public Module WC_Network
             Disconnect("NULL", DeadServers)
         End Sub
 
-        Public Sub ClientSend(ByVal ID As UInteger, ByVal Data() As Byte) Implements ICluster.ClientSend
-            If CLIENTs.ContainsKey(ID) Then CLIENTs(ID).Send(Data)
+        Public Sub ClientSend(ByVal id As UInteger, ByVal data() As Byte) Implements ICluster.ClientSend
+            If CLIENTs.ContainsKey(id) Then CLIENTs(id).Send(Data)
         End Sub
         Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
             Try
@@ -278,15 +277,15 @@ Public Module WC_Network
             CLIENTs(ID).Character.Map = map
         End Sub
 
-        Public Sub ClientUpdate(ByVal ID As UInteger, ByVal Zone As UInteger, ByVal Level As Byte) Implements ICluster.ClientUpdate
+        Public Sub ClientUpdate(ByVal ID As UInteger, ByVal zone As UInteger, ByVal level As Byte) Implements ICluster.ClientUpdate
             If CLIENTs(ID).Character Is Nothing Then Return
-            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Update Zone {1:000}", ID, Zone)
+            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Update Zone {1:000}", ID, zone)
 
-            CLIENTs(ID).Character.Zone = Zone
+            CLIENTs(ID).Character.Zone = zone
             CLIENTs(ID).Character.Level = Level
         End Sub
 
-        Public Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal Flag As Byte) Implements ICluster.ClientSetChatFlag
+        Public Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal flag As Byte) Implements ICluster.ClientSetChatFlag
             If CLIENTs(ID).Character Is Nothing Then Return
             Log.WriteLine(LogType.DEBUG, "[{0:000000}] Client chat flag update [0x{1:X}]", ID, Flag)
 
@@ -319,7 +318,7 @@ Public Module WC_Network
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
-        Public Sub BroadcastGroup(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGroup
+        Public Sub BroadcastGroup(ByVal groupId As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGroup
             With GROUPs(GroupID)
                 For i As Byte = 0 To .Members.Length - 1
                     If .Members(i) IsNot Nothing Then
@@ -330,8 +329,8 @@ Public Module WC_Network
                 Next
             End With
         End Sub
-        Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
-            With GROUPs(GroupID)
+        Public Sub BroadcastRaid(ByVal guildId As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
+            With GROUPs(guildId)
                 For i As Byte = 0 To .Members.Length - 1
                     If .Members(i) IsNot Nothing AndAlso .Members(i).client IsNot Nothing Then
                         Dim buffer() As Byte = Data.Clone
@@ -432,12 +431,12 @@ Public Module WC_Network
             End If
         End Function
 
-        Public Function BattlefieldList(ByVal MapType As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
+        Public Function BattlefieldList(ByVal type As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
             Dim tmpList As New List(Of Integer)
 
             BATTLEFIELDs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each BG As KeyValuePair(Of Integer, Battlefield) In BATTLEFIELDs
-                If BG.Value.MapType = MapType Then
+                If BG.Value.MapType = Type Then
                     tmpList.Add(BG.Value.ID)
                 End If
             Next
@@ -445,7 +444,7 @@ Public Module WC_Network
             BATTLEFIELDs_Lock.ReleaseReaderLock()
             Return tmpList
         End Function
-        Public Sub BattlefieldFinish(ByVal BattlefieldID As Integer) Implements ICluster.BattlefieldFinish
+        Public Sub BattlefieldFinish(ByVal battlefieldId As Integer) Implements ICluster.BattlefieldFinish
             Log.WriteLine(LogType.INFORMATION, "[B{0:0000}] Battlefield finished", BattlefieldID)
         End Sub
 
@@ -456,7 +455,7 @@ Public Module WC_Network
 
                 Try
                     CLIENTs(ID).Character.GetWorld.GroupUpdate(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.Type, CLIENTs(ID).Character.Group.GetLeader.GUID, CLIENTs(ID).Character.Group.GetMembers)
-                    CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.ID, Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.GUID)
+                    CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.GUID)
                 Catch
                     WorldServer.Disconnect("NULL", New Integer() {CLIENTs(ID).Character.Map})
                 End Try
@@ -482,7 +481,7 @@ Public Module WC_Network
             Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
             SyncLock CType(Worlds, ICollection).SyncRoot
-                Dim Difficulty As GroupDungeonDifficulty = Group.DungeonDifficulty
+                Dim Difficulty As GroupDungeonDifficulty = GROUPs(GroupID).DungeonDifficulty
                 Dim Method As GroupLootMethod = GROUPs(GroupID).LootMethod
                 Dim Threshold As GroupLootThreshold = GROUPs(GroupID).LootThreshold
                 Dim Master As ULong = GROUPs(GroupID).GetLootMaster.GUID
@@ -507,7 +506,6 @@ Public Module WC_Network
     End Class
 
 #End Region
-
 #Region "WS.Analyzer"
 
     Public Enum AccessLevel As Byte
@@ -653,7 +651,7 @@ Public Module WC_Network
         End Sub
 
         <MethodImplAttribute(MethodImplOptions.Synchronized)> _
-        Public Sub OnPacket(state As Object)
+        Public Sub OnPacket(ByVal state As Object)
             HandingPackets = True
             While Queue.Count > 0
                 Dim p As PacketClass
