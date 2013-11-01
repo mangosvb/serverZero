@@ -296,7 +296,6 @@ Public Module Constants
         'CHAR_LOGIN_IN_PROGRESS = &H3B               'Entering the World of Warcraft
         'CHAR_LOGIN_SUCCESS = &H3C                   'Login successful
         CHAR_LOGIN_NO_WORLD = &H3D                  'World server is down
-        'CHAR_LOGIN_DUPLICATE_CHARACTER = &H3E       'A character with that name already exists
         'CHAR_LOGIN_NO_INSTANCES = &H3F              'No instance servers are available
         CHAR_LOGIN_FAILED = &H40                    'Login failed
         'CHAR_LOGIN_DISABLED = &H41                  'Login for that race and/or class is currently disabled

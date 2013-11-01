@@ -21,9 +21,10 @@ Imports mangosVB.Common
 
 Public Module WC_Group
 
-    Public Const GROUP_SUBGROUPSIZE As Integer = 5
-    Public Const GROUP_SIZE As Integer = 4
-    Public Const GROUP_RAIDSIZE As Integer = 39
+    'TODO: Fix the Group Sub Groupsize between raid & normal group
+    Public Const GROUP_SUBGROUPSIZE As Integer = 5  '(MAX_RAID_SIZE / MAX_GROUP_SIZE)
+    Public Const GROUP_SIZE As Integer = 5          'Normal Group Size/More then 5, it's a raid group
+    Public Const GROUP_RAIDSIZE As Integer = 40     'Max Raid Size
 
     'Used as counter for unique Group.ID
     Private GroupCounter As Long = 1

@@ -660,13 +660,13 @@ Public Module WS_Channels
 
         <Flags()> _
         Protected Enum CHANNEL_FLAG As Byte
-            ' General                  0x18 = 0x10 OR 0x08
-            ' Trade                    0x3C = 0x20 OR 0x10 OR 0x08 OR 0x04
-            ' LocalDefence             0x18 = 0x10 OR 0x08
-            ' GuildRecruitment         0x38 = 0x20 OR 0x10 OR 0x08
-            ' LookingForGroup          0x50 = 0x40 OR 0x10
+            'General                  0x18 = 0x10 | 0x08
+            'Trade                    0x3C = 0x20 | 0x10 | 0x08 | 0x04
+            'LocalDefence             0x18 = 0x10 | 0x08
+            'GuildRecruitment         0x38 = 0x20 | 0x10 | 0x08
+            'LookingForGroup          0x50 = 0x40 | 0x10
 
-            CHANNEL_FLAG_NONE = 0
+            CHANNEL_FLAG_NONE = &H0
             CHANNEL_FLAG_CUSTOM = &H1
             CHANNEL_FLAG_UNK1 = &H2
             CHANNEL_FLAG_TRADE = &H4
