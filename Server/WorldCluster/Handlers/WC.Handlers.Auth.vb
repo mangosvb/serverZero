@@ -107,12 +107,12 @@ Public Module WC_Handlers_Auth
         'Dim temp() As Byte = System.Text.Encoding.ASCII.GetBytes(clientAccount)
         'temp = Concat(temp, BitConverter.GetBytes(0))
         'temp = Concat(temp, BitConverter.GetBytes(clientSeed))
-        'temp = Concat(temp, BitConverter.GetBytes(Client.Index))
+        'temp = Concat(temp, BitConverter.GetBytes(client.Index))
         'temp = Concat(temp, client.SS_Hash)
         'Dim ShaDigest() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(temp)
         'Log.WriteLine(LogType.DEBUG, "Client Hash: {0}", BitConverter.ToString(clientHash).Replace("-", ""))
         'Log.WriteLine(LogType.DEBUG, "Server Hash: {0}", BitConverter.ToString(ShaDigest).Replace("-", ""))
-        'For i as Integer = 0 To 19
+        'For i As Integer = 0 To 19
         '    If clientHash(i) <> ShaDigest(i) Then
         '        Dim responseFail As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
         '        responseFail.AddInt8(AuthResponseCodes.AUTH_FAILED)
@@ -304,7 +304,7 @@ Public Module WC_Handlers_Auth
         CHARACTER_FLAG_HIDE_HELM = &H400
         CHARACTER_FLAG_HIDE_CLOAK = &H800
         CHARACTER_FLAG_UNK13 = &H1000
-        CHARACTER_FLAG_GHOST = &H2000                               'Player is ghoust in char selection screen
+        CHARACTER_FLAG_GHOST = &H2000                               'Player is ghost in char selection screen
         CHARACTER_FLAG_RENAME = &H4000                              'On login player will be asked to change name
         CHARACTER_FLAG_UNK16 = &H8000
         CHARACTER_FLAG_UNK17 = &H10000
@@ -324,6 +324,7 @@ Public Module WC_Handlers_Auth
         CHARACTER_FLAG_UNK31 = &H40000000
         CHARACTER_FLAG_UNK32 = &H80000000
     End Enum
+
     Private Enum ForceRestrictionFlags
         RESTRICT_RENAME = &H1
         RESTRICT_BILLING = &H2
@@ -609,7 +610,7 @@ Public Module WC_Handlers_Auth
                 client.Character = Nothing
                 Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
                 Try
-                    r.AddInt8(AuthLoginCodes.CHAR_LOGIN_NO_WORLD)
+                    r.AddInt8(AuthResponseCodes.CHAR_LOGIN_NO_WORLD)
                     client.Send(r)
                 Finally
                     r.Dispose()
