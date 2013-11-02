@@ -19,6 +19,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.CodeDom.Compiler
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Constants
 
 'NOTE: How to use ScriptedObject as Function
 '   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")
@@ -80,7 +81,7 @@ Public Class ScriptedObject
                 Next
             Else
                 ass = cResults.CompiledAssembly
-                Log.WriteLine(LogType.INFORMATION, "Compiling: {0} successfully", vbNewLine, ass.FullName)
+                Log.WriteLine(LogType.INFORMATION, "Compiled: {0} successfully", vbNewLine, ass.FullName)
             End If
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, vbNewLine)

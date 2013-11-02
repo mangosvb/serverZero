@@ -1,12 +1,13 @@
 Imports System
 Imports System.Threading
 Imports MangosVB.WorldServer
+Imports mangosVB.Common
 
 Namespace Scripts
     Public Class CreatureAI
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
-        Private Const SLUMBER_CD As Integer = 10000 - Unable to implement this as for the time being due to threat issues in the core.
+        Private Const SLUMBER_CD As Integer = 10000 '- Unable to implement this as for the time being due to threat issues in the core.
         Private Const Healing_Touch_CD As Integer = 20000
         Private Const Serpent_Form_CD As Integer = 40000
         Private Const Lightning_Bolt_CD As Integer = 6000

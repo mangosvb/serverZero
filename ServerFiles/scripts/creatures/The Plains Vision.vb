@@ -1,7 +1,8 @@
 Imports System
 Imports System.Collections.Generic
 Imports System.Threading
-Imports MangosVB.WorldServer
+Imports mangosVB.WorldServer
+Imports mangosVB.Common
 
 Namespace Scripts
     Public Class CreatureAI

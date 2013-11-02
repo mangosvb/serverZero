@@ -1,7 +1,7 @@
 Imports System
 Imports System.Threading
-Imports MangosVB.WorldServer
-
+Imports mangosVB.WorldServer
+Imports mangosVB.Common
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.
 Namespace Scripts

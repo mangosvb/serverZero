@@ -1,6 +1,8 @@
 Imports System
 Imports System.Threading
-Imports MangosVB.WorldServer
+Imports mangosVB.WorldServer
+Imports mangosVB.Common
+
 'Example AI for combat. 
 'TODO: Fix AoE spells on AIs and then insert it as an example into this.
 Namespace Scripts
