@@ -134,7 +134,7 @@ Public Module WS_Commands
                 client.Character.CommandResponse("Unknown command.")
             ElseIf Command.CommandAccess > client.Character.Access Then
                 client.Character.CommandResponse("This command is not available for your access level.")
-            ElseIf Not Command.CommandDelegate(Client.Character, Arguments) Then
+            ElseIf Not Command.CommandDelegate(client.Character, Arguments) Then
                 client.Character.CommandResponse(Command.CommandHelp)
             Else
                 Log.WriteLine(LogType.USER, "[{0}:{1}] {2} used command: {3}", client.IP, client.Port, Name, Message)
@@ -182,7 +182,7 @@ Public Module WS_Commands
         Else
             currentSpError = Message
         End If
-        SendCastResult(currentSpError, objCharacter.Client, 133)
+        SendCastResult(currentSpError, objCharacter.client, 133)
         objCharacter.CommandResponse(String.Format("Sent spell failed message:{2} {0} = {1}", currentSpError, CType(currentSpError, Integer), vbNewLine))
         Return True
     End Function
@@ -200,7 +200,7 @@ Public Module WS_Commands
         response.AddUInt64(0)
         response.AddUInt64(0)
         response.AddInt8(0)
-        objCharacter.Client.Send(response)
+        objCharacter.client.Send(response)
         response.Dispose()
         objCharacter.CommandResponse(String.Format("Sent spell failed message:{2} {0} = {1}", currentInvError, CType(currentInvError, Integer), vbNewLine))
         Return True
@@ -214,7 +214,7 @@ Public Module WS_Commands
         Else
             currentInstanceResetError = Message
         End If
-        SendResetInstanceFailed(objCharacter.Client, objCharacter.MapID, currentInstanceResetError)
+        SendResetInstanceFailed(objCharacter.client, objCharacter.MapID, currentInstanceResetError)
         objCharacter.CommandResponse(String.Format("Sent instance failed message:{2} {0} = {1}", currentInstanceResetError, CType(currentInstanceResetError, Integer), vbNewLine))
         Return True
     End Function
@@ -257,14 +257,14 @@ Public Module WS_Commands
                 Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                 packet1.AddPackGUID(objCharacter.MindControl.GUID)
                 packet1.AddInt8(1)
-                CType(objCharacter.MindControl, CharacterObject).Client.Send(packet1)
+                CType(objCharacter.MindControl, CharacterObject).client.Send(packet1)
                 packet1.Dispose()
             End If
 
             Dim packet3 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
             packet3.AddPackGUID(objCharacter.MindControl.GUID)
             packet3.AddInt8(0)
-            objCharacter.Client.Send(packet3)
+            objCharacter.client.Send(packet3)
             packet3.Dispose()
 
             objCharacter.cUnitFlags = objCharacter.cUnitFlags And (Not UnitFlags.UNIT_FLAG_UNK21)
@@ -282,7 +282,7 @@ Public Module WS_Commands
             Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
             packet1.AddPackGUID(objCharacter.TargetGUID)
             packet1.AddInt8(0)
-            CHARACTERs(objCharacter.TargetGUID).Client.Send(packet1)
+            CHARACTERs(objCharacter.TargetGUID).client.Send(packet1)
             packet1.Dispose()
 
             objCharacter.MindControl = CHARACTERs(objCharacter.TargetGUID)
@@ -296,7 +296,7 @@ Public Module WS_Commands
         Dim packet2 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
         packet2.AddPackGUID(objCharacter.TargetGUID)
         packet2.AddInt8(1)
-        objCharacter.Client.Send(packet2)
+        objCharacter.client.Send(packet2)
         packet2.Dispose()
 
         objCharacter.cUnitFlags = objCharacter.cUnitFlags Or UnitFlags.UNIT_FLAG_UNK21
@@ -547,13 +547,13 @@ Public Module WS_Commands
             If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
                     If CHARACTERs(objCharacter.TargetGUID).Items.ContainsKey(i) Then
-                        CHARACTERs(objCharacter.TargetGUID).Items(i).ModifyToDurability(sngPercent, CHARACTERs(objCharacter.TargetGUID).Client)
+                        CHARACTERs(objCharacter.TargetGUID).Items(i).ModifyToDurability(sngPercent, CHARACTERs(objCharacter.TargetGUID).client)
                     End If
                 Next
             Else
                 For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
                     If objCharacter.Items.ContainsKey(i) Then
-                        objCharacter.Items(i).ModifyToDurability(sngPercent, objCharacter.Client)
+                        objCharacter.Items(i).ModifyToDurability(sngPercent, objCharacter.client)
                     End If
                 Next
             End If
@@ -810,7 +810,7 @@ Public Module WS_Commands
                 Dim packet As New PacketClass(OPCODES.SMSG_CLEAR_COOLDOWN)
                 packet.AddInt32(SpellID)
                 packet.AddUInt64(targetUnit.GUID)
-                CType(targetUnit, CharacterObject).Client.Send(packet)
+                CType(targetUnit, CharacterObject).client.Send(packet)
                 packet.Dispose()
             Next
         Else
@@ -1063,7 +1063,7 @@ Public Module WS_Commands
         If Message = "" Then Return False
         Dim tmp() As String = Split(Message, " ", 2)
 
-        SetUpdateValue(objCharacter.TargetGUID, tmp(0), tmp(1), objCharacter.Client)
+        SetUpdateValue(objCharacter.TargetGUID, tmp(0), tmp(1), objCharacter.client)
         Return True
     End Function
 
@@ -1570,7 +1570,7 @@ Public Module WS_Commands
             ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 'DONE: Kick gracefully
                 objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Name))
-                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.Client.IP.ToString, objCharacter.Client.Port, objCharacter.Client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
+                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
                 CHARACTERs(objCharacter.TargetGUID).Logout()
             Else
                 objCharacter.CommandResponse(String.Format("Character GUID=[{0}] not found.", objCharacter.TargetGUID))
@@ -1586,7 +1586,7 @@ Public Module WS_Commands
                     'DONE: Kick gracefully
                     Character.Value.Logout()
                     objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(Character.Value, CharacterObject).Name))
-                    Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.Client.IP.ToString, objCharacter.Client.Port, objCharacter.Client.Character.Name, Name)
+                    Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, Name)
                     Return True
                 End If
             Next
@@ -1620,8 +1620,8 @@ Public Module WS_Commands
                 objCharacter.CommandResponse("No target selected.")
             ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Name))
-                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.Client.IP.ToString, objCharacter.Client.Port, objCharacter.Client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
-                CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Client.Disconnect()
+                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
+                CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).client.Disconnect()
             Else
                 objCharacter.CommandResponse(String.Format("Character GUID=[{0}] not found.", objCharacter.TargetGUID))
             End If
@@ -1634,8 +1634,8 @@ Public Module WS_Commands
                 If UCase(CType(Character.Value, CharacterObject).Name) = Name Then
                     CHARACTERs_Lock.ReleaseReaderLock()
                     objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(Character.Value, CharacterObject).Name))
-                    Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.Client.IP.ToString, objCharacter.Client.Port, objCharacter.Client.Character.Name, Name)
-                    CType(Character.Value, CharacterObject).Client.Disconnect()
+                    Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, Name)
+                    CType(Character.Value, CharacterObject).client.Disconnect()
                     Return True
                 End If
             Next
@@ -1694,7 +1694,7 @@ Public Module WS_Commands
                 AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}', active = 1);", accountID, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
                 AccountDatabase.Update(String.Format("INSERT INTO `ip_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}');", IP, Format(Now, "yyyy-MM-dd HH:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
                 objCharacter.CommandResponse(String.Format("Account [{0}] banned.", Name))
-                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] banned by [{2}].", objCharacter.Client.IP.ToString, objCharacter.Client.Port, objCharacter.Name, Name)
+                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] banned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
             End If
         Else
             objCharacter.CommandResponse(String.Format("Account [{0}] not found.", Name))
@@ -1722,7 +1722,7 @@ Public Module WS_Commands
                 AccountDatabase.Update("UPDATE account_banned SET active = 0 WHERE id = '" & accountID & "';")
                 AccountDatabase.Update(String.Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
                 objCharacter.CommandResponse(String.Format("Account [{0}] unbanned.", Name))
-                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] unbanned by [{2}].", objCharacter.Client.IP.ToString, objCharacter.Client.Port, objCharacter.Name, Name)
+                Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] unbanned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
             End If
         Else
             objCharacter.CommandResponse(String.Format("Account [{0}] not found.", Name))
@@ -1741,8 +1741,8 @@ Public Module WS_Commands
             If CHARACTERs.ContainsKey(GUID) Then
                 objCharacter.CommandResponse(String.Format("Information for character [{0}]:{1}account = {2}{1}ip = {3}{1}guid = {4:X}{1}access = {5}{1}boundingradius = {6}{1}combatreach = {7}", _
                 CHARACTERs(GUID).Name, vbNewLine, _
-                CHARACTERs(GUID).Client.Account, _
-                CHARACTERs(GUID).Client.IP.ToString, _
+                CHARACTERs(GUID).client.Account, _
+                CHARACTERs(GUID).client.IP.ToString, _
                 CHARACTERs(GUID).GUID, _
                 CHARACTERs(GUID).Access, _
                 CHARACTERs(GUID).BoundingRadius, _
@@ -1780,8 +1780,8 @@ Public Module WS_Commands
                     CHARACTERs_Lock.ReleaseReaderLock()
                     objCharacter.CommandResponse(String.Format("Information for character [{0}]:{1}account = {2}{1}ip = {3}{1}guid = {4}{1}access = {5}", _
                     CType(Character.Value, CharacterObject).Name, vbNewLine, _
-                    CType(Character.Value, CharacterObject).Client.Account, _
-                    CType(Character.Value, CharacterObject).Client.IP.ToString, _
+                    CType(Character.Value, CharacterObject).client.Account, _
+                    CType(Character.Value, CharacterObject).client.IP.ToString, _
                     CType(Character.Value, CharacterObject).GUID, _
                     CType(Character.Value, CharacterObject).Access))
                     Exit Function
@@ -1853,7 +1853,7 @@ Public Module WS_Commands
         Else
             WeatherZones(objCharacter.ZoneID).CurrentWeather = Type
             WeatherZones(objCharacter.ZoneID).Intensity = Intensity
-            SendWeather(objCharacter.ZoneID, objCharacter.Client)
+            SendWeather(objCharacter.ZoneID, objCharacter.client)
         End If
 
         Return True
