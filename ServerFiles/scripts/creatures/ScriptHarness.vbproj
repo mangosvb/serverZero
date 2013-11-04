@@ -84,9 +84,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Example AI.vb" />
     <Compile Include="ScriptHarness.vb" />
   </ItemGroup>
