@@ -51,8 +51,8 @@ Public Module WC_Handlers_Chat
                 Dim Message As String = packet.GetString()
 
                 'DONE: Broadcast to all
-                If CHAT_CHANNELs.ContainsKey(Channel.ToUpper) Then
-                    CHAT_CHANNELs(Channel.ToUpper).Say(Message, msgLanguage, client.Character)
+                If CHAT_CHANNELs.ContainsKey(Channel) Then
+                    CHAT_CHANNELs(Channel).Say(Message, msgLanguage, client.Character)
                 End If
                 Exit Sub
 
@@ -192,11 +192,11 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_JOIN_CHANNEL [{2}]", client.IP, client.Port, channelName)
 
-        If Not CHAT_CHANNELs.ContainsKey(channelName.ToUpper) Then
-            Dim newChannel As New ChatChannelClass(channelName.ToUpper)
+        If Not CHAT_CHANNELs.ContainsKey(channelName) Then
+            Dim newChannel As New ChatChannelClass(channelName)
             'The New does a an add to the .Containskey collection above
         End If
-        CHAT_CHANNELs(channelName.ToUpper).Join(client.Character, password)
+        CHAT_CHANNELs(channelName).Join(client.Character, password)
     End Sub
 
     Public Sub On_CMSG_LEAVE_CHANNEL(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -205,7 +205,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEAVE_CHANNEL [{2}]", client.IP, client.Port, ChannelName)
 
-        ChannelName = ChannelName.ToUpper
+        ChannelName = ChannelName
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).Part(client.Character)
         End If
@@ -217,7 +217,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_LIST [{2}]", client.IP, client.Port, ChannelName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).List(client.Character)
         End If
@@ -230,7 +230,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_PASSWORD [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelNewPassword)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).SetPassword(client.Character, ChannelNewPassword)
         End If
@@ -243,7 +243,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_SET_OWNER [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelNewOwner)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             If CHAT_CHANNELs(ChannelName).CanSetOwner(client.Character, ChannelNewOwner) Then
                 For Each GUID As ULong In CHAT_CHANNELs(ChannelName).Joined.ToArray
@@ -262,7 +262,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_OWNER [{2}]", client.IP, client.Port, ChannelName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).GetOwner(client.Character)
         End If
@@ -275,7 +275,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MODERATOR [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).SetModerator(client.Character, ChannelUser)
         End If
@@ -288,7 +288,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNMODERATOR [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).SetUnModerator(client.Character, ChannelUser)
         End If
@@ -301,7 +301,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MUTE [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).SetMute(client.Character, ChannelUser)
         End If
@@ -314,7 +314,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNMUTE [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).SetUnMute(client.Character, ChannelUser)
         End If
@@ -329,7 +329,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_INVITE [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).Invite(client.Character, PlayerName)
         End If
@@ -344,7 +344,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_KICK [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).Kick(client.Character, PlayerName)
         End If
@@ -356,7 +356,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_ANNOUNCEMENTS [{2}]", client.IP, client.Port, ChannelName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).SetAnnouncements(client.Character)
         End If
@@ -371,7 +371,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_BAN [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).Ban(client.Character, PlayerName)
         End If
@@ -386,7 +386,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNBAN [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).UnBan(client.Character, PlayerName)
         End If
@@ -398,7 +398,7 @@ Public Module WC_Handlers_Chat
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MODERATE [{2}]", client.IP, client.Port, ChannelName)
 
-        ChannelName = ChannelName.ToUpper
+        'ChannelName = ChannelName.ToUpper
         If CHAT_CHANNELs.ContainsKey(ChannelName) Then
             CHAT_CHANNELs(ChannelName).SetModeration(client.Character)
         End If

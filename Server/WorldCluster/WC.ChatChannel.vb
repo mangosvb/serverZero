@@ -77,7 +77,7 @@ Public Module WS_Channels
             ChannelName = Name
             ChannelFlags = CHANNEL_FLAG.CHANNEL_FLAG_NONE
 
-            CHAT_CHANNELs.Add(ChannelName.ToUpper, Me)
+            CHAT_CHANNELs.Add(ChannelName, Me)
 
             Dim sZone As String = Name.Substring(Name.IndexOf(" - ") + 3)
             For Each ChatChannel As KeyValuePair(Of Integer, ChatChannelInfo) In ChatChannelsInfo
@@ -134,16 +134,19 @@ Public Module WS_Channels
         Public Overridable Sub Join(ByRef Character As CharacterObject, ByVal ClientPassword As String)
             'DONE: Check if Already joined
             If Joined.Contains(Character.GUID) Then
-                Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_ALREADY_ON, Character.GUID, Nothing, Nothing)
-                Character.Client.Send(p)
-                p.Dispose()
-                Exit Sub
+
+                If Character.JoinedChannels.Contains(0) Then
+                    Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_ALREADY_ON, Character.GUID, Nothing, Nothing)
+                    Character.client.Send(p)
+                    p.Dispose()
+                    Exit Sub
+                End If
             End If
 
             'DONE: Check if banned
             If Banned.Contains(Character.GUID) Then
                 Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_ARE_BANNED, Character.GUID, Nothing, Nothing)
-                Character.Client.Send(p)
+                Character.client.Send(p)
                 p.Dispose()
                 Exit Sub
             End If
@@ -152,7 +155,7 @@ Public Module WS_Channels
             If Password <> "" Then
                 If Password <> ClientPassword Then
                     Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_WRONG_PASS, Character.GUID, Nothing, Nothing)
-                    Character.Client.Send(p)
+                    Character.client.Send(p)
                     p.Dispose()
                     Exit Sub
                 End If
@@ -167,12 +170,12 @@ Public Module WS_Channels
 
             'DONE: You Joined channel
             Dim response2 As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_JOINED, Character.GUID, Nothing, Nothing)
-            Character.Client.Send(response2)
+            Character.client.Send(response2)
             response2.Dispose()
 
             Joined.Add(Character.GUID)
             Joined_Mode.Add(Character.GUID, CHANNEL_USER_FLAG.CHANNEL_FLAG_NONE)
-            Character.JoinedChannels.Add(ChannelName.ToUpper)
+            Character.JoinedChannels.Add(ChannelName)
 
             'DONE: If new channel, set owner
             If HaveFlags(ChannelFlags, CHANNEL_FLAG.CHANNEL_FLAG_CUSTOM) AndAlso Owner = 0 Then
@@ -213,7 +216,7 @@ Public Module WS_Channels
 
             Joined.Remove(Character.GUID)
             Joined_Mode.Remove(Character.GUID)
-            Character.JoinedChannels.Remove(ChannelName.ToUpper)
+            Character.JoinedChannels.Remove(ChannelName)
 
             'DONE: {0} Left channel
             If Announce Then
