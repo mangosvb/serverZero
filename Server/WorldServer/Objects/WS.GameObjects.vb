@@ -44,10 +44,10 @@ Public Module WS_GameObjects
             GAMEOBJECTSDatabase.Add(ID, Me)
 
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM gameobjects WHERE entry = {0};", ID_), MySQLQuery)
+            WorldDatabase.Query(String.Format("SELECT * FROM gameobject_template WHERE entry = {0};", ID_), MySQLQuery)
 
             If MySQLQuery.Rows.Count = 0 Then
-                Log.WriteLine(LogType.FAILED, "GameObject {0} not found in SQL database!", ID_)
+                Log.WriteLine(LogType.FAILED, "gameobject_template {0} not found in SQL database!", ID_)
                 found_ = False
                 Exit Sub
             End If
