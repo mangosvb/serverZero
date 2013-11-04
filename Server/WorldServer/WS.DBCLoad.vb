@@ -1270,15 +1270,15 @@ Public Module WS_DBCLoad
 
 #Region "Loot"
     Public Sub LoadLootStores()
-        LootTemplates_Creature = New LootStore("creature_loot")
-        LootTemplates_Disenchant = New LootStore("disenchant_loot")
-        LootTemplates_Fishing = New LootStore("fishing_loot")
-        LootTemplates_Gameobject = New LootStore("gameobject_loot")
-        LootTemplates_Item = New LootStore("item_loot")
-        LootTemplates_Pickpocketing = New LootStore("pickpocketing_loot")
-        LootTemplates_QuestMail = New LootStore("quest_mail_loot")
-        LootTemplates_Reference = New LootStore("reference_loot")
-        LootTemplates_Skinning = New LootStore("skinning_loot")
+        LootTemplates_Creature = New LootStore("creature_loot_template")
+        LootTemplates_Disenchant = New LootStore("disenchant_loot_template")
+        LootTemplates_Fishing = New LootStore("fishing_loot_template")
+        LootTemplates_Gameobject = New LootStore("gameobject_loot_template")
+        LootTemplates_Item = New LootStore("item_loot_template")
+        LootTemplates_Pickpocketing = New LootStore("pickpocketing_loot_template")
+        LootTemplates_QuestMail = New LootStore("quest_mail_loot_template")
+        LootTemplates_Reference = New LootStore("reference_loot_template")
+        LootTemplates_Skinning = New LootStore("skinning_loot_template")
     End Sub
 #End Region
 

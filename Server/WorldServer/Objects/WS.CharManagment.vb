@@ -6302,7 +6302,7 @@ DoneAmmo:
         For Each BarRow As DataRow In CreateInfoBars.Rows
             If BarRow.Item("action") > 0 Then
                 ButtonPos = BarRow.Item("button")
-                objCharacter.ActionButtons(ButtonPos) = New TActionButton(BarRow.Item("action"), BarRow.Item("type"), BarRow.Item("misc"))
+                objCharacter.ActionButtons(ButtonPos) = New TActionButton(BarRow.Item("action"), BarRow.Item("type"), 0)
             End If
         Next
 

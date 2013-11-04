@@ -451,7 +451,7 @@ Public Module WS_Loot
                 Dim GroupID As Byte = LootRow.Item("groupid")
                 Dim MinCountOrRef As Integer = LootRow.Item("mincountOrRef")
                 Dim MaxCount As Byte = LootRow.Item("maxcount")
-                Dim LootCondition As ConditionType = LootRow.Item("lootcondition")
+                Dim LootCondition As ConditionType = LootRow.Item("condition_id")
                 'Dim ConditionValue1 As Integer = LootRow.Item("condition_value1")
                 'Dim ConditionValue2 As Integer = LootRow.Item("condition_value2")
 
