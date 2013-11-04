@@ -20,6 +20,13 @@ Required Requirements with Clustering -
 RAM 4GB or higher, 
 CPU 2.30GHz or better
 
+Branch Information
+------------------
+There are several branches available to download the code from
+    master      - This is the last released stable version, this will also build and work without issues
+    development - This branch is the current development branch, this has new updates but some fixes may wip.
+    
+From time to time there may be additional branches when new features are being developed and tested.    
 
 Documentation
 -------------
@@ -65,24 +72,24 @@ License
   General Public License in all respects for all of the code used other than
   "OpenSSL".
 
-[1]: http://blizzard.com/ "Blizzard Entertainment Inc. · we love you!"
+[1]: http://blizzard.com/ "Blizzard Entertainment Inc. ï¿½ we love you!"
 [2]: http://battle.net/wow/ "World of Warcraft"
 
-[10]: http://a.dependency.net/ "A · dependency"
+[10]: http://a.dependency.net/ "A ï¿½ dependency"
 
 [20]: https://github.com/mangoswiki/Wiki/wiki/MaNGOS%20Installation/ "Wiki"
 
-[50]: http://www.wowpedia.org/Patch_1.12.0 "Vanilla WoW · Patch 1.12.0 release notes"
+[50]: http://www.wowpedia.org/Patch_1.12.0 "Vanilla WoW ï¿½ Patch 1.12.0 release notes"
 
 [100]: http://getmangos.co.uk/ "MaNGOS Community Project Website"
 [101]: http://community.getmangos.co.uk/ "MaNGOS Community Discussion Forums"
 
-[110]: http://github.com/mangosvb "MaNGOSVB· github organization"
-[111]: http://github.com/mangosvb/serverZero "MaNGOSVB ServerZero · server repository"
-[113]: http://github.com/mangosvb/databaseZero "MaNGOSVB DatabaseZero · content database repository"
+[110]: http://github.com/mangosvb "MaNGOSVBï¿½ github organization"
+[111]: http://github.com/mangosvb/serverZero "MaNGOSVB ServerZero ï¿½ server repository"
+[113]: http://github.com/mangosvb/databaseZero "MaNGOSVB DatabaseZero ï¿½ content database repository"
 
-[201]: http://www.microsoft.com/express/ "Visual Studio Express · free, limited edition"
+[201]: http://www.microsoft.com/express/ "Visual Studio Express ï¿½ free, limited edition"
 [202]: http://gcc.gnu.org/ "GCC"
 [203]: http://clang.llvm.org/ "Clang"
 
-[251]: http://www.cmake.org/ "CMake · Cross Platform Make"
+[251]: http://www.cmake.org/ "CMake ï¿½ Cross Platform Make"
