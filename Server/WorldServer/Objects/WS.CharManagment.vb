@@ -465,8 +465,10 @@ Public Module WS_CharManagment
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                DrowningTimer.Dispose()
-                DrowningTimer = Nothing
+                If IsNothing(DrowningTimer) = False Then
+                    DrowningTimer.Dispose()
+                    DrowningTimer = Nothing
+                End If
                 If CHARACTERs.ContainsKey(CharacterGUID) Then CHARACTERs(CharacterGUID).StopMirrorTimer(1)
             End If
             _disposedValue = True
