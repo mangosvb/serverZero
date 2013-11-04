@@ -1506,15 +1506,41 @@ Public Module WS_Creatures
             If MySQLQuery.Rows.Count > 0 Then
                 For i As Integer = 0 To 7
                     Probability(i) = MySQLQuery.Rows(0).Item("prob" & i & "")
-                    TextLine1(i) = MySQLQuery.Rows(0).Item("text" & i & "_0")
-                    TextLine2(i) = MySQLQuery.Rows(0).Item("text" & i & "_1")
-                    Language(i) = MySQLQuery.Rows(0).Item("lang" & i & "")
-                    EmoteDelay1(i) = MySQLQuery.Rows(0).Item("em" & i & "_0")
-                    Emote1(i) = MySQLQuery.Rows(0).Item("em" & i & "_1")
-                    EmoteDelay2(i) = MySQLQuery.Rows(0).Item("em" & i & "_2")
-                    Emote2(i) = MySQLQuery.Rows(0).Item("em" & i & "_3")
-                    EmoteDelay3(i) = MySQLQuery.Rows(0).Item("em" & i & "_4")
-                    Emote3(i) = MySQLQuery.Rows(0).Item("em" & i & "_5")
+                    If IsDBNull(MySQLQuery.Rows(0).Item("text" & i & "_0")) = False Then
+                        TextLine1(i) = MySQLQuery.Rows(0).Item("text" & i & "_0")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("text" & i & "_1")) = False Then
+                        TextLine2(i) = MySQLQuery.Rows(0).Item("text" & i & "_1")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("lang" & i & "")) = False Then
+                        Language(i) = MySQLQuery.Rows(0).Item("lang" & i & "")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_0")) = False Then
+                        EmoteDelay1(i) = MySQLQuery.Rows(0).Item("em" & i & "_0")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_1")) = False Then
+                        Emote1(i) = MySQLQuery.Rows(0).Item("em" & i & "_1")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_2")) = False Then
+                        EmoteDelay2(i) = MySQLQuery.Rows(0).Item("em" & i & "_2")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_3")) = False Then
+                        Emote2(i) = MySQLQuery.Rows(0).Item("em" & i & "_3")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_4")) = False Then
+                        EmoteDelay3(i) = MySQLQuery.Rows(0).Item("em" & i & "_4")
+                    End If
+
+                    If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_5")) = False Then
+                        Emote3(i) = MySQLQuery.Rows(0).Item("em" & i & "_5")
+                    End If
 
                     If TextLine1(i) <> "" Then Count = CByte(i) + 1
                 Next

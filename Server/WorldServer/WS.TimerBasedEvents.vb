@@ -174,11 +174,10 @@ Public Module WS_TimerBasedEvents
                         End With
                     End If
                 Next
+                CHARACTERs_Lock.ReleaseReaderLock()
 
             Catch ex As Exception
                 Log.WriteLine(LogType.WARNING, "Error at regenerate.{0}", vbNewLine & ex.ToString)
-            Finally
-                CHARACTERs_Lock.ReleaseReaderLock()
             End Try
             RegenerationWorking = False
         End Sub
