@@ -1124,7 +1124,7 @@ Public Module WS_DBCLoad
             Log.WriteLine(LogType.INFORMATION, "Database: {0} creature gossips initialized.", CreatureGossip.Count)
         Catch e As DirectoryNotFoundException
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("Database : Waypoint_Data missing.")
+            Console.WriteLine("Database : npc_gossip missing.")
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
