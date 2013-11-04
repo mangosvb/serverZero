@@ -5,7 +5,7 @@ Imports mangosVB.Common
 
 'Basically, this AI is kitable and if the AI hits Gluth, it heals her for 5% of her HP (50,000 in this case.). Since we can't really do it that way, it has a set waypoint.
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Zombie_Chow
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const Infected_Wound_CD As Integer = 15000
@@ -40,7 +40,7 @@ Namespace Scripts
                 aiCreature.CastSpell(Spell_Infected_Wound, aiTarget)
             Next
         End Sub
-		
+
         Public Sub HealGluth(ByRef NPC_Gluth As CreatureObject, ByRef Zombie_Chow As CreatureObject)
             Dim Waypoint1 As New coOrds
             With Waypoint1

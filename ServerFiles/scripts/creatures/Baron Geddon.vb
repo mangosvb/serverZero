@@ -5,7 +5,7 @@ Imports mangosVB.Common
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Baron_Geddon
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const Inferno_CD As Integer = 45000
@@ -29,7 +29,7 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
-        
+
         Public Overrides Sub OnThink()
 
             NextInferno -= AI_UPDATE
@@ -38,7 +38,7 @@ Namespace Scripts
 
             If NextInferno <= 0 Then
                 NextInferno = Inferno_CD
-                aiCreature.CastSpell(Spell_Inferno, aiTarget) 
+                aiCreature.CastSpell(Spell_Inferno, aiTarget)
             End If
 
             If NextIgnite <= 0 Then
@@ -59,7 +59,7 @@ Namespace Scripts
                 aiCreature.CastSpell(Spell_Inferno, aiTarget) 'This spell should be mitigated with fire resistance and nothing more.
             Next
         End Sub
-		
+
         Public Sub CastIgnite()
             For i As Integer = 1 To 3
                 Dim target As BaseUnit = aiCreature.GetRandomTarget
@@ -67,7 +67,7 @@ Namespace Scripts
                 aiCreature.CastSpell(Spell_Ignite, aiCreature.GetRandomTarget) 'This spell drains 400 mana per second and MUST be dispelled immediately or your healers will wipe the group.
             Next
         End Sub
-		
+
         Public Sub CastLivingBomb()
             For i As Integer = 2 To 3
                 Dim target As BaseUnit = aiCreature.GetRandomTarget

@@ -4,7 +4,7 @@ Imports mangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Arcanist_Doan
         Inherits BossAI
         'AI TODO: Fix arcane explosion. Make the AoE silence an AoE instead of random target.
         Private Const AI_UPDATE As Integer = 1000
@@ -28,7 +28,7 @@ Namespace Scripts
         Public NextAcid As Integer = 0
         Public CurrentWaypoint As Integer = 0
         'Public NextExplosion As Integer = 0
-		
+
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
@@ -58,7 +58,7 @@ Namespace Scripts
             End If
             'No need to handle Detonation or Bubble here.
         End Sub
-		
+
         'Public Sub CastExplosion() - This is commented out because Arcane Explosion completely crashes the core.
         '    For i As Integer = 0 To 2
         '        Dim Target As BaseUnit = aiCreature
@@ -70,7 +70,7 @@ Namespace Scripts
         '       End Try
         '   Next
         'End Sub
-		
+
         Public Sub CastPolymorph()
             For i As Integer = 1 To 2
                 Dim target As BaseUnit = aiCreature.GetRandomTarget 'Finally learned how random target functions work. 
@@ -82,7 +82,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
-		
+
         Public Sub CastSilence()
             For i As Integer = 2 To 2
                 Dim target As BaseUnit = aiCreature.GetRandomTarget
@@ -94,7 +94,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
-		
+
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If Percent <= 50 Then
@@ -112,7 +112,7 @@ Namespace Scripts
                 aiCreature.SendChatMessage("Burn in righteous fire!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
             End If
         End Sub
-		
+
         Public Overrides Sub OnEnterCombat()
             MyBase.OnEnterCombat()
             aiCreature.SendChatMessage("You will not defile these mysteries!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)

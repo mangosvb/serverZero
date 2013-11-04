@@ -4,7 +4,7 @@ Imports mangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Targorr_the_Dread
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const ThrashCD As Integer = 7000
@@ -45,7 +45,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
-		
+
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If Percent <= 40 Then

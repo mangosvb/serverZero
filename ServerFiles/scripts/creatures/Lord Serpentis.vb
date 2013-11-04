@@ -4,7 +4,7 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Lord_Serpentis
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const SLUMBER_CD As Integer = 10000
@@ -27,12 +27,12 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
-		
+
         Public Overrides Sub OnEnterCombat()
             MyBase.OnEnterCombat()
             aiCreature.SendChatMessage("I am the serpent king, I can do anything!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
         End Sub
-		
+
         Public Overrides Sub OnThink()
 
             NextLightningBolt -= AI_UPDATE
@@ -42,7 +42,7 @@ Namespace Scripts
                 NextLightningBolt = Lightning_Bolt_CD
                 aiCreature.CastSpell(Spell_Lightning_Bolt, aiTarget) 'Lightning bolt on current target.
             End If
-			
+
             If NextSlumber <= 0 Then
                 NextSlumber = SLUMBER_CD
                 aiCreature.CastSpell(Slumber_Spell, aiTarget) ' Not sure if its supposed to take a random target, stays like this for now.
@@ -56,7 +56,7 @@ Namespace Scripts
                 aiCreature.CastSpell(Spell_Lightning_Bolt, aiTarget)
             Next
         End Sub
-		
+
         Public Sub CastSlumber()
             For i As Integer = 1 To 3
                 Dim target As BaseUnit = aiCreature
@@ -64,7 +64,7 @@ Namespace Scripts
             Next
             aiCreature.CastSpell(Slumber_Spell, aiTarget)
         End Sub
-		
+
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If Percent <= 10 Then

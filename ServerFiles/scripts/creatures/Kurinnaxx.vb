@@ -6,8 +6,9 @@ Imports mangosVB.Common
 'Summon implementation isn't yet supported.
 'Sand trap not implemented into script, need to make a gameobject I assume.
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Kurinnax
         Inherits BossAI
+        Private Const AI_UPDATE As Integer = 1000
         Private Const wound_cooldown As Integer = 8000
         'private const summon_player_cooldown As Integer = 5000 
         'Private Const summon_player_cooldown2 As Integer = 5001
@@ -30,20 +31,20 @@ Namespace Scripts
         ' Public Next_Summon_1 As Integer = 0
         ' Public Next_Summon_2 As Integer = 0
 
-        Public Sub New(ByRef CreatureObject As CreatureObject)
+        Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)
             phase = 0
             AllowedMove = False
             Creature.Flying = False
-            Creature.VisibleDistance(700)
+            Creature.VisibleDistance = (700)
         End Sub
-		
+
         Public Overrides Sub OnEnterCombat()
             If phase > 1 Then Exit Sub
             MyBase.OnEnterCombat()
             AllowedAttack = True
             aiCreature.Flying = False
-            ReinitSpells()
+            'ReinitSpells()
         End Sub
 
         Public Overrides Sub OnLeaveCombat(Optional Reset As Boolean = True)
@@ -68,9 +69,9 @@ Namespace Scripts
 
             If Next_Mortal_Wound <= 0 Then
                 Next_Mortal_Wound = wound_cooldown
-				try
-					aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
-				Catch Ex as Exception
+                Try
+                    aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
+                Catch Ex As Exception
                     Log.WriteLine(Basewriter.LogType.WARNING, "Mortal Wound failed to cast!")
                 End Try
             End If
@@ -84,7 +85,7 @@ Namespace Scripts
                 aiCreature.CastSpell(spell_Thrash, aiTarget)
             End If
         End Sub
-		
+
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If phase = 1 Then
@@ -93,5 +94,5 @@ Namespace Scripts
                 End If
             End If
         End Sub
-	End Class
+    End Class
 End Namespace

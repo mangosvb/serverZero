@@ -4,18 +4,18 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Ragefire_Shaman
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const HEAL_COOLDOWN As Integer = 8000
-		Private Const BOLT_COOLDOWN As Integer = 3000
+        Private Const BOLT_COOLDOWN As Integer = 3000
 
         Private Const HEAL_SPELL As Integer = 11986
-		Private Const BOLT_SPELL As Integer = 9532
+        Private Const BOLT_SPELL As Integer = 9532
 
         Public NextWaypoint As Integer = 0
         Public NextHeal As Integer = 0
-		Public NextBolt As Integer = 0
+        Public NextBolt As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
         Public Sub New(ByRef Creature As CreatureObject)
@@ -46,9 +46,9 @@ Namespace Scripts
                 If Target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(HEAL_SPELL, aiTarget)
             Next
-		End Sub
-		
-		Public Sub CastBolt()
+        End Sub
+
+        Public Sub CastBolt()
             For i As Integer = 1 To 1
                 Dim Target As BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub

@@ -4,7 +4,7 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Lord_Pythas
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const SLUMBER_CD As Integer = 10000
@@ -21,6 +21,7 @@ Namespace Scripts
         Public NextLightningBolt As Integer = 0
         Public NextSlumber As Integer = 0
         Public CurrentWaypoint As Integer = 0
+        Public NextHealingTouch As Integer = 0
 
         Public Sub New(ByRef Creature As CreatureObject)
             MyBase.New(Creature)

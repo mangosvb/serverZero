@@ -4,7 +4,7 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Patchwerk
         Inherits BossAI
 
         Private Const AI_UPDATE As Integer = 1000
@@ -74,12 +74,12 @@ Namespace Scripts
                     NextBerserk = BERSERK_COOLDOWN
                     aiCreature.CastSpellOnSelf(BERSERK_SPELL) 'Berserk
                 End If
-				
+
                 If NextFrenzy <= 1 Then
                     NextFrenzy = FRENZY_COOLDOWN
                     aiCreature.CastSpellOnSelf(FRENZY_SPELL) 'Frenzy
                 End If
-				
+
                 'If NextSummon <= 0 Then
                 '    NextSummon = SUMMONPLAYER_COOLDOWN
                 '    aiCreature.CastSpell(SUMMONPLAYER_SPELL, aiTarget) 'Summon Player
@@ -93,7 +93,7 @@ Namespace Scripts
                 End If
             End If
         End Sub
-		
+
         Public Overrides Sub OnHealthChange(Percent As Integer)
             MyBase.OnHealthChange(Percent)
             If Percent <= 5 Then

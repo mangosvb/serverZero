@@ -4,9 +4,9 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Onyxia
         Inherits BossAI
-		
+
         Private Const AI_UPDATE As Integer = 1000
         Private Const BREATH_COOLDOWN As Integer = 11000
         Private Const WING_BUFFET_COOLDOWN As Integer = 15000

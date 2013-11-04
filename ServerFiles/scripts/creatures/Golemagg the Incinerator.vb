@@ -4,24 +4,24 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Golemagg_the_Incinerator
         Inherits BossAI
 
         Private Const AI_UPDATE As Integer = 1000
         Private Const EARTHQUAKE_COOLDOWN As Integer = 10000
         Private Const MAGMASPLASH_COOLDOWN As Integer = 5000
-		Private Const PYROBLAST_COOLDOWN As Integer = 20000
-		'Private Const SUMMONPLAYER_COOLDOWN As Integer = 20000
+        Private Const PYROBLAST_COOLDOWN As Integer = 20000
+        'Private Const SUMMONPLAYER_COOLDOWN As Integer = 20000
 
         Private Const EARTHQUAKE_SPELL As Integer = 19798
         Private Const MAGMASPLASH_SPELL As Integer = 28131
-		Private Const PYROBLAST_SPELL As Integer = 20228
+        Private Const PYROBLAST_SPELL As Integer = 20228
         'Private Const SUMMONPLAYER_SPELL As Integer = 20477
 
         Public Phase As Integer = 0
         Public NextWaypoint As Integer = 0
         Public NextEarthQuake As Integer = 0
-		Public NextMagmaSplash As Integer = 0
+        Public NextMagmaSplash As Integer = 0
         Public NextPyroBlast As Integer = 0
         'Public NextSummon As Integer = 0
         Public CurrentWaypoint As Integer = 0
@@ -63,7 +63,7 @@ Namespace Scripts
             If (Phase = 1) Then
                 NextEarthQuake -= AI_UPDATE
                 NextMagmaSplash -= AI_UPDATE
-				NextPyroBlast -= AI_UPDATE
+                NextPyroBlast -= AI_UPDATE
                 'NextSummon -= AI_UPDATE
 
                 If NextEarthQuake <= 0 Then
@@ -74,10 +74,10 @@ Namespace Scripts
                     NextMagmaSplash = MagmaSplash_COOLDOWN
                     aiCreature.CastSpell(MagmaSplash_SPELL, aiTarget) 'MagmaSplash
                 End If
-				If NextPyroBlast <= 2 Then
+                If NextPyroBlast <= 2 Then
                     NextPyroBlast = PyroBlast_COOLDOWN
                     aiCreature.CastSpell(PyroBlast_SPELL, aiTarget) 'PyroBlast
-                End If				
+                End If
                 'If NextSummon <= 0 Then
                 '    NextSummon = SUMMONPLAYER_COOLDOWN
                 '    aiCreature.CastSpell(SUMMONPLAYER_SPELL, aiTarget) 'Summon Player
@@ -92,7 +92,7 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpell(EarthQuake_SPELL, aiTarget)
                 Catch Ex As Exception
-					aiCreature.SendChatMessage("Earthquake FAILED TO CAST ON MY TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+                    aiCreature.SendChatMessage("Earthquake FAILED TO CAST ON MY TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
         End Sub
@@ -104,7 +104,7 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpell(MagmaSplash_SPELL, aiTarget)
                 Catch Ex As Exception
-					aiCreature.SendChatMessage("MAGMASPLASH FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+                    aiCreature.SendChatMessage("MAGMASPLASH FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
         End Sub
@@ -120,7 +120,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
-		
+
         'Public Sub CastSummonPlayer()
         '    For i As Integer = 0 To 3
         '        Dim theTarget As BaseUnit = aiCreature.GetRandomTarget
@@ -129,7 +129,7 @@ Namespace Scripts
         '            aiCreature.CastSpell(SUMMONPLAYER_SPELL, theTarget.positionX, theTarget.positionY, theTarget.positionZ)
         '        Catch Ex As Exception
         '            'Log.WriteLine(BaseWriter.LogType.WARNING, "SUMMON FAILED TO CAST ON TARGET!")
-		'			aiCreature.SendChatMessage("SUMMON FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+        '			aiCreature.SendChatMessage("SUMMON FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         '       End Try
         '   Next
         ' End Sub

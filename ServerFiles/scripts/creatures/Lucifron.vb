@@ -4,7 +4,7 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Lucifron
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const Impending_Doom_Cooldown As Integer = 20000
@@ -65,12 +65,12 @@ Namespace Scripts
                     NextImpendingDoom = Impending_Doom_Cooldown
                     aiCreature.CastSpell(Impending_Doom, aiTarget) 'Impending DOOOOOM!
                 End If
-				
+
                 If NextLucifronsCurse <= 0 Then
                     NextLucifronsCurse = Lucifrons_Curse_Cooldown
                     aiCreature.CastSpell(Lucifrons_Curse, aiTarget) 'Lucifrons Curse.
                 End If
-				
+
                 If NextShadowShock <= 0 Then
                     NextShadowShock = Shadow_Shock_Cooldown
                     aiCreature.CastSpell(Shadow_Shock, aiTarget) 'Summon Player
@@ -84,7 +84,7 @@ Namespace Scripts
                 End If
             End If
         End Sub
-		
+
         Public Sub Cast_Lucirons_Curse()
             For i As Integer = 0 To 2
                 Dim theTarget As BaseUnit = aiCreature
@@ -108,7 +108,7 @@ Namespace Scripts
                 End Try
             Next
         End Sub
-		
+
         Public Sub Cast_Shadow_Shock()
             For i As Integer = 2 To 2
                 Dim theTarget As BaseUnit = aiCreature.GetRandomTarget

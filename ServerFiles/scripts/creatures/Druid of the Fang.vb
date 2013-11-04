@@ -4,7 +4,7 @@ Imports MangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Druid_of_the_Fang
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const SLUMBER_CD As Integer = 10000 '- Unable to implement this as for the time being due to threat issues in the core.
@@ -18,6 +18,7 @@ Namespace Scripts
         Private Const Spell_Lightning_Bolt As Integer = 9532
         Public NextWaypoint As Integer = 0
         Public NextLightningBolt As Integer = 0
+        Public NextSerpentForm As Integer = 0
         Public NextHealingTouch As Integer = 0
         Public NextSlumber As Integer = 0
         Public CurrentWaypoint As Integer = 0

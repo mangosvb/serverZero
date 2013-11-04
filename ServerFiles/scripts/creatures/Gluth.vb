@@ -4,7 +4,7 @@ Imports mangosVB.WorldServer
 Imports mangosVB.Common
 
 Namespace Scripts
-    Public Class CreatureAI
+    Public Class CreatureAI_Gluth
         Inherits BossAI
         'TODO: Implement proper zombie chow summons. Fix decimate. Fix him going underground. Fix mortal wound a debuff instead of dispellable buff. Fix terrifying roar.
         'Reference: https://github.com/mangoszero/scripts/blob/master/scripts/eastern_kingdoms/naxxramas/boss_gluth.cpp
@@ -39,7 +39,7 @@ Namespace Scripts
             Creature.Flying = False
             Creature.VisibleDistance = 700
         End Sub
-		
+
         Public Overrides Sub OnThink()
             NextDecimate -= AI_UPDATE
             NextFrenzy -= AI_UPDATE
@@ -50,17 +50,17 @@ Namespace Scripts
                 NextDecimate = Decimate_CD
                 aiCreature.CastSpell(Spell_Decimate, aiTarget) 'Earthborer Acid
             End If
-			
+
             If NextFrenzy <= 1 Then
                 NextFrenzy = Frenzy_CD
                 aiCreature.CastSpellOnSelf(Spell_Frenzy)
             End If
-			
+
             If NextMortalWound <= 2 Then
                 NextMortalWound = Mortal_Wound_CD
                 aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
             End If
-			
+
             If NextRoar <= 3 Then
                 NextRoar = Terrifying_Roar_CD
                 aiCreature.CastSpell(Spell_Terrifying_Roar, aiTarget)
@@ -102,11 +102,11 @@ Namespace Scripts
                 End Try
             Next
         End Sub
-		
+
         Public Sub CastTerrifyingRoar()
             For i As Integer = 3 To 3
                 Dim target As BaseUnit = aiCreature
-                If Target Is Nothing Then Exit Sub
+                If target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(Spell_Terrifying_Roar, aiTarget)
                 Catch ex As Exception
