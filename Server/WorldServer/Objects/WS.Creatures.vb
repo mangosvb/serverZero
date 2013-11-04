@@ -1272,19 +1272,21 @@ Public Module WS_Creatures
                             For Each plGUID As ULong In list
                                 If CHARACTERs(plGUID).CanSee(Me) Then
                                     Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                                    packet.AddInt32(1)
-                                    packet.AddInt8(0)
-                                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
-                                    FillAllUpdateFlags(tmpUpdate)
-                                    tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
-                                    tmpUpdate.Dispose()
+                                    Try
+                                        packet.AddInt32(1)
+                                        packet.AddInt8(0)
+                                        Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
+                                        FillAllUpdateFlags(tmpUpdate)
+                                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
+                                        tmpUpdate.Dispose()
 
-                                    CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                        CHARACTERs(plGUID).client.SendMultiplyPackets(packet)
 
-                                    CHARACTERs(plGUID).creaturesNear.Add(GUID)
-                                    SeenBy.Add(plGUID)
-
-                                    packet.Dispose()
+                                        CHARACTERs(plGUID).creaturesNear.Add(GUID)
+                                        SeenBy.Add(plGUID)
+                                    Finally
+                                        packet.Dispose()
+                                    End Try
                                 End If
                             Next
                         End With
