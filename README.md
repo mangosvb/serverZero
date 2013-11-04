@@ -23,6 +23,7 @@ CPU 2.30GHz or better
 Branch Information
 ------------------
 There are several branches available to download the code from
+
     master      - This is the last released stable version, this will also build and work without issues
     development - This branch is the current development branch, this has new updates but some fixes may wip.
     
