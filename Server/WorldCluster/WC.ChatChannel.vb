@@ -173,9 +173,17 @@ Public Module WS_Channels
             Character.client.Send(response2)
             response2.Dispose()
 
-            Joined.Add(Character.GUID)
-            Joined_Mode.Add(Character.GUID, CHANNEL_USER_FLAG.CHANNEL_FLAG_NONE)
-            Character.JoinedChannels.Add(ChannelName)
+            If Joined.Contains(Character.GUID) = False Then
+                Joined.Add(Character.GUID)
+            End If
+
+            If Joined_Mode.ContainsKey(Character.GUID) = False Then
+                Joined_Mode.Add(Character.GUID, CHANNEL_USER_FLAG.CHANNEL_FLAG_NONE)
+            End If
+
+            If Character.JoinedChannels.Contains(ChannelName) = False Then
+                Character.JoinedChannels.Add(ChannelName)
+            End If
 
             'DONE: If new channel, set owner
             If HaveFlags(ChannelFlags, CHANNEL_FLAG.CHANNEL_FLAG_CUSTOM) AndAlso Owner = 0 Then
