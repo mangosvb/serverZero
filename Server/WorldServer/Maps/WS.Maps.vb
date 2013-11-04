@@ -22,8 +22,25 @@ Imports mangosVB.Common
 Public Module WS_Maps
 #Region "Zones"
     Public AreaTable As New Dictionary(Of Integer, TArea)
+
+    Public Function GetAreaIDByMapandParent(ByVal mapId As Integer, ByVal parentID As Integer) As Integer
+        For Each thisArea As KeyValuePair(Of Integer, TArea) In AreaTable
+            Dim thisMap As Integer = thisArea.Value.mapId
+            Dim thisParent As Integer = thisArea.Value.Zone
+
+            If thisMap = mapId And thisParent = parentID Then
+                Return thisArea.Key
+            End If
+        Next
+
+
+
+        Return -999
+    End Function
+
     Public Class TArea
         Public ID As Integer
+        Public mapId As Integer
         Public Level As Byte
         Public Zone As Integer
         Public ZoneType As Integer

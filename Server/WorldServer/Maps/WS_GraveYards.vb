@@ -148,73 +148,149 @@ Public Class WS_GraveYards
 #End Region
 
     Public Sub GoToNearestGraveyard(ByRef Character As CharacterObject, ByVal Alive As Boolean, ByVal Teleport As Boolean)
-        Character.ZoneCheck()
-
+        
         Dim GraveQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT id, faction FROM world_graveyard_zone WHERE ghost_map = {0} AND ghost_zone = {1}", Character.MapID, Character.ZoneID), GraveQuery)
-
-        If GraveQuery.Rows.Count = 0 Then
-            Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)
-            Exit Sub
-        End If
-
+        Dim Ghostzone As Integer
         Dim foundNear As Boolean = False
         Dim distNear As Single = 0.0F
         Dim entryNear As TGraveyard = Nothing
         Dim entryFar As TGraveyard = Nothing
 
-        For Each GraveLink As DataRow In GraveQuery.Rows
-            Dim GraveyardID As Integer = GraveLink.Item("id")
-            Dim GraveyardFaction As Integer = GraveLink.Item("faction")
-            If Graveyards.ContainsKey(GraveyardID) = False Then
-                Log.WriteLine(LogType.INFORMATION, "GraveYards: Graveyard link invalid [{0}]", GraveyardID)
-                Continue For
+        'Death in an instance ?
+        If Maps(Character.MapID).IsDungeon = True Or Maps(Character.MapID).IsBattleGround = True Or Maps(Character.MapID).IsRaid = True Then   'In an instance
+            Character.ZoneCheckInstance()
+            Ghostzone = AreaTable(GetAreaIDByMapandParent(Character.MapID, AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone)).ID
+            WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0} and (faction = 0 or faction = {1}) ", Ghostzone, Character.Team), GraveQuery)
+
+            'AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone()
+            If GraveQuery.Rows.Count = 0 Then
+                Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)
+                Exit Sub
             End If
 
-            If Character.MapID <> Graveyards(GraveyardID).Map Then
-                If IsNothing(entryFar) Then entryFar = Graveyards(GraveyardID)
-                Continue For
-            End If
-
-            'Skip graveyards that ain't for your faction
-            If GraveyardFaction <> 0 AndAlso GraveyardFaction <> Character.Team Then Continue For
-
-            Dim dist2 As Single = GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
-            If foundNear Then
-                If dist2 < distNear Then
-                    distNear = dist2
-                    entryNear = Graveyards(GraveyardID)
-                End If
+            If Maps(Character.MapID).IsDungeon = True Or Maps(Character.MapID).IsBattleGround = True Or Maps(Character.MapID).IsRaid = True Then   'In an instance
+                entryFar = Graveyards(GraveQuery.Rows(0).Item("id"))
+                entryNear = entryFar
             Else
-                foundNear = True
-                distNear = dist2
-                entryNear = Graveyards(GraveyardID)
-            End If
-        Next
 
-        Dim selectedGraveyard As TGraveyard = entryNear
-        If IsNothing(selectedGraveyard) Then selectedGraveyard = entryFar
+                For Each GraveLink As DataRow In GraveQuery.Rows
+                    Dim GraveyardID As Integer = GraveLink.Item("id")
+                    Dim GraveyardFaction As Integer = GraveLink.Item("faction")
+                    If Graveyards.ContainsKey(GraveyardID) = False Then
+                        Log.WriteLine(LogType.INFORMATION, "GraveYards: Graveyard link invalid [{0}]", GraveyardID)
+                        Continue For
+                    End If
 
-        If Teleport Then
-            If Alive And Character.DEAD Then
-                CharacterResurrect(Character)
-                Character.Life.Current = Character.Life.Maximum
-                If Character.ManaType = ManaTypes.TYPE_MANA Then Character.Mana.Current = Character.Mana.Maximum
-                If selectedGraveyard.Map = Character.MapID Then
-                    Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, Character.Life.Current)
-                    If Character.ManaType = ManaTypes.TYPE_MANA Then Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, Character.Mana.Current)
-                    Character.SendCharacterUpdate()
-                End If
+                    If Character.MapID <> Graveyards(GraveyardID).Map Then
+                        If IsNothing(entryFar) Then entryFar = Graveyards(GraveyardID)
+                        Continue For
+                    End If
+
+                    'Skip graveyards that ain't for your faction
+                    If GraveyardFaction <> 0 AndAlso GraveyardFaction <> Character.Team Then Continue For
+
+                    Dim dist2 As Single = GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
+                    If foundNear Then
+                        If dist2 < distNear Then
+                            distNear = dist2
+                            entryNear = Graveyards(GraveyardID)
+                        End If
+                    Else
+                        foundNear = True
+                        distNear = dist2
+                        entryNear = Graveyards(GraveyardID)
+                    End If
+                Next
             End If
+            Dim selectedGraveyard As TGraveyard = entryNear
+            If IsNothing(selectedGraveyard) Then selectedGraveyard = entryFar
+
+            'If Teleport Then
+            '                If Alive = False And Character.DEAD = True Then
+            '                    CharacterResurrect(Character)
+            '                    Character.Life.Current = Character.Life.Maximum
+            '                   If Character.ManaType = ManaTypes.TYPE_MANA Then Character.Mana.Current = Character.Mana.Maximum
+            'If selectedGraveyard.Map = Character.MapID Then
+            '                       Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, Character.Life.Current)
+            '                       If Character.ManaType = ManaTypes.TYPE_MANA Then Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, Character.Mana.Current)
+            'Character.SendCharacterUpdate()
+            'End If
+            'End If
 
             Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z)
             Character.Teleport(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, 0, selectedGraveyard.Map)
             Character.SendDeathReleaseLoc(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, selectedGraveyard.Map)
-        Else
-            Character.positionX = selectedGraveyard.X
-            Character.positionY = selectedGraveyard.Y
-            Character.positionZ = selectedGraveyard.Z
-            Character.MapID = selectedGraveyard.Map
+            'Else
+            '    Character.positionX = selectedGraveyard.X
+            '    Character.positionY = selectedGraveyard.Y
+            '    Character.positionZ = selectedGraveyard.Z
+            '    Character.MapID = selectedGraveyard.Map
+            'End If
+        Else            'Non instanced Death
+            Character.ZoneCheck()
+
+            '            WorldDatabase.Query(String.Format("SELECT id, faction FROM world_graveyard_zone WHERE ghost_map = {0} AND ghost_zone = {1}", Character.MapID, Character.ZoneID), GraveQuery)
+            WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0}", Character.ZoneID), GraveQuery)
+
+            If GraveQuery.Rows.Count = 0 Then
+                Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)
+                Exit Sub
+            End If
+
+            For Each GraveLink As DataRow In GraveQuery.Rows
+                Dim GraveyardID As Integer = GraveLink.Item("id")
+                Dim GraveyardFaction As Integer = GraveLink.Item("faction")
+                If Graveyards.ContainsKey(GraveyardID) = False Then
+                    Log.WriteLine(LogType.INFORMATION, "GraveYards: Graveyard link invalid [{0}]", GraveyardID)
+                    Continue For
+                End If
+
+                If Character.MapID <> Graveyards(GraveyardID).Map Then
+                    If IsNothing(entryFar) Then entryFar = Graveyards(GraveyardID)
+                    Continue For
+                End If
+
+                'Skip graveyards that ain't for your faction
+                If GraveyardFaction <> 0 AndAlso GraveyardFaction <> Character.Team Then Continue For
+
+                Dim dist2 As Single = GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
+                If foundNear Then
+                    If dist2 < distNear Then
+                        distNear = dist2
+                        entryNear = Graveyards(GraveyardID)
+                    End If
+                Else
+                    foundNear = True
+                    distNear = dist2
+                    entryNear = Graveyards(GraveyardID)
+                End If
+            Next
+
+            Dim selectedGraveyard As TGraveyard = entryNear
+            If IsNothing(selectedGraveyard) Then selectedGraveyard = entryFar
+
+            If Teleport Then
+                If Alive And Character.DEAD Then
+                    CharacterResurrect(Character)
+                    Character.Life.Current = Character.Life.Maximum
+                    If Character.ManaType = ManaTypes.TYPE_MANA Then Character.Mana.Current = Character.Mana.Maximum
+                    If selectedGraveyard.Map = Character.MapID Then
+                        Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, Character.Life.Current)
+                        If Character.ManaType = ManaTypes.TYPE_MANA Then Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, Character.Mana.Current)
+                        Character.SendCharacterUpdate()
+                    End If
+                End If
+
+                Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z)
+                Character.Teleport(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, 0, selectedGraveyard.Map)
+                Character.SendDeathReleaseLoc(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, selectedGraveyard.Map)
+            Else
+                Character.positionX = selectedGraveyard.X
+                Character.positionY = selectedGraveyard.Y
+                Character.positionZ = selectedGraveyard.Z
+                Character.MapID = selectedGraveyard.Map
+            End If
+
         End If
     End Sub
 

@@ -589,7 +589,7 @@ Public Module WS_DBCLoad
             Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\AreaTable.dbc")
 
             Dim areaID As Integer
-            'Dim areaMapID As Integer
+            Dim areaMapID As Integer
             Dim areaExploreFlag As Integer
             Dim areaLevel As Integer
             Dim areaZone As Integer
@@ -600,8 +600,8 @@ Public Module WS_DBCLoad
 
             For i As Integer = 0 To tmpDbc.Rows - 1
                 areaID = tmpDbc.Item(i, 0)
-                'areaMapID = tmpDBC.Item(i, 1) ' May be needed in the future
-                areaZone = tmpDbc.Item(i, 2)
+                areaMapID = tmpDbc.Item(i, 1) ' May be needed in the future
+                areaZone = tmpDbc.Item(i, 2)    'Parent Map
                 areaExploreFlag = tmpDbc.Item(i, 3)
                 areaZoneType = tmpDbc.Item(i, 4) ' 312 For Cities - Flags
                 ' 5        m_SoundProviderPref
@@ -620,6 +620,7 @@ Public Module WS_DBCLoad
 
                 AreaTable(areaExploreFlag) = New TArea
                 AreaTable(areaExploreFlag).ID = areaID
+                AreaTable(areaExploreFlag).mapId = areaMapID
                 AreaTable(areaExploreFlag).Level = areaLevel
                 'AreaTable(areaExploreFlag).Name = areaName
                 AreaTable(areaExploreFlag).Zone = areaZone

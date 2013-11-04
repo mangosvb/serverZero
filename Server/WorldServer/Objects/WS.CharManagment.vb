@@ -4219,6 +4219,85 @@ CheckXPAgain:
             End If
         End Sub
 
+        Public Sub ZoneCheckInstance()
+            Dim ZoneFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
+            If AreaTable.ContainsKey(ZoneFlag) = False Then
+                Log.WriteLine(LogType.WARNING, "Zone Flag {0} does not exist.", ZoneFlag)
+                Exit Sub
+            End If
+            AreaID = AreaTable(ZoneFlag).ID
+            If AreaTable(ZoneFlag).Zone = 0 Then
+                If ZoneID = 0 Then
+                    ZoneID = AreaTable(ZoneFlag).ID
+                Else
+                    ZoneID = AreaTable(ZoneFlag).Zone
+                End If
+            End If
+            GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE
+
+            'DONE: Set rested in citys
+            If AreaTable(ZoneFlag).IsCity Then
+                If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) = 0 AndAlso Level < DEFAULT_MAX_LEVEL Then
+                    cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_RESTING
+                    SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
+                    SendCharacterUpdate()
+                End If
+            Else
+                If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) Then
+                    cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_RESTING)
+                    SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
+                    SendCharacterUpdate()
+                End If
+            End If
+            'DONE: Sanctuary turns players into blue and not attackable
+            If AreaTable(ZoneFlag).IsSanctuary Then
+                If (cUnitFlags And UnitFlags.UNIT_FLAG_NON_PVP_PLAYER) < UnitFlags.UNIT_FLAG_NON_PVP_PLAYER Then
+                    cUnitFlags = cUnitFlags Or UnitFlags.UNIT_FLAG_NON_PVP_PLAYER
+                    SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
+                    SendCharacterUpdate()
+                End If
+            Else
+                If (cUnitFlags And UnitFlags.UNIT_FLAG_NON_PVP_PLAYER) = UnitFlags.UNIT_FLAG_NON_PVP_PLAYER Then
+                    cUnitFlags = cUnitFlags And (Not UnitFlags.UNIT_FLAG_NON_PVP_PLAYER)
+                    cUnitFlags = cUnitFlags Or UnitFlags.UNIT_FLAG_ATTACKABLE 'To still be able to attack neutral
+                    SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
+                    SendCharacterUpdate()
+                End If
+
+                'DONE: Activate Arena PvP (Can attack people from your own faction)
+                If AreaTable(ZoneFlag).IsArena Then
+                    If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_PVP_TIMER) = 0 Then
+                        cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_PVP_TIMER
+                        SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
+                        SendCharacterUpdate()
+
+                        GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                    End If
+                Else
+                    'DONE: Activate PvP
+                    'TODO: Only for PvP realms
+                    If AreaTable(ZoneFlag).IsMyLand(Me) = False Then
+                        If (cUnitFlags And UnitFlags.UNIT_FLAG_PVP) = 0 Then
+                            cUnitFlags = cUnitFlags Or UnitFlags.UNIT_FLAG_PVP
+                            SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
+                            SendCharacterUpdate()
+
+                            GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                        End If
+                    Else
+                        'TODO: It takes 5 minutes before the PVP flag wears off
+                        If (cUnitFlags And UnitFlags.UNIT_FLAG_PVP) Then
+                            cUnitFlags = cUnitFlags And (Not UnitFlags.UNIT_FLAG_PVP)
+                            SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
+                            SendCharacterUpdate()
+
+                            GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                        End If
+                    End If
+                End If
+            End If
+        End Sub
+
         'Public Sub ChangeSpeed(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
         '    Dim packet As PacketClass = Nothing
         '    Try
