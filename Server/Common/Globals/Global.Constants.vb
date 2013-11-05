@@ -214,10 +214,8 @@ Public Module Constants
     Public Const PETITION_GUILD As Integer = 5863       'Guild Charter, ItemFlags = &H2000
     Public Const GUILD_TABARD_ITEM As Integer = 5976
 
-
     Public Const CREATURE_MAX_SPELLS As Integer = 4
     Public Const MAX_OWNER_DIS As Integer = 100
-
 
     Public Const SPELL_DURATION_INFINITE As Integer = -1
     Public Const MAX_AURA_EFFECTs_VISIBLE As Integer = 48                  '48 AuraSlots (32 buff, 16 debuff)

@@ -58,7 +58,7 @@ Public Module Functions
         Select Case form
             Case ShapeshiftForm.FORM_CAT, ShapeshiftForm.FORM_STEALTH
                 Return ManaTypes.TYPE_ENERGY
-            Case ShapeshiftForm.FORM_AQUA, ShapeshiftForm.FORM_TRAVEL, ShapeshiftForm.FORM_MOONKIN, _
+            Case ShapeshiftForm.FORM_AQUA, ShapeshiftForm.FORM_TRAVEL, ShapeshiftForm.FORM_MOONKIN, ShapeshiftForm.FORM_TREE, _
                  ShapeshiftForm.FORM_MOONKIN, ShapeshiftForm.FORM_MOONKIN, ShapeshiftForm.FORM_SPIRITOFREDEMPTION, ShapeshiftForm.FORM_FLIGHT, ShapeshiftForm.FORM_SWIFT
                 Return ManaTypes.TYPE_MANA
             Case ShapeshiftForm.FORM_BEAR, ShapeshiftForm.FORM_DIREBEAR
