@@ -6257,6 +6257,7 @@ DoneAmmo:
         objCharacter.positionX = CreateInfo.Rows(0).Item("position_x")
         objCharacter.positionY = CreateInfo.Rows(0).Item("position_y")
         objCharacter.positionZ = CreateInfo.Rows(0).Item("position_z")
+        objCharacter.orientation = CreateInfo.Rows(0).Item("orientation")
         objCharacter.bindpoint_map_id = objCharacter.MapID
         objCharacter.bindpoint_zone_id = objCharacter.ZoneID
         objCharacter.bindpoint_positionX = objCharacter.positionX
