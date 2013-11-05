@@ -545,13 +545,13 @@ Public Module WS_Commands
             Dim sngPercent As Single = CSng(Percent / 100)
 
             If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
+                For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                     If CHARACTERs(objCharacter.TargetGUID).Items.ContainsKey(i) Then
                         CHARACTERs(objCharacter.TargetGUID).Items(i).ModifyToDurability(sngPercent, CHARACTERs(objCharacter.TargetGUID).client)
                     End If
                 Next
             Else
-                For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
+                For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                     If objCharacter.Items.ContainsKey(i) Then
                         objCharacter.Items(i).ModifyToDurability(sngPercent, objCharacter.client)
                     End If

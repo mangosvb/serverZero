@@ -896,17 +896,17 @@ SkipShapeShift:
                         If (EquippedItemSubClass And (1 << i)) Then
                             Select Case i
                                 Case ITEM_SUBCLASS.ITEM_SUBCLASS_TWOHAND_AXE, ITEM_SUBCLASS.ITEM_SUBCLASS_TWOHAND_MACE, ITEM_SUBCLASS.ITEM_SUBCLASS_TWOHAND_SWORD, ITEM_SUBCLASS.ITEM_SUBCLASS_STAFF, ITEM_SUBCLASS.ITEM_SUBCLASS_POLEARM, ITEM_SUBCLASS.ITEM_SUBCLASS_SPEAR, ITEM_SUBCLASS.ITEM_SUBCLASS_FISHING_POLE
-                                    If Character.Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) AndAlso Character.Items(EQUIPMENT_SLOT_MAINHAND).IsBroken = False AndAlso Character.Items(EQUIPMENT_SLOT_MAINHAND).ItemInfo.ObjectClass = EquippedItemClass Then FoundItem = True : Exit For
+                                    If Character.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).IsBroken = False AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).ItemInfo.ObjectClass = EquippedItemClass Then FoundItem = True : Exit For
                                 Case ITEM_SUBCLASS.ITEM_SUBCLASS_AXE, ITEM_SUBCLASS.ITEM_SUBCLASS_MACE, ITEM_SUBCLASS.ITEM_SUBCLASS_SWORD, ITEM_SUBCLASS.ITEM_SUBCLASS_FIST_WEAPON, ITEM_SUBCLASS.ITEM_SUBCLASS_DAGGER
-                                    If Character.Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) AndAlso Character.Items(EQUIPMENT_SLOT_MAINHAND).IsBroken = False AndAlso Character.Items(EQUIPMENT_SLOT_MAINHAND).ItemInfo.ObjectClass = EquippedItemClass Then FoundItem = True : Exit For
-                                    If Character.Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) AndAlso Character.Items(EQUIPMENT_SLOT_OFFHAND).IsBroken = False AndAlso Character.Items(EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass = EquippedItemClass Then FoundItem = True : Exit For
+                                    If Character.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).IsBroken = False AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).ItemInfo.ObjectClass = EquippedItemClass Then FoundItem = True : Exit For
+                                    If Character.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).IsBroken = False AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass = EquippedItemClass Then FoundItem = True : Exit For
                                 Case ITEM_SUBCLASS.ITEM_SUBCLASS_BOW, ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW, ITEM_SUBCLASS.ITEM_SUBCLASS_GUN, ITEM_SUBCLASS.ITEM_SUBCLASS_WAND, ITEM_SUBCLASS.ITEM_SUBCLASS_THROWN
-                                    If Character.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) AndAlso Character.Items(EQUIPMENT_SLOT_RANGED).IsBroken = False AndAlso Character.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass = EquippedItemClass Then
+                                    If Character.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).IsBroken = False AndAlso Character.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass = EquippedItemClass Then
                                         If i = ITEM_SUBCLASS.ITEM_SUBCLASS_BOW OrElse i = ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW OrElse i = ITEM_SUBCLASS.ITEM_SUBCLASS_GUN Then
                                             If Character.AmmoID = 0 Then Return SpellFailedReason.SPELL_FAILED_NO_AMMO
                                             If Character.ItemCOUNT(Character.AmmoID) = 0 Then Return SpellFailedReason.SPELL_FAILED_NO_AMMO
                                         ElseIf i = ITEM_SUBCLASS.ITEM_SUBCLASS_THROWN Then
-                                            If Character.ItemCOUNT(Character.Items(EQUIPMENT_SLOT_RANGED).ItemEntry) Then Return SpellFailedReason.SPELL_FAILED_NO_AMMO
+                                            If Character.ItemCOUNT(Character.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemEntry) Then Return SpellFailedReason.SPELL_FAILED_NO_AMMO
                                         End If
                                         FoundItem = True : Exit For
                                     End If
@@ -1021,7 +1021,7 @@ SkipShapeShift:
             If TypeOf Caster Is CharacterObject Then
                 With CType(Caster, CharacterObject)
 
-                    Dim RangedItem As ItemObject = .ItemGET(0, EQUIPMENT_SLOT_RANGED)
+                    Dim RangedItem As ItemObject = .ItemGET(0, EquipmentSlots.EQUIPMENT_SLOT_RANGED)
                     If RangedItem IsNot Nothing Then
                         If RangedItem.ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_THROWN Then
                             ItemInfo = RangedItem.ItemInfo
@@ -1214,8 +1214,8 @@ SkipShapeShift:
 
             'DONE: Shoot spell uses the equipped wand's attackspeed
             If ID = 5019 Then
-                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) Then
-                    Recovery = objCharacter.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.Delay
+                If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) Then
+                    Recovery = objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.Delay
                 End If
             End If
 
@@ -3988,10 +3988,10 @@ SkipShapeShift:
         Log.WriteLine(LogType.DEBUG, "[DEBUG] Enchant duration [{0}]({1})", Duration, SpellInfo.valueBase)
 
         For Each Unit As BaseUnit In Infected
-            If TypeOf Unit Is CharacterObject AndAlso CType(Unit, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) Then
-                If CType(Unit, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND).Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_TEMP) AndAlso CType(Unit, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND).Enchantments(EnchantSlots.ENCHANTMENT_TEMP).ID = SpellInfo.MiscValue Then
-                    CType(Unit, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND).AddEnchantment(SpellInfo.MiscValue, EnchantSlots.ENCHANTMENT_TEMP, Duration)
-                    CType(Unit, CharacterObject).SendItemUpdate(CType(Unit, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND))
+            If TypeOf Unit Is CharacterObject AndAlso CType(Unit, CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
+                If CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_TEMP) AndAlso CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).Enchantments(EnchantSlots.ENCHANTMENT_TEMP).ID = SpellInfo.MiscValue Then
+                    CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).AddEnchantment(SpellInfo.MiscValue, EnchantSlots.ENCHANTMENT_TEMP, Duration)
+                    CType(Unit, CharacterObject).SendItemUpdate(CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND))
                 End If
             End If
         Next
@@ -7033,7 +7033,7 @@ SkipShapeShift:
         If SPELLs(spellID).IsAutoRepeat Then
             SpellType = CurrentSpellTypes.CURRENT_AUTOREPEAT_SPELL
             Dim tmpSpellID As Integer = 0
-            If client.Character.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) Then
+            If client.Character.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) Then
                 'Select Case client.Character.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass
                 '    Case ITEM_SUBCLASS.ITEM_SUBCLASS_BOW, ITEM_SUBCLASS.ITEM_SUBCLASS_GUN, ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW
                 '        tmpSpellID = 3018
@@ -7049,7 +7049,7 @@ SkipShapeShift:
                     Try
                         client.Character.AutoShotSpell = spellID
                         client.Character.attackState.Ranged = True
-                        client.Character.attackState.AttackStart(Client.Character.GetTarget)
+                        client.Character.attackState.AttackStart(client.Character.GetTarget)
                     Catch e As Exception
                         Log.WriteLine(LogType.FAILED, "Error casting auto-shoot {0}.{1}", spellID, vbNewLine & e.ToString)
                     End Try

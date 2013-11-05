@@ -36,10 +36,10 @@ Public Class WS_QuestInfo
     Public RewMoneyMaxLevel As Integer '= 0
     Public RewardSpell As Integer ' = 0
     Public RewardSpellCast As Integer '= 0
-    Public RewardItems(QUEST_REWARD_CHOICES_COUNT) As Integer
-    Public RewardItems_Count(QUEST_REWARD_CHOICES_COUNT) As Integer
-    Public RewardStaticItems(QUEST_REWARDS_COUNT) As Integer
-    Public RewardStaticItems_Count(QUEST_REWARDS_COUNT) As Integer
+    Public RewardItems(QuestInfo.QUEST_REWARD_CHOICES_COUNT) As Integer
+    Public RewardItems_Count(QuestInfo.QUEST_REWARD_CHOICES_COUNT) As Integer
+    Public RewardStaticItems(QuestInfo.QUEST_REWARDS_COUNT) As Integer
+    Public RewardStaticItems_Count(QuestInfo.QUEST_REWARDS_COUNT) As Integer
     Public RewardRepFaction(4) As Integer
     Public RewardRepValue(4) As Integer
     Public RewMailTemplateId As Integer
