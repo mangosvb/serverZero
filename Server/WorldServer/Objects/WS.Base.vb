@@ -835,11 +835,11 @@ Public Module WS_Base
                     Dim item As ItemObject = Nothing
                     Select Case attType
                         Case WeaponAttackType.BASE_ATTACK
-                            If .Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) Then item = .Items(EQUIPMENT_SLOT_MAINHAND)
+                            If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then item = .Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND)
                         Case WeaponAttackType.OFF_ATTACK
-                            If .Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) Then item = .Items(EQUIPMENT_SLOT_OFFHAND)
+                            If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) Then item = .Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND)
                         Case WeaponAttackType.RANGED_ATTACK
-                            If .Items.ContainsKey(EQUIPMENT_SLOT_RANGED) Then item = .Items(EQUIPMENT_SLOT_RANGED)
+                            If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) Then item = .Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED)
                     End Select
 
                     'feral or unarmed skill only for base attack

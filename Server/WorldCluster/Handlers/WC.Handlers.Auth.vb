@@ -418,15 +418,15 @@ Public Module WC_Handlers_Auth
                 Dim r As DataRow = e.Current
 
                 'DONE: Add model info
-                For slot As Byte = 0 To EQUIPMENT_SLOT_END '- 1
+                For slot As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END '- 1
                     If r Is Nothing OrElse CInt(r.Item("item_slot")) <> slot Then
                         'No equiped item in this slot
                         response.AddInt32(0) 'Item Model
                         response.AddInt8(0)  'Item Slot
                     Else
                         'DONE: Do not show helmet or cloak
-                        If ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDECLOAK) AndAlso CByte(r.Item("item_slot")) = EQUIPMENT_SLOT_BACK) OrElse _
-                            ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDEHELM) AndAlso CByte(r.Item("item_slot")) = EQUIPMENT_SLOT_HEAD) Then
+                        If ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDECLOAK) AndAlso CByte(r.Item("item_slot")) = EquipmentSlots.EQUIPMENT_SLOT_BACK) OrElse _
+                            ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDEHELM) AndAlso CByte(r.Item("item_slot")) = EquipmentSlots.EQUIPMENT_SLOT_HEAD) Then
                             response.AddInt32(0) 'Item Model
                             response.AddInt8(0)  'Item Slot
                         Else

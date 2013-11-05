@@ -158,7 +158,7 @@ Public NotInheritable Class ItemObject
             If CHARACTERs.ContainsKey(OwnerGUID) = False Then Return 255
 
             With CHARACTERs(OwnerGUID)
-                For i As Byte = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_END - 1
+                For i As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                     If .Items.ContainsKey(i) Then
                         For j As Byte = 0 To .Items(i).ItemInfo.ContainerSlots - 1
                             If .Items(i).Items.ContainsKey(j) Then
@@ -178,19 +178,19 @@ Public NotInheritable Class ItemObject
             If CHARACTERs.ContainsKey(OwnerGUID) = False Then Return -1
 
             With CHARACTERs(OwnerGUID)
-                For i As Byte = EQUIPMENT_SLOT_START To INVENTORY_SLOT_ITEM_END - 1
+                For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                     If .Items.ContainsKey(i) Then
                         If .Items(i) Is Me Then Return i
                     End If
                 Next
 
-                For i As Byte = KEYRING_SLOT_START To KEYRING_SLOT_END - 1
+                For i As Byte = KeyRingSlots.KEYRING_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                     If .Items.ContainsKey(i) Then
                         If .Items(i) Is Me Then Return i
                     End If
                 Next
 
-                For i As Byte = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_END - 1
+                For i As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                     If .Items.ContainsKey(i) Then
                         For j As Byte = 0 To .Items(i).ItemInfo.ContainerSlots - 1
                             If .Items(i).Items.ContainsKey(j) Then

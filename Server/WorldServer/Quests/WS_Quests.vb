@@ -121,7 +121,7 @@ Public Class WS_Quests
         'DONE: Quests for completing
         Dim alreadyHave As New List(Of Integer)
         If CreatureQuestFinishers.ContainsKey(creatureEntry) Then
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If objCharacter.TalkQuests(i) IsNot Nothing Then
                     alreadyHave.Add(objCharacter.TalkQuests(i).ID)
                     If CreatureQuestFinishers(creatureEntry).Contains(objCharacter.TalkQuests(i).ID) Then
@@ -172,7 +172,7 @@ Public Class WS_Quests
         'DONE: Quests for completing
         Dim alreadyHave As New List(Of Integer)
         If GameobjectQuestFinishers.ContainsKey(gOEntry) Then
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If objCharacter.TalkQuests(i) IsNot Nothing Then
                     alreadyHave.Add(objCharacter.TalkQuests(i).ID)
                     If GameobjectQuestFinishers(gOEntry).Contains(objCharacter.TalkQuests(i).ID) Then
@@ -258,11 +258,11 @@ Public Class WS_Quests
 
             'QuestRewards (Choosable)
             Dim questRewardsCount As Integer = 0
-            For i As Integer = 0 To QUEST_REWARD_CHOICES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
                 If quest.RewardItems(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QUEST_REWARD_CHOICES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
                 If quest.RewardItems(i) <> 0 Then
                     'Add item if not loaded into server
                     If Not ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
@@ -281,11 +281,11 @@ Public Class WS_Quests
             Next
             'QuestRewards (Static)
             questRewardsCount = 0
-            For i As Integer = 0 To QUEST_REWARDS_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 If quest.RewardStaticItems(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QUEST_REWARDS_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 If quest.RewardStaticItems(i) <> 0 Then
                     'Add item if not loaded into server
                     If Not ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
@@ -305,11 +305,11 @@ Public Class WS_Quests
             packet.AddInt32(quest.RewardGold)
 
             questRewardsCount = 0
-            For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesItem(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                 'Add item if not loaded into server
                 If quest.ObjectivesItem(i) <> 0 AndAlso ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
                     Dim tmpItem As New ItemInfo(quest.ObjectivesItem(i))
@@ -321,11 +321,11 @@ Public Class WS_Quests
             Next
 
             questRewardsCount = 0
-            For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesKill(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                 packet.AddUInt32(quest.ObjectivesKill(i))
                 packet.AddInt32(quest.ObjectivesKill_Count(i))
             Next
@@ -379,11 +379,11 @@ Public Class WS_Quests
             packet.AddInt32(quest.ObjectivesDeliver) ' Item given at the start of a quest (srcItem)
             packet.AddInt32((quest.QuestFlags And &HFFFF))
 
-            For i As Integer = 0 To QUEST_REWARDS_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 packet.AddInt32(quest.RewardStaticItems(i))
                 packet.AddInt32(quest.RewardStaticItems_Count(i))
             Next
-            For i As Integer = 0 To QUEST_REWARD_CHOICES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
                 packet.AddInt32(quest.RewardItems(i))
                 packet.AddInt32(quest.RewardItems_Count(i))
             Next
@@ -400,7 +400,7 @@ Public Class WS_Quests
             packet.AddString(quest.TextEnd)
 
             'Objectives
-            For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                 packet.AddInt32(quest.ObjectivesKill(i))
                 packet.AddInt32(quest.ObjectivesKill_Count(i))
                 packet.AddInt32(quest.ObjectivesItem(i))
@@ -410,7 +410,7 @@ Public Class WS_Quests
                 If quest.ObjectivesItem(i) <> 0 Then SendItemInfo(client, quest.ObjectivesItem(i))
             Next
 
-            For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                 packet.AddString(quest.ObjectivesText(i))
             Next
 
@@ -531,11 +531,11 @@ Public Class WS_Quests
             packet.AddInt32(quest.RewardHonor) ' bonus honor...used in BG quests
 
             Dim rewardsCount As Integer = 0
-            For i As Integer = 0 To QUEST_REWARDS_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 If quest.RewardStaticItems(i) > 0 Then rewardsCount += 1
             Next
             packet.AddInt32(rewardsCount)
-            For i As Integer = 0 To QUEST_REWARDS_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 If quest.RewardStaticItems(i) > 0 Then
                     packet.AddInt32(quest.RewardStaticItems(i))
                     packet.AddInt32(quest.RewardStaticItems_Count(i))
@@ -577,11 +577,11 @@ Public Class WS_Quests
             Next
 
             Dim questRewardsCount As Integer = 0
-            For i As Integer = 0 To QUEST_REWARD_CHOICES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
                 If quest.RewardItems(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QUEST_REWARD_CHOICES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
                 If quest.RewardItems(i) <> 0 Then
                     packet.AddInt32(quest.RewardItems(i))
                     packet.AddInt32(quest.RewardItems_Count(i))
@@ -597,11 +597,11 @@ Public Class WS_Quests
             Next
 
             questRewardsCount = 0
-            For i As Integer = 0 To QUEST_REWARDS_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 If quest.RewardStaticItems(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QUEST_REWARDS_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 If quest.RewardStaticItems(i) <> 0 Then
                     packet.AddInt32(quest.RewardStaticItems(i))
                     packet.AddInt32(quest.RewardStaticItems_Count(i))
@@ -669,14 +669,14 @@ Public Class WS_Quests
 
             'DONE: Count the required items
             Dim requiredItemsCount As Byte = 0
-            For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesItem(i) <> 0 Then requiredItemsCount += 1
             Next
             packet.AddInt32(requiredItemsCount)
 
             'DONE: List items
             If requiredItemsCount > 0 Then
-                For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+                For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                     If quest.ObjectivesItem(i) <> 0 Then
                         If ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
                             Dim tmpItem As ItemInfo = New ItemInfo(quest.ObjectivesItem(i))
@@ -771,7 +771,7 @@ Public Class WS_Quests
         If objCharacter Is Nothing Then Exit Sub
 
         'DONE: Count kills
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_KILL) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) = 0 Then
                 If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
                     CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestKill(objCharacter, creature)
@@ -797,7 +797,7 @@ Public Class WS_Quests
             If guid = objCharacter.GUID Then Continue For
 
             With CHARACTERs(guid)
-                For i As Integer = 0 To QUEST_SLOTS
+                For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                     If (Not .TalkQuests(i) Is Nothing) AndAlso (.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_KILL) AndAlso (.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) = 0 Then
                         With .TalkQuests(i)
                             For j As Byte = 0 To 3
@@ -825,7 +825,7 @@ Public Class WS_Quests
     Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject, ByVal spellID As Integer)
         'DONE: Count spell casts
         'DONE: Check if we're casting it on the correct creature
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) Then
                 If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
                     CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestCastSpell(objCharacter, creature, spellID)
@@ -856,7 +856,7 @@ Public Class WS_Quests
     Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef gameObject As GameObjectObject, ByVal spellID As Integer)
         'DONE: Count spell casts
         'DONE: Check if we're casting it on the correct gameobject
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) Then
                 If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
                     CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestCastSpell(objCharacter, gameObject, spellID)
@@ -890,7 +890,7 @@ Public Class WS_Quests
 
         'DONE: Count spell casts
         'DONE: Check if we're casting it on the correct gameobject
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EMOTE) Then
                 If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
                     CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestEmote(objCharacter, creature, emoteID)
@@ -928,7 +928,7 @@ Public Class WS_Quests
         If objCharacter.IsInGroup Then
             For Each guid As ULong In objCharacter.Group.LocalMembers
                 With CHARACTERs(guid)
-                    For j As Integer = 0 To QUEST_SLOTS
+                    For j As Integer = 0 To QuestInfo.QUEST_SLOTS
                         If (Not .TalkQuests(j) Is Nothing) AndAlso (.TalkQuests(j).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) AndAlso isRaid = False Then
                             With .TalkQuests(j)
                                 For k As Byte = 0 To 3
@@ -943,7 +943,7 @@ Public Class WS_Quests
             Next
 
         Else
-            For j As Integer = 0 To QUEST_SLOTS
+            For j As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If (Not objCharacter.TalkQuests(j) Is Nothing) AndAlso (objCharacter.TalkQuests(j).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
                     With objCharacter.TalkQuests(j)
                         For k As Byte = 0 To 3
@@ -970,7 +970,7 @@ Public Class WS_Quests
 
         For Each questItemID As Integer In gameobject.IncludesQuestItems
             'DONE: Check quests needing that item
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If objCharacter.TalkQuests(i) IsNot Nothing AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
                     For j As Byte = 0 To 3
                         If objCharacter.TalkQuests(i).ObjectivesType(j) = QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM AndAlso objCharacter.TalkQuests(i).ObjectivesItem(j) = questItemID Then
@@ -1008,7 +1008,7 @@ Public Class WS_Quests
         If count = 0 Then count = 1
 
         'DONE: Check quests needing that item
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
                 If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
                     CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestItem(objCharacter, itemID, count)
@@ -1033,7 +1033,7 @@ Public Class WS_Quests
         If count = 0 Then count = 1
 
         'DONE: Check quests needing that item
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
                 If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
                     CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestItem(objCharacter, itemID, -count)
@@ -1055,7 +1055,7 @@ Public Class WS_Quests
 
     'DONE: Exploration quest events
     Public Sub OnQuestExplore(ByRef objCharacter As CharacterObject, ByVal areaID As Integer)
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE) Then
                 If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
                     CType(objCharacter.TalkQuests(i), WS_QuestsBaseScripted).OnQuestExplore(objCharacter, areaID)
@@ -1159,7 +1159,7 @@ Public Class WS_Quests
 
         End If
 
-        For i As Integer = 0 To QUEST_SLOTS
+        For i As Integer = 0 To QuestInfo.QUEST_SLOTS
             If objCharacter.TalkQuests(i) IsNot Nothing Then
                 alreadyHave.Add(objCharacter.TalkQuests(i).ID)
                 If GuidIsCreature(cGuid) Then
@@ -1352,7 +1352,7 @@ Public Class WS_Quests
     Public Sub CompleteQuest(ByRef objCharacter As CharacterObject, ByVal questID As Integer, ByVal questGiverGuid As ULong)
         If Not ALLQUESTS.IsValidQuest(questID) Then
             Dim tmpQuest As New WS_QuestInfo(questID)
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If Not objCharacter.TalkQuests(i) Is Nothing Then
                     If objCharacter.TalkQuests(i).ID = questID Then
 
@@ -1364,13 +1364,13 @@ Public Class WS_Quests
                             'DONE: Show completion dialog
                             If (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
                                 'Request items
-                                SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
+                                SendQuestRequireItems(objCharacter.client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                             Else
-                                SendQuestReward(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
+                                SendQuestReward(objCharacter.client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                             End If
                         Else
                             'DONE: Just show incomplete text with disabled complete button
-                            SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
+                            SendQuestRequireItems(objCharacter.client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                         End If
 
                         Exit For
@@ -1378,7 +1378,7 @@ Public Class WS_Quests
                 End If
             Next
         Else
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If Not objCharacter.TalkQuests(i) Is Nothing Then
                     If objCharacter.TalkQuests(i).ID = questID Then
 
@@ -1390,13 +1390,13 @@ Public Class WS_Quests
                             'DONE: Show completion dialog
                             If (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) Then
                                 'Request items
-                                SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
+                                SendQuestRequireItems(objCharacter.client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                             Else
-                                SendQuestReward(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
+                                SendQuestReward(objCharacter.client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                             End If
                         Else
                             'DONE: Just show incomplete text with disabled complete button
-                            SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
+                            SendQuestRequireItems(objCharacter.client, objCharacter.TalkCurrentQuest, questGiverGuid, objCharacter.TalkQuests(i))
                         End If
 
                         Exit For
@@ -1428,7 +1428,7 @@ Public Class WS_Quests
 
         If Not ALLQUESTS.IsValidQuest(questID) Then
             Dim tmpQuest As New WS_QuestInfo(questID)
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If client.Character.TalkQuests(i) IsNot Nothing AndAlso client.Character.TalkQuests(i).ID = questID AndAlso client.Character.TalkQuests(i).Complete Then
 
                     'Load quest data
@@ -1439,7 +1439,7 @@ Public Class WS_Quests
                 End If
             Next
         Else
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If client.Character.TalkQuests(i) IsNot Nothing AndAlso client.Character.TalkQuests(i).ID = questID AndAlso client.Character.TalkQuests(i).Complete Then
 
                     'Load quest data
@@ -1485,7 +1485,7 @@ Public Class WS_Quests
                 End If
 
                 'DONE: Removing required items
-                For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+                For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                     If client.Character.TalkCurrentQuest.ObjectivesItem(i) <> 0 Then
                         If Not client.Character.ItemCONSUME(client.Character.TalkCurrentQuest.ObjectivesItem(i), client.Character.TalkCurrentQuest.ObjectivesItem_Count(i)) Then
                             'DONE: Restore gold
@@ -1540,7 +1540,7 @@ Public Class WS_Quests
                 End If
 
                 'DONE: Remove quest
-                For i As Integer = 0 To QUEST_SLOTS
+                For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                     If Not client.Character.TalkQuests(i) Is Nothing Then
                         If client.Character.TalkQuests(i).ID = client.Character.TalkCurrentQuest.ID Then
                             client.Character.TalkCompleteQuest(i)
@@ -1644,7 +1644,7 @@ Public Class WS_Quests
                 End If
 
                 'DONE: Removing required items
-                For i As Integer = 0 To QUEST_OBJECTIVES_COUNT
+                For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
                     If client.Character.TalkCurrentQuest.ObjectivesItem(i) <> 0 Then
                         If Not client.Character.ItemCONSUME(client.Character.TalkCurrentQuest.ObjectivesItem(i), client.Character.TalkCurrentQuest.ObjectivesItem_Count(i)) Then
                             'DONE: Restore gold
@@ -1699,7 +1699,7 @@ Public Class WS_Quests
                 End If
 
                 'DONE: Remove quest
-                For i As Integer = 0 To QUEST_SLOTS
+                For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                     If Not client.Character.TalkQuests(i) Is Nothing Then
                         If client.Character.TalkQuests(i).ID = client.Character.TalkCurrentQuest.ID Then
                             client.Character.TalkCompleteQuest(i)
@@ -1808,7 +1808,7 @@ Public Class WS_Quests
                         Dim message As QuestPartyPushError = QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST
 
                         'DONE: Check distance and ...
-                        If (Math.Sqrt((.positionX - client.Character.positionX) ^ 2 + (.positionY - client.Character.positionY) ^ 2) > QUEST_SHARING_DISTANCE) Then
+                        If (Math.Sqrt((.positionX - client.Character.positionX) ^ 2 + (.positionY - client.Character.positionY) ^ 2) > QuestInfo.QUEST_SHARING_DISTANCE) Then
                             message = QuestPartyPushError.QUEST_PARTY_MSG_TO_FAR
                         ElseIf .IsQuestInProgress(questID) Then
                             message = QuestPartyPushError.QUEST_PARTY_MSG_HAVE_QUEST
@@ -1817,7 +1817,7 @@ Public Class WS_Quests
                         Else
                             If (.TalkCurrentQuest Is Nothing) OrElse (.TalkCurrentQuest.ID <> questID) Then .TalkCurrentQuest = tmpQuest
                             If .TalkCanAccept(.TalkCurrentQuest) Then
-                                SendQuestDetails(.Client, .TalkCurrentQuest, client.Character.GUID, True)
+                                SendQuestDetails(.client, .TalkCurrentQuest, client.Character.GUID, True)
                             Else
                                 message = QuestPartyPushError.QUEST_PARTY_MSG_CANT_TAKE_QUEST
                             End If
@@ -1851,7 +1851,7 @@ Public Class WS_Quests
                         Dim message As QuestPartyPushError = QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST
 
                         'DONE: Check distance and ...
-                        If (Math.Sqrt((.positionX - client.Character.positionX) ^ 2 + (.positionY - client.Character.positionY) ^ 2) > QUEST_SHARING_DISTANCE) Then
+                        If (Math.Sqrt((.positionX - client.Character.positionX) ^ 2 + (.positionY - client.Character.positionY) ^ 2) > QuestInfo.QUEST_SHARING_DISTANCE) Then
                             message = QuestPartyPushError.QUEST_PARTY_MSG_TO_FAR
                         ElseIf .IsQuestInProgress(questID) Then
                             message = QuestPartyPushError.QUEST_PARTY_MSG_HAVE_QUEST
@@ -1860,7 +1860,7 @@ Public Class WS_Quests
                         Else
                             If (.TalkCurrentQuest Is Nothing) OrElse (.TalkCurrentQuest.ID <> questID) Then .TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
                             If .TalkCanAccept(.TalkCurrentQuest) Then
-                                SendQuestDetails(.Client, .TalkCurrentQuest, client.Character.GUID, True)
+                                SendQuestDetails(.client, .TalkCurrentQuest, client.Character.GUID, True)
                             Else
                                 message = QuestPartyPushError.QUEST_PARTY_MSG_CANT_TAKE_QUEST
                             End If

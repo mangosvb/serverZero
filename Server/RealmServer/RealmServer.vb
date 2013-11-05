@@ -212,7 +212,7 @@ Public Module RealmServer
                 Case AuthCMD.CMD_AUTH_LOGON_PROOF
                     'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_RS_LOGON_PROOF(data, Me)
-                Case AuthCMD.CMD_REALM_LIST
+                Case AuthCMD.CMD_AUTH_REALMLIST
                     'Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_RS_REALMLIST(data, Me)
 
@@ -220,13 +220,13 @@ Public Module RealmServer
                     'Case CMD_AUTH_UPDATESRV
                     '    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
 
-                Case CMD_XFER_ACCEPT
+                Case AuthCMD.CMD_XFER_ACCEPT
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_CMD_XFER_ACCEPT(data, Me)
-                Case CMD_XFER_RESUME
+                Case AuthCMD.CMD_XFER_RESUME
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_CMD_XFER_RESUME(data, Me)
-                Case CMD_XFER_CANCEL
+                Case AuthCMD.CMD_XFER_CANCEL
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_CMD_XFER_CANCEL(data, Me)
                 Case Else
@@ -500,7 +500,7 @@ Public Module RealmServer
                 client.UpdateFile = "Updates/wow-patch-" & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & "-" & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & ".mpq"
                 Dim dataResponse(30) As Byte
 
-                dataResponse(0) = CMD_XFER_INITIATE
+                dataResponse(0) = AuthCMD.CMD_XFER_INITIATE
                 'Name Len 0x05 -> sizeof(Patch)
                 Dim i As Integer = 1
                 ToBytes(CType(5, Byte), dataResponse, i)
@@ -621,7 +621,7 @@ Public Module RealmServer
         Dim dataResponse(packetLen + 9) As Byte
 
         '(byte) Opcode
-        dataResponse(0) = AuthCMD.CMD_REALM_LIST
+        dataResponse(0) = AuthCMD.CMD_AUTH_REALMLIST
 
         '(uint16) Packet Length
         dataResponse(2) = (packetLen + 7) \ 256
@@ -744,7 +744,7 @@ Public Module RealmServer
             While filelen > maxUpdatePacketSize
                 tmp = 1
                 ReDim dataResponse(maxUpdatePacketSize + 2)
-                dataResponse(0) = CMD_XFER_DATA
+                dataResponse(0) = AuthCMD.CMD_XFER_DATA
                 ToBytes(CType(maxUpdatePacketSize, Short), dataResponse, tmp)
                 Array.Copy(buffer, fileOffset, dataResponse, 3, maxUpdatePacketSize)
                 filelen = filelen - maxUpdatePacketSize
@@ -753,14 +753,14 @@ Public Module RealmServer
             End While
             tmp = 1
             ReDim dataResponse(filelen + 2)
-            dataResponse(0) = CMD_XFER_DATA
+            dataResponse(0) = AuthCMD.CMD_XFER_DATA
             ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, fileOffset, dataResponse, 3, filelen)
             client.Send(dataResponse, "CMD-XFER-ACCEPT-2")
         Else
             tmp = 1
             Dim dataResponse(filelen + 2) As Byte
-            dataResponse(0) = CMD_XFER_DATA
+            dataResponse(0) = AuthCMD.CMD_XFER_DATA
             ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, 0, dataResponse, 3, filelen)
             client.Send(dataResponse, "CMD-XFER-ACCEPT-3")
@@ -795,7 +795,7 @@ Public Module RealmServer
             While filelen > maxUpdatePacketSize
                 tmp = 1
                 ReDim dataResponse(maxUpdatePacketSize + 2)
-                dataResponse(0) = CMD_XFER_DATA
+                dataResponse(0) = AuthCMD.CMD_XFER_DATA
                 ToBytes(CType(maxUpdatePacketSize, Short), dataResponse, tmp)
                 Array.Copy(buffer, fileOffset, dataResponse, 3, maxUpdatePacketSize)
                 filelen = filelen - maxUpdatePacketSize
@@ -804,14 +804,14 @@ Public Module RealmServer
             End While
             tmp = 1
             ReDim dataResponse(filelen + 2)
-            dataResponse(0) = CMD_XFER_DATA
+            dataResponse(0) = AuthCMD.CMD_XFER_DATA
             ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, fileOffset, dataResponse, 3, filelen)
             client.Send(dataResponse, "XFER-RESUME-XFER-DATALARGER")
         Else
             tmp = 1
             Dim dataResponse(filelen + 2) As Byte
-            dataResponse(0) = CMD_XFER_DATA
+            dataResponse(0) = AuthCMD.CMD_XFER_DATA
             ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, 0, dataResponse, 3, filelen)
             client.Send(dataResponse, "XFER-RESUME-XFER-DATA")

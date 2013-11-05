@@ -1464,8 +1464,8 @@ Public Module WS_Creatures
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SPIRIT_HEALER_ACTIVATE [GUID={2}]", client.IP, client.Port, GUID)
 
         Try
-            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
-                If client.Character.Items.ContainsKey(i) Then client.Character.Items(i).ModifyDurability(0.25F, Client)
+            For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
+                If client.Character.Items.ContainsKey(i) Then client.Character.Items(i).ModifyDurability(0.25F, client)
             Next
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error activating spirit healer: {0}", e.ToString)

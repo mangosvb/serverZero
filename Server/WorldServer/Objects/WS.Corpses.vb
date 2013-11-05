@@ -32,7 +32,7 @@ Public Module WS_Corpses
         Public Bytes2 As Integer = 0
         Public Model As Integer = 0
         Public Guild As Integer = 0
-        Public Items(EQUIPMENT_SLOT_END - 1) As Integer
+        Public Items(EquipmentSlots.EQUIPMENT_SLOT_END - 1) As Integer
 
         Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
@@ -47,7 +47,7 @@ Public Module WS_Corpses
             Update.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_POS_Z, positionZ)
             Update.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_DISPLAY_ID, Model)
 
-            For i As Integer = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Integer = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 Update.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_ITEM + i, Items(i))
             Next
 
@@ -65,7 +65,7 @@ Public Module WS_Corpses
 
             Flags = 5
             Owner = 0
-            For i As Integer = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Integer = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 Items(i) = 0
             Next
 
@@ -77,7 +77,7 @@ Public Module WS_Corpses
                 Try
                     tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_OWNER, 0)
                     tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_FLAGS, 5)
-                    For i As Integer = 0 To EQUIPMENT_SLOT_END - 1
+                    For i As Integer = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_ITEM + i, 0)
                     Next
                     tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -121,8 +121,8 @@ Public Module WS_Corpses
             tmpCmd = tmpCmd & ", corpse_guild"
             tmpValues = tmpValues & ", " & Guild
 
-            Dim temp(EQUIPMENT_SLOT_END - 1) As String
-            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
+            Dim temp(EquipmentSlots.EQUIPMENT_SLOT_END - 1) As String
+            For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 temp(i) = Items(i)
             Next
             tmpCmd = tmpCmd & ", corpse_items"
@@ -183,7 +183,7 @@ Public Module WS_Corpses
             Character.corpsePositionZ = positionZ
             Character.corpseMapID = MapID
 
-            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 If Character.Items.ContainsKey(i) Then
                     Items(i) = Character.Items(i).ItemInfo.Model + (CType(Character.Items(i).ItemInfo.InventoryType, Integer) << 24)
                 Else

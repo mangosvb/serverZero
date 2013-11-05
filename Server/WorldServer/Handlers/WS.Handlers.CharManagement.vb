@@ -206,10 +206,10 @@ Public Module CharManagementHandler
 
     Public Function CheckAmmoCompatibility(ByRef objCharacter As CharacterObject, ByVal AmmoID As Integer) As Boolean
         If ITEMDatabase.ContainsKey(AmmoID) = False Then Return False
-        If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) = False OrElse objCharacter.Items(EQUIPMENT_SLOT_RANGED).IsBroken Then Return False
-        If objCharacter.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON Then Return False
+        If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) = False OrElse objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).IsBroken Then Return False
+        If objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON Then Return False
 
-        Select Case objCharacter.Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass
+        Select Case objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass
             Case ITEM_SUBCLASS.ITEM_SUBCLASS_BOW, ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW
                 If ITEMDatabase(AmmoID).SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_ARROW Then Return False
             Case ITEM_SUBCLASS.ITEM_SUBCLASS_GUN
