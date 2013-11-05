@@ -335,7 +335,7 @@ Public Module WS_CharManagment
     End Class
 
     Public Class TStat
-        Public Base As Short = 0
+        Public Base As Integer = 0
         Public PositiveBonus As Short = 0
         Public NegativeBonus As Short = 0
         Public BaseModifier As Single = 1

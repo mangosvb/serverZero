@@ -219,7 +219,7 @@ Public Class CreatureInfo
     Public RangedDamage As New TDamage
     Public AttackPower As Integer = 0
     Public RangedAttackPower As Integer = 0
-    Public Resistances() As Short = {0, 0, 0, 0, 0, 0, 0}
+    Public Resistances() As Integer = {0, 0, 0, 0, 0, 0, 0}
 
     Public WalkSpeed As Single = UNIT_NORMAL_WALK_SPEED
     Public RunSpeed As Single = UNIT_NORMAL_RUN_SPEED
