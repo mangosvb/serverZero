@@ -220,98 +220,88 @@ Public Module Constants
     Public Const QUEST_SLOTS As Integer = 24
     Public Const QUEST_SHARING_DISTANCE As Integer = 10
 
-    Public Enum AuthResponseCodes
-        'Auth Codes
-        AUTH_OK = &HC                               'Authentication successful
-        'AUTH_FAILED = &HD                           'Authentication failed
-        'AUTH_LOGIN_UNAVAILABLE = &HE                'Login unavailable
-        'AUTH_BAD_SERVER_PROOF = &HF                 'Server is not valid
-        'AUTH_UNAVAILABLE = &H10                     'System unavailable - please try again later
-        'AUTH_SYSTEM_ERROR = &H11                    'System error
-        'AUTH_BILLING_ERROR = &H12                   'Billing system error
-        'AUTH_BILLING_EXPIRED = &H13                 'Account billing has expired
-        AUTH_VERSION_MISMATCH = &H14                'Wrong client version
-        AUTH_UNKNOWN_ACCOUNT = &H15                 'Unknown account
-        'AUTH_INCORRECT_PASSWORD = &H16              'Incorrect password
-        'AUTH_SESSION_EXPIRED = &H17                 'Session expired
-        'AUTH_SERVER_SHUTTING_DOWN = &H18            'Server shutting down
-        'AUTH_ALREADY_LOGGING_IN = &H19              'Already logging in
-        'AUTH_LOGIN_SERVER_NOT_FOUND = &H1A          'Invalid login server
-        AUTH_WAIT_QUEUE = &H1B                      'Position in queue - 0
-        'AUTH_BANNED = &H1C                          'This account has been banned
-        'AUTH_ALREADY_ONLINE = &H1D                  'This character is still logged on
-        'AUTH_NO_TIME = &H1E                         'Your WoW subscription has expired
-        'AUTH_DB_BUSY = &H1F                         'This session has timed out
-        'AUTH_SUSPENDED = &H20                       'This account has been temporarily suspended
-        'AUTH_PARENTAL_CONTROL = &H21                'Access to this account blocked by parental controls
+    Public Enum TimeConstant
+        MINUTE = 60
+        HOUR = MINUTE * 60
+        DAY = HOUR * 24
+        WEEK = DAY * 7
+        MONTH = DAY * 30
+        YEAR = MONTH * 12
+        IN_MILLISECONDS = 1000
+    End Enum
 
-        'Response Codes
-        RESPONSE_SUCCESS = &H0                      'Success
-        'RESPONSE_FAILURE = &H1                      'Failure
-        'RESPONSE_CANCELLED = &H2                    'Cancelled
-        'RESPONSE_DISCONNECTED = &H3                 'Disconnected from server
-        'RESPONSE_FAILED_TO_CONNECT = &H4            'Failed to connect
-        'RESPONSE_CONNECTED = &H5                    'Connected
-        'RESPONSE_VERSION_MISMATCH = &H6             'Wrong client version
+    Public Enum AuthCMD
+        CMD_AUTH_LOGON_CHALLENGE = &H0
+        CMD_AUTH_LOGON_PROOF = &H1
+        CMD_AUTH_RECONNECT_CHALLENGE = &H2
+        CMD_AUTH_RECONNECT_PROOF = &H3
+        CMD_REALM_LIST = &H10
+        CMD_XFER_INITIATE = &H30
+        CMD_XFER_DATA = &H31
+    End Enum
 
-        'Not sure what this is? Not linked anywhere
-        'CSTATUS_CONNECTING = &H7                    'Connecting to server...
-        'CSTATUS_NEGOTIATING_SECURITY = &H8          'Negotiating Security
-        'CSTATUS_NEGOTIATION_COMPLETE = &H9          'Security negotiation complete
-        'CSTATUS_NEGOTIATION_FAILED = &HA            'Security negotiation failed
-        'CSTATUS_AUTHENTICATING = &HB                'Authenticating
+    Public Enum AuthSrv
+        CMD_GRUNT_CONN_PONG = &H11
+        CMD_GRUNT_PROVESESSION = &H21
+    End Enum
 
-        'Realm List Codes
-        'REALM_LIST_IN_PROGRESS = &H22               'Retrieving realm list
-        'REALM_LIST_SUCCESS = &H23                   'Realm list retrieved
-        'REALM_LIST_FAILED = &H24                    'Unable to connect to realm list server
-        'REALM_LIST_INVALID = &H25                   'Invalid realm list
-        'REALM_LIST_REALM_NOT_FOUND = &H26           'Realm is down
+    Public Enum AuthResult
+        WOW_SUCCESS = &H0
+        WOW_FAIL_BANNED = &H3
+        WOW_FAIL_UNKNOWN_ACCOUNT = &H4
+        WOW_FAIL_INCORRECT_PASSWORD = &H5
+        WOW_FAIL_ALREADY_ONLINE = &H6
+        WOW_FAIL_NO_TIME = &H7
+        WOW_FAIL_DB_BUSY = &H8
+        WOW_FAIL_VERSION_INVALID = &H9
+        WOW_FAIL_VERSION_UPDATE = &HA
+        WOW_FAIL_INVALID_SERVER = &HB
+        WOW_FAIL_SUSPENDED = &HC
+        WOW_FAIL_FAIL_NOACCESS = &HD
+        WOW_SUCCESS_SURVEY = &HE
+        WOW_FAIL_PARENTCONTROL = &HF
+        WOW_FAIL_LOCKED_ENFORCED = &H10
+        WOW_FAIL_TRIAL_ENDED = &H11
+        WOW_FAIL_ANTI_INDULGENCE = &H13
+        WOW_FAIL_EXPIRED = &H14
+        WOW_FAIL_NO_GAME_ACCOUNT = &H15
+        WOW_FAIL_CHARGEBACK = &H16
+        WOW_FAIL_GAME_ACCOUNT_LOCKED = &H18
+        WOW_FAIL_UNLOCKABLE_LOCK = &H19
+        WOW_FAIL_CONVERSION_REQUIRED = &H20
+        WOW_FAIL_DISCONNECTED = &HFF
+    End Enum
 
-        'ACCOUNT_CREATE_IN_PROGRESS = &H27           'Creating account
-        'ACCOUNT_CREATE_SUCCESS = &H28               'Account created
-        'ACCOUNT_CREATE_FAILED = &H29                'Account creation failed
+    Public Enum LoginResponse
+        LOGIN_OK = &HC
+        LOGIN_VERSION_MISMATCH = &H14
+        LOGIN_UNKNOWN_ACCOUNT = &H15
+        LOGIN_WAIT_QUEUE = &H1B
+    End Enum
 
-        'Character Codes
-        'CHAR_LIST_RETRIEVED = &H2A                  'Retrieving character list
-        'CHAR_LIST_SUCCESS = &H2B                    'Character list retrieved
-        CHAR_LIST_FAILED = &H2C                     'Error retrieving character list
+    Public Enum CharResponse
+        CHAR_LIST_FAILED = &H2C
+        CHAR_CREATE_SUCCESS = &H2E
+        CHAR_CREATE_ERROR = &H2F
+        CHAR_CREATE_FAILED = &H30
+        CHAR_CREATE_NAME_IN_USE = &H31
+        CHAR_CREATE_DISABLED = &H32
+        CHAR_CREATE_PVP_TEAMS_VIOLATION = &H33
+        CHAR_CREATE_SERVER_LIMIT = &H34
+        CHAR_CREATE_ACCOUNT_LIMIT = &H35
+        CHAR_DELETE_SUCCESS = &H39
+        CHAR_DELETE_FAILED = &H3A
+        CHAR_LOGIN_NO_WORLD = &H3D
+        CHAR_LOGIN_FAILED = &H40
+        CHAR_NAME_INVALID_CHARACTER = &H46
+    End Enum
 
-        'CHAR_CREATE_IN_PROGRESS = &H2D              'Creating character
-        CHAR_CREATE_SUCCESS = &H2E                  'Character created
-        CHAR_CREATE_ERROR = &H2F                    'Error creating character
-        CHAR_CREATE_FAILED = &H30                   'Character creation failed
-        CHAR_CREATE_NAME_IN_USE = &H31              'That name is unavailable
-        CHAR_CREATE_DISABLED = &H32                 'Creation of that race/class is disabled
-        CHAR_CREATE_PVP_TEAMS_VIOLATION = &H33      'You cannot have both horde and alliance character at pvp realm
-        CHAR_CREATE_SERVER_LIMIT = &H34             'You already have maximum number of characters
-        CHAR_CREATE_ACCOUNT_LIMIT = &H35            'You already have maximum number of characters
-        'CHAR_CREATE_SERVER_QUEUE = &H36             'The server is currently queued
-        'CHAR_CREATE_ONLY_EXISTING = &H37            'Only players who have characters on this realm..
-
-        'CHAR_DELETE_IN_PROGRESS = &H38              'Deleting character
-        CHAR_DELETE_SUCCESS = &H39                  'Character deleted
-        CHAR_DELETE_FAILED = &H3A                   'Char deletion failed
-
-        'CHAR_LOGIN_IN_PROGRESS = &H3B               'Entering the World of Warcraft
-        'CHAR_LOGIN_SUCCESS = &H3C                   'Login successful
-        CHAR_LOGIN_NO_WORLD = &H3D                  'World server is down
-        'CHAR_LOGIN_NO_INSTANCES = &H3F              'No instance servers are available
-        CHAR_LOGIN_FAILED = &H40                    'Login failed
-        'CHAR_LOGIN_DISABLED = &H41                  'Login for that race and/or class is currently disabled
-        'CHAR_LOGIN_NO_CHARACTER = &H42              'Character not found
-
-        'CHAR_NAME_NO_NAME = &H43                    'Enter a name for your character
-        'CHAR_NAME_TOO_SHORT = &H44                  'Names must be atleast 2 characters long
-        'CHAR_NAME_TOO_LONG = &H45                   'Names must be no more then 12 characters
-        CHAR_NAME_INVALID_CHARACTER = &H46          'Names can only contain letters
-        'CHAR_NAME_MIXED_LANGUAGES = &H47            'Names must contain only one language
-        'CHAR_NAME_PROFANE = &H48                    'That name contains mature language
-        'CHAR_NAME_RESERVED = &H49                   'That name is unavailable
-        'CHAR_NAME_INVALID_APOSTROPHE = &H4A         'You cannot use an apostrophe
-        'CHAR_NAME_MULTIPLE_APOSTROPHES = &H4B       'You can only have one apostrophe
-        'CHAR_NAME_THREE_CONSECUTIVE = &H4C          'You cannot use the same letter three times consecutively
-        'CHAR_NAME_INVALID_SPACE = &H4D              'You cannot use space as the first or last character of your name
+    Public Enum ATLoginFlags
+        AT_LOGIN_NONE = &H0
+        AT_LOGIN_RENAME = &H1
+        AT_LOGIN_RESET_SPELLS = &H2
+        AT_LOGIN_RESET_TALENTS = &H4
+        AT_LOGIN_FIRST = &H20
     End Enum
 
 #Region "Player.Enums"
@@ -826,7 +816,7 @@ Public Module Constants
         Legs = 6
         MainHand = 15
         Neck = 1
-        None = - 1
+        None = -1
         OffHand = 16
         Ranged = 17
         Shirt = 3
@@ -953,29 +943,12 @@ Public Module Constants
         QUEST_PARTY_MSG_FINISH_QUEST = 8
     End Enum
 
-    'RealmServ OP Codes
-    Public Const CMD_AUTH_LOGON_CHALLENGE As Integer = &H0
-    Public Const CMD_AUTH_LOGON_PROOF As Integer = &H1
-    Public Const CMD_AUTH_RECONNECT_CHALLENGE As Integer = &H2
-    Public Const CMD_AUTH_RECONNECT_PROOF As Integer = &H3
-    Public Const CMD_AUTH_UPDATESRV As Integer = &H4
-    Public Const CMD_AUTH_REALMLIST As Integer = &H10
-
     'UpdateServ OP Codes
     Public Const CMD_XFER_INITIATE As Integer = &H30  'client? from server
     Public Const CMD_XFER_DATA As Integer = &H31      'client? from server
     Public Const CMD_XFER_ACCEPT As Integer = &H32    'not official name, from client
     Public Const CMD_XFER_RESUME As Integer = &H33    'not official name, from client
     Public Const CMD_XFER_CANCEL As Integer = &H34    'not official name, from client
-
-    'Unknown
-    Public Const CMD_GRUNT_AUTH_CHALLENGE As Integer = &H0    'server
-    Public Const CMD_GRUNT_AUTH_VERIFY As Integer = &H2       'server
-    Public Const CMD_GRUNT_CONN_PING As Integer = &H10        'server
-    Public Const CMD_GRUNT_CONN_PONG As Integer = &H11        'server
-    Public Const CMD_GRUNT_HELLO As Integer = &H20            'server
-    Public Const CMD_GRUNT_PROVESESSION As Integer = &H21     'server
-    Public Const CMD_GRUNT_KICK As Integer = &H24             'server
 
     Public Enum ActivateTaxiReplies As Byte
         ERR_TAXIOK = 0
