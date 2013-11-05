@@ -1261,7 +1261,7 @@ Public Module WS_Commands
             End Select
 
             WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0};", CType(Race, Integer)), Info)
-            Character.Teleport(Info.Rows(0).Item("position_x"), Info.Rows(0).Item("position_y"), Info.Rows(0).Item("position_z"), 0, Info.Rows(0).Item("map"))
+            Character.Teleport(Info.Rows(0).Item("position_x"), Info.Rows(0).Item("position_y"), Info.Rows(0).Item("position_z"), Info.Rows(0).Item("orientation"), Info.Rows(0).Item("map"))
             Return True
         End If
 
