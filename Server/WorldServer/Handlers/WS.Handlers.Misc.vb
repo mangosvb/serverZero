@@ -20,36 +20,36 @@ Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Misc
 
-    Public Function SelectMonsterSay(ByVal MonsterID As Integer) As String
-        ' Select Random Text Field From Monster Say HashTable(s)
-        ' TODO: Allow This To Work With Different Monster Say Events Besides Combat
-        Dim TextCount As Integer = 0
-        Dim RandomText As Integer = 0
+    'Public Function SelectMonsterSay(ByVal MonsterID As Integer) As String
+    '    ' Select Random Text Field From Monster Say HashTable(s)
+    '    ' TODO: Allow This To Work With Different Monster Say Events Besides Combat
+    '    Dim TextCount As Integer = 0
+    '    Dim RandomText As Integer = 0
 
-        If Trim((MonsterSayCombat(MonsterID)).Text0) <> "" Then TextCount += 1
-        If Trim((MonsterSayCombat(MonsterID)).Text1) <> "" Then TextCount += 1
-        If Trim((MonsterSayCombat(MonsterID)).Text2) <> "" Then TextCount += 1
-        If Trim((MonsterSayCombat(MonsterID)).Text3) <> "" Then TextCount += 1
-        If Trim((MonsterSayCombat(MonsterID)).Text4) <> "" Then TextCount += 1
+    '    If Trim((MonsterSayCombat(MonsterID)).Text0) <> "" Then TextCount += 1
+    '    If Trim((MonsterSayCombat(MonsterID)).Text1) <> "" Then TextCount += 1
+    '    If Trim((MonsterSayCombat(MonsterID)).Text2) <> "" Then TextCount += 1
+    '    If Trim((MonsterSayCombat(MonsterID)).Text3) <> "" Then TextCount += 1
+    '    If Trim((MonsterSayCombat(MonsterID)).Text4) <> "" Then TextCount += 1
 
-        RandomText = Rnd.Next(1, TextCount + 1)
+    '    RandomText = Rnd.Next(1, TextCount + 1)
 
-        SelectMonsterSay = ""
+    '    SelectMonsterSay = ""
 
-        Select Case RandomText
-            Case 1
-                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text0
-            Case 2
-                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text1
-            Case 3
-                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text2
-            Case 4
-                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text3
-            Case 5
-                SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text4
-        End Select
+    '    Select Case RandomText
+    '        Case 1
+    '            SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text0
+    '        Case 2
+    '            SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text1
+    '        Case 3
+    '            SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text2
+    '        Case 4
+    '            SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text3
+    '        Case 5
+    '            SelectMonsterSay = (MonsterSayCombat(MonsterID)).Text4
+    '    End Select
 
-    End Function
+    'End Function
 
     Public Sub On_CMSG_NAME_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
