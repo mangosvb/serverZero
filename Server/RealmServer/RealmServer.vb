@@ -206,18 +206,19 @@ Public Module RealmServer
 
         Private Sub OnData(ByVal data() As Byte)
             Select Case data(0)
-                Case CMD_AUTH_LOGON_CHALLENGE, CMD_AUTH_RECONNECT_CHALLENGE
+                Case AuthCMD.CMD_AUTH_LOGON_CHALLENGE
                     'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_CHALLENGE", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_RS_LOGON_CHALLENGE(data, Me)
-                Case CMD_AUTH_LOGON_PROOF, CMD_AUTH_RECONNECT_PROOF
+                Case AuthCMD.CMD_AUTH_LOGON_PROOF
                     'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_RS_LOGON_PROOF(data, Me)
-                Case CMD_AUTH_REALMLIST
+                Case AuthCMD.CMD_REALM_LIST
                     'Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_RS_REALMLIST(data, Me)
 
-                Case CMD_AUTH_UPDATESRV
-                    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
+                    'TODO: No Value listed for AuthCMD
+                    'Case CMD_AUTH_UPDATESRV
+                    '    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
 
                 Case CMD_XFER_ACCEPT
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
@@ -374,7 +375,7 @@ Public Module RealmServer
             Console.WriteLine("[{0}] [{1}:{2}] Invalid Client", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
             Console.ForegroundColor = ConsoleColor.White
             Dim dataResponse(1) As Byte
-            dataResponse(0) = CMD_AUTH_LOGON_PROOF
+            dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
             dataResponse(1) = AccountState.LOGIN_BADVERSION
             client.Send(dataResponse, "RS_LOGON_CHALLENGE-FAIL-BADVERSION")
         ElseIf (bMajor = RequiredVersion1 And bMinor = RequiredVersion2 And bRevision = RequiredVersion3) And (clientBuild >= RequiredBuildLow) And (clientBuild <= RequiredBuildHigh) Then
@@ -427,7 +428,7 @@ Public Module RealmServer
                             client.AuthEngine.CalculateX(account, hash)
 
                             Dim dataResponse(118) As Byte
-                            dataResponse(0) = CMD_AUTH_LOGON_CHALLENGE
+                            dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_CHALLENGE
                             dataResponse(1) = AccountState.LOGIN_OK
                             dataResponse(2) = Val("&H00")
                             Array.Copy(client.AuthEngine.PublicB, 0, dataResponse, 3, 32)
@@ -449,7 +450,7 @@ Public Module RealmServer
                         Console.WriteLine("[{0}] [{1}:{2}] Not a valid SHA1 password for account: '{3}' SHA1 Hash: '{4}'", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount, pwHash)
                         Console.ForegroundColor = ConsoleColor.White
                         Dim dataResponse(1) As Byte
-                        dataResponse(0) = CMD_AUTH_LOGON_PROOF
+                        dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                         dataResponse(1) = AccountState.LOGIN_BAD_PASS
                         client.Send(dataResponse, "RS_LOGON_CHALLENGE-FAIL-BADPWFORMAT")
                     End If
@@ -458,35 +459,35 @@ Public Module RealmServer
                 Case AccountState.LOGIN_UNKNOWN_ACCOUNT
                     Console.WriteLine("[{0}] [{1}:{2}] Account not found [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
-                    dataResponse(0) = CMD_AUTH_LOGON_PROOF
+                    dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-UNKNOWN_ACCOUNT")
                     Exit Sub
                 Case AccountState.LOGIN_BANNED
                     Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
-                    dataResponse(0) = CMD_AUTH_LOGON_PROOF
+                    dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_BANNED
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-BANNED")
                     Exit Sub
                 Case AccountState.LOGIN_NOTIME
                     Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
-                    dataResponse(0) = CMD_AUTH_LOGON_PROOF
+                    dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_NOTIME
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-NOTIME")
                     Exit Sub
                 Case AccountState.LOGIN_ALREADYONLINE
                     Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
-                    dataResponse(0) = CMD_AUTH_LOGON_PROOF
+                    dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_ALREADYONLINE
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-ALREADYONLINE")
                     Exit Sub
                 Case Else
                     Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
-                    dataResponse(0) = CMD_AUTH_LOGON_PROOF
+                    dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                     dataResponse(1) = AccountState.LOGIN_FAILED
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-FAILED")
                     Exit Sub
@@ -524,7 +525,7 @@ Public Module RealmServer
                 'Send BAD_VERSION
                 Console.WriteLine("[{0}] [{1}:{2}] WRONG_VERSION [" & Chr(data(6)) & Chr(data(5)) & Chr(data(4)) & " " & data(8) & "." & data(9) & "." & data(10) & "." & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & " " & Chr(data(15)) & Chr(data(14)) & Chr(data(13)) & " " & Chr(data(19)) & Chr(data(18)) & Chr(data(17)) & " " & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & "]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
                 Dim dataResponse(1) As Byte
-                dataResponse(0) = CMD_AUTH_LOGON_PROOF
+                dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                 dataResponse(1) = AccountState.LOGIN_BADVERSION
                 client.Send(dataResponse, "RS_LOGON_CHALLENGE-WRONG-VERSION")
             End If
@@ -560,7 +561,7 @@ Public Module RealmServer
             client.AuthEngine.CalculateM2(m1)
 
             Dim dataResponse(25) As Byte
-            dataResponse(0) = CMD_AUTH_LOGON_PROOF
+            dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
             dataResponse(1) = AccountState.LOGIN_OK
             Array.Copy(client.AuthEngine.M2, 0, dataResponse, 2, 20)
             dataResponse(22) = 0
@@ -586,7 +587,7 @@ Public Module RealmServer
             'Wrong pass
             Console.WriteLine("[{0}] [{1}:{2}] Wrong password for user {3}.", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, client.Account)
             Dim dataResponse(1) As Byte
-            dataResponse(0) = CMD_AUTH_LOGON_PROOF
+            dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
             dataResponse(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
             client.Send(dataResponse, "RS_LOGON_PROOF-WRONGPASS")
         End If
@@ -620,7 +621,7 @@ Public Module RealmServer
         Dim dataResponse(packetLen + 9) As Byte
 
         '(byte) Opcode
-        dataResponse(0) = CMD_AUTH_REALMLIST
+        dataResponse(0) = AuthCMD.CMD_REALM_LIST
 
         '(uint16) Packet Length
         dataResponse(2) = (packetLen + 7) \ 256

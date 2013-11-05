@@ -6130,7 +6130,7 @@ DoneAmmo:
         Character.Access = Account_Access
 
         If Not ValidateName(Character.Name) Then
-            Return AuthResponseCodes.CHAR_NAME_INVALID_CHARACTER
+            Return CharResponse.CHAR_NAME_INVALID_CHARACTER
         End If
 
         'DONE: Name In Use
@@ -6138,20 +6138,20 @@ DoneAmmo:
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name = ""{0}"";", Character.Name), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
-                Return AuthResponseCodes.CHAR_CREATE_NAME_IN_USE
+                Return CharResponse.CHAR_CREATE_NAME_IN_USE
             End If
         Catch
-            Return AuthResponseCodes.CHAR_CREATE_FAILED
+            Return CharResponse.CHAR_CREATE_FAILED
         End Try
 
         'DONE: Can't create character named as the bot
         If UCase(Character.Name) = UCase(SystemNAME) Then
-            Return AuthResponseCodes.CHAR_CREATE_NAME_IN_USE
+            Return CharResponse.CHAR_CREATE_NAME_IN_USE
         End If
 
         'DONE: Check for disabled class/race, only for non GM/Admin
         If (SERVER_CONFIG_DISABLED_CLASSES(Character.Classe - 1) = True) OrElse (SERVER_CONFIG_DISABLED_RACES(Character.Race - 1) = True) AndAlso Account_Access < AccessLevel.GameMaster Then
-            Return AuthResponseCodes.CHAR_CREATE_DISABLED
+            Return CharResponse.CHAR_CREATE_DISABLED
         End If
 
         'DONE: Check for both horde and alliance
@@ -6161,7 +6161,7 @@ DoneAmmo:
             CharacterDatabase.Query(String.Format("SELECT char_race FROM characters WHERE account_id = ""{0}"" LIMIT 1;", Account_ID), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
                 If Character.IsHorde <> GetCharacterSide(CByte(MySQLQuery.Rows(0).Item("char_race"))) Then
-                    Return AuthResponseCodes.CHAR_CREATE_PVP_TEAMS_VIOLATION
+                    Return CharResponse.CHAR_CREATE_PVP_TEAMS_VIOLATION
                 End If
             End If
         End If
@@ -6170,14 +6170,14 @@ DoneAmmo:
         MySQLQuery.Clear()
         CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
         If MySQLQuery.Rows.Count >= 10 Then
-            Return AuthResponseCodes.CHAR_CREATE_SERVER_LIMIT
+            Return CharResponse.CHAR_CREATE_SERVER_LIMIT
         End If
 
         'DONE: Check for max characters in total on all realms
         MySQLQuery.Clear()
         CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
         If MySQLQuery.Rows.Count >= 10 Then
-            Return AuthResponseCodes.CHAR_CREATE_ACCOUNT_LIMIT
+            Return CharResponse.CHAR_CREATE_ACCOUNT_LIMIT
         End If
 
         'DONE: Generate GUID, MySQL Auto generation
@@ -6192,12 +6192,12 @@ DoneAmmo:
             'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Character.Name)
         Catch err As Exception
             Log.WriteLine(LogType.FAILED, "Error initializing character!{0}{1}", vbNewLine, err.ToString)
-            Return AuthResponseCodes.CHAR_CREATE_FAILED
+            Return CharResponse.CHAR_CREATE_FAILED
         Finally
             Character.Dispose()
         End Try
 
-        Return AuthResponseCodes.CHAR_CREATE_SUCCESS
+        Return CharResponse.CHAR_CREATE_SUCCESS
     End Function
 
     Public Sub CreateCharacter(ByRef objCharacter As CharacterObject)
