@@ -123,6 +123,7 @@ Public Module WC_Group
 
             SendGroupList()
         End Sub
+
         Public Sub Leave(ByRef objCharacter As CharacterObject)
             If GetMembersCount() = 2 Then
                 Dispose()
@@ -159,9 +160,11 @@ Public Module WC_Group
 
             CheckMembers()
         End Sub
+
         Public Sub CheckMembers()
             If GetMembersCount() < 2 Then Dispose() Else SendGroupList()
         End Sub
+
         Public Sub NewLeader(Optional ByVal Leaver As CharacterObject = Nothing)
             Dim ChosenMember As Byte = 255
             Dim NewLootMaster As Boolean = False
@@ -227,6 +230,7 @@ Public Module WC_Group
 
             SendGroupList()
         End Sub
+
         Public Sub SetLootMaster(ByRef objCharacter As CharacterObject)
             LootMaster = Leader
             For i As Byte = 0 To Members.Length - 1
@@ -237,6 +241,7 @@ Public Module WC_Group
             Next i
             SendGroupList()
         End Sub
+
         Public Sub SetLootMaster(ByRef GUID As ULong)
             LootMaster = 255
             For i As Byte = 0 To Members.Length - 1
@@ -247,12 +252,15 @@ Public Module WC_Group
             Next i
             SendGroupList()
         End Sub
+
         Public Function GetLeader() As CharacterObject
             Return Members(Leader)
         End Function
+
         Public Function GetLootMaster() As CharacterObject
             Return Members(Leader)
         End Function
+
         Public Function GetMembersCount() As Byte
             Dim count As Byte = 0
             For i As Byte = 0 To Members.Length - 1
@@ -260,6 +268,7 @@ Public Module WC_Group
             Next i
             Return count
         End Function
+
         Public Function GetMembers() As ULong()
             Dim list As New List(Of ULong)
             For i As Byte = 0 To Members.Length - 1
@@ -274,11 +283,13 @@ Public Module WC_Group
                 If Members(i) IsNot Nothing AndAlso Members(i).Client IsNot Nothing Then Members(i).Client.SendMultiplyPackets(packet)
             Next
         End Sub
+
         Public Sub BroadcastToOther(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
             For i As Byte = 0 To Members.Length - 1
                 If (Not Members(i) Is Nothing) AndAlso (Members(i) IsNot objCharacter) AndAlso (Members(i).Client IsNot Nothing) Then Members(i).Client.SendMultiplyPackets(packet)
             Next
         End Sub
+
         Public Sub BroadcastToOutOfRange(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
             For i As Byte = 0 To Members.Length - 1
                 If Members(i) IsNot Nothing AndAlso Members(i) IsNot objCharacter AndAlso Members(i).Client IsNot Nothing Then
@@ -329,6 +340,7 @@ Public Module WC_Group
                 End If
             Next
         End Sub
+
         Public Sub SendChatMessage(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal Type As ChatMsg)
             Dim packet As PacketClass = BuildChatMessage(Sender.GUID, Message, Type, Language, Sender.ChatFlag)
 
