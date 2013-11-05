@@ -169,8 +169,12 @@ Public Class WS_GraveYards
             End If
 
             If Maps(Character.MapID).IsDungeon = True Or Maps(Character.MapID).IsBattleGround = True Or Maps(Character.MapID).IsRaid = True Then   'In an instance
-                entryFar = Graveyards(GraveQuery.Rows(0).Item("id"))
-                entryNear = entryFar
+                If Graveyards.ContainsKey(GraveQuery.Rows(0).Item("id")) = True Then
+                    entryFar = Graveyards(GraveQuery.Rows(0).Item("id"))
+                    entryNear = entryFar
+                Else
+                    Log.WriteLine(LogType.INFORMATION, "GraveYard: {0} is missing for map [{1}], zone [{2}]", GraveQuery.Rows(0).Item("id"), Character.MapID, Character.ZoneID)
+                End If
             Else
 
                 For Each GraveLink As DataRow In GraveQuery.Rows
