@@ -34,39 +34,6 @@ Public Module WC_Handlers_Social
         Next
     End Sub
 
-    Public Enum FriendStatus As Byte
-        FRIEND_STATUS_OFFLINE = 0
-        FRIEND_STATUS_ONLINE = 1
-        FRIEND_STATUS_AFK = 2
-        FRIEND_STATUS_UNK3 = 3
-        FRIEND_STATUS_DND = 4
-    End Enum
-
-    Public Enum FriendResult As Byte
-        FRIEND_DB_ERROR = &H0
-        FRIEND_LIST_FULL = &H1
-        FRIEND_ONLINE = &H2
-        FRIEND_OFFLINE = &H3
-        FRIEND_NOT_FOUND = &H4
-        FRIEND_REMOVED = &H5
-        FRIEND_ADDED_ONLINE = &H6
-        FRIEND_ADDED_OFFLINE = &H7
-        FRIEND_ALREADY = &H8
-        FRIEND_SELF = &H9
-        FRIEND_ENEMY = &HA
-        FRIEND_IGNORE_FULL = &HB
-        FRIEND_IGNORE_SELF = &HC
-        FRIEND_IGNORE_NOT_FOUND = &HD
-        FRIEND_IGNORE_ALREADY = &HE
-        FRIEND_IGNORE_ADDED = &HF
-        FRIEND_IGNORE_REMOVED = &H10
-    End Enum
-
-    Public Enum SocialFlag As Byte
-        SOCIAL_FLAG_FRIEND = &H1
-        SOCIAL_FLAG_IGNORED = &H2
-    End Enum
-
     Public Sub SendFriendList(ByRef client As ClientClass, ByRef Character As CharacterObject)
         'DONE: Query DB
         Dim q As New DataTable
@@ -254,7 +221,7 @@ Public Module WC_Handlers_Social
             ElseIf q.Rows.Count > 0 Then
                 response.AddInt8(FriendResult.FRIEND_ALREADY)
                 response.AddUInt64(GUID)
-            ElseIf NumberOfFriends >= MAX_FRIENDS_ON_LIST Then
+            ElseIf NumberOfFriends >= SocialList.MAX_FRIENDS_ON_LIST Then
                 response.AddInt8(FriendResult.FRIEND_LIST_FULL)
                 response.AddUInt64(GUID)
             ElseIf GetCharacterSide(Client.Character.Race) <> FriendSide Then
@@ -318,7 +285,7 @@ Public Module WC_Handlers_Social
             ElseIf q.Rows.Count > 0 Then
                 response.AddInt8(FriendResult.FRIEND_IGNORE_ALREADY)
                 response.AddUInt64(GUID)
-            ElseIf NumberOfFriends >= MAX_IGNORES_ON_LIST Then
+            ElseIf NumberOfFriends >= SocialList.MAX_IGNORES_ON_LIST Then
                 response.AddInt8(FriendResult.FRIEND_IGNORE_ALREADY)
                 response.AddUInt64(GUID)
             Else

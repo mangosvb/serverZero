@@ -72,8 +72,6 @@ Public Module Constants
     Public Const GUID_MASK_LOW As UInteger = &HFFFFFFFFUI
     Public Const GUID_MASK_HIGH As ULong = &HFFFFFFFF00000000UL
 
-    Public Const MAX_FRIENDS_ON_LIST As Byte = 50
-    Public Const MAX_IGNORES_ON_LIST As Byte = 25
     Public Const DEFAULT_DISTANCE_VISIBLE As Single = 155.8
     Public Const DEFAULT_DISTANCE_DETECTION As Single = 7
 
@@ -108,7 +106,45 @@ Public Module Constants
     Public Const FIELD_MASK_SIZE_ITEM As Integer = ((EContainerFields.CONTAINER_END + 32) \ 32) * 32
     Public Const FIELD_MASK_SIZE_CORPSE As Integer = ((ECorpseFields.CORPSE_END + 32) \ 32) * 32
 
-    Public Enum EquipmentSlots  '19 slots total
+    Public Enum SocialList As Byte
+        MAX_FRIENDS_ON_LIST = 50
+        MAX_IGNORES_ON_LIST = 25
+    End Enum
+
+    Public Enum FriendStatus As Byte
+        FRIEND_STATUS_OFFLINE = 0
+        FRIEND_STATUS_ONLINE = 1
+        FRIEND_STATUS_AFK = 2
+        FRIEND_STATUS_UNK3 = 3
+        FRIEND_STATUS_DND = 4
+    End Enum
+
+    Public Enum FriendResult As Byte
+        FRIEND_DB_ERROR = &H0
+        FRIEND_LIST_FULL = &H1
+        FRIEND_ONLINE = &H2
+        FRIEND_OFFLINE = &H3
+        FRIEND_NOT_FOUND = &H4
+        FRIEND_REMOVED = &H5
+        FRIEND_ADDED_ONLINE = &H6
+        FRIEND_ADDED_OFFLINE = &H7
+        FRIEND_ALREADY = &H8
+        FRIEND_SELF = &H9
+        FRIEND_ENEMY = &HA
+        FRIEND_IGNORE_FULL = &HB
+        FRIEND_IGNORE_SELF = &HC
+        FRIEND_IGNORE_NOT_FOUND = &HD
+        FRIEND_IGNORE_ALREADY = &HE
+        FRIEND_IGNORE_ADDED = &HF
+        FRIEND_IGNORE_REMOVED = &H10
+    End Enum
+
+    Public Enum SocialFlag As Byte
+        SOCIAL_FLAG_FRIEND = &H1
+        SOCIAL_FLAG_IGNORED = &H2
+    End Enum
+
+    Public Enum EquipmentSlots As Byte '19 slots total
         EQUIPMENT_SLOT_START = 0
         EQUIPMENT_SLOT_HEAD = 0
         EQUIPMENT_SLOT_NECK = 1
@@ -132,7 +168,7 @@ Public Module Constants
         EQUIPMENT_SLOT_END = 19
     End Enum
 
-    Public Enum InventorySlots  '4 Slots
+    Public Enum InventorySlots As Byte '4 Slots
         INVENTORY_SLOT_BAG_START = 19
         INVENTORY_SLOT_BAG_1 = 19
         INVENTORY_SLOT_BAG_2 = 20
@@ -141,7 +177,7 @@ Public Module Constants
         INVENTORY_SLOT_BAG_END = 23
     End Enum
 
-    Public Enum InventoryPackSlots  '16 Slots
+    Public Enum InventoryPackSlots As Byte  '16 Slots
         INVENTORY_SLOT_ITEM_START = 23
         INVENTORY_SLOT_ITEM_1 = 23
         INVENTORY_SLOT_ITEM_2 = 24
@@ -162,7 +198,7 @@ Public Module Constants
         INVENTORY_SLOT_ITEM_END = 39
     End Enum
 
-    Public Enum BankItemSlots  '29 Slots
+    Public Enum BankItemSlots As Byte  '29 Slots
         BANK_SLOT_ITEM_START = 39
         BANK_SLOT_ITEM_1 = 39
         BANK_SLOT_ITEM_2 = 40
@@ -191,7 +227,7 @@ Public Module Constants
         BANK_SLOT_ITEM_END = 63
     End Enum
 
-    Public Enum BankBagSlots  '7 Slots
+    Public Enum BankBagSlots As Byte  '7 Slots
         BANK_SLOT_BAG_START = 63
         BANK_SLOT_BAG_1 = 63
         BANK_SLOT_BAG_2 = 64
@@ -202,7 +238,7 @@ Public Module Constants
         BANK_SLOT_BAG_END = 69
     End Enum
 
-    Public Enum BuyBackSlots  '12 Slots
+    Public Enum BuyBackSlots As Byte  '12 Slots
         BUYBACK_SLOT_START = 69
         BUYBACK_SLOT_1 = 69
         BUYBACK_SLOT_2 = 70
@@ -219,7 +255,7 @@ Public Module Constants
         BUYBACK_SLOT_END = 81
     End Enum
 
-    Public Enum KeyRingSlots  '32 Slots?
+    Public Enum KeyRingSlots As Byte  '32 Slots?
         KEYRING_SLOT_START = 81
         KEYRING_SLOT_1 = 81
         KEYRING_SLOT_2 = 82
@@ -228,7 +264,7 @@ Public Module Constants
         KEYRING_SLOT_END = 113
     End Enum
 
-    Public Enum QuestInfo
+    Public Enum QuestInfo As Byte
         QUEST_OBJECTIVES_COUNT = 4
         QUEST_REWARD_CHOICES_COUNT = 5
         QUEST_REWARDS_COUNT = 4
@@ -247,7 +283,7 @@ Public Module Constants
         IN_MILLISECONDS = 1000
     End Enum
 
-    Public Enum AuthCMD
+    Public Enum AuthCMD As Byte
         CMD_AUTH_LOGON_CHALLENGE = &H0
         CMD_AUTH_LOGON_PROOF = &H1
         CMD_AUTH_RECONNECT_CHALLENGE = &H2
@@ -260,12 +296,12 @@ Public Module Constants
         CMD_XFER_CANCEL = &H34
     End Enum
 
-    Public Enum AuthSrv
+    Public Enum AuthSrv As Byte
         CMD_GRUNT_CONN_PONG = &H11
         CMD_GRUNT_PROVESESSION = &H21
     End Enum
 
-    Public Enum AuthResult
+    Public Enum AuthResult As Byte
         WOW_SUCCESS = &H0
         WOW_FAIL_BANNED = &H3
         WOW_FAIL_UNKNOWN_ACCOUNT = &H4
@@ -292,14 +328,14 @@ Public Module Constants
         WOW_FAIL_DISCONNECTED = &HFF
     End Enum
 
-    Public Enum LoginResponse
+    Public Enum LoginResponse As Byte
         LOGIN_OK = &HC
         LOGIN_VERSION_MISMATCH = &H14
         LOGIN_UNKNOWN_ACCOUNT = &H15
         LOGIN_WAIT_QUEUE = &H1B
     End Enum
 
-    Public Enum CharResponse
+    Public Enum CharResponse As Byte
         CHAR_LIST_FAILED = &H2C
         CHAR_CREATE_SUCCESS = &H2E
         CHAR_CREATE_ERROR = &H2F
@@ -316,7 +352,7 @@ Public Module Constants
         CHAR_NAME_INVALID_CHARACTER = &H46
     End Enum
 
-    Public Enum ATLoginFlags
+    Public Enum ATLoginFlags As Byte
         AT_LOGIN_NONE = &H0
         AT_LOGIN_RENAME = &H1
         AT_LOGIN_RESET_SPELLS = &H2
@@ -1755,11 +1791,9 @@ Public Module Constants
         AREA_FLAG_ARENA = &H80              ' arena, both instanced and world arenas
         AREA_FLAG_CAPITAL = &H100           ' main capital city flag
         AREA_FLAG_CITY = &H200              ' only for one zone named "City" (where it located?)
-        AREA_FLAG_OUTLAND = &H400           ' outland zones? (only Eye of the Storm not have this flag, but have 0x00004000 flag)
         AREA_FLAG_SANCTUARY = &H800         ' sanctuary area (PvP disabled)
         AREA_FLAG_NEED_FLY = &H1000         ' only Netherwing Ledge, Socrethar's Seat, Tempest Keep, The Arcatraz, The Botanica, The Mechanar, Sorrow Wing Point, Dragonspine Ridge, Netherwing Mines, Dragonmaw Base Camp, Dragonmaw Skyway
         AREA_FLAG_UNUSED1 = &H2000          ' not used now (no area/zones with this flag set in 2.4.2)
-        AREA_FLAG_OUTLAND2 = &H4000         ' outland zones? (only Circle of Blood Arena not have this flag, but have 0x00000400 flag)
         AREA_FLAG_PVP = &H8000              ' pvp objective area? (Death's Door also has this flag although it's no pvp object area)
         AREA_FLAG_ARENA_INSTANCE = &H10000  ' used by instanced arenas only
         AREA_FLAG_UNUSED2 = &H20000         ' not used now (no area/zones with this flag set in 2.4.2)
