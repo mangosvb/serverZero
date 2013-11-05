@@ -185,14 +185,14 @@ Public Module WS_Creatures_AI
             Me.State = AIState.AI_ATTACKING
             DoThink()
 
-            If MonsterSayCombat.ContainsKey(aiCreature.ID) Then
-                Dim Chance As Integer = (MonsterSayCombat(aiCreature.ID).Chance)
-                If Rnd.Next(1, 101) <= Chance Then
-                    Dim TargetGUID As ULong = 0UL
-                    If Not aiTarget Is Nothing Then TargetGUID = aiTarget.GUID
-                    aiCreature.SendChatMessage(SelectMonsterSay(aiCreature.ID), ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL, TargetGUID)
-                End If
-            End If
+            'If MonsterSayCombat.ContainsKey(aiCreature.ID) Then
+            '    Dim Chance As Integer = (MonsterSayCombat(aiCreature.ID).Chance)
+            '    If Rnd.Next(1, 101) <= Chance Then
+            '        Dim TargetGUID As ULong = 0UL
+            '        If Not aiTarget Is Nothing Then TargetGUID = aiTarget.GUID
+            '        aiCreature.SendChatMessage(SelectMonsterSay(aiCreature.ID), ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL, TargetGUID)
+            '    End If
+            'End If
         End Sub
         Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)
             'DONE: Remove combat flag from everyone
