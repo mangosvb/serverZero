@@ -846,7 +846,7 @@ Public Module WS_Items
                       client.Port, pageID, itemGuid)
 
         Dim mySqlQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM itempages WHERE entry = ""{0}"";", pageID), mySqlQuery)
+        WorldDatabase.Query(String.Format("SELECT * FROM page_text WHERE entry = ""{0}"";", pageID), mySqlQuery)
 
         Dim response As New PacketClass(OPCODES.SMSG_PAGE_TEXT_QUERY_RESPONSE)
         response.AddInt32(pageID)
