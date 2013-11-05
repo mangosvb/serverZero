@@ -1565,36 +1565,36 @@ Public Module WS_Creatures
     End Class
 #End Region
 
-#Region "WS.Creatures.MonsterSayCombat"
-    Public MonsterSayCombat As New Dictionary(Of Integer, TMonsterSayCombat)
-    Public Class TMonsterSayCombat
-        Public Entry As Integer
-        Public EventNo As Integer
-        Public Chance As Single
-        Public Language As Integer
-        Public Type As Integer
-        Public MonsterName As String
-        Public Text0 As String
-        Public Text1 As String
-        Public Text2 As String
-        Public Text3 As String
-        Public Text4 As String
+    '#Region "WS.Creatures.MonsterSayCombat"
+    '    Public MonsterSayCombat As New Dictionary(Of Integer, TMonsterSayCombat)
+    '    Public Class TMonsterSayCombat
+    '        Public Entry As Integer
+    '        Public EventNo As Integer
+    '        Public Chance As Single
+    '        Public Language As Integer
+    '        Public Type As Integer
+    '        Public MonsterName As String
+    '        Public Text0 As String
+    '        Public Text1 As String
+    '        Public Text2 As String
+    '        Public Text3 As String
+    '        Public Text4 As String
 
-        Public Sub New(ByVal Entry_ As Integer, ByVal EventNo_ As Integer, ByVal Chance_ As Single, ByVal Language_ As Integer, ByVal Type_ As Integer, ByVal MonsterName_ As String, ByVal Text0_ As String, ByVal Text1_ As String, ByVal Text2_ As String, ByVal Text3_ As String, ByVal Text4_ As String)
-            Entry = Entry_
-            EventNo = EventNo_
-            Chance = Chance_
-            Language = Language_
-            Type = Type_
-            MonsterName = MonsterName_
-            Text0 = Text0_
-            Text1 = Text1_
-            Text2 = Text2_
-            Text3 = Text3_
-            Text4 = Text4
-        End Sub
-    End Class
-#End Region
+    '        Public Sub New(ByVal Entry_ As Integer, ByVal EventNo_ As Integer, ByVal Chance_ As Single, ByVal Language_ As Integer, ByVal Type_ As Integer, ByVal MonsterName_ As String, ByVal Text0_ As String, ByVal Text1_ As String, ByVal Text2_ As String, ByVal Text3_ As String, ByVal Text4_ As String)
+    '            Entry = Entry_
+    '            EventNo = EventNo_
+    '            Chance = Chance_
+    '            Language = Language_
+    '            Type = Type_
+    '            MonsterName = MonsterName_
+    '            Text0 = Text0_
+    '            Text1 = Text1_
+    '            Text2 = Text2_
+    '            Text3 = Text3_
+    '            Text4 = Text4
+    '        End Sub
+    '    End Class
+    '#End Region
 
 End Module
 

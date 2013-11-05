@@ -1687,75 +1687,75 @@ Public Module WS_DBCDatabase
 #End Region
 
 #Region "MonterSayCombat"
-    Public Sub InitializeMonsterSayCombat()
-        ' Load the MonsterSayCombat Hashtable.
-        Dim Entry As Integer = 0
-        Dim EventNo As Integer = 0
-        Dim Chance As Single = 0.0F
-        Dim Language As Integer = 0
-        Dim Type As Integer = 0
-        Dim MonsterName As String = ""
-        Dim Text0 As String = ""
-        Dim Text1 As String = ""
-        Dim Text2 As String = ""
-        Dim Text3 As String = ""
-        Dim Text4 As String = ""
-        Dim Count As Integer = 0
+    'Public Sub InitializeMonsterSayCombat()
+    '    ' Load the MonsterSayCombat Hashtable.
+    '    Dim Entry As Integer = 0
+    '    Dim EventNo As Integer = 0
+    '    Dim Chance As Single = 0.0F
+    '    Dim Language As Integer = 0
+    '    Dim Type As Integer = 0
+    '    Dim MonsterName As String = ""
+    '    Dim Text0 As String = ""
+    '    Dim Text1 As String = ""
+    '    Dim Text2 As String = ""
+    '    Dim Text3 As String = ""
+    '    Dim Text4 As String = ""
+    '    Dim Count As Integer = 0
 
-        Dim MySQLQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM npc_monstersay"), MySQLQuery)
-        For Each MonsterRow As DataRow In MySQLQuery.Rows
-            Count = Count + 1
-            Entry = MonsterRow.Item("entry")
-            EventNo = MonsterRow.Item("event")
-            Chance = MonsterRow.Item("chance")
-            Language = MonsterRow.Item("language")
-            Type = MonsterRow.Item("type")
-            If Not MonsterRow.Item("monstername") Is DBNull.Value Then
-                MonsterName = MonsterRow.Item("monstername")
-            Else
-                MonsterName = ""
-            End If
+    '    Dim MySQLQuery As New DataTable
+    '    WorldDatabase.Query(String.Format("SELECT * FROM npc_monstersay"), MySQLQuery)
+    '    For Each MonsterRow As DataRow In MySQLQuery.Rows
+    '        Count = Count + 1
+    '        Entry = MonsterRow.Item("entry")
+    '        EventNo = MonsterRow.Item("event")
+    '        Chance = MonsterRow.Item("chance")
+    '        Language = MonsterRow.Item("language")
+    '        Type = MonsterRow.Item("type")
+    '        If Not MonsterRow.Item("monstername") Is DBNull.Value Then
+    '            MonsterName = MonsterRow.Item("monstername")
+    '        Else
+    '            MonsterName = ""
+    '        End If
 
-            If Not MonsterRow.Item("text0") Is DBNull.Value Then
-                Text0 = MonsterRow.Item("text0")
-            Else
-                Text0 = ""
-            End If
+    '        If Not MonsterRow.Item("text0") Is DBNull.Value Then
+    '            Text0 = MonsterRow.Item("text0")
+    '        Else
+    '            Text0 = ""
+    '        End If
 
-            If Not MonsterRow.Item("text1") Is DBNull.Value Then
-                Text1 = MonsterRow.Item("text1")
-            Else
-                Text1 = ""
-            End If
+    '        If Not MonsterRow.Item("text1") Is DBNull.Value Then
+    '            Text1 = MonsterRow.Item("text1")
+    '        Else
+    '            Text1 = ""
+    '        End If
 
-            If Not MonsterRow.Item("text2") Is DBNull.Value Then
-                Text2 = MonsterRow.Item("text2")
-            Else
-                Text2 = ""
-            End If
+    '        If Not MonsterRow.Item("text2") Is DBNull.Value Then
+    '            Text2 = MonsterRow.Item("text2")
+    '        Else
+    '            Text2 = ""
+    '        End If
 
-            If Not MonsterRow.Item("text3") Is DBNull.Value Then
-                Text3 = MonsterRow("text3")
-            Else
-                Text3 = ""
-            End If
+    '        If Not MonsterRow.Item("text3") Is DBNull.Value Then
+    '            Text3 = MonsterRow("text3")
+    '        Else
+    '            Text3 = ""
+    '        End If
 
-            If Not MonsterRow.Item("text4") Is DBNull.Value Then
-                Text4 = MonsterRow("text4")
-            Else
-                Text4 = ""
-            End If
+    '        If Not MonsterRow.Item("text4") Is DBNull.Value Then
+    '            Text4 = MonsterRow("text4")
+    '        Else
+    '            Text4 = ""
+    '        End If
 
-            If EventNo = MonsterSayEvents.MONSTER_SAY_EVENT_COMBAT Then
-                MonsterSayCombat(Entry) = New TMonsterSayCombat(Entry, EventNo, Chance, Language, Type, MonsterName, Text0, Text1, Text2, Text3, Text4)
-            End If
+    '        If EventNo = MonsterSayEvents.MONSTER_SAY_EVENT_COMBAT Then
+    '            MonsterSayCombat(Entry) = New TMonsterSayCombat(Entry, EventNo, Chance, Language, Type, MonsterName, Text0, Text1, Text2, Text3, Text4)
+    '        End If
 
-        Next
+    '    Next
 
-        Log.WriteLine(LogType.INFORMATION, "World: {0} Monster Say(s) Loaded.", Count)
+    '    Log.WriteLine(LogType.INFORMATION, "World: {0} Monster Say(s) Loaded.", Count)
 
-    End Sub
+    'End Sub
 #End Region
 
 #Region "Creatures"
@@ -1929,7 +1929,7 @@ Public Module WS_DBCDatabase
         InitializeBattlemasters()
         InitializeBattlegrounds()
         InitializeTeleportCoords()
-        InitializeMonsterSayCombat()
+        'InitializeMonsterSayCombat()
         LoadCreatureFamilyDbc()
 
         InitializeSpellRadius()
