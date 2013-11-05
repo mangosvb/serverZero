@@ -317,7 +317,7 @@ Public Module WS_NPCs
                 Exit Sub
             End If
             'DONE: Can't cheat and sell items that are located in the buyback
-            For i As Byte = BUYBACK_SLOT_START To BUYBACK_SLOT_END - 1
+            For i As Byte = BuyBackSlots.BUYBACK_SLOT_START To BuyBackSlots.BUYBACK_SLOT_END - 1
                 If client.Character.Items.ContainsKey(i) AndAlso client.Character.Items(i).GUID = itemGuid Then
                     Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
                     okPckt.AddUInt64(vendorGuid)
@@ -351,7 +351,7 @@ Public Module WS_NPCs
                         client.Character.Copper += (ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
                         client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
-                        If item.Key < INVENTORY_SLOT_BAG_END Then client.Character.UpdateRemoveItemStats(item.Value, item.Key)
+                        If item.Key < InventorySlots.INVENTORY_SLOT_BAG_END Then client.Character.UpdateRemoveItemStats(item.Value, item.Key)
 
                         client.Character.ItemREMOVE(item.Value.GUID, False, True)
                         client.Character.ItemADD_BuyBack(item.Value)
@@ -366,7 +366,7 @@ Public Module WS_NPCs
                     End If
                 Next
 
-                For i As Byte = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_4
+                For i As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_4
                     For Each item As KeyValuePair(Of Byte, ItemObject) In client.Character.Items
                         If item.Value.GUID = itemGuid Then
                             client.Character.Copper += (ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
@@ -539,7 +539,7 @@ Public Module WS_NPCs
         Else
             'Store in bag
             Dim i As Byte
-            For i = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_4
+            For i = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_4
                 If client.Character.Items(i).GUID = clientGuid Then
                     bag = i
                     Exit For
@@ -615,7 +615,7 @@ Public Module WS_NPCs
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUYBACK_ITEM [vendorGuid={2:X} Slot={3}]", client.IP, client.Port, vendorGuid, slot)
 
         'TODO: If item is not located in your buyback you can't buy it back (this checking below doesn't work)
-        If slot < BUYBACK_SLOT_START OrElse slot >= BUYBACK_SLOT_END OrElse client.Character.Items.ContainsKey(slot) = False Then
+        If slot < BuyBackSlots.BUYBACK_SLOT_START OrElse slot >= BuyBackSlots.BUYBACK_SLOT_END OrElse client.Character.Items.ContainsKey(slot) = False Then
             Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
             Try
                 errorPckt.AddUInt64(vendorGuid)
@@ -645,7 +645,7 @@ Public Module WS_NPCs
         'DONE: Move item to the inventory, if it's unable to do that tell the client that the bags are full
         client.Character.ItemREMOVE(tmpItem.GUID, False, True)
         If client.Character.ItemADD_AutoSlot(tmpItem) Then
-            Dim eSlot As Byte = slot - BUYBACK_SLOT_START
+            Dim eSlot As Byte = slot - BuyBackSlots.BUYBACK_SLOT_START
             client.Character.Copper -= (tmpItem.ItemInfo.SellPrice * tmpItem.StackCount)
             client.Character.BuyBackTimeStamp(eSlot) = 0
             client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eSlot, 0)
@@ -687,7 +687,7 @@ Public Module WS_NPCs
                 WORLD_ITEMs(itemGuid).ModifyToDurability(100.0F, client)
             End If
         Else
-            For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
+            For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 If client.Character.Items.ContainsKey(i) Then
                     price = (client.Character.Items(i).GetDurabulityCost * discountMod)
 
@@ -1150,11 +1150,11 @@ Public Module WS_NPCs
                             End If
                             Dim status As QuestgiverStatusFlag = CType(qMenu.Icons(0), QuestgiverStatusFlag)
                             If status = QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE Then
-                                For i As Integer = 0 To QUEST_SLOTS
+                                For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                                     If objCharacter.TalkQuests(i) IsNot Nothing AndAlso objCharacter.TalkQuests(i).ID = questID Then
                                         'Load quest data
                                         objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                                        ALLQUESTS.SendQuestRequireItems(objCharacter.Client, objCharacter.TalkCurrentQuest, cGuid, objCharacter.TalkQuests(i))
+                                        ALLQUESTS.SendQuestRequireItems(objCharacter.client, objCharacter.TalkCurrentQuest, cGuid, objCharacter.TalkQuests(i))
                                         Exit For
                                     End If
                                 Next

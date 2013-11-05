@@ -32,7 +32,7 @@ Public Module WC_Handlers_Auth
         Thread.Sleep(500)
 
         Dim response As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
-        response.AddInt8(AuthResponseCodes.AUTH_OK)
+        response.AddInt8(LoginResponse.LOGIN_OK)
         response.AddInt32(0)
         response.AddInt8(2) 'BillingPlanFlags
         response.AddUInt32(0) 'BillingTimeRested
@@ -84,9 +84,9 @@ Public Module WC_Handlers_Auth
             client.Access = result.Rows(0).Item("gmlevel")
         Else
             Log.WriteLine(LogType.USER, "[{0}:{1}] AUTH_UNKNOWN_ACCOUNT: Account not in DB!", client.IP, client.Port)
-            Dim response_no_acc As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
-            response_no_acc.AddInt8(AuthResponseCodes.AUTH_UNKNOWN_ACCOUNT)
-            client.Send(response_no_acc)
+            Dim response_unk_acc As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
+            response_unk_acc.AddInt8(AuthResult.WOW_FAIL_UNKNOWN_ACCOUNT)
+            client.Send(response_unk_acc)
             Exit Sub
         End If
         ReDim client.SS_Hash(39)
@@ -97,9 +97,9 @@ Public Module WC_Handlers_Auth
 
         'DONE: Disconnect clients trying to enter with an invalid build
         If clientVersion < REQUIRED_BUILD_LOW OrElse clientVersion > REQUIRED_BUILD_HIGH Then
-            Dim response_wrong_version As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
-            response_wrong_version.AddInt8(AuthResponseCodes.AUTH_VERSION_MISMATCH)
-            client.Send(response_wrong_version)
+            Dim invalid_version As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
+            invalid_version.AddInt8(AuthResult.WOW_FAIL_VERSION_INVALID)
+            client.Send(invalid_version)
             Exit Sub
         End If
 
@@ -418,15 +418,15 @@ Public Module WC_Handlers_Auth
                 Dim r As DataRow = e.Current
 
                 'DONE: Add model info
-                For slot As Byte = 0 To EQUIPMENT_SLOT_END '- 1
+                For slot As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END '- 1
                     If r Is Nothing OrElse CInt(r.Item("item_slot")) <> slot Then
                         'No equiped item in this slot
                         response.AddInt32(0) 'Item Model
                         response.AddInt8(0)  'Item Slot
                     Else
                         'DONE: Do not show helmet or cloak
-                        If ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDECLOAK) AndAlso CByte(r.Item("item_slot")) = EQUIPMENT_SLOT_BACK) OrElse _
-                            ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDEHELM) AndAlso CByte(r.Item("item_slot")) = EQUIPMENT_SLOT_HEAD) Then
+                        If ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDECLOAK) AndAlso CByte(r.Item("item_slot")) = EquipmentSlots.EQUIPMENT_SLOT_BACK) OrElse _
+                            ((ForceRestrictions And ForceRestrictionFlags.RESTRICT_HIDEHELM) AndAlso CByte(r.Item("item_slot")) = EquipmentSlots.EQUIPMENT_SLOT_HEAD) Then
                             response.AddInt32(0) 'Item Model
                             response.AddInt8(0)  'Item Slot
                         Else
@@ -444,7 +444,7 @@ Public Module WC_Handlers_Auth
             Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to enum characters. [{2}]", client.IP, client.Port, e.Message)
             'TODO: Find what opcode officials use
             response = New PacketClass(OPCODES.SMSG_CHAR_CREATE)
-            response.AddInt8(AuthResponseCodes.CHAR_LIST_FAILED)
+            response.AddInt8(CharResponse.CHAR_LIST_FAILED)
         End Try
 
         client.Send(response)
@@ -507,9 +507,9 @@ Public Module WC_Handlers_Auth
                 CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildid=0, char_guildrank=0, char_guildpnote='', charguildoffnote='' WHERE char_guildid=""{0}"";", q.Rows(0).Item("guild_id")))
                 CharacterDatabase.Update(String.Format("DELETE FROM guild WHERE guild_id=""{0}"";", q.Rows(0).Item("guild_id")))
             End If
-            response.AddInt8(AuthResponseCodes.CHAR_DELETE_SUCCESS) ' Changed in 1.12.x client branch?
+            response.AddInt8(CharResponse.CHAR_DELETE_SUCCESS) ' Changed in 1.12.x client branch?
         Catch e As Exception
-            response.AddInt8(AuthResponseCodes.CHAR_DELETE_FAILED)
+            response.AddInt8(CharResponse.CHAR_DELETE_FAILED)
         End Try
 
         client.Send(response)
@@ -522,17 +522,17 @@ Public Module WC_Handlers_Auth
         Dim Name As String = packet.GetString
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_RENAME [{2}:{3}]", client.IP, client.Port, GUID, Name)
 
-        Dim ErrCode As Byte = AuthResponseCodes.RESPONSE_SUCCESS
+        Dim ErrCode As Byte = ATLoginFlags.AT_LOGIN_RENAME
 
         'DONE: Check for existing name
         Dim q As New DataTable
         CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name LIKE ""{0}"";", Name), q)
         If q.Rows.Count > 0 Then
-            ErrCode = AuthResponseCodes.CHAR_CREATE_NAME_IN_USE
+            ErrCode = CharResponse.CHAR_CREATE_NAME_IN_USE
         End If
 
         'DONE: Do the rename
-        If ErrCode = AuthResponseCodes.RESPONSE_SUCCESS Then CharacterDatabase.Update(String.Format("UPDATE characters SET char_name = ""{1}"", force_restrictions = 0 WHERE char_guid = {0};", GUID, Name))
+        If ErrCode = ATLoginFlags.AT_LOGIN_RENAME Then CharacterDatabase.Update(String.Format("UPDATE characters SET char_name = ""{1}"", force_restrictions = 0 WHERE char_guid = {0};", GUID, Name))
 
         'DONE: Send response
         Dim response As New PacketClass(OPCODES.SMSG_CHAR_RENAME)
@@ -560,7 +560,7 @@ Public Module WC_Handlers_Auth
         Dim FacialHair As Byte = packet.GetInt8
         Dim OutfitId As Byte = packet.GetInt8
 
-        Dim result As Integer = AuthResponseCodes.CHAR_CREATE_DISABLED
+        Dim result As Integer = CharResponse.CHAR_CREATE_DISABLED
 
         'Try to pass the packet to one of World Servers
         Try
@@ -570,7 +570,7 @@ Public Module WC_Handlers_Auth
                 result = WorldServer.Worlds(1).ClientCreateCharacter(Client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
             End If
         Catch ex As Exception
-            result = AuthResponseCodes.CHAR_CREATE_ERROR
+            result = CharResponse.CHAR_CREATE_ERROR
             Log.WriteLine(LogType.FAILED, "[{0}:{1}] Character creation failed!{2}{3}", client.IP, client.Port, vbNewLine, ex.ToString)
         End Try
 
@@ -610,7 +610,7 @@ Public Module WC_Handlers_Auth
                 client.Character = Nothing
                 Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
                 Try
-                    r.AddInt8(AuthResponseCodes.CHAR_LOGIN_NO_WORLD)
+                    r.AddInt8(CharResponse.CHAR_LOGIN_NO_WORLD)
                     client.Send(r)
                 Finally
                     r.Dispose()
@@ -625,7 +625,7 @@ Public Module WC_Handlers_Auth
 
             Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
             Try
-                r.AddInt8(AuthResponseCodes.CHAR_LOGIN_FAILED)
+                r.AddInt8(CharResponse.CHAR_LOGIN_FAILED)
                 client.Send(r)
             Finally
                 r.Dispose()

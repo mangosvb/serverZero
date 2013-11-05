@@ -913,7 +913,7 @@ Public Module WS_CharManagment
 
         Public ReadOnly Property CanShootRanged() As Boolean
             Get
-                Return (AmmoID > 0 AndAlso Items.ContainsKey(EQUIPMENT_SLOT_RANGED) AndAlso Items(EQUIPMENT_SLOT_RANGED).IsRanged AndAlso Items(EQUIPMENT_SLOT_RANGED).IsBroken = False AndAlso ItemCOUNT(AmmoID) > 0)
+                Return (AmmoID > 0 AndAlso Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) AndAlso Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).IsRanged AndAlso Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).IsBroken = False AndAlso ItemCOUNT(AmmoID) > 0)
             End Get
         End Property
 
@@ -1569,10 +1569,10 @@ Public Module WS_CharManagment
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                For i As Byte = 0 To INVENTORY_SLOT_ITEM_END - 1
+                For i As Byte = 0 To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                     If Items.ContainsKey(i) Then
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
-                        If i < EQUIPMENT_SLOT_END Then
+                        If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                             SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
                             'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_1 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT
@@ -1586,7 +1586,7 @@ Public Module WS_CharManagment
                         End If
                     Else
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, Long))
-                        If i < EQUIPMENT_SLOT_END Then
+                        If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                             SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
                         End If
                     End If
@@ -1611,16 +1611,16 @@ Public Module WS_CharManagment
                 Item.FillAllUpdateFlags(tmpUpdate)
                 tmpUpdate.AddToPacket(packet, UPDATETYPE, Item)
 
-                For i As Byte = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
+                For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                     If Items.ContainsKey(i) Then
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
-                        If i < EQUIPMENT_SLOT_END Then
+                        If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                             SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
                             SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
                         End If
                     Else
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, ULong))
-                        If i < EQUIPMENT_SLOT_END Then
+                        If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                             SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
                         End If
                     End If
@@ -1634,7 +1634,7 @@ Public Module WS_CharManagment
                 tmpUpdate.Dispose()
             End Try
             'DONE: Send to others
-            For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
+            For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 If Items.ContainsKey(i) Then
                     SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
                     SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
@@ -1882,7 +1882,7 @@ Public Module WS_CharManagment
             SetUpdateFlag(EUnitFields.UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0F)
             SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 0.0F)
 
-            For i As Byte = 0 To QUEST_SLOTS
+            For i As Byte = 0 To QuestInfo.QUEST_SLOTS
                 If TalkQuests(i) Is Nothing Then
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_1 + i * 3, 0) 'ID
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + i * 3, 0) 'State
@@ -1914,9 +1914,9 @@ Public Module WS_CharManagment
             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_YESTERDAY_CONTRIBUTION, HonorPointsYesterday)
             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_LAST_WEEK_RANK, StandingLastWeek)
 
-            For i As Byte = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
+            For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                 If Items.ContainsKey(i) Then
-                    If i < EQUIPMENT_SLOT_END Then
+                    If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                         SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
                         'DONE: Include enchantment info
@@ -1929,7 +1929,7 @@ Public Module WS_CharManagment
                     End If
                     SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
                 Else
-                    If i < EQUIPMENT_SLOT_END Then
+                    If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                         SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
                         SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
                     End If
@@ -1997,9 +1997,9 @@ Public Module WS_CharManagment
             Update.SetUpdateFlag(EPlayerFields.PLAYER_GUILDID, GuildID)
             Update.SetUpdateFlag(EPlayerFields.PLAYER_GUILDRANK, GuildRank)
 
-            For i As Byte = EQUIPMENT_SLOT_START To EQUIPMENT_SLOT_END - 1
+            For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 If Items.ContainsKey(i) Then
-                    If i < EQUIPMENT_SLOT_END Then
+                    If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                         Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
                         'DONE: Include enchantment info
@@ -2010,7 +2010,7 @@ Public Module WS_CharManagment
                     End If
                     Update.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
                 Else
-                    If i < EQUIPMENT_SLOT_END Then
+                    If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
                         Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
                         Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
                     End If
@@ -2652,12 +2652,12 @@ CheckXPAgain:
             Else
                 ItemSETSLOT(tmpItem, dstBag, dstSlot)
             End If
-            If dstBag = 0 And dstSlot < INVENTORY_SLOT_BAG_END AndAlso Client IsNot Nothing Then UpdateAddItemStats(tmpItem, dstSlot)
+            If dstBag = 0 And dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END AndAlso client IsNot Nothing Then UpdateAddItemStats(tmpItem, dstSlot)
         End Sub
         Public Sub ItemREMOVE(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal Destroy As Boolean, ByVal Update As Boolean)
             If srcBag = 0 Then
-                If srcSlot < INVENTORY_SLOT_BAG_END Then
-                    If srcSlot < EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + srcSlot * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then
+                    If srcSlot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + srcSlot * PLAYER_VISIBLE_ITEM_SIZE, 0)
                     UpdateRemoveItemStats(Items(srcSlot), srcSlot)
                 End If
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + srcSlot * 2, 0)
@@ -2675,13 +2675,13 @@ CheckXPAgain:
         End Sub
         Public Sub ItemREMOVE(ByVal itemGuid As ULong, ByVal Destroy As Boolean, ByVal Update As Boolean)
             'DONE: Search in inventory
-            For slot As Byte = EQUIPMENT_SLOT_START To KEYRING_SLOT_END - 1
+            For slot As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                 If Items.ContainsKey(slot) Then
                     If Items(slot).GUID = itemGuid Then
 
                         CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(slot).GUID - GUID_ITEM))
-                        If slot < INVENTORY_SLOT_BAG_END Then
-                            If slot < EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + slot * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                        If slot < InventorySlots.INVENTORY_SLOT_BAG_END Then
+                            If slot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + slot * PLAYER_VISIBLE_ITEM_SIZE, 0)
                             UpdateRemoveItemStats(Items(slot), slot)
                         End If
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + slot * 2, 0)
@@ -2696,7 +2696,7 @@ CheckXPAgain:
             Next slot
 
             'DONE: Search in bags
-            For bag As Byte = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_END - 1
+            For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                 If Items.ContainsKey(bag) Then
 
                     'DONE: Search this bag
@@ -2738,19 +2738,19 @@ CheckXPAgain:
             Return False
         End Function
 
-        Public BuyBackTimeStamp(0 To ((BUYBACK_SLOT_END - BUYBACK_SLOT_START) - 1)) As Integer
+        Public BuyBackTimeStamp(0 To ((BuyBackSlots.BUYBACK_SLOT_END - BuyBackSlots.BUYBACK_SLOT_START) - 1)) As Integer
 
         Public Sub ItemADD_BuyBack(ByRef Item As ItemObject)
             Dim i As Byte, Slot As Byte, eSlot As Byte, OldestTime As Integer, OldestSlot As Byte
             Slot = ITEM_SLOT_NULL
             OldestTime = GetTimestamp(Now)
             OldestSlot = ITEM_SLOT_NULL
-            For i = BUYBACK_SLOT_START To BUYBACK_SLOT_END - 1
-                If Items.ContainsKey(i) = False OrElse BuyBackTimeStamp(i - BUYBACK_SLOT_START) = 0 Then 'Woho we found a empty slot to use!
+            For i = BuyBackSlots.BUYBACK_SLOT_START To BuyBackSlots.BUYBACK_SLOT_END - 1
+                If Items.ContainsKey(i) = False OrElse BuyBackTimeStamp(i - BuyBackSlots.BUYBACK_SLOT_START) = 0 Then 'Woho we found a empty slot to use!
                     If Slot = ITEM_SLOT_NULL Then Slot = i
                 Else 'If not let's find out the oldest item in the buyback
-                    If BuyBackTimeStamp(i - BUYBACK_SLOT_START) < OldestTime Then
-                        OldestTime = BuyBackTimeStamp(i - BUYBACK_SLOT_START)
+                    If BuyBackTimeStamp(i - BuyBackSlots.BUYBACK_SLOT_START) < OldestTime Then
+                        OldestTime = BuyBackTimeStamp(i - BuyBackSlots.BUYBACK_SLOT_START)
                         OldestSlot = i
                     End If
                 End If
@@ -2761,7 +2761,7 @@ CheckXPAgain:
                 Slot = OldestSlot
             End If
             'Now we have a empty slow so let's just put our item there
-            eSlot = Slot - BUYBACK_SLOT_START
+            eSlot = Slot - BuyBackSlots.BUYBACK_SLOT_START
             BuyBackTimeStamp(eSlot) = GetTimestamp(Now)
             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eSlot, BuyBackTimeStamp(eSlot))
             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BUYBACK_PRICE_1 + eSlot, Item.ItemInfo.SellPrice * Item.StackCount)
@@ -2772,7 +2772,7 @@ CheckXPAgain:
             If Item.ItemInfo.Stackable > 1 Then
                 'DONE: Search for stackable in special bags
                 If Item.ItemInfo.BagFamily = ITEM_BAG.KEYRING OrElse Item.ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_KEY Then
-                    For slot As Byte = KEYRING_SLOT_START To KEYRING_SLOT_END - 1
+                    For slot As Byte = KeyRingSlots.KEYRING_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                         If Items.ContainsKey(slot) AndAlso Items(slot).ItemEntry = Item.ItemEntry AndAlso Items(slot).StackCount < Items(slot).ItemInfo.Stackable Then
                             Dim stacked As Integer = Items(slot).ItemInfo.Stackable - Items(slot).StackCount
                             If stacked >= Item.StackCount Then
@@ -2794,7 +2794,7 @@ CheckXPAgain:
                         End If
                     Next
                 ElseIf Item.ItemInfo.BagFamily <> 0 Then
-                    For bag As Byte = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
+                    For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                         If Items.ContainsKey(bag) AndAlso Items(bag).ItemInfo.SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_BAG Then
                             If (Items(bag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_SOUL_BAG AndAlso Item.ItemInfo.BagFamily = ITEM_BAG.SOUL_SHARD) OrElse _
                             (Items(bag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_HERB_BAG AndAlso Item.ItemInfo.BagFamily = ITEM_BAG.HERB) OrElse _
@@ -2832,7 +2832,7 @@ CheckXPAgain:
                     Next
                 End If
                 'DONE: Search for stackable in main bag
-                For slot As Byte = INVENTORY_SLOT_ITEM_START To INVENTORY_SLOT_ITEM_END - 1
+                For slot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                     If Items.ContainsKey(slot) AndAlso Items(slot).ItemEntry = Item.ItemEntry AndAlso Items(slot).StackCount < Items(slot).ItemInfo.Stackable Then
                         Dim stacked As Integer = Items(slot).ItemInfo.Stackable - Items(slot).StackCount
                         If stacked >= Item.StackCount Then
@@ -2854,7 +2854,7 @@ CheckXPAgain:
                     End If
                 Next
                 'DONE: Search for stackable in bags
-                For bag As Byte = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
+                For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                     If Items.ContainsKey(bag) Then
 
                         For Each slot As KeyValuePair(Of Byte, ItemObject) In Items(bag).Items
@@ -2886,14 +2886,14 @@ CheckXPAgain:
 
             If Item.ItemInfo.BagFamily = ITEM_BAG.KEYRING OrElse Item.ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_KEY Then
                 'DONE: Insert as keyring
-                For slot As Byte = KEYRING_SLOT_START To KEYRING_SLOT_END - 1
+                For slot As Byte = KeyRingSlots.KEYRING_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                     If Not Items.ContainsKey(slot) Then
                         Return ItemSETSLOT(Item, 0, slot)
                     End If
                 Next
             ElseIf Item.ItemInfo.BagFamily <> 0 Then
                 'DONE: Insert in free special bag
-                For bag As Byte = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
+                For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                     If Items.ContainsKey(bag) AndAlso Items(bag).ItemInfo.SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_BAG Then
                         If (Items(bag).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_CONTAINER AndAlso Items(bag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_SOUL_BAG AndAlso Item.ItemInfo.BagFamily = ITEM_BAG.SOUL_SHARD) OrElse _
                         (Items(bag).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_CONTAINER AndAlso Items(bag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_HERB_BAG AndAlso Item.ItemInfo.BagFamily = ITEM_BAG.HERB) OrElse _
@@ -2914,13 +2914,13 @@ CheckXPAgain:
             End If
 
             'DONE: Insert as new item in inventory
-            For slot As Byte = INVENTORY_SLOT_ITEM_START To INVENTORY_SLOT_ITEM_END - 1
+            For slot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                 If Not Items.ContainsKey(slot) Then
                     Return ItemSETSLOT(Item, 0, slot)
                 End If
             Next
             'DONE: Insert as new item in bag
-            For bag As Byte = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
+            For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                 If Items.ContainsKey(bag) AndAlso Items(bag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_BAG Then
                     For slot As Byte = 0 To Items(bag).ItemInfo.ContainerSlots - 1
                         If (Not Items(bag).Items.ContainsKey(slot)) AndAlso ItemCANEQUIP(Item, bag, slot) = InventoryChangeFailure.EQUIP_ERR_OK Then
@@ -2938,7 +2938,7 @@ CheckXPAgain:
             If dstBag = 0 Then
                 If Item.ItemInfo.Stackable > 1 Then
                     'DONE: Search for stackable in main bag
-                    For slot As Byte = INVENTORY_SLOT_ITEM_START To INVENTORY_SLOT_ITEM_END - 1
+                    For slot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                         If Items(slot).ItemEntry = Item.ItemEntry AndAlso Items(slot).StackCount < Items(slot).ItemInfo.Stackable Then
                             Dim stacked As Byte = Items(slot).ItemInfo.Stackable - Items(slot).StackCount
                             If stacked >= Item.StackCount Then
@@ -2962,14 +2962,14 @@ CheckXPAgain:
                 End If
                 'DONE: Insert as keyring
                 If Item.ItemInfo.BagFamily = ITEM_BAG.KEYRING Then
-                    For slot As Byte = KEYRING_SLOT_START To KEYRING_SLOT_END - 1
+                    For slot As Byte = KeyRingSlots.KEYRING_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                         If Not Items.ContainsKey(slot) Then
                             Return ItemSETSLOT(Item, 0, slot)
                         End If
                     Next
                 End If
                 'DONE: Insert as new item in inventory
-                For slot As Byte = INVENTORY_SLOT_ITEM_START To INVENTORY_SLOT_ITEM_END - 1
+                For slot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                     If Not Items.ContainsKey(slot) Then
                         Return ItemSETSLOT(Item, 0, slot)
                     End If
@@ -3038,7 +3038,7 @@ CheckXPAgain:
                 CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, Me.GUID, Item.StackCount, Item.GUID - GUID_ITEM))
 
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + dstSlot * 2, Item.GUID)
-                If dstSlot < EQUIPMENT_SLOT_END Then
+                If dstSlot < EquipmentSlots.EQUIPMENT_SLOT_END Then
                     SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + dstSlot * PLAYER_VISIBLE_ITEM_SIZE, Item.ItemEntry)
                     'For Each Enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Item.Enchantments
                     '   SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + Enchant.Key + dstSlot * PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
@@ -3064,9 +3064,9 @@ CheckXPAgain:
             Dim count As Integer = 0
 
             'DONE: Search in inventory
-            Dim EndSlot As Byte = INVENTORY_SLOT_ITEM_END
-            If Equipped Then EndSlot = EQUIPMENT_SLOT_END
-            For slot As Byte = EQUIPMENT_SLOT_START To EndSlot - 1
+            Dim EndSlot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_END
+            If Equipped Then EndSlot = EquipmentSlots.EQUIPMENT_SLOT_END
+            For slot As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EndSlot - 1
                 If Items.ContainsKey(slot) Then
                     If Items(slot).ItemEntry = ItemEntry Then count += Items(slot).StackCount
                 End If
@@ -3074,14 +3074,14 @@ CheckXPAgain:
             If Equipped Then Return count
 
             'DONE: Search in keyring
-            For slot As Byte = KEYRING_SLOT_START To KEYRING_SLOT_END - 1
+            For slot As Byte = KeyRingSlots.KEYRING_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                 If Items.ContainsKey(slot) Then
                     If Items(slot).ItemEntry = ItemEntry Then count += Items(slot).StackCount
                 End If
             Next slot
 
             'DONE: Search in bags
-            For bag As Byte = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_END - 1
+            For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                 If Items.ContainsKey(bag) Then
 
                     'DONE: Search this bag
@@ -3098,7 +3098,7 @@ CheckXPAgain:
         End Function
         Public Function ItemCONSUME(ByVal ItemEntry As Integer, ByVal Count As Integer) As Boolean
             'DONE: Search in inventory
-            For slot As Byte = EQUIPMENT_SLOT_START To INVENTORY_SLOT_ITEM_END - 1
+            For slot As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                 If Items.ContainsKey(slot) Then
                     If Items(slot).ItemEntry = ItemEntry Then
 
@@ -3118,7 +3118,7 @@ CheckXPAgain:
             Next slot
 
             'DONE: Search in keyring slot
-            For slot As Byte = KEYRING_SLOT_START To KEYRING_SLOT_END - 1
+            For slot As Byte = KeyRingSlots.KEYRING_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                 If Items.ContainsKey(slot) Then
                     If Items(slot).ItemEntry = ItemEntry Then
 
@@ -3138,7 +3138,7 @@ CheckXPAgain:
             Next slot
 
             'DONE: Search in bags
-            For bag As Byte = INVENTORY_SLOT_BAG_1 To INVENTORY_SLOT_BAG_END - 1
+            For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                 If Items.ContainsKey(bag) Then
 
                     'DONE: Search this bag
@@ -3170,14 +3170,14 @@ CheckXPAgain:
             Dim foundFreeSlots As Integer = 0
 
             'DONE Find space in main bag
-            For slot As Byte = INVENTORY_SLOT_ITEM_START To INVENTORY_SLOT_ITEM_END - 1
+            For slot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                 If Not Items.ContainsKey(slot) Then
                     foundFreeSlots += 1
                 End If
             Next slot
 
             'DONE: Find space in other bags
-            For bag As Byte = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
+            For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                 If Items.ContainsKey(bag) Then
                     For slot As Byte = 0 To Items(bag).ItemInfo.ContainerSlots - 1
                         If Not Items(bag).Items.ContainsKey(slot) Then
@@ -3199,7 +3199,7 @@ CheckXPAgain:
                 If dstBag = 0 Then
                     'DONE: items in inventory
                     Select Case dstSlot
-                        Case Is < EQUIPMENT_SLOT_END
+                        Case Is < EquipmentSlots.EQUIPMENT_SLOT_END
                             If ItemInfo.IsContainer Then
                                 Return InventoryChangeFailure.EQUIP_ERR_ITEM_CANT_BE_EQUIPPED
                             End If
@@ -3220,15 +3220,15 @@ CheckXPAgain:
                             Next
                             If Not tmp Then Return InventoryChangeFailure.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT
 
-                            If dstSlot = EQUIPMENT_SLOT_MAINHAND AndAlso ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_TWOHAND_WEAPON AndAlso Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) Then
+                            If dstSlot = EquipmentSlots.EQUIPMENT_SLOT_MAINHAND AndAlso ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_TWOHAND_WEAPON AndAlso Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) Then
                                 Return InventoryChangeFailure.EQUIP_ERR_CANT_EQUIP_WITH_TWOHANDED
                             End If
-                            If dstSlot = EQUIPMENT_SLOT_OFFHAND AndAlso Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) Then
-                                If Items(EQUIPMENT_SLOT_MAINHAND).ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_TWOHAND_WEAPON Then
+                            If dstSlot = EquipmentSlots.EQUIPMENT_SLOT_OFFHAND AndAlso Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
+                                If Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_TWOHAND_WEAPON Then
                                     Return InventoryChangeFailure.EQUIP_ERR_CANT_EQUIP_WITH_TWOHANDED
                                 End If
                             End If
-                            If dstSlot = EQUIPMENT_SLOT_OFFHAND AndAlso ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_WEAPON Then
+                            If dstSlot = EquipmentSlots.EQUIPMENT_SLOT_OFFHAND AndAlso ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_WEAPON Then
                                 If Not Skills.ContainsKey(SKILL_IDs.SKILL_DUAL_WIELD) Then Return InventoryChangeFailure.EQUIP_ERR_CANT_DUAL_WIELD
                             End If
 
@@ -3255,12 +3255,12 @@ CheckXPAgain:
 
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
-                        Case Is < INVENTORY_SLOT_BAG_END
+                        Case Is < InventorySlots.INVENTORY_SLOT_BAG_END
                             If Not ItemInfo.IsContainer Then Return InventoryChangeFailure.EQUIP_ERR_NOT_A_BAG
                             If Not Item.IsFree Then Return InventoryChangeFailure.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
-                        Case Is < INVENTORY_SLOT_ITEM_END
+                        Case Is < InventoryPackSlots.INVENTORY_SLOT_ITEM_END
                             If ItemInfo.IsContainer Then
                                 'DONE: Move only empty bags
                                 If Item.IsFree Then
@@ -3271,7 +3271,7 @@ CheckXPAgain:
                             End If
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
-                        Case Is < BANK_SLOT_ITEM_END
+                        Case Is < BankItemSlots.BANK_SLOT_ITEM_END
                             If ItemInfo.IsContainer Then
                                 'DONE: Move only empty bags
                                 If Item.IsFree Then
@@ -3282,13 +3282,13 @@ CheckXPAgain:
                             End If
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
-                        Case Is < BANK_SLOT_BAG_END
-                            If dstSlot >= (BANK_SLOT_BAG_START + Me.Items_AvailableBankSlots) Then Return InventoryChangeFailure.EQUIP_ERR_MUST_PURCHASE_THAT_BAG_SLOT
+                        Case Is < BankBagSlots.BANK_SLOT_BAG_END
+                            If dstSlot >= (BankBagSlots.BANK_SLOT_BAG_START + Me.Items_AvailableBankSlots) Then Return InventoryChangeFailure.EQUIP_ERR_MUST_PURCHASE_THAT_BAG_SLOT
                             If Not ItemInfo.IsContainer Then Return InventoryChangeFailure.EQUIP_ERR_NOT_A_BAG
                             If Not Item.IsFree Then Return InventoryChangeFailure.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
-                        Case Is < KEYRING_SLOT_END
+                        Case Is < KeyRingSlots.KEYRING_SLOT_END
                             If ItemInfo.BagFamily <> ITEM_BAG.KEYRING AndAlso ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_KEY Then Return InventoryChangeFailure.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT
                             Return InventoryChangeFailure.EQUIP_ERR_OK
 
@@ -3605,19 +3605,19 @@ CheckXPAgain:
                                 Else
                                     Items(dstSlot) = Items(srcBag).Items(srcSlot)
                                     Items(srcBag).Items.Remove(srcSlot)
-                                    If dstSlot < INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(dstSlot), dstSlot)
+                                    If dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(dstSlot), dstSlot)
                                 End If
                             Else
                                 If Not Items(srcBag).Items.ContainsKey(srcSlot) Then
                                     Items(srcBag).Items(srcSlot) = Items(dstSlot)
                                     Items.Remove(dstSlot)
-                                    If dstSlot < INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(srcBag).Items(srcSlot), dstSlot)
+                                    If dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(srcBag).Items(srcSlot), dstSlot)
                                 Else
                                     If ItemSTACK(srcBag, srcSlot, dstBag, dstSlot) Then Exit Sub
                                     Dim tmp As ItemObject = Items(dstSlot)
                                     Items(dstSlot) = Items(srcBag).Items(srcSlot)
                                     Items(srcBag).Items(srcSlot) = tmp
-                                    If dstSlot < INVENTORY_SLOT_BAG_END Then
+                                    If dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then
                                         UpdateAddItemStats(Items(dstSlot), dstSlot)
                                         UpdateRemoveItemStats(Items(srcBag).Items(srcSlot), dstSlot)
                                     End If
@@ -3651,19 +3651,19 @@ CheckXPAgain:
                                 Else
                                     Items(dstBag).Items(dstSlot) = Items(srcSlot)
                                     Items.Remove(srcSlot)
-                                    If srcSlot < INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(dstBag).Items(dstSlot), srcSlot)
+                                    If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(dstBag).Items(dstSlot), srcSlot)
                                 End If
                             Else
                                 If Not Items.ContainsKey(srcSlot) Then
                                     Items(srcSlot) = Items(dstBag).Items(dstSlot)
                                     Items(dstBag).Items.Remove(dstSlot)
-                                    If srcSlot < INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(srcSlot), srcSlot)
+                                    If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(srcSlot), srcSlot)
                                 Else
                                     If ItemSTACK(srcBag, srcSlot, dstBag, dstSlot) Then Exit Sub
                                     Dim tmp As ItemObject = Items(dstBag).Items(dstSlot)
                                     Items(dstBag).Items(dstSlot) = Items(srcSlot)
                                     Items(srcSlot) = tmp
-                                    If srcSlot < INVENTORY_SLOT_BAG_END Then
+                                    If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then
                                         UpdateAddItemStats(Items(srcSlot), srcSlot)
                                         UpdateRemoveItemStats(Items(dstBag).Items(dstSlot), srcSlot)
                                     End If
@@ -3697,25 +3697,25 @@ CheckXPAgain:
                                 Else
                                     Items(dstSlot) = Items(srcSlot)
                                     Items.Remove(srcSlot)
-                                    If dstSlot < INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(dstSlot), dstSlot)
-                                    If srcSlot < INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(dstSlot), srcSlot)
+                                    If dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(dstSlot), dstSlot)
+                                    If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(dstSlot), srcSlot)
                                 End If
                             Else
                                 If Not Items.ContainsKey(srcSlot) Then
                                     Items(srcSlot) = Items(dstSlot)
                                     Items.Remove(dstSlot)
-                                    If dstSlot < INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(srcSlot), dstSlot)
-                                    If srcSlot < INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(srcSlot), srcSlot)
+                                    If dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateRemoveItemStats(Items(srcSlot), dstSlot)
+                                    If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(Items(srcSlot), srcSlot)
                                 Else
                                     If ItemSTACK(srcBag, srcSlot, dstBag, dstSlot) Then Exit Sub
                                     Dim tmp As ItemObject = Items(dstSlot)
                                     Items(dstSlot) = Items(srcSlot)
                                     Items(srcSlot) = tmp
-                                    If dstSlot < INVENTORY_SLOT_BAG_END Then
+                                    If dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then
                                         UpdateAddItemStats(Items(dstSlot), dstSlot)
                                         UpdateRemoveItemStats(Items(srcSlot), dstSlot)
                                     End If
-                                    If srcSlot < INVENTORY_SLOT_BAG_END Then
+                                    If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then
                                         UpdateAddItemStats(Items(srcSlot), srcSlot)
                                         UpdateRemoveItemStats(Items(dstSlot), srcSlot)
                                     End If
@@ -3765,19 +3765,19 @@ CheckXPAgain:
         End Function
         Public Function ItemGetSLOTBAG(ByVal GUID As ULong, ByRef bag As Byte) As Byte
 
-            For slot As Byte = EQUIPMENT_SLOT_START To INVENTORY_SLOT_ITEM_END - 1
+            For slot As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                 If Items.ContainsKey(slot) AndAlso Items(slot).GUID = GUID Then
                     bag = 0
                     Return slot
                 End If
             Next
-            For slot As Byte = KEYRING_SLOT_START To KEYRING_SLOT_END - 1
+            For slot As Byte = KeyRingSlots.KEYRING_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                 If Items.ContainsKey(slot) AndAlso Items(slot).GUID = GUID Then
                     bag = 0
                     Return slot
                 End If
             Next
-            For bag = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
+            For bag = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                 If Items.ContainsKey(bag) Then
                     For Each item As KeyValuePair(Of Byte, ItemObject) In Items(bag).Items
                         If item.Value.GUID = GUID Then Return item.Key
@@ -3824,11 +3824,11 @@ CheckXPAgain:
             combatBlockValue += Item.ItemInfo.Block
 
             If Item.ItemInfo.Delay > 0 Then
-                If slot = EQUIPMENT_SLOT_RANGED Then
+                If slot = EquipmentSlots.EQUIPMENT_SLOT_RANGED Then
                     AttackTimeBase(2) = Item.ItemInfo.Delay
-                ElseIf slot = EQUIPMENT_SLOT_MAINHAND Then
+                ElseIf slot = EquipmentSlots.EQUIPMENT_SLOT_MAINHAND Then
                     AttackTimeBase(0) = Item.ItemInfo.Delay
-                ElseIf slot = EQUIPMENT_SLOT_OFFHAND Then
+                ElseIf slot = EquipmentSlots.EQUIPMENT_SLOT_OFFHAND Then
                     AttackTimeBase(1) = Item.ItemInfo.Delay
                 End If
             End If
@@ -3908,11 +3908,11 @@ CheckXPAgain:
             combatBlockValue -= Item.ItemInfo.Block
 
             If Item.ItemInfo.Delay > 0 Then
-                If slot = EQUIPMENT_SLOT_RANGED Then
+                If slot = EquipmentSlots.EQUIPMENT_SLOT_RANGED Then
                     AttackTimeBase(2) = 0
-                ElseIf slot = EQUIPMENT_SLOT_MAINHAND Then
+                ElseIf slot = EquipmentSlots.EQUIPMENT_SLOT_MAINHAND Then
                     If Classe = Classes.CLASS_ROGUE Then AttackTimeBase(0) = 1900 Else AttackTimeBase(0) = 2000
-                ElseIf slot = EQUIPMENT_SLOT_OFFHAND Then
+                ElseIf slot = EquipmentSlots.EQUIPMENT_SLOT_OFFHAND Then
                     AttackTimeBase(1) = 0
                 End If
             End If
@@ -4688,8 +4688,8 @@ CheckXPAgain:
 
             'DONE: 10% Durability lost, and only if the killer is a creature or you died by enviromental damage
             If Attacker Is Nothing OrElse TypeOf Attacker Is CreatureObject Then
-                For i As Byte = 0 To EQUIPMENT_SLOT_END - 1
-                    If Items.ContainsKey(i) Then Items(i).ModifyDurability(0.1F, Client)
+                For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
+                    If Items.ContainsKey(i) Then Items(i).ModifyDurability(0.1F, client)
                 Next
                 Dim SMSG_DURABILITY_DAMAGE_DEATH As New PacketClass(OPCODES.SMSG_DURABILITY_DAMAGE_DEATH)
                 Try
@@ -5058,8 +5058,8 @@ CheckXPAgain:
                 ' TODO: set large fields to null.
                 'WARNING: Do not save character here!!!
 
-                'DONE: Remove buyback items when logged out
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = {0} AND item_slot >= {1} AND item_slot <= {2}", GUID, BUYBACK_SLOT_START, BUYBACK_SLOT_END - 1))
+                'DONE: Remove buyback items when logged out                                                                                                     
+                CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = {0} AND item_slot >= {1} AND item_slot <= {2}", GUID, 69, 80 - 1))
 
                 If Not underWaterTimer Is Nothing Then underWaterTimer.Dispose()
 
@@ -5140,15 +5140,15 @@ CheckXPAgain:
             If Access >= AccessLevel.GameMaster Then GM = True
 
             'DONE: Set ammo automatically
-            If Items.ContainsKey(EQUIPMENT_SLOT_RANGED) AndAlso Items(EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON AndAlso _
-                (Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_BOW OrElse _
-                 Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW OrElse _
-                 Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_GUN) Then
+            If Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) AndAlso Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON AndAlso _
+                (Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_BOW OrElse _
+                 Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW OrElse _
+                 Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_GUN) Then
 
                 Dim AmmoType As ITEM_SUBCLASS = ITEM_SUBCLASS.ITEM_SUBCLASS_ARROW
-                If Items(EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_GUN Then AmmoType = ITEM_SUBCLASS.ITEM_SUBCLASS_BULLET
+                If Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_GUN Then AmmoType = ITEM_SUBCLASS.ITEM_SUBCLASS_BULLET
 
-                For i As Byte = INVENTORY_SLOT_BAG_START To INVENTORY_SLOT_BAG_END - 1
+                For i As Byte = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                     If Items.ContainsKey(i) AndAlso Items(i).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_QUIVER Then
                         For Each slot As KeyValuePair(Of Byte, ItemObject) In Items(i).Items
                             If slot.Value.ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_PROJECTILE AndAlso slot.Value.ItemInfo.SubClass = AmmoType Then
@@ -5396,9 +5396,9 @@ DoneAmmo:
             CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID), MySQLQuery)
             For Each row As DataRow In MySQLQuery.Rows
                 If row.Item("item_slot") <> ITEM_SLOT_NULL Then
-                    Dim tmpItem As ItemObject = LoadItemByGUID(CType(row.Item("item_guid"), Long), Me, (CType(row.Item("item_slot"), Byte) < EQUIPMENT_SLOT_END))
+                    Dim tmpItem As ItemObject = LoadItemByGUID(CType(row.Item("item_guid"), Long), Me, (CType(row.Item("item_slot"), Byte) < EquipmentSlots.EQUIPMENT_SLOT_END))
                     Items(CType(row.Item("item_slot"), Byte)) = tmpItem
-                    If CType(row.Item("item_slot"), Byte) < INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(tmpItem, row.Item("item_slot"))
+                    If CType(row.Item("item_slot"), Byte) < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(tmpItem, row.Item("item_slot"))
                 End If
             Next
 
@@ -5812,11 +5812,11 @@ DoneAmmo:
 
         'NPC Talking and Quests
         Public TalkMenuTypes As New ArrayList
-        Public TalkQuests(QUEST_SLOTS) As WS_QuestsBase
+        Public TalkQuests(QuestInfo.QUEST_SLOTS) As WS_QuestsBase
         Public QuestsCompleted As New List(Of Integer)
         Public TalkCurrentQuest As WS_QuestInfo = Nothing
         Public Function TalkAddQuest(ByRef Quest As WS_QuestInfo) As Boolean
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If TalkQuests(i) Is Nothing Then
                     'DONE: Initialize quest info
                     ALLQUESTS.CreateQuest(TalkQuests(i), Quest)
@@ -5981,7 +5981,7 @@ DoneAmmo:
         End Function
 
         Public Function IsQuestInProgress(ByVal QuestID As Integer) As Boolean
-            For i As Integer = 0 To QUEST_SLOTS
+            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If Not TalkQuests(i) Is Nothing Then
                     If TalkQuests(i).ID = QuestID Then Return True
                 End If
@@ -6130,7 +6130,7 @@ DoneAmmo:
         Character.Access = Account_Access
 
         If Not ValidateName(Character.Name) Then
-            Return AuthResponseCodes.CHAR_NAME_INVALID_CHARACTER
+            Return CharResponse.CHAR_NAME_INVALID_CHARACTER
         End If
 
         'DONE: Name In Use
@@ -6138,20 +6138,20 @@ DoneAmmo:
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name = ""{0}"";", Character.Name), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
-                Return AuthResponseCodes.CHAR_CREATE_NAME_IN_USE
+                Return CharResponse.CHAR_CREATE_NAME_IN_USE
             End If
         Catch
-            Return AuthResponseCodes.CHAR_CREATE_FAILED
+            Return CharResponse.CHAR_CREATE_FAILED
         End Try
 
         'DONE: Can't create character named as the bot
         If UCase(Character.Name) = UCase(SystemNAME) Then
-            Return AuthResponseCodes.CHAR_CREATE_NAME_IN_USE
+            Return CharResponse.CHAR_CREATE_NAME_IN_USE
         End If
 
         'DONE: Check for disabled class/race, only for non GM/Admin
         If (SERVER_CONFIG_DISABLED_CLASSES(Character.Classe - 1) = True) OrElse (SERVER_CONFIG_DISABLED_RACES(Character.Race - 1) = True) AndAlso Account_Access < AccessLevel.GameMaster Then
-            Return AuthResponseCodes.CHAR_CREATE_DISABLED
+            Return CharResponse.CHAR_CREATE_DISABLED
         End If
 
         'DONE: Check for both horde and alliance
@@ -6161,7 +6161,7 @@ DoneAmmo:
             CharacterDatabase.Query(String.Format("SELECT char_race FROM characters WHERE account_id = ""{0}"" LIMIT 1;", Account_ID), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
                 If Character.IsHorde <> GetCharacterSide(CByte(MySQLQuery.Rows(0).Item("char_race"))) Then
-                    Return AuthResponseCodes.CHAR_CREATE_PVP_TEAMS_VIOLATION
+                    Return CharResponse.CHAR_CREATE_PVP_TEAMS_VIOLATION
                 End If
             End If
         End If
@@ -6170,14 +6170,14 @@ DoneAmmo:
         MySQLQuery.Clear()
         CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
         If MySQLQuery.Rows.Count >= 10 Then
-            Return AuthResponseCodes.CHAR_CREATE_SERVER_LIMIT
+            Return CharResponse.CHAR_CREATE_SERVER_LIMIT
         End If
 
         'DONE: Check for max characters in total on all realms
         MySQLQuery.Clear()
         CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
         If MySQLQuery.Rows.Count >= 10 Then
-            Return AuthResponseCodes.CHAR_CREATE_ACCOUNT_LIMIT
+            Return CharResponse.CHAR_CREATE_ACCOUNT_LIMIT
         End If
 
         'DONE: Generate GUID, MySQL Auto generation
@@ -6192,12 +6192,12 @@ DoneAmmo:
             'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Character.Name)
         Catch err As Exception
             Log.WriteLine(LogType.FAILED, "Error initializing character!{0}{1}", vbNewLine, err.ToString)
-            Return AuthResponseCodes.CHAR_CREATE_FAILED
+            Return CharResponse.CHAR_CREATE_FAILED
         Finally
             Character.Dispose()
         End Try
 
-        Return AuthResponseCodes.CHAR_CREATE_SUCCESS
+        Return CharResponse.CHAR_CREATE_SUCCESS
     End Function
 
     Public Sub CreateCharacter(ByRef objCharacter As CharacterObject)

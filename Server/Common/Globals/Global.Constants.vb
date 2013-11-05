@@ -58,6 +58,7 @@ Public Module Constants
         Return (guid And GUID_MASK_LOW)
     End Function
 
+    'TODO: Needs numic values, not packets
     Public Const GUID_ITEM As ULong = &H4000000000000000UL
     Public Const GUID_CONTAINER As ULong = &H4000000000000000UL
     Public Const GUID_PLAYER As ULong = &H0UL
@@ -107,214 +108,222 @@ Public Module Constants
     Public Const FIELD_MASK_SIZE_ITEM As Integer = ((EContainerFields.CONTAINER_END + 32) \ 32) * 32
     Public Const FIELD_MASK_SIZE_CORPSE As Integer = ((ECorpseFields.CORPSE_END + 32) \ 32) * 32
 
-    Public Const EQUIPMENT_SLOT_START As Byte = 0
-    Public Const EQUIPMENT_SLOT_HEAD As Byte = 0
-    Public Const EQUIPMENT_SLOT_NECK As Byte = 1
-    Public Const EQUIPMENT_SLOT_SHOULDERS As Byte = 2
-    Public Const EQUIPMENT_SLOT_BODY As Byte = 3
-    Public Const EQUIPMENT_SLOT_CHEST As Byte = 4
-    Public Const EQUIPMENT_SLOT_WAIST As Byte = 5
-    Public Const EQUIPMENT_SLOT_LEGS As Byte = 6
-    Public Const EQUIPMENT_SLOT_FEET As Byte = 7
-    Public Const EQUIPMENT_SLOT_WRISTS As Byte = 8
-    Public Const EQUIPMENT_SLOT_HANDS As Byte = 9
-    Public Const EQUIPMENT_SLOT_FINGER1 As Byte = 10
-    Public Const EQUIPMENT_SLOT_FINGER2 As Byte = 11
-    Public Const EQUIPMENT_SLOT_TRINKET1 As Byte = 12
-    Public Const EQUIPMENT_SLOT_TRINKET2 As Byte = 13
-    Public Const EQUIPMENT_SLOT_BACK As Byte = 14
-    Public Const EQUIPMENT_SLOT_MAINHAND As Byte = 15
-    Public Const EQUIPMENT_SLOT_OFFHAND As Byte = 16
-    Public Const EQUIPMENT_SLOT_RANGED As Byte = 17
-    Public Const EQUIPMENT_SLOT_TABARD As Byte = 18
-    Public Const EQUIPMENT_SLOT_END As Byte = 19
-
-    Public Const INVENTORY_SLOT_BAG_START As Byte = 19
-    Public Const INVENTORY_SLOT_BAG_1 As Byte = 19
-    Public Const INVENTORY_SLOT_BAG_2 As Byte = 20
-    Public Const INVENTORY_SLOT_BAG_3 As Byte = 21
-    Public Const INVENTORY_SLOT_BAG_4 As Byte = 22
-    Public Const INVENTORY_SLOT_BAG_END As Byte = 23
-
-    Public Const INVENTORY_SLOT_ITEM_START As Byte = 23
-    Public Const INVENTORY_SLOT_ITEM_1 As Byte = 23
-    Public Const INVENTORY_SLOT_ITEM_2 As Byte = 24
-    Public Const INVENTORY_SLOT_ITEM_3 As Byte = 25
-    Public Const INVENTORY_SLOT_ITEM_4 As Byte = 26
-    Public Const INVENTORY_SLOT_ITEM_5 As Byte = 27
-    Public Const INVENTORY_SLOT_ITEM_6 As Byte = 28
-    Public Const INVENTORY_SLOT_ITEM_7 As Byte = 29
-    Public Const INVENTORY_SLOT_ITEM_8 As Byte = 30
-    Public Const INVENTORY_SLOT_ITEM_9 As Byte = 31
-    Public Const INVENTORY_SLOT_ITEM_10 As Byte = 32
-    Public Const INVENTORY_SLOT_ITEM_11 As Byte = 33
-    Public Const INVENTORY_SLOT_ITEM_12 As Byte = 34
-    Public Const INVENTORY_SLOT_ITEM_13 As Byte = 35
-    Public Const INVENTORY_SLOT_ITEM_14 As Byte = 36
-    Public Const INVENTORY_SLOT_ITEM_15 As Byte = 37
-    Public Const INVENTORY_SLOT_ITEM_16 As Byte = 38
-    Public Const INVENTORY_SLOT_ITEM_END As Byte = 39
-
-    Public Const BANK_SLOT_ITEM_START As Byte = 39
-    Public Const BANK_SLOT_ITEM_1 As Byte = 39
-    Public Const BANK_SLOT_ITEM_2 As Byte = 40
-    Public Const BANK_SLOT_ITEM_3 As Byte = 41
-    Public Const BANK_SLOT_ITEM_4 As Byte = 42
-    Public Const BANK_SLOT_ITEM_5 As Byte = 43
-    Public Const BANK_SLOT_ITEM_6 As Byte = 44
-    Public Const BANK_SLOT_ITEM_7 As Byte = 45
-    Public Const BANK_SLOT_ITEM_8 As Byte = 46
-    Public Const BANK_SLOT_ITEM_9 As Byte = 47
-    Public Const BANK_SLOT_ITEM_10 As Byte = 48
-    Public Const BANK_SLOT_ITEM_11 As Byte = 49
-    Public Const BANK_SLOT_ITEM_12 As Byte = 50
-    Public Const BANK_SLOT_ITEM_13 As Byte = 51
-    Public Const BANK_SLOT_ITEM_14 As Byte = 52
-    Public Const BANK_SLOT_ITEM_15 As Byte = 53
-    Public Const BANK_SLOT_ITEM_16 As Byte = 54
-    Public Const BANK_SLOT_ITEM_17 As Byte = 55
-    Public Const BANK_SLOT_ITEM_18 As Byte = 56
-    Public Const BANK_SLOT_ITEM_19 As Byte = 57
-    Public Const BANK_SLOT_ITEM_20 As Byte = 58
-    Public Const BANK_SLOT_ITEM_21 As Byte = 59
-    Public Const BANK_SLOT_ITEM_22 As Byte = 60
-    Public Const BANK_SLOT_ITEM_23 As Byte = 61
-    Public Const BANK_SLOT_ITEM_24 As Byte = 62
-    Public Const BANK_SLOT_ITEM_END As Byte = 63
-
-    Public Const BANK_SLOT_BAG_START As Byte = 63
-    Public Const BANK_SLOT_BAG_1 As Byte = 63
-    Public Const BANK_SLOT_BAG_2 As Byte = 64
-    Public Const BANK_SLOT_BAG_3 As Byte = 65
-    Public Const BANK_SLOT_BAG_4 As Byte = 66
-    Public Const BANK_SLOT_BAG_5 As Byte = 67
-    Public Const BANK_SLOT_BAG_6 As Byte = 68
-    Public Const BANK_SLOT_BAG_END As Byte = 69
-
-    Public Const BUYBACK_SLOT_START As Byte = 69
-    Public Const BUYBACK_SLOT_1 As Byte = 69
-    Public Const BUYBACK_SLOT_2 As Byte = 70
-    Public Const BUYBACK_SLOT_3 As Byte = 71
-    Public Const BUYBACK_SLOT_4 As Byte = 72
-    Public Const BUYBACK_SLOT_5 As Byte = 73
-    Public Const BUYBACK_SLOT_6 As Byte = 74
-    Public Const BUYBACK_SLOT_7 As Byte = 75
-    Public Const BUYBACK_SLOT_8 As Byte = 76
-    Public Const BUYBACK_SLOT_9 As Byte = 77
-    Public Const BUYBACK_SLOT_10 As Byte = 78
-    Public Const BUYBACK_SLOT_11 As Byte = 79
-    Public Const BUYBACK_SLOT_12 As Byte = 80
-    Public Const BUYBACK_SLOT_END As Byte = 81
-
-    Public Const KEYRING_SLOT_START As Byte = 81
-    Public Const KEYRING_SLOT_1 As Byte = 81
-    Public Const KEYRING_SLOT_2 As Byte = 82
-    Public Const KEYRING_SLOT_31 As Byte = 112
-    Public Const KEYRING_SLOT_32 As Byte = 113
-    Public Const KEYRING_SLOT_END As Byte = 113
-
-    Public Const QUEST_OBJECTIVES_COUNT As Integer = 3
-    Public Const QUEST_REWARD_CHOICES_COUNT As Integer = 5
-    Public Const QUEST_REWARDS_COUNT As Integer = 3
-    Public Const QUEST_DEPLINK_COUNT As Integer = 9
-    Public Const QUEST_SLOTS As Integer = 24
-    Public Const QUEST_SHARING_DISTANCE As Integer = 10
-
-    Public Enum AuthResponseCodes
-        'Auth Codes
-        AUTH_OK = &HC                               'Authentication successful
-        'AUTH_FAILED = &HD                           'Authentication failed
-        'AUTH_LOGIN_UNAVAILABLE = &HE                'Login unavailable
-        'AUTH_BAD_SERVER_PROOF = &HF                 'Server is not valid
-        'AUTH_UNAVAILABLE = &H10                     'System unavailable - please try again later
-        'AUTH_SYSTEM_ERROR = &H11                    'System error
-        'AUTH_BILLING_ERROR = &H12                   'Billing system error
-        'AUTH_BILLING_EXPIRED = &H13                 'Account billing has expired
-        AUTH_VERSION_MISMATCH = &H14                'Wrong client version
-        AUTH_UNKNOWN_ACCOUNT = &H15                 'Unknown account
-        'AUTH_INCORRECT_PASSWORD = &H16              'Incorrect password
-        'AUTH_SESSION_EXPIRED = &H17                 'Session expired
-        'AUTH_SERVER_SHUTTING_DOWN = &H18            'Server shutting down
-        'AUTH_ALREADY_LOGGING_IN = &H19              'Already logging in
-        'AUTH_LOGIN_SERVER_NOT_FOUND = &H1A          'Invalid login server
-        AUTH_WAIT_QUEUE = &H1B                      'Position in queue - 0
-        'AUTH_BANNED = &H1C                          'This account has been banned
-        'AUTH_ALREADY_ONLINE = &H1D                  'This character is still logged on
-        'AUTH_NO_TIME = &H1E                         'Your WoW subscription has expired
-        'AUTH_DB_BUSY = &H1F                         'This session has timed out
-        'AUTH_SUSPENDED = &H20                       'This account has been temporarily suspended
-        'AUTH_PARENTAL_CONTROL = &H21                'Access to this account blocked by parental controls
-
-        'Response Codes
-        RESPONSE_SUCCESS = &H0                      'Success
-        'RESPONSE_FAILURE = &H1                      'Failure
-        'RESPONSE_CANCELLED = &H2                    'Cancelled
-        'RESPONSE_DISCONNECTED = &H3                 'Disconnected from server
-        'RESPONSE_FAILED_TO_CONNECT = &H4            'Failed to connect
-        'RESPONSE_CONNECTED = &H5                    'Connected
-        'RESPONSE_VERSION_MISMATCH = &H6             'Wrong client version
-
-        'Not sure what this is? Not linked anywhere
-        'CSTATUS_CONNECTING = &H7                    'Connecting to server...
-        'CSTATUS_NEGOTIATING_SECURITY = &H8          'Negotiating Security
-        'CSTATUS_NEGOTIATION_COMPLETE = &H9          'Security negotiation complete
-        'CSTATUS_NEGOTIATION_FAILED = &HA            'Security negotiation failed
-        'CSTATUS_AUTHENTICATING = &HB                'Authenticating
-
-        'Realm List Codes
-        'REALM_LIST_IN_PROGRESS = &H22               'Retrieving realm list
-        'REALM_LIST_SUCCESS = &H23                   'Realm list retrieved
-        'REALM_LIST_FAILED = &H24                    'Unable to connect to realm list server
-        'REALM_LIST_INVALID = &H25                   'Invalid realm list
-        'REALM_LIST_REALM_NOT_FOUND = &H26           'Realm is down
-
-        'ACCOUNT_CREATE_IN_PROGRESS = &H27           'Creating account
-        'ACCOUNT_CREATE_SUCCESS = &H28               'Account created
-        'ACCOUNT_CREATE_FAILED = &H29                'Account creation failed
-
-        'Character Codes
-        'CHAR_LIST_RETRIEVED = &H2A                  'Retrieving character list
-        'CHAR_LIST_SUCCESS = &H2B                    'Character list retrieved
-        CHAR_LIST_FAILED = &H2C                     'Error retrieving character list
-
-        'CHAR_CREATE_IN_PROGRESS = &H2D              'Creating character
-        CHAR_CREATE_SUCCESS = &H2E                  'Character created
-        CHAR_CREATE_ERROR = &H2F                    'Error creating character
-        CHAR_CREATE_FAILED = &H30                   'Character creation failed
-        CHAR_CREATE_NAME_IN_USE = &H31              'That name is unavailable
-        CHAR_CREATE_DISABLED = &H32                 'Creation of that race/class is disabled
-        CHAR_CREATE_PVP_TEAMS_VIOLATION = &H33      'You cannot have both horde and alliance character at pvp realm
-        CHAR_CREATE_SERVER_LIMIT = &H34             'You already have maximum number of characters
-        CHAR_CREATE_ACCOUNT_LIMIT = &H35            'You already have maximum number of characters
-        'CHAR_CREATE_SERVER_QUEUE = &H36             'The server is currently queued
-        'CHAR_CREATE_ONLY_EXISTING = &H37            'Only players who have characters on this realm..
-
-        'CHAR_DELETE_IN_PROGRESS = &H38              'Deleting character
-        CHAR_DELETE_SUCCESS = &H39                  'Character deleted
-        CHAR_DELETE_FAILED = &H3A                   'Char deletion failed
-
-        'CHAR_LOGIN_IN_PROGRESS = &H3B               'Entering the World of Warcraft
-        'CHAR_LOGIN_SUCCESS = &H3C                   'Login successful
-        CHAR_LOGIN_NO_WORLD = &H3D                  'World server is down
-        'CHAR_LOGIN_NO_INSTANCES = &H3F              'No instance servers are available
-        CHAR_LOGIN_FAILED = &H40                    'Login failed
-        'CHAR_LOGIN_DISABLED = &H41                  'Login for that race and/or class is currently disabled
-        'CHAR_LOGIN_NO_CHARACTER = &H42              'Character not found
-
-        'CHAR_NAME_NO_NAME = &H43                    'Enter a name for your character
-        'CHAR_NAME_TOO_SHORT = &H44                  'Names must be atleast 2 characters long
-        'CHAR_NAME_TOO_LONG = &H45                   'Names must be no more then 12 characters
-        CHAR_NAME_INVALID_CHARACTER = &H46          'Names can only contain letters
-        'CHAR_NAME_MIXED_LANGUAGES = &H47            'Names must contain only one language
-        'CHAR_NAME_PROFANE = &H48                    'That name contains mature language
-        'CHAR_NAME_RESERVED = &H49                   'That name is unavailable
-        'CHAR_NAME_INVALID_APOSTROPHE = &H4A         'You cannot use an apostrophe
-        'CHAR_NAME_MULTIPLE_APOSTROPHES = &H4B       'You can only have one apostrophe
-        'CHAR_NAME_THREE_CONSECUTIVE = &H4C          'You cannot use the same letter three times consecutively
-        'CHAR_NAME_INVALID_SPACE = &H4D              'You cannot use space as the first or last character of your name
+    Public Enum EquipmentSlots  '19 slots total
+        EQUIPMENT_SLOT_START = 0
+        EQUIPMENT_SLOT_HEAD = 0
+        EQUIPMENT_SLOT_NECK = 1
+        EQUIPMENT_SLOT_SHOULDERS = 2
+        EQUIPMENT_SLOT_BODY = 3
+        EQUIPMENT_SLOT_CHEST = 4
+        EQUIPMENT_SLOT_WAIST = 5
+        EQUIPMENT_SLOT_LEGS = 6
+        EQUIPMENT_SLOT_FEET = 7
+        EQUIPMENT_SLOT_WRISTS = 8
+        EQUIPMENT_SLOT_HANDS = 9
+        EQUIPMENT_SLOT_FINGER1 = 10
+        EQUIPMENT_SLOT_FINGER2 = 11
+        EQUIPMENT_SLOT_TRINKET1 = 12
+        EQUIPMENT_SLOT_TRINKET2 = 13
+        EQUIPMENT_SLOT_BACK = 14
+        EQUIPMENT_SLOT_MAINHAND = 15
+        EQUIPMENT_SLOT_OFFHAND = 16
+        EQUIPMENT_SLOT_RANGED = 17
+        EQUIPMENT_SLOT_TABARD = 18
+        EQUIPMENT_SLOT_END = 19
     End Enum
 
-#Region "Player.Enums"
+    Public Enum InventorySlots  '4 Slots
+        INVENTORY_SLOT_BAG_START = 19
+        INVENTORY_SLOT_BAG_1 = 19
+        INVENTORY_SLOT_BAG_2 = 20
+        INVENTORY_SLOT_BAG_3 = 21
+        INVENTORY_SLOT_BAG_4 = 22
+        INVENTORY_SLOT_BAG_END = 23
+    End Enum
+
+    Public Enum InventoryPackSlots  '16 Slots
+        INVENTORY_SLOT_ITEM_START = 23
+        INVENTORY_SLOT_ITEM_1 = 23
+        INVENTORY_SLOT_ITEM_2 = 24
+        INVENTORY_SLOT_ITEM_3 = 25
+        INVENTORY_SLOT_ITEM_4 = 26
+        INVENTORY_SLOT_ITEM_5 = 27
+        INVENTORY_SLOT_ITEM_6 = 28
+        INVENTORY_SLOT_ITEM_7 = 29
+        INVENTORY_SLOT_ITEM_8 = 30
+        INVENTORY_SLOT_ITEM_9 = 31
+        INVENTORY_SLOT_ITEM_10 = 32
+        INVENTORY_SLOT_ITEM_11 = 33
+        INVENTORY_SLOT_ITEM_12 = 34
+        INVENTORY_SLOT_ITEM_13 = 35
+        INVENTORY_SLOT_ITEM_14 = 36
+        INVENTORY_SLOT_ITEM_15 = 37
+        INVENTORY_SLOT_ITEM_16 = 38
+        INVENTORY_SLOT_ITEM_END = 39
+    End Enum
+
+    Public Enum BankItemSlots  '29 Slots
+        BANK_SLOT_ITEM_START = 39
+        BANK_SLOT_ITEM_1 = 39
+        BANK_SLOT_ITEM_2 = 40
+        BANK_SLOT_ITEM_3 = 41
+        BANK_SLOT_ITEM_4 = 42
+        BANK_SLOT_ITEM_5 = 43
+        BANK_SLOT_ITEM_6 = 44
+        BANK_SLOT_ITEM_7 = 45
+        BANK_SLOT_ITEM_8 = 46
+        BANK_SLOT_ITEM_9 = 47
+        BANK_SLOT_ITEM_10 = 48
+        BANK_SLOT_ITEM_11 = 49
+        BANK_SLOT_ITEM_12 = 50
+        BANK_SLOT_ITEM_13 = 51
+        BANK_SLOT_ITEM_14 = 52
+        BANK_SLOT_ITEM_15 = 53
+        BANK_SLOT_ITEM_16 = 54
+        BANK_SLOT_ITEM_17 = 55
+        BANK_SLOT_ITEM_18 = 56
+        BANK_SLOT_ITEM_19 = 57
+        BANK_SLOT_ITEM_20 = 58
+        BANK_SLOT_ITEM_21 = 59
+        BANK_SLOT_ITEM_22 = 60
+        BANK_SLOT_ITEM_23 = 61
+        BANK_SLOT_ITEM_24 = 62
+        BANK_SLOT_ITEM_END = 63
+    End Enum
+
+    Public Enum BankBagSlots  '7 Slots
+        BANK_SLOT_BAG_START = 63
+        BANK_SLOT_BAG_1 = 63
+        BANK_SLOT_BAG_2 = 64
+        BANK_SLOT_BAG_3 = 65
+        BANK_SLOT_BAG_4 = 66
+        BANK_SLOT_BAG_5 = 67
+        BANK_SLOT_BAG_6 = 68
+        BANK_SLOT_BAG_END = 69
+    End Enum
+
+    Public Enum BuyBackSlots  '12 Slots
+        BUYBACK_SLOT_START = 69
+        BUYBACK_SLOT_1 = 69
+        BUYBACK_SLOT_2 = 70
+        BUYBACK_SLOT_3 = 71
+        BUYBACK_SLOT_4 = 72
+        BUYBACK_SLOT_5 = 73
+        BUYBACK_SLOT_6 = 74
+        BUYBACK_SLOT_7 = 75
+        BUYBACK_SLOT_8 = 76
+        BUYBACK_SLOT_9 = 77
+        BUYBACK_SLOT_10 = 78
+        BUYBACK_SLOT_11 = 79
+        BUYBACK_SLOT_12 = 80
+        BUYBACK_SLOT_END = 81
+    End Enum
+
+    Public Enum KeyRingSlots  '32 Slots?
+        KEYRING_SLOT_START = 81
+        KEYRING_SLOT_1 = 81
+        KEYRING_SLOT_2 = 82
+        KEYRING_SLOT_31 = 112
+        KEYRING_SLOT_32 = 113
+        KEYRING_SLOT_END = 113
+    End Enum
+
+    Public Enum QuestInfo
+        QUEST_OBJECTIVES_COUNT = 4
+        QUEST_REWARD_CHOICES_COUNT = 5
+        QUEST_REWARDS_COUNT = 4
+        QUEST_DEPLINK_COUNT = 10
+        QUEST_SLOTS = 24
+        QUEST_SHARING_DISTANCE = 10
+    End Enum
+
+    Public Enum TimeConstant
+        MINUTE = 60
+        HOUR = MINUTE * 60
+        DAY = HOUR * 24
+        WEEK = DAY * 7
+        MONTH = DAY * 30
+        YEAR = MONTH * 12
+        IN_MILLISECONDS = 1000
+    End Enum
+
+    Public Enum AuthCMD
+        CMD_AUTH_LOGON_CHALLENGE = &H0
+        CMD_AUTH_LOGON_PROOF = &H1
+        CMD_AUTH_RECONNECT_CHALLENGE = &H2
+        CMD_AUTH_RECONNECT_PROOF = &H3
+        CMD_AUTH_REALMLIST = &H10
+        CMD_XFER_INITIATE = &H30
+        CMD_XFER_DATA = &H31
+        CMD_XFER_ACCEPT = &H32
+        CMD_XFER_RESUME = &H33
+        CMD_XFER_CANCEL = &H34
+    End Enum
+
+    Public Enum AuthSrv
+        CMD_GRUNT_CONN_PONG = &H11
+        CMD_GRUNT_PROVESESSION = &H21
+    End Enum
+
+    Public Enum AuthResult
+        WOW_SUCCESS = &H0
+        WOW_FAIL_BANNED = &H3
+        WOW_FAIL_UNKNOWN_ACCOUNT = &H4
+        WOW_FAIL_INCORRECT_PASSWORD = &H5
+        WOW_FAIL_ALREADY_ONLINE = &H6
+        WOW_FAIL_NO_TIME = &H7
+        WOW_FAIL_DB_BUSY = &H8
+        WOW_FAIL_VERSION_INVALID = &H9
+        WOW_FAIL_VERSION_UPDATE = &HA
+        WOW_FAIL_INVALID_SERVER = &HB
+        WOW_FAIL_SUSPENDED = &HC
+        WOW_FAIL_FAIL_NOACCESS = &HD
+        WOW_SUCCESS_SURVEY = &HE
+        WOW_FAIL_PARENTCONTROL = &HF
+        WOW_FAIL_LOCKED_ENFORCED = &H10
+        WOW_FAIL_TRIAL_ENDED = &H11
+        WOW_FAIL_ANTI_INDULGENCE = &H13
+        WOW_FAIL_EXPIRED = &H14
+        WOW_FAIL_NO_GAME_ACCOUNT = &H15
+        WOW_FAIL_CHARGEBACK = &H16
+        WOW_FAIL_GAME_ACCOUNT_LOCKED = &H18
+        WOW_FAIL_UNLOCKABLE_LOCK = &H19
+        WOW_FAIL_CONVERSION_REQUIRED = &H20
+        WOW_FAIL_DISCONNECTED = &HFF
+    End Enum
+
+    Public Enum LoginResponse
+        LOGIN_OK = &HC
+        LOGIN_VERSION_MISMATCH = &H14
+        LOGIN_UNKNOWN_ACCOUNT = &H15
+        LOGIN_WAIT_QUEUE = &H1B
+    End Enum
+
+    Public Enum CharResponse
+        CHAR_LIST_FAILED = &H2C
+        CHAR_CREATE_SUCCESS = &H2E
+        CHAR_CREATE_ERROR = &H2F
+        CHAR_CREATE_FAILED = &H30
+        CHAR_CREATE_NAME_IN_USE = &H31
+        CHAR_CREATE_DISABLED = &H32
+        CHAR_CREATE_PVP_TEAMS_VIOLATION = &H33
+        CHAR_CREATE_SERVER_LIMIT = &H34
+        CHAR_CREATE_ACCOUNT_LIMIT = &H35
+        CHAR_DELETE_SUCCESS = &H39
+        CHAR_DELETE_FAILED = &H3A
+        CHAR_LOGIN_NO_WORLD = &H3D
+        CHAR_LOGIN_FAILED = &H40
+        CHAR_NAME_INVALID_CHARACTER = &H46
+    End Enum
+
+    Public Enum ATLoginFlags
+        AT_LOGIN_NONE = &H0
+        AT_LOGIN_RENAME = &H1
+        AT_LOGIN_RESET_SPELLS = &H2
+        AT_LOGIN_RESET_TALENTS = &H4
+        AT_LOGIN_FIRST = &H20
+    End Enum
+
     Public Enum Genders As Byte
         GENDER_MALE = 0
         GENDER_FEMALE = 1
@@ -535,9 +544,6 @@ Public Module Constants
         ICON_POI_REDHORSE = 40                                 ' Red Horse
     End Enum
 
-#End Region
-
-#Region "Player.Groups"
     <Flags()> _
     Public Enum GroupType As Byte
         PARTY = 0
@@ -575,10 +581,6 @@ Public Module Constants
         Rare = 3
         Epic = 4
     End Enum
-
-#End Region
-
-#Region "Player.Chat"
 
     Public Enum LANGUAGES As Integer
         LANG_GLOBAL = 0
@@ -635,9 +637,6 @@ Public Module Constants
         FLAGS_GM = 3
     End Enum
 
-#End Region
-
-#Region "Object.Flags"
     Public Enum DynamicFlags   'Dynamic flags for units
         'Unit has blinking stars effect showing lootable
         UNIT_DYNFLAG_LOOTABLE = &H1
@@ -712,10 +711,6 @@ Public Module Constants
         UNIT_NPC_FLAG_ARMORER = &H4000
     End Enum
 
-#End Region
-
-#Region "Creatures.Types"
-
     Public Enum TrainerTypes
         TRAINER_TYPE_CLASS = 0
         TRAINER_TYPE_MOUNTS = 1
@@ -773,8 +768,6 @@ Public Module Constants
         RARE = 4
     End Enum
 
-#End Region
-
     Public Enum MonsterSayEvents
         MONSTER_SAY_EVENT_COMBAT = 0
     End Enum
@@ -826,7 +819,7 @@ Public Module Constants
         Legs = 6
         MainHand = 15
         Neck = 1
-        None = - 1
+        None = -1
         OffHand = 16
         Ranged = 17
         Shirt = 3
@@ -952,30 +945,6 @@ Public Module Constants
         QUEST_PARTY_MSG_HAVE_QUEST = 7
         QUEST_PARTY_MSG_FINISH_QUEST = 8
     End Enum
-
-    'RealmServ OP Codes
-    Public Const CMD_AUTH_LOGON_CHALLENGE As Integer = &H0
-    Public Const CMD_AUTH_LOGON_PROOF As Integer = &H1
-    Public Const CMD_AUTH_RECONNECT_CHALLENGE As Integer = &H2
-    Public Const CMD_AUTH_RECONNECT_PROOF As Integer = &H3
-    Public Const CMD_AUTH_UPDATESRV As Integer = &H4
-    Public Const CMD_AUTH_REALMLIST As Integer = &H10
-
-    'UpdateServ OP Codes
-    Public Const CMD_XFER_INITIATE As Integer = &H30  'client? from server
-    Public Const CMD_XFER_DATA As Integer = &H31      'client? from server
-    Public Const CMD_XFER_ACCEPT As Integer = &H32    'not official name, from client
-    Public Const CMD_XFER_RESUME As Integer = &H33    'not official name, from client
-    Public Const CMD_XFER_CANCEL As Integer = &H34    'not official name, from client
-
-    'Unknown
-    Public Const CMD_GRUNT_AUTH_CHALLENGE As Integer = &H0    'server
-    Public Const CMD_GRUNT_AUTH_VERIFY As Integer = &H2       'server
-    Public Const CMD_GRUNT_CONN_PING As Integer = &H10        'server
-    Public Const CMD_GRUNT_CONN_PONG As Integer = &H11        'server
-    Public Const CMD_GRUNT_HELLO As Integer = &H20            'server
-    Public Const CMD_GRUNT_PROVESESSION As Integer = &H21     'server
-    Public Const CMD_GRUNT_KICK As Integer = &H24             'server
 
     Public Enum ActivateTaxiReplies As Byte
         ERR_TAXIOK = 0
@@ -1559,6 +1528,9 @@ Public Module Constants
         GO_FLAG_TRIGGERED = &H40                    'typically, summoned objects. Triggered by spell or other events
     End Enum
 
+    Public Const GUILD_RANK_MAX As Integer = 9 'Max Ranks Per Guild
+    Public Const GUILD_RANK_MIN As Integer = 5 'Min Ranks Per Guild
+
     'Default Guild Ranks
     'TODO: Set the ranks during guild creation
     Public Enum GuildDefaultRanks As Byte
@@ -1594,13 +1566,19 @@ Public Module Constants
         GUILD_NOT_ALLIED = &HC
     End Enum
 
-#Region "WC.Guild.Constants"
+    Public Enum PetitionSignError As Integer
+        PETITIONSIGN_OK = 0                     ':Closes the window
+        PETITIONSIGN_ALREADY_SIGNED = 1         'You have already signed that guild charter
+        PETITIONSIGN_ALREADY_IN_GUILD = 2       'You are already in a guild
+        PETITIONSIGN_CANT_SIGN_OWN = 3          'You can's sign own guild charter
+        PETITIONSIGN_NOT_SERVER = 4             'That player is not from your server
+    End Enum
 
-    Public Const GUILD_RANK_MAX As Integer = 9 'Max Ranks Per Guild
-    Public Const GUILD_RANK_MIN As Integer = 5 'Min Ranks Per Guild
-
-#End Region
-
+    Public Enum PetitionTurnInError As Integer
+        PETITIONTURNIN_OK = 0                   ':Closes the window
+        PETITIONTURNIN_ALREADY_IN_GUILD = 2     'You are already in a guild
+        PETITIONTURNIN_NEED_MORE_SIGNATURES = 4 'You need more signatures
+    End Enum
 
     Public Enum ChangeSpeedType As Byte
         RUN = 1
@@ -1709,7 +1687,6 @@ Public Module Constants
         Undercity
     End Enum
 
-#Region "Gossip Constants"
     Public Const GOSSIP_TEXT_BANK As String = "The Bank"
     Public Const GOSSIP_TEXT_WINDRIDER As String = "Wind rider master"
     Public Const GOSSIP_TEXT_GRYPHON As String = "Gryphon Master"
@@ -1760,7 +1737,6 @@ Public Module Constants
     Public Const GOSSIP_TEXT_MINING As String = "Mining"
     Public Const GOSSIP_TEXT_FISHING As String = "Fishing"
     Public Const GOSSIP_TEXT_SKINNING As String = "Skinning"
-#End Region
 
     Public Enum AreaTeam As Integer
         AREATEAM_NONE = 0
@@ -1803,8 +1779,6 @@ Public Module Constants
     Public Const RESOLUTION_FLAGS As Integer = 16 - 1
     Public Const RESOLUTION_TERRAIN As Integer = 16 - 1
 
-#Region "Instances"
-
     Public Enum TransferAbortReason As Short
         TRANSFER_ABORT_MAX_PLAYERS = &H1                ' Transfer Aborted: instance is full
         TRANSFER_ABORT_NOT_FOUND = &H2                  ' Transfer Aborted: instance not found
@@ -1815,7 +1789,6 @@ Public Module Constants
         TRANSFER_ABORT_DIFFICULTY2 = &H107              ' Heroic difficulty mode is not available for %s.
         TRANSFER_ABORT_DIFFICULTY3 = &H207              ' Epic difficulty mode is not available for %s.
     End Enum
-#End Region
 
     Public Enum MenuIcon As Integer
         MENUICON_GOSSIP = &H0
@@ -1850,7 +1823,6 @@ Public Module Constants
         RESTRICT_HIDEHELM = &H10
     End Enum
 
-
     Public Enum MovementFlags As Integer
         MOVEMENTFLAG_NONE = &H0
         MOVEMENTFLAG_FORWARD = &H1
@@ -1880,72 +1852,9 @@ Public Module Constants
     Public Const ITEM_SLOT_NULL As Byte = 255
     Public Const ITEM_BAG_NULL As Long = -1
 
-#Region "WS.Guilds.Constants"
-
     Public Const PETITION_GUILD_PRICE As Integer = 1000
     Public Const PETITION_GUILD As Integer = 5863       'Guild Charter, ItemFlags = &H2000
     Public Const GUILD_TABARD_ITEM As Integer = 5976
-
-#End Region
-
-    ''Default Guild Ranks
-    ''TODO: Set the ranks during guild creation
-    'Public Enum GuildDefaultRanks As Byte
-    '    GR_GUILDMASTER = 0
-    '    GR_OFFICER = 1
-    '    GR_VETERAN = 2
-    '    GR_MEMBER = 3
-    '    GR_INITIATE = 4
-    'End Enum
-
-    ''Helping Subs
-    'Public Enum GuildCommand As Byte
-    '    GUILD_CREATE_S = &H0
-    '    GUILD_INVITE_S = &H1
-    '    GUILD_QUIT_S = &H2
-    '    GUILD_FOUNDER_S = &HC
-    'End Enum
-
-    'Public Enum GuildError As Byte
-    '    GUILD_PLAYER_NO_MORE_IN_GUILD = &H0
-    '    GUILD_INTERNAL = &H1
-    '    GUILD_ALREADY_IN_GUILD = &H2
-    '    ALREADY_IN_GUILD = &H3
-    '    INVITED_TO_GUILD = &H4
-    '    ALREADY_INVITED_TO_GUILD = &H5
-    '    GUILD_NAME_INVALID = &H6
-    '    GUILD_NAME_EXISTS = &H7
-    '    GUILD_LEADER_LEAVE = &H8
-    '    GUILD_PERMISSIONS = &H8
-    '    GUILD_PLAYER_NOT_IN_GUILD = &H9
-    '    GUILD_PLAYER_NOT_IN_GUILD_S = &HA
-    '    GUILD_PLAYER_NOT_FOUND = &HB
-    '    GUILD_NOT_ALLIED = &HC
-    'End Enum
-
-    'ERR_PETITION_FULL
-    'ERR_PETITION_NOT_SAME_SERVER
-    'ERR_PETITION_NOT_ENOUGH_SIGNATURES
-    'ERR_PETITION_CREATOR
-    'ERR_PETITION_IN_GUILD
-    'ERR_PETITION_ALREADY_SIGNED
-    'ERR_PETITION_DECLINED_S
-    'ERR_PETITION_SIGNED_S
-    'ERR_PETITION_SIGNED
-    'ERR_PETITION_OFFERED_S
-    Public Enum PetitionSignError As Integer
-        PETITIONSIGN_OK = 0                     ':Closes the window
-        PETITIONSIGN_ALREADY_SIGNED = 1         'You have already signed that guild charter
-        PETITIONSIGN_ALREADY_IN_GUILD = 2       'You are already in a guild
-        PETITIONSIGN_CANT_SIGN_OWN = 3          'You can's sign own guild charter
-        PETITIONSIGN_NOT_SERVER = 4             'That player is not from your server
-    End Enum
-
-    Public Enum PetitionTurnInError As Integer
-        PETITIONTURNIN_OK = 0                   ':Closes the window
-        PETITIONTURNIN_ALREADY_IN_GUILD = 2     'You are already in a guild
-        PETITIONTURNIN_NEED_MORE_SIGNATURES = 4 'You need more signatures
-    End Enum
 
     Public Enum TransportStates As Byte
         TRANSPORT_MOVE_TO_DOCK = 0
@@ -2063,7 +1972,6 @@ Public Module Constants
         CONDITION_INSTANCE_DATA = 13            ' entry        data
     End Enum
 
-#Region "WS.Skills.Constants"
     Public Enum TradeSkill As Integer
         TRADESKILL_ALCHEMY = 1
         TRADESKILL_BLACKSMITHING = 2
@@ -2088,9 +1996,7 @@ Public Module Constants
         TRADESKILL_LEVEL_ARTISAN = 4
         TRADESKILL_LEVEL_MASTER = 5
     End Enum
-#End Region
 
-#Region "WS.Spells.Constants"
     Public Const SPELL_DURATION_INFINITE As Integer = -1
     Public Const MAX_AURA_EFFECTs_VISIBLE As Integer = 48                  '48 AuraSlots (32 buff, 16 debuff)
     Public Const MAX_AURA_EFFECTs_PASSIVE As Integer = 192
@@ -2753,6 +2659,4 @@ Public Module Constants
                 Return manaType
         End Select
     End Function
-
-#End Region
 End Module

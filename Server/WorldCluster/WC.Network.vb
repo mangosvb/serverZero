@@ -816,7 +816,7 @@ Public Module WC_Network
                 If Not Socket.Connected Then Exit Sub
 
                 Dim responseFull As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
-                responseFull.AddInt8(AuthResponseCodes.AUTH_WAIT_QUEUE)
+                responseFull.AddInt8(LoginResponse.LOGIN_WAIT_QUEUE)
                 responseFull.AddInt32(CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
                 Send(responseFull)
 

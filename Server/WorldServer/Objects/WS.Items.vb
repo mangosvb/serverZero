@@ -337,59 +337,59 @@ Public Module WS_Items
             Get
                 Select Case InventoryType
                     Case INVENTORY_TYPES.INVTYPE_HEAD
-                        Return New Byte() {EQUIPMENT_SLOT_HEAD}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_HEAD}
                     Case INVENTORY_TYPES.INVTYPE_NECK
-                        Return New Byte() {EQUIPMENT_SLOT_NECK}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_NECK}
                     Case INVENTORY_TYPES.INVTYPE_SHOULDERS
-                        Return New Byte() {EQUIPMENT_SLOT_SHOULDERS}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_SHOULDERS}
                     Case INVENTORY_TYPES.INVTYPE_BODY
-                        Return New Byte() {EQUIPMENT_SLOT_BODY}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_BODY}
                     Case INVENTORY_TYPES.INVTYPE_CHEST
-                        Return New Byte() {EQUIPMENT_SLOT_CHEST}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_CHEST}
                     Case INVENTORY_TYPES.INVTYPE_ROBE
-                        Return New Byte() {EQUIPMENT_SLOT_CHEST}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_CHEST}
                     Case INVENTORY_TYPES.INVTYPE_WAIST
-                        Return New Byte() {EQUIPMENT_SLOT_WAIST}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_WAIST}
                     Case INVENTORY_TYPES.INVTYPE_LEGS
-                        Return New Byte() {EQUIPMENT_SLOT_LEGS}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_LEGS}
                     Case INVENTORY_TYPES.INVTYPE_FEET
-                        Return New Byte() {EQUIPMENT_SLOT_FEET}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_FEET}
                     Case INVENTORY_TYPES.INVTYPE_WRISTS
-                        Return New Byte() {EQUIPMENT_SLOT_WRISTS}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_WRISTS}
                     Case INVENTORY_TYPES.INVTYPE_HANDS
-                        Return New Byte() {EQUIPMENT_SLOT_HANDS}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_HANDS}
                     Case INVENTORY_TYPES.INVTYPE_FINGER
-                        Return New Byte() {EQUIPMENT_SLOT_FINGER1, EQUIPMENT_SLOT_FINGER2}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_FINGER1, EquipmentSlots.EQUIPMENT_SLOT_FINGER2}
                     Case INVENTORY_TYPES.INVTYPE_TRINKET
-                        Return New Byte() {EQUIPMENT_SLOT_TRINKET1, EQUIPMENT_SLOT_TRINKET2}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_TRINKET1, EquipmentSlots.EQUIPMENT_SLOT_TRINKET2}
                     Case INVENTORY_TYPES.INVTYPE_CLOAK
-                        Return New Byte() {EQUIPMENT_SLOT_BACK}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_BACK}
                     Case INVENTORY_TYPES.INVTYPE_WEAPON
-                        Return New Byte() {EQUIPMENT_SLOT_MAINHAND, EQUIPMENT_SLOT_OFFHAND}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_MAINHAND, EquipmentSlots.EQUIPMENT_SLOT_OFFHAND}
                     Case INVENTORY_TYPES.INVTYPE_SHIELD
-                        Return New Byte() {EQUIPMENT_SLOT_OFFHAND}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_OFFHAND}
                     Case INVENTORY_TYPES.INVTYPE_RANGED
-                        Return New Byte() {EQUIPMENT_SLOT_RANGED}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_RANGED}
                     Case INVENTORY_TYPES.INVTYPE_TWOHAND_WEAPON
-                        Return New Byte() {EQUIPMENT_SLOT_MAINHAND}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_MAINHAND}
                     Case INVENTORY_TYPES.INVTYPE_TABARD
-                        Return New Byte() {EQUIPMENT_SLOT_TABARD}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_TABARD}
                     Case INVENTORY_TYPES.INVTYPE_WEAPONMAINHAND
-                        Return New Byte() {EQUIPMENT_SLOT_MAINHAND}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_MAINHAND}
                     Case INVENTORY_TYPES.INVTYPE_WEAPONOFFHAND
-                        Return New Byte() {EQUIPMENT_SLOT_OFFHAND}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_OFFHAND}
                     Case INVENTORY_TYPES.INVTYPE_HOLDABLE
-                        Return New Byte() {EQUIPMENT_SLOT_OFFHAND}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_OFFHAND}
                     Case INVENTORY_TYPES.INVTYPE_THROWN
-                        Return New Byte() {EQUIPMENT_SLOT_RANGED}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_RANGED}
                     Case INVENTORY_TYPES.INVTYPE_RANGEDRIGHT
-                        Return New Byte() {EQUIPMENT_SLOT_RANGED}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_RANGED}
                     Case INVENTORY_TYPES.INVTYPE_BAG
                         Return _
                             New Byte() _
-                                {INVENTORY_SLOT_BAG_1, INVENTORY_SLOT_BAG_2, INVENTORY_SLOT_BAG_3, INVENTORY_SLOT_BAG_4}
+                                {InventorySlots.INVENTORY_SLOT_BAG_1, InventorySlots.INVENTORY_SLOT_BAG_2, InventorySlots.INVENTORY_SLOT_BAG_3, InventorySlots.INVENTORY_SLOT_BAG_4}
                     Case INVENTORY_TYPES.INVTYPE_RELIC
-                        Return New Byte() {EQUIPMENT_SLOT_RANGED}
+                        Return New Byte() {EquipmentSlots.EQUIPMENT_SLOT_RANGED}
                     Case Else
                         Return New Byte() {}
                 End Select
@@ -953,7 +953,7 @@ Public Module WS_Items
                 ALLQUESTS.OnQuestItemRemove(client.Character, client.Character.Items(srcSlot).ItemEntry, count)
 
                 If count = 0 Or count >= client.Character.Items(srcSlot).StackCount Then
-                    If srcSlot < INVENTORY_SLOT_BAG_END Then _
+                    If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then _
                         client.Character.UpdateRemoveItemStats(client.Character.Items(srcSlot), srcSlot)
                     client.Character.ItemREMOVE(srcBag, srcSlot, True, True)
                 Else
