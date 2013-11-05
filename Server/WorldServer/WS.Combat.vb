@@ -86,11 +86,11 @@ Public Module WS_Combat
         Dim WepSlot As Byte
         Select Case AttackType
             Case WeaponAttackType.BASE_ATTACK
-                WepSlot = EQUIPMENT_SLOT_MAINHAND
+                WepSlot = EquipmentSlots.EQUIPMENT_SLOT_MAINHAND
             Case WeaponAttackType.OFF_ATTACK
-                WepSlot = EQUIPMENT_SLOT_OFFHAND
+                WepSlot = EquipmentSlots.EQUIPMENT_SLOT_OFFHAND
             Case WeaponAttackType.RANGED_ATTACK
-                WepSlot = EQUIPMENT_SLOT_RANGED
+                WepSlot = EquipmentSlots.EQUIPMENT_SLOT_RANGED
             Case Else
                 Return 0
         End Select
@@ -123,14 +123,14 @@ Public Module WS_Combat
         Dim Weapon As ItemObject = Nothing
         Select Case AttackType
             Case WeaponAttackType.BASE_ATTACK
-                If CType(objCharacter, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) = False Then Return 2.4F 'Fist attack
-                Weapon = CType(objCharacter, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND)
+                If CType(objCharacter, CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) = False Then Return 2.4F 'Fist attack
+                Weapon = CType(objCharacter, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND)
             Case WeaponAttackType.OFF_ATTACK
-                If CType(objCharacter, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) = False Then Return 2.4F 'Fist attack
-                Weapon = CType(objCharacter, CharacterObject).Items(EQUIPMENT_SLOT_OFFHAND)
+                If CType(objCharacter, CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) = False Then Return 2.4F 'Fist attack
+                Weapon = CType(objCharacter, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND)
             Case WeaponAttackType.RANGED_ATTACK
-                If CType(objCharacter, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_RANGED) = False Then Return 0.0F
-                Weapon = CType(objCharacter, CharacterObject).Items(EQUIPMENT_SLOT_RANGED)
+                If CType(objCharacter, CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) = False Then Return 0.0F
+                Weapon = CType(objCharacter, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED)
             Case Else
                 Return 0.0F
         End Select
@@ -219,16 +219,16 @@ Public Module WS_Combat
             If TypeOf Attacker Is CharacterObject Then
                 With CType(Attacker, CharacterObject)
                     If Ranged Then
-                        If .Items.ContainsKey(EQUIPMENT_SLOT_RANGED) Then
-                            result.DamageType = .Items(EQUIPMENT_SLOT_RANGED).ItemInfo.Damage(0).Type
+                        If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) Then
+                            result.DamageType = .Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.Damage(0).Type
                         End If
                     ElseIf DualWield Then
-                        If .Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) Then
-                            result.DamageType = .Items(EQUIPMENT_SLOT_OFFHAND).ItemInfo.Damage(0).Type
+                        If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) Then
+                            result.DamageType = .Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.Damage(0).Type
                         End If
                     Else
-                        If .Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) Then
-                            result.DamageType = .Items(EQUIPMENT_SLOT_MAINHAND).ItemInfo.Damage(0).Type
+                        If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
+                            result.DamageType = .Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).ItemInfo.Damage(0).Type
                         End If
                     End If
                 End With
@@ -455,9 +455,9 @@ Public Module WS_Combat
                 If .attackSheathState = SHEATHE_SLOT.SHEATHE_WEAPON Then
 
                     'NOTE: Character is with selected hand weapons
-                    If .Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) Then
+                    If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) Then
                         'NOTE: Character is with equiped offhand item, checking if it is weapon
-                        If CType(.Items(EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then
+                        If CType(.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then
                             'DualWield Miss chance
                             If skillDiference > 10 Then
                                 Return 19 + 5 - skillDiference * 0.1F
@@ -579,14 +579,14 @@ Public Module WS_Combat
                     Case SHEATHE_SLOT.SHEATHE_NONE
                         tmpSkill = SKILL_IDs.SKILL_UNARMED
                     Case SHEATHE_SLOT.SHEATHE_WEAPON
-                        If DualWield AndAlso .Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) Then
-                            tmpSkill = ITEMDatabase(.Items(EQUIPMENT_SLOT_OFFHAND).ItemEntry).GetReqSkill
-                        ElseIf .Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) Then
-                            tmpSkill = ITEMDatabase(.Items(EQUIPMENT_SLOT_MAINHAND).ItemEntry).GetReqSkill
+                        If DualWield AndAlso .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) Then
+                            tmpSkill = ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemEntry).GetReqSkill
+                        ElseIf .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
+                            tmpSkill = ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).ItemEntry).GetReqSkill
                         End If
                     Case SHEATHE_SLOT.SHEATHE_RANGED
-                        If .Items.ContainsKey(EQUIPMENT_SLOT_RANGED) Then
-                            tmpSkill = ITEMDatabase(.Items(EQUIPMENT_SLOT_RANGED).ItemEntry).GetReqSkill
+                        If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) Then
+                            tmpSkill = ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemEntry).GetReqSkill
                         End If
                 End Select
 
@@ -921,8 +921,8 @@ Public Module WS_Combat
                     Exit Sub
                 End If
 
-                Dim HaveMainHand As Boolean = (Character.AttackTime(0) > 0 AndAlso Character.Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND))
-                Dim HaveOffHand As Boolean = (Character.AttackTime(1) > 0 AndAlso Character.Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND))
+                Dim HaveMainHand As Boolean = (Character.AttackTime(0) > 0 AndAlso Character.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND))
+                Dim HaveOffHand As Boolean = (Character.AttackTime(1) > 0 AndAlso Character.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND))
 
                 'DONE: Spells that add to attack
                 If Not combatNextAttackSpell Then
@@ -1274,18 +1274,18 @@ Public Module WS_Combat
                 SetVirtualItemInfo(objCharacter, 2, Nothing)
 
             Case SHEATHE_SLOT.SHEATHE_WEAPON
-                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) AndAlso (Not objCharacter.Items(EQUIPMENT_SLOT_MAINHAND).IsBroken) Then
-                    SetVirtualItemInfo(objCharacter, 0, objCharacter.Items(EQUIPMENT_SLOT_MAINHAND))
+                If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) AndAlso (Not objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).IsBroken) Then
+                    SetVirtualItemInfo(objCharacter, 0, objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND))
                 Else
                     SetVirtualItemInfo(objCharacter, 0, Nothing)
                     objCharacter.attackSheathState = SHEATHE_SLOT.SHEATHE_NONE
                 End If
-                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_OFFHAND) AndAlso (Not objCharacter.Items(EQUIPMENT_SLOT_OFFHAND).IsBroken) Then
-                    SetVirtualItemInfo(objCharacter, 1, objCharacter.Items(EQUIPMENT_SLOT_OFFHAND))
+                If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) AndAlso (Not objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).IsBroken) Then
+                    SetVirtualItemInfo(objCharacter, 1, objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND))
                     'DONE: Must be applyed SPELL_EFFECT_DUAL_WIELD and weapon in offhand
                     Log.WriteLine(LogType.DEBUG, "spellCanDualWeild = {0}", objCharacter.spellCanDualWeild)
-                    Log.WriteLine(LogType.DEBUG, "objectClass = {0}", CType(objCharacter.Items(EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass)
-                    If objCharacter.spellCanDualWeild AndAlso CType(objCharacter.Items(EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then objCharacter.combatCanDualWield = True
+                    Log.WriteLine(LogType.DEBUG, "objectClass = {0}", CType(objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass)
+                    If objCharacter.spellCanDualWeild AndAlso CType(objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then objCharacter.combatCanDualWield = True
                 Else
                     SetVirtualItemInfo(objCharacter, 1, Nothing)
                 End If
@@ -1294,8 +1294,8 @@ Public Module WS_Combat
             Case SHEATHE_SLOT.SHEATHE_RANGED
                 SetVirtualItemInfo(objCharacter, 0, Nothing)
                 SetVirtualItemInfo(objCharacter, 1, Nothing)
-                If objCharacter.Items.ContainsKey(EQUIPMENT_SLOT_RANGED) AndAlso (Not objCharacter.Items(EQUIPMENT_SLOT_RANGED).IsBroken) Then
-                    SetVirtualItemInfo(objCharacter, 2, objCharacter.Items(EQUIPMENT_SLOT_RANGED))
+                If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) AndAlso (Not objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).IsBroken) Then
+                    SetVirtualItemInfo(objCharacter, 2, objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED))
                 Else
                     SetVirtualItemInfo(objCharacter, 2, Nothing)
                     objCharacter.attackSheathState = SHEATHE_SLOT.SHEATHE_NONE
