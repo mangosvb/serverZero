@@ -1263,10 +1263,6 @@ Public Module Enums
         ITEM_SUBCLASS_SOUL_BAG = 1
         ITEM_SUBCLASS_HERB_BAG = 2
         ITEM_SUBCLASS_ENCHANTING_BAG = 3
-        ITEM_SUBCLASS_ENGINEERING_BAG = 4
-        ITEM_SUBCLASS_GEM_BAG = 5
-        ITEM_SUBCLASS_MINNING_BAG = 6
-        ITEM_SUBCLASS_LEATHERWORKING_BAG = 7
 
     ' Weapon
         ITEM_SUBCLASS_AXE = 0
@@ -1291,7 +1287,7 @@ Public Module Enums
         ITEM_SUBCLASS_WAND = 19
         ITEM_SUBCLASS_FISHING_POLE = 20
 
-    ' Armor
+        ' Armor
         ITEM_SUBCLASS_MISC = 0
         ITEM_SUBCLASS_CLOTH = 1
         ITEM_SUBCLASS_LEATHER = 2
@@ -1380,8 +1376,7 @@ Public Module Enums
         ENCHANTING = 7
         ENGINEERING = 8
         KEYRING = 9
-        JEWELCRAFTING = 10
-        MINNING = 11
+
     End Enum
 
     Public Enum EnchantSlots As Byte
@@ -1652,9 +1647,6 @@ Public Module Enums
         TRANSFER_ABORT_TOO_MANY_INSTANCES = &H3         ' You have entered too many instances recently.
         TRANSFER_ABORT_ZONE_IN_COMBAT = &H5             ' Unable to zone in while an encounter is in progress.
         TRANSFER_ABORT_INSUF_EXPAN_LVL1 = &H106         ' You must have TBC expansion installed to access this area.
-        TRANSFER_ABORT_DIFFICULTY1 = &H7                ' Normal difficulty mode is not available for %s.
-        TRANSFER_ABORT_DIFFICULTY2 = &H107              ' Heroic difficulty mode is not available for %s.
-        TRANSFER_ABORT_DIFFICULTY3 = &H207              ' Epic difficulty mode is not available for %s.
     End Enum
 
     Public Enum MenuIcon As Integer
@@ -2393,7 +2385,6 @@ Public Module Enums
     Public Enum ShapeshiftForm As Byte
         FORM_NORMAL = 0
         FORM_CAT = 1
-        FORM_TREE = 2
         FORM_TRAVEL = 3
         FORM_AQUA = 4
         FORM_BEAR = 5
