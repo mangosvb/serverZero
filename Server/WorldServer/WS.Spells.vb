@@ -5085,10 +5085,6 @@ SkipShapeShift:
         If TypeOf Target Is CharacterObject Then
             If Action = AuraAction.AURA_ADD Then
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_TRAVEL Then CType(Target, CharacterObject).ApplySpell(5419)
-                If EffectInfo.MiscValue = ShapeshiftForm.FORM_TREE Then
-                    CType(Target, CharacterObject).ApplySpell(5420)
-                    CType(Target, CharacterObject).ApplySpell(34123)
-                End If
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_CAT Then CType(Target, CharacterObject).ApplySpell(3025)
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_BEAR Then CType(Target, CharacterObject).ApplySpell(1178)
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_DIREBEAR Then CType(Target, CharacterObject).ApplySpell(9635)
@@ -5107,11 +5103,6 @@ SkipShapeShift:
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_DEFENSIVESTANCE Then CType(Target, CharacterObject).ApplySpell(7376)
             Else
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_TRAVEL Then Target.RemoveAuraBySpell(5419)
-                If EffectInfo.MiscValue = ShapeshiftForm.FORM_TREE Then
-                    'TODO: 5420 never removes it's speed
-                    Target.RemoveAuraBySpell(5420)
-                    Target.RemoveAuraBySpell(34123)
-                End If
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_CAT Then Target.RemoveAuraBySpell(3025)
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_BEAR Then Target.RemoveAuraBySpell(1178)
                 If EffectInfo.MiscValue = ShapeshiftForm.FORM_DIREBEAR Then Target.RemoveAuraBySpell(9635)
