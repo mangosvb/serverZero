@@ -446,7 +446,7 @@ Module WS_CharMovement
                             'Prevent the fall damage to be more than your maximum health
                             If FallDamage > client.Character.Life.Maximum Then FallDamage = client.Character.Life.Maximum
                             'Deal the damage
-                            client.Character.LogEnvironmentalDamage(EnviromentalDamage.DAMAGE_FALL, FallDamage)
+                            client.Character.LogEnvironmentalDamage(EnvironmentalDamage.DAMAGE_FALL, FallDamage)
                             client.Character.DealDamage(FallDamage)
 
 #If DEBUG Then
