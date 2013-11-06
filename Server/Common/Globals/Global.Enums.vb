@@ -17,6 +17,18 @@
 '
 
 Public Module Enums
+    Public Enum ExpansionLevel As Byte
+        NORMAL = 0      'Vanilla
+    End Enum
+
+    Public Enum AccessLevel As Byte
+        Trial = 0
+        Player = 1
+        GameMaster = 2
+        Developer = 3
+        Admin = 4
+    End Enum
+
     Public Enum SocialList As Byte
         MAX_FRIENDS_ON_LIST = 50
         MAX_IGNORES_ON_LIST = 25

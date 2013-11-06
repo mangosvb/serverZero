@@ -1,18 +1,6 @@
 ﻿Imports System.ComponentModel
 Imports System.Collections.Generic
 
-Public Enum ExpansionLevel As Byte
-    NORMAL = 0          'WoW
-End Enum
-
-Public Enum AccessLevel As Byte
-    Trial = 0
-    Player = 1
-    GameMaster = 2
-    Developer = 3
-    Admin = 4
-End Enum
-
 Public Class Authenticator
     Inherits MarshalByRefObject
 
