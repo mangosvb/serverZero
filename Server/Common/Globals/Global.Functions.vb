@@ -44,8 +44,6 @@ Public Module Functions
                 Return 902
             Case ShapeshiftForm.FORM_GHOSTWOLF
                 Return 4613
-            Case ShapeshiftForm.FORM_TREE
-                Return 864
             Case ShapeshiftForm.FORM_SPIRITOFREDEMPTION
                 Return 12824
             Case Else
@@ -60,7 +58,7 @@ Public Module Functions
         Select Case form
             Case ShapeshiftForm.FORM_CAT, ShapeshiftForm.FORM_STEALTH
                 Return ManaTypes.TYPE_ENERGY
-            Case ShapeshiftForm.FORM_AQUA, ShapeshiftForm.FORM_TRAVEL, ShapeshiftForm.FORM_MOONKIN, ShapeshiftForm.FORM_TREE, _
+            Case ShapeshiftForm.FORM_AQUA, ShapeshiftForm.FORM_TRAVEL, ShapeshiftForm.FORM_MOONKIN, _
                  ShapeshiftForm.FORM_MOONKIN, ShapeshiftForm.FORM_MOONKIN, ShapeshiftForm.FORM_SPIRITOFREDEMPTION, ShapeshiftForm.FORM_FLIGHT, ShapeshiftForm.FORM_SWIFT
                 Return ManaTypes.TYPE_MANA
             Case ShapeshiftForm.FORM_BEAR, ShapeshiftForm.FORM_DIREBEAR
