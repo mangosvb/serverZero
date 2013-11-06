@@ -378,7 +378,7 @@ Public Module RealmServer
             dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
             dataResponse(1) = AccountState.LOGIN_BADVERSION
             client.Send(dataResponse, "RS_LOGON_CHALLENGE-FAIL-BADVERSION")
-        ElseIf (bMajor = RequiredVersion1 And bMinor = RequiredVersion2 And bRevision = RequiredVersion3) And (clientBuild >= RequiredBuildLow) And (clientBuild <= RequiredBuildHigh) Then
+        ElseIf (clientBuild = Required_Build_1_12_1) Or (clientBuild = Required_Build_1_12_2) Or (clientBuild = Required_Build_1_12_3) Then
             'TODO: in the far future should check if the account is expired too
             Dim result As DataTable = Nothing
             Try
