@@ -126,12 +126,12 @@ Public Module Constants
     'Public ConsoleColor As New ConsoleColor
     '1.12.1 - 5875
     '1.12.2 - 6005
+    '1.12.3 - 6141
 
-    Public Const RequiredVersion1 As Integer = 1
-    Public Const RequiredVersion2 As Integer = 12
-    Public Const RequiredVersion3 As Integer = 1
-    Public Const RequiredBuildLow As Integer = 5875
-    Public Const RequiredBuildHigh As Integer = 5875
+    'New Auto Detection Build
+    Public Const Required_Build_1_12_1 As Integer = 5875
+    Public Const Required_Build_1_12_2 As Integer = 6005
+    Public Const Required_Build_1_12_3 As Integer = 6141
     Public Const ConnectionSleepTime As Integer = 100
 
     Public Const GUILD_RANK_MAX As Integer = 9 'Max Ranks Per Guild
