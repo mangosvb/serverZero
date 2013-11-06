@@ -74,13 +74,6 @@ Public Module WS_Commands
 
     Public Const SystemGUID As ULong = Integer.MaxValue
     Public Const SystemNAME As String = "System"
-    Public Enum AccessLevel As Byte
-        Trial = 0
-        Player = 1
-        GameMaster = 2
-        Developer = 3
-        Admin = 4
-    End Enum
 
     Public ChatCommands As New Dictionary(Of String, ChatCommand)
     Public Class ChatCommand
