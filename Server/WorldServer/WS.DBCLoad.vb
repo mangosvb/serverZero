@@ -24,335 +24,658 @@ Public Module WS_DBCLoad
 
 #Region "Spells"
     Public Sub InitializeSpellRadius()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRadius.dbc")
+
+        '    Dim radiusID As Integer
+        '    Dim radiusValue As Single
+        '    'Dim radiusValue2 As Single
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        radiusID = tmpDBC.Item(i, 0)
+        '        radiusValue = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT)
+        '        '   radiusValue2 = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT) ' May be needed in the future
+
+        '        SpellRadius(radiusID) = radiusValue
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SpellRadius missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRadius.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_spellradius")
 
             Dim radiusID As Integer
             Dim radiusValue As Single
-            'Dim radiusValue2 As Single
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                radiusID = tmpDBC.Item(i, 0)
-                radiusValue = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT)
-                '   radiusValue2 = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT) ' May be needed in the future
+            For Each row As DataRow In tmpDBC.results.Rows
+                radiusID = tmpDBC.Item(row.Item("ID"))
+                radiusValue = tmpDBC.Item(row.Item("radius"), DBCValueType.DBC_FLOAT)
 
                 SpellRadius(radiusID) = radiusValue
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SpellRadius Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SpellRadius missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SpellRadius DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
+
     Public Sub InitializeSpellCastTime()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellCastTimes.dbc")
+
+        '    Dim spellCastID As Integer
+        '    Dim spellCastTimeS As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        spellCastID = tmpDBC.Item(i, 0)
+        '        spellCastTimeS = tmpDBC.Item(i, 1)
+
+        '        SpellCastTime(spellCastID) = spellCastTimeS
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SpellCastTimes missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellCastTimes.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_spellcasttimes")
 
             Dim spellCastID As Integer
             Dim spellCastTimeS As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                spellCastID = tmpDBC.Item(i, 0)
-                spellCastTimeS = tmpDBC.Item(i, 1)
+            For Each row As DataRow In tmpDBC.results.Rows
+                spellCastID = tmpDBC.Item(row.Item("ID"))
+                spellCastTimeS = tmpDBC.Item(row.Item("base")) 'FIX: Is this Base or Spell Cast Times?
 
                 SpellCastTime(spellCastID) = spellCastTimeS
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SpellCastTimes Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SpellCastTimes missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SpellCastTimes DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
+
     Public Sub InitializeSpellRange()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRange.dbc")
+
+        '    Dim spellRangeIndex As Integer
+        '    'Dim spellRangeMin As Single
+        '    Dim spellRangeMax As Single
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        spellRangeIndex = tmpDBC.Item(i, 0)
+        '        '   spellRangeMin = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT) ' Added back may be needed in the future
+        '        spellRangeMax = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
+
+        '        SpellRange(spellRangeIndex) = spellRangeMax
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SpellRanges missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRange.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_spellrange")
 
             Dim spellRangeIndex As Integer
-            'Dim spellRangeMin As Single
             Dim spellRangeMax As Single
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                spellRangeIndex = tmpDBC.Item(i, 0)
-                '   spellRangeMin = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT) ' Added back may be needed in the future
-                spellRangeMax = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
+            For Each row As DataRow In tmpDBC.results.Rows
+                spellRangeIndex = tmpDBC.Item(row.Item("Unknown0"))
+                spellRangeMax = tmpDBC.Item(row.Item("Unknown2"), DBCValueType.DBC_FLOAT)
 
                 SpellRange(spellRangeIndex) = spellRangeMax
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SpellRanges Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SpellRanges missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SpellRanges DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
+
     Public Sub InitializeSpellShapeShift()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellShapeshiftForm.dbc")
+
+        '    Dim id As Integer
+        '    Dim flags1 As Integer
+        '    Dim creatureType As Integer
+        '    Dim attackSpeed As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        id = tmpDBC.Item(i, 0)
+        '        flags1 = tmpDBC.Item(i, 11)
+        '        creatureType = tmpDBC.Item(i, 12)
+        '        attackSpeed = tmpDBC.Item(i, 13)
+
+        '        SpellShapeShiftForm.Add(New TSpellShapeshiftForm(id, flags1, creatureType, attackSpeed))
+        '    Next i
+
+        '    tmpDBC.Dispose()
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellShapeshiftForms initialized.", tmpDBC.Rows - 1)
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SpellShapeshiftForms missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellShapeshiftForm.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_spellshapeshiftform")
 
             Dim id As Integer
             Dim flags1 As Integer
             Dim creatureType As Integer
             Dim attackSpeed As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                id = tmpDBC.Item(i, 0)
-                flags1 = tmpDBC.Item(i, 11)
-                creatureType = tmpDBC.Item(i, 12)
-                attackSpeed = tmpDBC.Item(i, 13)
+            For Each row As DataRow In tmpDBC.results.Rows
+                id = tmpDBC.Item(row.Item("ID"))
+                flags1 = tmpDBC.Item(row.Item("flags"))
+                ' creatureType = tmpDBC.Item(row.Item("creatureType")) 'FIX: Is blank or "Cat Form" in Sql Table?
+                attackSpeed = tmpDBC.Item(row.Item("spellIconId")) 'FIX: Is this Spell Icon or Attack Speed?
 
                 SpellShapeShiftForm.Add(New TSpellShapeshiftForm(id, flags1, creatureType, attackSpeed))
-            Next i
+            Next
 
-            tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellShapeshiftForms initialized.", tmpDBC.Rows - 1)
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SpellShapeshiftForms Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SpellShapeshiftForms missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SpellShapeShiftForms DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
+
     Public Sub InitializeSpellFocusObject()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellFocusObject.dbc")
+
+        '    Dim spellFocusIndex As Integer
+        '    Dim spellFocusObjectName As String
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        spellFocusIndex = tmpDBC.Item(i, 0)
+        '        spellFocusObjectName = tmpDBC.Item(i, 1, DBCValueType.DBC_STRING)
+
+        '        SpellFocusObject(spellFocusIndex) = spellFocusObjectName
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SpellFocusObjects missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellFocusObject.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_spellfocusobject")
 
             Dim spellFocusIndex As Integer
             Dim spellFocusObjectName As String
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                spellFocusIndex = tmpDBC.Item(i, 0)
-                spellFocusObjectName = tmpDBC.Item(i, 1, DBCValueType.DBC_STRING)
+            For Each row As DataRow In tmpDBC.results.Rows
+                spellFocusIndex = tmpDBC.Item(row.Item("Unknown0"))
+                spellFocusObjectName = tmpDBC.Item(row.Item("Unknown1"), DBCValueType.DBC_STRING)
 
                 SpellFocusObject(spellFocusIndex) = spellFocusObjectName
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SpellFocusObjects Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SpellFocusObjects missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SpellFocusObjects DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
+
     Public Sub InitializeSpellDuration()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellDuration.dbc")
+
+        '    Dim spellDurationIndex As Integer
+        '    Dim spellDurationValue As Integer
+        '    '            Dim SpellDurationValue2 As Integer
+        '    '            Dim SpellDurationValue3 As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        spellDurationIndex = tmpDBC.Item(i, 0)
+        '        spellDurationValue = tmpDBC.Item(i, 1)
+        '        '    SpellDurationValue2 = tmpDBC.Item(i, 2) ' May be needed in the future
+        '        '    SpellDurationValue3 = tmpDBC.Item(i, 3) ' May be needed in the future
+
+        '        SpellDuration(spellDurationIndex) = spellDurationValue
+        '    Next i
+
+        '    tmpDBC.Dispose()
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellDurations initialized.", tmpDBC.Rows - 1)
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SpellDurations missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellDuration.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_spellduration")
 
             Dim spellDurationIndex As Integer
             Dim spellDurationValue As Integer
-            '            Dim SpellDurationValue2 As Integer
-            '            Dim SpellDurationValue3 As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                spellDurationIndex = tmpDBC.Item(i, 0)
-                spellDurationValue = tmpDBC.Item(i, 1)
-                '    SpellDurationValue2 = tmpDBC.Item(i, 2) ' May be needed in the future
-                '    SpellDurationValue3 = tmpDBC.Item(i, 3) ' May be needed in the future
+            For Each row As DataRow In tmpDBC.results.Rows
+                spellDurationIndex = tmpDBC.Item(row.Item("ID"))
+                spellDurationValue = tmpDBC.Item(row.Item("duration"))
 
                 SpellDuration(spellDurationIndex) = spellDurationValue
-            Next i
+            Next
 
-            tmpDBC.Dispose()
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellDurations initialized.", tmpDBC.Rows - 1)
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SpellDurations Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SpellDurations missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SpellDurations DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeSpells()
+        'Try
+        '    Dim spellDBC As BufferedDBC = New BufferedDBC("dbc\Spell.dbc")
+        '    'Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & SpellDBC.GetFileInformation)
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
+
+        '    Dim id As Integer
+        '    For i As Long = 0 To spellDBC.Rows - 1
+        '        Try
+        '            id = spellDBC.Item(i, 0)
+        '            SPELLs(id) = New SpellInfo
+        '            SPELLs(id).ID = id
+        '            SPELLs(id).School = spellDBC.Item(i, 1)
+        '            SPELLs(id).Category = spellDBC.Item(i, 2)
+        '            ' 3 = Not Used
+        '            SPELLs(id).DispellType = spellDBC.Item(i, 4)
+        '            SPELLs(id).Mechanic = spellDBC.Item(i, 5)
+        '            SPELLs(id).Attributes = spellDBC.Item(i, 6)
+        '            SPELLs(id).AttributesEx = spellDBC.Item(i, 7)
+        '            SPELLs(id).AttributesEx2 = spellDBC.Item(i, 8)
+        '            ' AttributesEx3 = SpellDBC.Item(i, 9)
+        '            ' AttributesEx4 = SpellDBC.Item(i, 10)
+        '            SPELLs(id).RequredCasterStance = spellDBC.Item(i, 11) ' RequiredShapeShift
+        '            SPELLs(id).ShapeshiftExclude = spellDBC.Item(i, 12)
+        '            SPELLs(id).Target = spellDBC.Item(i, 13)
+        '            SPELLs(id).TargetCreatureType = spellDBC.Item(i, 14)
+        '            SPELLs(id).FocusObjectIndex = spellDBC.Item(i, 15)
+        '            SPELLs(id).CasterAuraState = spellDBC.Item(i, 16)
+        '            SPELLs(id).TargetAuraState = spellDBC.Item(i, 17)
+        '            SPELLs(id).SpellCastTimeIndex = spellDBC.Item(i, 18)
+        '            SPELLs(id).SpellCooldown = spellDBC.Item(i, 19)
+        '            SPELLs(id).CategoryCooldown = spellDBC.Item(i, 20)
+        '            SPELLs(id).interruptFlags = spellDBC.Item(i, 21)
+        '            SPELLs(id).auraInterruptFlags = spellDBC.Item(i, 22)
+        '            SPELLs(id).channelInterruptFlags = spellDBC.Item(i, 23)
+        '            SPELLs(id).procFlags = spellDBC.Item(i, 24)
+        '            SPELLs(id).procChance = spellDBC.Item(i, 25)
+        '            SPELLs(id).procCharges = spellDBC.Item(i, 26)
+        '            SPELLs(id).maxLevel = spellDBC.Item(i, 27)
+        '            SPELLs(id).baseLevel = spellDBC.Item(i, 28)
+        '            SPELLs(id).spellLevel = spellDBC.Item(i, 29)
+        '            SPELLs(id).DurationIndex = spellDBC.Item(i, 30)
+        '            SPELLs(id).powerType = spellDBC.Item(i, 31)
+        '            SPELLs(id).manaCost = spellDBC.Item(i, 32)
+        '            SPELLs(id).manaCostPerlevel = spellDBC.Item(i, 33)
+        '            SPELLs(id).manaPerSecond = spellDBC.Item(i, 34)
+        '            SPELLs(id).manaPerSecondPerLevel = spellDBC.Item(i, 35)
+        '            SPELLs(id).rangeIndex = spellDBC.Item(i, 36)
+        '            SPELLs(id).Speed = spellDBC.Item(i, 37, DBCValueType.DBC_FLOAT)
+        '            SPELLs(id).modalNextSpell = spellDBC.Item(i, 38) ' Not Used
+        '            SPELLs(id).maxStack = spellDBC.Item(i, 39)
+        '            SPELLs(id).Totem(0) = spellDBC.Item(i, 40)
+        '            SPELLs(id).Totem(1) = spellDBC.Item(i, 41)
+
+        '            '-CORRECT-
+        '            SPELLs(id).Reagents(0) = spellDBC.Item(i, 42)
+        '            SPELLs(id).Reagents(1) = spellDBC.Item(i, 43)
+        '            SPELLs(id).Reagents(2) = spellDBC.Item(i, 44)
+        '            SPELLs(id).Reagents(3) = spellDBC.Item(i, 45)
+        '            SPELLs(id).Reagents(4) = spellDBC.Item(i, 46)
+        '            SPELLs(id).Reagents(5) = spellDBC.Item(i, 47)
+        '            SPELLs(id).Reagents(6) = spellDBC.Item(i, 48)
+        '            SPELLs(id).Reagents(7) = spellDBC.Item(i, 49)
+
+        '            SPELLs(id).ReagentsCount(0) = spellDBC.Item(i, 50)
+        '            SPELLs(id).ReagentsCount(1) = spellDBC.Item(i, 51)
+        '            SPELLs(id).ReagentsCount(2) = spellDBC.Item(i, 52)
+        '            SPELLs(id).ReagentsCount(3) = spellDBC.Item(i, 53)
+        '            SPELLs(id).ReagentsCount(4) = spellDBC.Item(i, 54)
+        '            SPELLs(id).ReagentsCount(5) = spellDBC.Item(i, 55)
+        '            SPELLs(id).ReagentsCount(6) = spellDBC.Item(i, 56)
+        '            SPELLs(id).ReagentsCount(7) = spellDBC.Item(i, 57)
+        '            '-/CORRECT-
+
+        '            SPELLs(id).EquippedItemClass = spellDBC.Item(i, 58) 'Value
+        '            SPELLs(id).EquippedItemSubClass = spellDBC.Item(i, 59) 'Mask
+        '            SPELLs(id).EquippedItemInventoryType = spellDBC.Item(i, 60) 'Mask
+
+        '            For j As Integer = 0 To 2
+        '                If CInt(spellDBC.Item(i, 61 + j)) <> 0 Then
+        '                    SPELLs(id).SpellEffects(j) = New SpellEffect(SPELLs(id))
+
+        '                    SPELLs(id).SpellEffects(j).ID = spellDBC.Item(i, 61 + j)
+        '                    SPELLs(id).SpellEffects(j).valueDie = spellDBC.Item(i, 64 + j)
+        '                    SPELLs(id).SpellEffects(j).diceBase = spellDBC.Item(i, 67 + j)
+        '                    SPELLs(id).SpellEffects(j).dicePerLevel = spellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT)
+        '                    SPELLs(id).SpellEffects(j).valuePerLevel = spellDBC.Item(i, 73 + j, DBCValueType.DBC_FLOAT)
+        '                    SPELLs(id).SpellEffects(j).valueBase = spellDBC.Item(i, 76 + j)
+        '                    SPELLs(id).SpellEffects(j).Mechanic = spellDBC.Item(i, 79 + j)
+        '                    SPELLs(id).SpellEffects(j).implicitTargetA = spellDBC.Item(i, 82 + j)
+        '                    SPELLs(id).SpellEffects(j).implicitTargetB = spellDBC.Item(i, 85 + j)
+        '                    SPELLs(id).SpellEffects(j).RadiusIndex = spellDBC.Item(i, 88 + j) ' spellradius.dbc
+        '                    SPELLs(id).SpellEffects(j).ApplyAuraIndex = spellDBC.Item(i, 91 + j)
+        '                    SPELLs(id).SpellEffects(j).Amplitude = spellDBC.Item(i, 94 + j)
+        '                    SPELLs(id).SpellEffects(j).MultipleValue = spellDBC.Item(i, 97 + j)
+        '                    SPELLs(id).SpellEffects(j).ChainTarget = spellDBC.Item(i, 100 + j)
+        '                    SPELLs(id).SpellEffects(j).ItemType = spellDBC.Item(i, 103 + j)
+        '                    SPELLs(id).SpellEffects(j).MiscValue = spellDBC.Item(i, 106 + j)
+        '                    SPELLs(id).SpellEffects(j).TriggerSpell = spellDBC.Item(i, 109 + j)
+        '                    SPELLs(id).SpellEffects(j).valuePerComboPoint = spellDBC.Item(i, 112 + j)
+        '                Else
+        '                    SPELLs(id).SpellEffects(j) = Nothing
+        '                End If
+        '            Next
+
+        '            SPELLs(id).SpellVisual = spellDBC.Item(i, 115)
+        '            '116 = Always zero? - SpellVisual2 - Not Used
+        '            SPELLs(id).SpellIconID = spellDBC.Item(i, 117)
+        '            SPELLs(id).ActiveIconID = spellDBC.Item(i, 118)
+        '            '119 = spellPriority
+        '            SPELLs(id).Name = spellDBC.Item(i, 120, DBCValueType.DBC_STRING)
+        '            '121 = Always zero?
+        '            '122 = Always zero?
+        '            '123 = Always zero?
+        '            '124 = Always zero?
+        '            '125 = Always zero?
+        '            '126 = Always zero?
+        '            '127 = Always zero?
+        '            '128 = Always zero?
+        '            SPELLs(id).Rank = spellDBC.Item(i, 129, DBCValueType.DBC_STRING)
+        '            '130 = Always zero?
+        '            '131 = Always zero?
+        '            '132 = Always zero?
+        '            '133 = Always zero?
+        '            '134 = Always zero?
+        '            '135 = Always zero?
+        '            '136 = Always zero?
+        '            '137 = RankFlags
+        '            '138 = Description - Not Used
+        '            '139 = Always zero?
+        '            '140 = Always zero?
+        '            '141 = Always zero?
+        '            '142 = Always zero?
+        '            '143 = Always zero?
+        '            '144 = Always zero?
+        '            '145 = Always zero?
+        '            '146 = DescriptionFlags - Not Used
+        '            '147 = ToolTip - Not USed
+        '            '148 = Always zero?
+        '            '149 = Always zero?
+        '            '150 = Always zero?
+        '            '151 = Always zero?
+        '            '152 = Always zero?
+        '            '153 = Always zero?
+        '            '154 = Always zero?
+        '            '155 = ToolTipFlags - Not Used
+        '            SPELLs(id).manaCostPercent = spellDBC.Item(i, 156)
+        '            SPELLs(id).StartRecoveryCategory = spellDBC.Item(i, 157)
+        '            SPELLs(id).StartRecoveryTime = spellDBC.Item(i, 158)
+        '            SPELLs(id).AffectedTargetLevel = spellDBC.Item(i, 159)
+        '            SPELLs(id).SpellFamilyName = spellDBC.Item(i, 160)
+        '            SPELLs(id).SpellFamilyFlags = spellDBC.Item(i, 161) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
+        '            SPELLs(id).MaxTargets = spellDBC.Item(i, 163)
+        '            SPELLs(id).DamageType = spellDBC.Item(i, 164) ' defenseType
+        '            'SPELLs(ID).PreventionType = SpellDBC.Item(i, 165)
+        '            '166 = StanceBarOrder - Not Used
+
+        '            For j As Integer = 0 To 2
+        '                If SPELLs(id).SpellEffects(j) IsNot Nothing Then
+        '                    SPELLs(id).SpellEffects(j).DamageMultiplier = spellDBC.Item(i, 167 + j, DBCValueType.DBC_FLOAT)
+        '                End If
+        '            Next
+
+        '            '170 = MinFactionId - Not Used
+        '            '171 = MinReputation - Not Used
+        '            '172 = RequiredAuraVision - Not Used
+
+        '            SPELLs(id).InitCustomAttributes()
+
+        '        Catch e As Exception
+        '            Log.WriteLine(LogType.FAILED, "Line {0} caused error: {1}", i, e.ToString)
+        '        End Try
+
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Spells initialized.", spellDBC.Rows - 1)
+        '    spellDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : Spells missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim spellDBC As BufferedDBC = New BufferedDBC("dbc\Spell.dbc")
-            'Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & SpellDBC.GetFileInformation)
             Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
 
+            Dim spellDBC As New DBCTable(DbcDatabase, "dbc_spell")
+
             Dim id As Integer
-            For i As Long = 0 To spellDBC.Rows - 1
-                Try
-                    id = spellDBC.Item(i, 0)
-                    SPELLs(id) = New SpellInfo
-                    SPELLs(id).ID = id
-                    SPELLs(id).School = spellDBC.Item(i, 1)
-                    SPELLs(id).Category = spellDBC.Item(i, 2)
-                    ' 3 = Not Used
-                    SPELLs(id).DispellType = spellDBC.Item(i, 4)
-                    SPELLs(id).Mechanic = spellDBC.Item(i, 5)
-                    SPELLs(id).Attributes = spellDBC.Item(i, 6)
-                    SPELLs(id).AttributesEx = spellDBC.Item(i, 7)
-                    SPELLs(id).AttributesEx2 = spellDBC.Item(i, 8)
-                    ' AttributesEx3 = SpellDBC.Item(i, 9)
-                    ' AttributesEx4 = SpellDBC.Item(i, 10)
-                    SPELLs(id).RequredCasterStance = spellDBC.Item(i, 11) ' RequiredShapeShift
-                    SPELLs(id).ShapeshiftExclude = spellDBC.Item(i, 12)
-                    SPELLs(id).Target = spellDBC.Item(i, 13)
-                    SPELLs(id).TargetCreatureType = spellDBC.Item(i, 14)
-                    SPELLs(id).FocusObjectIndex = spellDBC.Item(i, 15)
-                    SPELLs(id).CasterAuraState = spellDBC.Item(i, 16)
-                    SPELLs(id).TargetAuraState = spellDBC.Item(i, 17)
-                    SPELLs(id).SpellCastTimeIndex = spellDBC.Item(i, 18)
-                    SPELLs(id).SpellCooldown = spellDBC.Item(i, 19)
-                    SPELLs(id).CategoryCooldown = spellDBC.Item(i, 20)
-                    SPELLs(id).interruptFlags = spellDBC.Item(i, 21)
-                    SPELLs(id).auraInterruptFlags = spellDBC.Item(i, 22)
-                    SPELLs(id).channelInterruptFlags = spellDBC.Item(i, 23)
-                    SPELLs(id).procFlags = spellDBC.Item(i, 24)
-                    SPELLs(id).procChance = spellDBC.Item(i, 25)
-                    SPELLs(id).procCharges = spellDBC.Item(i, 26)
-                    SPELLs(id).maxLevel = spellDBC.Item(i, 27)
-                    SPELLs(id).baseLevel = spellDBC.Item(i, 28)
-                    SPELLs(id).spellLevel = spellDBC.Item(i, 29)
-                    SPELLs(id).DurationIndex = spellDBC.Item(i, 30)
-                    SPELLs(id).powerType = spellDBC.Item(i, 31)
-                    SPELLs(id).manaCost = spellDBC.Item(i, 32)
-                    SPELLs(id).manaCostPerlevel = spellDBC.Item(i, 33)
-                    SPELLs(id).manaPerSecond = spellDBC.Item(i, 34)
-                    SPELLs(id).manaPerSecondPerLevel = spellDBC.Item(i, 35)
-                    SPELLs(id).rangeIndex = spellDBC.Item(i, 36)
-                    SPELLs(id).Speed = spellDBC.Item(i, 37, DBCValueType.DBC_FLOAT)
-                    SPELLs(id).modalNextSpell = spellDBC.Item(i, 38) ' Not Used
-                    SPELLs(id).maxStack = spellDBC.Item(i, 39)
-                    SPELLs(id).Totem(0) = spellDBC.Item(i, 40)
-                    SPELLs(id).Totem(1) = spellDBC.Item(i, 41)
+            Dim parseResult As Integer
+            For Each row As DataRow In spellDBC.results.Rows
+                id = row.Item("Unknown0")
+                SPELLs(id) = New SpellInfo
+                SPELLs(id).ID = id
+                SPELLs(id).School = spellDBC.Item(row.Item("Unknown1"))
+                SPELLs(id).Category = spellDBC.Item(row.Item("Unknown2"))
+                SPELLs(id).DispellType = spellDBC.Item(row.Item("Unknown4"))
+                SPELLs(id).Mechanic = spellDBC.Item(row.Item("Unknown5"))
+                SPELLs(id).Attributes = spellDBC.Item(row.Item("Unknown6"))
+                SPELLs(id).AttributesEx = spellDBC.Item(row.Item("Unknown7"))
+                SPELLs(id).AttributesEx2 = spellDBC.Item(row.Item("Unknown8"))
+                SPELLs(id).RequredCasterStance = spellDBC.Item(row.Item("Unknown11")) ' RequiredShapeShift
+                SPELLs(id).ShapeshiftExclude = spellDBC.Item(row.Item("Unknown12"))
+                SPELLs(id).Target = spellDBC.Item(row.Item("Unknown13"))
+                SPELLs(id).TargetCreatureType = spellDBC.Item(row.Item("Unknown14"))
+                SPELLs(id).FocusObjectIndex = spellDBC.Item(row.Item("Unknown15"))
+                SPELLs(id).CasterAuraState = spellDBC.Item(row.Item("Unknown16"))
+                SPELLs(id).TargetAuraState = spellDBC.Item(row.Item("Unknown17"))
+                SPELLs(id).SpellCastTimeIndex = spellDBC.Item(row.Item("Unknown18"))
+                SPELLs(id).SpellCooldown = spellDBC.Item(row.Item("Unknown19"))
+                SPELLs(id).CategoryCooldown = spellDBC.Item(row.Item("Unknown20"))
+                SPELLs(id).interruptFlags = spellDBC.Item(row.Item("Unknown21"))
+                SPELLs(id).auraInterruptFlags = spellDBC.Item(row.Item("Unknown22"))
+                SPELLs(id).channelInterruptFlags = spellDBC.Item(row.Item("Unknown23"))
+                SPELLs(id).procFlags = spellDBC.Item(row.Item("Unknown24"))
+                SPELLs(id).procChance = spellDBC.Item(row.Item("Unknown25"))
+                SPELLs(id).procCharges = spellDBC.Item(row.Item("Unknown26"))
+                SPELLs(id).maxLevel = spellDBC.Item(row.Item("Unknown27"))
+                SPELLs(id).baseLevel = spellDBC.Item(row.Item("Unknown28"))
+                SPELLs(id).spellLevel = spellDBC.Item(row.Item("Unknown29"))
+                SPELLs(id).DurationIndex = spellDBC.Item(row.Item("Unknown30"))
+                SPELLs(id).powerType = spellDBC.Item(row.Item("Unknown31"))
+                SPELLs(id).manaCost = spellDBC.Item(row.Item("Unknown32"))
+                SPELLs(id).manaCostPerlevel = spellDBC.Item(row.Item("Unknown33"))
+                SPELLs(id).manaPerSecond = spellDBC.Item(row.Item("Unknown34"))
+                SPELLs(id).manaPerSecondPerLevel = spellDBC.Item(row.Item("Unknown35"))
+                SPELLs(id).rangeIndex = spellDBC.Item(row.Item("Unknown36"))
+                SPELLs(id).Speed = spellDBC.Item(row.Item("Unknown37"), DBCValueType.DBC_FLOAT)
+                SPELLs(id).modalNextSpell = spellDBC.Item(row.Item("Unknown38")) ' Not Used
+                SPELLs(id).maxStack = spellDBC.Item(row.Item("Unknown39"))
+                SPELLs(id).Totem(0) = spellDBC.Item(row.Item("Unknown40"))
+                SPELLs(id).Totem(1) = spellDBC.Item(row.Item("Unknown41"))
+                SPELLs(id).Reagents(0) = spellDBC.Item(row.Item("Unknown42"))
+                SPELLs(id).Reagents(1) = spellDBC.Item(row.Item("Unknown43"))
+                SPELLs(id).Reagents(2) = spellDBC.Item(row.Item("Unknown44"))
+                SPELLs(id).Reagents(3) = spellDBC.Item(row.Item("Unknown45"))
+                SPELLs(id).Reagents(4) = spellDBC.Item(row.Item("Unknown46"))
+                SPELLs(id).Reagents(5) = spellDBC.Item(row.Item("Unknown47"))
+                SPELLs(id).Reagents(6) = spellDBC.Item(row.Item("Unknown48"))
+                SPELLs(id).Reagents(7) = spellDBC.Item(row.Item("Unknown49"))
+                SPELLs(id).ReagentsCount(0) = spellDBC.Item(row.Item("Unknown50"))
+                SPELLs(id).ReagentsCount(1) = spellDBC.Item(row.Item("Unknown51"))
+                SPELLs(id).ReagentsCount(2) = spellDBC.Item(row.Item("Unknown52"))
+                SPELLs(id).ReagentsCount(3) = spellDBC.Item(row.Item("Unknown53"))
+                SPELLs(id).ReagentsCount(4) = spellDBC.Item(row.Item("Unknown54"))
+                SPELLs(id).ReagentsCount(5) = spellDBC.Item(row.Item("Unknown55"))
+                SPELLs(id).ReagentsCount(6) = spellDBC.Item(row.Item("Unknown56"))
+                SPELLs(id).ReagentsCount(7) = spellDBC.Item(row.Item("Unknown57"))
+                SPELLs(id).EquippedItemClass = spellDBC.Item(row.Item("Unknown58")) 'Value
+                SPELLs(id).EquippedItemSubClass = spellDBC.Item(row.Item("Unknown59")) 'Mask
+                SPELLs(id).EquippedItemInventoryType = spellDBC.Item(row.Item("Unknown60"))
 
-                    '-CORRECT-
-                    SPELLs(id).Reagents(0) = spellDBC.Item(i, 42)
-                    SPELLs(id).Reagents(1) = spellDBC.Item(i, 43)
-                    SPELLs(id).Reagents(2) = spellDBC.Item(i, 44)
-                    SPELLs(id).Reagents(3) = spellDBC.Item(i, 45)
-                    SPELLs(id).Reagents(4) = spellDBC.Item(i, 46)
-                    SPELLs(id).Reagents(5) = spellDBC.Item(i, 47)
-                    SPELLs(id).Reagents(6) = spellDBC.Item(i, 48)
-                    SPELLs(id).Reagents(7) = spellDBC.Item(i, 49)
+                If CInt(spellDBC.Item(row.Item("Unknown61"))) <> 0 Then
+                    SPELLs(id).SpellEffects(0) = New SpellEffect(SPELLs(id))
 
-                    SPELLs(id).ReagentsCount(0) = spellDBC.Item(i, 50)
-                    SPELLs(id).ReagentsCount(1) = spellDBC.Item(i, 51)
-                    SPELLs(id).ReagentsCount(2) = spellDBC.Item(i, 52)
-                    SPELLs(id).ReagentsCount(3) = spellDBC.Item(i, 53)
-                    SPELLs(id).ReagentsCount(4) = spellDBC.Item(i, 54)
-                    SPELLs(id).ReagentsCount(5) = spellDBC.Item(i, 55)
-                    SPELLs(id).ReagentsCount(6) = spellDBC.Item(i, 56)
-                    SPELLs(id).ReagentsCount(7) = spellDBC.Item(i, 57)
-                    '-/CORRECT-
+                    SPELLs(id).SpellEffects(0).ID = spellDBC.Item(row.Item("Unknown61"))
+                    SPELLs(id).SpellEffects(0).valueDie = spellDBC.Item(row.Item("Unknown64"))
+                    'SPELLs(id).SpellEffects(0).diceBase = If(Integer.TryParse(row.Item("col67").ToString(), parseResult), Integer.Parse(row.Item("col67").ToString()), 0)
+                    SPELLs(id).SpellEffects(0).diceBase = If(Integer.TryParse(spellDBC.Item(row.Item("Unknown67"), DBCValueType.DBC_STRING), parseResult), Integer.Parse(spellDBC.Item(row.Item("Unknown67"), DBCValueType.DBC_STRING)), 0)
+                    SPELLs(id).SpellEffects(0).dicePerLevel = spellDBC.Item(row.Item("Unknown70"), DBCValueType.DBC_FLOAT)
+                    SPELLs(id).SpellEffects(0).valuePerLevel = spellDBC.Item(row.Item("Unknown73"), DBCValueType.DBC_FLOAT)
+                    SPELLs(id).SpellEffects(0).valueBase = spellDBC.Item(row.Item("Unknown76"))
+                    SPELLs(id).SpellEffects(0).Mechanic = spellDBC.Item(row.Item("Unknown79"))
+                    SPELLs(id).SpellEffects(0).implicitTargetA = spellDBC.Item(row.Item("Unknown82"))
+                    SPELLs(id).SpellEffects(0).implicitTargetB = spellDBC.Item(row.Item("Unknown85"))
+                    SPELLs(id).SpellEffects(0).RadiusIndex = spellDBC.Item(row.Item("Unknown88")) ' spellradius.dbc
+                    SPELLs(id).SpellEffects(0).ApplyAuraIndex = spellDBC.Item(row.Item("Unknown91"))
+                    SPELLs(id).SpellEffects(0).Amplitude = spellDBC.Item(row.Item("Unknown94"))
+                    SPELLs(id).SpellEffects(0).MultipleValue = spellDBC.Item(row.Item("Unknown97"))
+                    SPELLs(id).SpellEffects(0).ChainTarget = spellDBC.Item(row.Item("Unknown100"))
+                    SPELLs(id).SpellEffects(0).ItemType = spellDBC.Item(row.Item("Unknown103"))
+                    SPELLs(id).SpellEffects(0).MiscValue = spellDBC.Item(row.Item("Unknown106"))
+                    SPELLs(id).SpellEffects(0).TriggerSpell = spellDBC.Item(row.Item("Unknown109"))
+                    SPELLs(id).SpellEffects(0).valuePerComboPoint = spellDBC.Item(row.Item("Unknown112"))
+                Else
+                    SPELLs(id).SpellEffects(0) = Nothing
+                End If
 
-                    SPELLs(id).EquippedItemClass = spellDBC.Item(i, 58) 'Value
-                    SPELLs(id).EquippedItemSubClass = spellDBC.Item(i, 59) 'Mask
-                    SPELLs(id).EquippedItemInventoryType = spellDBC.Item(i, 60) 'Mask
+                If CInt(spellDBC.Item(row.Item("Unknown62"))) <> 0 Then
+                    SPELLs(id).SpellEffects(1) = New SpellEffect(SPELLs(id))
 
-                    For j As Integer = 0 To 2
-                        If CInt(spellDBC.Item(i, 61 + j)) <> 0 Then
-                            SPELLs(id).SpellEffects(j) = New SpellEffect(SPELLs(id))
+                    SPELLs(id).SpellEffects(1).ID = spellDBC.Item(row.Item("Unknown62"))
+                    SPELLs(id).SpellEffects(1).valueDie = spellDBC.Item(row.Item("Unknown65"))
+                    'SPELLs(id).SpellEffects(1).diceBase = If(Integer.TryParse(row.Item("col68").ToString(), parseResult), Integer.Parse(row.Item("col68").ToString()), 0)
+                    SPELLs(id).SpellEffects(1).diceBase = If(Integer.TryParse(spellDBC.Item(row.Item("Unknown68"), DBCValueType.DBC_STRING), parseResult), Integer.Parse(spellDBC.Item(row.Item("Unknown68"), DBCValueType.DBC_STRING)), 0)
+                    SPELLs(id).SpellEffects(1).dicePerLevel = spellDBC.Item(row.Item("Unknown71"), DBCValueType.DBC_FLOAT)
+                    SPELLs(id).SpellEffects(1).valuePerLevel = spellDBC.Item(row.Item("Unknown74"), DBCValueType.DBC_FLOAT)
+                    SPELLs(id).SpellEffects(1).valueBase = spellDBC.Item(row.Item("Unknown77"))
+                    SPELLs(id).SpellEffects(1).Mechanic = spellDBC.Item(row.Item("Unknown80"))
+                    SPELLs(id).SpellEffects(1).implicitTargetA = spellDBC.Item(row.Item("Unknown83"))
+                    SPELLs(id).SpellEffects(1).implicitTargetB = spellDBC.Item(row.Item("Unknown86"))
+                    SPELLs(id).SpellEffects(1).RadiusIndex = spellDBC.Item(row.Item("Unknown89")) ' spellradius.dbc
+                    SPELLs(id).SpellEffects(1).ApplyAuraIndex = spellDBC.Item(row.Item("Unknown92"))
+                    SPELLs(id).SpellEffects(1).Amplitude = spellDBC.Item(row.Item("Unknown95"))
+                    SPELLs(id).SpellEffects(1).MultipleValue = spellDBC.Item(row.Item("Unknown98"))
+                    SPELLs(id).SpellEffects(1).ChainTarget = spellDBC.Item(row.Item("Unknown101"))
+                    SPELLs(id).SpellEffects(1).ItemType = spellDBC.Item(row.Item("Unknown104"))
+                    SPELLs(id).SpellEffects(1).MiscValue = spellDBC.Item(row.Item("Unknown107"))
+                    SPELLs(id).SpellEffects(1).TriggerSpell = spellDBC.Item(row.Item("Unknown110"))
+                    SPELLs(id).SpellEffects(1).valuePerComboPoint = spellDBC.Item(row.Item("Unknown113"))
+                Else
+                    SPELLs(id).SpellEffects(1) = Nothing
+                End If
 
-                            SPELLs(id).SpellEffects(j).ID = spellDBC.Item(i, 61 + j)
-                            SPELLs(id).SpellEffects(j).valueDie = spellDBC.Item(i, 64 + j)
-                            SPELLs(id).SpellEffects(j).diceBase = spellDBC.Item(i, 67 + j)
-                            SPELLs(id).SpellEffects(j).dicePerLevel = spellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT)
-                            SPELLs(id).SpellEffects(j).valuePerLevel = spellDBC.Item(i, 73 + j, DBCValueType.DBC_FLOAT)
-                            SPELLs(id).SpellEffects(j).valueBase = spellDBC.Item(i, 76 + j)
-                            SPELLs(id).SpellEffects(j).Mechanic = spellDBC.Item(i, 79 + j)
-                            SPELLs(id).SpellEffects(j).implicitTargetA = spellDBC.Item(i, 82 + j)
-                            SPELLs(id).SpellEffects(j).implicitTargetB = spellDBC.Item(i, 85 + j)
-                            SPELLs(id).SpellEffects(j).RadiusIndex = spellDBC.Item(i, 88 + j) ' spellradius.dbc
-                            SPELLs(id).SpellEffects(j).ApplyAuraIndex = spellDBC.Item(i, 91 + j)
-                            SPELLs(id).SpellEffects(j).Amplitude = spellDBC.Item(i, 94 + j)
-                            SPELLs(id).SpellEffects(j).MultipleValue = spellDBC.Item(i, 97 + j)
-                            SPELLs(id).SpellEffects(j).ChainTarget = spellDBC.Item(i, 100 + j)
-                            SPELLs(id).SpellEffects(j).ItemType = spellDBC.Item(i, 103 + j)
-                            SPELLs(id).SpellEffects(j).MiscValue = spellDBC.Item(i, 106 + j)
-                            SPELLs(id).SpellEffects(j).TriggerSpell = spellDBC.Item(i, 109 + j)
-                            SPELLs(id).SpellEffects(j).valuePerComboPoint = spellDBC.Item(i, 112 + j)
-                        Else
-                            SPELLs(id).SpellEffects(j) = Nothing
-                        End If
-                    Next
+                If CInt(spellDBC.Item(row.Item("Unknown63"))) <> 0 Then
+                    SPELLs(id).SpellEffects(2) = New SpellEffect(SPELLs(id))
 
-                    SPELLs(id).SpellVisual = spellDBC.Item(i, 115)
-                    '116 = Always zero? - SpellVisual2 - Not Used
-                    SPELLs(id).SpellIconID = spellDBC.Item(i, 117)
-                    SPELLs(id).ActiveIconID = spellDBC.Item(i, 118)
-                    '119 = spellPriority
-                    SPELLs(id).Name = spellDBC.Item(i, 120, DBCValueType.DBC_STRING)
-                    '121 = Always zero?
-                    '122 = Always zero?
-                    '123 = Always zero?
-                    '124 = Always zero?
-                    '125 = Always zero?
-                    '126 = Always zero?
-                    '127 = Always zero?
-                    '128 = Always zero?
-                    SPELLs(id).Rank = spellDBC.Item(i, 129, DBCValueType.DBC_STRING)
-                    '130 = Always zero?
-                    '131 = Always zero?
-                    '132 = Always zero?
-                    '133 = Always zero?
-                    '134 = Always zero?
-                    '135 = Always zero?
-                    '136 = Always zero?
-                    '137 = RankFlags
-                    '138 = Description - Not Used
-                    '139 = Always zero?
-                    '140 = Always zero?
-                    '141 = Always zero?
-                    '142 = Always zero?
-                    '143 = Always zero?
-                    '144 = Always zero?
-                    '145 = Always zero?
-                    '146 = DescriptionFlags - Not Used
-                    '147 = ToolTip - Not USed
-                    '148 = Always zero?
-                    '149 = Always zero?
-                    '150 = Always zero?
-                    '151 = Always zero?
-                    '152 = Always zero?
-                    '153 = Always zero?
-                    '154 = Always zero?
-                    '155 = ToolTipFlags - Not Used
-                    SPELLs(id).manaCostPercent = spellDBC.Item(i, 156)
-                    SPELLs(id).StartRecoveryCategory = spellDBC.Item(i, 157)
-                    SPELLs(id).StartRecoveryTime = spellDBC.Item(i, 158)
-                    SPELLs(id).AffectedTargetLevel = spellDBC.Item(i, 159)
-                    SPELLs(id).SpellFamilyName = spellDBC.Item(i, 160)
-                    SPELLs(id).SpellFamilyFlags = spellDBC.Item(i, 161) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
-                    SPELLs(id).MaxTargets = spellDBC.Item(i, 163)
-                    SPELLs(id).DamageType = spellDBC.Item(i, 164) ' defenseType
-                    'SPELLs(ID).PreventionType = SpellDBC.Item(i, 165)
-                    '166 = StanceBarOrder - Not Used
+                    SPELLs(id).SpellEffects(2).ID = spellDBC.Item(row.Item("Unknown63"))
+                    'SPELLs(id).SpellEffects(2).valueDie = If(Integer.TryParse(row.Item("col66").ToString(), parseResult), Integer.Parse(row.Item("col66").ToString()), 0)
+                    'SPELLs(id).SpellEffects(2).diceBase = If(Integer.TryParse(row.Item("col69").ToString(), parseResult), Integer.Parse(row.Item("col69").ToString()), 0)
+                    SPELLs(id).SpellEffects(2).valueDie = If(Integer.TryParse(spellDBC.Item(row.Item("Unknown66"), DBCValueType.DBC_STRING), parseResult), Integer.Parse(spellDBC.Item(row.Item("Unknown66"), DBCValueType.DBC_STRING)), 0)
+                    SPELLs(id).SpellEffects(2).diceBase = If(Integer.TryParse(spellDBC.Item(row.Item("Unknown69"), DBCValueType.DBC_STRING), parseResult), Integer.Parse(spellDBC.Item(row.Item("Unknown69"), DBCValueType.DBC_STRING)), 0)
+                    SPELLs(id).SpellEffects(2).dicePerLevel = spellDBC.Item(row.Item("Unknown72"), DBCValueType.DBC_FLOAT)
+                    SPELLs(id).SpellEffects(2).valuePerLevel = spellDBC.Item(row.Item("Unknown75"), DBCValueType.DBC_FLOAT)
+                    SPELLs(id).SpellEffects(2).valueBase = spellDBC.Item(row.Item("Unknown78"))
+                    SPELLs(id).SpellEffects(2).Mechanic = spellDBC.Item(row.Item("Unknown81"))
+                    SPELLs(id).SpellEffects(2).implicitTargetA = spellDBC.Item(row.Item("Unknown84"))
+                    SPELLs(id).SpellEffects(2).implicitTargetB = spellDBC.Item(row.Item("Unknown87"))
+                    SPELLs(id).SpellEffects(2).RadiusIndex = spellDBC.Item(row.Item("Unknown90")) ' spellradius.dbc
+                    SPELLs(id).SpellEffects(2).ApplyAuraIndex = spellDBC.Item(row.Item("Unknown93"))
+                    SPELLs(id).SpellEffects(2).Amplitude = spellDBC.Item(row.Item("Unknown96"))
+                    SPELLs(id).SpellEffects(2).MultipleValue = spellDBC.Item(row.Item("Unknown99"))
+                    SPELLs(id).SpellEffects(2).ChainTarget = spellDBC.Item(row.Item("Unknown102"))
+                    SPELLs(id).SpellEffects(2).ItemType = spellDBC.Item(row.Item("Unknown105"))
+                    SPELLs(id).SpellEffects(2).MiscValue = spellDBC.Item(row.Item("Unknown108"))
+                    SPELLs(id).SpellEffects(2).TriggerSpell = spellDBC.Item(row.Item("Unknown111"))
+                    SPELLs(id).SpellEffects(2).valuePerComboPoint = spellDBC.Item(row.Item("Unknown114"))
+                Else
+                    SPELLs(id).SpellEffects(2) = Nothing
+                End If
 
-                    For j As Integer = 0 To 2
-                        If SPELLs(id).SpellEffects(j) IsNot Nothing Then
-                            SPELLs(id).SpellEffects(j).DamageMultiplier = spellDBC.Item(i, 167 + j, DBCValueType.DBC_FLOAT)
-                        End If
-                    Next
+                SPELLs(id).SpellVisual = spellDBC.Item(row.Item("Unknown115"))
+                SPELLs(id).SpellIconID = spellDBC.Item(row.Item("Unknown117"))
+                SPELLs(id).ActiveIconID = spellDBC.Item(row.Item("Unknown118"))
+                SPELLs(id).Name = spellDBC.Item(row.Item("Unknown120"), DBCValueType.DBC_STRING)
+                SPELLs(id).Rank = spellDBC.Item(row.Item("Unknown129"), DBCValueType.DBC_STRING)
+                SPELLs(id).manaCostPercent = spellDBC.Item(row.Item("Unknown156"))
+                SPELLs(id).StartRecoveryCategory = spellDBC.Item(row.Item("Unknown157"))
+                SPELLs(id).StartRecoveryTime = spellDBC.Item(row.Item("Unknown158"))
+                SPELLs(id).AffectedTargetLevel = spellDBC.Item(row.Item("Unknown159"))
+                SPELLs(id).SpellFamilyName = spellDBC.Item(row.Item("Unknown160"))
+                SPELLs(id).SpellFamilyFlags = spellDBC.Item(row.Item("Unknown161")) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
+                'SPELLs(id).MaxTargets = If(Integer.TryParse(row.Item("col163").ToString(), parseResult), Integer.Parse(row.Item("col163").ToString()), 0)
+                SPELLs(id).MaxTargets = If(Integer.TryParse(spellDBC.Item(row.Item("Unknown163"), DBCValueType.DBC_STRING), parseResult), Integer.Parse(spellDBC.Item(row.Item("Unknown163"), DBCValueType.DBC_STRING)), 0)
+                SPELLs(id).DamageType = spellDBC.Item(row.Item("Unknown164")) ' defenseType
 
-                    '170 = MinFactionId - Not Used
-                    '171 = MinReputation - Not Used
-                    '172 = RequiredAuraVision - Not Used
+                If SPELLs(id).SpellEffects(0) IsNot Nothing Then
+                    SPELLs(id).SpellEffects(0).DamageMultiplier = spellDBC.Item(row.Item("Unknown167"), DBCValueType.DBC_FLOAT)
+                End If
 
-                    SPELLs(id).InitCustomAttributes()
+                If SPELLs(id).SpellEffects(1) IsNot Nothing Then
+                    SPELLs(id).SpellEffects(1).DamageMultiplier = spellDBC.Item(row.Item("Unknown168"), DBCValueType.DBC_FLOAT)
+                End If
 
-                Catch e As Exception
-                    Log.WriteLine(LogType.FAILED, "Line {0} caused error: {1}", i, e.ToString)
-                End Try
+                If SPELLs(id).SpellEffects(2) IsNot Nothing Then
+                    SPELLs(id).SpellEffects(2).DamageMultiplier = spellDBC.Item(row.Item("Unknown169"), DBCValueType.DBC_FLOAT)
+                End If
 
-            Next i
+                SPELLs(id).InitCustomAttributes()
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Spells initialized.", spellDBC.Rows - 1)
-            spellDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Next
+
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Spells Initialized.", spellDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : Spells missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing Spells DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeSpellChains()
+
         Try
             Dim spellChainQuery As New DataTable
             WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", spellChainQuery)
@@ -367,13 +690,47 @@ Public Module WS_DBCLoad
             Console.WriteLine("Database : SpellChains missing.")
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "Taxi"
     Public Sub InitializeTaxiNodes()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiNodes.dbc")
+
+        '    Dim taxiPosX As Single
+        '    Dim taxiPosY As Single
+        '    Dim taxiPosZ As Single
+        '    Dim taxiMapID As Integer
+        '    Dim taxiNode As Integer
+        '    Dim taxiMountTypeHorde As Integer
+        '    Dim taxiMountTypeAlliance As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        taxiNode = tmpDBC.Item(i, 0)
+        '        taxiMapID = tmpDBC.Item(i, 1)
+        '        taxiPosX = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
+        '        taxiPosY = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT)
+        '        taxiPosZ = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
+        '        taxiMountTypeHorde = tmpDBC.Item(i, 14)
+        '        taxiMountTypeAlliance = tmpDBC.Item(i, 15)
+
+        '        If Config.Maps.Contains(taxiMapID.ToString) Then
+        '            TaxiNodes.Add(taxiNode, New TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountTypeHorde, taxiMountTypeAlliance))
+        '        End If
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiNodes initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : TaxiNodes missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiNodes.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_taxinodes")
 
             Dim taxiPosX As Single
             Dim taxiPosY As Single
@@ -383,62 +740,127 @@ Public Module WS_DBCLoad
             Dim taxiMountTypeHorde As Integer
             Dim taxiMountTypeAlliance As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                taxiNode = tmpDBC.Item(i, 0)
-                taxiMapID = tmpDBC.Item(i, 1)
-                taxiPosX = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
-                taxiPosY = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT)
-                taxiPosZ = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
-                taxiMountTypeHorde = tmpDBC.Item(i, 14)
-                taxiMountTypeAlliance = tmpDBC.Item(i, 15)
+            For Each row As DataRow In tmpDBC.results.Rows
+                taxiNode = tmpDBC.Item(row.Item("ID"))
+                taxiMapID = tmpDBC.Item(row.Item("MapId"))
+                taxiPosX = tmpDBC.Item(row.Item("LocationX"), DBCValueType.DBC_FLOAT)
+                taxiPosY = tmpDBC.Item(row.Item("LocationY"), DBCValueType.DBC_FLOAT)
+                taxiPosZ = tmpDBC.Item(row.Item("LocationZ"), DBCValueType.DBC_FLOAT)
+                taxiMountTypeHorde = tmpDBC.Item(row.Item("mountCreatureDisplayInfoID1"))
+                taxiMountTypeAlliance = tmpDBC.Item(row.Item("mountCreatureDisplayInfoID2"))
 
                 If Config.Maps.Contains(taxiMapID.ToString) Then
                     TaxiNodes.Add(taxiNode, New TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountTypeHorde, taxiMountTypeAlliance))
                 End If
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiNodes initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} TaxiNodes Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : TaxiNodes missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing TaxiNodes DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeTaxiPaths()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPath.dbc")
+
+        '    Dim taxiNode As Integer
+        '    Dim taxiFrom As Integer
+        '    Dim taxiTo As Integer
+        '    Dim taxiPrice As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        taxiNode = tmpDBC.Item(i, 0)
+        '        taxiFrom = tmpDBC.Item(i, 1)
+        '        taxiTo = tmpDBC.Item(i, 2)
+        '        taxiPrice = tmpDBC.Item(i, 3)
+
+        '        TaxiPaths.Add(taxiNode, New TTaxiPath(taxiFrom, taxiTo, taxiPrice))
+
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPaths initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : TaxiPath missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPath.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_taxipath")
 
             Dim taxiNode As Integer
             Dim taxiFrom As Integer
             Dim taxiTo As Integer
             Dim taxiPrice As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                taxiNode = tmpDBC.Item(i, 0)
-                taxiFrom = tmpDBC.Item(i, 1)
-                taxiTo = tmpDBC.Item(i, 2)
-                taxiPrice = tmpDBC.Item(i, 3)
+            For Each row As DataRow In tmpDBC.results.Rows
+                taxiNode = tmpDBC.Item(row.Item("ID"))
+                taxiFrom = tmpDBC.Item(row.Item("sourceTaxiNodeID"))
+                taxiTo = tmpDBC.Item(row.Item("destinationTaxiNodeID"))
+                taxiPrice = tmpDBC.Item(row.Item("Cost"))
 
                 TaxiPaths.Add(taxiNode, New TTaxiPath(taxiFrom, taxiTo, taxiPrice))
 
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPaths initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} TaxiPaths Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : TaxiPath missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing TaxiPaths DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeTaxiPathNodes()
-        Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPathNode.dbc")
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPathNode.dbc")
 
-            'Dim taxiNode As Integer
+        '    'Dim taxiNode As Integer
+        '    Dim taxiPath As Integer
+        '    Dim taxiSeq As Integer
+        '    Dim taxiMapID As Integer
+        '    Dim taxiPosX As Single
+        '    Dim taxiPosY As Single
+        '    Dim taxiPosZ As Single
+        '    Dim taxiAction As Integer
+        '    Dim taxiWait As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        'taxiNode = tmpDBC.Item(i, 0)
+        '        taxiPath = tmpDBC.Item(i, 1)
+        '        taxiSeq = tmpDBC.Item(i, 2)
+        '        taxiMapID = tmpDBC.Item(i, 3)
+        '        taxiPosX = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
+        '        taxiPosY = tmpDBC.Item(i, 5, DBCValueType.DBC_FLOAT)
+        '        taxiPosZ = tmpDBC.Item(i, 6, DBCValueType.DBC_FLOAT)
+        '        taxiAction = tmpDBC.Item(i, 7)
+        '        taxiWait = tmpDBC.Item(i, 8)
+
+        '        If Config.Maps.Contains(taxiMapID.ToString) Then
+        '            If TaxiPathNodes.ContainsKey(taxiPath) = False Then
+        '                TaxiPathNodes.Add(taxiPath, New Dictionary(Of Integer, TTaxiPathNode))
+        '            End If
+        '            TaxiPathNodes(taxiPath).Add(taxiSeq, New TTaxiPathNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiPath, taxiSeq, taxiAction, taxiWait))
+        '        End If
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPathNodes initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : TaxiPathNode missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
+        Try
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_taxipathnode")
+
             Dim taxiPath As Integer
             Dim taxiSeq As Integer
             Dim taxiMapID As Integer
@@ -448,16 +870,15 @@ Public Module WS_DBCLoad
             Dim taxiAction As Integer
             Dim taxiWait As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                'taxiNode = tmpDBC.Item(i, 0)
-                taxiPath = tmpDBC.Item(i, 1)
-                taxiSeq = tmpDBC.Item(i, 2)
-                taxiMapID = tmpDBC.Item(i, 3)
-                taxiPosX = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
-                taxiPosY = tmpDBC.Item(i, 5, DBCValueType.DBC_FLOAT)
-                taxiPosZ = tmpDBC.Item(i, 6, DBCValueType.DBC_FLOAT)
-                taxiAction = tmpDBC.Item(i, 7)
-                taxiWait = tmpDBC.Item(i, 8)
+            For Each row As DataRow In tmpDBC.results.Rows
+                taxiPath = tmpDBC.Item(row.Item("taxiPathID"))
+                taxiSeq = tmpDBC.Item(row.Item("NodeIndex"))
+                taxiMapID = tmpDBC.Item(row.Item("MapId"))
+                taxiPosX = tmpDBC.Item(row.Item("LocationX"), DBCValueType.DBC_FLOAT)
+                taxiPosY = tmpDBC.Item(row.Item("LocationY"), DBCValueType.DBC_FLOAT)
+                taxiPosZ = tmpDBC.Item(row.Item("LocationZ"), DBCValueType.DBC_FLOAT)
+                taxiAction = tmpDBC.Item(row.Item("flags"))
+                taxiWait = tmpDBC.Item(row.Item("delay"))
 
                 If Config.Maps.Contains(taxiMapID.ToString) Then
                     If TaxiPathNodes.ContainsKey(taxiPath) = False Then
@@ -465,89 +886,175 @@ Public Module WS_DBCLoad
                     End If
                     TaxiPathNodes(taxiPath).Add(taxiSeq, New TTaxiPathNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiPath, taxiSeq, taxiAction, taxiWait))
                 End If
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPathNodes initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} TaxiPathNodes Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : TaxiPathNode missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing TaxiPathNodes DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "Skills"
     Public Sub InitializeSkillLines()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLine.dbc")
+
+        '    Dim skillID As Integer
+        '    Dim skillLine As Integer
+        '    'Dim skillUnk1 As Integer
+        '    'Dim skillName As String
+        '    'Dim skillDescription As String
+        '    'Dim skillSpellIcon As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        skillID = tmpDBC.Item(i, 0)
+        '        skillLine = tmpDBC.Item(i, 1) ' Type or Category?
+        '        'skillUnk1 = tmpDBC.Item(i, 2) ' May be needed in the future
+        '        'skillName = tmpDBC.Item(i, 3) ' May be needed in the future
+        '        'skillName = tmpDBC.Item(i, 3, DBCValueType.DBC_STRING)
+        '        'skillDescription = tmpDBC.Item(i, 12, DBCValueType.DBC_STRING)
+        '        'skillSpellIcon = tmpDBC.Item(i, 21)
+
+        '        SkillLines(skillID) = skillLine
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SkillLines missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLine.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_skillline")
 
             Dim skillID As Integer
             Dim skillLine As Integer
-            'Dim skillUnk1 As Integer
-            'Dim skillName As String
-            'Dim skillDescription As String
-            'Dim skillSpellIcon As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                skillID = tmpDBC.Item(i, 0)
-                skillLine = tmpDBC.Item(i, 1) ' Type or Category?
-                'skillUnk1 = tmpDBC.Item(i, 2) ' May be needed in the future
-                'skillName = tmpDBC.Item(i, 3) ' May be needed in the future
-                'skillName = tmpDBC.Item(i, 3, DBCValueType.DBC_STRING)
-                'skillDescription = tmpDBC.Item(i, 12, DBCValueType.DBC_STRING)
-                'skillSpellIcon = tmpDBC.Item(i, 21)
+            For Each row As DataRow In tmpDBC.results.Rows
+                skillID = tmpDBC.Item(row.Item("Unknown0"))
+                skillLine = tmpDBC.Item(row.Item("Unknown1"))
 
                 SkillLines(skillID) = skillLine
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SkillLines Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SkillLines missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SkillLines DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeSkillLineAbility()
-        Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLineAbility.dbc")
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLineAbility.dbc")
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        Dim tmpSkillLineAbility As New TSkillLineAbility
+
+        '        tmpSkillLineAbility.ID = tmpDBC.Item(i, 0)
+        '        tmpSkillLineAbility.SkillID = tmpDBC.Item(i, 1)
+        '        tmpSkillLineAbility.SpellID = tmpDBC.Item(i, 2)
+        '        tmpSkillLineAbility.Unknown1 = tmpDBC.Item(i, 3) ' May be needed in the future
+        '        tmpSkillLineAbility.Unknown2 = tmpDBC.Item(i, 4) ' May be needed in the future
+        '        tmpSkillLineAbility.Unknown3 = tmpDBC.Item(i, 5) ' May be needed in the future
+        '        tmpSkillLineAbility.Unknown4 = tmpDBC.Item(i, 6) ' May be needed in the future
+        '        tmpSkillLineAbility.Required_Skill_Value = tmpDBC.Item(i, 7)
+        '        tmpSkillLineAbility.Forward_SpellID = tmpDBC.Item(i, 8)
+        '        tmpSkillLineAbility.Unknown5 = tmpDBC.Item(i, 9) ' May be needed in the future
+        '        tmpSkillLineAbility.Max_Value = tmpDBC.Item(i, 10)
+        '        tmpSkillLineAbility.Min_Value = tmpDBC.Item(i, 11)
+
+        '        SkillLineAbility.Add(tmpSkillLineAbility.ID, tmpSkillLineAbility)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SkillLineAbility missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
+        Try
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_skilllineability")
+
+            For Each row As DataRow In tmpDBC.results.Rows
                 Dim tmpSkillLineAbility As New TSkillLineAbility
 
-                tmpSkillLineAbility.ID = tmpDBC.Item(i, 0)
-                tmpSkillLineAbility.SkillID = tmpDBC.Item(i, 1)
-                tmpSkillLineAbility.SpellID = tmpDBC.Item(i, 2)
-                tmpSkillLineAbility.Unknown1 = tmpDBC.Item(i, 3) ' May be needed in the future
-                tmpSkillLineAbility.Unknown2 = tmpDBC.Item(i, 4) ' May be needed in the future
-                tmpSkillLineAbility.Unknown3 = tmpDBC.Item(i, 5) ' May be needed in the future
-                tmpSkillLineAbility.Unknown4 = tmpDBC.Item(i, 6) ' May be needed in the future
-                tmpSkillLineAbility.Required_Skill_Value = tmpDBC.Item(i, 7)
-                tmpSkillLineAbility.Forward_SpellID = tmpDBC.Item(i, 8)
-                tmpSkillLineAbility.Unknown5 = tmpDBC.Item(i, 9) ' May be needed in the future
-                tmpSkillLineAbility.Max_Value = tmpDBC.Item(i, 10)
-                tmpSkillLineAbility.Min_Value = tmpDBC.Item(i, 11)
+                tmpSkillLineAbility.ID = tmpDBC.Item(row.Item("ID"))
+                tmpSkillLineAbility.SkillID = tmpDBC.Item(row.Item("skillLine"))
+                tmpSkillLineAbility.SpellID = tmpDBC.Item(row.Item("spell"))
+                tmpSkillLineAbility.Unknown1 = tmpDBC.Item(row.Item("raceMask")) ' May be needed in the future
+                tmpSkillLineAbility.Unknown2 = tmpDBC.Item(row.Item("classMask")) ' May be needed in the future
+                tmpSkillLineAbility.Unknown3 = tmpDBC.Item(row.Item("excludeRace")) ' May be needed in the future
+                tmpSkillLineAbility.Unknown4 = tmpDBC.Item(row.Item("excludeClass")) ' May be needed in the future
+                tmpSkillLineAbility.Required_Skill_Value = tmpDBC.Item(row.Item("minSkillLineRank"))
+                tmpSkillLineAbility.Forward_SpellID = tmpDBC.Item(row.Item("supercededBySpell"))
+                tmpSkillLineAbility.Unknown5 = tmpDBC.Item(row.Item("aquireMethod")) ' May be needed in the future
+                tmpSkillLineAbility.Max_Value = tmpDBC.Item(row.Item("trivialSkillLineRankHigh"))
+                tmpSkillLineAbility.Min_Value = tmpDBC.Item(row.Item("trivialSkillLineRankLow"))
 
                 SkillLineAbility.Add(tmpSkillLineAbility.ID, tmpSkillLineAbility)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SkillLineAbilitys Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SkillLineAbility missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SkillLineAbilitys DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
 #End Region
 
 #Region "Locks"
     Public Sub InitializeLocks()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Lock.dbc")
+
+        '    Dim lockID As Integer
+        '    Dim keyType(4) As Byte
+        '    Dim key(4) As Integer
+        '    Dim reqMining As Integer
+        '    Dim reqLockSkill As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        lockID = tmpDBC.Item(i, 0)
+        '        keyType(0) = CByte(tmpDBC.Item(i, 1))
+        '        keyType(1) = CByte(tmpDBC.Item(i, 2))
+        '        keyType(2) = CByte(tmpDBC.Item(i, 3))
+        '        keyType(3) = CByte(tmpDBC.Item(i, 4))
+        '        keyType(4) = CByte(tmpDBC.Item(i, 5))
+        '        key(0) = tmpDBC.Item(i, 9)
+        '        key(1) = tmpDBC.Item(i, 10)
+        '        key(2) = tmpDBC.Item(i, 11)
+        '        key(3) = tmpDBC.Item(i, 12)
+        '        key(4) = tmpDBC.Item(i, 13)
+        '        reqMining = tmpDBC.Item(i, 17) ' Not sure about this one leaving it like it is
+        '        reqLockSkill = tmpDBC.Item(i, 17)
+
+        '        Locks(lockID) = New TLock(keyType, key, reqMining, reqLockSkill)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : Locks missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Lock.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_lock")
 
             Dim lockID As Integer
             Dim keyType(4) As Byte
@@ -555,38 +1062,89 @@ Public Module WS_DBCLoad
             Dim reqMining As Integer
             Dim reqLockSkill As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                lockID = tmpDBC.Item(i, 0)
-                keyType(0) = CByte(tmpDBC.Item(i, 1))
-                keyType(1) = CByte(tmpDBC.Item(i, 2))
-                keyType(2) = CByte(tmpDBC.Item(i, 3))
-                keyType(3) = CByte(tmpDBC.Item(i, 4))
-                keyType(4) = CByte(tmpDBC.Item(i, 5))
-                key(0) = tmpDBC.Item(i, 9)
-                key(1) = tmpDBC.Item(i, 10)
-                key(2) = tmpDBC.Item(i, 11)
-                key(3) = tmpDBC.Item(i, 12)
-                key(4) = tmpDBC.Item(i, 13)
-                reqMining = tmpDBC.Item(i, 17) ' Not sure about this one leaving it like it is
-                reqLockSkill = tmpDBC.Item(i, 17)
+            For Each row As DataRow In tmpDBC.results.Rows
+                lockID = tmpDBC.Item(row.Item("ID"))
+                keyType(0) = tmpDBC.Item(row.Item("Type1"))
+                keyType(1) = tmpDBC.Item(row.Item("Type2"))
+                keyType(2) = tmpDBC.Item(row.Item("Type3"))
+                keyType(3) = tmpDBC.Item(row.Item("Type4"))
+                keyType(4) = tmpDBC.Item(row.Item("Type5"))
+                key(0) = tmpDBC.Item(row.Item("Lock_Properties1"))
+                key(1) = tmpDBC.Item(row.Item("Lock_Properties2"))
+                key(2) = tmpDBC.Item(row.Item("Lock_Properties3"))
+                key(3) = tmpDBC.Item(row.Item("Lock_Properties4"))
+                key(4) = tmpDBC.Item(row.Item("Lock_Properties5"))
+                reqMining = tmpDBC.Item(row.Item("Required_Skill1")) ' Not sure about this one leaving it like it is
+                reqLockSkill = tmpDBC.Item(row.Item("Required_Skill1"))
 
                 Locks(lockID) = New TLock(keyType, key, reqMining, reqLockSkill)
-            Next i
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Next
+
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Locks Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : Locks missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing Locks DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "AreaTable"
     Public Sub InitializeAreaTable()
+        'Try
+        '    Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\AreaTable.dbc")
+
+        '    Dim areaID As Integer
+        '    Dim areaMapID As Integer
+        '    Dim areaExploreFlag As Integer
+        '    Dim areaLevel As Integer
+        '    Dim areaZone As Integer
+        '    Dim areaZoneType As Integer
+        '    'Dim areaEXP As Integer
+        '    'Dim areaTeam As Integer
+        '    'Dim areaName As String
+
+        '    For i As Integer = 0 To tmpDbc.Rows - 1
+        '        areaID = tmpDbc.Item(i, 0)
+        '        areaMapID = tmpDbc.Item(i, 1) ' May be needed in the future
+        '        areaZone = tmpDbc.Item(i, 2)    'Parent Map
+        '        areaExploreFlag = tmpDbc.Item(i, 3)
+        '        areaZoneType = tmpDbc.Item(i, 4) ' 312 For Cities - Flags
+        '        ' 5        m_SoundProviderPref
+        '        ' 6        m_SoundProviderPrefUnderwater
+        '        ' 7        m_AmbienceID
+        '        'areaEXP = tmpDBC.Item(i, 8) ' May be needed in the future - m_ZoneMusic
+        '        ' 9        m_IntroSound
+        '        areaLevel = tmpDbc.Item(i, 10)
+        '        'areaName = tmpDBC.Item(i, 11) ' May be needed in the future
+        '        ' 19 string flags
+        '        'areaTeam = tmpDBC.Item(i, 20)
+        '        ' 24 = LiquidTypeOverride
+
+        '        If areaLevel > 255 Then areaLevel = 255
+        '        If areaLevel < 0 Then areaLevel = 0
+
+        '        AreaTable(areaExploreFlag) = New TArea
+        '        AreaTable(areaExploreFlag).ID = areaID
+        '        AreaTable(areaExploreFlag).mapId = areaMapID
+        '        AreaTable(areaExploreFlag).Level = areaLevel
+        '        'AreaTable(areaExploreFlag).Name = areaName
+        '        AreaTable(areaExploreFlag).Zone = areaZone
+        '        AreaTable(areaExploreFlag).ZoneType = areaZoneType
+        '        'AreaTable(areaExploreFlag).Team = areaTeam
+        '    Next i
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", tmpDbc.Rows - 1)
+        '    tmpDbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : AreaTable missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\AreaTable.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_areatable")
 
             Dim areaID As Integer
             Dim areaMapID As Integer
@@ -594,26 +1152,14 @@ Public Module WS_DBCLoad
             Dim areaLevel As Integer
             Dim areaZone As Integer
             Dim areaZoneType As Integer
-            'Dim areaEXP As Integer
-            'Dim areaTeam As Integer
-            'Dim areaName As String
 
-            For i As Integer = 0 To tmpDbc.Rows - 1
-                areaID = tmpDbc.Item(i, 0)
-                areaMapID = tmpDbc.Item(i, 1) ' May be needed in the future
-                areaZone = tmpDbc.Item(i, 2)    'Parent Map
-                areaExploreFlag = tmpDbc.Item(i, 3)
-                areaZoneType = tmpDbc.Item(i, 4) ' 312 For Cities - Flags
-                ' 5        m_SoundProviderPref
-                ' 6        m_SoundProviderPrefUnderwater
-                ' 7        m_AmbienceID
-                'areaEXP = tmpDBC.Item(i, 8) ' May be needed in the future - m_ZoneMusic
-                ' 9        m_IntroSound
-                areaLevel = tmpDbc.Item(i, 10)
-                'areaName = tmpDBC.Item(i, 11) ' May be needed in the future
-                ' 19 string flags
-                'areaTeam = tmpDBC.Item(i, 20)
-                ' 24 = LiquidTypeOverride
+            For Each row As DataRow In tmpDBC.results.Rows
+                areaID = tmpDBC.Item(row.Item("Unknown0"))
+                areaMapID = tmpDBC.Item(row.Item("Unknown1"))
+                areaZone = tmpDBC.Item(row.Item("Unknown2")) 'Parent Map
+                areaExploreFlag = tmpDBC.Item(row.Item("Unknown3"))
+                areaZoneType = tmpDBC.Item(row.Item("Unknown4")) ' 312 For Cities - Flags
+                areaLevel = tmpDBC.Item(row.Item("Unknown10"))
 
                 If areaLevel > 255 Then areaLevel = 255
                 If areaLevel < 0 Then areaLevel = 0
@@ -622,158 +1168,302 @@ Public Module WS_DBCLoad
                 AreaTable(areaExploreFlag).ID = areaID
                 AreaTable(areaExploreFlag).mapId = areaMapID
                 AreaTable(areaExploreFlag).Level = areaLevel
-                'AreaTable(areaExploreFlag).Name = areaName
                 AreaTable(areaExploreFlag).Zone = areaZone
                 AreaTable(areaExploreFlag).ZoneType = areaZoneType
-                'AreaTable(areaExploreFlag).Team = areaTeam
-            Next i
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", tmpDbc.Rows - 1)
-            tmpDbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Next
+
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Areas Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : AreaTable missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing AreaTable DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "Emotes"
     Public Sub InitializeEmotes()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Emotes.dbc")
+        '    Dim emoteID As Integer
+        '    Dim emoteState As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        emoteID = tmpDBC.Item(i, 0)
+        '        emoteState = tmpDBC.Item(i, 4)
+
+        '        If emoteID <> 0 Then EmotesState(emoteID) = emoteState
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : Emotes missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Emotes.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_emotes")
+
             Dim emoteID As Integer
             Dim emoteState As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                emoteID = tmpDBC.Item(i, 0)
-                emoteState = tmpDBC.Item(i, 4)
+            For Each row As DataRow In tmpDBC.results.Rows
+                emoteID = row.Item("ID")
+                emoteState = row.Item("EmoteSpecProc")
 
                 If emoteID <> 0 Then EmotesState(emoteID) = emoteState
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Emotes Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : Emotes missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing Emotes DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeEmotesText()
+        'Try
+        '    Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\EmotesText.dbc")
+        '    Dim textEmoteID As Integer
+        '    Dim emoteID As Integer
+        '    'Dim EmoteID2 As Integer
+        '    'Dim EmoteID3 As Integer
+        '    'Dim EmoteID4 As Integer
+        '    'Dim EmoteID5 As Integer
+        '    'Dim EmoteID6 As Integer
+
+        '    For i As Integer = 0 To tmpDbc.Rows - 1
+        '        textEmoteID = tmpDbc.Item(i, 0)
+        '        emoteID = tmpDbc.Item(i, 2)
+        '        'EmoteID2 = tmpDBC.Item(i, 3) ' May be needed in the future
+        '        'EmoteID3 = tmpDBC.Item(i, 4) ' May be needed in the future
+        '        'EmoteID4 = tmpDBC.Item(i, 5) ' May be needed in the future
+        '        'EmoteID5 = tmpDBC.Item(i, 7) ' May be needed in the future
+        '        'EmoteID6 = tmpDBC.Item(i, 8) ' May be needed in the future
+
+        '        If emoteID <> 0 Then EmotesText(textEmoteID) = emoteID
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", tmpDbc.Rows - 1)
+        '    tmpDbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : EmotesText missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\EmotesText.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_emotestext")
+
             Dim textEmoteID As Integer
             Dim emoteID As Integer
-            'Dim EmoteID2 As Integer
-            'Dim EmoteID3 As Integer
-            'Dim EmoteID4 As Integer
-            'Dim EmoteID5 As Integer
-            'Dim EmoteID6 As Integer
 
-            For i As Integer = 0 To tmpDbc.Rows - 1
-                textEmoteID = tmpDbc.Item(i, 0)
-                emoteID = tmpDbc.Item(i, 2)
-                'EmoteID2 = tmpDBC.Item(i, 3) ' May be needed in the future
-                'EmoteID3 = tmpDBC.Item(i, 4) ' May be needed in the future
-                'EmoteID4 = tmpDBC.Item(i, 5) ' May be needed in the future
-                'EmoteID5 = tmpDBC.Item(i, 7) ' May be needed in the future
-                'EmoteID6 = tmpDBC.Item(i, 8) ' May be needed in the future
+            For Each row As DataRow In tmpDBC.results.Rows
+                textEmoteID = tmpDBC.Item(row.Item("ID"))
+                emoteID = tmpDBC.Item(row.Item("EmoteId"))
 
                 If emoteID <> 0 Then EmotesText(textEmoteID) = emoteID
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", tmpDbc.Rows - 1)
-            tmpDbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} EmotesText Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : EmotesText missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing EmotesText DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "Factions"
     Public Sub InitializeFactions()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Faction.dbc")
+
+        '    Dim factionID As Integer
+        '    Dim factionFlag As Integer
+        '    Dim flags(3) As Integer
+        '    Dim reputationStats(3) As Integer
+        '    Dim reputationFlags(3) As Integer
+        '    'Dim factionName As String
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        factionID = tmpDBC.Item(i, 0)
+        '        factionFlag = tmpDBC.Item(i, 1)
+        '        flags(0) = tmpDBC.Item(i, 2)
+        '        flags(1) = tmpDBC.Item(i, 3)
+        '        flags(2) = tmpDBC.Item(i, 4)
+        '        flags(3) = tmpDBC.Item(i, 5)
+        '        reputationStats(0) = tmpDBC.Item(i, 10)
+        '        reputationStats(1) = tmpDBC.Item(i, 11)
+        '        reputationStats(2) = tmpDBC.Item(i, 12)
+        '        reputationStats(3) = tmpDBC.Item(i, 13)
+        '        reputationFlags(0) = tmpDBC.Item(i, 14)
+        '        reputationFlags(1) = tmpDBC.Item(i, 15)
+        '        reputationFlags(2) = tmpDBC.Item(i, 16)
+        '        reputationFlags(3) = tmpDBC.Item(i, 17)
+        '        'factionName = tmpDBC.Item(i, 19) ' May be needed in the future
+
+        '        FactionInfo(factionID) = New TFaction(factionID, factionFlag, _
+        '           flags(0), flags(1), flags(2), flags(3), _
+        '           reputationStats(0), reputationStats(1), reputationStats(2), reputationStats(3), _
+        '           reputationFlags(0), reputationFlags(1), reputationFlags(2), reputationFlags(3))
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Factions initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : Factions missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Faction.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_faction")
 
             Dim factionID As Integer
             Dim factionFlag As Integer
             Dim flags(3) As Integer
             Dim reputationStats(3) As Integer
             Dim reputationFlags(3) As Integer
-            'Dim factionName As String
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                factionID = tmpDBC.Item(i, 0)
-                factionFlag = tmpDBC.Item(i, 1)
-                flags(0) = tmpDBC.Item(i, 2)
-                flags(1) = tmpDBC.Item(i, 3)
-                flags(2) = tmpDBC.Item(i, 4)
-                flags(3) = tmpDBC.Item(i, 5)
-                reputationStats(0) = tmpDBC.Item(i, 10)
-                reputationStats(1) = tmpDBC.Item(i, 11)
-                reputationStats(2) = tmpDBC.Item(i, 12)
-                reputationStats(3) = tmpDBC.Item(i, 13)
-                reputationFlags(0) = tmpDBC.Item(i, 14)
-                reputationFlags(1) = tmpDBC.Item(i, 15)
-                reputationFlags(2) = tmpDBC.Item(i, 16)
-                reputationFlags(3) = tmpDBC.Item(i, 17)
-                'factionName = tmpDBC.Item(i, 19) ' May be needed in the future
+            For Each row As DataRow In tmpDBC.results.Rows
+                factionID = tmpDBC.Item(row.Item("Unknown0"))
+                factionFlag = tmpDBC.Item(row.Item("Unknown1"))
+                flags(0) = tmpDBC.Item(row.Item("Unknown2"))
+                flags(1) = tmpDBC.Item(row.Item("Unknown3"))
+                flags(2) = tmpDBC.Item(row.Item("Unknown4"))
+                flags(3) = tmpDBC.Item(row.Item("Unknown5"))
+                reputationStats(0) = tmpDBC.Item(row.Item("Unknown10"))
+                reputationStats(1) = tmpDBC.Item(row.Item("Unknown11"))
+                reputationStats(2) = tmpDBC.Item(row.Item("Unknown12"))
+                reputationStats(3) = tmpDBC.Item(row.Item("Unknown13"))
+                reputationFlags(0) = tmpDBC.Item(row.Item("Unknown14"))
+                reputationFlags(1) = tmpDBC.Item(row.Item("Unknown15"))
+                reputationFlags(2) = tmpDBC.Item(row.Item("Unknown16"))
+                reputationFlags(3) = tmpDBC.Item(row.Item("Unknown17"))
 
                 FactionInfo(factionID) = New TFaction(factionID, factionFlag, _
                    flags(0), flags(1), flags(2), flags(3), _
                    reputationStats(0), reputationStats(1), reputationStats(2), reputationStats(3), _
                    reputationFlags(0), reputationFlags(1), reputationFlags(2), reputationFlags(3))
-            Next i
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Factions initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Next
+
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Factions Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : Factions missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing Factions DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeFactionTemplates()
+        'Try
+        '    'Loading from DBC
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\FactionTemplate.dbc")
+
+        '    Dim templateID As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        templateID = tmpDBC.Item(i, 0)
+        '        FactionTemplatesInfo.Add(templateID, New TFactionTemplate)
+        '        FactionTemplatesInfo(templateID).FactionID = tmpDBC.Item(i, 1)
+        '        FactionTemplatesInfo(templateID).ourMask = tmpDBC.Item(i, 3)
+        '        FactionTemplatesInfo(templateID).friendMask = tmpDBC.Item(i, 4)
+        '        FactionTemplatesInfo(templateID).enemyMask = tmpDBC.Item(i, 5)
+        '        FactionTemplatesInfo(templateID).enemyFaction1 = tmpDBC.Item(i, 6)
+        '        FactionTemplatesInfo(templateID).enemyFaction2 = tmpDBC.Item(i, 7)
+        '        FactionTemplatesInfo(templateID).enemyFaction3 = tmpDBC.Item(i, 8)
+        '        FactionTemplatesInfo(templateID).enemyFaction4 = tmpDBC.Item(i, 9)
+        '        FactionTemplatesInfo(templateID).friendFaction1 = tmpDBC.Item(i, 10)
+        '        FactionTemplatesInfo(templateID).friendFaction2 = tmpDBC.Item(i, 11)
+        '        FactionTemplatesInfo(templateID).friendFaction3 = tmpDBC.Item(i, 12)
+        '        FactionTemplatesInfo(templateID).friendFaction4 = tmpDBC.Item(i, 13)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : FactionsTemplates missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            'Loading from DBC
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\FactionTemplate.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_factiontemplate")
 
             Dim templateID As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                templateID = tmpDBC.Item(i, 0)
+            For Each row As DataRow In tmpDBC.results.Rows
+                templateID = tmpDBC.Item(row.Item("ID"))
                 FactionTemplatesInfo.Add(templateID, New TFactionTemplate)
-                FactionTemplatesInfo(templateID).FactionID = tmpDBC.Item(i, 1)
-                FactionTemplatesInfo(templateID).ourMask = tmpDBC.Item(i, 3)
-                FactionTemplatesInfo(templateID).friendMask = tmpDBC.Item(i, 4)
-                FactionTemplatesInfo(templateID).enemyMask = tmpDBC.Item(i, 5)
-                FactionTemplatesInfo(templateID).enemyFaction1 = tmpDBC.Item(i, 6)
-                FactionTemplatesInfo(templateID).enemyFaction2 = tmpDBC.Item(i, 7)
-                FactionTemplatesInfo(templateID).enemyFaction3 = tmpDBC.Item(i, 8)
-                FactionTemplatesInfo(templateID).enemyFaction4 = tmpDBC.Item(i, 9)
-                FactionTemplatesInfo(templateID).friendFaction1 = tmpDBC.Item(i, 10)
-                FactionTemplatesInfo(templateID).friendFaction2 = tmpDBC.Item(i, 11)
-                FactionTemplatesInfo(templateID).friendFaction3 = tmpDBC.Item(i, 12)
-                FactionTemplatesInfo(templateID).friendFaction4 = tmpDBC.Item(i, 13)
-            Next i
+                FactionTemplatesInfo(templateID).FactionID = tmpDBC.Item(row.Item("Faction1Id"))
+                FactionTemplatesInfo(templateID).ourMask = tmpDBC.Item(row.Item("factionGroup"))
+                FactionTemplatesInfo(templateID).friendMask = tmpDBC.Item(row.Item("friendGroup"))
+                FactionTemplatesInfo(templateID).enemyMask = tmpDBC.Item(row.Item("enemyGroup"))
+                FactionTemplatesInfo(templateID).enemyFaction1 = tmpDBC.Item(row.Item("enemyFaction1Id"))
+                FactionTemplatesInfo(templateID).enemyFaction2 = tmpDBC.Item(row.Item("enemyFaction2Id"))
+                FactionTemplatesInfo(templateID).enemyFaction3 = tmpDBC.Item(row.Item("enemyFaction3Id"))
+                FactionTemplatesInfo(templateID).enemyFaction4 = tmpDBC.Item(row.Item("enemyFaction4Id"))
+                FactionTemplatesInfo(templateID).friendFaction1 = tmpDBC.Item(row.Item("friendFaction1Id"))
+                FactionTemplatesInfo(templateID).friendFaction2 = tmpDBC.Item(row.Item("friendFaction2Id"))
+                FactionTemplatesInfo(templateID).friendFaction3 = tmpDBC.Item(row.Item("friendFaction3Id"))
+                FactionTemplatesInfo(templateID).friendFaction4 = tmpDBC.Item(row.Item("friendFaction4Id"))
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} FactionTemplates Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : FactionsTemplates missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing FactionTemplates DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeCharRaces()
+        'Try
+        '    'Loading from DBC
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrRaces.dbc")
+
+        '    Dim raceID As Integer
+        '    Dim factionID As Integer
+        '    Dim modelM As Integer
+        '    Dim modelF As Integer
+        '    Dim teamID As Integer '1 = Horde / 7 = Alliance
+        '    Dim taxiMask As UInteger
+        '    Dim cinematicID As Integer
+        '    Dim name As String
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        raceID = tmpDBC.Item(i, 0)
+        '        factionID = tmpDBC.Item(i, 2)
+        '        modelM = tmpDBC.Item(i, 4)
+        '        modelF = tmpDBC.Item(i, 5)
+        '        teamID = tmpDBC.Item(i, 8)
+        '        taxiMask = tmpDBC.Item(i, 14)
+        '        cinematicID = tmpDBC.Item(i, 16)
+        '        name = tmpDBC.Item(i, 17, DBCValueType.DBC_STRING)
+
+        '        CharRaces(CByte(raceID)) = New TCharRace(CShort(factionID), modelM, modelF, CByte(teamID), taxiMask, cinematicID, name)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : CharRaces missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            'Loading from DBC
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrRaces.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_chrraces")
 
             Dim raceID As Integer
             Dim factionID As Integer
@@ -784,186 +1474,348 @@ Public Module WS_DBCLoad
             Dim cinematicID As Integer
             Dim name As String
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                raceID = tmpDBC.Item(i, 0)
-                factionID = tmpDBC.Item(i, 2)
-                modelM = tmpDBC.Item(i, 4)
-                modelF = tmpDBC.Item(i, 5)
-                teamID = tmpDBC.Item(i, 8)
-                taxiMask = tmpDBC.Item(i, 14)
-                cinematicID = tmpDBC.Item(i, 16)
-                name = tmpDBC.Item(i, 17, DBCValueType.DBC_STRING)
+            For Each row As DataRow In tmpDBC.results.Rows
+                raceID = tmpDBC.Item(row.Item("ID"))
+                factionID = tmpDBC.Item(row.Item("factionID"))
+                modelM = tmpDBC.Item(row.Item("MaleDisplayID"))
+                modelF = tmpDBC.Item(row.Item("FemaleDisplayID"))
+                teamID = tmpDBC.Item(row.Item("baseLanguage")) 'FIX: Is this column Base Language or TeamID?
+                taxiMask = tmpDBC.Item(row.Item("col14"))
+                cinematicID = tmpDBC.Item(row.Item("cinematicSequenceID"))
+                name = tmpDBC.Item(row.Item("Name"), DBCValueType.DBC_STRING)
 
                 CharRaces(CByte(raceID)) = New TCharRace(CShort(factionID), modelM, modelF, CByte(teamID), taxiMask, cinematicID, name)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} CharRaces Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : CharRaces missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing ChrRaces DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub InitializeCharClasses()
+        'Try
+        '    'Loading from DBC
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrClasses.dbc")
+
+        '    Dim classID As Integer
+        '    Dim cinematicID As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        classID = tmpDBC.Item(i, 0)
+        '        cinematicID = tmpDBC.Item(i, 5)
+
+        '        CharClasses(CByte(classID)) = New TCharClass(cinematicID)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : CharRaces missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            'Loading from DBC
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrClasses.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_chrclasses")
 
             Dim classID As Integer
             Dim cinematicID As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                classID = tmpDBC.Item(i, 0)
-                cinematicID = tmpDBC.Item(i, 5)
+            For Each row As DataRow In tmpDBC.results.Rows
+                classID = tmpDBC.Item(row.Item("ID"))
+                cinematicID = tmpDBC.Item(row.Item("col15")) 'FIX: Column 5 as above appears to be a class name?
 
                 CharClasses(CByte(classID)) = New TCharClass(cinematicID)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} CharClasses Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : CharRaces missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing ChrClasses DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "DurabilityCosts"
     Public Sub InitializeDurabilityCosts()
+        'Try
+        '    Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\DurabilityCosts.dbc")
+
+        '    Dim itemBroken As Integer
+        '    Dim itemType As Integer
+        '    Dim itemPrice As Integer
+
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        itemBroken = tmpDBC.Item(i, 0)
+
+        '        For itemType = 1 To tmpDBC.Columns - 1
+        '            itemPrice = tmpDBC.Item(i, itemType)
+        '            DurabilityCosts(itemBroken, itemType - 1) = itemPrice
+        '        Next
+
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} DurabilityCosts initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : DurabilityCosts missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\DurabilityCosts.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_durabilitycosts")
 
             Dim itemBroken As Integer
             Dim itemType As Integer
             Dim itemPrice As Integer
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                itemBroken = tmpDBC.Item(i, 0)
+            For Each row As DataRow In tmpDBC.results.Rows
+                itemBroken = tmpDBC.Item(row.Item("Unknown0"))
 
-                For itemType = 1 To tmpDBC.Columns - 1
-                    itemPrice = tmpDBC.Item(i, itemType)
+                For itemType = 1 To tmpDBC.results.Columns.Count - 1
+                    itemPrice = row(itemType)
                     DurabilityCosts(itemBroken, itemType - 1) = itemPrice
                 Next
 
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} DurabilityCosts initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} DurabilityCosts Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : DurabilityCosts missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing DurabilityCosts DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "Talents"
     Public Sub LoadTalentDbc()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\Talent.dbc")
+
+        '    Dim tmpInfo As TalentInfo
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        tmpInfo = New TalentInfo
+
+        '        tmpInfo.TalentID = dbc.Item(i, 0)
+        '        tmpInfo.TalentTab = dbc.Item(i, 1)
+        '        tmpInfo.Row = dbc.Item(i, 2)
+        '        tmpInfo.Col = dbc.Item(i, 3)
+        '        tmpInfo.RankID(0) = dbc.Item(i, 4)
+        '        tmpInfo.RankID(1) = dbc.Item(i, 5)
+        '        tmpInfo.RankID(2) = dbc.Item(i, 6)
+        '        tmpInfo.RankID(3) = dbc.Item(i, 7)
+        '        tmpInfo.RankID(4) = dbc.Item(i, 8)
+
+        '        tmpInfo.RequiredTalent(0) = dbc.Item(i, 13) ' dependson
+        '        'tmpInfo.RequiredTalent(1) = DBC.Item(i, 14) ' ???
+        '        'tmpInfo.RequiredTalent(2) = DBC.Item(i, 15) ' ???
+        '        tmpInfo.RequiredPoints(0) = dbc.Item(i, 16) ' dependsonrank
+        '        'tmpInfo.RequiredPoints(1) = DBC.Item(i, 17) ' ???
+        '        'tmpInfo.RequiredPoints(2) = DBC.Item(i, 18) ' ???
+
+        '        Talents.Add(tmpInfo.TalentID, tmpInfo)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : Talents missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\Talent.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_talent")
 
             Dim tmpInfo As TalentInfo
 
-            For i As Integer = 0 To dbc.Rows - 1
+            For Each row As DataRow In dbc.results.Rows
                 tmpInfo = New TalentInfo
 
-                tmpInfo.TalentID = dbc.Item(i, 0)
-                tmpInfo.TalentTab = dbc.Item(i, 1)
-                tmpInfo.Row = dbc.Item(i, 2)
-                tmpInfo.Col = dbc.Item(i, 3)
-                tmpInfo.RankID(0) = dbc.Item(i, 4)
-                tmpInfo.RankID(1) = dbc.Item(i, 5)
-                tmpInfo.RankID(2) = dbc.Item(i, 6)
-                tmpInfo.RankID(3) = dbc.Item(i, 7)
-                tmpInfo.RankID(4) = dbc.Item(i, 8)
+                tmpInfo.TalentID = dbc.Item(row.Item("ID"))
+                tmpInfo.TalentTab = dbc.Item(row.Item("TalentTab"))
+                tmpInfo.Row = dbc.Item(row.Item("tierId"))
+                tmpInfo.Col = dbc.Item(row.Item("columnIndex"))
+                tmpInfo.RankID(0) = dbc.Item(row.Item("spellRank1"))
+                tmpInfo.RankID(1) = dbc.Item(row.Item("spellRank2"))
+                tmpInfo.RankID(2) = dbc.Item(row.Item("spellRank3"))
+                tmpInfo.RankID(3) = dbc.Item(row.Item("spellRank4"))
+                tmpInfo.RankID(4) = dbc.Item(row.Item("spellRank5"))
 
-                tmpInfo.RequiredTalent(0) = dbc.Item(i, 13) ' dependson
-                'tmpInfo.RequiredTalent(1) = DBC.Item(i, 14) ' ???
-                'tmpInfo.RequiredTalent(2) = DBC.Item(i, 15) ' ???
-                tmpInfo.RequiredPoints(0) = dbc.Item(i, 16) ' dependsonrank
-                'tmpInfo.RequiredPoints(1) = DBC.Item(i, 17) ' ???
-                'tmpInfo.RequiredPoints(2) = DBC.Item(i, 18) ' ???
+                tmpInfo.RequiredTalent(0) = dbc.Item(row.Item("prereqTalent1")) ' dependson
+                tmpInfo.RequiredPoints(0) = dbc.Item(row.Item("prereqRank1")) ' dependsonrank
 
                 Talents.Add(tmpInfo.TalentID, tmpInfo)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Talents Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : Talents missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing Talents DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub LoadTalentTabDbc()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\TalentTab.dbc")
+
+        '    Dim talentTab As Integer
+        '    Dim talentMask As Integer
+        '    'Dim TalentTabPage As Integer
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        talentTab = dbc.Item(i, 0)
+        '        talentMask = dbc.Item(i, 12)
+        '        '   TalentTabPage = dbc.Item(i, 13) ' May be needed in the future
+
+        '        TalentsTab.Add(talentTab, talentMask)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : TalentTab missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\TalentTab.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_talenttab")
 
             Dim talentTab As Integer
             Dim talentMask As Integer
-            'Dim TalentTabPage As Integer
 
-            For i As Integer = 0 To dbc.Rows - 1
-                talentTab = dbc.Item(i, 0)
-                talentMask = dbc.Item(i, 12)
-                '   TalentTabPage = dbc.Item(i, 13) ' May be needed in the future
+            For Each row As DataRow In dbc.results.Rows
+                talentTab = dbc.Item(row.Item("ID"))
+                talentMask = dbc.Item(row.Item("classMask"))
 
                 TalentsTab.Add(talentTab, talentMask)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Talent Tabs Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : TalentTab missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing TalentTabs DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
 #Region "AuctionHouse"
     Public Sub LoadAuctionHouseDbc()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\AuctionHouse.dbc")
+
+        '    Dim ahId As Integer
+        '    Dim fee As Integer
+        '    Dim tax As Integer
+
+        '    'What the hell is this doing? o_O
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        ahId = dbc.Item(i, 0)
+        '        fee = dbc.Item(i, 2)
+        '        tax = dbc.Item(i, 3)
+
+        '        'TODO: This needs to be put into a class or dictionary collection
+        '        AuctionID = ahId
+        '        AuctionFee = fee
+        '        AuctionTax = tax
+
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} AuctionHouses initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : AuctionHouse missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\AuctionHouse.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_auctionhouse")
 
             Dim ahId As Integer
             Dim fee As Integer
             Dim tax As Integer
 
-            'What the hell is this doing? o_O
-
-            For i As Integer = 0 To dbc.Rows - 1
-                ahId = dbc.Item(i, 0)
-                fee = dbc.Item(i, 2)
-                tax = dbc.Item(i, 3)
+            For Each row As DataRow In dbc.results.Rows
+                ahId = dbc.Item(row.Item("Unknown0"))
+                fee = dbc.Item(row.Item("Unknown2"))
+                tax = dbc.Item(row.Item("Unknown3"))
 
                 'TODO: This needs to be put into a class or dictionary collection
                 AuctionID = ahId
                 AuctionFee = fee
                 AuctionTax = tax
+            Next
 
-            Next i
-
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} AuctionHouses initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} AuctionHouses Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : AuctionHouse missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing AuctionHouse DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
 #End Region
 
 #Region "Items"
     Public Sub LoadSpellItemEnchantments()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\SpellItemEnchantment.dbc")
+
+        '    Dim id As Integer
+        '    Dim type(2) As Integer
+        '    Dim amount(2) As Integer
+        '    Dim spellID(2) As Integer
+        '    Dim auraID As Integer
+        '    Dim slot As Integer
+        '    'Dim EnchantmentConditions As Integer
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        id = dbc.Item(i, 0)
+        '        type(0) = dbc.Item(i, 1)
+        '        type(1) = dbc.Item(i, 2)
+        '        'Type(2) = DBC.Item(i, 3)
+        '        amount(0) = dbc.Item(i, 4)
+        '        amount(1) = dbc.Item(i, 7)
+        '        'Amount(2) = DBC.Item(i, 6)
+        '        spellID(0) = dbc.Item(i, 10)
+        '        spellID(1) = dbc.Item(i, 11)
+        '        'SpellID(2) = DBC.Item(i, 12)
+        '        auraID = dbc.Item(i, 22)
+        '        slot = dbc.Item(i, 23)
+        '        'EnchantmentConditions = DBC.Item(i, 23) ' TODO: Correct?
+
+        '        SpellItemEnchantments.Add(id, New TSpellItemEnchantment(type, amount, spellID, auraID, slot)) ', EnchantmentConditions))
+        '    Next
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : SpellItemEnchantments missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\SpellItemEnchantment.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_spellitemenchantment")
 
             Dim id As Integer
             Dim type(2) As Integer
@@ -971,38 +1823,85 @@ Public Module WS_DBCLoad
             Dim spellID(2) As Integer
             Dim auraID As Integer
             Dim slot As Integer
-            'Dim EnchantmentConditions As Integer
 
-            For i As Integer = 0 To dbc.Rows - 1
-                id = dbc.Item(i, 0)
-                type(0) = dbc.Item(i, 1)
-                type(1) = dbc.Item(i, 2)
-                'Type(2) = DBC.Item(i, 3)
-                amount(0) = dbc.Item(i, 4)
-                amount(1) = dbc.Item(i, 7)
-                'Amount(2) = DBC.Item(i, 6)
-                spellID(0) = dbc.Item(i, 10)
-                spellID(1) = dbc.Item(i, 11)
-                'SpellID(2) = DBC.Item(i, 12)
-                auraID = dbc.Item(i, 22)
-                slot = dbc.Item(i, 23)
-                'EnchantmentConditions = DBC.Item(i, 23) ' TODO: Correct?
+            For Each row As DataRow In dbc.results.Rows
+                id = dbc.Item(row.Item("Unknown0"))
+                type(0) = dbc.Item(row.Item("Unknown1"))
+                type(1) = dbc.Item(row.Item("Unknown2"))
+                amount(0) = dbc.Item(row.Item("Unknown4"))
+                amount(1) = dbc.Item(row.Item("Unknown7"))
+                spellID(0) = dbc.Item(row.Item("Unknown10"))
+                spellID(1) = dbc.Item(row.Item("Unknown11"))
+                auraID = dbc.Item(row.Item("Unknown22"))
+                slot = dbc.Item(row.Item("Unknown23"))
 
                 SpellItemEnchantments.Add(id, New TSpellItemEnchantment(type, amount, spellID, auraID, slot)) ', EnchantmentConditions))
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} SpellItemEnchantments Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : SpellItemEnchantments missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing SpellItemEnchantments DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub LoadItemSet()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemSet.dbc")
+
+        '    Dim id As Integer
+        '    Dim name As String
+        '    Dim itemID(7) As Integer
+        '    Dim spellID(7) As Integer
+        '    Dim itemCount(7) As Integer
+        '    Dim requiredSkillID As Integer
+        '    Dim requiredSkillValue As Integer
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        id = dbc.Item(i, 0)
+        '        name = dbc.Item(i, 1, DBCValueType.DBC_STRING)
+        '        itemID(0) = dbc.Item(i, 10) ' 10 - 26
+        '        itemID(1) = dbc.Item(i, 11)
+        '        itemID(2) = dbc.Item(i, 12)
+        '        itemID(3) = dbc.Item(i, 13)
+        '        itemID(4) = dbc.Item(i, 14)
+        '        itemID(5) = dbc.Item(i, 15)
+        '        itemID(6) = dbc.Item(i, 16)
+        '        itemID(7) = dbc.Item(i, 17)
+        '        'SpellID(0) = DBC.Item(i, 27) ' 27 - 34
+        '        'SpellID(1) = DBC.Item(i, 28)
+        '        'SpellID(2) = DBC.Item(i, 29)
+        '        'SpellID(3) = DBC.Item(i, 30)
+        '        'SpellID(4) = DBC.Item(i, 31)
+        '        'SpellID(5) = DBC.Item(i, 32)
+        '        'SpellID(6) = DBC.Item(i, 33)
+        '        'SpellID(7) = DBC.Item(i, 34)
+        '        'ItemCount(0) = DBC.Item(i, 35) ' Items To Trigger Spell?
+        '        'ItemCount(1) = DBC.Item(i, 36)
+        '        'ItemCount(2) = DBC.Item(i, 37)
+        '        'ItemCount(3) = DBC.Item(i, 38)
+        '        'ItemCount(4) = DBC.Item(i, 39)
+        '        'ItemCount(5) = DBC.Item(i, 40)
+        '        'ItemCount(6) = DBC.Item(i, 41)
+        '        'ItemCount(7) = DBC.Item(i, 42)
+        '        'Required_Skill_ID = DBC.Item(i, 43)
+        '        'Required_Skill_Value = DBC.Item(i, 44)
+
+        '        ItemSet.Add(id, New TItemSet(name, itemID, spellID, itemCount, requiredSkillID, requiredSkillValue))
+        '    Next
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : ItemSet missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemSet.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_itemset")
 
             Dim id As Integer
             Dim name As String
@@ -1012,97 +1911,126 @@ Public Module WS_DBCLoad
             Dim requiredSkillID As Integer
             Dim requiredSkillValue As Integer
 
-            For i As Integer = 0 To dbc.Rows - 1
-                id = dbc.Item(i, 0)
-                name = dbc.Item(i, 1, DBCValueType.DBC_STRING)
-                itemID(0) = dbc.Item(i, 10) ' 10 - 26
-                itemID(1) = dbc.Item(i, 11)
-                itemID(2) = dbc.Item(i, 12)
-                itemID(3) = dbc.Item(i, 13)
-                itemID(4) = dbc.Item(i, 14)
-                itemID(5) = dbc.Item(i, 15)
-                itemID(6) = dbc.Item(i, 16)
-                itemID(7) = dbc.Item(i, 17)
-                'SpellID(0) = DBC.Item(i, 27) ' 27 - 34
-                'SpellID(1) = DBC.Item(i, 28)
-                'SpellID(2) = DBC.Item(i, 29)
-                'SpellID(3) = DBC.Item(i, 30)
-                'SpellID(4) = DBC.Item(i, 31)
-                'SpellID(5) = DBC.Item(i, 32)
-                'SpellID(6) = DBC.Item(i, 33)
-                'SpellID(7) = DBC.Item(i, 34)
-                'ItemCount(0) = DBC.Item(i, 35) ' Items To Trigger Spell?
-                'ItemCount(1) = DBC.Item(i, 36)
-                'ItemCount(2) = DBC.Item(i, 37)
-                'ItemCount(3) = DBC.Item(i, 38)
-                'ItemCount(4) = DBC.Item(i, 39)
-                'ItemCount(5) = DBC.Item(i, 40)
-                'ItemCount(6) = DBC.Item(i, 41)
-                'ItemCount(7) = DBC.Item(i, 42)
-                'Required_Skill_ID = DBC.Item(i, 43)
-                'Required_Skill_Value = DBC.Item(i, 44)
+            For Each row As DataRow In dbc.results.Rows
+                id = dbc.Item(row.Item("Unknown0"))
+                name = dbc.Item(row.Item("Unknown1"), DBCValueType.DBC_STRING)
+                itemID(0) = dbc.Item(row.Item("Unknown10")) ' 10 - 26
+                itemID(1) = dbc.Item(row.Item("Unknown11"))
+                itemID(2) = dbc.Item(row.Item("Unknown12"))
+                itemID(3) = dbc.Item(row.Item("Unknown13"))
+                itemID(4) = dbc.Item(row.Item("Unknown14"))
+                itemID(5) = dbc.Item(row.Item("Unknown15"))
+                itemID(6) = dbc.Item(row.Item("Unknown16"))
+                itemID(7) = dbc.Item(row.Item("Unknown17"))
 
                 ItemSet.Add(id, New TItemSet(name, itemID, spellID, itemCount, requiredSkillID, requiredSkillValue))
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} ItemSets Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : ItemSet missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing ItemSets DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub LoadItemDisplayInfoDbc()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemDisplayInfo.dbc")
+
+        '    Dim tmpItemDisplayInfo As TItemDisplayInfo
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        tmpItemDisplayInfo = New TItemDisplayInfo
+
+        '        tmpItemDisplayInfo.ID = dbc.Item(i, 0)
+        '        tmpItemDisplayInfo.RandomPropertyChance = dbc.Item(i, 11)
+        '        tmpItemDisplayInfo.Unknown = dbc.Item(i, 22)
+
+        '        ItemDisplayInfo.Add(tmpItemDisplayInfo.ID, tmpItemDisplayInfo)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : ItemDisplayInfo missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemDisplayInfo.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_itemdisplayinfo")
 
             Dim tmpItemDisplayInfo As TItemDisplayInfo
 
-            For i As Integer = 0 To dbc.Rows - 1
+            For Each row As DataRow In dbc.results.Rows
                 tmpItemDisplayInfo = New TItemDisplayInfo
 
-                tmpItemDisplayInfo.ID = dbc.Item(i, 0)
-                tmpItemDisplayInfo.RandomPropertyChance = dbc.Item(i, 11)
-                tmpItemDisplayInfo.Unknown = dbc.Item(i, 22)
+                tmpItemDisplayInfo.ID = dbc.Item(row.Item("ID"))
+                tmpItemDisplayInfo.RandomPropertyChance = dbc.Item(row.Item("groupSoundIndex")) 'FIX: Is this groupSoundIndex or RandomPropertyChance?
+                tmpItemDisplayInfo.Unknown = dbc.Item(row.Item("itemVisual"))
 
                 ItemDisplayInfo.Add(tmpItemDisplayInfo.ID, tmpItemDisplayInfo)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} ItemDisplayInfos Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : ItemDisplayInfo missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing ItemDisplayInfos DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
     Public Sub LoadItemRandomPropertiesDbc()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemRandomProperties.dbc")
+
+        '    Dim tmpInfo As TItemRandomPropertiesInfo
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        tmpInfo = New TItemRandomPropertiesInfo
+
+        '        tmpInfo.ID = dbc.Item(i, 0)
+        '        tmpInfo.Enchant_ID(0) = dbc.Item(i, 2)
+        '        tmpInfo.Enchant_ID(1) = dbc.Item(i, 3)
+        '        tmpInfo.Enchant_ID(2) = dbc.Item(i, 4)
+
+        '        ItemRandomPropertiesInfo.Add(tmpInfo.ID, tmpInfo)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : ItemRandomProperties missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemRandomProperties.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_itemrandomproperties")
 
             Dim tmpInfo As TItemRandomPropertiesInfo
 
-            For i As Integer = 0 To dbc.Rows - 1
+            For Each row As DataRow In dbc.results.Rows
                 tmpInfo = New TItemRandomPropertiesInfo
 
-                tmpInfo.ID = dbc.Item(i, 0)
-                tmpInfo.Enchant_ID(0) = dbc.Item(i, 2)
-                tmpInfo.Enchant_ID(1) = dbc.Item(i, 3)
-                tmpInfo.Enchant_ID(2) = dbc.Item(i, 4)
+                tmpInfo.ID = dbc.Item(row.Item("Unknown0"))
+                tmpInfo.Enchant_ID(0) = dbc.Item(row.Item("Unknown2"))
+                tmpInfo.Enchant_ID(1) = dbc.Item(row.Item("Unknown3"))
+                tmpInfo.Enchant_ID(1) = dbc.Item(row.Item("Unknown4"))
 
                 ItemRandomPropertiesInfo.Add(tmpInfo.ID, tmpInfo)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} ItemRandomProperties Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : ItemRandomProperties missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing ItemRandomProperties DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 
 #End Region
@@ -1130,31 +2058,57 @@ Public Module WS_DBCLoad
     End Sub
 
     Public Sub LoadCreatureFamilyDbc()
+        'Try
+        '    Dim dbc As BufferedDBC = New BufferedDBC("dbc\CreatureFamily.dbc")
+
+        '    Dim tmpInfo As CreatureFamilyInfo
+
+        '    For i As Integer = 0 To dbc.Rows - 1
+        '        tmpInfo = New CreatureFamilyInfo
+
+        '        tmpInfo.ID = dbc.Item(i, 0)
+        '        tmpInfo.Unknown1 = dbc.Item(i, 5)
+        '        tmpInfo.Unknown2 = dbc.Item(i, 6)
+        '        tmpInfo.PetFoodID = dbc.Item(i, 7)
+        '        tmpInfo.Name = dbc.Item(i, 12, DBCValueType.DBC_STRING)
+
+        '        CreaturesFamily.Add(tmpInfo.ID, tmpInfo)
+        '    Next i
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", dbc.Rows - 1)
+        '    dbc.Dispose()
+        'Catch e As DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : CreatureFamily missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\CreatureFamily.dbc")
+            Dim dbc As New DBCTable(DbcDatabase, "dbc_creaturefamily")
 
             Dim tmpInfo As CreatureFamilyInfo
 
-            For i As Integer = 0 To dbc.Rows - 1
+            For Each row As DataRow In dbc.results.Rows
                 tmpInfo = New CreatureFamilyInfo
 
-                tmpInfo.ID = dbc.Item(i, 0)
-                tmpInfo.Unknown1 = dbc.Item(i, 5)
-                tmpInfo.Unknown2 = dbc.Item(i, 6)
-                tmpInfo.PetFoodID = dbc.Item(i, 7)
-                tmpInfo.Name = dbc.Item(i, 12, DBCValueType.DBC_STRING)
+                tmpInfo.ID = dbc.Item(row.Item("ID"))
+                tmpInfo.Unknown1 = dbc.Item(row.Item("petFoodMask"))
+                tmpInfo.Unknown2 = dbc.Item(row.Item("SkillLine2"))
+                tmpInfo.PetFoodID = dbc.Item(row.Item("petTalentType")) 'FIX: Is this Pet Talent Type or Pet Food ID?
+                tmpInfo.Name = dbc.Item(row.Item("Name3"), DBCValueType.DBC_STRING) 'FIX: Name3 Instead of Name?
 
                 CreaturesFamily.Add(tmpInfo.ID, tmpInfo)
-            Next i
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", dbc.Rows - 1)
-            dbc.Dispose()
-        Catch e As DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} CreatureFamilys Initialized.", dbc.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : CreatureFamily missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing CreatureFamilys DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
+
     Public Sub LoadCreatureMovements()
         Try
             Dim movementsQuery As New DataTable
@@ -1176,6 +2130,7 @@ Public Module WS_DBCLoad
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
+
     Public Sub LoadCreatureEquipTable()
         Try
             Dim equipQuery As New DataTable
@@ -1195,6 +2150,7 @@ Public Module WS_DBCLoad
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
+
     Public Sub LoadCreatureModelInfo()
         Try
             Dim modelQuery As New DataTable

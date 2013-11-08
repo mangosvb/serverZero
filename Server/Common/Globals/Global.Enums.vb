@@ -283,6 +283,12 @@ Public Module Enums
         AT_LOGIN_FIRST = &H20
     End Enum
 
+    Public Enum DBCValueType
+        DBC_STRING
+        DBC_INTEGER
+        DBC_FLOAT
+    End Enum
+
     Public Enum Genders As Byte
         GENDER_MALE = 0
         GENDER_FEMALE = 1

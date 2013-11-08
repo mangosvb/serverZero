@@ -448,28 +448,52 @@ Public Module WS_Maps
                 Next
             Next
 
-            Try
-                Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
-                Dim tmpMap As Integer
+            'Try
+            '    Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
+            '    Dim tmpMap As Integer
 
-                For i As Integer = 0 To tmpDBC.Rows - 1
-                    tmpMap = tmpDBC.Item(i, 0)
+            '    For i As Integer = 0 To tmpDBC.Rows - 1
+            '        tmpMap = tmpDBC.Item(i, 0)
+
+            '        If tmpMap = Map Then
+            '            ID = Map
+            '            Type = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_INTEGER)
+            '            Name = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_STRING)
+            '            Exit For
+            '        End If
+            '    Next i
+
+            '    Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
+            '    tmpDBC.Dispose()
+            'Catch e As DirectoryNotFoundException
+            '    Console.ForegroundColor = ConsoleColor.DarkRed
+            '    Console.WriteLine("DBC File : Map missing.")
+            '    Console.ForegroundColor = ConsoleColor.Gray
+            'End Try
+
+            Try
+                Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_map")
+
+                For Each row As DataRow In tmpDBC.results.Rows
+                    Dim tmpMap As Integer
+
+                    tmpMap = row.Item("ID")
 
                     If tmpMap = Map Then
                         ID = Map
-                        Type = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_INTEGER)
-                        Name = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_STRING)
+                        Type = tmpDBC.Item(row.Item("InstanceType"), DBCValueType.DBC_INTEGER)
+                        Name = tmpDBC.Item(row.Item("mapName"), DBCValueType.DBC_STRING)
                         Exit For
                     End If
-                Next i
+                Next
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
-                tmpDBC.Dispose()
-            Catch e As DirectoryNotFoundException
+                Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} 1 Map Initialized.", tmpDBC.results.Rows.Count)
+            Catch e As Exception
                 Console.ForegroundColor = ConsoleColor.DarkRed
-                Console.WriteLine("DBC File : Map missing.")
+                Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing Maps DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
+
         End Sub
 
 #Region "IDisposable Support"

@@ -52,6 +52,7 @@ Public Module WorldCluster
         <XmlElement(ElementName:="ServerPlayerLimit")> Public ServerPlayerLimit As Integer = 10
 
         'Database Settings
+        <XmlElement(ElementName:="DbcDatabase")> Public DbcDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
         <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
         <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
         <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
@@ -104,6 +105,18 @@ Public Module WorldCluster
             Console.WriteLine(".[done]")
 
             'DONE: Setting SQL Connections
+            Dim DbcDBSettings() As String = Split(Config.DbcDatabase, ";")
+            If DbcDBSettings.Length = 6 Then
+                DbcDatabase.SQLDBName = DbcDBSettings(4)
+                DbcDatabase.SQLHost = DbcDBSettings(2)
+                DbcDatabase.SQLPort = DbcDBSettings(3)
+                DbcDatabase.SQLUser = DbcDBSettings(0)
+                DbcDatabase.SQLPass = DbcDBSettings(1)
+                DbcDatabase.SQLTypeServer = CType([Enum].Parse(GetType(SQL.DB_Type), DbcDBSettings(5)), SQL.DB_Type)
+            Else
+                Console.WriteLine("Invalid connect string for the Dbc database!")
+            End If
+
             Dim AccountDBSettings() As String = Split(Config.AccountDatabase, ";")
             If AccountDBSettings.Length = 6 Then
                 AccountDatabase.SQLDBName = AccountDBSettings(4)
@@ -156,9 +169,20 @@ Public Module WorldCluster
 #End Region
 
 #Region "WS.DataAccess"
+    Public DbcDatabase As New SQL
     Public AccountDatabase As New SQL
     Public CharacterDatabase As New SQL
     Public WorldDatabase As New SQL
+
+    Public Sub DbcSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
+        Select Case MessageID
+            Case SQL.EMessages.ID_Error
+                Log.WriteLine(LogType.FAILED, "[DBC] " & OutBuf)
+            Case SQL.EMessages.ID_Message
+                Log.WriteLine(LogType.SUCCESS, "[DBC] " & OutBuf)
+        End Select
+    End Sub
+
     Public Sub AccountSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
@@ -241,11 +265,23 @@ Public Module WorldCluster
 
         LoadConfig()
         Console.ForegroundColor = ConsoleColor.Gray
+        AddHandler DbcDatabase.SQLMessage, AddressOf DbcSQLEventHandler
         AddHandler AccountDatabase.SQLMessage, AddressOf AccountSQLEventHandler
         AddHandler CharacterDatabase.SQLMessage, AddressOf CharacterSQLEventHandler
         AddHandler WorldDatabase.SQLMessage, AddressOf WorldSQLEventHandler
 
         Dim ReturnValues As Integer
+        ReturnValues = DbcDatabase.Connect()
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
+        DbcDatabase.Update("SET NAMES 'utf8';")
+
         ReturnValues = AccountDatabase.Connect()
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
@@ -281,6 +317,7 @@ Public Module WorldCluster
 
 #If DEBUG Then
         Log.WriteLine(LogType.DEBUG, "Setting MySQL into debug mode..[done]")
+        DbcDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
         AccountDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
         CharacterDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
         WorldDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")

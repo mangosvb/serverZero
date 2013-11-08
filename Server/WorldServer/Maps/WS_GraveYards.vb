@@ -112,9 +112,41 @@ Public Class WS_GraveYards
 
 #Region "GraveYards"
     Public Sub InitializeGraveyards()
+        'Try
+        '    Graveyards.Clear()
+        '    Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\WorldSafeLocs.dbc")
+
+        '    Dim locationPosX As Single
+        '    Dim locationPosY As Single
+        '    Dim locationPosZ As Single
+        '    Dim locationMapID As Integer
+        '    Dim locationIndex As Integer
+
+        '    Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
+        '    For i As Integer = 0 To tmpDBC.Rows - 1
+        '        locationIndex = tmpDBC.Item(i, 0)
+        '        locationMapID = tmpDBC.Item(i, 1)
+        '        locationPosX = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
+        '        locationPosY = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_FLOAT)
+        '        locationPosZ = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_FLOAT)
+
+        '        If Config.Maps.Contains(locationMapID.ToString) Then
+        '            Graveyards.Add(locationIndex, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
+        '            Log.WriteLine(LogType.DEBUG, "         : Map: {0}  X: {1}  Y: {2}  Z: {3}", locationMapID, locationPosX, locationPosY, locationPosZ)
+        '        End If
+        '    Next i
+        '    Log.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.Rows - 1)
+
+        '    Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", tmpDBC.Rows - 1)
+        '    tmpDBC.Dispose()
+        'Catch e As IO.DirectoryNotFoundException
+        '    Console.ForegroundColor = ConsoleColor.DarkRed
+        '    Console.WriteLine("DBC File : WorldSafeLocs missing.")
+        '    Console.ForegroundColor = ConsoleColor.Gray
+        'End Try
+
         Try
-            Graveyards.Clear()
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\WorldSafeLocs.dbc")
+            Dim tmpDBC As New DBCTable(DbcDatabase, "dbc_worldsafelocs")
 
             Dim locationPosX As Single
             Dim locationPosY As Single
@@ -122,28 +154,30 @@ Public Class WS_GraveYards
             Dim locationMapID As Integer
             Dim locationIndex As Integer
 
-            Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
-            For i As Integer = 0 To tmpDBC.Rows - 1
-                locationIndex = tmpDBC.Item(i, 0)
-                locationMapID = tmpDBC.Item(i, 1)
-                locationPosX = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
-                locationPosY = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_FLOAT)
-                locationPosZ = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_FLOAT)
+            Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.results.Rows.Count)
+
+            For Each row As DataRow In tmpDBC.results.Rows
+                locationIndex = tmpDBC.Item(row.Item("Unknown0"))
+                locationMapID = tmpDBC.Item(row.Item("Unknown1"))
+                locationPosX = tmpDBC.Item(row.Item("Unknown2"), DBCValueType.DBC_FLOAT)
+                locationPosY = tmpDBC.Item(row.Item("Unknown3"), DBCValueType.DBC_FLOAT)
+                locationPosZ = tmpDBC.Item(row.Item("Unknown4"), DBCValueType.DBC_FLOAT)
 
                 If Config.Maps.Contains(locationMapID.ToString) Then
                     Graveyards.Add(locationIndex, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
-                    Log.WriteLine(LogType.DEBUG, "         : Map: {0}  X: {1}  Y: {2}  Z: {3}", locationMapID, locationPosX, locationPosY, locationPosZ)
+                    'Log.WriteLine(LogType.DEBUG, "         : Map: {0}  X: {1}  Y: {2}  Z: {3}", locationMapID, locationPosX, locationPosY, locationPosZ)
                 End If
-            Next i
-            Log.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.Rows - 1)
+            Next
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
-        Catch e As IO.DirectoryNotFoundException
+            Log.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.results.Rows.Count)
+
+            Log.WriteLine(LogType.INFORMATION, "DbcDatabase: {0} Graveyards Initialized.", tmpDBC.results.Rows.Count)
+        Catch e As Exception
             Console.ForegroundColor = ConsoleColor.DarkRed
-            Console.WriteLine("DBC File : WorldSafeLocs missing.")
+            Log.WriteLine(LogType.FAILED, "DbcDatabase: Error Initializing WorldSafeLocs DBC Data [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
+
     End Sub
 #End Region
 
