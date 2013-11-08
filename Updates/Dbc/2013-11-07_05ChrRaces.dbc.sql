@@ -1,0 +1,43 @@
+DROP TABLE IF EXISTS `dbc_ChrRaces`;
+CREATE TABLE `dbc_ChrRaces` (
+	`ID` INT NOT NULL DEFAULT '0',
+	`flags` INT NOT NULL DEFAULT '0',
+	`factionID` INT NOT NULL DEFAULT '0',
+	`ExplorationSoundID` INT NOT NULL DEFAULT '0',
+	`MaleDisplayID` INT NOT NULL DEFAULT '0',
+	`FemaleDisplayID` INT NOT NULL DEFAULT '0',
+	`ClientPrefix` TEXT NOT NULL,
+	`speed` TEXT NOT NULL,
+	`baseLanguage` INT NOT NULL DEFAULT '0',
+	`creatureType` INT NOT NULL DEFAULT '0',
+	`loginEffect` INT NOT NULL DEFAULT '0',
+	`col11` INT NOT NULL DEFAULT '0',
+	`resSicknessSpellID` INT NOT NULL DEFAULT '0',
+	`splashSoundEntryID` INT NOT NULL DEFAULT '0',
+	`col14` BIGINT NOT NULL DEFAULT '0',
+	`clientFileString` TEXT NOT NULL,
+	`cinematicSequenceID` INT NOT NULL DEFAULT '0',
+	`Name` TEXT NOT NULL,
+	`Name1` TEXT NOT NULL,
+	`Name2` TEXT NOT NULL,
+	`Name3` TEXT NOT NULL,
+	`Name4` TEXT NOT NULL,
+	`Name5` TEXT NOT NULL,
+	`Name6` TEXT NOT NULL,
+	`Name7` TEXT NOT NULL,
+	`col25` BIGINT NOT NULL DEFAULT '0',
+	`facialHairCustomization1` TEXT NOT NULL,
+	`facialHairCustomization2` TEXT NOT NULL,
+	`hairCustomization` TEXT NOT NULL)
+ ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='Export of ChrRaces';
+ SET NAMES UTF8;
+
+INSERT INTO `dbc_ChrRaces` VALUES (1,12,1,4140,49,50,"Hu","Hu",7,7,836,1604,15007,1096,2,"Human",81,"Human","0","0","0","0","0","0","0",8323199,"NORMAL","PIERCINGS","NORMAL");
+INSERT INTO `dbc_ChrRaces` VALUES (2,12,2,4141,51,52,"Or","Hu",1,7,836,1604,15007,1096,4194304,"Orc",21,"Orc","0","0","0","0","0","0","0",8323199,"NORMAL","PIERCINGS","NORMAL");
+INSERT INTO `dbc_ChrRaces` VALUES (3,12,3,4147,53,54,"Dw","Hu",7,7,836,1604,15007,1090,32,"Dwarf",41,"Dwarf","0","0","0","0","0","0","0",8323199,"NORMAL","PIERCINGS","NORMAL");
+INSERT INTO `dbc_ChrRaces` VALUES (4,4,4,4145,55,56,"Ni","Hu",7,7,836,1604,15007,1096,2.407412E-35,"NightElf",61,"Night Elf","0","0","0","0","0","0","0",8323199,"NORMAL","MARKINGS","NORMAL");
+INSERT INTO `dbc_ChrRaces` VALUES (5,12,5,4142,57,58,"Sc","Hu",1,7,836,1604,15007,1096,1024,"Scourge",2,"Undead","0","0","0","0","0","0","0",8323199,"FEATURES","FEATURES","NORMAL");
+INSERT INTO `dbc_ChrRaces` VALUES (6,14,6,4143,59,60,"Ta","Hu",1,7,836,1604,15007,1096,2097152,"Tauren",141,"Tauren","0","0","0","0","0","0","0",8323199,"NORMAL","HAIR","HORNS");
+INSERT INTO `dbc_ChrRaces` VALUES (7,12,115,4146,1563,1564,"Gn","Hu",7,7,836,1604,15007,1096,32,"Gnome",101,"Gnome","0","0","0","0","0","0","0",8323198,"NORMAL","EARRINGS","NORMAL");
+INSERT INTO `dbc_ChrRaces` VALUES (8,14,116,4144,1478,1479,"Tr","Hu",1,7,836,1604,15007,1096,4194304,"Troll",121,"Troll","0","0","0","0","0","0","0",8323198,"TUSKS","TUSKS","NORMAL");
+INSERT INTO `dbc_ChrRaces` VALUES (9,1,1,0,1140,1140,"Gb","Hu",7,7,836,1604,15007,1096,0,"Goblin",0,"Goblin","0","0","0","0","0","0","0",8323198,"NORMAL","NONE","NORMAL");

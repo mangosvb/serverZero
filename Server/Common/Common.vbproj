@@ -169,6 +169,7 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DBCTable.vb" />
     <Compile Include="Globals\Global.Enums.vb" />
     <Compile Include="Globals\Global.Functions.vb" />
     <Compile Include="Writers\BaseWriter.vb" />
