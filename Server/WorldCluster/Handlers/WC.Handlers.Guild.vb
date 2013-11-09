@@ -16,8 +16,8 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.Logger
 Imports mangosVB.Common
+Imports mangosVB.Common.Logger
 
 Public Module WC_Handlers_Guild
 
@@ -30,6 +30,7 @@ Public Module WC_Handlers_Guild
 
         SendGuildQuery(Client, GuildID)
     End Sub
+
     Public Sub On_CMSG_GUILD_ROSTER(ByRef packet As PacketClass, ByRef client As ClientClass)
         'packet.GetInt16()
 
@@ -37,6 +38,7 @@ Public Module WC_Handlers_Guild
 
         SendGuildRoster(Client.Character)
     End Sub
+
     Public Sub On_CMSG_GUILD_CREATE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -55,6 +57,7 @@ Public Module WC_Handlers_Guild
 
         AddCharacterToGuild(Client.Character, MySQLQuery.Rows(0).Item("guild_id"), 0)
     End Sub
+
     Public Sub On_CMSG_GUILD_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
 
@@ -76,23 +79,6 @@ Public Module WC_Handlers_Guild
         response.Dispose()
     End Sub
 
-    'Guild Leader Options
-    Public Enum GuildRankRights
-        GR_RIGHT_EMPTY = &H40
-        GR_RIGHT_GCHATLISTEN = &H41
-        GR_RIGHT_GCHATSPEAK = &H42
-        GR_RIGHT_OFFCHATLISTEN = &H44
-        GR_RIGHT_OFFCHATSPEAK = &H48
-        GR_RIGHT_PROMOTE = &HC0
-        GR_RIGHT_DEMOTE = &H140
-        GR_RIGHT_INVITE = &H50
-        GR_RIGHT_REMOVE = &H60
-        GR_RIGHT_SETMOTD = &H1040
-        GR_RIGHT_EPNOTE = &H2040
-        GR_RIGHT_VIEWOFFNOTE = &H4040
-        GR_RIGHT_EOFFNOTE = &H8040
-        GR_RIGHT_ALL = &HF1FF
-    End Enum
     Public Sub On_CMSG_GUILD_RANK(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
@@ -119,6 +105,7 @@ Public Module WC_Handlers_Guild
         SendGuildQuery(Client, client.Character.Guild.ID)
         SendGuildRoster(Client.Character)
     End Sub
+
     Public Sub On_CMSG_GUILD_ADD_RANK(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -151,6 +138,7 @@ Public Module WC_Handlers_Guild
 
         SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
     End Sub
+
     Public Sub On_CMSG_GUILD_DEL_RANK(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetInt16()
 
@@ -178,6 +166,7 @@ Public Module WC_Handlers_Guild
 
         SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
     End Sub
+
     Public Sub On_CMSG_GUILD_LEADER(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -227,6 +216,7 @@ Public Module WC_Handlers_Guild
         BroadcastToGuild(response, client.Character.Guild)
         response.Dispose()
     End Sub
+
     Public Sub On_MSG_SAVE_GUILD_EMBLEM(ByRef packet As PacketClass, ByRef client As ClientClass)
         If packet.Data.Length < 34 Then Exit Sub
         packet.GetInt16()
@@ -274,6 +264,7 @@ Public Module WC_Handlers_Guild
         'Client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
         'Client.Character.SendCharacterUpdate(False)
     End Sub
+
     Public Sub On_CMSG_GUILD_DISBAND(ByRef packet As PacketClass, ByRef client As ClientClass)
         'packet.GetInt16()
 
@@ -342,6 +333,7 @@ Public Module WC_Handlers_Guild
 
         response.Dispose()
     End Sub
+
     Public Sub On_CMSG_GUILD_SET_OFFICER_NOTE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -363,6 +355,7 @@ Public Module WC_Handlers_Guild
 
         SendGuildRoster(Client.Character)
     End Sub
+
     Public Sub On_CMSG_GUILD_SET_PUBLIC_NOTE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -384,6 +377,7 @@ Public Module WC_Handlers_Guild
 
         SendGuildRoster(Client.Character)
     End Sub
+
     Public Sub On_CMSG_GUILD_REMOVE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -433,6 +427,7 @@ Public Module WC_Handlers_Guild
 
         RemoveCharacterFromGuild(objCharacter)
     End Sub
+
     Public Sub On_CMSG_GUILD_PROMOTE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -487,6 +482,7 @@ Public Module WC_Handlers_Guild
         BroadcastToGuild(response, client.Character.Guild)
         response.Dispose()
     End Sub
+
     Public Sub On_CMSG_GUILD_DEMOTE(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 6 Then Exit Sub
         packet.GetInt16()
@@ -514,6 +510,7 @@ Public Module WC_Handlers_Guild
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         End If
+
         Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
         If objCharacter.Guild.ID <> client.Character.Guild.ID Then
             SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
@@ -616,6 +613,7 @@ Public Module WC_Handlers_Guild
         SendGuildRoster(Client.Character)
         SendGuildMOTD(Client.Character)
     End Sub
+
     Public Sub On_CMSG_GUILD_DECLINE(ByRef packet As PacketClass, ByRef client As ClientClass)
         client.Character.GuildInvited = 0
 
@@ -626,6 +624,7 @@ Public Module WC_Handlers_Guild
             response.Dispose()
         End If
     End Sub
+
     Public Sub On_CMSG_GUILD_LEAVE(ByRef packet As PacketClass, ByRef client As ClientClass)
         'packet.GetInt16()
 

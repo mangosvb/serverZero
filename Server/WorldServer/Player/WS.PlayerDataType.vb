@@ -17,7 +17,7 @@
 '
 
 Imports mangosVB.Common.Logger
-Imports mangosVB.Common.Constants
+Imports mangosVB.Common.Global_Constants
 
 Public Module WS_PlayerData
 

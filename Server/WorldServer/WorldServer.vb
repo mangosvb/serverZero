@@ -22,8 +22,6 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Collections.Generic
 Imports mangosVB.Common.Logger
-Imports mangosVB.Common.LogTypes
-Imports mangosVB.Common
 
 Public Module WorldServer
 
@@ -108,7 +106,7 @@ Public Module WorldServer
         <XmlElement(ElementName:="VMapHeightCalc")> Public HeightCalcEnabled As Boolean = False
 
         'Logging Settings
-        <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
+        <XmlElement(ElementName:="LogType")> Public LogType As String = "FILE"
         <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = LogTypes.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
 

@@ -25,7 +25,7 @@ Imports System.Threading
 Imports System.Text
 Imports System.Reflection
 Imports mangosVB.Common
-Imports mangosVB.Common.Constants
+Imports mangosVB.Common.Global_Constants
 Imports mangosVB.Common.Logger
 
 Public Module RealmServer

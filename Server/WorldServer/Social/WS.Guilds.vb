@@ -19,6 +19,7 @@
 Imports mangosVB.Common.Logger
 
 Public Module WS_Guilds
+
 #Region "WS.Guilds.Petition"
     Public Sub SendPetitionActivate(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
         If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Exit Sub
@@ -299,7 +300,7 @@ Public Module WS_Guilds
     Public Sub SendTabardActivate(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
         Dim packet As New PacketClass(OPCODES.MSG_TABARDVENDOR_ACTIVATE)
         packet.AddUInt64(cGUID)
-        objCharacter.Client.Send(packet)
+        objCharacter.client.Send(packet)
         packet.Dispose()
     End Sub
 
@@ -310,7 +311,7 @@ Public Module WS_Guilds
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_TABARDVENDOR_ACTIVATE [GUID={2}]", client.IP, client.Port, GUID)
 
-        SendTabardActivate(Client.Character, GUID)
+        SendTabardActivate(client.Character, GUID)
     End Sub
 
     Public Function GetGuildBankTabPrice(ByVal TabID As Byte) As Integer

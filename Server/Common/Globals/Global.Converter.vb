@@ -85,6 +85,7 @@ Public Module Converter
         Next num1
     End Sub
 #End Region
+
 #Region "ToDouble"
     Public Function ToDouble(ByVal d As Byte(), ByRef offset As Integer) As Double
         Dim num1 As Double = BitConverter.ToDouble(d, offset)
@@ -92,6 +93,7 @@ Public Module Converter
         Return num1
     End Function
 #End Region
+
 #Region "ToFloat"
     Public Function ToFloat(ByVal d As Byte(), ByRef offset As Integer) As Single
         Dim single1 As Single = BitConverter.ToSingle(d, offset)
@@ -99,6 +101,7 @@ Public Module Converter
         Return single1
     End Function
 #End Region
+
 #Region "ToInt16, ToUint16"
     Public Function ToInt16(ByVal d As Byte(), ByRef offset As Integer) As Short
         Dim num1 As Short = BitConverter.ToInt16(d, offset)
@@ -111,6 +114,7 @@ Public Module Converter
         Return num1
     End Function
 #End Region
+
 #Region "ToInt32, ToUint32"
     Public Function ToInt32(ByVal d As Byte(), ByRef offset As Integer) As Integer
         Dim num1 As Integer = BitConverter.ToInt32(d, offset)
@@ -123,6 +127,7 @@ Public Module Converter
         Return num1
     End Function
 #End Region
+
 #Region "ToInt64, ToUint64"
     Public Function ToInt64(ByVal d As Byte(), ByRef offset As Integer) As Long
         Dim num1 As Long = BitConverter.ToInt64(d, offset)

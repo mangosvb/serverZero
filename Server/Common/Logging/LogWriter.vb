@@ -51,8 +51,6 @@ Public Class Logger
     Public Shared Sub CreateLog(ByVal LogType As String, ByVal LogConfig As String, ByRef Log As Logger)
         Try
             Select Case UCase(LogType)
-                Case "LogColor"
-                    Log = New LogColors
                 Case "CONSOLE"
                     Log = New ConsoleWriter
                 Case "FILE"

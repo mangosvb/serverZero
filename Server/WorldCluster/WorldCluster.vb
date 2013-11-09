@@ -20,8 +20,8 @@ Imports System.Threading
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
-Imports mangosVB.Common.Logger
 Imports mangosVB.Common
+Imports mangosVB.Common.Logger
 
 Public Module WorldCluster
 
@@ -69,7 +69,7 @@ Public Module WorldCluster
         <XmlElement(ElementName:="StatsLocation")> Public StatsLocation As String = "stats.xml"
 
         'Logging Settings
-        <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
+        <XmlElement(ElementName:="LogType")> Public LogType As String = "FILE"
         <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = LogTypes.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
         <XmlElement(ElementName:="PacketLogging")> Public PacketLogging As Boolean = False

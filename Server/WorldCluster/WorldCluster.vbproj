@@ -145,13 +145,9 @@
     <Compile Include="AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="..\WorldServer\Global.Functions.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="WC.Battlegrounds.vb" />
-    <Compile Include="Global.Packets.vb" />
-    <Compile Include="WC.ChatChannel.vb" />
-    <Compile Include="WC.Group.vb" />
+    <Compile Include="Globals\Global.Functions.vb" />
+    <Compile Include="Globals\Global.Packets.vb" />
+    <Compile Include="Handlers\WC.Handlers.ChatChannel.vb" />
     <Compile Include="WC.Guild.vb" />
     <Compile Include="Handlers\WC.Handlers.Battleground.vb" />
     <Compile Include="Handlers\WC.Handlers.Chat.vb" />
@@ -161,13 +157,13 @@
     <Compile Include="Handlers\WC.Handlers.Tickets.vb" />
     <Compile Include="Handlers\WC.Handlers.Misc.vb" />
     <Compile Include="Handlers\WC.Handlers.Social.vb" />
-    <Compile Include="WC.Stats.vb" />
-    <Compile Include="WC.Character.vb" />
-    <Compile Include="WC.DBCDatabase.vb" />
-    <Compile Include="WC.DBCLoad.vb" />
+    <Compile Include="Server\WC.Stats.vb" />
+    <Compile Include="Handlers\WC.Handlers.Character.vb" />
+    <Compile Include="DataStores\WC.DBCDatabase.vb" />
+    <Compile Include="DataStores\WC.DBCLoad.vb" />
     <Compile Include="Handlers\WC.Handlers.Auth.vb" />
     <Compile Include="Handlers\WC.Handlers.vb" />
-    <Compile Include="WC.Network.vb" />
+    <Compile Include="Server\WC.Network.vb" />
     <Compile Include="WorldCluster.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -207,6 +203,7 @@
       <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PreBuildEvent>

@@ -148,7 +148,7 @@
     <Compile Include="AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Global.BigInteger.vb" />
+    <Compile Include="Globals\Global.BigInteger.vb" />
     <Compile Include="Gossip\WS.GuardGossip.vb" />
     <Compile Include="Handlers\WS.Handlers.CharManagement.vb" />
     <Compile Include="Handlers\WS.Handlers.Warden.vb" />
@@ -163,14 +163,14 @@
     <Compile Include="Quests\WS.QuestsBase.vb" />
     <Compile Include="Quests\WS.QuestInfo.vb" />
     <Compile Include="Handlers\WS.Handlers.Battleground.vb" />
-    <Compile Include="WS.LockDebug.vb" />
+    <Compile Include="Server\WS.LockDebug.vb" />
     <Compile Include="Objects\WS.Totems.vb" />
     <Compile Include="Objects\WS.DynamicObjects.vb" />
-    <Compile Include="Global.Functions.vb" />
-    <Compile Include="Global.Packets.vb">
+    <Compile Include="Globals\Global.Functions.vb" />
+    <Compile Include="Globals\Global.Packets.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Global.System.vb">
+    <Compile Include="Globals\Global.System.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WorldServer.vb">
@@ -231,7 +231,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Maps\WS.Maps.vb" />
-    <Compile Include="WS.Network.vb" />
+    <Compile Include="Server\WS.Network.vb" />
     <Compile Include="Objects\WS.NPCs.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -244,7 +244,7 @@
     <Compile Include="Spells\WS.Spells.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.TimerBasedEvents.vb">
+    <Compile Include="Server\WS.TimerBasedEvents.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Maps\WS.VMaps.vb" />

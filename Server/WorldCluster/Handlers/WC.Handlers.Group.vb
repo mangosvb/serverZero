@@ -16,10 +16,335 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.Logger
+Imports System.Threading
 Imports mangosVB.Common
+Imports mangosVB.Common.Logger
 
 Public Module WC_Handlers_Group
+
+    'Used as counter for unique Group.ID
+    Private GroupCounter As Long = 1
+
+    Public GROUPs As New Dictionary(Of Long, Group)
+    Public Class Group
+        Implements IDisposable
+
+        Public ID As Long
+        Public Type As GroupType = GroupType.PARTY
+        Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
+        Private LootMaster As Byte
+        Public LootMethod As GroupLootMethod = GroupLootMethod.LOOT_GROUP
+        Public LootThreshold As GroupLootThreshold = GroupLootThreshold.Uncommon
+
+        Public Leader As Byte
+        Public Members(GROUP_SIZE) As CharacterObject
+        Public TargetIcons(7) As ULong
+
+        Public Sub New(ByRef objCharacter As CharacterObject)
+            ID = Interlocked.Increment(GroupCounter)
+            GROUPs.Add(ID, Me)
+
+            Members(0) = objCharacter
+            Members(1) = Nothing
+            Members(2) = Nothing
+            Members(3) = Nothing
+            Members(4) = Nothing
+
+            Leader = 0
+            LootMaster = 255
+
+            objCharacter.Group = Me
+            objCharacter.GroupAssistant = False
+
+            objCharacter.GetWorld.ClientSetGroup(objCharacter.client.Index, ID)
+        End Sub
+
+#Region "IDisposable Support"
+        Private _disposedValue As Boolean ' To detect redundant calls
+
+        ' IDisposable
+        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            If Not _disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Dim packet As PacketClass
+
+                If Type = GroupType.RAID Then
+                    packet = New PacketClass(OPCODES.SMSG_GROUP_LIST)
+                    packet.AddInt16(0)          'GroupType 0:Party 1:Raid
+                    packet.AddInt32(0)          'GroupCount
+                Else
+                    packet = New PacketClass(OPCODES.SMSG_GROUP_DESTROYED)
+                End If
+
+                For i As Byte = 0 To Members.Length - 1
+                    If Not Members(i) Is Nothing Then
+                        Members(i).Group = Nothing
+                        If Not Members(i).client Is Nothing Then
+                            Members(i).client.SendMultiplyPackets(packet)
+                            Members(i).GetWorld.ClientSetGroup(Members(i).client.Index, -1)
+                        End If
+                        Members(i) = Nothing
+                    End If
+                Next
+                packet.Dispose()
+
+                WorldServer.GroupSendUpdate(ID)
+                GROUPs.Remove(ID)
+            End If
+            _disposedValue = True
+        End Sub
+
+        ' This code added by Visual Basic to correctly implement the disposable pattern.
+        Public Sub Dispose() Implements IDisposable.Dispose
+            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+            Dispose(True)
+            GC.SuppressFinalize(Me)
+        End Sub
+#End Region
+
+        Public Sub Join(ByRef objCharacter As CharacterObject)
+            For i As Byte = 0 To Members.Length - 1
+                If Members(i) Is Nothing Then
+                    Members(i) = objCharacter
+                    objCharacter.Group = Me
+                    objCharacter.GroupAssistant = False
+                    Exit For
+                End If
+            Next
+
+            WorldServer.GroupSendUpdate(ID)
+
+            objCharacter.GetWorld.ClientSetGroup(objCharacter.client.Index, ID)
+
+            SendGroupList()
+        End Sub
+
+        Public Sub Leave(ByRef objCharacter As CharacterObject)
+            If GetMembersCount() = 2 Then
+                Dispose()
+                Exit Sub
+            End If
+
+            For i As Byte = 0 To Members.Length - 1
+                If Members(i) Is objCharacter Then
+
+                    objCharacter.Group = Nothing
+                    Members(i) = Nothing
+
+                    'DONE: If current is leader then choose new
+                    If i = Leader Then
+                        NewLeader()
+                    End If
+
+                    'DONE: If current is lootMaster then choose new
+                    If i = LootMaster Then LootMaster = Leader
+
+                    If objCharacter.client IsNot Nothing Then
+                        Dim packet As New PacketClass(OPCODES.SMSG_GROUP_UNINVITE)
+                        objCharacter.client.Send(packet)
+                        packet.Dispose()
+                    End If
+
+                    Exit For
+                End If
+            Next
+
+            WorldServer.GroupSendUpdate(ID)
+
+            objCharacter.GetWorld.ClientSetGroup(objCharacter.client.Index, -1)
+
+            CheckMembers()
+        End Sub
+
+        Public Sub CheckMembers()
+            If GetMembersCount() < 2 Then Dispose() Else SendGroupList()
+        End Sub
+
+        Public Sub NewLeader(Optional ByVal Leaver As CharacterObject = Nothing)
+            Dim ChosenMember As Byte = 255
+            Dim NewLootMaster As Boolean = False
+            For i As Byte = 0 To Members.Length - 1
+                If Members(i) IsNot Nothing AndAlso Members(i).client IsNot Nothing Then
+                    If Leaver IsNot Nothing AndAlso Leaver Is Members(i) Then
+                        If i = LootMaster Then NewLootMaster = True
+                        If ChosenMember <> 255 Then Exit For
+                    Else
+                        If Members(i).GroupAssistant AndAlso ChosenMember = 255 Then
+                            ChosenMember = i
+                        ElseIf ChosenMember = 255 Then
+                            ChosenMember = i
+                        End If
+                    End If
+                End If
+            Next
+
+            If ChosenMember <> 255 Then
+                Leader = ChosenMember
+                If NewLootMaster Then LootMaster = Leader
+                Dim response As New PacketClass(OPCODES.SMSG_GROUP_SET_LEADER)
+                response.AddString(Members(Leader).Name)
+                Broadcast(response)
+                response.Dispose()
+
+                WorldServer.GroupSendUpdate(ID)
+            End If
+        End Sub
+
+        Public ReadOnly Property IsFull() As Boolean
+            Get
+                For i As Byte = 0 To Members.Length - 1
+                    If Members(i) Is Nothing Then Return False
+                Next
+                Return True
+            End Get
+        End Property
+
+        Public Sub ConvertToRaid()
+            ReDim Preserve Members(GROUP_RAIDSIZE)
+            For i As Byte = GROUP_SIZE + 1 To GROUP_RAIDSIZE
+                Members(i) = Nothing
+            Next
+
+            Type = GroupType.RAID
+        End Sub
+
+        Public Sub SetLeader(ByRef objCharacter As CharacterObject)
+            For i As Byte = 0 To Members.Length
+                If Members(i) Is objCharacter Then
+                    Leader = i
+                    Exit For
+                End If
+            Next
+
+            Dim packet As New PacketClass(OPCODES.SMSG_GROUP_SET_LEADER)
+            packet.AddString(objCharacter.Name)
+            Broadcast(packet)
+            packet.Dispose()
+
+            WorldServer.GroupSendUpdate(ID)
+
+            SendGroupList()
+        End Sub
+
+        Public Sub SetLootMaster(ByRef objCharacter As CharacterObject)
+            LootMaster = Leader
+            For i As Byte = 0 To Members.Length - 1
+                If Members(i) Is objCharacter Then
+                    LootMaster = i
+                    Exit For
+                End If
+            Next i
+            SendGroupList()
+        End Sub
+
+        Public Sub SetLootMaster(ByRef GUID As ULong)
+            LootMaster = 255
+            For i As Byte = 0 To Members.Length - 1
+                If (Not Members(i) Is Nothing) AndAlso (Members(i).GUID = GUID) Then
+                    LootMaster = i
+                    Exit For
+                End If
+            Next i
+            SendGroupList()
+        End Sub
+
+        Public Function GetLeader() As CharacterObject
+            Return Members(Leader)
+        End Function
+
+        Public Function GetLootMaster() As CharacterObject
+            Return Members(Leader)
+        End Function
+
+        Public Function GetMembersCount() As Byte
+            Dim count As Byte = 0
+            For i As Byte = 0 To Members.Length - 1
+                If Not Members(i) Is Nothing Then count += 1
+            Next i
+            Return count
+        End Function
+
+        Public Function GetMembers() As ULong()
+            Dim list As New List(Of ULong)
+            For i As Byte = 0 To Members.Length - 1
+                If Not Members(i) Is Nothing Then list.Add(Members(i).GUID)
+            Next i
+
+            Return list.ToArray
+        End Function
+
+        Public Sub Broadcast(ByRef packet As PacketClass)
+            For i As Byte = 0 To Members.Length - 1
+                If Members(i) IsNot Nothing AndAlso Members(i).client IsNot Nothing Then Members(i).client.SendMultiplyPackets(packet)
+            Next
+        End Sub
+
+        Public Sub BroadcastToOther(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
+            For i As Byte = 0 To Members.Length - 1
+                If (Not Members(i) Is Nothing) AndAlso (Members(i) IsNot objCharacter) AndAlso (Members(i).client IsNot Nothing) Then Members(i).client.SendMultiplyPackets(packet)
+            Next
+        End Sub
+
+        Public Sub BroadcastToOutOfRange(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
+            For i As Byte = 0 To Members.Length - 1
+                If Members(i) IsNot Nothing AndAlso Members(i) IsNot objCharacter AndAlso Members(i).client IsNot Nothing Then
+                    If objCharacter.Map <> Members(i).Map OrElse Math.Sqrt((objCharacter.PositionX - Members(i).PositionX) ^ 2 + (objCharacter.PositionY - Members(i).PositionY) ^ 2) > DEFAULT_DISTANCE_VISIBLE Then
+                        Members(i).client.SendMultiplyPackets(packet)
+                    End If
+                End If
+            Next
+        End Sub
+
+        Public Sub SendGroupList()
+            Dim GroupCount As Byte = GetMembersCount()
+
+            For i As Byte = 0 To Members.Length - 1
+                If Not Members(i) Is Nothing Then
+
+                    Dim packet As New PacketClass(OPCODES.SMSG_GROUP_LIST)
+                    packet.AddInt8(Type)                                    'GroupType 0:Party 1:Raid
+                    Dim MemberFlags As Byte = Int(i / GROUP_SUBGROUPSIZE)
+                    'If Members(i).GroupAssistant Then MemberFlags = MemberFlags Or &H1
+                    packet.AddInt8(MemberFlags)
+                    packet.AddInt32(GroupCount - 1)
+
+                    For j As Byte = 0 To Members.Length - 1
+                        If (Not Members(j) Is Nothing) AndAlso (Not Members(j) Is Members(i)) Then
+                            packet.AddString(Members(j).Name)
+                            packet.AddUInt64(Members(j).GUID)
+                            If Members(j).IsInWorld Then
+                                packet.AddInt8(1)                           'CharOnline?
+                            Else
+                                packet.AddInt8(0)                           'CharOnline?
+                            End If
+                            MemberFlags = Int(j / GROUP_SUBGROUPSIZE)
+                            'If Members(j).GroupAssistant Then MemberFlags = MemberFlags Or &H1
+                            packet.AddInt8(MemberFlags)
+                        End If
+                    Next
+                    packet.AddUInt64(Members(Leader).GUID)
+                    packet.AddInt8(LootMethod)
+                    If LootMaster <> 255 Then packet.AddUInt64(Members(LootMaster).GUID) Else packet.AddUInt64(0)
+                    packet.AddInt8(LootThreshold)
+                    packet.AddInt16(0)
+
+                    If Members(i).client IsNot Nothing Then
+                        Members(i).client.Send(packet)
+                    End If
+                    packet.Dispose()
+                End If
+            Next
+        End Sub
+
+        Public Sub SendChatMessage(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal Type As ChatMsg)
+            Dim packet As PacketClass = BuildChatMessage(Sender.GUID, Message, Type, Language, Sender.ChatFlag)
+
+            Broadcast(packet)
+            packet.Dispose()
+        End Sub
+
+    End Class
 
     Public Sub On_CMSG_REQUEST_RAID_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_RAID_INFO", client.IP, client.Port)
@@ -96,20 +421,20 @@ Public Module WC_Handlers_Group
             errCode = PartyCommandResult.INVITE_NOT_FOUND
         ElseIf CHARACTERs(GUID).IsInWorld = False Then
             errCode = PartyCommandResult.INVITE_NOT_FOUND
-        ElseIf GetCharacterSide(CHARACTERs(GUID).Race) <> GetCharacterSide(Client.Character.Race) Then
+        ElseIf GetCharacterSide(CHARACTERs(GUID).Race) <> GetCharacterSide(client.Character.Race) Then
             errCode = PartyCommandResult.INVITE_NOT_SAME_SIDE
         ElseIf CHARACTERs(GUID).IsInGroup Then
             errCode = PartyCommandResult.INVITE_ALREADY_IN_GROUP
             Dim denied As New PacketClass(OPCODES.SMSG_GROUP_INVITE)
             denied.AddInt8(0)
-            denied.AddString(Client.Character.Name)
-            CHARACTERs(GUID).Client.Send(denied)
+            denied.AddString(client.Character.Name)
+            CHARACTERs(GUID).client.Send(denied)
             denied.Dispose()
-        ElseIf CHARACTERs(GUID).IgnoreList.Contains(Client.Character.GUID) Then
+        ElseIf CHARACTERs(GUID).IgnoreList.Contains(client.Character.GUID) Then
             errCode = PartyCommandResult.INVITE_IGNORED
         Else
             If Not client.Character.IsInGroup Then
-                Dim g As New Group(Client.Character)
+                Dim g As New Group(client.Character)
                 CHARACTERs(GUID).Group = client.Character.Group
                 CHARACTERs(GUID).GroupInvitedFlag = True
             Else
@@ -125,13 +450,13 @@ Public Module WC_Handlers_Group
 
         End If
 
-        SendPartyResult(Client, Name, PartyCommand.PARTY_OP_INVITE, errCode)
+        SendPartyResult(client, Name, PartyCommand.PARTY_OP_INVITE, errCode)
 
         If errCode = PartyCommandResult.INVITE_OK Then
             Dim invited As New PacketClass(OPCODES.SMSG_GROUP_INVITE)
             invited.AddInt8(1)
-            invited.AddString(Client.Character.Name)
-            CHARACTERs(GUID).Client.Send(invited)
+            invited.AddString(client.Character.Name)
+            CHARACTERs(GUID).client.Send(invited)
             invited.Dispose()
         End If
     End Sub
@@ -143,9 +468,9 @@ Public Module WC_Handlers_Group
     Public Sub On_CMSG_GROUP_ACCEPT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_ACCEPT", client.IP, client.Port)
         If client.Character.GroupInvitedFlag AndAlso Not client.Character.Group.IsFull Then
-            client.Character.Group.Join(Client.Character)
+            client.Character.Group.Join(client.Character)
         Else
-            SendPartyResult(Client, client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_PARTY_FULL)
+            SendPartyResult(client, client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_PARTY_FULL)
             client.Character.Group = Nothing
         End If
 
@@ -156,8 +481,8 @@ Public Module WC_Handlers_Group
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_DECLINE", client.IP, client.Port)
         If client.Character.GroupInvitedFlag Then
             Dim response As New PacketClass(OPCODES.SMSG_GROUP_DECLINE)
-            response.AddString(Client.Character.Name)
-            client.Character.Group.GetLeader.Client.Send(response)
+            response.AddString(client.Character.Name)
+            client.Character.Group.GetLeader.client.Send(response)
             response.Dispose()
 
             client.Character.Group.CheckMembers()
@@ -172,7 +497,7 @@ Public Module WC_Handlers_Group
         If client.Character.IsInGroup Then
             'TODO: InBattlegrounds: INVITE_RESTRICTED
             If client.Character.Group.GetMembersCount > 2 Then
-                client.Character.Group.Leave(Client.Character)
+                client.Character.Group.Leave(client.Character)
             Else
                 client.Character.Group.Dispose()
             End If
@@ -198,9 +523,9 @@ Public Module WC_Handlers_Group
 
         'TODO: InBattlegrounds: INVITE_RESTRICTED
         If GUID = 0 Then
-            SendPartyResult(Client, Name, PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
+            SendPartyResult(client, Name, PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
         ElseIf Not client.Character.IsGroupLeader Then
-            SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_LEADER)
+            SendPartyResult(client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_LEADER)
         Else
             client.Character.Group.Leave(CHARACTERs(GUID))
         End If
@@ -216,11 +541,11 @@ Public Module WC_Handlers_Group
 
         'TODO: InBattlegrounds: INVITE_RESTRICTED
         If GUID = 0 Then
-            SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
+            SendPartyResult(client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
         ElseIf CHARACTERs.ContainsKey(GUID) = False Then
-            SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
+            SendPartyResult(client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_FOUND)
         ElseIf Not client.Character.IsGroupLeader Then
-            SendPartyResult(Client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_LEADER)
+            SendPartyResult(client, "", PartyCommand.PARTY_OP_LEAVE, PartyCommandResult.INVITE_NOT_LEADER)
         Else
             client.Character.Group.Leave(CHARACTERs(GUID))
         End If
@@ -235,11 +560,11 @@ Public Module WC_Handlers_Group
 
         Dim GUID As ULong = GetCharacterGUIDByName(Name)
         If GUID = 0 Then
-            SendPartyResult(Client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_FOUND)
+            SendPartyResult(client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_FOUND)
         ElseIf CHARACTERs.ContainsKey(GUID) = False Then
-            SendPartyResult(Client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_FOUND)
+            SendPartyResult(client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_FOUND)
         ElseIf Not client.Character.IsGroupLeader Then
-            SendPartyResult(Client, client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_LEADER)
+            SendPartyResult(client, client.Character.Name, PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_LEADER)
         Else
             client.Character.Group.SetLeader(CHARACTERs(GUID))
         End If
@@ -249,12 +574,12 @@ Public Module WC_Handlers_Group
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_RAID_CONVERT", client.IP, client.Port)
 
         If client.Character.IsInGroup Then
-            SendPartyResult(Client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_OK)
+            SendPartyResult(client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_OK)
 
             client.Character.Group.ConvertToRaid()
             client.Character.Group.SendGroupList()
 
-            WorldServer.GroupSendUpdate(Client.Character.Group.ID)
+            WorldServer.GroupSendUpdate(client.Character.Group.ID)
         End If
     End Sub
 
@@ -344,7 +669,7 @@ Public Module WC_Handlers_Group
         client.Character.Group.LootThreshold = Threshold
         client.Character.Group.SendGroupList()
 
-        WorldServer.GroupSendUpdateLoot(Client.Character.Group.ID)
+        WorldServer.GroupSendUpdateLoot(client.Character.Group.ID)
     End Sub
 
     Public Sub On_MSG_MINIMAP_PING(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -356,7 +681,7 @@ Public Module WC_Handlers_Group
 
         If client.Character.IsInGroup Then
             Dim response As New PacketClass(OPCODES.MSG_MINIMAP_PING)
-            response.AddUInt64(Client.Character.GUID)
+            response.AddUInt64(client.Character.GUID)
             response.AddSingle(x)
             response.AddSingle(y)
             client.Character.Group.Broadcast(response)
@@ -377,7 +702,7 @@ Public Module WC_Handlers_Group
         response.AddInt32(minRoll)
         response.AddInt32(maxRoll)
         response.AddInt32(Rnd.Next(minRoll, maxRoll))
-        response.AddUInt64(Client.Character.GUID)
+        response.AddUInt64(client.Character.GUID)
         If client.Character.IsInGroup Then
             client.Character.Group.Broadcast(response)
         Else
@@ -399,12 +724,12 @@ Public Module WC_Handlers_Group
 
             If result = 0 Then
                 'DONE: Not ready
-                client.Character.Group.GetLeader.Client.Send(packet)
+                client.Character.Group.GetLeader.client.Send(packet)
             Else
                 'DONE: Ready
                 Dim response As New PacketClass(OPCODES.MSG_RAID_READY_CHECK)
-                response.AddUInt64(Client.Character.GUID)
-                client.Character.Group.GetLeader.Client.Send(response)
+                response.AddUInt64(client.Character.GUID)
+                client.Character.Group.GetLeader.client.Send(response)
                 response.Dispose()
             End If
         End If
@@ -424,7 +749,7 @@ Public Module WC_Handlers_Group
                 If client.Character.Group.TargetIcons(i) = 0 Then Continue For
 
                 response.AddInt8(i)
-                response.AddUInt64(Client.Character.Group.TargetIcons(i))
+                response.AddUInt64(client.Character.Group.TargetIcons(i))
             Next
             client.Send(response)
             response.Dispose()

@@ -16,9 +16,12 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Public Module Constants
+Public Module Global_Constants
 
-    'TODO: Needs numic values, not packets
+    Public Const GROUP_SUBGROUPSIZE As Integer = 5  '(MAX_RAID_SIZE / MAX_GROUP_SIZE)
+    Public Const GROUP_SIZE As Integer = 5          'Normal Group Size/More then 5, it's a raid group
+    Public Const GROUP_RAIDSIZE As Integer = 40     'Max Raid Size
+
     Public Const GUID_ITEM As ULong = &H4000000000000000UL
     Public Const GUID_CONTAINER As ULong = &H4000000000000000UL
     Public Const GUID_PLAYER As ULong = &H0UL
