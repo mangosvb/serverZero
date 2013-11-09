@@ -156,9 +156,12 @@
     <Compile Include="Objects\WS.CreatureInfo.vb" />
     <Compile Include="Objects\WS.ItemObject.vb" />
     <Compile Include="Objects\WS.Transports.vb" />
-    <Compile Include="Quests\WS_Quests.vb" />
-    <Compile Include="Quests\WS_QuestsBase.vb" />
-    <Compile Include="Quests\WS_QuestInfo.vb" />
+    <Compile Include="Player\WS.PlayerCreation.vb" />
+    <Compile Include="Player\WS.PlayerDataType.vb" />
+    <Compile Include="Player\WS.PlayerInitializator.vb" />
+    <Compile Include="Quests\WS.Quests.vb" />
+    <Compile Include="Quests\WS.QuestsBase.vb" />
+    <Compile Include="Quests\WS.QuestInfo.vb" />
     <Compile Include="Handlers\WS.Handlers.Battleground.vb" />
     <Compile Include="WS.LockDebug.vb" />
     <Compile Include="Objects\WS.Totems.vb" />
@@ -173,38 +176,38 @@
     <Compile Include="WorldServer.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Battlegrounds.vb" />
-    <Compile Include="WS.Auction.vb">
+    <Compile Include="Battlegrounds\WS.Battlegrounds.vb" />
+    <Compile Include="Auction\WS.Auction.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Objects\WS.Base.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Objects\WS.CharManagment.vb">
+    <Compile Include="Player\WS.PlayerHelper.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.CharMovement.vb">
+    <Compile Include="Handlers\WS.Handlers.CharMovement.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Combat.vb">
+    <Compile Include="Handlers\WS.Handlers.Combat.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Commands.vb">
+    <Compile Include="Handlers\WS.Handlers.Commands.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Objects\WS.Corpses.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Creatures.AI.vb">
+    <Compile Include="AI\WS.Creatures.AI.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Objects\WS.Creatures.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.DBCDatabase.vb">
+    <Compile Include="DataStores\WS.DBCDatabase.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.DBCLoad.vb" />
+    <Compile Include="DataStores\WS.DBCLoad.vb" />
     <Compile Include="Objects\WS.GameObjects.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -221,7 +224,7 @@
     <Compile Include="Objects\WS.Items.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Loot.vb">
+    <Compile Include="Loots\WS.Loot.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Social\WS.Mail.vb">
@@ -229,7 +232,7 @@
     </Compile>
     <Compile Include="Maps\WS.Maps.vb" />
     <Compile Include="WS.Network.vb" />
-    <Compile Include="WS.NPCs.vb">
+    <Compile Include="Objects\WS.NPCs.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Social\WS.Group.vb">
@@ -238,16 +241,16 @@
     <Compile Include="Objects\WS.Pets.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WS.Spells.vb">
+    <Compile Include="Spells\WS.Spells.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WS.TimerBasedEvents.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Maps\WS.VMaps.vb" />
-    <Compile Include="WS.Warden.vb" />
-    <Compile Include="WS.Weather.vb" />
-    <Compile Include="Quests\WS_QuestsBaseScripted.vb" />
+    <Compile Include="Warden\WS.Warden.vb" />
+    <Compile Include="Weather\WS.Weather.vb" />
+    <Compile Include="Quests\WS.QuestsBaseScripted.vb" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
