@@ -18,7 +18,7 @@
 Imports System.IO
 Imports System.Reflection
 Imports System.CodeDom.Compiler
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 Imports mangosVB.Common.Constants
 
 'NOTE: How to use ScriptedObject as Function

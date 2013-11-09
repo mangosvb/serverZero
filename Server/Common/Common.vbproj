@@ -141,11 +141,6 @@
       <HintPath>..\..\ServerFiles\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Meebey.SmartIrc4net, Version=0.4.0.34161, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ServerFiles\Meebey.SmartIrc4net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="MySql.Data, Version=5.2.2.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ServerFiles\MySql.Data.dll</HintPath>
@@ -171,40 +166,35 @@
   <ItemGroup>
     <Compile Include="Globals\Global.Enums.vb" />
     <Compile Include="Globals\Global.Functions.vb" />
-    <Compile Include="Writers\BaseWriter.vb" />
+    <Compile Include="Logging\LogColors.vb" />
     <Compile Include="Cluster.vb">
     </Compile>
-    <Compile Include="Writers\ColoredConsoleWriter.vb" />
-    <Compile Include="Writers\ConsoleWriter.vb" />
-    <Compile Include="fileDBC.vb">
+    <Compile Include="DataStores\DBC.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="fileMPQ.vb">
+    <Compile Include="DataStores\MPQ.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="fileWDB.vb">
+    <Compile Include="DataStores\WDB.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Writers\FileWriter.vb" />
+    <Compile Include="Logging\LogWriter.vb" />
     <Compile Include="Globals\Global.Constants.vb" />
     <Compile Include="Globals\Global.Converter.vb" />
     <Compile Include="Globals\Global.Opcodes.vb" />
     <Compile Include="Globals\Global.Zip.vb" />
-    <Compile Include="Writers\IrcWriter.vb" />
+    <Compile Include="Logging\LogTypes.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="NativeMethods.vb" />
     <Compile Include="Revisions.vb" />
     <Compile Include="SQL.vb" />
-    <Compile Include="Writers\TelnetWriter.vb" />
+    <Compile Include="Logging\TelnetWriter.vb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ICSharpCode.SharpZipLib.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="libeay32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Meebey.SmartIrc4net.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MySql.Data.dll">

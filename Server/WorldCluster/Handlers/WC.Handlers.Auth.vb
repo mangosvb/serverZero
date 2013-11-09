@@ -18,7 +18,7 @@
 
 Imports System.Threading
 Imports System.Net.Sockets
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 Imports mangosVB.Common
 
 Public Module WC_Handlers_Auth

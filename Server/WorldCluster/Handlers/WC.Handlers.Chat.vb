@@ -18,7 +18,7 @@
 
 Imports System.Linq.Expressions
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 
 Public Module WC_Handlers_Chat
 

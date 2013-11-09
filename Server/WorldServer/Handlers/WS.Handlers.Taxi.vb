@@ -17,7 +17,7 @@
 '
 Imports System.Threading
 Imports System.Collections.Generic
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
 

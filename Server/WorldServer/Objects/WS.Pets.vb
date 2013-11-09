@@ -102,13 +102,13 @@ Public Module WS_Pets
         Dim PetNumber As Integer = packet.GetInt32()
         Dim PetGUID As ULong = packet.GetUInt64()
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_NAME_QUERY [Number={0} GUID={1:X}", PetNumber, PetGUID)
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_NAME_QUERY [Number={0} GUID={1:X}", PetNumber, PetGUID)
 
         SendPetNameQuery(Client, PetGUID, PetNumber)
     End Sub
 
     Public Sub On_CMSG_REQUEST_PET_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_REQUEST_PET_INFO")
+        Log.WriteLine(LogType.DEBUG, "CMSG_REQUEST_PET_INFO")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
@@ -120,11 +120,11 @@ Public Module WS_Pets
         Dim SpellFlag As UShort = packet.GetUInt16()
         Dim TargetGUID As ULong = packet.GetUInt64()
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_ACTION [GUID={0:X} Spell={1} Flag={2:X} Target={3:X}]", PetGUID, SpellID, SpellFlag, TargetGUID)
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_ACTION [GUID={0:X} Spell={1} Flag={2:X} Target={3:X}]", PetGUID, SpellID, SpellFlag, TargetGUID)
     End Sub
 
     Public Sub On_CMSG_PET_CANCEL_AURA(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_CANCEL_AURA")
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_CANCEL_AURA")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
@@ -133,7 +133,7 @@ Public Module WS_Pets
         packet.GetInt16()
         Dim PetGUID As ULong = packet.GetUInt64()
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_ABANDON [GUID={0:X}]", PetGUID)
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_ABANDON [GUID={0:X}]", PetGUID)
     End Sub
 
     Public Sub On_CMSG_PET_RENAME(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -141,7 +141,7 @@ Public Module WS_Pets
         Dim PetGUID As ULong = packet.GetUInt64()
         Dim PetName As String = packet.GetString()
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_RENAME [GUID={0:X} Name={1}]", PetGUID, PetName)
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_RENAME [GUID={0:X} Name={1}]", PetGUID, PetName)
     End Sub
 
     Public Sub On_CMSG_PET_SET_ACTION(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -151,23 +151,23 @@ Public Module WS_Pets
         Dim SpellID As UShort = packet.GetUInt16()
         Dim ActionState As Short = packet.GetInt16()
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_SET_ACTION [GUID={0:X} Pos={1} Spell={2} Action={3}]", PetGUID, Position, SpellID, ActionState)
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_SET_ACTION [GUID={0:X} Pos={1} Spell={2} Action={3}]", PetGUID, Position, SpellID, ActionState)
     End Sub
 
     Public Sub On_CMSG_PET_SPELL_AUTOCAST(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_SPELL_AUTOCAST")
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_SPELL_AUTOCAST")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
 
     Public Sub On_CMSG_PET_STOP_ATTACK(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_STOP_ATTACK")
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_STOP_ATTACK")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
 
     Public Sub On_CMSG_PET_UNLEARN(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "CMSG_PET_UNLEARN")
+        Log.WriteLine(LogType.DEBUG, "CMSG_PET_UNLEARN")
 
         DumpPacket(packet.Data, Client, 6)
     End Sub
@@ -229,7 +229,7 @@ Public Module WS_Pets
         objCharacter.Pet.positionZ = objCharacter.positionZ
         objCharacter.Pet.MapID = objCharacter.MapID
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "Loaded pet [{0}] for character [{1}].", objCharacter.Pet.GUID, objCharacter.GUID)
+        Log.WriteLine(LogType.DEBUG, "Loaded pet [{0}] for character [{1}].", objCharacter.Pet.GUID, objCharacter.GUID)
     End Sub
 
     Public Sub SendPetInitialize(ByRef Caster As CharacterObject, ByRef Pet As BaseUnit)

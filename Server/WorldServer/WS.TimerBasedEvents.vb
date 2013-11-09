@@ -17,7 +17,7 @@
 '
 
 Imports System.Collections.Generic
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 
 Public Module WS_TimerBasedEvents
 

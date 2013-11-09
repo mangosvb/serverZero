@@ -111,7 +111,7 @@ Public Module WC_Stats
         Next
     End Sub
     Public Sub GenerateStats(ByVal State As Object)
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "Generating stats")
+        Log.WriteLine(LogType.DEBUG, "Generating stats")
         PrepareStats()
 
         Dim f As XmlWriter = XmlWriter.Create(Config.StatsLocation)
@@ -223,7 +223,7 @@ Public Module WC_Stats
                 f.WriteEndElement()
             Next
         Catch ex As Exception
-            Log.WriteLine(BaseWriter.LogType.FAILED, "Error while generating stats file: {0}", ex.ToString)
+            Log.WriteLine(LogType.FAILED, "Error while generating stats file: {0}", ex.ToString)
         End Try
         '</world>
         f.WriteEndElement()

@@ -475,7 +475,7 @@ Public NotInheritable Class ItemObject
                     subClass = ItemInfo.SubClass + 21
                 Dim durabilityCost As UInteger =
                         (lostDurability * ((DurabilityCosts(ItemInfo.Level, subClass) / 40) * 100))
-                Log.WriteLine(BaseWriter.LogType.DEBUG, "Durability cost: {0}", durabilityCost)
+                Log.WriteLine(LogType.DEBUG, "Durability cost: {0}", durabilityCost)
                 Return durabilityCost
             Catch
                 Return 0

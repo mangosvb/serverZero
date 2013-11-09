@@ -17,7 +17,7 @@
 '
 
 Imports System.Security.Cryptography
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 Imports mangosVB.Common
 
 Public Module WS_Handlers_Warden

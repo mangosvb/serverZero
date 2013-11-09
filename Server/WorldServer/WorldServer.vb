@@ -21,7 +21,8 @@ Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
 Imports System.Collections.Generic
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
+Imports mangosVB.Common.LogTypes
 Imports mangosVB.Common
 
 Public Module WorldServer
@@ -65,7 +66,7 @@ Public Module WorldServer
     Public TransportGUIDCounter As ULong = GUID_MO_TRANSPORT
 
     'System Things...
-    Public Log As New BaseWriter
+    Public Log As New Logger
     Public PacketHandlers As New Dictionary(Of OPCODES, HandlePacket)
     Public Rnd As New Random
     Delegate Sub HandlePacket(ByRef Packet As PacketClass, ByRef client As ClientClass)
@@ -108,7 +109,7 @@ Public Module WorldServer
 
         'Logging Settings
         <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = BaseWriter.LogType.NETWORK
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = LogTypes.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
 
         'Other Settings
@@ -213,7 +214,7 @@ Public Module WorldServer
 
             'DONE: Creating logger
             CreateLog(Config.LogType, Config.LogConfig, Log)
-            Log.LogLevel = Config.LogLevel
+            LogLevel = Config.LogLevel
 
         Catch e As Exception
             Console.WriteLine(e.ToString)

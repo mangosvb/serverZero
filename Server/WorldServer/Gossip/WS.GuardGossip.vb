@@ -54,7 +54,7 @@ Public Module WS_GuardGossip
                 Case Gossips.Undercity
                     OnGossipHello_Undercity(objCharacter, cGUID)
                 Case Else
-                    Log.WriteLine(BaseWriter.LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
+                    Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
             End Select
         End Sub
 
@@ -87,7 +87,7 @@ Public Module WS_GuardGossip
                 Case Gossips.Undercity
                     OnGossipSelect_Undercity(objCharacter, cGUID, selected)
                 Case Else
-                    Log.WriteLine(BaseWriter.LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
+                    Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
             End Select
         End Sub
 
@@ -116,7 +116,7 @@ Public Module WS_GuardGossip
                 Case Guards.Deathguard_Bartholomew, Guards.Deathguard_Burgess, Guards.Deathguard_Cyrus, Guards.Deathguard_Dillinger, Guards.Deathguard_Lawrence, Guards.Deathguard_Lundmark, Guards.Deathguard_Morris, Guards.Deathguard_Mort, Guards.Deathguard_Terrence
                     Return Gossips.Tirisfall
                 Case Else
-                    Log.WriteLine(BaseWriter.LogType.DEBUG, "Creature Entry [{0}] was not found in guard table.", Entry)
+                    Log.WriteLine(LogType.DEBUG, "Creature Entry [{0}] was not found in guard table.", Entry)
                     Return 0
             End Select
         End Function

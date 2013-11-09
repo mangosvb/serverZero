@@ -72,7 +72,7 @@ Public Module WS_Items
             Dim mySqlQuery As New DataTable
             WorldDatabase.Query(String.Format("SELECT * FROM item_template WHERE entry = {0};", itemId), mySqlQuery)
             If mySqlQuery.Rows.Count = 0 Then
-                Log.WriteLine(BaseWriter.LogType.FAILED,
+                Log.WriteLine(LogType.FAILED,
                               "ItemID {0} not found in SQL database! Loading default ""Unknown Item"" info.", itemId)
                 _found = False
                 Exit Sub
@@ -670,7 +670,7 @@ Public Module WS_Items
         packet.GetInt16()
         Dim srcSlot As Byte = packet.GetInt8
         Dim dstSlot As Byte = packet.GetInt8
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_INV_ITEM [srcSlot=0:{2}, dstSlot=0:{3}]", client.IP,
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_INV_ITEM [srcSlot=0:{2}, dstSlot=0:{3}]", client.IP,
                       client.Port, srcSlot, dstSlot)
 
         client.Character.ItemSWAP(0, srcSlot, 0, dstSlot)
@@ -683,7 +683,7 @@ Public Module WS_Items
             Dim srcBag As Byte = packet.GetInt8
             Dim srcSlot As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
-            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_AUTOEQUIP_ITEM [srcSlot={3}:{2}]", client.IP,
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOEQUIP_ITEM [srcSlot={3}:{2}]", client.IP,
                           client.Port, srcSlot, srcBag)
 
             Dim errCode As Byte = InventoryChangeFailure.EQUIP_ERR_ITEM_CANT_BE_EQUIPPED
@@ -745,7 +745,7 @@ Public Module WS_Items
                 response.Dispose()
             End If
         Catch err As Exception
-            Log.WriteLine(BaseWriter.LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", client.IP, client.Port,
+            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", client.IP, client.Port,
                           vbNewLine, err.ToString)
         End Try
     End Sub
@@ -758,7 +758,7 @@ Public Module WS_Items
         Dim dstBag As Byte = packet.GetInt8
         If srcBag = 255 Then srcBag = 0
         If dstBag = 255 Then dstBag = 0
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BAG_ITEM [srcSlot={3}:{2}, dstBag={4}]",
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BAG_ITEM [srcSlot={3}:{2}, dstBag={4}]",
                       client.IP, client.Port, srcSlot, srcBag, dstBag)
 
         If client.Character.ItemADD_AutoBag(WORLD_ITEMs(client.Character.ItemGetGUID(srcBag, srcSlot)), dstBag) Then
@@ -778,7 +778,7 @@ Public Module WS_Items
         If dstBag = 255 Then dstBag = 0
         If srcBag = 255 Then srcBag = 0
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_ITEM [srcSlot={4}:{2}, dstSlot={5}:{3}]", client.IP,
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_ITEM [srcSlot={4}:{2}, dstSlot={5}:{3}]", client.IP,
                       client.Port, srcSlot, dstSlot, srcBag, dstBag)
         client.Character.ItemSWAP(srcBag, srcSlot, dstBag, dstSlot)
     End Sub
@@ -794,7 +794,7 @@ Public Module WS_Items
         If dstBag = 255 Then dstBag = 0
         If srcBag = 255 Then srcBag = 0
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_SPLIT_ITEM [srcSlot={3}:{2}, dstBag={5}:{4}, count={6}]",
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SPLIT_ITEM [srcSlot={3}:{2}, dstBag={5}:{4}, count={6}]",
                       client.IP, client.Port, srcSlot, srcBag, dstSlot, dstBag, count)
         If srcBag = dstBag AndAlso srcSlot = dstSlot Then Return
         If count > 0 Then client.Character.ItemSPLIT(srcBag, srcSlot, dstBag, dstSlot, count)
@@ -806,7 +806,7 @@ Public Module WS_Items
         Dim srcBag As Byte = packet.GetInt8
         Dim srcSlot As Byte = packet.GetInt8
         If srcBag = 255 Then srcBag = 0
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_READ_ITEM [srcSlot={3}:{2}]", client.IP, client.Port,
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_READ_ITEM [srcSlot={3}:{2}]", client.IP, client.Port,
                       srcSlot, srcBag)
 
         'TODO: If InCombat/Dead
@@ -842,7 +842,7 @@ Public Module WS_Items
         packet.GetInt16()
         Dim pageID As Integer = packet.GetInt32
         Dim itemGuid As ULong = packet.GetUInt64
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGuid={3:X}]", client.IP,
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGuid={3:X}]", client.IP,
                       client.Port, pageID, itemGuid)
 
         Dim mySqlQuery As New DataTable
@@ -868,7 +868,7 @@ Public Module WS_Items
         If giftBag = 255 Then giftBag = 0
         If itemBag = 255 Then itemBag = 0
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_WRAP_ITEM [{2}:{3} -> {4}{5}]", client.IP, client.Port,
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WRAP_ITEM [{2}:{3} -> {4}{5}]", client.IP, client.Port,
                       giftBag, giftSlot, itemBag, itemSlot)
 
         Dim gift As ItemObject = client.Character.ItemGET(giftBag, giftSlot)
@@ -943,7 +943,7 @@ Public Module WS_Items
             Dim srcSlot As Byte = packet.GetInt8
             Dim count As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
-            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_DESTROYITEM [srcSlot={3}:{2}  count={4}]", client.IP,
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DESTROYITEM [srcSlot={3}:{2}  count={4}]", client.IP,
                           client.Port, srcSlot, srcBag, count)
 
             If srcBag = 0 Then
@@ -980,7 +980,7 @@ Public Module WS_Items
             End If
 
         Catch e As Exception
-            Log.WriteLine(BaseWriter.LogType.DEBUG, "Error destroying item.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.DEBUG, "Error destroying item.{0}", vbNewLine & e.ToString)
         End Try
     End Sub
 
@@ -993,7 +993,7 @@ Public Module WS_Items
             Dim slot As Byte = packet.GetInt8
             Dim tmp3 As Byte = packet.GetInt8
 
-            Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_USE_ITEM [bag={2} slot={3} tmp3={4}]", client.IP,
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_USE_ITEM [bag={2} slot={3} tmp3={4}]", client.IP,
                           client.Port, bag, slot, tmp3)
             If (client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_TAXI_FLIGHT) Then Exit Sub _
             'Don't allow item usage when on a taxi
@@ -1069,7 +1069,7 @@ Public Module WS_Items
                             End If
 
                         Catch e As Exception
-                            Log.WriteLine(BaseWriter.LogType.DEBUG, "Error casting spell {0}.{1}",
+                            Log.WriteLine(LogType.DEBUG, "Error casting spell {0}.{1}",
                                           itemInfo.Spells(i).SpellID, vbNewLine & e.ToString)
                             SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
                         End Try
@@ -1079,7 +1079,7 @@ Public Module WS_Items
             Next
 
         Catch ex As Exception
-            Log.WriteLine(BaseWriter.LogType.CRITICAL, "Error while using a item.{0}", vbNewLine & ex.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error while using a item.{0}", vbNewLine & ex.ToString)
         End Try
     End Sub
 
@@ -1090,7 +1090,7 @@ Public Module WS_Items
         If bag = 255 Then bag = 0
         Dim slot As Byte = packet.GetInt8
 
-        Log.WriteLine(BaseWriter.LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", client.IP, client.Port,
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", client.IP, client.Port,
                       bag, slot)
 
         Dim itemGuid As ULong = 0

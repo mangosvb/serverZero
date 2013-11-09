@@ -1,4 +1,4 @@
-'
+﻿'
 ' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -17,10 +17,8 @@
 '
 Imports System.Runtime.CompilerServices
 
-'Using this logging type, all logs are displayed in console.
-'Writting commands is done trought console.
-Public Class ColoredConsoleWriter
-    Inherits BaseWriter
+Public Class LogColors
+    Inherits Logger
 
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _
     Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
@@ -54,6 +52,7 @@ Public Class ColoredConsoleWriter
         End If
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
+
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _
     Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
         If LogLevel > type Then Return
@@ -86,5 +85,4 @@ Public Class ColoredConsoleWriter
         End If
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
-
 End Class

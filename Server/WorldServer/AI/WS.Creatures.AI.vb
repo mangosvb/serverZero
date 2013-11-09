@@ -18,6 +18,7 @@
 
 Imports System.Threading
 Imports mangosVB.Common
+Imports mangosVB.Common.LogTypes
 
 Public Module WS_Creatures_AI
 
@@ -300,7 +301,7 @@ Public Module WS_Creatures_AI
                     Me.State = AIState.AI_ATTACKING
                 End If
             Catch ex As Exception
-                Log.WriteLine(BaseWriter.LogType.CRITICAL, "Error selecting target.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error selecting target.{0}{1}", vbNewLine, ex.ToString)
                 Reset()
             End Try
 
@@ -852,7 +853,7 @@ TryMoveAgain:
 
             If aiTarget Is Nothing Then
                 If CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
-                    Log.WriteLine(BaseWriter.LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - GUID_UNIT)
+                    Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - GUID_UNIT)
                     aiCreature.ResetAI()
                     Exit Sub
                 End If
@@ -863,7 +864,7 @@ TryMoveAgain:
                     Dim MovementPoint As CreatureMovePoint = CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
                     aiTimer = aiCreature.MoveTo(MovementPoint.x, MovementPoint.y, MovementPoint.z, , False) + MovementPoint.waittime
                 Catch ex As Exception
-                    Log.WriteLine(BaseWriter.LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - GUID_UNIT)
+                    Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - GUID_UNIT)
                     aiCreature.ResetAI()
                     Exit Sub
                 End Try
@@ -898,7 +899,7 @@ TryMoveAgain:
 
             If aiTarget Is Nothing Then
                 If CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
-                    Log.WriteLine(BaseWriter.LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - GUID_UNIT)
+                    Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - GUID_UNIT)
                     aiCreature.ResetAI()
                     Exit Sub
                 End If
@@ -909,7 +910,7 @@ TryMoveAgain:
                     Dim MovementPoint As CreatureMovePoint = CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
                     aiTimer = aiCreature.MoveTo(MovementPoint.x, MovementPoint.y, MovementPoint.z, , False) + MovementPoint.waittime
                 Catch
-                    Log.WriteLine(BaseWriter.LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - GUID_UNIT)
+                    Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - GUID_UNIT)
                     aiCreature.ResetAI()
                     Exit Sub
                 End Try

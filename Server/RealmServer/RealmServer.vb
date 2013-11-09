@@ -18,17 +18,18 @@
 Imports System.Collections.Generic
 Imports System.IO
 Imports System.Security.Cryptography
-Imports mangosVB.Common
 Imports System.Xml.Serialization
 Imports System.Net
 Imports System.Net.Sockets
 Imports System.Threading
 Imports System.Text
 Imports System.Reflection
+Imports mangosVB.Common
 Imports mangosVB.Common.Constants
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 
 Public Module RealmServer
+
 #Region "Global.Config"
     Private _config As XmlConfigFile
 
@@ -67,7 +68,7 @@ Public Module RealmServer
             Console.WriteLine(".[done]")
 
             'DONE: Creating logger
-            'BaseWriter.CreateLog(Config.LogType, Config.LogConfig, Log)
+            'Logger.CreateLog(Config.LogType, Config.LogConfig, Log)
             'Log.LogLevel = Config.LogLevel
 
             'DONE: Setting SQL Connection
@@ -904,7 +905,7 @@ Public Module RealmServer
     End Sub
 
     Sub Main()
-        Dim log As New BaseWriter
+        Dim log As New Logger
 
         Console.Title = String.Format("{0} v{1}", [Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 

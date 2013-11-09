@@ -20,7 +20,7 @@ Imports System.Threading
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 Imports mangosVB.Common
 
 Public Module WorldCluster
@@ -36,7 +36,7 @@ Public Module WorldCluster
     'Public CHARACTER_NAMEs As New Hashtable
 
     'System Things...
-    Public Log As New BaseWriter
+    Public Log As New Logger
     Public PacketHandlers As New Dictionary(Of OPCODES, HandlePacket)
     Public Rnd As New Random
     Delegate Sub HandlePacket(ByRef Packet As PacketClass, ByRef client As ClientClass)
@@ -70,7 +70,7 @@ Public Module WorldCluster
 
         'Logging Settings
         <XmlElement(ElementName:="LogType")> Public LogType As String = "COLORCONSOLE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = BaseWriter.LogType.NETWORK
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = LogTypes.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
         <XmlElement(ElementName:="PacketLogging")> Public PacketLogging As Boolean = False
         <XmlElement(ElementName:="GMLogging")> Public GMLogging As Boolean = False
@@ -142,7 +142,7 @@ Public Module WorldCluster
 
             'DONE: Creating logger
             CreateLog(Config.LogType, Config.LogConfig, Log)
-            Log.LogLevel = Config.LogLevel
+            LogLevel = Config.LogLevel
 
             'DONE: Cleaning up the packet log
             If Config.PacketLogging Then

@@ -17,7 +17,7 @@
 '
 Imports System.Reflection
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 
 Public Module WC_Character
 

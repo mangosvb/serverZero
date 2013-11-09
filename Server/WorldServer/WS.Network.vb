@@ -20,7 +20,7 @@ Imports System.Threading
 Imports System.Runtime.Remoting
 Imports System.Collections.Generic
 Imports System.Security.Permissions
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 Imports mangosVB.Common
 
 Public Module WS_Network

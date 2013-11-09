@@ -108,7 +108,7 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpellOnSelf(BERSERK_SPELL)
                 Catch Ex As Exception
-                    'Log.WriteLine(BaseWriter.LogType.WARNING, "BERSERK FAILED TO CAST ON PATCHWERK!")
+                    'Log.WriteLine(LogType.WARNING, "BERSERK FAILED TO CAST ON PATCHWERK!")
                     aiCreature.SendChatMessage("BERSERK FAILED TO CAST ON PATCHWERK! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
@@ -120,7 +120,7 @@ Namespace Scripts
         '        Try
         '            aiCreature.CastSpell(SUMMONPLAYER_SPELL, theTarget.positionX, theTarget.positionY, theTarget.positionZ)
         '        Catch Ex As Exception
-        '            'Log.WriteLine(BaseWriter.LogType.WARNING, "SUMMON FAILED TO CAST ON TARGET!")
+        '            'Log.WriteLine(LogType.WARNING, "SUMMON FAILED TO CAST ON TARGET!")
         '			aiCreature.SendChatMessage("SUMMON FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         '       End Try
         '   Next

@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 Imports System.Collections.Generic
 
 Public Module WS_Base

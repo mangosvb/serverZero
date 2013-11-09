@@ -11,7 +11,7 @@ Public Class CreatureInfo
         WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
 
         If MySQLQuery.Rows.Count = 0 Then
-            Log.WriteLine(BaseWriter.LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
+            Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
             found_ = False
             'Throw New ApplicationException(String.Format("CreatureID {0} not found in SQL database.", CreatureID))
             Exit Sub

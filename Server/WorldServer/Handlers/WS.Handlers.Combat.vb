@@ -17,7 +17,7 @@
 '
 
 Imports System.Threading
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logger
 
 Public Module WS_Combat
 

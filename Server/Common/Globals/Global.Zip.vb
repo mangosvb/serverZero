@@ -34,7 +34,7 @@ Public Module Global_Zip
             compressordStream.Close()
             buffer2 = outputStream.ToArray
         Catch e As Exception
-            '            BaseWriter.Log.WriteLine(LogType.FAILED, "ZIP: {0}", e.Message)
+            '            Logger.Log.WriteLine(LogType.FAILED, "ZIP: {0}", e.Message)
             buffer2 = Nothing
         End Try
 

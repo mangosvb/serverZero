@@ -72,7 +72,7 @@ Namespace Scripts
                 Try
                     aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
                 Catch Ex As Exception
-                    Log.WriteLine(Basewriter.LogType.WARNING, "Mortal Wound failed to cast!")
+                    Log.WriteLine(LogType.WARNING, "Mortal Wound failed to cast!")
                 End Try
             End If
             If Next_Thrash <= 1 Then

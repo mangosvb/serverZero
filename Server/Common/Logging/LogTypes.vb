@@ -1,4 +1,4 @@
-'
+﻿'
 ' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -15,20 +15,24 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-'Using this logging type, all logs are displayed in console.
-'Writting commands is done trought console.
-Public Class ConsoleWriter
-    Inherits BaseWriter
 
-    Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
+Public Module LogTypes
+    Public Enum LogType
+        NETWORK                 'Network code debugging
+        DEBUG                   'Packets processing
+        INFORMATION             'User information
+        USER                    'User actions
+        SUCCESS                 'Normal operation
+        WARNING                 'Warning
+        FAILED                  'Processing Error
+        CRITICAL                'Application Error
+        DATABASE                'Database Error
+    End Enum
 
-        Console.Write(formatStr, arg)
-    End Sub
-    Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
+    'Defs for Logging
+    Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
 
-        Console.WriteLine(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
-    End Sub
+    Public LogLevel As LogType = LogType.NETWORK
 
-End Class
+End Module
+
