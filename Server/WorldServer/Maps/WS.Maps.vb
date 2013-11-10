@@ -15,10 +15,13 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports mangosVB.Common.Logger
+
 Imports System.Collections.Generic
 Imports System.IO
+Imports System.Threading
 Imports mangosVB.Common
+Imports mangosVB.Common.Logger
+
 Public Module WS_Maps
 #Region "Zones"
     Public AreaTable As New Dictionary(Of Integer, TArea)
@@ -90,6 +93,7 @@ Public Module WS_Maps
         'Public ZCoord_PP(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
         Public ZCoord_PP(,) As Single
         Public ZCoord_PP_ModTimes As Integer = 0
+        Friend Shared SIZE As Single
 
         Public Sub ZCoord_PP_Save()
             ZCoord_PP_ModTimes = 0
@@ -487,7 +491,7 @@ Public Module WS_Maps
                 Next
 
                 Maps.Remove(ID)
-                iTree.Dispose()
+                'iTree.Dispose()
             End If
             _disposedValue = True
         End Sub
@@ -661,6 +665,7 @@ Public Module WS_Maps
             Return 0
         End Try
     End Function
+
     Public Sub SetZCoord_PP(ByVal x As Single, ByVal y As Single, ByVal Map As Integer, ByVal z As Single)
         Try
             Dim MapTileX As Byte = Fix(32 - (x / TMapTile.SIZE))
@@ -692,16 +697,6 @@ Public Module WS_Maps
             Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / TMapTile.SIZE) - MapTileX) - MapTile_LocalX
             Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / TMapTile.SIZE) - MapTileY) - MapTile_LocalY
 
-            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then
-                'Return vmap height if one was found
-                Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 2.0F)
-                If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
-                    Return VMapHeight
-                End If
-
-                Return 0.0F
-            End If
-
             'Return map info if we are near the ground
             If Math.Abs(Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY) - z) < PPOINT_LIMIT _
              OrElse Maps(Map).Tiles(MapTileX, MapTileY).ZCoord_PP(MapTile_LocalX, MapTile_LocalY) = PPOINT_BAD Then
@@ -723,10 +718,12 @@ Public Module WS_Maps
                 End Try
             End If
 
-            'Return vmap height if one was found
-            Dim VMapHeight As Single = GetVMapHeight(map, x, y, z + 2.0F)
-            If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
-                return VMapHeight
+            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then
+                'Return vmap height if one was found
+                Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 2.0F)
+                If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
+                    Return VMapHeight
+                End If
             End If
 
             'Return pp info if we are too far from ground

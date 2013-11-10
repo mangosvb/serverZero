@@ -60,10 +60,10 @@ Module WS_CharMovement
         End If
 
 #If ENABLE_PPOINTS Then
-        If (Client.Character.movementFlags And groundFlagsMask) = 0 AndAlso _
-           Math.Abs(GetZCoord(Client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) - client.Character.positionZ) > PPOINT_LIMIT Then
-            Log.WriteLine(LogType.DEBUG, "PPoints: {0} [MapZ = {1}]", client.Character.positionZ, GetZCoord(Client.Character.positionX, client.Character.positionY, client.Character.MapID))
-            SetZCoord_PP(Client.Character.positionX, client.Character.positionY, client.Character.MapID, client.Character.positionZ)
+        If (client.Character.charMovementFlags And groundFlagsMask) = 0 AndAlso _
+           Math.Abs(GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) - client.Character.positionZ) > PPOINT_LIMIT Then
+            Log.WriteLine(LogType.DEBUG, "PPoints: {0} [MapZ = {1}]", client.Character.positionZ, GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.MapID))
+            SetZCoord_PP(client.Character.positionX, client.Character.positionY, client.Character.MapID, client.Character.positionZ)
         End If
 #End If
 
