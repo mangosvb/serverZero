@@ -498,7 +498,7 @@ Public Module WC_Handlers_Auth
             CharacterDatabase.Update(String.Format("DELETE FROM characters WHERE char_guid = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM characters_honor WHERE char_guid = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM characters_quests WHERE char_guid = ""{0}"";", guid))
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_social WHERE char_guid = ""{0}"";", guid))
+            CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE guid = '{0}' OR friend = '{0}';", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM petitions WHERE petition_owner = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM auctionhouse WHERE auction_owner = ""{0}"";", guid))
