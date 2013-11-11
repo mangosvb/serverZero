@@ -17,7 +17,7 @@
 '
 
 Imports mangosVB.Common
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Transports
     Private Function GetNewGUID() As ULong

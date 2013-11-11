@@ -17,8 +17,10 @@
 '
 Imports System.Runtime.CompilerServices
 
-Public Class LogColors
-    Inherits Logger
+'Using this logging type, all logs are displayed in console.
+'Writting commands is done trought console.
+Public Class ColoredConsoleWriter
+    Inherits BaseWriter
 
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _
     Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
@@ -52,7 +54,6 @@ Public Class LogColors
         End If
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
-
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _
     Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
         If LogLevel > type Then Return
@@ -85,4 +86,5 @@ Public Class LogColors
         End If
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
+
 End Class

@@ -20,7 +20,7 @@ Imports mangosVB.Common
 
 Public NotInheritable Class AuthEngineClass
     Implements IDisposable
-    Private ReadOnly _log As New Logger
+    Private ReadOnly _log As New BaseWriter
 
 #Region "AuthEngine.Constructive"
 

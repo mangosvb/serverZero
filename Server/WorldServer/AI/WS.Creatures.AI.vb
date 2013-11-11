@@ -18,7 +18,7 @@
 
 Imports System.Threading
 Imports mangosVB.Common
-Imports mangosVB.Common.LogTypes
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Creatures_AI
 

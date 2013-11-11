@@ -18,7 +18,7 @@
 
 Imports System.Threading
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_GameObjects
 

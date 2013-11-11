@@ -26,7 +26,7 @@ Imports System.Text
 Imports System.Reflection
 Imports mangosVB.Common
 Imports mangosVB.Common.Global_Constants
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 
 Public Module RealmServer
 
@@ -905,7 +905,7 @@ Public Module RealmServer
     End Sub
 
     Sub Main()
-        Dim log As New Logger
+        Dim log As New BaseWriter
 
         Console.Title = String.Format("{0} v{1}", [Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 

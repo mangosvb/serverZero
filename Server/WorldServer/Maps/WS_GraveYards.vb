@@ -1,4 +1,4 @@
-﻿Imports mangosVB.Common.Logger
+﻿Imports mangosVB.Common.BaseWriter
 
 Public Class WS_GraveYards
     Implements IDisposable

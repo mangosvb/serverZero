@@ -18,7 +18,7 @@
 
 Imports System.Threading
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Creatures

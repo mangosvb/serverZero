@@ -17,7 +17,7 @@
 '
 
 Imports mangosVB.Common
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handler_Channels
 
