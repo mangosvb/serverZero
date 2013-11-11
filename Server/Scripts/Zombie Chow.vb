@@ -1,7 +1,7 @@
 Imports System
 Imports System.Threading
-Imports mangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
 'Basically, this AI is kitable and if the AI hits Gluth, it heals her for 5% of her HP (50,000 in this case.). Since we can't really do it that way, it has a set waypoint.
 Namespace Scripts
@@ -42,7 +42,7 @@ Namespace Scripts
         End Sub
 
         Public Sub HealGluth(ByRef NPC_Gluth As CreatureObject, ByRef Zombie_Chow As CreatureObject)
-            Dim Waypoint1 As New coOrds
+            Dim Waypoint1 As New coords
             With Waypoint1
                 .X = 3304.919922
                 .Y = 3139.149902
@@ -52,11 +52,11 @@ Namespace Scripts
 
             aiCreature.MoveTo(Waypoint1.X, Waypoint1.Y, Waypoint1.Z, Waypoint1.Orientation)
             If aiCreature.MoveTo(Waypoint1.X, Waypoint1.Y, Waypoint1.Z, Waypoint1.Orientation, True) Then
-                aiCreature.Heal(50000, NPC_Gluth)
+                aiCreature.Heal(50000)
             End If
         End Sub
 
-        Private Structure coOrds
+        Private Structure coords
             Dim X As Double
             Dim Y As Double
             Dim Z As Double
