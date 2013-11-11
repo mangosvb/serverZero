@@ -31,7 +31,7 @@ Public Module WS_Base
         Public orientation As Single = 0
         Public instance As UInteger = 0
         Public MapID As UInteger = 0
-
+        Public CorpseType As CorpseType = CorpseType.CORPSE_BONES
         Public SpawnID As Integer = 0
         Public SeenBy As New List(Of ULong)
 

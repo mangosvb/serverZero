@@ -541,6 +541,7 @@ Public Module WS_PlayerData
         Public tradeInfo As TTradeInfo = Nothing
         Public corpseGUID As ULong = 0
         Public corpseMapID As Integer = 0
+        Public corpseCorpseType As CorpseType = corpseType.CORPSE_BONES
         Public corpsePositionX As Single = 0
         Public corpsePositionY As Single = 0
         Public corpsePositionZ As Single = 0
@@ -4675,13 +4676,13 @@ DoneAmmo:
 
             'DONE: Load corpse if present
             MySQLQuery.Clear()
-            CharacterDatabase.Query(String.Format("SELECT * FROM tmpspawnedcorpses WHERE corpse_owner = {0};", GUID), MySQLQuery)
+            CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE player = {0};", GUID), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
-                corpseGUID = MySQLQuery.Rows(0).Item("corpse_guid") + GUID_CORPSE
-                corpseMapID = MySQLQuery.Rows(0).Item("corpse_MapID")
-                corpsePositionX = MySQLQuery.Rows(0).Item("corpse_positionX")
-                corpsePositionY = MySQLQuery.Rows(0).Item("corpse_positionY")
-                corpsePositionZ = MySQLQuery.Rows(0).Item("corpse_positionZ")
+                corpseGUID = MySQLQuery.Rows(0).Item("guid") + GUID_CORPSE
+                corpseMapID = MySQLQuery.Rows(0).Item("map")
+                corpsePositionX = MySQLQuery.Rows(0).Item("position_x")
+                corpsePositionY = MySQLQuery.Rows(0).Item("position_y")
+                corpsePositionZ = MySQLQuery.Rows(0).Item("position_z")
 
                 'DONE: If you logout before releasing your corpse you will now go to the graveyard
                 If positionX = corpsePositionX AndAlso positionY = corpsePositionY AndAlso positionZ = corpsePositionZ AndAlso MapID = corpseMapID Then

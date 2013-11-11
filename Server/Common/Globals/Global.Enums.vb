@@ -283,6 +283,12 @@ Public Module Global_Enums
         AT_LOGIN_FIRST = &H20
     End Enum
 
+    Public Enum CorpseType
+        CORPSE_BONES = 0
+        CORPSE_RESURRECTABLE_PVE = 1
+        CORPSE_RESURRECTABLE_PVP = 2
+    End Enum
+
     Public Enum Genders As Byte
         GENDER_MALE = 0
         GENDER_FEMALE = 1

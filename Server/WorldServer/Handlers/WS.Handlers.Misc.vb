@@ -442,7 +442,7 @@ Public Module WS_Handlers_Misc
                 Log.WriteLine(LogType.DEBUG, "Corpse wasn't found [{0}]!", Character.corpseGUID - GUID_CORPSE)
 
                 'DONE: Delete from database
-                CharacterDatabase.Update(String.Format("DELETE FROM tmpspawnedcorpses WHERE corpse_owner = ""{0}"";", Character.GUID))
+                CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Character.GUID))
 
                 'TODO: Turn the corpse into bones on the server it is located at!
             End If

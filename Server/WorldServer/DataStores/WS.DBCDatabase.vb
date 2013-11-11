@@ -1883,14 +1883,14 @@ Public Module WS_DBCDatabase
 
             MySQLQuery = New DataTable
             Try
-                CharacterDatabase.Query(String.Format("SELECT MAX(corpse_guid) FROM tmpspawnedcorpses"), MySQLQuery)
+                CharacterDatabase.Query(String.Format("SELECT MAX(guid) FROM corpse"), MySQLQuery)
                 If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                     CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_CORPSE
                 Else
                     CorpseGUIDCounter = 0 + GUID_CORPSE
                 End If
             Catch ex As Exception
-                Log.WriteLine(LogType.FAILED, "World: Failed loading tmpspawnedcorpses....")
+                Log.WriteLine(LogType.FAILED, "World: Failed loading corpse....")
             End Try
 
         Catch e As Exception

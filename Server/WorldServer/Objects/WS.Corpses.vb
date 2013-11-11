@@ -61,7 +61,7 @@ Public Module WS_Corpses
 
         Public Sub ConvertToBones()
             'DONE: Delete from database
-            CharacterDatabase.Update(String.Format("DELETE FROM tmpspawnedcorpses WHERE corpse_owner = ""{0}"";", Owner))
+            CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Owner))
 
             Flags = 5
             Owner = 0
@@ -93,40 +93,44 @@ Public Module WS_Corpses
 
         Public Sub Save()
             'Only for creating New Character
-            Dim tmpCmd As String = "INSERT INTO tmpspawnedcorpses (corpse_guid"
+            Dim tmpCmd As String = "INSERT INTO corpse (guid"
             Dim tmpValues As String = " VALUES (" & (GUID - GUID_CORPSE)
 
-            tmpCmd = tmpCmd & ", corpse_owner"
+            tmpCmd = tmpCmd & ", player"
             tmpValues = tmpValues & ", " & Owner
 
-            tmpCmd = tmpCmd & ", corpse_positionX"
+            tmpCmd = tmpCmd & ", position_x"
             tmpValues = tmpValues & ", " & Trim(Str(positionX))
-            tmpCmd = tmpCmd & ", corpse_positionY"
+            tmpCmd = tmpCmd & ", position_y"
             tmpValues = tmpValues & ", " & Trim(Str(positionY))
-            tmpCmd = tmpCmd & ", corpse_positionZ"
+            tmpCmd = tmpCmd & ", position_z"
             tmpValues = tmpValues & ", " & Trim(Str(positionZ))
-            tmpCmd = tmpCmd & ", corpse_mapid"
+            tmpCmd = tmpCmd & ", map"
             tmpValues = tmpValues & ", " & MapID
-            tmpCmd = tmpCmd & ", corpse_instance"
+            tmpCmd = tmpCmd & ", instance"
             tmpValues = tmpValues & ", " & instance
-            tmpCmd = tmpCmd & ", corpse_orientation"
+            tmpCmd = tmpCmd & ", orientation"
             tmpValues = tmpValues & ", " & Trim(Str(orientation))
+            tmpCmd = tmpCmd & ", time"
+            tmpValues = tmpValues & ", UNIX_TIMESTAMP()"
+            tmpCmd = tmpCmd & ", corpse_type"
+            tmpValues = tmpValues & ", " & CorpseType
 
-            tmpCmd = tmpCmd & ", corpse_bytes1"
-            tmpValues = tmpValues & ", " & Bytes1
-            tmpCmd = tmpCmd & ", corpse_bytes2"
-            tmpValues = tmpValues & ", " & Bytes2
-            tmpCmd = tmpCmd & ", corpse_model"
-            tmpValues = tmpValues & ", " & Model
-            tmpCmd = tmpCmd & ", corpse_guild"
-            tmpValues = tmpValues & ", " & Guild
+            'tmpCmd = tmpCmd & ", corpse_bytes1"
+            'tmpValues = tmpValues & ", " & Bytes1
+            'tmpCmd = tmpCmd & ", corpse_bytes2"
+            'tmpValues = tmpValues & ", " & Bytes2
+            'tmpCmd = tmpCmd & ", corpse_model"
+            'tmpValues = tmpValues & ", " & Model
+            'tmpCmd = tmpCmd & ", corpse_guild"
+            'tmpValues = tmpValues & ", " & Guild
 
-            Dim temp(EquipmentSlots.EQUIPMENT_SLOT_END - 1) As String
-            For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
-                temp(i) = Items(i)
-            Next
-            tmpCmd = tmpCmd & ", corpse_items"
-            tmpValues = tmpValues & ", """ & Join(temp, " ") & """"
+            'Dim temp(EquipmentSlots.EQUIPMENT_SLOT_END - 1) As String
+            'For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
+            '    temp(i) = Items(i)
+            'Next
+            'tmpCmd = tmpCmd & ", corpse_items"
+            'tmpValues = tmpValues & ", """ & Join(temp, " ") & """"
 
             tmpCmd = tmpCmd & ") " & tmpValues & ");"
             CharacterDatabase.Update(tmpCmd)
@@ -183,6 +187,15 @@ Public Module WS_Corpses
             Character.corpsePositionZ = positionZ
             Character.corpseMapID = MapID
 
+            'TODO: The Corpse Type May Need to be Set Differently (Perhaps using Player Extra Flags)?
+            If (Character.isPvP) Then
+                Character.corpseCorpseType = CorpseType.CORPSE_RESURRECTABLE_PVP
+            Else
+                Character.corpseCorpseType = CorpseType.CORPSE_RESURRECTABLE_PVE
+            End If
+
+            Character.corpseCorpseType = CorpseType
+
             For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 If Character.Items.ContainsKey(i) Then
                     Items(i) = Character.Items(i).ItemInfo.Model + (CType(Character.Items(i).ItemInfo.InventoryType, Integer) << 24)
@@ -195,11 +208,12 @@ Public Module WS_Corpses
 
             WORLD_CORPSEOBJECTs.Add(GUID, Me)
         End Sub
+
         Public Sub New(ByVal cGUID As ULong, Optional ByRef Info As DataRow = Nothing)
             'WARNING: Use only for loading from DB
             If Info Is Nothing Then
                 Dim MySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT * FROM tmpspawnedcorpses WHERE corpse_guid = {0};", cGUID), MySQLQuery)
+                CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE guid = {0};", cGUID), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     Info = MySQLQuery.Rows(0)
                 Else
@@ -208,31 +222,33 @@ Public Module WS_Corpses
                 End If
             End If
 
-            positionX = Info.Item("corpse_positionX")
-            positionY = Info.Item("corpse_positionY")
-            positionZ = Info.Item("corpse_positionZ")
-            orientation = Info.Item("corpse_orientation")
+            positionX = Info.Item("position_x")
+            positionY = Info.Item("position_y")
+            positionZ = Info.Item("position_z")
+            orientation = Info.Item("orientation")
 
-            MapID = Info.Item("corpse_mapId")
-            instance = Info.Item("corpse_instance")
+            MapID = Info.Item("map")
+            instance = Info.Item("instance")
 
-            Owner = Info.Item("corpse_owner")
-            Bytes1 = Info.Item("corpse_bytes1")
-            Bytes2 = Info.Item("corpse_bytes2")
-            Model = Info.Item("corpse_model")
-            Guild = Info.Item("corpse_guild")
+            Owner = Info.Item("player")
+            CorpseType = Info.Item("corpse_type")
+            'Bytes1 = Info.Item("corpse_bytes1")
+            'Bytes2 = Info.Item("corpse_bytes2")
+            'Model = Info.Item("corpse_model")
+            'Guild = Info.Item("corpse_guild")
 
-            Dim tmp() As String
-            tmp = Split(CType(Info.Item("corpse_items"), String), " ")
-            For i As Integer = 0 To tmp.Length - 1
-                Items(i) = tmp(i)
-            Next i
+            'Dim tmp() As String
+            'tmp = Split(CType(Info.Item("corpse_items"), String), " ")
+            'For i As Integer = 0 To tmp.Length - 1
+            '    Items(i) = tmp(i)
+            'Next i
 
             Flags = 4
 
             GUID = cGUID + GUID_CORPSE
             WORLD_CORPSEOBJECTs.Add(GUID, Me)
         End Sub
+
         Public Sub AddToWorld()
             GetMapTile(positionX, positionY, CellX, CellY)
             If Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
@@ -272,6 +288,7 @@ Public Module WS_Corpses
                 packet.Dispose()
             End Try
         End Sub
+
         Public Sub RemoveFromWorld()
             GetMapTile(positionX, positionY, CellX, CellY)
             Maps(MapID).Tiles(CellX, CellY).CorpseObjectsHere.Remove(GUID)

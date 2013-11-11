@@ -352,7 +352,7 @@ Public Module WC_Handlers_Auth
             For i As Integer = 0 To MySQLQuery.Rows.Count - 1
                 Dim DEAD As Boolean = False
                 Dim DeadMySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM tmpspawnedcorpses WHERE corpse_owner = {0};", MySQLQuery.Rows(i).Item("char_guid")), DeadMySQLQuery)
+                CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM corpse WHERE player = {0};", MySQLQuery.Rows(i).Item("char_guid")), DeadMySQLQuery)
                 If CInt(DeadMySQLQuery.Rows(0).Item(0)) > 0 Then DEAD = True
                 Dim PetQuery As New DataTable
                 CharacterDatabase.Query(String.Format("SELECT pet_model, pet_level, pet_family FROM characters_pets WHERE pet_owner = '{0}';", MySQLQuery.Rows(i).Item("char_guid")), PetQuery)
@@ -499,7 +499,7 @@ Public Module WC_Handlers_Auth
             CharacterDatabase.Update(String.Format("DELETE FROM petitions WHERE petition_owner = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM auctionhouse WHERE auction_owner = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = ""{0}"";", guid))
-            CharacterDatabase.Update(String.Format("DELETE FROM tmpspawnedcorpses WHERE corpse_owner = ""{0}"";", guid))
+            CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE corpse_owner = ""{0}"";", guid))
 
             q.Clear()
             CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_leader = ""{0}"";", guid), q)

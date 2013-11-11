@@ -986,15 +986,15 @@ Public Module WS_Maps
 
         'DONE: Corpses
         MysqlQuery.Clear()
-        CharacterDatabase.Query(String.Format("SELECT * FROM tmpspawnedcorpses WHERE corpse_mapId={0} AND corpse_instance={5} AND corpse_positionX BETWEEN '{1}' AND '{2}' AND corpse_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY, TileInstance), MysqlQuery)
+        CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE map={0} AND instance={5} AND position_x BETWEEN '{1}' AND '{2}' AND position_y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY, TileInstance), MysqlQuery)
         For Each InfoRow As DataRow In MysqlQuery.Rows
-            If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("corpse_guid"), ULong) + GUID_CORPSE) Then
+            If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + GUID_CORPSE) Then
                 Try
-                    Dim tmpCorpse As CorpseObject = New CorpseObject(CType(InfoRow.Item("corpse_guid"), ULong), InfoRow)
+                    Dim tmpCorpse As CorpseObject = New CorpseObject(CType(InfoRow.Item("guid"), ULong), InfoRow)
                     tmpCorpse.instance = TileInstance
                     tmpCorpse.AddToWorld()
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating corpse [{0}].{1}{2}", InfoRow.Item("corpse_guid"), vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error when creating corpse [{0}].{1}{2}", InfoRow.Item("guid"), vbNewLine, ex.ToString)
                 End Try
             End If
         Next
