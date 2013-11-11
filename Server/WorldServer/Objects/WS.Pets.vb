@@ -204,19 +204,19 @@ Public Module WS_Pets
         If objCharacter.Pet IsNot Nothing Then Exit Sub
 
         Dim PetQuery As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT * FROM characters_pets WHERE pet_owner = '{0}';", objCharacter.GUID), PetQuery)
+        CharacterDatabase.Query(String.Format("SELECT * FROM character_pet WHERE owner = '{0}';", objCharacter.GUID), PetQuery)
         If PetQuery.Rows.Count = 0 Then Exit Sub
         Dim PetInfo As DataRow = PetQuery.Rows(0)
 
-        objCharacter.Pet = New PetObject(CULng(PetInfo.Item("pet_guid")) + GUID_PET, CInt(PetInfo.Item("pet_entry")))
+        objCharacter.Pet = New PetObject(CULng(PetInfo.Item("id")) + GUID_PET, CInt(PetInfo.Item("entry")))
         objCharacter.Pet.Owner = objCharacter
         objCharacter.Pet.SummonedBy = objCharacter.GUID
         objCharacter.Pet.CreatedBy = objCharacter.GUID
-        objCharacter.Pet.Level = PetInfo.Item("pet_level")
-        objCharacter.Pet.XP = PetInfo.Item("pet_xp")
+        objCharacter.Pet.Level = PetInfo.Item("level")
+        objCharacter.Pet.XP = PetInfo.Item("exp")
 
-        objCharacter.Pet.PetName = PetInfo.Item("pet_name")
-        If CByte(PetInfo.Item("pet_renamed")) = 0 Then
+        objCharacter.Pet.PetName = PetInfo.Item("name")
+        If CByte(PetInfo.Item("renamed")) = 0 Then
             objCharacter.Pet.Renamed = False
         Else
             objCharacter.Pet.Renamed = True
