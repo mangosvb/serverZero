@@ -1,4 +1,4 @@
-'
+﻿'
 ' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@ Imports System.Net.Sockets
 'Using this logging type, you can watch logs with ordinary telnet client.
 'Writting commands requires client, which don't send every key typed.
 Public Class TelnetWriter
-    Inherits Logger
+    Inherits BaseWriter
 
     Protected conn As TcpListener
     Protected socket As Socket = Nothing

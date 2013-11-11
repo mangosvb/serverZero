@@ -166,7 +166,6 @@
   <ItemGroup>
     <Compile Include="Globals\Global.Enums.vb" />
     <Compile Include="Globals\Global.Functions.vb" />
-    <Compile Include="Logging\LogColors.vb" />
     <Compile Include="Cluster.vb">
     </Compile>
     <Compile Include="DataStores\DBC.vb">
@@ -178,17 +177,19 @@
     <Compile Include="DataStores\WDB.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Logging\LogWriter.vb" />
     <Compile Include="Globals\Global.Constants.vb" />
     <Compile Include="Globals\Global.Converter.vb" />
     <Compile Include="Globals\Global.Opcodes.vb" />
     <Compile Include="Globals\Global.Zip.vb" />
-    <Compile Include="Logging\LogTypes.vb" />
+    <Compile Include="Logging\BaseWriter.vb" />
+    <Compile Include="Logging\ConsoleColorWriter.vb" />
+    <Compile Include="Logging\ConsoleWriter.vb" />
+    <Compile Include="Logging\FileWriter.vb" />
+    <Compile Include="Logging\TelnetWriter.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="NativeMethods.vb" />
     <Compile Include="Revisions.vb" />
     <Compile Include="SQL.vb" />
-    <Compile Include="Logging\TelnetWriter.vb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ICSharpCode.SharpZipLib.dll">

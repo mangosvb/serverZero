@@ -18,7 +18,7 @@
 
 Imports System.IO
 Imports System.Collections.Generic
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 
 #If VMAPS Then
 

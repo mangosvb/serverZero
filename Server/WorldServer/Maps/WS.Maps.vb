@@ -20,7 +20,7 @@ Imports System.Collections.Generic
 Imports System.IO
 Imports System.Threading
 Imports mangosVB.Common
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Maps
 #Region "Zones"

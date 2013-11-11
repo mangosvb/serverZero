@@ -17,6 +17,7 @@
 '
 
 Imports mangosVB.Common
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Pets
 

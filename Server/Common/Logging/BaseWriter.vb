@@ -1,4 +1,4 @@
-'
+﻿'
 ' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -15,11 +15,28 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports System.IO
-
-Public Class Logger
+Public Class BaseWriter
     Implements IDisposable
 
+    Public Enum LogType
+        NETWORK                 'Network code debugging
+        DEBUG                   'Packets processing
+        INFORMATION             'User information
+        USER                    'User actions
+        SUCCESS                 'Normal operation
+        WARNING                 'Warning
+        FAILED                  'Processing Error
+        CRITICAL                'Application Error
+        DATABASE                'Database Error
+    End Enum
+    Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
+
+    Public LogLevel As LogType = LogType.NETWORK
+
+    Public Sub New()
+    End Sub
+
+#Region "IDisposable Support"
     Private _disposedValue As Boolean ' To detect redundant calls
 
     ' IDisposable
@@ -37,24 +54,36 @@ Public Class Logger
         Dispose(True)
         GC.SuppressFinalize(Me)
     End Sub
+#End Region
 
     Public Overridable Sub Write(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)
     End Sub
-
     Public Overridable Sub WriteLine(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)
     End Sub
-
     Public Overridable Function ReadLine() As String
         Return Console.ReadLine()
     End Function
 
-    Public Shared Sub CreateLog(ByVal LogType As String, ByVal LogConfig As String, ByRef Log As Logger)
+    Public Sub PrintDiagnosticTest()
+        WriteLine(LogType.NETWORK, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.DEBUG, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.INFORMATION, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.USER, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.SUCCESS, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.WARNING, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.FAILED, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.CRITICAL, "{0}:************************* TEST *************************", 1)
+        WriteLine(LogType.DATABASE, "{0}:************************* TEST *************************", 1)
+    End Sub
+    Public Shared Sub CreateLog(ByVal LogType As String, ByVal LogConfig As String, ByRef Log As BaseWriter)
         Try
             Select Case UCase(LogType)
+                Case "COLORCONSOLE"
+                    Log = New ColoredConsoleWriter
                 Case "CONSOLE"
                     Log = New ConsoleWriter
                 Case "FILE"
-                    Log = New LogWriter(LogConfig)
+                    Log = New FileWriter(LogConfig)
                 Case "TELNET"
                     Dim info As String() = Split(LogConfig, ":")
                     Log = New TelnetWriter(Net.IPAddress.Parse(info(0)), info(1))
@@ -62,70 +91,6 @@ Public Class Logger
         Catch e As Exception
             Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "hh:mm:ss"))
         End Try
-    End Sub
-
-End Class
-
-Public Class LogWriter
-    Inherits Logger
-
-    Protected Output As StreamWriter
-    Protected LastDate As Date = #1/1/2007#
-    Protected Filename As String = ""
-
-    Protected Sub CreateNewFile()
-        LastDate = Now.Date
-        Output = New StreamWriter(String.Format("{0}-{1}.log", Filename, Format(LastDate, "yyyy-MM-dd")), True)
-        Output.AutoFlush = True
-
-        WriteLine(LogType.INFORMATION, "Log started successfully.")
-    End Sub
-
-    Public Sub New(ByVal filename_ As String)
-        Filename = filename_
-        CreateNewFile()
-    End Sub
-
-    Private _disposedValue As Boolean ' To detect redundant calls
-
-    ' IDisposable
-    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
-        If Not _disposedValue Then
-            ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-            ' TODO: set large fields to null.
-            Output.Close()
-        End If
-        _disposedValue = True
-    End Sub
-
-    Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-        If LastDate <> Now.Date Then CreateNewFile()
-
-        Output.Write(formatStr, arg)
-    End Sub
-
-    Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-        If LastDate <> Now.Date Then CreateNewFile()
-
-        Output.WriteLine(L(type) & ":[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
-    End Sub
-
-End Class
-
-Public Class ConsoleWriter
-    Inherits Logger
-
-    Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-
-        Console.Write(formatStr, arg)
-    End Sub
-    Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-
-        Console.WriteLine(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
     End Sub
 
 End Class

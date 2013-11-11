@@ -17,7 +17,7 @@
 '
 
 Imports System.IO
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WS_DBCDatabase

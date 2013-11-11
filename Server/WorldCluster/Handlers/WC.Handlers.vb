@@ -17,7 +17,7 @@
 '
 
 
-Imports mangosVB.Common.Logger
+Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WC_Handlers

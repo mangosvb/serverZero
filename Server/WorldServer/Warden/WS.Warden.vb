@@ -21,6 +21,7 @@ Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
 Imports mangosVB.Common
 Imports mangosVB.Common.NativeMethods
+Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Warden
 
