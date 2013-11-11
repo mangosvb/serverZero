@@ -15,7 +15,6 @@
 *.pdb
 *.config
 *.xml
-*.ini
 *.log
 *.map
 *map*
