@@ -355,16 +355,7 @@ Public Module WC_Handlers_Auth
                 CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM corpse WHERE player = {0};", MySQLQuery.Rows(i).Item("char_guid")), DeadMySQLQuery)
                 If CInt(DeadMySQLQuery.Rows(0).Item(0)) > 0 Then DEAD = True
                 Dim PetQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT pet_model, pet_level, pet_family FROM characters_pets WHERE pet_owner = '{0}';", MySQLQuery.Rows(i).Item("char_guid")), PetQuery)
-
-                Dim PetModel As Integer = 0
-                Dim PetLevel As Integer = 0
-                Dim PetFamily As Integer = 0
-                If PetQuery.Rows.Count > 0 Then
-                    PetModel = PetQuery.Rows(0).Item("pet_model")
-                    PetLevel = PetQuery.Rows(0).Item("pet_level")
-                    PetFamily = PetQuery.Rows(0).Item("pet_family")
-                End If
+                CharacterDatabase.Query(String.Format("SELECT modelid, level, entry FROM character_pet WHERE owner = '{0}';", MySQLQuery.Rows(i).Item("char_guid")), PetQuery)
 
                 response.AddInt64(MySQLQuery.Rows(i).Item("char_guid"))
                 response.AddString(MySQLQuery.Rows(i).Item("char_name"))
@@ -401,6 +392,19 @@ Public Module WC_Handlers_Auth
 
                 response.AddUInt32(playerState)
                 response.AddInt8(MySQLQuery.Rows(i).Item("char_restState"))
+
+                Dim PetModel As Integer = 0
+                Dim PetLevel As Integer = 0
+                Dim PetFamily As Integer = 0
+
+                If PetQuery.Rows.Count > 0 Then
+                    PetModel = PetQuery.Rows(0).Item("modelid")
+                    PetLevel = PetQuery.Rows(0).Item("level")
+                    Dim PetFamilyQuery As New DataTable
+                    WorldDatabase.Query(String.Format("SELECT family FROM creature_template WHERE entry = '{0}'", PetQuery.Rows(0).Item("entry")), PetFamilyQuery)
+                    PetFamily = PetFamilyQuery.Rows(0).Item("family")
+                End If
+
                 response.AddInt32(PetModel)
                 response.AddInt32(PetLevel)
                 response.AddInt32(PetFamily)
