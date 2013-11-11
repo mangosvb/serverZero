@@ -26,7 +26,7 @@ Public Module WC_Handlers_Social
     Public Sub LoadIgnoreList(ByRef objCharacter As CharacterObject)
         'DONE: Query DB
         Dim q As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND flags = {1};", c.GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
+        CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND flags = {1};", objCharacter.GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
 
         'DONE: Add to list
         For Each r As DataRow In q.Rows
@@ -97,7 +97,7 @@ Public Module WC_Handlers_Social
 
     Public Sub NotifyFriendStatus(ByRef objCharacter As CharacterObject, ByVal s As FriendStatus)
         Dim q As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT guid FROM character_social WHERE friend = {0} AND (flags & {1}) > 0;", c.GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
+        CharacterDatabase.Query(String.Format("SELECT guid FROM character_social WHERE friend = {0} AND (flags & {1}) > 0;", objCharacter.GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
 
         'DONE: Send "Friend offline/online"
         Dim friendpacket As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
