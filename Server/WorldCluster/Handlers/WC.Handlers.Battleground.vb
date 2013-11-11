@@ -19,7 +19,6 @@
 Imports System.Threading
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.LogTypes
 
 Public Module WC_Handlers_Battleground
 

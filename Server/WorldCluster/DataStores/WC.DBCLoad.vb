@@ -18,7 +18,6 @@
 
 Imports System
 Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.LogTypes
 
 Public Module WS_DBCLoad
 
