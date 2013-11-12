@@ -17,6 +17,64 @@
 '
 
 Public Module Functions
+
+    Public Function GuidIsCreature(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_UNIT Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsPet(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_PET Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsItem(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_ITEM Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsGameObject(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_GAMEOBJECT Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsDnyamicObject(ByVal guid As ULong) As Boolean
+        If GuidHigh2(GUID) = GUID_DYNAMICOBJECT Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsTransport(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_TRANSPORT Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsMoTransport(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_MO_TRANSPORT Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsCorpse(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_CORPSE Then Return True
+        Return False
+    End Function
+
+    Public Function GuidIsPlayer(ByVal guid As ULong) As Boolean
+        If GuidHigh2(guid) = GUID_PLAYER Then Return True
+        Return False
+    End Function
+
+    Public Function GuidHigh2(ByVal guid As ULong) As ULong
+        Return (guid And GUID_MASK_HIGH)
+    End Function
+
+    Public Function GuidHigh(ByVal guid As ULong) As UInteger
+        Return CUInt((guid And GUID_MASK_HIGH) >> 32UL)
+    End Function
+
+    Public Function GuidLow(ByVal guid As ULong) As UInteger
+        Return (guid And GUID_MASK_LOW)
+    End Function
+
     Public Function GetShapeshiftModel(ByVal form As ShapeshiftForm, ByVal race As Races, ByVal model As Integer) As Integer
         Select Case form
             Case ShapeshiftForm.FORM_CAT
