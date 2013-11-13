@@ -2454,4 +2454,16 @@ Public Module Global_Enums
         TEMPSUMMON_DEAD_DESPAWN = 7             'despawns when the creature disappears
         TEMPSUMMON_MANUAL_DESPAWN = 8              'despawns when UnSummon() is called
     End Enum
+
+    Public Enum LogType
+        NETWORK                 'Network code debugging
+        DEBUG                   'Packets processing
+        INFORMATION             'User information
+        USER                    'User actions
+        SUCCESS                 'Normal operation
+        WARNING                 'Warning
+        FAILED                  'Processing Error
+        CRITICAL                'Application Error
+        DATABASE                'Database Error
+    End Enum
 End Module

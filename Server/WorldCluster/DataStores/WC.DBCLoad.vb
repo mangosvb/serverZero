@@ -17,13 +17,13 @@
 '
 
 Imports System
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Global_Enums
 
 Public Module WS_DBCLoad
 
     Public Sub InitializeInternalDatabase()
 
-        InitializeLoadDBCs()
+        InitializeLoadDbCs()
 
         Try
             'Set all characters offline

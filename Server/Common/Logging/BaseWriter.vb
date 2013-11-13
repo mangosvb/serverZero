@@ -15,22 +15,10 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports mangosVB.Common.log
 
 Public Class BaseWriter
     Implements IDisposable
 
-    Public Enum LogType
-        NETWORK                 'Network code debugging
-        DEBUG                   'Packets processing
-        INFORMATION             'User information
-        USER                    'User actions
-        SUCCESS                 'Normal operation
-        WARNING                 'Warning
-        FAILED                  'Processing Error
-        CRITICAL                'Application Error
-        DATABASE                'Database Error
-    End Enum
     Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
 
     Public LogLevel As LogType = LogType.NETWORK
@@ -58,14 +46,38 @@ Public Class BaseWriter
     End Sub
 #End Region
 
+    ''' <summary>
+    ''' Writes the text to the console, typically does not privide a carridge return. (Overridable)
+    ''' </summary>
+    ''' <param name="type">The type.</param>
+    ''' <param name="format">The format.</param>
+    ''' <param name="arg">The arg.</param>
+    ''' <returns></returns>
     Public Overridable Sub Write(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)
     End Sub
+
+    ''' <summary>
+    ''' Writes the line to the console. (Overridable)
+    ''' </summary>
+    ''' <param name="type">The type.</param>
+    ''' <param name="format">The format.</param>
+    ''' <param name="arg">The arg.</param>
+    ''' <returns></returns>
     Public Overridable Sub WriteLine(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)
     End Sub
+
+    ''' <summary>
+    ''' Reads the line from the console. (Overridable)
+    ''' </summary>
+    ''' <returns></returns>
     Public Overridable Function ReadLine() As String
         Return Console.ReadLine()
     End Function
 
+    ''' <summary>
+    ''' Prints the diagnostic test for all the different settings - do not remove.
+    ''' </summary>
+    ''' <returns></returns>
     Public Sub PrintDiagnosticTest()
         WriteLine(LogType.NETWORK, "{0}:************************* TEST *************************", 1)
         WriteLine(LogType.DEBUG, "{0}:************************* TEST *************************", 1)
@@ -77,25 +89,33 @@ Public Class BaseWriter
         WriteLine(LogType.CRITICAL, "{0}:************************* TEST *************************", 1)
         WriteLine(LogType.DATABASE, "{0}:************************* TEST *************************", 1)
     End Sub
-    Public Shared Sub CreateLog(ByVal LogType As String, ByVal LogConfig As String, ByRef Log As BaseWriter)
+
+    ''' <summary>
+    ''' Creates the log instance.
+    ''' </summary>
+    ''' <param name="logType">Type of the log.</param>
+    ''' <param name="logConfig">The log config.</param>
+    ''' <param name="log">The log.</param>
+    ''' <returns></returns>
+    Public Shared Sub CreateLog(ByVal logType As String, ByVal logConfig As String, ByRef log As BaseWriter)
         Try
-            Select Case UCase(LogType)
+            Select Case UCase(logType)
                 Case "COLORCONSOLE"
                     Log = New ColoredConsoleWriter
                 Case "CONSOLE"
                     Log = New ConsoleWriter
                 Case "FILE"
-                    Log = New FileWriter(LogConfig)
+                    Log = New FileWriter(logConfig)
                 Case "TELNET"
-                    Dim info As String() = Split(LogConfig, ":")
+                    Dim info As String() = Split(logConfig, ":")
                     Log = New TelnetWriter(Net.IPAddress.Parse(info(0)), info(1))
-            Case "IRC"
-                Dim info As String() = Split(LogConfig, ":")
-                Dim server As String = info(0)
-                Dim port As String = info(1)
-                Dim nick As String = info(2)
-                Dim channel As String = info(3)
-                Log = New IrcWriter(server, port, nick, channel)
+                Case "IRC"
+                    Dim info As String() = Split(logConfig, ":")
+                    Dim server As String = info(0)
+                    Dim port As String = info(1)
+                    Dim nick As String = info(2)
+                    Dim channel As String = info(3)
+                    Log = New IrcWriter(server, port, nick, channel)
             End Select
         Catch e As Exception
             Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "hh:mm:ss"))
