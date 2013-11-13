@@ -22,6 +22,8 @@ Imports System.Threading
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
 
+Public Delegate Function HeightFuncDelegate(posX As Single, posY As Single) As Single
+
 Public Module WS_Maps
 #Region "Zones"
     Public AreaTable As New Dictionary(Of Integer, TArea)
@@ -36,8 +38,6 @@ Public Module WS_Maps
             End If
         Next
 
-
-
         Return -999
     End Function
 
@@ -50,29 +50,31 @@ Public Module WS_Maps
         Public Team As AreaTeam
         Public Name As String
 
-
         Public Function IsMyLand(ByRef objCharacter As CharacterObject) As Boolean
             If Team = AreaTeam.AREATEAM_NONE Then Return False
             If objCharacter.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
             If objCharacter.IsHorde = True Then Return Team = AreaTeam.AREATEAM_HORDE
         End Function
+
         Public Function IsCity() As Boolean
             Return ZoneType = 312
         End Function
+
         Public Function NeedFlyingMount() As Boolean
             Return (ZoneType And AreaFlag.AREA_FLAG_NEED_FLY)
         End Function
+
         Public Function IsSanctuary() As Boolean
             Return (ZoneType And AreaFlag.AREA_FLAG_SANCTUARY)
         End Function
+
         Public Function IsArena() As Boolean
             Return (ZoneType And AreaFlag.AREA_FLAG_ARENA)
         End Function
     End Class
 #End Region
 
-    Public RESOLUTION_ZMAP As Integer = 0
-
+    Public Const RESOLUTION_ZMAP As Integer = 64 - 1
 
 #Region "Continents"
 
@@ -82,11 +84,28 @@ Public Module WS_Maps
     Public Class TMapTile
         Implements IDisposable
 
+        'Public Const SIZE As Single = 533.3333F
+        Public Const RESOLUTION_WATER As Integer = 128 - 1
+        'Public Const RESOLUTION_FLAGS As Integer = 16 - 1
+        Public Const RESOLUTION_TERRAIN As Integer = 16 - 1
+
+        Public Const SIZE As Single = 533.3333F
+
+        Public Const RESOLUTION_FLAGS As Integer = 16 - 1
+        Public Const RESOLUTION_HEIGHT As Integer = 128 - 1
+
+        Public Const MAX_HEIGHT As Single = 100000.0F
+        Public Const INVALID_HEIGHT As Single = -100000.0F
+        Public Const INVALID_HEIGHT_VALUE As Single = -200000.0F
+        Public Const MAX_FALL_DISTANCE As Single = -250000.0F
+        Public Const DEFAULT_HEIGHT_SEARCH As Single = 10.0F
+        Public Const DEFAULT_WATER_SEARCH As Single = 50.0F
+
         'TMap contains 64x64 TMapTile(s)
-        Public AreaFlag(RESOLUTION_FLAGS, RESOLUTION_FLAGS) As UShort
-        Public AreaTerrain(RESOLUTION_TERRAIN, RESOLUTION_TERRAIN) As Byte
-        Public WaterLevel(RESOLUTION_WATER, RESOLUTION_WATER) As Single
-        'Public ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
+        'Public AreaFlag(RESOLUTION_FLAGS, RESOLUTION_FLAGS) As UShort
+        'Public AreaTerrain(RESOLUTION_TERRAIN, RESOLUTION_TERRAIN) As Byte
+        'Public WaterLevel(RESOLUTION_WATER, RESOLUTION_WATER) As Single
+        ''Public ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
         Public ZCoord(,) As Single
 
 #If ENABLE_PPOINTS Then
@@ -121,10 +140,74 @@ Public Module WS_Maps
         Public CorpseObjectsHere As New List(Of ULong)
         Public DynamicObjectsHere As New List(Of ULong)
 
-        Private CellX As Byte
-        Private CellY As Byte
-        Private CellMap As UInteger
+        'Private CellX As Byte
+        'Private CellY As Byte
+        'Private CellMap As UInteger
+        Private gridArea As UShort = 0
+        Private gridHeight As Single = 0.0F
+        Private areaFlags As UShort(,) = Nothing
 
+        Private gridHeightMultiplier As Single = 0.0F
+        Private heightsV8 As Single() = Nothing
+        Private heightsV9 As Single() = Nothing
+        Private heights16V8 As UShort() = Nothing
+        Private heights16V9 As UShort() = Nothing
+        Private heights8V8 As Byte() = Nothing
+        Private heights8V9 As Byte() = Nothing
+        Private getHeightFunc As HeightFuncDelegate = Nothing
+
+        Private liquidType As UShort = 0
+        Private liquidOffX As Integer = 0
+        Private liquidOffY As Integer = 0
+        Private liquidWidth As Integer = 0
+        Private liquidHeight As Integer = 0
+        Private liquidLevel As Single = 0.0F
+        Private liquidEntry As UShort(,) = Nothing
+        Private liquidFlags As UShort(,) = Nothing
+        Private waterLevel As Single(,) = Nothing
+
+        Private cellX As Integer = 0
+        Private cellY As Integer = 0
+        Private cellMap As UInteger = 0
+
+        Private m_hasVmapData As Boolean = False
+        Private m_hasMmapData As Boolean = False
+
+#Region "Properties"
+        ''' <summary>
+        ''' Gets if this map tile has Vmap data.
+        ''' </summary>
+        Public ReadOnly Property HasVmapData() As Boolean
+            Get
+                Return m_hasVmapData
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Gets if this map tile has Mmap data.
+        ''' </summary>
+        Public ReadOnly Property HasMmapData() As Boolean
+            Get
+                Return m_hasMmapData
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Gets the bit count for the height data.
+        ''' </summary>
+        Public ReadOnly Property HeightDataBits() As Integer
+            Get
+                Return (If(heightsV8 IsNot Nothing, 32, (If(heights16V8 IsNot Nothing, 16, (If(heights8V8 IsNot Nothing, 8, 0))))))
+            End Get
+        End Property
+#End Region
+
+        ''' <summary>
+        ''' Creates a new map tile.
+        ''' </summary>
+        ''' <param name="tileX">The X-tile.</param>
+        ''' <param name="tileY">the Y-tile.</param>
+        ''' <param name="tileMap">The tile map ID.</param>
         Public Sub New(ByVal tileX As Byte, ByVal tileY As Byte, ByVal tileMap As UInteger)
             'DONE: Don't load maptiles we don't handle
             If Not Maps.ContainsKey(tileMap) Then Exit Sub
@@ -138,46 +221,94 @@ Public Module WS_Maps
             CellY = tileY
             CellMap = tileMap
 
-            Dim fileName As String
-            Dim fileVersion As String
-            Dim f As FileStream
-            Dim b As BinaryReader
-            Dim x, y As Integer
+            'Dim fileName As String
+            'Dim fileVersion As String
+            'Dim f As FileStream
+            'Dim b As BinaryReader
+            'Dim x, y As Integer
 
-            'DONE: Loading MAP file
-            fileName = String.Format("{0}{1}{2}.map", Format(tileMap, "000"), Format(tileX, "00"), Format(tileY, "00"))
-            If Not File.Exists("maps\" & fileName) Then
-                Log.WriteLine(LogType.WARNING, "Map file [{0}] not found", fileName)
+            ''DONE: Loading MAP file
+            'fileName = String.Format("{0}{1}{2}.map", Format(tileMap, "000"), Format(tileX, "00"), Format(tileY, "00"))
+            'If Not File.Exists("maps\" & fileName) Then
+            '    Log.WriteLine(LogType.WARNING, "Map file [{0}] not found", fileName)
+            'Else
+            '    f = New FileStream("maps\" & fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 82704, FileOptions.SequentialScan)
+            '    b = New BinaryReader(f)
+
+            '    fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
+            '    Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
+
+            '    For x = 0 To RESOLUTION_FLAGS
+            '        For y = 0 To RESOLUTION_FLAGS
+            '            AreaFlag(x, y) = b.ReadUInt16()
+            '        Next y
+            '    Next x
+            '    For x = 0 To RESOLUTION_TERRAIN
+            '        For y = 0 To RESOLUTION_TERRAIN
+            '            AreaTerrain(x, y) = b.ReadByte
+            '        Next y
+            '    Next x
+            '    For x = 0 To RESOLUTION_WATER
+            '        For y = 0 To RESOLUTION_WATER
+            '            WaterLevel(x, y) = b.ReadSingle
+            '        Next y
+            '    Next x
+            '    For x = 0 To RESOLUTION_ZMAP
+            '        For y = 0 To RESOLUTION_ZMAP
+            '            ZCoord(x, y) = b.ReadSingle
+            '        Next y
+            '    Next x
+            '    b.Close()
+            '    '                f.Close()
+            '    '                f.Dispose()
+            'End If
+            ' Load the map file
+            Dim filePath As String = String.Format("{0}{1}{2}.map", Format(tileMap, "000"), Format(tileX, "00"), Format(tileY, "00"))
+            If Not File.Exists("maps\" & filePath) Then
+                Log.WriteLine(LogType.WARNING, "Map file [{0}] not found", filePath)
             Else
-                f = New FileStream("maps\" & fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 82704, FileOptions.SequentialScan)
-                b = New BinaryReader(f)
+                Dim stream As New FileStream("maps\" & filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 82704, FileOptions.SequentialScan)
+                Dim reader As New BinaryReader(stream)
 
-                fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
-                Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
+                Dim mapMagic As New String(reader.ReadChars(4))
+                If mapMagic <> "MAPS" Then
+                    Log.WriteLine(LogType.WARNING, "Invalid map magic in file [{0}].", filePath)
+                    Return
+                End If
+                Dim versionMagic As New String(reader.ReadChars(4))
+                If versionMagic <> "z1.3" Then
+                    Log.WriteLine(LogType.WARNING, "Invalid map magic in file [{0}].", filePath)
+                    Return
+                End If
 
-                For x = 0 To RESOLUTION_FLAGS
-                    For y = 0 To RESOLUTION_FLAGS
-                        AreaFlag(x, y) = b.ReadUInt16()
-                    Next y
-                Next x
-                For x = 0 To RESOLUTION_TERRAIN
-                    For y = 0 To RESOLUTION_TERRAIN
-                        AreaTerrain(x, y) = b.ReadByte
-                    Next y
-                Next x
-                For x = 0 To RESOLUTION_WATER
-                    For y = 0 To RESOLUTION_WATER
-                        WaterLevel(x, y) = b.ReadSingle
-                    Next y
-                Next x
-                For x = 0 To RESOLUTION_ZMAP
-                    For y = 0 To RESOLUTION_ZMAP
-                        ZCoord(x, y) = b.ReadSingle
-                    Next y
-                Next x
-                b.Close()
-                '                f.Close()
-                '                f.Dispose()
+                Dim areaMapOffset As Integer = reader.ReadInt32()
+                Dim areaMapSize As Integer = reader.ReadInt32()
+                Dim heightMapOffset As Integer = reader.ReadInt32()
+                Dim heightMapSize As Integer = reader.ReadInt32()
+                Dim liquidMapOffset As Integer = reader.ReadInt32()
+                Dim liquidMapSize As Integer = reader.ReadInt32()
+                Dim holesOffset As Integer = reader.ReadInt32()
+                Dim holesSize As Integer = reader.ReadInt32()
+
+                If areaMapOffset > 0 AndAlso Not LoadAreaData(reader, areaMapOffset, areaMapSize) Then
+                    Log.WriteLine(LogType.WARNING, "Failed to load area data from map file [{0}].", filePath)
+                    Return
+                End If
+
+                If heightMapOffset > 0 AndAlso Not LoadHeightData(reader, heightMapOffset, heightMapSize) Then
+                    Log.WriteLine(LogType.WARNING, "Failed to load height data from map file [{0}].", filePath)
+                    Return
+                End If
+
+                If liquidMapOffset > 0 AndAlso Not LoadLiquidData(reader, liquidMapOffset, liquidMapSize) Then
+                    Log.WriteLine(LogType.WARNING, "Failed to load liquid data from map file [{0}].", filePath)
+                    Return
+                End If
+
+                reader.Close()
+                reader.Dispose()
+                stream.Close()
+                stream.Dispose()
             End If
 
 #If ENABLE_PPOINTS Then
@@ -216,6 +347,443 @@ Public Module WS_Maps
             LoadVMAP()
 #End If
         End Sub
+#Region "Loading"
+#Region "Area Data"
+        ''' <summary>
+        ''' Reads the area data from a map file.
+        ''' </summary>
+        ''' <param name="reader">The binary reader.</param>
+        ''' <param name="offset">The offset for the area data.</param>
+        ''' <param name="size">The size of the area data.</param>
+        Private Function LoadAreaData(ByVal reader As BinaryReader, ByVal offset As Integer, ByVal size As Integer) As Boolean
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin)
+            Dim magic As New String(reader.ReadChars(4))
+            If magic <> "AREA" Then
+                Return False
+            End If
+
+            Dim flags As UShort = reader.ReadUInt16()
+            gridArea = reader.ReadUInt16()
+            If (flags And 1) = 0 Then
+                areaFlags = New UShort(RESOLUTION_FLAGS - 1, RESOLUTION_FLAGS - 1) {}
+                For x As Integer = 0 To RESOLUTION_FLAGS - 1
+                    For y As Integer = 0 To RESOLUTION_FLAGS - 1
+                        areaFlags(x, y) = reader.ReadUInt16()
+                    Next
+                Next
+            End If
+            Return True
+        End Function
+#End Region
+
+#Region "Height Data"
+        ''' <summary>
+        ''' Reads the height data from a map file.
+        ''' </summary>
+        ''' <param name="reader">The binary reader.</param>
+        ''' <param name="offset">The offset for the height data.</param>
+        ''' <param name="size">The size of the height data.</param>
+        Private Function LoadHeightData(ByVal reader As BinaryReader, ByVal offset As Integer, ByVal size As Integer) As Boolean
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin)
+            Dim magic As New String(reader.ReadChars(4))
+            If magic <> "MHGT" Then
+                Return False
+            End If
+
+            Dim flags As UInteger = reader.ReadUInt32()
+            gridHeight = reader.ReadSingle()
+            Dim gridMaxHeight As Single = reader.ReadSingle()
+            If (flags And 1) = 0 Then
+                If (flags And 2) <> 0 Then
+                    ' uint16 height
+                    heights16V9 = New UShort((RESOLUTION_HEIGHT + 1) * (RESOLUTION_HEIGHT + 1) - 1) {}
+                    heights16V8 = New UShort(RESOLUTION_HEIGHT * RESOLUTION_HEIGHT - 1) {}
+                    For i As Integer = 0 To heights16V9.Length - 1
+                        heights16V9(i) = reader.ReadUInt16()
+                    Next
+                    For i As Integer = 0 To heights16V8.Length - 1
+                        heights16V8(i) = reader.ReadUInt16()
+                    Next
+                    gridHeightMultiplier = (gridMaxHeight - gridHeight) / 65535.0F
+                    getHeightFunc = AddressOf GetHeightUInt16
+                ElseIf (flags And 4) <> 0 Then
+                    ' uint8 height
+                    heights8V9 = New Byte((RESOLUTION_HEIGHT + 1) * (RESOLUTION_HEIGHT + 1) - 1) {}
+                    heights8V8 = New Byte(RESOLUTION_HEIGHT * RESOLUTION_HEIGHT - 1) {}
+                    For i As Integer = 0 To heights8V9.Length - 1
+                        heights8V9(i) = reader.ReadByte()
+                    Next
+                    For i As Integer = 0 To heights8V8.Length - 1
+                        heights8V8(i) = reader.ReadByte()
+                    Next
+                    gridHeightMultiplier = (gridMaxHeight - gridHeight) / 255.0F
+                    getHeightFunc = AddressOf GetHeightUInt8
+                Else
+                    ' float height
+                    heightsV9 = New Single((RESOLUTION_HEIGHT + 1) * (RESOLUTION_HEIGHT + 1) - 1) {}
+                    heightsV8 = New Single(RESOLUTION_HEIGHT * RESOLUTION_HEIGHT - 1) {}
+                    For i As Integer = 0 To heightsV9.Length - 1
+                        heightsV9(i) = reader.ReadSingle()
+                    Next
+                    For i As Integer = 0 To heightsV8.Length - 1
+                        heightsV8(i) = reader.ReadSingle()
+                    Next
+                    getHeightFunc = AddressOf GetHeightFloat
+                End If
+            Else
+                getHeightFunc = AddressOf GetHeightFlat
+            End If
+            Return True
+        End Function
+#End Region
+
+#Region "Liquid Data"
+        ''' <summary>
+        ''' Reads the liquid data from a map file.
+        ''' </summary>
+        ''' <param name="reader">The binary reader.</param>
+        ''' <param name="offset">The offset for the liquid data.</param>
+        ''' <param name="size">The size of the liquid data.</param>
+        Private Function LoadLiquidData(ByVal reader As BinaryReader, ByVal offset As Integer, ByVal size As Integer) As Boolean
+            reader.BaseStream.Seek(offset, SeekOrigin.Begin)
+            Dim magic As New String(reader.ReadChars(4))
+            If magic <> "MLIQ" Then
+                Return False
+            End If
+
+            Dim flags As UShort = reader.ReadUInt16()
+            liquidType = reader.ReadUInt16()
+            liquidOffX = CInt(reader.ReadByte())
+            liquidOffY = CInt(reader.ReadByte())
+            liquidWidth = CInt(reader.ReadByte())
+            liquidHeight = CInt(reader.ReadByte())
+            liquidLevel = reader.ReadSingle()
+
+            If (flags And 1) = 0 Then
+                liquidEntry = New UShort(RESOLUTION_FLAGS - 1, RESOLUTION_FLAGS - 1) {}
+                For x As Integer = 0 To RESOLUTION_FLAGS - 1
+                    For y As Integer = 0 To RESOLUTION_FLAGS - 1
+                        liquidEntry(x, y) = reader.ReadUInt16()
+                    Next
+                Next
+
+                liquidFlags = New UShort(RESOLUTION_FLAGS - 1, RESOLUTION_FLAGS - 1) {}
+                For x As Integer = 0 To RESOLUTION_FLAGS - 1
+                    For y As Integer = 0 To RESOLUTION_FLAGS - 1
+                        liquidFlags(x, y) = reader.ReadUInt16()
+                    Next
+                Next
+            End If
+
+            If (flags And 2) = 0 Then
+                waterLevel = New Single(liquidWidth - 1, liquidHeight - 1) {}
+                For x As Integer = 0 To liquidWidth - 1
+                    For y As Integer = 0 To liquidHeight - 1
+                        WaterLevel(x, y) = reader.ReadSingle()
+                    Next
+                Next
+            End If
+            Return True
+        End Function
+#End Region
+#End Region
+
+#Region "Get Height"
+#Region "Get Height"
+        ''' <summary>
+        ''' Gets the height for a location on this tile.
+        ''' </summary>
+        ''' <param name="posX">The position X-coordinate.</param>
+        ''' <param name="posY">The position X-coordinate.</param>
+        ''' <returns></returns>
+        Public Function GetHeight(ByVal posX As Single, ByVal posY As Single) As Single
+            Return getHeightFunc(posX, posY)
+        End Function
+#End Region
+
+#Region "Flat"
+        ''' <summary>
+        ''' Gets the height for a location on this tile.
+        ''' </summary>
+        ''' <param name="posX">The position X-coordinate.</param>
+        ''' <param name="posY">The position X-coordinate.</param>
+        ''' <returns></returns>
+        Private Function GetHeightFlat(ByVal posX As Single, ByVal posY As Single) As Single
+            Return gridHeight
+        End Function
+#End Region
+
+#Region "Float"
+        ''' <summary>
+        ''' Gets the height for a location on this tile.
+        ''' </summary>
+        ''' <param name="x">The position X-coordinate.</param>
+        ''' <param name="y">The position X-coordinate.</param>
+        ''' <returns></returns>
+        Private Function GetHeightFloat(ByVal x As Single, ByVal y As Single) As Single
+            If heightsV8 Is Nothing OrElse heightsV9 Is Nothing Then
+                Return gridHeight
+            End If
+
+            x = RESOLUTION_HEIGHT * (32 - x / SIZE)
+            y = RESOLUTION_HEIGHT * (32 - y / SIZE)
+            Dim x_int As Integer = CInt(x)
+            Dim y_int As Integer = CInt(y)
+            x -= x_int
+            y -= y_int
+            x_int = x_int And (RESOLUTION_HEIGHT - 1)
+            y_int = y_int And (RESOLUTION_HEIGHT - 1)
+
+            ' Height stored as: h5 - its v8 grid, h1-h4 - its v9 grid
+            ' +--------------> X
+            ' | h1-------h2     Coordinates is:
+            ' | | \  1  / |     h1 0,0
+            ' | |  \   /  |     h2 0,1
+            ' | | 2  h5 3 |     h3 1,0
+            ' | |  /   \  |     h4 1,1
+            ' | | /  4  \ |     h5 1/2,1/2
+            ' | h3-------h4
+            ' V Y
+            ' For find height need
+            ' 1 - detect triangle
+            ' 2 - solve linear equation from triangle points
+            ' Calculate coefficients for solve h = a*x + b*y + c
+
+            Dim a As Single, b As Single, c As Single
+            ' Select triangle:
+            If x + y < 1 Then
+                If x > y Then
+                    ' 1 triangle (h1, h2, h5 points)
+                    Dim h1 As Single = heightsV9((x_int) * 129 + y_int)
+                    Dim h2 As Single = heightsV9((x_int + 1) * 129 + y_int)
+                    Dim h5 As Single = 2 * heightsV8(x_int * 128 + y_int)
+                    a = h2 - h1
+                    b = h5 - h1 - h2
+                    c = h1
+                Else
+                    ' 2 triangle (h1, h3, h5 points)
+                    Dim h1 As Single = heightsV9(x_int * 129 + y_int)
+                    Dim h3 As Single = heightsV9(x_int * 129 + y_int + 1)
+                    Dim h5 As Single = 2 * heightsV8(x_int * 128 + y_int)
+                    a = h5 - h1 - h3
+                    b = h3 - h1
+                    c = h1
+                End If
+            Else
+                If x > y Then
+                    ' 3 triangle (h2, h4, h5 points)
+                    Dim h2 As Single = heightsV9((x_int + 1) * 129 + y_int)
+                    Dim h4 As Single = heightsV9((x_int + 1) * 129 + y_int + 1)
+                    Dim h5 As Single = 2 * heightsV8(x_int * 128 + y_int)
+                    a = h2 + h4 - h5
+                    b = h4 - h2
+                    c = h5 - h4
+                Else
+                    ' 4 triangle (h3, h4, h5 points)
+                    Dim h3 As Single = heightsV9((x_int) * 129 + y_int + 1)
+                    Dim h4 As Single = heightsV9((x_int + 1) * 129 + y_int + 1)
+                    Dim h5 As Single = 2 * heightsV8(x_int * 128 + y_int)
+                    a = h4 - h3
+                    b = h3 + h4 - h5
+                    c = h5 - h4
+                End If
+            End If
+            ' Calculate height
+            Return a * x + b * y + c
+        End Function
+#End Region
+
+#Region "UInt16"
+        ''' <summary>
+        ''' Gets the height for a location on this tile.
+        ''' </summary>
+        ''' <param name="x">The position X-coordinate.</param>
+        ''' <param name="y">The position X-coordinate.</param>
+        ''' <returns></returns>
+        Private Function GetHeightUInt16(ByVal x As Single, ByVal y As Single) As Single
+            If heights16V8 Is Nothing OrElse heights16V9 Is Nothing Then
+                Return gridHeight
+            End If
+
+            x = RESOLUTION_HEIGHT * (32 - x / SIZE)
+            y = RESOLUTION_HEIGHT * (32 - y / SIZE)
+            Dim x_int As Integer = CInt(x)
+            Dim y_int As Integer = CInt(y)
+            x -= x_int
+            y -= y_int
+            x_int = x_int And (RESOLUTION_HEIGHT - 1)
+            y_int = y_int And (RESOLUTION_HEIGHT - 1)
+
+            Dim a As Integer, b As Integer, c As Integer
+            Dim v9index As Integer = x_int * 128 + x_int + y_int
+            If x + y < 1 Then
+                If x > y Then
+                    ' 1 triangle (h1, h2, h5 points)
+                    Dim h1 As Integer = heights16V9(v9index + 0)
+                    Dim h2 As Integer = heights16V9(v9index + 129)
+                    Dim h5 As Integer = 2 * heights16V8(x_int * 128 + y_int)
+                    a = h2 - h1
+                    b = h5 - h1 - h2
+                    c = h1
+                Else
+                    ' 2 triangle (h1, h3, h5 points)
+                    Dim h1 As Integer = heights16V9(v9index + 0)
+                    Dim h3 As Integer = heights16V9(v9index + 1)
+                    Dim h5 As Integer = 2 * heights16V8(x_int * 128 + y_int)
+                    a = h5 - h1 - h3
+                    b = h3 - h1
+                    c = h1
+                End If
+            Else
+                If x > y Then
+                    ' 3 triangle (h2, h4, h5 points)
+                    Dim h2 As Integer = heights16V9(v9index + 129)
+                    Dim h4 As Integer = heights16V9(v9index + 130)
+                    Dim h5 As Integer = 2 * heights16V8(x_int * 128 + y_int)
+                    a = h2 + h4 - h5
+                    b = h4 - h2
+                    c = h5 - h4
+                Else
+                    ' 4 triangle (h3, h4, h5 points)
+                    Dim h3 As Integer = heights16V9(v9index + 1)
+                    Dim h4 As Integer = heights16V9(v9index + 130)
+                    Dim h5 As Integer = 2 * heights16V8(x_int * 128 + y_int)
+                    a = h4 - h3
+                    b = h3 + h4 - h5
+                    c = h5 - h4
+                End If
+            End If
+
+            ' Calculate height
+            Return CSng((a * x) + (b * y) + c) * gridHeightMultiplier + gridHeight
+        End Function
+#End Region
+
+#Region "UInt8"
+        ''' <summary>
+        ''' Gets the height for a location on this tile.
+        ''' </summary>
+        ''' <param name="x">The position X-coordinate.</param>
+        ''' <param name="y">The position X-coordinate.</param>
+        ''' <returns></returns>
+        Private Function GetHeightUInt8(ByVal x As Single, ByVal y As Single) As Single
+            If heights8V8 Is Nothing OrElse heights8V9 Is Nothing Then
+                Return gridHeight
+            End If
+
+            x = RESOLUTION_HEIGHT * (32 - x / SIZE)
+            y = RESOLUTION_HEIGHT * (32 - y / SIZE)
+            Dim x_int As Integer = CInt(x)
+            Dim y_int As Integer = CInt(y)
+            x -= x_int
+            y -= y_int
+            x_int = x_int And (RESOLUTION_HEIGHT - 1)
+            y_int = y_int And (RESOLUTION_HEIGHT - 1)
+
+            Dim a As Integer, b As Integer, c As Integer
+            Dim v9index As Integer = x_int * 128 + x_int + y_int
+            If x + y < 1 Then
+                If x > y Then
+                    ' 1 triangle (h1, h2, h5 points)
+                    Dim h1 As Integer = heights8V9(v9index + 0)
+                    Dim h2 As Integer = heights8V9(v9index + 129)
+                    Dim h5 As Integer = 2 * heights8V8(x_int * 128 + y_int)
+                    a = h2 - h1
+                    b = h5 - h1 - h2
+                    c = h1
+                Else
+                    ' 2 triangle (h1, h3, h5 points)
+                    Dim h1 As Integer = heights8V9(v9index + 0)
+                    Dim h3 As Integer = heights8V9(v9index + 1)
+                    Dim h5 As Integer = 2 * heights8V8(x_int * 128 + y_int)
+                    a = h5 - h1 - h3
+                    b = h3 - h1
+                    c = h1
+                End If
+            Else
+                If x > y Then
+                    ' 3 triangle (h2, h4, h5 points)
+                    Dim h2 As Integer = heights8V9(v9index + 129)
+                    Dim h4 As Integer = heights8V9(v9index + 130)
+                    Dim h5 As Integer = 2 * heights8V8(x_int * 128 + y_int)
+                    a = h2 + h4 - h5
+                    b = h4 - h2
+                    c = h5 - h4
+                Else
+                    ' 4 triangle (h3, h4, h5 points)
+                    Dim h3 As Integer = heights8V9(v9index + 1)
+                    Dim h4 As Integer = heights8V9(v9index + 130)
+                    Dim h5 As Integer = 2 * heights8V8(x_int * 128 + y_int)
+                    a = h4 - h3
+                    b = h3 + h4 - h5
+                    c = h5 - h4
+                End If
+            End If
+
+            ' Calculate height
+            Return CSng((a * x) + (b * y) + c) * gridHeightMultiplier + gridHeight
+        End Function
+#End Region
+#End Region
+
+#Region "Get Area Flag"
+        ''' <summary>
+        ''' Gets the area flag for a subtile on this tile.
+        ''' </summary>
+        ''' <param name="subTileX">The subtile X.</param>
+        ''' <param name="subTileY">The subtile Y.</param>
+        ''' <returns></returns>
+        Public Function GetAreaFlag(ByVal subTileX As Integer, ByVal subTileY As Integer) As UShort
+            If areaFlags Is Nothing Then
+                Return gridArea
+            End If
+            If subTileX >= 0 AndAlso subTileY >= 0 AndAlso subTileX < RESOLUTION_FLAGS AndAlso subTileY < RESOLUTION_FLAGS Then
+                Return areaFlags(subTileX, subTileY)
+            Else
+                Return 0
+            End If
+        End Function
+#End Region
+
+#Region "Get Terrain Type"
+        ''' <summary>
+        ''' Gets the terrain type for a subtile on this tile.
+        ''' </summary>
+        ''' <param name="subTileX">The subtile X.</param>
+        ''' <param name="subTileY">The subtile Y.</param>
+        ''' <returns></returns>
+        Public Function GetTerrainType(ByVal subTileX As Integer, ByVal subTileY As Integer) As Byte
+            If liquidFlags Is Nothing Then
+                Return CByte(liquidType)
+            End If
+            If subTileX >= 0 AndAlso subTileY >= 0 AndAlso subTileX < RESOLUTION_FLAGS AndAlso subTileY < RESOLUTION_FLAGS Then
+                Return CByte(liquidFlags(subTileX, subTileY))
+            Else
+                Return 0
+            End If
+        End Function
+#End Region
+
+#Region "Get Water Level"
+        ''' <summary>
+        ''' Gets the water level for a subtile on this tile.
+        ''' </summary>
+        ''' <param name="subTileX">The subtile X.</param>
+        ''' <param name="subTileY">The subtile Y.</param>
+        ''' <returns></returns>
+        Public Function GetWaterLevel(ByVal subTileX As Integer, ByVal subTileY As Integer) As Single
+            If waterLevel Is Nothing Then
+                Return liquidLevel
+            End If
+            subTileX -= liquidOffX
+            subTileY -= liquidOffY
+            If subTileX >= 0 AndAlso subTileY >= 0 AndAlso subTileX < liquidWidth AndAlso subTileY < liquidHeight Then
+                Return waterLevel(subTileX, subTileY)
+            Else
+                Return INVALID_HEIGHT_VALUE
+            End If
+        End Function
+#End Region
 
 #If VMAPS Then
         Public Sub LoadVMAP()
@@ -529,77 +1097,176 @@ Public Module WS_Maps
 
     Public Sub GetMapTile(ByVal x As Single, ByVal y As Single, ByRef MapTileX As Byte, ByRef MapTileY As Byte)
         'How to calculate where is X,Y:
-        MapTileX = Fix(32 - (x / SIZE))
-        MapTileY = Fix(32 - (y / SIZE))
+        'MapTileX = Fix(32 - (x / SIZE))
+        'MapTileY = Fix(32 - (y / SIZE))
+        MapTileX = CInt(32 - (x / TMapTile.SIZE))
+        MapTileY = CInt(32 - (y / TMapTile.SIZE))
     End Sub
+
     Public Function GetMapTileX(ByVal x As Single) As Byte
-        Return Fix(32 - (x / SIZE))
+        'Return Fix(32 - (x / SIZE))
+        'Dim cX As Single = x / TMapTile.SIZE
+        'Return CByte(32 - cX)
+        Return CInt(32 - (x / TMapTile.SIZE))
     End Function
+
     Public Function GetMapTileY(ByVal y As Single) As Byte
-        Return Fix(32 - (y / SIZE))
+        'Return Fix(32 - (y / SIZE))
+        'Dim cY As Single = y / TMapTile.SIZE
+        'Return CByte(32 - cY)
+        Return CInt(32 - (y / TMapTile.SIZE))
     End Function
+
     Public Function GetSubMapTileX(ByVal x As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (x / SIZE) - Fix(32 - (x / SIZE))))
+        'Return Fix(RESOLUTION_ZMAP * (32 - (x / SIZE) - Fix(32 - (x / SIZE))))
+        'Dim cX As Single = x / TMapTile.SIZE
+        'Dim tileX As Integer = CInt(32 - cX)
+        'Return CByte(TMapTile.RESOLUTION_FLAGS * (32.0F - cX - tileX))
+        Dim cX As Single = x / TMapTile.SIZE
+        Return CInt(TMapTile.RESOLUTION_HEIGHT * (32.0F - cX - CSng(32 - CInt(cX))))
     End Function
+
     Public Function GetSubMapTileY(ByVal y As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (y / SIZE) - Fix(32 - (y / SIZE))))
+        'Return Fix(RESOLUTION_ZMAP * (32 - (y / SIZE) - Fix(32 - (y / SIZE))))
+        'Dim cY As Single = y / TMapTile.SIZE
+        'Dim tileY As Integer = CInt(Math.Truncate(32 - cY))
+        'Return CByte(TMapTile.RESOLUTION_FLAGS * (32.0F - cY - tileY))
+        Dim cY As Single = y / TMapTile.SIZE
+        Return CInt(TMapTile.RESOLUTION_HEIGHT * (32.0F - cY - CSng(32 - CInt(cY))))
     End Function
-    Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
-        Try
-            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX), Byte)
-            Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY), Byte)
-            Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
-            Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
 
-            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
+    'Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
+    '    Try
+    '        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+    '        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+    '        Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX), Byte)
+    '        Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY), Byte)
+    '        Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
+    '        Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
 
-            Try
-                Dim topHeight As Single = MathLerp( _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY), _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY), _
-                    xNormalized)
+    '        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
 
-                Dim bottomHeight As Single = MathLerp( _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1), _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1), _
-                    xNormalized)
+    '        Try
+    '            Dim topHeight As Single = MathLerp( _
+    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY), _
+    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY), _
+    '                xNormalized)
 
-                Return MathLerp(topHeight, bottomHeight, yNormalized)
-            Catch
-                Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
-            End Try
-        Catch e As Exception
-            Return 0.0F
-        End Try
+    '            Dim bottomHeight As Single = MathLerp( _
+    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1), _
+    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1), _
+    '                xNormalized)
+
+    '            Return MathLerp(topHeight, bottomHeight, yNormalized)
+    '        Catch
+    '            Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
+    '        End Try
+    '    Catch e As Exception
+    '        Return 0.0F
+    '    End Try
+    'End Function
+    ''' <summary>
+    ''' Attempts to get the Z-coord of a specific location in the world.
+    ''' </summary>
+    ''' <param name="mapID">The map ID.</param>
+    ''' <param name="posX">The X-position coordinate.</param>
+    ''' <param name="posY">The Y-position coordinate.</param>
+    ''' <returns>The Z-coord.</returns>
+    Public Function GetZCoord(ByVal posX As Single, ByVal posY As Single, ByVal mapID As UInteger) As Single
+        'Dim MapTileX As Byte = Fix(32 - (posX / TMapTile.SIZE))
+        'Dim MapTileY As Byte = Fix(32 - (posY / TMapTile.SIZE))
+
+        Dim cX As Single = posX / TMapTile.SIZE
+        Dim cY As Single = posY / TMapTile.SIZE
+        Dim tileX As Integer = CInt(32 - cX)
+        Dim tileY As Integer = CInt(32 - cY)
+
+        Dim map As TMap = Maps(mapID)
+        If map IsNot Nothing Then
+            Dim tile As TMapTile = Maps(mapID).Tiles(tileX, tileY)
+            If tile IsNot Nothing Then
+                Return tile.GetHeight(posX, posY)
+            End If
+        End If
+        Return TMapTile.INVALID_HEIGHT_VALUE
     End Function
+
     Public Function GetWaterLevel(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Single
-        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = CType(RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY), Byte)
+        'Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+        'Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+        'Dim MapTile_LocalX As Byte = CType(RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX), Byte)
+        'Dim MapTile_LocalY As Byte = CType(RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY), Byte)
 
-        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
-        Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
+        'If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
+        'Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
+        Dim cX As Single = x / TMapTile.SIZE
+        Dim cY As Single = y / TMapTile.SIZE
+        Dim tileX As Integer = CInt(32 - cX)
+        Dim tileY As Integer = CInt(32 - cY)
+        Dim subTileX As Integer = CInt(TMapTile.RESOLUTION_WATER * (32.0F - cX - tileX))
+        Dim subTileY As Integer = CInt(TMapTile.RESOLUTION_WATER * (32.0F - cY - tileY))
+
+        'Dim map As Map = MovementHandlers.GetMap(mapID)
+        Dim tmpMap As TMap = Maps(Map)
+        If tmpMap IsNot Nothing Then
+            Dim tile As TMapTile = tmpMap.Tiles(tileX, tileY)
+            If tile IsNot Nothing Then
+                Return CInt(tile.GetWaterLevel(subTileX, subTileY))
+            End If
+        End If
+        Return 0
     End Function
+
     Public Function GetTerrainType(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Byte
-        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = CType(RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY), Byte)
+        'Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+        'Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+        'Dim MapTile_LocalX As Byte = CType(RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX), Byte)
+        'Dim MapTile_LocalY As Byte = CType(RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY), Byte)
 
-        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
-        Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
+        'If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
+        'Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
+        Dim cX As Single = x / TMapTile.SIZE
+        Dim cY As Single = y / TMapTile.SIZE
+        Dim tileX As Integer = CInt(32 - cX)
+        Dim tileY As Integer = CInt(32 - cY)
+        Dim subTileX As Integer = CInt(TMapTile.RESOLUTION_TERRAIN * (32.0F - cX - tileX))
+        Dim subTileY As Integer = CInt(TMapTile.RESOLUTION_TERRAIN * (32.0F - cY - tileY))
+
+        'Dim map As Map = MovementHandlers.GetMap(mapID)
+        Dim tmpMap As TMap = Maps(Map)
+        If tmpMap IsNot Nothing Then
+            Dim tile As TMapTile = tmpMap.Tiles(tileX, tileY)
+            If tile IsNot Nothing Then
+                Return CInt(tile.GetTerrainType(subTileX, subTileY))
+            End If
+        End If
+        Return 0
     End Function
-    Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
-        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = CType(RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY), Byte)
 
-        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
-        Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
+    Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
+        'Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+        'Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+        'Dim MapTile_LocalX As Byte = CType(RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX), Byte)
+        'Dim MapTile_LocalY As Byte = CType(RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY), Byte)
+
+        'If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
+        'Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
+        Dim cX As Single = x / TMapTile.SIZE
+        Dim cY As Single = y / TMapTile.SIZE
+        Dim tileX As Integer = CInt(32 - cX)
+        Dim tileY As Integer = CInt(32 - cY)
+        Dim subTileX As Integer = CInt(TMapTile.RESOLUTION_FLAGS * (32.0F - cX - tileX))
+        Dim subTileY As Integer = CInt(TMapTile.RESOLUTION_FLAGS * (32.0F - cY - tileY))
+
+        'Dim map As Map = MovementHandlers.GetMap(mapID)
+        Dim tmpMap As TMap = Maps(Map)
+        If tmpMap IsNot Nothing Then
+            Dim tile As TMapTile = tmpMap.Tiles(tileX, tileY)
+            If tile IsNot Nothing Then
+                Return CInt(tile.GetAreaFlag(subTileX, subTileY))
+            End If
+        End If
+        Return 0
     End Function
 
     Public Function IsOutsideOfMap(ByRef objCharacter As BaseObject) As Boolean
@@ -1019,6 +1686,7 @@ Public Module WS_Maps
             WORLD_TRANSPORTs_Lock.ReleaseReaderLock()
         End Try
     End Sub
+
     Public Sub UnloadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger)
         'Caluclate (x1, y1) and (x2, y2)
         Dim MinX As Single = ((32 - TileX) * SIZE)
