@@ -1264,7 +1264,7 @@ Public Module Enums
         ITEM_SUBCLASS_HERB_BAG = 2
         ITEM_SUBCLASS_ENCHANTING_BAG = 3
 
-    ' Weapon
+        ' Weapon
         ITEM_SUBCLASS_AXE = 0
         ITEM_SUBCLASS_TWOHAND_AXE = 1
         ITEM_SUBCLASS_BOW = 2
@@ -1287,7 +1287,7 @@ Public Module Enums
         ITEM_SUBCLASS_WAND = 19
         ITEM_SUBCLASS_FISHING_POLE = 20
 
-        ' Armor
+    ' Armor
         ITEM_SUBCLASS_MISC = 0
         ITEM_SUBCLASS_CLOTH = 1
         ITEM_SUBCLASS_LEATHER = 2
@@ -1299,14 +1299,14 @@ Public Module Enums
         ITEM_SUBCLASS_IDOL = 8
         ITEM_SUBCLASS_TOTEM = 9
 
-    ' Projectile
+        ' Projectile
         ITEM_SUBCLASS_WAND_obslete = 0
         ITEM_SUBCLASS_BOLT_obslete = 1
         ITEM_SUBCLASS_ARROW = 2
         ITEM_SUBCLASS_BULLET = 3
         ITEM_SUBCLASS_THROWN_obslete = 4
 
-    ' Trade goods
+        ' Trade goods
         ITEM_SUBCLASS_TRADE_GOODS = 0
         ITEM_SUBCLASS_PARTS = 1
         ITEM_SUBCLASS_EXPLOSIVES = 2
@@ -1322,7 +1322,7 @@ Public Module Enums
         ITEM_SUBCLASS_ENCHANTANTS = 12
         ITEM_SUBCLASS_MATERIALS = 13
 
-    ' Recipe
+        ' Recipe
         ITEM_SUBCLASS_BOOK = 0
         ITEM_SUBCLASS_LEATHERWORKING = 1
         ITEM_SUBCLASS_TAILORING = 2
@@ -1335,13 +1335,13 @@ Public Module Enums
         ITEM_SUBCLASS_FISHING = 9
         ITEM_SUBCLASS_JEWELCRAFTING = 10
 
-    ' Quiver
+        ' Quiver
         ITEM_SUBCLASS_QUIVER0_obslete = 0
         ITEM_SUBCLASS_QUIVER1_obslete = 1
         ITEM_SUBCLASS_QUIVER = 2
         ITEM_SUBCLASS_AMMO_POUCH = 3
 
-    ' Keys
+        ' Keys
         ITEM_SUBCLASS_KEY = 0
         ITEM_SUBCLASS_LOCKPICK = 1
 
