@@ -126,9 +126,9 @@ Public Class WS_GraveYards
             For i As Integer = 0 To tmpDBC.Rows - 1
                 locationIndex = tmpDBC.Item(i, 0)
                 locationMapID = tmpDBC.Item(i, 1)
-                locationPosX = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
-                locationPosY = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_FLOAT)
-                locationPosZ = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_FLOAT)
+                locationPosX = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
+                locationPosY = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT)
+                locationPosZ = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
 
                 If Config.Maps.Contains(locationMapID.ToString) Then
                     Graveyards.Add(locationIndex, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))

@@ -173,4 +173,10 @@ Public Module Global_Constants
     Public Const MAX_POSITIVE_AURA_EFFECTs As Integer = 32
     Public Const MAX_NEGATIVE_AURA_EFFECTs As Integer = MAX_AURA_EFFECTs_VISIBLE - MAX_POSITIVE_AURA_EFFECTs
 
+    Public Const UINT32_MAX As Integer = &HFFFFFFFF
+    Public Const UINT32_MIN As Integer = 0
+
+    Public Const MpqId As Long = 441536589
+    Public Const MpqHeaderSize As Long = 32
+
 End Module
