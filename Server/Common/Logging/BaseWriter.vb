@@ -1,4 +1,4 @@
-﻿'
+'
 ' Copyright (C) 2013 getMaNGOS <http://www.getMangos.co.uk>
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -15,6 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports mangosVB.Common.log
+
 Public Class BaseWriter
     Implements IDisposable
 
@@ -87,6 +89,13 @@ Public Class BaseWriter
                 Case "TELNET"
                     Dim info As String() = Split(LogConfig, ":")
                     Log = New TelnetWriter(Net.IPAddress.Parse(info(0)), info(1))
+            Case "IRC"
+                Dim info As String() = Split(LogConfig, ":")
+                Dim server As String = info(0)
+                Dim port As String = info(1)
+                Dim nick As String = info(2)
+                Dim channel As String = info(3)
+                Log = New IrcWriter(server, port, nick, channel)
             End Select
         Catch e As Exception
             Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "hh:mm:ss"))

@@ -141,6 +141,11 @@
       <HintPath>..\..\ServerFiles\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Meebey.SmartIrc4net, Version=0.4.0.34161, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ServerFiles\Meebey.SmartIrc4net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="MySql.Data, Version=5.2.2.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ServerFiles\MySql.Data.dll</HintPath>
@@ -181,6 +186,7 @@
     <Compile Include="Globals\Global.Converter.vb" />
     <Compile Include="Globals\Global.Opcodes.vb" />
     <Compile Include="Globals\Global.Zip.vb" />
+    <Compile Include="Logging\IrcWriter.vb" />
     <Compile Include="Logging\BaseWriter.vb" />
     <Compile Include="Logging\ConsoleColorWriter.vb" />
     <Compile Include="Logging\ConsoleWriter.vb" />
@@ -196,6 +202,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="libeay32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Meebey.SmartIrc4net.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MySql.Data.dll">
