@@ -1170,17 +1170,17 @@ Public Module WS_Maps
         'Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
         Dim cX As Single = x / TMapTile.SIZE
         Dim cY As Single = y / TMapTile.SIZE
-        Dim tileX As Integer = CInt(32 - cX)
-        Dim tileY As Integer = CInt(32 - cY)
-        Dim subTileX As Integer = CInt(TMapTile.RESOLUTION_FLAGS * (32.0F - cX - tileX))
-        Dim subTileY As Integer = CInt(TMapTile.RESOLUTION_FLAGS * (32.0F - cY - tileY))
+        Dim tileX As Integer = Fix(32 - cX)
+        Dim tileY As Integer = Fix(32 - cY)
+        Dim subTileX As Integer = Fix(TMapTile.RESOLUTION_FLAGS * (32.0F - cX - tileX))
+        Dim subTileY As Integer = Fix(TMapTile.RESOLUTION_FLAGS * (32.0F - cY - tileY))
 
         'Dim map As Map = MovementHandlers.GetMap(mapID)
         Dim tmpMap As TMap = Maps(Map)
         If tmpMap IsNot Nothing Then
             Dim tile As TMapTile = tmpMap.Tiles(tileX, tileY)
             If tile IsNot Nothing Then
-                Return CInt(tile.GetAreaFlag(subTileX, subTileY))
+                Return Fix(tile.GetAreaFlag(subTileX, subTileY))
             End If
         End If
         Return 0
