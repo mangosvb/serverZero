@@ -1379,8 +1379,8 @@ Public Module WS_Commands
     Public Function cmdVmapTest3(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 #If VMAPS Then
         Dim CellMap As UInteger = objCharacter.MapID
-        Dim CellX As Byte = GetMapTileX(objCharacter.positionX)
-        Dim CellY As Byte = GetMapTileY(objCharacter.positionY)
+        Dim CellX As Integer = GetMapTileX(objCharacter.positionX)
+        Dim CellY As Integer = GetMapTileY(objCharacter.positionY)
 
         Dim fileName As String = String.Format("{0}_{1}_{2}.vmdir", Format(CellMap, "000"), Format(CellX, "00"), Format(CellY, "00"))
         If Not IO.File.Exists("vmaps\" & fileName) Then

@@ -22,8 +22,8 @@ Imports System.Collections.Generic
 Public Module WS_Base
     Public Class BaseObject
         Public GUID As ULong = 0
-        Public CellX As Byte = 0
-        Public CellY As Byte = 0
+        Public CellX As Integer = 0
+        Public CellY As Integer = 0
 
         Public positionX As Single = 0
         Public positionY As Single = 0

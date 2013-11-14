@@ -78,15 +78,10 @@ Public Module WS_Maps
 
 #Region "Continents"
 
-    'NOTE: Map resolution. The resolution of your map files in your maps folder.
-    'Public Const RESOLUTION_ZMAP As Integer = 256 - 1
-
     Public Class TMapTile
         Implements IDisposable
 
-        'Public Const SIZE As Single = 533.3333F
         Public Const RESOLUTION_WATER As Integer = 128 - 1
-        'Public Const RESOLUTION_FLAGS As Integer = 16 - 1
         Public Const RESOLUTION_TERRAIN As Integer = 16 - 1
 
         Public Const SIZE As Single = 533.3333F
@@ -102,10 +97,6 @@ Public Module WS_Maps
         Public Const DEFAULT_WATER_SEARCH As Single = 50.0F
 
         'TMap contains 64x64 TMapTile(s)
-        'Public AreaFlag(RESOLUTION_FLAGS, RESOLUTION_FLAGS) As UShort
-        'Public AreaTerrain(RESOLUTION_TERRAIN, RESOLUTION_TERRAIN) As Byte
-        'Public WaterLevel(RESOLUTION_WATER, RESOLUTION_WATER) As Single
-        ''Public ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
         Public ZCoord(,) As Single
 
 #If ENABLE_PPOINTS Then
@@ -140,9 +131,6 @@ Public Module WS_Maps
         Public CorpseObjectsHere As New List(Of ULong)
         Public DynamicObjectsHere As New List(Of ULong)
 
-        'Private CellX As Byte
-        'Private CellY As Byte
-        'Private CellMap As UInteger
         Private gridArea As UShort = 0
         Private gridHeight As Single = 0.0F
         Private areaFlags As UShort(,) = Nothing
@@ -217,51 +205,10 @@ Public Module WS_Maps
             ReDim ZCoord_PP(RESOLUTION_ZMAP, RESOLUTION_ZMAP)
 #End If
 
-            CellX = tileX
-            CellY = tileY
-            CellMap = tileMap
+            cellX = tileX
+            cellY = tileY
+            cellMap = tileMap
 
-            'Dim fileName As String
-            'Dim fileVersion As String
-            'Dim f As FileStream
-            'Dim b As BinaryReader
-            'Dim x, y As Integer
-
-            ''DONE: Loading MAP file
-            'fileName = String.Format("{0}{1}{2}.map", Format(tileMap, "000"), Format(tileX, "00"), Format(tileY, "00"))
-            'If Not File.Exists("maps\" & fileName) Then
-            '    Log.WriteLine(LogType.WARNING, "Map file [{0}] not found", fileName)
-            'Else
-            '    f = New FileStream("maps\" & fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 82704, FileOptions.SequentialScan)
-            '    b = New BinaryReader(f)
-
-            '    fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
-            '    Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
-
-            '    For x = 0 To RESOLUTION_FLAGS
-            '        For y = 0 To RESOLUTION_FLAGS
-            '            AreaFlag(x, y) = b.ReadUInt16()
-            '        Next y
-            '    Next x
-            '    For x = 0 To RESOLUTION_TERRAIN
-            '        For y = 0 To RESOLUTION_TERRAIN
-            '            AreaTerrain(x, y) = b.ReadByte
-            '        Next y
-            '    Next x
-            '    For x = 0 To RESOLUTION_WATER
-            '        For y = 0 To RESOLUTION_WATER
-            '            WaterLevel(x, y) = b.ReadSingle
-            '        Next y
-            '    Next x
-            '    For x = 0 To RESOLUTION_ZMAP
-            '        For y = 0 To RESOLUTION_ZMAP
-            '            ZCoord(x, y) = b.ReadSingle
-            '        Next y
-            '    Next x
-            '    b.Close()
-            '    '                f.Close()
-            '    '                f.Dispose()
-            'End If
             ' Load the map file
             Dim filePath As String = String.Format("{0}{1}{2}.map", Format(tileMap, "000"), Format(tileX, "00"), Format(tileY, "00"))
             If Not File.Exists("maps\" & filePath) Then
@@ -453,10 +400,10 @@ Public Module WS_Maps
 
             Dim flags As UShort = reader.ReadUInt16()
             liquidType = reader.ReadUInt16()
-            liquidOffX = CInt(reader.ReadByte())
-            liquidOffY = CInt(reader.ReadByte())
-            liquidWidth = CInt(reader.ReadByte())
-            liquidHeight = CInt(reader.ReadByte())
+            liquidOffX = Fix(reader.ReadByte())
+            liquidOffY = Fix(reader.ReadByte())
+            liquidWidth = Fix(reader.ReadByte())
+            liquidHeight = Fix(reader.ReadByte())
             liquidLevel = reader.ReadSingle()
 
             If (flags And 1) = 0 Then
@@ -479,7 +426,7 @@ Public Module WS_Maps
                 waterLevel = New Single(liquidWidth - 1, liquidHeight - 1) {}
                 For x As Integer = 0 To liquidWidth - 1
                     For y As Integer = 0 To liquidHeight - 1
-                        WaterLevel(x, y) = reader.ReadSingle()
+                        waterLevel(x, y) = reader.ReadSingle()
                     Next
                 Next
             End If
@@ -527,8 +474,8 @@ Public Module WS_Maps
 
             x = RESOLUTION_HEIGHT * (32 - x / SIZE)
             y = RESOLUTION_HEIGHT * (32 - y / SIZE)
-            Dim x_int As Integer = CInt(x)
-            Dim y_int As Integer = CInt(y)
+            Dim x_int As Integer = Fix(x)
+            Dim y_int As Integer = Fix(y)
             x -= x_int
             y -= y_int
             x_int = x_int And (RESOLUTION_HEIGHT - 1)
@@ -607,8 +554,8 @@ Public Module WS_Maps
 
             x = RESOLUTION_HEIGHT * (32 - x / SIZE)
             y = RESOLUTION_HEIGHT * (32 - y / SIZE)
-            Dim x_int As Integer = CInt(x)
-            Dim y_int As Integer = CInt(y)
+            Dim x_int As Integer = Fix(x)
+            Dim y_int As Integer = Fix(y)
             x -= x_int
             y -= y_int
             x_int = x_int And (RESOLUTION_HEIGHT - 1)
@@ -673,8 +620,8 @@ Public Module WS_Maps
 
             x = RESOLUTION_HEIGHT * (32 - x / SIZE)
             y = RESOLUTION_HEIGHT * (32 - y / SIZE)
-            Dim x_int As Integer = CInt(x)
-            Dim y_int As Integer = CInt(y)
+            Dim x_int As Integer = Fix(x)
+            Dim y_int As Integer = Fix(y)
             x -= x_int
             y -= y_int
             x_int = x_int And (RESOLUTION_HEIGHT - 1)
@@ -788,15 +735,15 @@ Public Module WS_Maps
 #If VMAPS Then
         Public Sub LoadVMAP()
             'DONE: Loading VMDIR file
-            Dim fileName As String = String.Format("{0}_{1}_{2}.vmdir", Format(CellMap, "000"), Format(CellX, "00"), Format(CellY, "00"))
+            Dim fileName As String = String.Format("{0}_{1}_{2}.vmdir", Format(cellMap, "000"), Format(cellX, "00"), Format(cellY, "00"))
             If Not File.Exists("vmaps\" & fileName) Then
-                fileName = String.Format("{0}.vmdir", Format(CellMap, "000"))
+                fileName = String.Format("{0}.vmdir", Format(cellMap, "000"))
             End If
 
             If Not File.Exists("vmaps\" & fileName) Then
                 Log.WriteLine(LogType.WARNING, "VMap file [{0}] not found", fileName)
             Else
-                Dim thisTmap As TMap = Maps(CellMap)
+                Dim thisTmap As TMap = Maps(cellMap)
                 fileName = Trim(File.ReadAllText("vmaps\" & fileName))
                 Dim fileNames() As String = fileName.Split(New String() {vbLf}, StringSplitOptions.RemoveEmptyEntries)
 
@@ -842,7 +789,7 @@ Public Module WS_Maps
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                UnloadSpawns(CellX, CellY, CellMap)
+                UnloadSpawns(cellX, cellY, cellMap)
             End If
             _disposedValue = True
         End Sub
@@ -1099,72 +1046,42 @@ Public Module WS_Maps
         'How to calculate where is X,Y:
         'MapTileX = Fix(32 - (x / SIZE))
         'MapTileY = Fix(32 - (y / SIZE))
-        MapTileX = CInt(32 - (x / TMapTile.SIZE))
-        MapTileY = CInt(32 - (y / TMapTile.SIZE))
+        MapTileX = Fix(32 - (x / TMapTile.SIZE))
+        MapTileY = Fix(32 - (y / TMapTile.SIZE))
     End Sub
 
-    Public Function GetMapTileX(ByVal x As Single) As Byte
+    Public Function GetMapTileX(ByVal x As Single) As Integer
         'Return Fix(32 - (x / SIZE))
         'Dim cX As Single = x / TMapTile.SIZE
         'Return CByte(32 - cX)
-        Return CInt(32 - (x / TMapTile.SIZE))
+        Return Fix(32 - (x / TMapTile.SIZE))
     End Function
 
-    Public Function GetMapTileY(ByVal y As Single) As Byte
+    Public Function GetMapTileY(ByVal y As Single) As Integer
         'Return Fix(32 - (y / SIZE))
         'Dim cY As Single = y / TMapTile.SIZE
         'Return CByte(32 - cY)
-        Return CInt(32 - (y / TMapTile.SIZE))
+        Return Fix(32 - (y / TMapTile.SIZE))
     End Function
 
-    Public Function GetSubMapTileX(ByVal x As Single) As Byte
+    Public Function GetSubMapTileX(ByVal x As Single) As Integer
         'Return Fix(RESOLUTION_ZMAP * (32 - (x / SIZE) - Fix(32 - (x / SIZE))))
         'Dim cX As Single = x / TMapTile.SIZE
         'Dim tileX As Integer = CInt(32 - cX)
         'Return CByte(TMapTile.RESOLUTION_FLAGS * (32.0F - cX - tileX))
         Dim cX As Single = x / TMapTile.SIZE
-        Return CInt(TMapTile.RESOLUTION_HEIGHT * (32.0F - cX - CSng(32 - CInt(cX))))
+        Return Fix(TMapTile.RESOLUTION_HEIGHT * (32.0F - cX - CSng(32 - Fix(cX))))
     End Function
 
-    Public Function GetSubMapTileY(ByVal y As Single) As Byte
+    Public Function GetSubMapTileY(ByVal y As Single) As Integer
         'Return Fix(RESOLUTION_ZMAP * (32 - (y / SIZE) - Fix(32 - (y / SIZE))))
         'Dim cY As Single = y / TMapTile.SIZE
         'Dim tileY As Integer = CInt(Math.Truncate(32 - cY))
         'Return CByte(TMapTile.RESOLUTION_FLAGS * (32.0F - cY - tileY))
         Dim cY As Single = y / TMapTile.SIZE
-        Return CInt(TMapTile.RESOLUTION_HEIGHT * (32.0F - cY - CSng(32 - CInt(cY))))
+        Return Fix(TMapTile.RESOLUTION_HEIGHT * (32.0F - cY - CSng(32 - Fix(cY))))
     End Function
 
-    'Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
-    '    Try
-    '        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-    '        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-    '        Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX), Byte)
-    '        Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY), Byte)
-    '        Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
-    '        Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
-
-    '        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
-
-    '        Try
-    '            Dim topHeight As Single = MathLerp( _
-    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY), _
-    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY), _
-    '                xNormalized)
-
-    '            Dim bottomHeight As Single = MathLerp( _
-    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1), _
-    '                GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1), _
-    '                xNormalized)
-
-    '            Return MathLerp(topHeight, bottomHeight, yNormalized)
-    '        Catch
-    '            Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
-    '        End Try
-    '    Catch e As Exception
-    '        Return 0.0F
-    '    End Try
-    'End Function
     ''' <summary>
     ''' Attempts to get the Z-coord of a specific location in the world.
     ''' </summary>

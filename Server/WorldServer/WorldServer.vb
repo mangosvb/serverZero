@@ -97,7 +97,6 @@ Public Module WorldServer
         <XmlElement(ElementName:="GlobalAuction")> Public GlobalAuction As Boolean = False
         <XmlElement(ElementName:="SaveTimer")> Public SaveTimer As Integer = 120000
         <XmlElement(ElementName:="WeatherTimer")> Public WeatherTimer As Integer = 600000
-        '<XmlElement(ElementName:="MapResolution")> Public MapResolution As Integer = 64
         <XmlArray(ElementName:="HandledMaps"), XmlArrayItem(GetType(String), ElementName:="Map")> Public Maps As New ArrayList
 
         'VMap Settings
@@ -205,10 +204,6 @@ Public Module WorldServer
             Else
                 Console.WriteLine("Invalid connect string for the world database!")
             End If
-
-            'RESOLUTION_ZMAP = Config.MapResolution - 1
-            'If RESOLUTION_ZMAP < 63 Then RESOLUTION_ZMAP = 63
-            'If RESOLUTION_ZMAP > 255 Then RESOLUTION_ZMAP = 255
 
             'DONE: Creating logger
             CreateLog(Config.LogType, Config.LogConfig, Log)
