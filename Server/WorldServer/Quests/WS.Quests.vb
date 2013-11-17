@@ -305,11 +305,11 @@ Public Class WS_Quests
             packet.AddInt32(quest.RewardGold)
 
             questRewardsCount = 0
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesItem(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 'Add item if not loaded into server
                 If quest.ObjectivesItem(i) <> 0 AndAlso ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
                     Dim tmpItem As New ItemInfo(quest.ObjectivesItem(i))
@@ -321,11 +321,11 @@ Public Class WS_Quests
             Next
 
             questRewardsCount = 0
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesKill(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 packet.AddUInt32(quest.ObjectivesKill(i))
                 packet.AddInt32(quest.ObjectivesKill_Count(i))
             Next
@@ -1132,12 +1132,18 @@ Public Class WS_Quests
                     For Each questID As Integer In CreatureQuestStarters(creatureQuestId)
                         Try
                             If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
+                                'If objCharacter.IsQuestInProgress(creatureQuestId) = False Then
+                                '    Dim Prequest As mangosVB.WorldServer.WS_QuestInfo = ALLQUESTS.ReturnQuestInfoById(creatureQuestId)
+                                '    Prequest.PreQuests.Contains()
+                                'ALLQUESTS.DoesPreQuestExist(creatureQuestId,
+
                                 status = QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE
                                 Return status
+                                'End If
                             End If
                         Catch ex As Exception
 
-                        End Try
+                End Try
                     Next
                 End If
             End If

@@ -96,6 +96,7 @@ Public Module WS_DynamicObjects
             Try
                 Maps(MapID).Tiles(CellX, CellY).DynamicObjectsHere.Add(GUID)
             Catch
+                Log.WriteLine(LogType.WARNING, "AddToWorld failed MapId: {0} Tile XY: {1} {2} GUID: {3}", MapID, CellX, CellY, GUID)
                 Exit Sub
             End Try
 

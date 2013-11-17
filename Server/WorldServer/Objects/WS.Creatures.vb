@@ -369,10 +369,11 @@ Public Module WS_Creatures
 
         Public Function MoveTo(ByVal x As Single, ByVal y As Single, ByVal z As Single, Optional ByVal o As Single = 0.0F, Optional ByVal Running As Boolean = False) As Integer
             Try
-                If Me.SeenBy.Count = 0 Then
+                If SeenBy.Count = 0 Then
                     Return 10000
                 End If
             Catch
+                Log.WriteLine(LogType.WARNING, "MoveTo:SeenBy Failed")
             End Try
 
             Dim TimeToMove As Integer = 1
@@ -429,6 +430,8 @@ Public Module WS_Creatures
                 'The points after that are in the same format only if flag 0x200 is set, else they are compressed in 1 uint32
 
                 SendToNearPlayers(SMSG_MONSTER_MOVE)
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "MoveTo:Main Failed - {0}", ex.Message)
             Finally
                 SMSG_MONSTER_MOVE.Dispose()
             End Try
@@ -1064,7 +1067,8 @@ Public Module WS_Creatures
                 WORLD_CREATUREs.Add(GUID, Me)
                 WORLD_CREATUREsKeys.Add(GUID)
                 WORLD_CREATUREs_Lock.ReleaseWriterLock()
-            Catch
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "WS_Creatures:New failed - Guid: {1}  {0}", ex.Message, GUID_)
             End Try
         End Sub
 
@@ -1086,7 +1090,8 @@ Public Module WS_Creatures
                 WORLD_CREATUREs.Add(GUID, Me)
                 WORLD_CREATUREsKeys.Add(GUID)
                 WORLD_CREATUREs_Lock.ReleaseWriterLock()
-            Catch
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "WS_Creatures:New failed - Guid: {1} ID: {2}  {0}", ex.Message, GUID_, ID_)
             End Try
         End Sub
 
@@ -1108,11 +1113,12 @@ Public Module WS_Creatures
                 WORLD_CREATUREs.Add(GUID, Me)
                 WORLD_CREATUREsKeys.Add(GUID)
                 WORLD_CREATUREs_Lock.ReleaseWriterLock()
-            Catch
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "WS_Creatures:New failed - Guid: {1} ID: {2}  {0}", ex.Message, ID_)
             End Try
         End Sub
 
-        Public Sub New(ByVal ID_ As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Orientation As Single, ByVal Map As Integer, Optional ByVal Duration As Integer = 0)
+        Public Sub New(ByVal ID_ As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Orientation_ As Single, ByVal Map As Integer, Optional ByVal Duration As Integer = 0)
             'WARNING: Use only for spawning new crature
             MyBase.New()
 
@@ -1126,13 +1132,13 @@ Public Module WS_Creatures
             positionX = PosX
             positionY = PosY
             positionZ = PosZ
-            Orientation = Orientation
+            orientation = Orientation_
             MapID = Map
 
             SpawnX = PosX
             SpawnY = PosY
             SpawnZ = PosZ
-            SpawnO = Orientation
+            SpawnO = Orientation_
 
             Initialize()
 
@@ -1146,7 +1152,8 @@ Public Module WS_Creatures
                 WORLD_CREATUREs.Add(GUID, Me)
                 WORLD_CREATUREsKeys.Add(GUID)
                 WORLD_CREATUREs_Lock.ReleaseWriterLock()
-            Catch
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "WS_Creatures:New failed - Guid: {1} ID: {2} Map: {3}  {0}", ex.Message, GUID, ID_, Map)
             End Try
         End Sub
 
@@ -1168,7 +1175,8 @@ Public Module WS_Creatures
                     WORLD_CREATUREsKeys.Remove(GUID)
                     WORLD_CREATUREs_Lock.ReleaseWriterLock()
                     ExpireTimer.Dispose()
-                Catch
+                Catch ex As Exception
+                    Log.WriteLine(LogType.WARNING, "WS_Creatures:Dispose failed -  {0}", ex.Message)
                 End Try
             End If
             _disposedValue = True
@@ -1257,7 +1265,8 @@ Public Module WS_Creatures
             If Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
             Try
                 Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Add(GUID)
-            Catch
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "WS_Creatures:AddToWorld failed - Guid: {1} ID: {2}  {0}", ex.Message)
                 Exit Sub
             End Try
 
@@ -1332,6 +1341,7 @@ Public Module WS_Creatures
                 End If
             Catch ex As Exception
                 'Creature ran outside of mapbounds, reset it
+                Log.WriteLine(LogType.WARNING, "WS_Creatures:MoveCell - Creature outside of map bounds  {0}", ex.Message)
                 aiScript.Reset()
             End Try
         End Sub
@@ -1388,8 +1398,8 @@ Public Module WS_Creatures
             client.Send(response)
             response.Dispose()
             'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CREATURE_QUERY_RESPONSE", client.IP, client.Port)
-        Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Unknown Error: Unable to find CreatureID={0} in database.", CreatureID)
+        Catch ex As Exception
+            Log.WriteLine(LogType.FAILED, "Unknown Error: Unable to find CreatureID={0} in database. {1}", CreatureID, ex.Message)
         End Try
     End Sub
 
@@ -1467,8 +1477,8 @@ Public Module WS_Creatures
             For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 If client.Character.Items.ContainsKey(i) Then client.Character.Items(i).ModifyDurability(0.25F, client)
             Next
-        Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error activating spirit healer: {0}", e.ToString)
+        Catch ex As Exception
+            Log.WriteLine(LogType.FAILED, "Error activating spirit healer: {0}", ex.ToString)
         End Try
 
         CharacterResurrect(Client.Character)
