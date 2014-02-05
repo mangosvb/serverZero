@@ -5,13 +5,12 @@ Imports System.Runtime.InteropServices
 ' set of attributes. Change these attribute values to modify the information
 ' associated with an assembly.
 
-' Review the values of the assembly attributes
-
+' Review the values of the assembly attribute
 <Assembly: AssemblyTitle("mangosVB.Common")> 
 <Assembly: AssemblyDescription("Common Library part of MaNGOSvb Server Emulator")> 
 <Assembly: AssemblyCompany("getMaNGOS")> 
 <Assembly: AssemblyProduct("MaNGOSvb Server Pack")> 
-<Assembly: AssemblyCopyright("Copyright (C) 2013, getMaNGOS")> 
+<Assembly: AssemblyCopyright("Copyright (C) 2014, getMaNGOS")> 
 <Assembly: AssemblyTrademark("")> 
 <Assembly: ComVisible(False)> 
 

@@ -6,13 +6,12 @@ Imports System.Runtime.InteropServices
 ' set of attributes. Change these attribute values to modify the information
 ' associated with an assembly.
 
-' Review the values of the assembly attributes
-
+' Review the values of the assembly attribute
 <Assembly: AssemblyTitle("DBCExtractor")> 
 <Assembly: AssemblyDescription("Extracts DBC files from World of Warcraft.")> 
 <Assembly: AssemblyCompany("MangosVB")> 
 <Assembly: AssemblyProduct("DBCExtractor")> 
-<Assembly: AssemblyCopyright("Copyright Â© MangosVB 2013")> 
+<Assembly: AssemblyCopyright("Copyright © MangosVB 2014")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
