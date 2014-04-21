@@ -931,7 +931,7 @@ Public Module WS_Base
                 Dim Schools As Integer = (tmpSpell.Value >> 23UI)
                 Dim AbsorbDamage As Integer = tmpSpell.Value And &H7FFFFF
 
-                Log.WriteLine(LogType.DEBUG, "Spälllllll: {0} [{1}]", AbsorbDamage, Schools)
+                Log.WriteLine(LogType.DEBUG, "Spell: {0} [{1}]", AbsorbDamage, Schools)
 
                 If HaveFlag(Schools, School) Then
                     Log.WriteLine(LogType.DEBUG, "Apmongo, yes?!")
