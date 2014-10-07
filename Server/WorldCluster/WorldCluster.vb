@@ -47,7 +47,7 @@ Public Module WorldCluster
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="WorldCluster")> _
     Public Class XMLConfigFile
-        <XmlElement(ElementName:="WorldClusterPort")> Public WorldClusterPort As Integer = 8085
+        <XmlElement(ElementName:="WorldClusterPort")> Public WorldClusterPort As Integer = 8086
         <XmlElement(ElementName:="WorldClusterAddress")> Public WorldClusterAddress As String = "127.0.0.1"
         <XmlElement(ElementName:="ServerPlayerLimit")> Public ServerPlayerLimit As Integer = 10
 
