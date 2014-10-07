@@ -49,18 +49,13 @@ Public Module WC_Network
 
         Public Sub New()
             Try
-                Dim ClusterAddress As IPAddress
-
-                If (Not IPAddress.TryParse(Config.WorldClusterAddress, ClusterAddress)) Then
-                    ClusterAddress = Dns.GetHostEntry(Config.WorldClusterAddress).AddressList(0)
-                End If
 
                 m_Socket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                m_Socket.Bind(New IPEndPoint(ClusterAddress, Config.WorldClusterPort))
+                m_Socket.Bind(New IPEndPoint(IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort))
                 m_Socket.Listen(5)
                 m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-                Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", ClusterAddress, Config.WorldClusterPort)
+                Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
 
                 'Create Remoting Channel
                 Select Case Config.ClusterListenMethod
