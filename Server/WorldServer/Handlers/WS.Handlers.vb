@@ -133,6 +133,8 @@ Public Module WS_Handlers
         PacketHandlers(OPCODES.CMSG_MEETINGSTONE_INFO) = CType(AddressOf On_CMSG_MEETINGSTONE_INFO, HandlePacket)
         PacketHandlers(OPCODES.MSG_INSPECT_HONOR_STATS) = CType(AddressOf On_MSG_INSPECT_HONOR_STATS, HandlePacket)
 
+        PacketHandlers(OPCODES.MSG_PVP_LOG_DATA) = CType(AddressOf On_MSG_PVP_LOG_DATA, HandlePacket)
+
         PacketHandlers(OPCODES.CMSG_GET_MAIL_LIST) = CType(AddressOf On_CMSG_GET_MAIL_LIST, HandlePacket)
         PacketHandlers(OPCODES.CMSG_SEND_MAIL) = CType(AddressOf On_CMSG_SEND_MAIL, HandlePacket)
         PacketHandlers(OPCODES.CMSG_MAIL_CREATE_TEXT_ITEM) = CType(AddressOf On_CMSG_MAIL_CREATE_TEXT_ITEM, HandlePacket)

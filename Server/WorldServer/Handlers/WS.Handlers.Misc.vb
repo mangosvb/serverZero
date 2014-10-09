@@ -552,4 +552,9 @@ Public Module WS_Handlers_Misc
         client.Character.SendCharacterUpdate(False)
     End Sub
 
+    Public Sub On_MSG_PVP_LOG_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
+        ' TODO: Implement this packet - As far as I know, this packet only applys if the character is in a battleground.
+        If (Not Maps(client.Character.MapID).IsBattleGround) Then Return
+    End Sub
+
 End Module
