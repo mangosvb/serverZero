@@ -97,7 +97,7 @@ Public Module WC_Network
             Dim m_Client As New ClientClass
             m_Client.Socket = m_Socket.EndAccept(ar)
             m_Client.Socket.NoDelay = True
-            m_Client.Socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.NoDelay, 1)
+            m_Client.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1)
 
             m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
