@@ -63,6 +63,10 @@ Public Module WS_Handlers_Battleground
         End Try
     End Sub
 
+    Public Sub On_MSG_BATTLEGROUND_PLAYER_POSITIONS(ByRef packet As PacketClass, ByRef client As ClientClass) 'Not finished yet.. long ways to go!
+        packet.GetUInt32()
+    End Sub
+
     'Not Implement:
     'MSG_BATTLEGROUND_PLAYER_POSITIONS
     'MSG_PVP_LOG_DATA

@@ -262,11 +262,17 @@ Public Module Packets
             Next
         End Sub
 
-        Public Sub AddUInt8(ByVal buffer As Byte)
-            ReDim Preserve Data(Data.Length + 1)
+        'Public Sub AddUInt8(ByVal buffer As Byte)
+        'ReDim Preserve Data(Data.Length + 1)
+        '
+        '   Data(Data.Length - 1) = CType(((buffer >> 8) And 255), Byte)
+        'End Sub
 
-            Data(Data.Length - 1) = CType(((buffer >> 8) And 255), Byte)
-        End Sub
+        Public Function GetUInt8() As UShort
+            Dim num1 As UShort = (Data.Length + 1)
+            Offset = (Offset + 1)
+            Return num1
+        End Function
 
         Public Sub AddUInt16(ByVal buffer As UShort)
             ReDim Preserve Data(Data.Length + 1)

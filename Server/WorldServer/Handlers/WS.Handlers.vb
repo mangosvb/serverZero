@@ -167,6 +167,7 @@ Public Module WS_Handlers
         PacketHandlers(OPCODES.CMSG_CANCEL_CHANNELLING) = CType(AddressOf On_CMSG_CANCEL_CHANNELLING, HandlePacket)
 
         PacketHandlers(OPCODES.CMSG_TOGGLE_PVP) = CType(AddressOf On_CMSG_TOGGLE_PVP, HandlePacket)
+        PacketHandlers(OPCODES.MSG_BATTLEGROUND_PLAYER_POSITIONS) = CType(AddressOf On_MSG_BATTLEGROUND_PLAYER_POSITIONS, HandlePacket)
 
         PacketHandlers(OPCODES.CMSG_QUESTGIVER_STATUS_QUERY) = CType(AddressOf ALLQUESTS.On_CMSG_QUESTGIVER_STATUS_QUERY, HandlePacket)
         PacketHandlers(OPCODES.CMSG_QUESTGIVER_HELLO) = CType(AddressOf ALLQUESTS.On_CMSG_QUESTGIVER_HELLO, HandlePacket)
