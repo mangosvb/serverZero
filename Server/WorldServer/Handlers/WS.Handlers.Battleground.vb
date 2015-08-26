@@ -44,18 +44,18 @@ Public Module WS_Handlers_Battleground
             response.AddUInt64(Client.Character.GUID)
             response.AddInt32(BGType)
 
-            If BGType = 6 Then          'Arenas
-                response.AddInt8(5)     'Unk
-                response.AddInt32(0)    'Unk
-            Else
-                Dim Battlegrounds As List(Of Integer) = ClsWorldServer.Cluster.BattlefieldList(BGType)
+            'If BGType = 6 Then          'Arenas
+            'response.AddInt8(5)     'Unk
+            'response.AddInt32(0)    'Unk
+            'Else
+            Dim Battlegrounds As List(Of Integer) = ClsWorldServer.Cluster.BattlefieldList(BGType)
                 response.AddInt8(0)                     'Unk
                 response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
 
                 For Each Instance As Integer In Battlegrounds
                     response.AddInt32(Instance)
                 Next
-            End If
+            'End If
 
             client.Send(response)
         Finally

@@ -135,6 +135,8 @@ Public Module WS_Handlers
 
         PacketHandlers(OPCODES.MSG_PVP_LOG_DATA) = CType(AddressOf On_MSG_PVP_LOG_DATA, HandlePacket)
 
+        PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = CType(AddressOf On_CMSG_MOVE_TIME_SKIPPED, HandlePacket)
+
         PacketHandlers(OPCODES.CMSG_GET_MAIL_LIST) = CType(AddressOf On_CMSG_GET_MAIL_LIST, HandlePacket)
         PacketHandlers(OPCODES.CMSG_SEND_MAIL) = CType(AddressOf On_CMSG_SEND_MAIL, HandlePacket)
         PacketHandlers(OPCODES.CMSG_MAIL_CREATE_TEXT_ITEM) = CType(AddressOf On_CMSG_MAIL_CREATE_TEXT_ITEM, HandlePacket)

@@ -34,9 +34,9 @@ Public Module WC_Handlers_Battleground
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [MapType: {2}, Action: {3}, Unk1: {4}, Unk2: {5}, ID: {6}]", client.IP, client.Port, MapType, Action, Unk1, Unk2, ID)
 
         If Action = 0 Then
-            BATTLEFIELDs(ID).Leave(Client.Character)
+            BATTLEFIELDs(ID).Leave(client.Character)
         Else
-            BATTLEFIELDs(ID).Join(Client.Character)
+            BATTLEFIELDs(ID).Join(client.Character)
         End If
     End Sub
 
@@ -258,16 +258,16 @@ Public Module WC_Handlers_Battleground
             Try
                 p.AddUInt32(slot)               'Slot (0, 1 or 2)
 
-                p.AddInt8(0)                    'ArenaType
+                'p.AddInt8(0)                    'ArenaType
+                p.AddUInt32(MapType)              'MapType
                 p.AddInt8(&HD)                  'Unk1 (0xD?)
-                p.AddInt8(MapType)              'MapType
-                p.AddInt8(0)                    'Unk2
-                p.AddInt16(0)                   'Unk3 (String?)
-                p.AddInt16(ID)                  'ID
+                'p.AddInt8(0)                    'Unk2
+                'p.AddInt16(0)                   'Unk3 (String?)
+                p.AddUInt32(ID)                  'ID
 
-                p.AddInt32(0)                   'Unk5
-                p.AddInt8(0)                    'alliance/horde for BG and skirmish/rated for Arenas
-                p.AddInt32(status)
+                'p.AddInt32(0)                   'Unk5
+                'p.AddInt8(0)                    'alliance/horde for BG and skirmish/rated for Arenas
+                p.AddUInt32(status)
 
                 Select Case status
                     Case BattlegroundStatus.STATUS_WAIT_QUEUE

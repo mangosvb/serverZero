@@ -24,7 +24,7 @@ Public Module WC_Handlers
 
     Public Sub IntializePacketHandlers()
         'NOTE: These opcodes are not used in any way
-        PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = CType(AddressOf OnUnhandledPacket, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = CType(AddressOf On_CMSG_MOVE_TIME_SKIPPED, HandlePacket)
 
         PacketHandlers(OPCODES.CMSG_NEXT_CINEMATIC_CAMERA) = CType(AddressOf On_CMSG_NEXT_CINEMATIC_CAMERA, HandlePacket)
         PacketHandlers(OPCODES.CMSG_COMPLETE_CINEMATIC) = CType(AddressOf On_CMSG_COMPLETE_CINEMATIC, HandlePacket)

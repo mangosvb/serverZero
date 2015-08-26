@@ -262,6 +262,12 @@ Public Module Packets
             Next
         End Sub
 
+        Public Sub AddUInt8(ByVal buffer As Byte)
+            ReDim Preserve Data(Data.Length + 1)
+
+            Data(Data.Length - 1) = CType(((buffer >> 8) And 255), Byte)
+        End Sub
+
         Public Sub AddUInt16(ByVal buffer As UShort)
             ReDim Preserve Data(Data.Length + 1)
             Data(0) = (Data.Length - 2) \ 256
