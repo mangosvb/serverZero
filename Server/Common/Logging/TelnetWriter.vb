@@ -23,9 +23,9 @@ Imports System.Net.Sockets
 Public Class TelnetWriter
     Inherits BaseWriter
 
-    Protected conn As TcpListener
-    Protected socket As Socket = Nothing
-    Protected Const SLEEP_TIME As Integer = 1000
+    Protected Conn As TcpListener
+    Protected Socket As Socket = Nothing
+    Protected Const SleepTime As Integer = 1000
 
     Public Sub New(ByVal host As Net.IPAddress, ByVal port As Integer)
         conn = New TcpListener(host, port)
@@ -69,7 +69,7 @@ Public Class TelnetWriter
     End Sub
     Public Overrides Function ReadLine() As String
         While (socket Is Nothing) OrElse (socket.Available = 0)
-            Thread.Sleep(SLEEP_TIME)
+            Thread.Sleep(SleepTime)
         End While
 
         Dim buffer(socket.Available) As Byte
@@ -79,7 +79,7 @@ Public Class TelnetWriter
 
     Protected Sub ConnWaitListen(ByVal state As Object)
         Do While (Not conn Is Nothing)
-            Thread.Sleep(SLEEP_TIME)
+            Thread.Sleep(SleepTime)
             If conn.Pending() Then
                 socket = conn.AcceptSocket
             End If

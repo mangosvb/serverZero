@@ -54,6 +54,7 @@ Public Class ColoredConsoleWriter
         End If
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
+
     <MethodImplAttribute(MethodImplOptions.Synchronized)> _
     Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
         If LogLevel > type Then Return

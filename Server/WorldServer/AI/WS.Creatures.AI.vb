@@ -448,19 +448,20 @@ Public Module WS_Creatures_AI
                     nextAttack = 0
 
                     'DONE: Look to aiTarget
-                    If Not IsInFrontOf(CType(aiCreature, CreatureObject), CType(aiTarget, BaseUnit)) Then
-                        aiCreature.TurnTo(CType(aiTarget, BaseUnit))
+                    If Not IsInFrontOf(aiCreature, aiTarget) Then
+                        aiCreature.TurnTo(aiTarget)
                     End If
 
                     'DONE: Deal the damage
-                    Dim damageInfo As DamageInfo = CalculateDamage(CType(aiCreature, CreatureObject), aiTarget, False, False)
-                    SendAttackerStateUpdate(CType(aiCreature, CreatureObject), CType(aiTarget, BaseUnit), damageInfo)
+                    Dim damageInfo As DamageInfo = CalculateDamage(aiCreature, aiTarget, False, False)
+                    SendAttackerStateUpdate(aiCreature, aiTarget, damageInfo)
                     aiTarget.DealDamage(damageInfo.GetDamage, aiCreature)
 
                     'TODO: Do in another way, since 1001-2000 = 2 secs, and for creatures with like 1.05 sec attack time attacks ALOT slower
                     nextAttack = CREATURESDatabase(aiCreature.ID).BaseAttackTime
                     aiTimer = 1000
-                Catch e As Exception
+                Catch ex As Exception
+                    Log.WriteLine(LogType.WARNING, "WS_Creatures:DoAttack failed - Guid: {1} ID: {2}  {0}", ex.Message)
                     Reset()
                 End Try
             End If
@@ -909,8 +910,8 @@ TryMoveAgain:
                     If CreatureMovement(aiCreature.WaypointID).ContainsKey(CurrentWaypoint) = False Then CurrentWaypoint = 1
                     Dim MovementPoint As CreatureMovePoint = CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
                     aiTimer = aiCreature.MoveTo(MovementPoint.x, MovementPoint.y, MovementPoint.z, , False) + MovementPoint.waittime
-                Catch
-                    Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - GUID_UNIT)
+                Catch ex As Exception
+                    Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged. {1}", aiCreature.GUID - GUID_UNIT, ex.Message)
                     aiCreature.ResetAI()
                     Exit Sub
                 End Try

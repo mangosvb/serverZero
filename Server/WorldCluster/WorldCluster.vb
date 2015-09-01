@@ -22,6 +22,7 @@ Imports System.IO
 Imports System.Reflection
 Imports mangosVB.Common
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Global_Enums
 
 Public Module WorldCluster
 
@@ -70,7 +71,7 @@ Public Module WorldCluster
 
         'Logging Settings
         <XmlElement(ElementName:="LogType")> Public LogType As String = "FILE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = BaseWriter.LogType.NETWORK
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = Global_Enums.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
         <XmlElement(ElementName:="PacketLogging")> Public PacketLogging As Boolean = False
         <XmlElement(ElementName:="GMLogging")> Public GMLogging As Boolean = False

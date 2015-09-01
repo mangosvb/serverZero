@@ -34,8 +34,8 @@ Public Class FileWriter
         WriteLine(LogType.INFORMATION, "Log started successfully.")
     End Sub
 
-    Public Sub New(ByVal filename_ As String)
-        Filename = filename_
+    Public Sub New(ByVal createfilename As String)
+        Filename = createfilename
         CreateNewFile()
     End Sub
 

@@ -25,6 +25,7 @@ Imports System.Collections
 Imports System.IO
 Imports System.ComponentModel
 Imports System
+Imports ICSharpCode.SharpZipLib.BZip2
 Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 Namespace MPQ
@@ -32,18 +33,16 @@ Namespace MPQ
     Public Class MPQArchive
         Implements IDisposable
 
-        Public Const UINT32_MAX As Integer = &HFFFFFFFF
-        Public Const UINT32_MIN As Integer = 0
 
         Shared Sub New()
             sStormBuffer = BuildStormBuffer()
         End Sub
         Public Sub New(ByVal SourceStream As Stream)
-            mStream = SourceStream
+            _mStream = SourceStream
             Init()
         End Sub
         Public Sub New(ByVal Filename As String)
-            mStream = File.Open(Filename, FileMode.Open, FileAccess.Read, FileShare.Read)
+            _mStream = File.Open(Filename, FileMode.Open, FileAccess.Read, FileShare.Read)
             Init()
         End Sub
 
@@ -55,8 +54,8 @@ Namespace MPQ
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                If (Not mStream Is Nothing) Then
-                    mStream.Close()
+                If (Not _mStream Is Nothing) Then
+                    _mStream.Close()
                 End If
             End If
             _disposedValue = True
@@ -75,49 +74,49 @@ Namespace MPQ
                 Throw New Exception("Unable to find MPQ header")
             End If
 
-            Dim br As New BinaryReader(mStream)
-            mBlockSize = (&H200 << mHeader.BlockSize)
+            Dim br As New BinaryReader(_mStream)
+            _mBlockSize = (&H200 << _mHeader.BlockSize)
 
             'Load hash table
-            mStream.Seek(mHeader.HashTablePos, SeekOrigin.Begin)
-            Dim hashdata As Byte() = br.ReadBytes(CInt((mHeader.HashTableSize * MpqHash.Size)))
+            _mStream.Seek(_mHeader.HashTablePos, SeekOrigin.Begin)
+            Dim hashdata As Byte() = br.ReadBytes(CInt((_mHeader.HashTableSize * MpqHash.Size)))
             DecryptTable(hashdata, "(hash table)")
 
             Dim br2 As New BinaryReader(New MemoryStream(hashdata))
-            ReDim mHashes(mHeader.HashTableSize - 1)
+            ReDim _mHashes(_mHeader.HashTableSize - 1)
 
-            For i As Integer = 0 To mHeader.HashTableSize - 1
-                mHashes(i) = New MpqHash(br2)
+            For i As Integer = 0 To _mHeader.HashTableSize - 1
+                _mHashes(i) = New MpqHash(br2)
             Next
 
             'Load block table
-            mStream.Seek(mHeader.BlockTablePos, SeekOrigin.Begin)
-            Dim blockdata As Byte() = br.ReadBytes(mHeader.BlockTableSize * MpqBlock.Size)
+            _mStream.Seek(_mHeader.BlockTablePos, SeekOrigin.Begin)
+            Dim blockdata As Byte() = br.ReadBytes(_mHeader.BlockTableSize * MpqBlock.Size)
             DecryptTable(blockdata, "(block table)")
 
             br2 = New BinaryReader(New MemoryStream(blockdata))
-            ReDim mBlocks(mHeader.BlockTableSize - 1)
+            ReDim _mBlocks(_mHeader.BlockTableSize - 1)
 
-            For i As Integer = 0 To mHeader.BlockTableSize - 1
-                mBlocks(i) = New MpqBlock(br2, mHeaderOffset)
+            For i As Integer = 0 To _mHeader.BlockTableSize - 1
+                _mBlocks(i) = New MpqBlock(br2, _mHeaderOffset)
             Next
 
         End Sub
         Private Function LocateMpqHeader() As Boolean
-            Dim br As New BinaryReader(mStream)
+            Dim br As New BinaryReader(_mStream)
 
             'In .mpq files the header will be at the start of the file
             'In .exe files, it will be at a multiple of 0x200
-            For i As Long = 0 To (mStream.Length - MpqHeader.Size) - 1 Step &H200
-                mStream.Seek(i, SeekOrigin.Begin)
-                mHeader = New MpqHeader(br)
-                If (mHeader.ID = MpqHeader.MpqId) Then
-                    mHeaderOffset = i
-                    mHeader.HashTablePos += mHeaderOffset
-                    mHeader.BlockTablePos += mHeaderOffset
-                    If (mHeader.DataOffset = &H6D9E4B86) Then
+            For i As Long = 0 To (_mStream.Length - MpqHeaderSize) - 1 Step &H200
+                _mStream.Seek(i, SeekOrigin.Begin)
+                _mHeader = New MpqHeader(br)
+                If (_mHeader.ID = MpqId) Then
+                    _mHeaderOffset = i
+                    _mHeader.HashTablePos += _mHeaderOffset
+                    _mHeader.BlockTablePos += _mHeaderOffset
+                    If (_mHeader.DataOffset = &H6D9E4B86) Then
                         'then this is a protected archive
-                        mHeader.DataOffset = (MpqHeader.Size + i)
+                        _mHeader.DataOffset = (MpqHeaderSize + i)
                     End If
                     Return True
                 End If
@@ -125,42 +124,42 @@ Namespace MPQ
 
             Return False
         End Function
-        Public Function OpenFile(ByVal Filename As String) As MpqStream
-            Dim hash As MpqHash = GetHashEntry(Filename)
+        Public Function OpenFile(ByVal filename As String) As MpqStream
+            Dim hash As MpqHash = GetHashEntry(filename)
             Dim blockIndex As Long = hash.BlockIndex
 
             If (blockIndex = UINT32_MAX) Then
-                Throw New FileNotFoundException(("File not found: " & Filename))
+                Throw New FileNotFoundException(("File not found: " & filename))
             End If
 
-            Dim block As MpqBlock = mBlocks(blockIndex)
+            Dim block As MpqBlock = _mBlocks(blockIndex)
             Return New MpqStream(Me, block)
         End Function
-        Public Function FileExists(ByVal Filename As String) As Boolean
-            Dim hash As MpqHash = GetHashEntry(Filename)
+        Public Function FileExists(ByVal filename As String) As Boolean
+            Dim hash As MpqHash = GetHashEntry(filename)
             Return (hash.BlockIndex <> UINT32_MAX)
         End Function
 
         Friend ReadOnly Property BaseStream() As Stream
             Get
-                Return mStream
+                Return _mStream
             End Get
         End Property
         Friend ReadOnly Property BlockSize() As Integer
             Get
-                Return mBlockSize
+                Return _mBlockSize
             End Get
         End Property
 
-        Private Function GetHashEntry(ByVal Filename As String) As MpqHash
-            Dim index As Long = HashString(Filename, 0)
-            index = (index And (mHeader.HashTableSize - 1))
-            Dim name1 As Long = HashString(Filename, &H100)
-            Dim name2 As Long = HashString(Filename, &H200)
+        Private Function GetHashEntry(ByVal filename As String) As MpqHash
+            Dim index As Long = HashString(filename, 0)
+            index = (index And (_mHeader.HashTableSize - 1))
+            Dim name1 As Long = HashString(filename, &H100)
+            Dim name2 As Long = HashString(filename, &H200)
 
             Dim i As Long = index
-            Do While (i < mHashes.Length)
-                Dim hash As MpqHash = mHashes(i)
+            Do While (i < _mHashes.Length)
+                Dim hash As MpqHash = _mHashes(i)
                 If ((hash.Name1 = name1) AndAlso (hash.Name2 = name2)) Then
                     Return hash
                 End If
@@ -326,7 +325,7 @@ Namespace MPQ
 
                         Do While (Not data Is Nothing)
                             Dim hash As MpqHash = GetHashEntry(data)
-                            Dim block As MpqBlock = mBlocks(hash.BlockIndex)
+                            Dim block As MpqBlock = _mBlocks(hash.BlockIndex)
 
                             'initialize and add new FileInfo
                             Dim fi As New FileInfo
@@ -354,19 +353,18 @@ Namespace MPQ
         <CLSCompliant(False)> Protected _Files As FileInfo()
 #End Region
 
-        Private mBlocks() As MpqBlock
-        Private mBlockSize As Integer
-        Private mHashes() As MpqHash
-        Private mHeader As MpqHeader
-        Private mHeaderOffset As Long
-        Private mStream As Stream
+        Private _mBlocks() As MpqBlock
+        Private _mBlockSize As Integer
+        Private _mHashes() As MpqHash
+        Private _mHeader As MpqHeader
+        Private _mHeaderOffset As Long
+        Private _mStream As Stream
         Private Shared sStormBuffer As Long()
 
     End Class
 
     <StructLayout(LayoutKind.Sequential)> _
     Friend Structure MpqBlock
-
         Public Sub New(ByVal br As BinaryReader, ByVal HeaderOffset As Long)
             FilePos = (Convert.ToInt64(br.ReadUInt32) + HeaderOffset)
             CompressedSize = Convert.ToInt64(br.ReadUInt32)
@@ -379,6 +377,7 @@ Namespace MPQ
                 Return ((Flags And MpqFileFlags.MPQ_Compressed) <> 0)
             End Get
         End Property
+
         Public ReadOnly Property IsEncrypted() As Boolean
             Get
                 Return ((Flags And MpqFileFlags.MPQ_Encrypted) <> 0)
@@ -391,6 +390,7 @@ Namespace MPQ
         Public Flags As MpqFileFlags
         Public Const Size As Long = 16
     End Structure
+
     <StructLayout(LayoutKind.Sequential)> _
     Friend Structure MpqHash
         Public Sub New(ByVal br As BinaryReader)
@@ -402,7 +402,7 @@ Namespace MPQ
 
         Public ReadOnly Property IsValid() As Boolean
             Get
-                Return ((Name1 <> MPQArchive.UINT32_MAX) AndAlso (Name2 <> MPQArchive.UINT32_MAX))
+                Return ((Name1 <> UINT32_MAX) AndAlso (Name2 <> UINT32_MAX))
             End Get
         End Property
 
@@ -412,8 +412,18 @@ Namespace MPQ
         Public Name2 As Long
         Public Const Size As Long = 16
     End Structure
+
     <StructLayout(LayoutKind.Sequential)> _
     Friend Structure MpqHeader
+        Public ArchiveSize As Long
+        Public BlockSize As Integer
+        Public BlockTablePos As Long
+        Public BlockTableSize As Long
+        Public DataOffset As Long
+        Public HashTablePos As Long
+        Public HashTableSize As Long
+        Public ID As Long
+        Public Offs0C As Integer
 
         Public Sub New(ByVal br As BinaryReader)
             ID = Convert.ToInt64(br.ReadUInt32)
@@ -427,48 +437,77 @@ Namespace MPQ
             BlockTableSize = Convert.ToInt64(br.ReadUInt32)
         End Sub
 
-        Public ArchiveSize As Long
-        Public BlockSize As Integer
-        Public BlockTablePos As Long
-        Public BlockTableSize As Long
-        Public DataOffset As Long
-        Public HashTablePos As Long
-        Public HashTableSize As Long
-        Public ID As Long
-        Public Const MpqId As Long = 441536589
-        Public Offs0C As Integer
-        Public Const Size As Long = 32
     End Structure
 
     'A Stream based class for reading a file from an MPQ file
     Public Class MpqStream
         Inherits Stream
 
-        Friend Sub New(ByVal File As MPQArchive, ByVal Block As MpqBlock)
-            mCurrentBlockIndex = -1
-            mBlock = Block
-            mStream = File.BaseStream
-            mBlockSize = File.BlockSize
-            If mBlock.IsCompressed Then
+        Private _mBlock As MpqBlock
+        Private _mBlockPositions As Long()
+        Private _mBlockSize As Integer
+        Private _mCurrentBlockIndex As Integer = -1
+        Private _mCurrentData As Byte()
+        Private _mPosition As Long
+        Private _mSeed1 As Long
+        Private _mStream As Stream
+
+        ''' <summary>
+        ''' Initializes a new instance of the <see cref="MpqStream" /> class.
+        ''' </summary>
+        ''' <param name="file">The file.</param>
+        ''' <param name="block">The block.</param>
+        Friend Sub New(ByVal file As MPQArchive, ByVal block As MpqBlock)
+            _mCurrentBlockIndex = -1
+            _mBlock = Block
+            _mStream = file.BaseStream
+            _mBlockSize = file.BlockSize
+            If _mBlock.IsCompressed Then
                 LoadBlockPositions()
             End If
         End Sub
+
+        ''' <summary>
+        ''' Buffers the data.
+        ''' </summary>
+        ''' <returns></returns>
         Private Sub BufferData()
-            Dim requiredblock As Integer = mPosition \ mBlockSize
-            If (requiredblock <> mCurrentBlockIndex) Then
-                Dim expectedlength As Integer = CInt(Math.Min(Length - (requiredblock * mBlockSize), mBlockSize))
-                mCurrentData = LoadBlock(requiredblock, expectedlength)
-                mCurrentBlockIndex = requiredblock
+            Dim requiredblock As Integer = _mPosition \ _mBlockSize
+            If (requiredblock <> _mCurrentBlockIndex) Then
+                Dim expectedlength As Integer = CInt(Math.Min(Length - (requiredblock * _mBlockSize), _mBlockSize))
+                _mCurrentData = LoadBlock(requiredblock, expectedlength)
+                _mCurrentBlockIndex = requiredblock
             End If
         End Sub
-        Private Shared Function BZip2Decompress(ByVal Data As Stream, ByVal ExpectedLength As Integer) As Byte()
+
+        ''' <summary>
+        ''' decompress the  Bzip2 memorystream. TODO: WTF is this doing, calling itself recursively - surely a guaranteed stack overflow
+        ''' </summary>
+        ''' <param name="data">The data.</param>
+        ''' <param name="expectedLength">The expected length.</param>
+        ''' <returns></returns>
+        Private Shared Function BZip2Decompress(ByVal data As Stream, ByVal expectedLength As Integer) As Byte()
+            'TODO: Original code here
+            'Dim output As New MemoryStream
+            ''BZip2.Decompress(data, output, True)
+            'BZip2Decompress(data, expectedLength)
+            'Return output.ToArray
+
+            'TODO: New Code here, apart from expectedLength - this seems more reasonable
             Dim output As New MemoryStream
-            'BZip2.Decompress(Data, output)
-            BZip2Decompress(Data, ExpectedLength)
+            BZip2.Decompress(data, output, True)
+            'BZip2Decompress(data, expectedLength)
             Return output.ToArray
         End Function
-        Private Shared Function DecompressMulti(ByVal Input As Byte(), ByVal OutputLength As Integer) As Byte()
-            Dim sinput As Stream = New MemoryStream(Input)
+
+        ''' <summary>
+        ''' Decompresses the memorystream chunk.
+        ''' </summary>
+        ''' <param name="inputValue">The input value.</param>
+        ''' <param name="outputLength">Length of the output.</param>
+        ''' <returns></returns>
+        Private Shared Function DecompressMulti(ByVal inputValue As Byte(), ByVal outputLength As Integer) As Byte()
+            Dim sinput As Stream = New MemoryStream(inputValue)
             Dim comptype As Byte = sinput.ReadByte
 
             'BZip2
@@ -534,30 +573,30 @@ Namespace MPQ
             Dim offset As Long
             Dim toread As Integer
 
-            If mBlock.IsCompressed Then
-                offset = mBlockPositions(BlockIndex)
-                toread = CInt((mBlockPositions((BlockIndex + 1)) - offset))
+            If _mBlock.IsCompressed Then
+                offset = _mBlockPositions(BlockIndex)
+                toread = CInt((_mBlockPositions((BlockIndex + 1)) - offset))
             Else
-                offset = CType(BlockIndex, Long) * CType(mBlockSize, Long)
+                offset = CType(BlockIndex, Long) * CType(_mBlockSize, Long)
                 toread = ExpectedLength
             End If
-            offset += mBlock.FilePos
+            offset += _mBlock.FilePos
 
             Dim data As Byte() = New Byte(toread - 1) {}
-            SyncLock mStream
-                mStream.Seek(CLng(offset), SeekOrigin.Begin)
-                mStream.Read(data, 0, toread)
+            SyncLock _mStream
+                _mStream.Seek(CLng(offset), SeekOrigin.Begin)
+                _mStream.Read(data, 0, toread)
             End SyncLock
 
-            If (mBlock.IsEncrypted AndAlso (mBlock.FileSize > 3)) Then
-                If (mSeed1 = 0) Then
+            If (_mBlock.IsEncrypted AndAlso (_mBlock.FileSize > 3)) Then
+                If (_mSeed1 = 0) Then
                     Throw New Exception("Unable to determine encryption key")
                 End If
-                MPQArchive.DecryptBlock(data, (mSeed1 + CType(BlockIndex, Long)))
+                MPQArchive.DecryptBlock(data, (_mSeed1 + CType(BlockIndex, Long)))
             End If
 
-            If (mBlock.IsCompressed AndAlso (data.Length <> ExpectedLength)) Then
-                If (mBlock.Flags And MpqFileFlags.MPQ_CompressedMulti) <> 0 Then
+            If (_mBlock.IsCompressed AndAlso (data.Length <> ExpectedLength)) Then
+                If (_mBlock.Flags And MpqFileFlags.MPQ_CompressedMulti) <> 0 Then
                     data = DecompressMulti(data, ExpectedLength)
                 Else
                     data = PKDecompress(New MemoryStream(data), ExpectedLength)
@@ -567,33 +606,33 @@ Namespace MPQ
             Return data
         End Function
         Private Sub LoadBlockPositions()
-            Dim blockposcount As Integer = (CInt((((mBlock.FileSize + mBlockSize) - 1) / CLng(mBlockSize))) + 1)
+            Dim blockposcount As Integer = (CInt((((_mBlock.FileSize + _mBlockSize) - 1) / CLng(_mBlockSize))) + 1)
 
-            mBlockPositions = New Long(blockposcount - 1) {}
-            SyncLock mStream
-                mStream.Seek(CLng(mBlock.FilePos), SeekOrigin.Begin)
-                Dim br As New BinaryReader(mStream)
+            _mBlockPositions = New Long(blockposcount - 1) {}
+            SyncLock _mStream
+                _mStream.Seek(CLng(_mBlock.FilePos), SeekOrigin.Begin)
+                Dim br As New BinaryReader(_mStream)
                 Dim i As Integer = 0
                 Do While (i < blockposcount)
-                    mBlockPositions(i) = Convert.ToInt64(br.ReadUInt32)
+                    _mBlockPositions(i) = Convert.ToInt64(br.ReadUInt32)
                     i += 1
                 Loop
             End SyncLock
 
             Dim blockpossize As Long = CType((blockposcount * 4), Long)
-            If (((mBlock.Flags And MpqFileFlags.MPQ_FileHasMetadata) = CType(0, MpqFileFlags)) AndAlso (mBlockPositions(0) <> blockpossize)) Then
-                mBlock.Flags = (mBlock.Flags Or MpqFileFlags.MPQ_Encrypted)
+            If (((_mBlock.Flags And MpqFileFlags.MPQ_FileHasMetadata) = CType(0, MpqFileFlags)) AndAlso (_mBlockPositions(0) <> blockpossize)) Then
+                _mBlock.Flags = (_mBlock.Flags Or MpqFileFlags.MPQ_Encrypted)
             End If
 
-            If mBlock.IsEncrypted Then
-                If (mSeed1 = 0) Then
-                    mSeed1 = MPQArchive.DetectFileSeed(mBlockPositions, blockpossize)
-                    If (mSeed1 = 0) Then
+            If _mBlock.IsEncrypted Then
+                If (_mSeed1 = 0) Then
+                    _mSeed1 = MPQArchive.DetectFileSeed(_mBlockPositions, blockpossize)
+                    If (_mSeed1 = 0) Then
                         Throw New Exception("Unable to determine encyption seed")
                     End If
                 End If
-                MPQArchive.DecryptBlock(mBlockPositions, mSeed1)
-                mSeed1 = (mSeed1 + 1)   'Add 1 because the first block is the offset list
+                MPQArchive.DecryptBlock(_mBlockPositions, _mSeed1)
+                _mSeed1 = (_mSeed1 + 1)   'Add 1 because the first block is the offset list
             End If
 
         End Sub
@@ -620,33 +659,33 @@ Namespace MPQ
             Return readtotal
         End Function
         Public Overrides Function ReadByte() As Integer
-            If (mPosition >= Length) Then
+            If (_mPosition >= Length) Then
                 Return -1
             End If
             BufferData()
 
-            Dim localposition As Integer = CInt((mPosition Mod CLng(mBlockSize)))
-            mPosition += 1
-            Return mCurrentData(localposition)
+            Dim localposition As Integer = CInt((_mPosition Mod CLng(_mBlockSize)))
+            _mPosition += 1
+            Return _mCurrentData(localposition)
         End Function
         Private Function ReadInternal(ByVal Buffer As Byte(), ByVal Offset As Integer, ByVal Count As Integer) As Integer
 
             'Avoid reading past the contents of the file
-            If (mPosition >= Length) Then
+            If (_mPosition >= Length) Then
                 Return 0
             End If
 
             BufferData()
 
-            Dim localposition As Integer = mPosition Mod mBlockSize
-            Dim bytestocopy As Integer = Math.Min((mCurrentData.Length - localposition), Count)
+            Dim localposition As Integer = _mPosition Mod _mBlockSize
+            Dim bytestocopy As Integer = Math.Min((_mCurrentData.Length - localposition), Count)
             If (bytestocopy <= 0) Then
                 Return 0
             End If
 
-            Array.Copy(mCurrentData, localposition, Buffer, Offset, bytestocopy)
+            Array.Copy(_mCurrentData, localposition, Buffer, Offset, bytestocopy)
 
-            mPosition += bytestocopy
+            _mPosition += bytestocopy
             Return bytestocopy
 
         End Function
@@ -670,8 +709,8 @@ Namespace MPQ
             If (target >= Length) Then
                 Throw New ArgumentOutOfRangeException("Attmpted to Seek beyond the end of the stream")
             End If
-            mPosition = target
-            Return mPosition
+            _mPosition = target
+            Return _mPosition
         End Function
         Public Overrides Sub SetLength(ByVal Value As Long)
             Throw New NotSupportedException("SetLength is not supported")
@@ -713,41 +752,17 @@ Namespace MPQ
         End Property
         Public Overrides ReadOnly Property Length() As Long
             Get
-                Return CLng(mBlock.FileSize)
+                Return CLng(_mBlock.FileSize)
             End Get
         End Property
         Public Overrides Property Position() As Long
             Get
-                Return mPosition
+                Return _mPosition
             End Get
             Set(ByVal value As Long)
                 Seek(value, SeekOrigin.Begin)
             End Set
         End Property
 
-        Private mBlock As MpqBlock
-        Private mBlockPositions As Long()
-        Private mBlockSize As Integer
-        Private mCurrentBlockIndex As Integer = -1
-        Private mCurrentData As Byte()
-        Private mPosition As Long
-        Private mSeed1 As Long
-        Private mStream As Stream
     End Class
-
-    <CLSCompliant(False)> _
-    Public Enum MpqFileFlags As Long
-        MPQ_Changed = 1                     '&H00000001
-        MPQ_Protected = 2                   '&H00000002
-        MPQ_CompressedPK = 256              '&H00000100
-        MPQ_CompressedMulti = 512           '&H00000200
-        MPQ_Compressed = 65280              '&H0000FF00
-        MPQ_Encrypted = 65536               '&H00010000
-        MPQ_FixSeed = 131072                '&H00020000
-        MPQ_SingleUnit = 16777216           '&H01000000
-        MPQ_Unknown_02000000 = 33554432     '&H02000000 - The file is only 1 byte long and its name is a hash
-        MPQ_FileHasMetadata = 67108864      '&H04000000 - Indicates the file has associted metadata.
-        MPQ_Exists = 2147483648             '&H80000000
-    End Enum
-
 End Namespace

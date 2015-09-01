@@ -461,8 +461,8 @@ Public Module WS_Maps
 
                     If tmpMap = Map Then
                         ID = Map
-                        Type = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_INTEGER)
-                        Name = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_STRING)
+                        Type = tmpDBC.Item(i, 2, DBCValueType.DBC_INTEGER)
+                        Name = tmpDBC.Item(i, 4, DBCValueType.DBC_STRING)
                         Exit For
                     End If
                 Next i

@@ -346,37 +346,73 @@ Public Class WS_QuestInfo
     ''' <param name="objCharacter">The objCharacter.</param>
     ''' <returns></returns>
     Public Function CanSeeQuest(ByRef objCharacter As CharacterObject) As Boolean
-        Try
-            If (CInt(objCharacter.Level) + 6) < Level_Start Then Return False
-            If RequiredClass > 0 AndAlso RequiredClass <> objCharacter.Classe Then Return False
-            If ZoneOrSort < 0 Then
-                Dim tmpQuest As New WS_Quests
-                Dim reqSort As Byte = tmpQuest.ClassByQuestSort(-ZoneOrSort)
-                If reqSort > 0 AndAlso reqSort <> objCharacter.Classe Then Return False
+        Dim retValue As Boolean
+        retValue = True  'Start off with being able to see the quest
+
+        '        Try
+        If (CInt(objCharacter.Level) + 6) < Level_Start Then
+            retValue = False
+        End If
+
+        If RequiredClass > 0 AndAlso RequiredClass <> objCharacter.Classe Then
+            retValue = False
+        End If
+
+        If ZoneOrSort < 0 Then
+            Dim tmpQuest As New WS_Quests
+            Dim reqSort As Byte = tmpQuest.ClassByQuestSort(-ZoneOrSort)
+            If reqSort > 0 AndAlso reqSort <> objCharacter.Classe Then
+                retValue = False
             End If
-            If RequiredRace <> 0 AndAlso (RequiredRace And objCharacter.RaceMask) = 0 Then Return False
-            If RequiredTradeSkill > 0 Then
-                If objCharacter.Skills.ContainsKey(RequiredTradeSkill) = False Then Return False
-                If objCharacter.Skills(RequiredTradeSkill).Current < RequiredTradeSkillValue Then Return False
+        End If
+
+        If RequiredRace <> 0 AndAlso (RequiredRace And objCharacter.RaceMask) = 0 Then
+            retValue = False
+        End If
+
+        If RequiredTradeSkill > 0 Then
+            If objCharacter.Skills.ContainsKey(RequiredTradeSkill) = False Then
+                retValue = False
             End If
-            If RequiredMinReputation_Faction > 0 AndAlso objCharacter.GetReputationValue(RequiredMinReputation_Faction) < RequiredMinReputation Then Return False
-            If RequiredMaxReputation_Faction > 0 AndAlso objCharacter.GetReputationValue(RequiredMaxReputation_Faction) >= RequiredMaxReputation Then Return False
-            Dim mysqlQuery As New DataTable
-            If PreQuests.Count > 0 Then
-                'Check if we have done the prequest
-                For Each QuestID As Integer In PreQuests
-                    If QuestID > 0 Then 'If we haven't done this prequest we can't do this quest
-                        If objCharacter.QuestsCompleted.Contains(QuestID) = False Then Return False
-                    ElseIf QuestID < 0 Then 'If we have done this prequest we can't do this quest
-                        If objCharacter.QuestsCompleted.Contains(QuestID) Then Return False
+            If objCharacter.Skills(RequiredTradeSkill).Current < RequiredTradeSkillValue Then
+                retValue = False
+            End If
+        End If
+
+        If RequiredMinReputation_Faction > 0 AndAlso objCharacter.GetReputationValue(RequiredMinReputation_Faction) < RequiredMinReputation Then
+            retValue = False
+        End If
+
+        If RequiredMaxReputation_Faction > 0 AndAlso objCharacter.GetReputationValue(RequiredMaxReputation_Faction) >= RequiredMaxReputation Then
+            retValue = False
+        End If
+
+        If PreQuests.Count > 0 Then
+            'Check if we have done the prequest
+            For Each QuestID As Integer In PreQuests
+                If QuestID > 0 Then 'If we haven't done this prequest we can't do this quest
+                    If objCharacter.QuestsCompleted.Contains(QuestID) = False Then
+                        retValue = False
                     End If
-                Next
-            End If
-            If objCharacter.QuestsCompleted.Contains(ID) Then Return False 'We have already completed this quest
-            Return True
-        Catch ex As Exception
-            Stop
-        End Try
+                ElseIf QuestID < 0 Then 'If we have done this prequest we can't do this quest
+                    If objCharacter.QuestsCompleted.Contains(QuestID) Then
+                        retValue = False
+                    End If
+                End If
+            Next
+        End If
+
+        If objCharacter.QuestsCompleted.Contains(ID) Then
+            retValue = False
+        End If 'We have already completed this quest
+
+        If objCharacter.IsQuestInProgress(ID) Then
+            retValue = False
+        End If
+        Return retValue
+        'Catch ex As Exception
+        'Stop
+        'End Try
     End Function
 
     ''' <summary>

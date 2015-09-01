@@ -22,6 +22,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Global_Enums
 
 Public Module WorldServer
 
@@ -107,7 +108,7 @@ Public Module WorldServer
 
         'Logging Settings
         <XmlElement(ElementName:="LogType")> Public LogType As String = "FILE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = BaseWriter.LogType.NETWORK
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As Global_Enums.LogType = Global_Enums.LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
 
         'Other Settings

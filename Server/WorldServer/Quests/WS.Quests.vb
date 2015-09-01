@@ -139,39 +139,49 @@ Public Class WS_Quests
         'DONE: Quests for completing
         Dim alreadyHave As New List(Of Integer)
         If CreatureQuestFinishers.ContainsKey(creatureEntry) Then
-            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
-                If objCharacter.TalkQuests(i) IsNot Nothing Then
-                    alreadyHave.Add(objCharacter.TalkQuests(i).ID)
-                    If CreatureQuestFinishers(creatureEntry).Contains(objCharacter.TalkQuests(i).ID) Then
-                        questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
+            Try
+                For i As Integer = 0 To QuestInfo.QUEST_SLOTS
+                    If objCharacter.TalkQuests(i) IsNot Nothing Then
+                        alreadyHave.Add(objCharacter.TalkQuests(i).ID)
+                        If CreatureQuestFinishers(creatureEntry).Contains(objCharacter.TalkQuests(i).ID) Then
+                            questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
+                        End If
                     End If
-                End If
-            Next
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
+            End Try
         End If
+
 
         'DONE: Quests for taking
         If CreatureQuestStarters.ContainsKey(creatureEntry) Then
-            For Each questID As Integer In CreatureQuestStarters(creatureEntry)
-                If alreadyHave.Contains(questID) Then Continue For
-                If Not ALLQUESTS.IsValidQuest(questID) Then
-                    Try 'Sometimes Initialising Questinfo triggers an exception
-                        Dim tmpQuest As New WS_QuestInfo(questID)
-                        If tmpQuest.CanSeeQuest(objCharacter) Then
-                            If tmpQuest.SatisfyQuestLevel(objCharacter) Then
-                                questMenu.AddMenu(tmpQuest.Title, questID, tmpQuest.Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+            Try
+                For Each questID As Integer In CreatureQuestStarters(creatureEntry)
+                    If alreadyHave.Contains(questID) Then Continue For
+                    If Not ALLQUESTS.IsValidQuest(questID) Then
+                        Try 'Sometimes Initialising Questinfo triggers an exception
+                            Dim tmpQuest As New WS_QuestInfo(questID)
+                            If tmpQuest.CanSeeQuest(objCharacter) Then
+                                If tmpQuest.SatisfyQuestLevel(objCharacter) Then
+                                    questMenu.AddMenu(tmpQuest.Title, questID, tmpQuest.Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                                End If
+                            End If
+                        Catch ex As Exception
+                            Log.WriteLine(LogType.WARNING, "GetQuestMenu returned error for QuestId {0}", questID)
+                        End Try
+                    Else
+                        If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
+                            If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
+                                questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
                             End If
                         End If
-                    Catch ex As Exception
-                        Log.WriteLine(LogType.WARNING, "GetQuestMenu returned error for QuestId {0}", questID)
-                    End Try
-                Else
-                    If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
-                        If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
-                            questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
-                        End If
                     End If
-                End If
-            Next
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
+            End Try
+
         End If
 
         Return questMenu
@@ -190,35 +200,43 @@ Public Class WS_Quests
         'DONE: Quests for completing
         Dim alreadyHave As New List(Of Integer)
         If GameobjectQuestFinishers.ContainsKey(gOEntry) Then
-            For i As Integer = 0 To QuestInfo.QUEST_SLOTS
-                If objCharacter.TalkQuests(i) IsNot Nothing Then
-                    alreadyHave.Add(objCharacter.TalkQuests(i).ID)
-                    If GameobjectQuestFinishers(gOEntry).Contains(objCharacter.TalkQuests(i).ID) Then
-                        questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
+            Try
+                For i As Integer = 0 To QuestInfo.QUEST_SLOTS
+                    If objCharacter.TalkQuests(i) IsNot Nothing Then
+                        alreadyHave.Add(objCharacter.TalkQuests(i).ID)
+                        If GameobjectQuestFinishers(gOEntry).Contains(objCharacter.TalkQuests(i).ID) Then
+                            questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
+                        End If
                     End If
-                End If
-            Next
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "GetQuestMenuGO Failed: ", ex.ToString())
+            End Try
         End If
 
         'DONE: Quests for taking
         If GameobjectQuestStarters.ContainsKey(gOEntry) Then
-            For Each questID As Integer In GameobjectQuestStarters(gOEntry)
-                If alreadyHave.Contains(questID) Then Continue For
-                If Not ALLQUESTS.IsValidQuest(questID) Then
-                    Dim tmpQuest As New WS_QuestInfo(questID)
-                    If tmpQuest.CanSeeQuest(objCharacter) Then
-                        If tmpQuest.SatisfyQuestLevel(objCharacter) Then
-                            questMenu.AddMenu(tmpQuest.Title, questID, tmpQuest.Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+            Try
+                For Each questID As Integer In GameobjectQuestStarters(gOEntry)
+                    If alreadyHave.Contains(questID) Then Continue For
+                    If Not ALLQUESTS.IsValidQuest(questID) Then
+                        Dim tmpQuest As New WS_QuestInfo(questID)
+                        If tmpQuest.CanSeeQuest(objCharacter) Then
+                            If tmpQuest.SatisfyQuestLevel(objCharacter) Then
+                                questMenu.AddMenu(tmpQuest.Title, questID, tmpQuest.Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                            End If
+                        End If
+                    Else
+                        If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
+                            If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
+                                questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                            End If
                         End If
                     End If
-                Else
-                    If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
-                        If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
-                            questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
-                        End If
-                    End If
-                End If
-            Next
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "GetQuestMenuGO Failed: ", ex.ToString())
+            End Try
         End If
 
         Return questMenu
@@ -243,13 +261,17 @@ Public Class WS_Quests
             packet.AddInt32(1)              'Delay
             packet.AddInt32(1)              'Emote
             packet.AddInt8(questMenu.IDs.Count) 'Count
-            For i As Integer = 0 To questMenu.IDs.Count - 1
-                packet.AddInt32(questMenu.IDs(i))
-                packet.AddInt32(questMenu.Icons(i))
-                packet.AddInt32(questMenu.Levels(i))
-                packet.AddString(questMenu.Names(i))
-            Next
-            objCharacter.Client.Send(packet)
+            Try
+                For i As Integer = 0 To questMenu.IDs.Count - 1
+                    packet.AddInt32(questMenu.IDs(i))
+                    packet.AddInt32(questMenu.Icons(i))
+                    packet.AddInt32(questMenu.Levels(i))
+                    packet.AddString(questMenu.Names(i))
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
+            End Try
+            objCharacter.client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -276,58 +298,72 @@ Public Class WS_Quests
 
             'QuestRewards (Choosable)
             Dim questRewardsCount As Integer = 0
-            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
-                If quest.RewardItems(i) <> 0 Then questRewardsCount += 1
-            Next
+            Try
+                For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
+                    If quest.RewardItems(i) <> 0 Then questRewardsCount += 1
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
+            End Try
+
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
-                If quest.RewardItems(i) <> 0 Then
-                    'Add item if not loaded into server
-                    If Not ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
-                        Dim tmpItem As New ItemInfo(quest.RewardItems(i))
-                        packet.AddInt32(tmpItem.Id)
+            Try
+                For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
+                    If quest.RewardItems(i) <> 0 Then
+                        'Add item if not loaded into server
+                        If Not ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
+                            Dim tmpItem As New ItemInfo(quest.RewardItems(i))
+                            packet.AddInt32(tmpItem.Id)
+                        Else
+                            packet.AddInt32(quest.RewardItems(i))
+                        End If
+                        packet.AddInt32(quest.RewardItems_Count(i))
+                        packet.AddInt32(ITEMDatabase(quest.RewardItems(i)).Model)
                     Else
-                        packet.AddInt32(quest.RewardItems(i))
+                        packet.AddInt32(0)
+                        packet.AddInt32(0)
+                        packet.AddInt32(0)
                     End If
-                    packet.AddInt32(quest.RewardItems_Count(i))
-                    packet.AddInt32(ITEMDatabase(quest.RewardItems(i)).Model)
-                Else
-                    packet.AddInt32(0)
-                    packet.AddInt32(0)
-                    packet.AddInt32(0)
-                End If
-            Next
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
+            End Try
             'QuestRewards (Static)
             questRewardsCount = 0
             For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                 If quest.RewardStaticItems(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
-                If quest.RewardStaticItems(i) <> 0 Then
-                    'Add item if not loaded into server
-                    If Not ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
-                        Dim tmpItem As New ItemInfo(quest.RewardStaticItems(i))
-                        packet.AddInt32(tmpItem.Id)
+            Try
+                For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
+                    If quest.RewardStaticItems(i) <> 0 Then
+                        'Add item if not loaded into server
+                        If Not ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
+                            Dim tmpItem As New ItemInfo(quest.RewardStaticItems(i))
+                            packet.AddInt32(tmpItem.Id)
+                        Else
+                            packet.AddInt32(quest.RewardStaticItems(i))
+                        End If
+                        packet.AddInt32(quest.RewardStaticItems_Count(i))
+                        packet.AddInt32(ITEMDatabase(quest.RewardStaticItems(i)).Model)
                     Else
-                        packet.AddInt32(quest.RewardStaticItems(i))
+                        packet.AddInt32(0)
+                        packet.AddInt32(0)
+                        packet.AddInt32(0)
                     End If
-                    packet.AddInt32(quest.RewardStaticItems_Count(i))
-                    packet.AddInt32(ITEMDatabase(quest.RewardStaticItems(i)).Model)
-                Else
-                    packet.AddInt32(0)
-                    packet.AddInt32(0)
-                    packet.AddInt32(0)
-                End If
-            Next
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
+            End Try
+
             packet.AddInt32(quest.RewardGold)
 
             questRewardsCount = 0
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesItem(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 'Add item if not loaded into server
                 If quest.ObjectivesItem(i) <> 0 AndAlso ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
                     Dim tmpItem As New ItemInfo(quest.ObjectivesItem(i))
@@ -339,11 +375,11 @@ Public Class WS_Quests
             Next
 
             questRewardsCount = 0
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesKill(i) <> 0 Then questRewardsCount += 1
             Next
             packet.AddInt32(questRewardsCount)
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 packet.AddUInt32(quest.ObjectivesKill(i))
                 packet.AddInt32(quest.ObjectivesKill_Count(i))
             Next
@@ -397,14 +433,23 @@ Public Class WS_Quests
             packet.AddInt32(quest.ObjectivesDeliver) ' Item given at the start of a quest (srcItem)
             packet.AddInt32((quest.QuestFlags And &HFFFF))
 
-            For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
-                packet.AddInt32(quest.RewardStaticItems(i))
-                packet.AddInt32(quest.RewardStaticItems_Count(i))
-            Next
-            For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
-                packet.AddInt32(quest.RewardItems(i))
-                packet.AddInt32(quest.RewardItems_Count(i))
-            Next
+            Try
+                For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
+                    packet.AddInt32(quest.RewardStaticItems(i))
+                    packet.AddInt32(quest.RewardStaticItems_Count(i))
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
+            End Try
+
+            Try
+                For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
+                    packet.AddInt32(quest.RewardItems(i))
+                    packet.AddInt32(quest.RewardItems_Count(i))
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
+            End Try
 
             packet.AddInt32(quest.PointMapID)       'Point MapID
             packet.AddSingle(quest.PointX)          'Point X
@@ -436,6 +481,9 @@ Public Class WS_Quests
 
             'Finishing
             client.Send(packet)
+        Catch ex As Exception
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SendQuest Failed [Quest={2}] {3}", client.IP, client.Port, quest.ID, ex.ToString())
+
         Finally
             packet.Dispose()
         End Try
@@ -687,14 +735,14 @@ Public Class WS_Quests
 
             'DONE: Count the required items
             Dim requiredItemsCount As Byte = 0
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                 If quest.ObjectivesItem(i) <> 0 Then requiredItemsCount += 1
             Next
             packet.AddInt32(requiredItemsCount)
 
             'DONE: List items
             If requiredItemsCount > 0 Then
-                For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+                For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                     If quest.ObjectivesItem(i) <> 0 Then
                         If ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
                             Dim tmpItem As ItemInfo = New ItemInfo(quest.ObjectivesItem(i))
@@ -1140,21 +1188,42 @@ Public Class WS_Quests
                 Return status
             End If
 
-            Log.WriteLine(LogType.CRITICAL, "Status = {0} {1} {2}", WORLD_CREATUREs(cGuid).ID, WORLD_CREATUREs(cGuid).Name, IsNothing(WORLD_CREATUREs(cGuid).CreatureInfo.TalkScript))
+            Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} NPC Name: {1}", WORLD_CREATUREs(cGuid).ID, WORLD_CREATUREs(cGuid).Name)
+            '            Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} NPC Name: {1} Has Quest: {2}", WORLD_CREATUREs(cGuid).ID, WORLD_CREATUREs(cGuid).Name, IsNothing(WORLD_CREATUREs(cGuid).CreatureInfo.TalkScript))
             ' Log.WriteLine(LogType.CRITICAL, "Status = {0} {1} {2}", WORLD_CREATUREs(cGUID).)
             '     If IsNothing(WORLD_CREATUREs(cGUID).CreatureInfo.TalkScript) = False Then    'NPC is a questgiven
             Dim creatureQuestId As Integer
             creatureQuestId = WORLD_CREATUREs(cGuid).ID
             If IsValidQuest(creatureQuestId) = True Then
+                Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} Valid Quest: {1}", WORLD_CREATUREs(cGuid).ID, IsValidQuest(creatureQuestId))
                 If CreatureQuestStarters.ContainsKey(creatureQuestId) = True Then
                     For Each questID As Integer In CreatureQuestStarters(creatureQuestId)
                         Try
                             If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
+                                'If objCharacter.IsQuestInProgress(creatureQuestId) = False Then
+                                '    Dim Prequest As mangosVB.WorldServer.WS_QuestInfo = ALLQUESTS.ReturnQuestInfoById(creatureQuestId)
+                                '    Prequest.PreQuests.Contains()
+                                'ALLQUESTS.DoesPreQuestExist(creatureQuestId,
+
                                 status = QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE
                                 Return status
+                                'End If
                             End If
                         Catch ex As Exception
+                            Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
+                        End Try
+                    Next
 
+                    For Each questID As Integer In CreatureQuestFinishers(creatureQuestId)
+                        Try
+                            If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
+                                If objCharacter.IsQuestInProgress(questID) = True Then
+                                    status = QuestgiverStatusFlag.DIALOG_STATUS_REWARD
+                                    Return status
+                                End If
+                            End If
+                        Catch ex As Exception
+                            Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
                         End Try
                     Next
                 End If

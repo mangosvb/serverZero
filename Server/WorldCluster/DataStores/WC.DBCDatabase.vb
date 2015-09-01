@@ -17,7 +17,6 @@
 '
 
 Imports System.IO
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WS_DBCDatabase
@@ -27,21 +26,21 @@ Public Module WS_DBCDatabase
     Public Maps As New Dictionary(Of Integer, MapInfo)
     Public Sub InitializeMaps()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Map.dbc")
+            Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDbc.Rows - 1
                 Dim m As New MapInfo
-                m.ID = tmpDBC.Item(i, 0, DBC.DBCValueType.DBC_INTEGER)
-                m.Type = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_INTEGER)
-                m.Name = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_STRING)
-                m.ParentMap = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_INTEGER)
-                m.ResetTime = tmpDBC.Item(i, 38, DBC.DBCValueType.DBC_INTEGER)
+                m.ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER)
+                m.Type = tmpDbc.Item(i, 2, DBCValueType.DBC_INTEGER)
+                m.Name = tmpDbc.Item(i, 4, DBCValueType.DBC_STRING)
+                m.ParentMap = tmpDbc.Item(i, 3, DBCValueType.DBC_INTEGER)
+                m.ResetTime = tmpDbc.Item(i, 38, DBCValueType.DBC_INTEGER)
 
                 Maps.Add(m.ID, m)
             Next i
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps initialized.", tmpDbc.Rows - 1)
+            tmpDbc.Dispose()
         Catch e As DirectoryNotFoundException
             Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : Maps missing.")
@@ -88,22 +87,22 @@ Public Module WS_DBCDatabase
     Public WorldSafeLocs As New Dictionary(Of Integer, TWorldSafeLoc)
     Public Sub InitializeWorldSafeLocs()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\WorldSafeLocs.dbc")
+            Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\WorldSafeLocs.dbc")
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDbc.Rows - 1
                 Dim wsl As New TWorldSafeLoc
 
-                wsl.ID = tmpDBC.Item(i, 0, DBC.DBCValueType.DBC_INTEGER)
-                wsl.map = tmpDBC.Item(i, 1)
-                wsl.x = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
-                wsl.y = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_FLOAT)
-                wsl.z = tmpDBC.Item(i, 4, DBC.DBCValueType.DBC_FLOAT)
+                wsl.ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER)
+                wsl.map = tmpDbc.Item(i, 1)
+                wsl.x = tmpDbc.Item(i, 2, DBCValueType.DBC_FLOAT)
+                wsl.y = tmpDbc.Item(i, 3, DBCValueType.DBC_FLOAT)
+                wsl.z = tmpDbc.Item(i, 4, DBCValueType.DBC_FLOAT)
 
                 WorldSafeLocs.Add(wsl.ID, wsl)
             Next i
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs initialized.", tmpDbc.Rows - 1)
+            tmpDbc.Dispose()
         Catch e As DirectoryNotFoundException
             Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : WorldSafeLocs missing.")
@@ -167,36 +166,22 @@ Public Module WS_DBCDatabase
 
 #Region "Chat Channels"
 
-    <Flags()> _
-    Public Enum ChatChannelsFlags
-        FLAG_NONE = &H0
-        FLAG_INITIAL = &H1              ' General, Trade, LocalDefense, LFG
-        FLAG_ZONE_DEP = &H2             ' General, Trade, LocalDefense, GuildRecruitment
-        FLAG_GLOBAL = &H4               ' WorldDefense
-        FLAG_TRADE = &H8                ' Trade
-        FLAG_CITY_ONLY = &H10           ' Trade, GuildRecruitment
-        FLAG_CITY_ONLY2 = &H20          ' Trade, GuildRecruitment
-        FLAG_DEFENSE = &H10000          ' LocalDefense, WorldDefense
-        FLAG_GUILD_REQ = &H20000        ' GuildRecruitment
-        FLAG_LFG = &H40000              ' LookingForGroup
-    End Enum
-
     Public ChatChannelsInfo As New Dictionary(Of Integer, ChatChannelInfo)
     Public Sub InitializeChatChannels()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\ChatChannels.dbc")
+            Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\ChatChannels.dbc")
 
-            For i As Integer = 0 To tmpDBC.Rows - 1
+            For i As Integer = 0 To tmpDbc.Rows - 1
                 Dim objCharacter As New ChatChannelInfo
-                objCharacter.Index = tmpDBC.Item(i, 0, DBC.DBCValueType.DBC_INTEGER)
-                objCharacter.Flags = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_INTEGER)
-                objCharacter.Name = tmpDBC.Item(i, 3, DBC.DBCValueType.DBC_STRING)
+                objCharacter.Index = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER)
+                objCharacter.Flags = tmpDbc.Item(i, 1, DBCValueType.DBC_INTEGER)
+                objCharacter.Name = tmpDbc.Item(i, 3, DBCValueType.DBC_STRING)
 
                 ChatChannelsInfo.Add(objCharacter.Index, objCharacter)
             Next i
 
-            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels initialized.", tmpDBC.Rows - 1)
-            tmpDBC.Dispose()
+            Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels initialized.", tmpDbc.Rows - 1)
+            tmpDbc.Dispose()
         Catch e As DirectoryNotFoundException
             Console.ForegroundColor = ConsoleColor.DarkRed
             Console.WriteLine("DBC File : ChatChannels missing.")

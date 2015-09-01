@@ -19,27 +19,28 @@ Imports System.IO
 Imports System.ComponentModel
 
 Namespace WDB
-    Public Class BaseWDB
+    Public Class BaseWdb
         Implements IDisposable
 
         'Variables
-        Protected fs As FileStream
-        Protected bs As BufferedStream
-        Public buffer(3) As Byte
+        Protected Fs As FileStream
+        Protected Bs As BufferedStream
+        Public Buffer(3) As Byte
 
-        Public fType As String = ""
-        Public fBuild As Integer = 0
-        Public fLocale As String = ""
-        Public fUnk1 As Integer = 0
-        Public fUnk2 As Integer = 0
+        Public FType As String = ""
+        Public FBuild As Integer = 0
+        Public FLocale As String = ""
+        Public FUnk1 As Integer = 0
+        Public FUnk2 As Integer = 0
 
-        Public fIndex As New Hashtable
+        Public FIndex As New Hashtable
 
 #Region "IDisposable Support"
+
         Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        <Description("Close file and dispose the wdb reader.")> _
+        <Description("Close file and dispose the wdb reader.")>
         Protected Overridable Sub Dispose(ByVal disposing As Boolean)
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
@@ -56,39 +57,44 @@ Namespace WDB
             Dispose(True)
             GC.SuppressFinalize(Me)
         End Sub
+
 #End Region
 
-        <Description("Open filename for reading and initialize internals.")> _
-        Public Sub New(ByVal FileName As String)
+        ''' <summary>
+        ''' Initializes a new instance of the <see cref="BaseWDB" /> class.
+        ''' </summary>
+        ''' <param name="filename">The filename.</param>
+        <Description("Open filename for reading and initialize internals.")>
+        Public Sub New(ByVal filename As String)
             Try
-                fs = New FileStream(FileName, FileMode.Open, FileAccess.Read)
-                bs = New BufferedStream(fs)
+                Fs = New FileStream(filename, FileMode.Open, FileAccess.Read)
+                Bs = New BufferedStream(Fs)
 
-                fs.Read(buffer, 0, 4)
+                Fs.Read(Buffer, 0, 4)
                 fType = Text.Encoding.ASCII.GetString(buffer)
-                fs.Read(buffer, 0, 4)
+                Fs.Read(Buffer, 0, 4)
                 fBuild = BitConverter.ToInt32(buffer, 0)
-                fs.Read(buffer, 0, 4)
+                Fs.Read(Buffer, 0, 4)
                 fLocale = Text.Encoding.Default.GetString(buffer)
 
-                fs.Read(buffer, 0, 4)
+                Fs.Read(Buffer, 0, 4)
                 fUnk1 = BitConverter.ToInt32(buffer, 0)
-                fs.Read(buffer, 0, 4)
+                Fs.Read(Buffer, 0, 4)
                 fUnk2 = BitConverter.ToInt32(buffer, 0)
 
                 'Do indexing of offsets
-                Dim ID As Integer = -1
-                Dim RecordSize As Integer = 0
-                While ID <> 0
-                    fs.Read(buffer, 0, 4)
-                    ID = BitConverter.ToInt32(buffer, 0)
+                Dim id As Integer = - 1
+                Dim recordSize As Integer = 0
+                While id <> 0
+                    Fs.Read(Buffer, 0, 4)
+                    id = BitConverter.ToInt32(buffer, 0)
 
-                    fs.Read(buffer, 0, 4)
-                    RecordSize = BitConverter.ToInt32(buffer, 0)
+                    Fs.Read(Buffer, 0, 4)
+                    recordSize = BitConverter.ToInt32(buffer, 0)
 
-                    fIndex.Add(ID, fs.Position)
+                    fIndex.Add(id, fs.Position)
 
-                    fs.Seek(RecordSize, SeekOrigin.Current)
+                    Fs.Seek(recordSize, SeekOrigin.Current)
                 End While
 
             Catch e As Exception
@@ -97,30 +103,33 @@ Namespace WDB
             Finally
 
             End Try
-
         End Sub
 
-        <Description("Access to item by index and id.")> _
-        Public ReadOnly Property Item(ByVal ID As Integer, ByVal Index As Integer, ByVal ValueType As WDBValueType) As Object
+        ''' <summary>
+        ''' Access to item by index and id.
+        ''' </summary>
+        ''' <value></value>
+        <Description("Access to item by index and id.")>
+        Public ReadOnly Property Item(ByVal id As Integer, ByVal index As Integer, ByVal valueType As WDBValueType) As Object
             Get
-                If fIndex.ContainsKey(ID) Then Throw New ApplicationException("WDB: ID not found in file.")
+                If FIndex.ContainsKey(id) Then Throw New ApplicationException("WDB: ID not found in file.")
 
-                bs.Seek(fIndex(ID) + Index, SeekOrigin.Begin)
+                Bs.Seek(FIndex(id) + index, SeekOrigin.Begin)
 
-                Select Case ValueType
+                Select Case valueType
                     Case WDBValueType.WDB_FLOAT
-                        bs.Read(buffer, 0, 4)
-                        Return BitConverter.ToSingle(buffer, 0)
+                        Bs.Read(Buffer, 0, 4)
+                        Return BitConverter.ToSingle(Buffer, 0)
                     Case WDBValueType.WDB_INTEGER
-                        bs.Read(buffer, 0, 4)
-                        Return BitConverter.ToInt32(buffer, 0)
+                        Bs.Read(Buffer, 0, 4)
+                        Return BitConverter.ToInt32(Buffer, 0)
                     Case WDBValueType.WDB_BYTE
-                        Return bs.ReadByte()
+                        Return Bs.ReadByte()
                     Case WDBValueType.WDB_STRING
                         Dim strByte As Byte = 0
                         Dim strResult As String = ""
                         Do
-                            strByte = fs.ReadByte()
+                            strByte = Fs.ReadByte()
                             strResult &= Chr(strByte)
                         Loop While strByte <> 0
 
@@ -130,24 +139,27 @@ Namespace WDB
                 End Select
             End Get
         End Property
-        <Description("Search if this item id is present in the file.")> _
-        Public ReadOnly Property Contains(ByVal ID As Integer) As Boolean
+
+        ''' <summary>
+        ''' Search if this item id is present in the file.
+        ''' </summary>
+        ''' <value></value>
+        <Description("Search if this item id is present in the file.")>
+        Public ReadOnly Property Contains(ByVal id As Integer) As Boolean
             Get
-                fIndex.ContainsKey(ID)
+                fIndex.ContainsKey(id)
             End Get
         End Property
-        <Description("Returns found records in the wdb file.")> _
+
+        ''' <summary>
+        ''' Returns found records in the wdb file.
+        ''' </summary>
+        ''' <value>The get records.</value>
+        <Description("Returns found records in the wdb file.")>
         Public ReadOnly Property GetRecords() As Integer
             Get
                 Return fIndex.Count
             End Get
         End Property
     End Class
-
-    Public Enum WDBValueType
-        WDB_STRING
-        WDB_INTEGER
-        WDB_BYTE
-        WDB_FLOAT
-    End Enum
 End Namespace

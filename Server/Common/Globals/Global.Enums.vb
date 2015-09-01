@@ -2454,4 +2454,60 @@ Public Module Global_Enums
         TEMPSUMMON_DEAD_DESPAWN = 7             'despawns when the creature disappears
         TEMPSUMMON_MANUAL_DESPAWN = 8              'despawns when UnSummon() is called
     End Enum
+
+    Public Enum LogType
+        NETWORK                 'Network code debugging
+        DEBUG                   'Packets processing
+        INFORMATION             'User information
+        USER                    'User actions
+        SUCCESS                 'Normal operation
+        WARNING                 'Warning
+        FAILED                  'Processing Error
+        CRITICAL                'Application Error
+        DATABASE                'Database Error
+    End Enum
+
+    Public Enum WDBValueType
+        WDB_STRING
+        WDB_INTEGER
+        WDB_BYTE
+        WDB_FLOAT
+    End Enum
+
+    <CLSCompliant(False)> _
+    Public Enum MpqFileFlags As Long
+        MPQ_Changed = 1                     '&H00000001
+        MPQ_Protected = 2                   '&H00000002
+        MPQ_CompressedPK = 256              '&H00000100
+        MPQ_CompressedMulti = 512           '&H00000200
+        MPQ_Compressed = 65280              '&H0000FF00
+        MPQ_Encrypted = 65536               '&H00010000
+        MPQ_FixSeed = 131072                '&H00020000
+        MPQ_SingleUnit = 16777216           '&H01000000
+        MPQ_Unknown_02000000 = 33554432     '&H02000000 - The file is only 1 byte long and its name is a hash
+        MPQ_FileHasMetadata = 67108864      '&H04000000 - Indicates the file has associted metadata.
+        MPQ_Exists = 2147483648             '&H80000000
+    End Enum
+
+    Public Enum DBCValueType
+        DBC_STRING
+        DBC_INTEGER
+        DBC_FLOAT
+    End Enum
+
+    <Flags()> _
+    Public Enum ChatChannelsFlags
+        FLAG_NONE = &H0
+        FLAG_INITIAL = &H1              ' General, Trade, LocalDefense, LFG
+        FLAG_ZONE_DEP = &H2             ' General, Trade, LocalDefense, GuildRecruitment
+        FLAG_GLOBAL = &H4               ' WorldDefense
+        FLAG_TRADE = &H8                ' Trade
+        FLAG_CITY_ONLY = &H10           ' Trade, GuildRecruitment
+        FLAG_CITY_ONLY2 = &H20          ' Trade, GuildRecruitment
+        FLAG_DEFENSE = &H10000          ' LocalDefense, WorldDefense
+        FLAG_GUILD_REQ = &H20000        ' GuildRecruitment
+        FLAG_LFG = &H40000              ' LookingForGroup
+    End Enum
+
+
 End Module
