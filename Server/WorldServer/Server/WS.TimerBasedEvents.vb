@@ -247,7 +247,7 @@ Public Module WS_TimerBasedEvents
             Catch ex As Exception
                 Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
             Finally
-                CHARACTERs_Lock.ReleaseReaderLock()
+                CHARACTERs_Lock.ReleaseLock()
             End Try
 
             Dim DynamicObjectsToDelete As New List(Of DynamicObjectObject)
