@@ -562,7 +562,7 @@ Public Module WS_Handlers_Misc
         packet.GetUInt32()
         Dim MsTime As Integer = WS_Network.msTime()
         Dim ClientTimeDelay As Integer = MsTime - MsTime
-        Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 500 + MsTime
+        Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 50 + MsTime
         packet.AddInt32(MoveTime, 10)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
     End Sub

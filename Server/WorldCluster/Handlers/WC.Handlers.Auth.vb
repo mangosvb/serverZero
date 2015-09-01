@@ -589,8 +589,7 @@ Public Module WC_Handlers_Auth
         GUID = packet.GetUInt64()       'uint64 guid
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", client.IP, client.Port, GUID)
 
-        Try
-            If client.Character Is Nothing Then
+        If client.Character Is Nothing Then
                 client.Character = New CharacterObject(GUID, Client)
             Else
                 If client.Character.GUID <> GUID Then
@@ -601,40 +600,36 @@ Public Module WC_Handlers_Auth
                 End If
             End If
 
-            If WorldServer.InstanceCheck(Client, client.Character.Map) Then
-                client.Character.GetWorld.ClientConnect(Client.Index, client.GetClientInfo)
-                client.Character.IsInWorld = True
-                client.Character.GetWorld.ClientLogin(Client.Index, client.Character.GUID)
+        If WorldServer.InstanceCheck(Client, client.Character.Map) Then
+            client.Character.GetWorld.ClientConnect(Client.Index, client.GetClientInfo)
+            client.Character.IsInWorld = True
+            client.Character.GetWorld.ClientLogin(Client.Index, client.Character.GUID)
 
-                client.Character.OnLogin()
-            Else
-                Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: WORLD SERVER DOWN", client.Index)
-
-                client.Character.Dispose()
-                client.Character = Nothing
-                Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
-                Try
-                    r.AddInt8(CharResponse.CHAR_LOGIN_NO_WORLD)
-                    client.Send(r)
-                Finally
-                    r.Dispose()
-                End Try
-            End If
-
-        Catch ex As Exception
-            Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: {1}", client.Index, ex.ToString)
+            client.Character.OnLogin()
+        Else
+            Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: WORLD SERVER DOWN", client.Index)
 
             client.Character.Dispose()
             client.Character = Nothing
-
             Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
             Try
-                r.AddInt8(CharResponse.CHAR_LOGIN_FAILED)
+                r.AddInt8(CharResponse.CHAR_LOGIN_NO_WORLD)
                 client.Send(r)
-            Finally
-                r.Dispose()
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: {1}", client.Index, ex.ToString)
+
+                client.Character.Dispose()
+                client.Character = Nothing
+
+                Dim a As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
+                Try
+                    a.AddInt8(CharResponse.CHAR_LOGIN_FAILED)
+                    client.Send(a)
+                Finally
+                    r.Dispose()
+                End Try
             End Try
-        End Try
+        End If
     End Sub
 
     'Leak is with in this code. Needs a rewrite to correct the leak. This only effects the CPU Usage.

@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WorldServer", "WorldServer\WorldServer.vbproj", "{95F188B3-62F6-4C78-86EE-12329F33A2B4}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "RealmServer", "RealmServer\RealmServer.vbproj", "{E253A5A8-7A8B-48C7-8F4D-BEC8E2F8010E}"

@@ -81,7 +81,7 @@ Public Module WorldServer
 #End Region
 #Region "Global.Config"
     Public Config As XMLConfigFile
-    <XmlRoot(ElementName:="WorldServer")> _
+    <XmlRoot(ElementName:="WorldServer")>
     Public Class XMLConfigFile
         'Database Settings
         <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
@@ -250,7 +250,7 @@ Public Module WorldServer
     End Sub
 #End Region
 
-    <MTAThreadAttribute()> _
+    <MTAThreadAttribute()>
     Sub Main()
         timeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
 

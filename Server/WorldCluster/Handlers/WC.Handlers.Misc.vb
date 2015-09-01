@@ -118,6 +118,10 @@ Public Module WC_Handlers_Misc
     Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As PacketClass, ByRef client As ClientClass)
         packet.GetUInt64()
         packet.GetUInt32()
+        Dim WC_MsTime As Integer = msTime()
+        Dim ClientTimeDelay As Integer = MsTime - msTime()
+        Dim MoveTime As Integer = (msTime() - (msTime() - ClientTimeDelay)) + 50 + msTime()
+        packet.AddInt32(MoveTime, 10)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
     End Sub
 

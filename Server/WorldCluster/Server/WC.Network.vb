@@ -33,6 +33,12 @@ Public Module WC_Network
     Public WorldServer As WorldServerClass
     Public Authenticator As Authenticator
 
+    Private LastPing As Integer = 0
+    Public Function msTime() As Integer
+        'DONE: Calculate the clusters timeGetTime("")
+        Return msTime + (timeGetTime("") - LastPing)
+    End Function
+
     Class WorldServerClass
         Inherits MarshalByRefObject
         Implements ICluster
