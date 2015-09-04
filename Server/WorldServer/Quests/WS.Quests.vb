@@ -82,9 +82,6 @@ Public Class WS_Quests
     ''' <returns>Bool</returns>
     ''' <remarks></remarks>
     Public Function IsValidQuest(ByVal questID As Integer) As Boolean
-        ''For Each thisQuest As WS_QuestInfo In _quests
-        ''    If thisQuest.ID = questID Then Return True
-        ''Next
         If _quests.Contains(questID.ToString()) Then
             Return True
         End If
