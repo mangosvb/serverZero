@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Class WS_Quests
 
@@ -34,7 +33,7 @@ Public Class WS_Quests
         WorldDatabase.Query(String.Format("SELECT entry FROM quests;"), cQuests)
 
         For Each cRow As DataRow In cQuests.Rows
-            Dim questID As Integer = CInt(cRow.Item("entry"))
+            Dim questID As Integer = cRow.Item("entry")
             tmpQuest = New WS_QuestInfo(questID)
 
             _quests.Add(tmpQuest, questID)
@@ -628,7 +627,7 @@ Public Class WS_Quests
             packet.AddString(objBaseQuest.Title)
             packet.AddString(quest.TextComplete)
 
-            packet.AddInt32(CType(objBaseQuest.Complete, Integer))     'EnbleNext
+            packet.AddInt32(objBaseQuest.Complete)     'EnbleNext
 
             Dim emoteCount As Integer = 0
             For i As Integer = 0 To 3
@@ -787,7 +786,7 @@ Public Class WS_Quests
         CharacterDatabase.Query(String.Format("SELECT quest_id, quest_status FROM characters_quests q WHERE q.char_guid = {0};", objCharacter.GUID), cQuests)
 
         For Each cRow As DataRow In cQuests.Rows
-            Dim questID As Integer = CInt(cRow.Item("quest_id"))
+            Dim questID As Integer = cRow.Item("quest_id")
             Dim questStatus As Integer = cRow.Item("quest_status")
             If questStatus >= 0 Then    'Outstanding Quest
 
@@ -1367,7 +1366,7 @@ Public Class WS_Quests
                         response.AddUInt64(client.Character.GUID)
                         response.AddInt8(QuestPartyPushError.QUEST_PARTY_MSG_ACCEPT_QUEST)
                         response.AddInt32(0)
-                        CHARACTERs(guid).Client.Send(response)
+                        CHARACTERs(guid).client.Send(response)
                     Finally
                         response.Dispose()
                     End Try
@@ -1661,17 +1660,17 @@ Public Class WS_Quests
                         End If
 
                         If pLevel <= (qLevel + 5) Then
-                            xp = CInt(Fix(fullxp))
+                            xp = Fix(fullxp)
                         ElseIf pLevel = (qLevel + 6) Then
-                            xp = CInt(Fix(fullxp * 0.8F))
+                            xp = Fix(fullxp * 0.8F)
                         ElseIf pLevel = (qLevel + 7) Then
-                            xp = CInt(Fix(fullxp * 0.6F))
+                            xp = Fix(fullxp * 0.6F)
                         ElseIf pLevel = (qLevel + 8) Then
-                            xp = CInt(Fix(fullxp * 0.4F))
+                            xp = Fix(fullxp * 0.4F)
                         ElseIf pLevel = (qLevel + 9) Then
-                            xp = CInt(Fix(fullxp * 0.2F))
+                            xp = Fix(fullxp * 0.2F)
                         Else
-                            xp = CInt(Fix(fullxp * 0.1F))
+                            xp = Fix(fullxp * 0.1F)
                         End If
 
                         'DONE: Adding XP
@@ -1820,17 +1819,17 @@ Public Class WS_Quests
                         End If
 
                         If pLevel <= (qLevel + 5) Then
-                            xp = CInt(Fix(fullxp))
+                            xp = Fix(fullxp)
                         ElseIf pLevel = (qLevel + 6) Then
-                            xp = CInt(Fix(fullxp * 0.8F))
+                            xp = Fix(fullxp * 0.8F)
                         ElseIf pLevel = (qLevel + 7) Then
-                            xp = CInt(Fix(fullxp * 0.6F))
+                            xp = Fix(fullxp * 0.6F)
                         ElseIf pLevel = (qLevel + 8) Then
-                            xp = CInt(Fix(fullxp * 0.4F))
+                            xp = Fix(fullxp * 0.4F)
                         ElseIf pLevel = (qLevel + 9) Then
-                            xp = CInt(Fix(fullxp * 0.2F))
+                            xp = Fix(fullxp * 0.2F)
                         Else
-                            xp = CInt(Fix(fullxp * 0.1F))
+                            xp = Fix(fullxp * 0.1F)
                         End If
 
                         'DONE: Adding XP

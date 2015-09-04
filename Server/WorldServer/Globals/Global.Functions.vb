@@ -17,10 +17,8 @@
 '
 
 Imports System.Text.RegularExpressions
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.Races
 Imports mangosVB.Common.Classes
-Imports mangosVB.Common
 
 Public Module Functions
 
@@ -111,29 +109,29 @@ Public Module Functions
         End If
     End Sub
 
-    Public Function GetNextDay(ByVal iDay As DayOfWeek, Optional ByVal Hour As Integer = 0) As DateTime
-        Dim iDiff As Integer = CInt(iDay) - CInt(Today.DayOfWeek)
+    Public Function GetNextDay(ByVal iDay As DayOfWeek, Optional ByVal Hour As Integer = 0) As Date
+        Dim iDiff As Integer = iDay - Today.DayOfWeek
         If iDiff <= 0 Then iDiff += 7
-        Dim nextFriday As DateTime = Today.AddDays(iDiff)
+        Dim nextFriday As Date = Today.AddDays(iDiff)
         nextFriday = nextFriday.AddHours(Hour)
         Return nextFriday
     End Function
 
-    Public Function GetNextDate(ByVal Days As Integer, Optional ByVal Hours As Integer = 0) As DateTime
-        Dim nextDate As DateTime = Today.AddDays(Days)
+    Public Function GetNextDate(ByVal Days As Integer, Optional ByVal Hours As Integer = 0) As Date
+        Dim nextDate As Date = Today.AddDays(Days)
         nextDate = nextDate.AddHours(Hours)
         Return nextDate
     End Function
 
-    Public Function GetTimestamp(ByVal fromDateTime As DateTime) As UInteger
-        Dim startDate As DateTime = #1/1/1970#
+    Public Function GetTimestamp(ByVal fromDateTime As Date) As UInteger
+        Dim startDate As Date = #1/1/1970#
         Dim timeSpan As TimeSpan
 
         timeSpan = fromDateTime.Subtract(startDate)
-        Return CType(Math.Abs(timeSpan.TotalSeconds()), UInteger)
+        Return Math.Abs(timeSpan.TotalSeconds())
     End Function
 
-    Public Function GetDateFromTimestamp(ByVal unixTimestamp As UInteger) As DateTime
+    Public Function GetDateFromTimestamp(ByVal unixTimestamp As UInteger) As Date
         Dim timeSpan As TimeSpan
         Dim startDate As Date = #1/1/1970#
 
@@ -213,7 +211,7 @@ Public Module Functions
             If (bannedAccount.Rows.Count > 0) Then
                 AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accID & "';")
             Else
-                Dim tempBanDate As String = FormatDateTime(DateTime.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(DateTime.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
+                Dim tempBanDate As String = FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
                 AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, tempBanDate, "0000-00-00 00:00:00", Name, Reason))
             End If
             Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
@@ -374,7 +372,7 @@ Public Module Functions
     Public Sub Broadcast(ByVal Message As String)
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
         For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-            If Character.Value.Client IsNot Nothing Then SendMessageSystem(Character.Value.Client, "System Message: " & SetColor(Message, 255, 0, 0))
+            If Character.Value.client IsNot Nothing Then SendMessageSystem(Character.Value.client, "System Message: " & SetColor(Message, 255, 0, 0))
         Next
         CHARACTERs_Lock.ReleaseReaderLock()
     End Sub
@@ -424,7 +422,7 @@ Public Module Functions
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
     End Sub
 
-    Public Sub SendTrigerCinematic(ByRef client As ClientClass, ByRef Character As CharacterObject)
+    Public Sub SendTriggerCinematic(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim packet As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
         Try
             If CharRaces.ContainsKey(Character.Race) Then
@@ -450,16 +448,16 @@ Public Module Functions
     Public Sub SendGameTime(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_LOGIN_SETTIMESPEED As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
         Try
-            Dim time As DateTime = DateTime.Now
+            Dim time As Date = Date.Now
             Dim Year As Integer = time.Year - 2000
             Dim Month As Integer = time.Month - 1
             Dim Day As Integer = time.Day - 1
-            Dim DayOfWeek As Integer = CType(time.DayOfWeek, Integer)
+            Dim DayOfWeek As Integer = time.DayOfWeek
             Dim Hour As Integer = time.Hour
             Dim Minute As Integer = time.Minute
 
             'SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Year << 18)) + (Month << 20)), Integer))
-            SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Month << 20)) + (Year << 24)), Integer))
+            SMSG_LOGIN_SETTIMESPEED.AddInt32(((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Month << 20)) + (Year << 24))
             SMSG_LOGIN_SETTIMESPEED.AddSingle(0.01666667F)
 
             client.Send(SMSG_LOGIN_SETTIMESPEED)
@@ -567,13 +565,13 @@ Public Module Functions
         GROUP_UPDATE_FLAG_PET_MAX_POWER = &H20000 'uint16 pet max power
         GROUP_UPDATE_FLAG_PET_AURAS = &H40000 'uint64 mask, for each bit set uint16 spellid + uint8 unk, pet auras...
 
-        GROUP_UPDATE_PET = GROUP_UPDATE_FLAG_PET_GUID Or GROUP_UPDATE_FLAG_PET_NAME Or _
-                            GROUP_UPDATE_FLAG_PET_MODEL_ID Or GROUP_UPDATE_FLAG_PET_CUR_HP Or GROUP_UPDATE_FLAG_PET_MAX_HP Or _
-                            GROUP_UPDATE_FLAG_PET_POWER_TYPE Or GROUP_UPDATE_FLAG_PET_CUR_POWER Or _
+        GROUP_UPDATE_PET = GROUP_UPDATE_FLAG_PET_GUID Or GROUP_UPDATE_FLAG_PET_NAME Or
+                            GROUP_UPDATE_FLAG_PET_MODEL_ID Or GROUP_UPDATE_FLAG_PET_CUR_HP Or GROUP_UPDATE_FLAG_PET_MAX_HP Or
+                            GROUP_UPDATE_FLAG_PET_POWER_TYPE Or GROUP_UPDATE_FLAG_PET_CUR_POWER Or
                             GROUP_UPDATE_FLAG_PET_MAX_POWER Or GROUP_UPDATE_FLAG_PET_AURAS
 
-        GROUP_UPDATE_FULL = GROUP_UPDATE_FLAG_STATUS Or GROUP_UPDATE_FLAG_CUR_HP Or GROUP_UPDATE_FLAG_MAX_HP Or _
-                           GROUP_UPDATE_FLAG_CUR_POWER Or GROUP_UPDATE_FLAG_LEVEL Or GROUP_UPDATE_FLAG_ZONE Or _
+        GROUP_UPDATE_FULL = GROUP_UPDATE_FLAG_STATUS Or GROUP_UPDATE_FLAG_CUR_HP Or GROUP_UPDATE_FLAG_MAX_HP Or
+                           GROUP_UPDATE_FLAG_CUR_POWER Or GROUP_UPDATE_FLAG_LEVEL Or GROUP_UPDATE_FLAG_ZONE Or
                            GROUP_UPDATE_FLAG_MAX_POWER Or GROUP_UPDATE_FLAG_POSITION Or GROUP_UPDATE_FLAG_AURAS
         GROUP_UPDATE_FULL_PET = GROUP_UPDATE_FULL Or GROUP_UPDATE_PET
         GROUP_UPDATE_FULL_REQUEST_REPLY = &H7FFC0BFF

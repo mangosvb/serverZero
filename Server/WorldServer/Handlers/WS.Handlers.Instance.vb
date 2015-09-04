@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Instance
 
@@ -148,7 +147,7 @@ Public Module WS_Handlers_Instance
 #If DEBUG Then
                 objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-                SendInstanceMessage(objCharacter.Client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
+                SendInstanceMessage(objCharacter.client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
                 Exit Sub
             End If
 
@@ -162,7 +161,7 @@ Public Module WS_Handlers_Instance
 #If DEBUG Then
                     objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-                    SendInstanceMessage(objCharacter.Client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
+                    SendInstanceMessage(objCharacter.client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
                     Exit Sub
                 End If
             End If
@@ -184,7 +183,7 @@ Public Module WS_Handlers_Instance
 #If DEBUG Then
             objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-            SendInstanceMessage(objCharacter.Client, objCharacter.MapID, GetTimestamp(Now) - instanceNewResetTime)
+            SendInstanceMessage(objCharacter.client, objCharacter.MapID, GetTimestamp(Now) - instanceNewResetTime)
         End If
     End Sub
     Public Sub InstanceUpdate(ByVal Map As UInteger, ByVal Instance As UInteger, ByVal Cleared As UInteger)
@@ -237,10 +236,10 @@ Public Module WS_Handlers_Instance
         Dim q As New DataTable
         CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", Character.GUID), q)
 
-        SendUpdateInstanceOwnership(Character.Client, q.Rows.Count > 0)
+        SendUpdateInstanceOwnership(Character.client, q.Rows.Count > 0)
 
         For Each r As DataRow In q.Rows
-            SendUpdateLastInstance(Character.Client, r.Item("map"))
+            SendUpdateLastInstance(Character.client, r.Item("map"))
         Next
     End Sub
 

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using System.Security;
 
 namespace Emil.GMP
 {
-	public unsafe sealed class BigInt : IEquatable<BigInt>, IComparable<BigInt>, IComparable, ICloneable, IConvertible
+    public unsafe sealed class BigInt : IEquatable<BigInt>, IComparable<BigInt>, IComparable, ICloneable, IConvertible
 	{
 		#region Interop
 
@@ -290,28 +287,28 @@ namespace Emil.GMP
 
 		public BigInt()
 		{
-			__gmpz_init(ref this.InternalValue);
+			__gmpz_init(ref InternalValue);
 		}
 
 		public BigInt(BigInt other)
 		{
-			__gmpz_init_set(ref this.InternalValue, ref other.InternalValue);
+			__gmpz_init_set(ref InternalValue, ref other.InternalValue);
 		}
 
 		~BigInt()
 		{
-			__gmpz_clear(ref this.InternalValue);
+			__gmpz_clear(ref InternalValue);
 			//this.InternalValue = new MpzValue();
 		}
 
 		public BigInt(int value)
 		{
-			__gmpz_init_set_si(ref this.InternalValue, value);
+			__gmpz_init_set_si(ref InternalValue, value);
 		}
 
 		public BigInt(uint value)
 		{
-			__gmpz_init_set_ui(ref this.InternalValue, value);
+			__gmpz_init_set_ui(ref InternalValue, value);
 		}
 
 		public BigInt(uint value, int sign)
@@ -320,17 +317,17 @@ namespace Emil.GMP
 
 			if(sign >= 0)
 			{
-				__gmpz_init_set_ui(ref this.InternalValue, value);
+				__gmpz_init_set_ui(ref InternalValue, value);
 			}
 			else
 			{
-				__gmpz_init2(ref this.InternalValue, 32);
-				Debug.Assert(this.InternalValue.ChunksAllocatedCount == 1);
-				Debug.Assert(this.InternalValue.ChunkCount == 0);
+				__gmpz_init2(ref InternalValue, 32);
+				Debug.Assert(InternalValue.ChunksAllocatedCount == 1);
+				Debug.Assert(InternalValue.ChunkCount == 0);
 
-				this.InternalValue.ChunkCount = -1;
+                InternalValue.ChunkCount = -1;
 
-				this.InternalValue.Data[0] = (uint)value;
+                InternalValue.Data[0] = value;
 
 				Debug.Assert(this == value);
 			}
@@ -345,7 +342,7 @@ namespace Emil.GMP
 		{
 			Debug.Assert(!double.IsNaN(value) && !double.IsInfinity(value));
 
-			__gmpz_init_set_d(ref this.InternalValue, value);
+			__gmpz_init_set_d(ref InternalValue, value);
 		}
 
 		public BigInt(decimal value)
@@ -357,52 +354,52 @@ namespace Emil.GMP
 		{
 			if(value > 0)
 			{
-				if(value <= (uint)int.MaxValue)
+				if(value <= int.MaxValue)
 				{
-					__gmpz_init2(ref this.InternalValue, 32);
-					Debug.Assert(this.InternalValue.ChunksAllocatedCount == 1);
-					Debug.Assert(this.InternalValue.ChunkCount == 0);
-					uint* data = this.InternalValue.Data;
+					__gmpz_init2(ref InternalValue, 32);
+					Debug.Assert(InternalValue.ChunksAllocatedCount == 1);
+					Debug.Assert(InternalValue.ChunkCount == 0);
+					uint* data = InternalValue.Data;
 					data[0] = (uint)value;
-					this.InternalValue.ChunkCount = 1;
+                    InternalValue.ChunkCount = 1;
 				}
 				else
 				{
-					__gmpz_init2(ref this.InternalValue, 64);
-					Debug.Assert(this.InternalValue.ChunksAllocatedCount == 2);
-					Debug.Assert(this.InternalValue.ChunkCount == 0);
-					uint* data = this.InternalValue.Data;
+					__gmpz_init2(ref InternalValue, 64);
+					Debug.Assert(InternalValue.ChunksAllocatedCount == 2);
+					Debug.Assert(InternalValue.ChunkCount == 0);
+					uint* data = InternalValue.Data;
 					data[0] = (uint)value;
 					data[1] = (uint)(value >> 32);
-					this.InternalValue.ChunkCount = 2;
+                    InternalValue.ChunkCount = 2;
 				}
 			}
 			else if(value == 0)
 			{
-				__gmpz_init(ref this.InternalValue);
+				__gmpz_init(ref InternalValue);
 			}
 			else // value < 0
 			{
 				ulong absValue = (ulong)(-value);
 
-				if(absValue <= (uint)int.MaxValue)
+				if(absValue <= int.MaxValue)
 				{
-					__gmpz_init2(ref this.InternalValue, 32);
-					Debug.Assert(this.InternalValue.ChunksAllocatedCount == 1);
-					Debug.Assert(this.InternalValue.ChunkCount == 0);
-					uint* data = this.InternalValue.Data;
+					__gmpz_init2(ref InternalValue, 32);
+					Debug.Assert(InternalValue.ChunksAllocatedCount == 1);
+					Debug.Assert(InternalValue.ChunkCount == 0);
+					uint* data = InternalValue.Data;
 					data[0] = (uint)absValue;
-					this.InternalValue.ChunkCount = -1;
+                    InternalValue.ChunkCount = -1;
 				}
 				else
 				{
-					__gmpz_init2(ref this.InternalValue, 64);
-					Debug.Assert(this.InternalValue.ChunksAllocatedCount == 2);
-					Debug.Assert(this.InternalValue.ChunkCount == 0);
-					uint* data = this.InternalValue.Data;
+					__gmpz_init2(ref InternalValue, 64);
+					Debug.Assert(InternalValue.ChunksAllocatedCount == 2);
+					Debug.Assert(InternalValue.ChunkCount == 0);
+					uint* data = InternalValue.Data;
 					data[0] = (uint)absValue;
 					data[1] = (uint)(absValue >> 32);
-					this.InternalValue.ChunkCount = -2;
+                    InternalValue.ChunkCount = -2;
 				}
 			}
 
@@ -413,28 +410,28 @@ namespace Emil.GMP
 		{
 			if(value == 0)
 			{
-				__gmpz_init(ref this.InternalValue);
+				__gmpz_init(ref InternalValue);
 			}
 			else
 			{
-				if(value <= (uint)int.MaxValue)
+				if(value <= int.MaxValue)
 				{
-					__gmpz_init2(ref this.InternalValue, 32);
-					Debug.Assert(this.InternalValue.ChunksAllocatedCount == 1);
-					Debug.Assert(this.InternalValue.ChunkCount == 0);
-					uint* data = this.InternalValue.Data;
+					__gmpz_init2(ref InternalValue, 32);
+					Debug.Assert(InternalValue.ChunksAllocatedCount == 1);
+					Debug.Assert(InternalValue.ChunkCount == 0);
+					uint* data = InternalValue.Data;
 					data[0] = (uint)value;
-					this.InternalValue.ChunkCount = 1;
+                    InternalValue.ChunkCount = 1;
 				}
 				else
 				{
-					__gmpz_init2(ref this.InternalValue, 64);
-					Debug.Assert(this.InternalValue.ChunksAllocatedCount == 2);
-					Debug.Assert(this.InternalValue.ChunkCount == 0);
-					uint* data = this.InternalValue.Data;
+					__gmpz_init2(ref InternalValue, 64);
+					Debug.Assert(InternalValue.ChunksAllocatedCount == 2);
+					Debug.Assert(InternalValue.ChunkCount == 0);
+					uint* data = InternalValue.Data;
 					data[0] = (uint)value;
 					data[1] = (uint)(value >> 32);
-					this.InternalValue.ChunkCount = 2;
+                    InternalValue.ChunkCount = 2;
 				}
 			}
 		}
@@ -445,22 +442,22 @@ namespace Emil.GMP
 
 			if(sign == 0)
 			{
-				__gmpz_init(ref this.InternalValue);
+				__gmpz_init(ref InternalValue);
 			}
 			else
 			{
-				__gmpz_init2(ref this.InternalValue, 64);
-				Debug.Assert(this.InternalValue.ChunksAllocatedCount == 2);
-				Debug.Assert(this.InternalValue.ChunkCount == 0);
+				__gmpz_init2(ref InternalValue, 64);
+				Debug.Assert(InternalValue.ChunksAllocatedCount == 2);
+				Debug.Assert(InternalValue.ChunkCount == 0);
 
 				bool isLength1 = (uint)value == value;
 
 				if(sign > 0)
-					this.InternalValue.ChunkCount = isLength1 ? 1 : 2;
+                    InternalValue.ChunkCount = isLength1 ? 1 : 2;
 				else
-					this.InternalValue.ChunkCount = isLength1 ? -1 : -2;
+                    InternalValue.ChunkCount = isLength1 ? -1 : -2;
 
-				uint* data = this.InternalValue.Data;
+				uint* data = InternalValue.Data;
 				data[0] = (uint)value;
 				data[1] = (uint)(value >> 32);
 
@@ -470,16 +467,16 @@ namespace Emil.GMP
 
 		public BigInt(byte[] value, int sign)
 		{
-			__gmpz_init(ref this.InternalValue);
+			__gmpz_init(ref InternalValue);
 
 			if(sign == 0)
 				return;
 
 			fixed(byte* data = value)
-				__gmpz_import(ref this.InternalValue, (uint)value.Length, -1, sizeof(byte), 0, 0, data);
+				__gmpz_import(ref InternalValue, (uint)value.Length, -1, sizeof(byte), 0, 0, data);
 
 			if(sign < 0)
-				this.InternalValue.ChunkCount = -this.InternalValue.ChunkCount;
+                InternalValue.ChunkCount = -InternalValue.ChunkCount;
 		}
 
 		public BigInt(byte[] value)
@@ -489,16 +486,16 @@ namespace Emil.GMP
 
 		public BigInt(uint[] value, int sign)
 		{
-			__gmpz_init(ref this.InternalValue);
+			__gmpz_init(ref InternalValue);
 
 			if(sign == 0)
 				return;
 
 			fixed(uint* data = value)
-				__gmpz_import(ref this.InternalValue, (uint)value.Length, -1, sizeof(uint), 0, 0, data);
+				__gmpz_import(ref InternalValue, (uint)value.Length, -1, sizeof(uint), 0, 0, data);
 
 			if(sign < 0)
-				this.InternalValue.ChunkCount = -this.InternalValue.ChunkCount;
+                InternalValue.ChunkCount = -InternalValue.ChunkCount;
 		}
 
 		public BigInt(uint[] value)
@@ -516,12 +513,12 @@ namespace Emil.GMP
 			if(@base < 2 || @base > 62)
 				throw new ArgumentOutOfRangeException();
 
-			int status = __gmpz_init_set_str(ref this.InternalValue, s, @base);
+			int status = __gmpz_init_set_str(ref InternalValue, s, @base);
 
 			if(status != 0)
 			{
-				__gmpz_clear(ref this.InternalValue);
-				this.InternalValue = new MpzValue();
+				__gmpz_clear(ref InternalValue);
+                InternalValue = new MpzValue();
 				throw new FormatException();
 			}
 		}
@@ -1231,7 +1228,7 @@ namespace Emil.GMP
 		{
 			get
 			{
-				return __gmpz_tstbit(ref this.InternalValue, (uint)bitIndex);
+				return __gmpz_tstbit(ref InternalValue, (uint)bitIndex);
 			}
 		}
 
@@ -1330,7 +1327,7 @@ namespace Emil.GMP
 		{
 			BigInt quotient = new BigInt();
 			remainder = new BigInt();
-			__gmpz_tdiv_qr(ref quotient.InternalValue, ref remainder.InternalValue, ref this.InternalValue, ref x.InternalValue);
+			__gmpz_tdiv_qr(ref quotient.InternalValue, ref remainder.InternalValue, ref InternalValue, ref x.InternalValue);
 			return quotient;
 		}
 
@@ -1341,11 +1338,11 @@ namespace Emil.GMP
 
 			if(x >= 0)
 			{
-				__gmpz_tdiv_qr_ui(ref quotient.InternalValue, ref remainder.InternalValue, ref this.InternalValue, (uint)x);
+				__gmpz_tdiv_qr_ui(ref quotient.InternalValue, ref remainder.InternalValue, ref InternalValue, (uint)x);
 			}
 			else
 			{
-				__gmpz_tdiv_qr_ui(ref quotient.InternalValue, ref remainder.InternalValue, ref this.InternalValue, (uint)(-x));
+				__gmpz_tdiv_qr_ui(ref quotient.InternalValue, ref remainder.InternalValue, ref InternalValue, (uint)(-x));
 				quotient.InternalValue.ChunkCount = -quotient.InternalValue.ChunkCount;
 			}
 
@@ -1358,15 +1355,15 @@ namespace Emil.GMP
 
 			if(x >= 0)
 			{
-				remainder = (int)__gmpz_tdiv_q_ui(ref quotient.InternalValue, ref this.InternalValue, (uint)x);
+				remainder = (int)__gmpz_tdiv_q_ui(ref quotient.InternalValue, ref InternalValue, (uint)x);
 			}
 			else
 			{
-				remainder = (int)__gmpz_tdiv_q_ui(ref quotient.InternalValue, ref this.InternalValue, (uint)(-x));
+				remainder = (int)__gmpz_tdiv_q_ui(ref quotient.InternalValue, ref InternalValue, (uint)(-x));
 				quotient.InternalValue.ChunkCount = -quotient.InternalValue.ChunkCount;
 			}
 
-			if(this.InternalValue.ChunkCount < 0)
+			if(InternalValue.ChunkCount < 0)
 				remainder = -remainder;
 
 			return quotient;
@@ -1376,28 +1373,28 @@ namespace Emil.GMP
 		{
 			BigInt quotient = new BigInt();
 			remainder = new BigInt();
-			__gmpz_tdiv_qr_ui(ref quotient.InternalValue, ref remainder.InternalValue, ref this.InternalValue, x);
+			__gmpz_tdiv_qr_ui(ref quotient.InternalValue, ref remainder.InternalValue, ref InternalValue, x);
 			return quotient;
 		}
 
 		public BigInt Divide(uint x, out uint remainder)
 		{
-			if(this.InternalValue.ChunkCount < 0)
+			if(InternalValue.ChunkCount < 0)
 				throw new InvalidOperationException("This method may not be called when the instance represents a negative number.");
 
 			BigInt quotient = new BigInt();
-			remainder = __gmpz_tdiv_q_ui(ref quotient.InternalValue, ref this.InternalValue, x);
+			remainder = __gmpz_tdiv_q_ui(ref quotient.InternalValue, ref InternalValue, x);
 			return quotient;
 		}
 
 		public BigInt Divide(uint x, out int remainder)
 		{
 			BigInt quotient = new BigInt();
-			uint uintRemainder = __gmpz_tdiv_q_ui(ref quotient.InternalValue, ref this.InternalValue, x);
-			if(uintRemainder > (uint)int.MaxValue)
+			uint uintRemainder = __gmpz_tdiv_q_ui(ref quotient.InternalValue, ref InternalValue, x);
+			if(uintRemainder > int.MaxValue)
 				throw new OverflowException();
 
-			if(this.InternalValue.ChunkCount >= 0)
+			if(InternalValue.ChunkCount >= 0)
 				remainder = (int)uintRemainder;
 			else
 				remainder = -(int)uintRemainder;
@@ -1408,26 +1405,26 @@ namespace Emil.GMP
 		public BigInt Remainder(BigInt x)
 		{
 			BigInt z = new BigInt();
-			__gmpz_tdiv_r(ref z.InternalValue, ref this.InternalValue, ref x.InternalValue);
+			__gmpz_tdiv_r(ref z.InternalValue, ref InternalValue, ref x.InternalValue);
 			return z;
 		}
 
 		public bool IsDivisibleBy(BigInt x)
 		{
-			return __gmpz_divisible_p(ref this.InternalValue, ref x.InternalValue) != 0;
+			return __gmpz_divisible_p(ref InternalValue, ref x.InternalValue) != 0;
 		}
 
 		public bool IsDivisibleBy(int x)
 		{
 			if(x >= 0)
-				return __gmpz_divisible_ui_p(ref this.InternalValue, (uint)x) != 0;
+				return __gmpz_divisible_ui_p(ref InternalValue, (uint)x) != 0;
 			else
-				return __gmpz_divisible_ui_p(ref this.InternalValue, (uint)(-x)) != 0;
+				return __gmpz_divisible_ui_p(ref InternalValue, (uint)(-x)) != 0;
 		}
 
 		public bool IsDivisibleBy(uint x)
 		{
-			return __gmpz_divisible_ui_p(ref this.InternalValue, x) != 0;
+			return __gmpz_divisible_ui_p(ref InternalValue, x) != 0;
 		}
 
 		/// <summary>
@@ -1438,14 +1435,14 @@ namespace Emil.GMP
 		public BigInt DivideExactly(BigInt x)
 		{
 			BigInt z = new BigInt();
-			__gmpz_divexact(ref z.InternalValue, ref this.InternalValue, ref x.InternalValue);
+			__gmpz_divexact(ref z.InternalValue, ref InternalValue, ref x.InternalValue);
 			return z;
 		}
 
 		public BigInt DivideExactly(int x)
 		{
 			BigInt z = new BigInt();
-			__gmpz_divexact_ui(ref z.InternalValue, ref this.InternalValue, (uint)x);
+			__gmpz_divexact_ui(ref z.InternalValue, ref InternalValue, (uint)x);
 
 			if(x < 0)
 			{
@@ -1459,7 +1456,7 @@ namespace Emil.GMP
 		public BigInt DivideExactly(uint x)
 		{
 			BigInt z = new BigInt();
-			__gmpz_divexact_ui(ref z.InternalValue, ref this.InternalValue, x);
+			__gmpz_divexact_ui(ref z.InternalValue, ref InternalValue, x);
 			return z;
 		}
 
@@ -1503,12 +1500,12 @@ namespace Emil.GMP
 			if(mod < 0)
 				throw new ArgumentOutOfRangeException();
 
-			return (int)__gmpz_fdiv_ui(ref this.InternalValue, (uint)mod);
+			return (int)__gmpz_fdiv_ui(ref InternalValue, (uint)mod);
 		}
 
 		public uint ModAsUInt32(uint mod)
 		{
-			return __gmpz_fdiv_ui(ref this.InternalValue, mod);
+			return __gmpz_fdiv_ui(ref InternalValue, mod);
 		}
 
 		public BigInt ShiftLeft(int shiftAmount)
@@ -1524,14 +1521,14 @@ namespace Emil.GMP
 		public BigInt PowerMod(BigInt exponent, BigInt mod)
 		{
 			BigInt z = new BigInt();
-			__gmpz_powm(ref z.InternalValue, ref this.InternalValue, ref exponent.InternalValue, ref mod.InternalValue);
+			__gmpz_powm(ref z.InternalValue, ref InternalValue, ref exponent.InternalValue, ref mod.InternalValue);
 			return z;
 		}
 
 		public BigInt PowerMod(int exponent, BigInt mod)
 		{
 			BigInt z = new BigInt();
-			__gmpz_powm_ui(ref z.InternalValue, ref this.InternalValue, (uint)exponent, ref mod.InternalValue);
+			__gmpz_powm_ui(ref z.InternalValue, ref InternalValue, (uint)exponent, ref mod.InternalValue);
 			return z;
 		}
 
@@ -1540,7 +1537,7 @@ namespace Emil.GMP
 			BigInt z = new BigInt();
 			if(exponent >= 0)
 			{
-				__gmpz_powm_ui(ref z.InternalValue, ref this.InternalValue, exponent, ref mod.InternalValue);
+				__gmpz_powm_ui(ref z.InternalValue, ref InternalValue, exponent, ref mod.InternalValue);
 			}
 			else
 			{
@@ -1558,14 +1555,14 @@ namespace Emil.GMP
 				throw new ArgumentOutOfRangeException();
 
 			BigInt z = new BigInt();
-			__gmpz_pow_ui(ref z.InternalValue, ref this.InternalValue, (uint)exponent);
+			__gmpz_pow_ui(ref z.InternalValue, ref InternalValue, (uint)exponent);
 			return z;
 		}
 
 		public BigInt Power(uint exponent)
 		{
 			BigInt z = new BigInt();
-			__gmpz_pow_ui(ref z.InternalValue, ref this.InternalValue, exponent);
+			__gmpz_pow_ui(ref z.InternalValue, ref InternalValue, exponent);
 			return z;
 		}
 
@@ -1589,7 +1586,7 @@ namespace Emil.GMP
 		public BigInt InvertMod(BigInt mod)
 		{
 			BigInt z = new BigInt();
-			int status = __gmpz_invert(ref z.InternalValue, ref this.InternalValue, ref mod.InternalValue);
+			int status = __gmpz_invert(ref z.InternalValue, ref InternalValue, ref mod.InternalValue);
 			if(status == 0)
 				throw new ArithmeticException("This modular inverse does not exists.");
 			return z;
@@ -1598,7 +1595,7 @@ namespace Emil.GMP
 		public bool TryInvertMod(BigInt mod, out BigInt result)
 		{
 			BigInt z = new BigInt();
-			int status = __gmpz_invert(ref z.InternalValue, ref this.InternalValue, ref mod.InternalValue);
+			int status = __gmpz_invert(ref z.InternalValue, ref InternalValue, ref mod.InternalValue);
 
 			if(status == 0)
 			{
@@ -1623,10 +1620,10 @@ namespace Emil.GMP
 		{
 			get
 			{
-				if(this.InternalValue.ChunkCount == 0)
+				if(InternalValue.ChunkCount == 0)
 					return false;
 				else
-					return (this.InternalValue.Data[0] & 1) == 1;
+					return (InternalValue.Data[0] & 1) == 1;
 			}
 		}
 
@@ -1634,10 +1631,10 @@ namespace Emil.GMP
 		{
 			get
 			{
-				if(this.InternalValue.ChunkCount == 0)
+				if(InternalValue.ChunkCount == 0)
 					return true;
 				else
-					return (this.InternalValue.Data[0] & 1) == 0;
+					return (InternalValue.Data[0] & 1) == 0;
 			}
 		}
 
@@ -1646,7 +1643,7 @@ namespace Emil.GMP
 		{
 			get
 			{
-				return (int)__gmpz_sizeinbase(ref this.InternalValue, 2);
+				return (int)__gmpz_sizeinbase(ref InternalValue, 2);
 			}
 		}
 
@@ -1657,7 +1654,7 @@ namespace Emil.GMP
 		public BigInt Sqrt()
 		{
 			BigInt z = new BigInt();
-			__gmpz_sqrt(ref z.InternalValue, ref this.InternalValue);
+			__gmpz_sqrt(ref z.InternalValue, ref InternalValue);
 			return z;
 		}
 
@@ -1665,14 +1662,14 @@ namespace Emil.GMP
 		{
 			BigInt z = new BigInt();
 			remainder = new BigInt();
-			__gmpz_sqrtrem(ref z.InternalValue, ref remainder.InternalValue, ref this.InternalValue);
+			__gmpz_sqrtrem(ref z.InternalValue, ref remainder.InternalValue, ref InternalValue);
 			return z;
 		}
 
 		public BigInt Sqrt(out bool isExact)
 		{
 			BigInt z = new BigInt();
-			int result = __gmpz_root(ref z.InternalValue, ref this.InternalValue, 2);
+			int result = __gmpz_root(ref z.InternalValue, ref InternalValue, 2);
 			isExact = result != 0;
 			return z;
 		}
@@ -1683,14 +1680,14 @@ namespace Emil.GMP
 				throw new ArgumentOutOfRangeException();
 
 			BigInt z = new BigInt();
-			__gmpz_root(ref z.InternalValue, ref this.InternalValue, (uint)n);
+			__gmpz_root(ref z.InternalValue, ref InternalValue, (uint)n);
 			return z;
 		}
 
 		public BigInt Root(uint n)
 		{
 			BigInt z = new BigInt();
-			__gmpz_root(ref z.InternalValue, ref this.InternalValue, n);
+			__gmpz_root(ref z.InternalValue, ref InternalValue, n);
 			return z;
 		}
 
@@ -1700,7 +1697,7 @@ namespace Emil.GMP
 				throw new ArgumentOutOfRangeException();
 
 			BigInt z = new BigInt();
-			int result = __gmpz_root(ref z.InternalValue, ref this.InternalValue, (uint)n);
+			int result = __gmpz_root(ref z.InternalValue, ref InternalValue, (uint)n);
 			isExact = result != 0;
 			return z;
 		}
@@ -1708,7 +1705,7 @@ namespace Emil.GMP
 		public BigInt Root(uint n, out bool isExact)
 		{
 			BigInt z = new BigInt();
-			int result = __gmpz_root(ref z.InternalValue, ref this.InternalValue, n);
+			int result = __gmpz_root(ref z.InternalValue, ref InternalValue, n);
 			isExact = result != 0;
 			return z;
 		}
@@ -1720,7 +1717,7 @@ namespace Emil.GMP
 
 			BigInt z = new BigInt();
 			remainder = new BigInt();
-			__gmpz_rootrem(ref z.InternalValue, ref remainder.InternalValue, ref this.InternalValue, (uint)n);
+			__gmpz_rootrem(ref z.InternalValue, ref remainder.InternalValue, ref InternalValue, (uint)n);
 			return z;
 		}
 
@@ -1728,23 +1725,23 @@ namespace Emil.GMP
 		{
 			BigInt z = new BigInt();
 			remainder = new BigInt();
-			__gmpz_rootrem(ref z.InternalValue, ref remainder.InternalValue, ref this.InternalValue, n);
+			__gmpz_rootrem(ref z.InternalValue, ref remainder.InternalValue, ref InternalValue, n);
 			return z;
 		}
 
 		public bool IsPerfectSquare()
 		{
-			return __gmpz_perfect_square_p(ref this.InternalValue) != 0;
+			return __gmpz_perfect_square_p(ref InternalValue) != 0;
 		}
 
 		public bool IsPerfectPower()
 		{
 			// There is a known issue with this function for negative inputs in GMP 4.2.4.
 			// See: http://gmplib.org/oldrel/
-			if(this.InternalValue.ChunkCount < 0)
+			if(InternalValue.ChunkCount < 0)
 				throw new NotImplementedException();
 
-			return __gmpz_perfect_power_p(ref this.InternalValue) != 0;
+			return __gmpz_perfect_power_p(ref InternalValue) != 0;
 		}
 
 		#endregion
@@ -1758,7 +1755,7 @@ namespace Emil.GMP
 		/// <returns></returns>
 		public bool IsProbablyPrimeRabinMiller(int repetitions)
 		{
-			int result = __gmpz_probab_prime_p(ref this.InternalValue, repetitions);
+			int result = __gmpz_probab_prime_p(ref InternalValue, repetitions);
 
 			return result != 0;
 		}
@@ -1767,7 +1764,7 @@ namespace Emil.GMP
 		public BigInt NextPrimeGMP()
 		{
 			BigInt z = new BigInt();
-			__gmpz_nextprime(ref z.InternalValue, ref this.InternalValue);
+			__gmpz_nextprime(ref z.InternalValue, ref InternalValue);
 			return z;
 		}
 
@@ -1953,14 +1950,14 @@ namespace Emil.GMP
 		public BigInt RemoveFactor(BigInt factor)
 		{
 			BigInt z = new BigInt();
-			__gmpz_remove(ref z.InternalValue, ref this.InternalValue, ref factor.InternalValue);
+			__gmpz_remove(ref z.InternalValue, ref InternalValue, ref factor.InternalValue);
 			return z;
 		}
 
 		public BigInt RemoveFactor(BigInt factor, out int count)
 		{
 			BigInt z = new BigInt();
-			count = (int)__gmpz_remove(ref z.InternalValue, ref this.InternalValue, ref factor.InternalValue);
+			count = (int)__gmpz_remove(ref z.InternalValue, ref InternalValue, ref factor.InternalValue);
 			return z;
 		}
 
@@ -2106,7 +2103,7 @@ namespace Emil.GMP
 
 		public int CountOnes()
 		{
-			return (int)__gmpz_popcount(ref this.InternalValue);
+			return (int)__gmpz_popcount(ref InternalValue);
 		}
 
 		public int HammingDistance(BigInt x, BigInt y)
@@ -2122,7 +2119,7 @@ namespace Emil.GMP
 					throw new ArgumentOutOfRangeException();
 
 				// Note that the result might be uint.MaxValue in which case it gets cast to -1, which is what is intended.
-				return (int)__gmpz_scan0(ref this.InternalValue, (uint)startingIndex);
+				return (int)__gmpz_scan0(ref InternalValue, (uint)startingIndex);
 			}
 		}
 
@@ -2134,7 +2131,7 @@ namespace Emil.GMP
 					throw new ArgumentOutOfRangeException();
 
 				// Note that the result might be uint.MaxValue in which case it gets cast to -1, which is what is intended.
-				return (int)__gmpz_scan1(ref this.InternalValue, (uint)startingIndex);
+				return (int)__gmpz_scan1(ref InternalValue, (uint)startingIndex);
 			}
 		}
 
@@ -2146,10 +2143,10 @@ namespace Emil.GMP
 		{
 			uint hash = 0;
 
-			int chunkCount = this.InternalValue.ChunkCount;
+			int chunkCount = InternalValue.ChunkCount;
 			chunkCount = chunkCount >= 0 ? chunkCount : -chunkCount;
 
-			uint* data = this.InternalValue.Data;
+			uint* data = InternalValue.Data;
 			uint* end = data + chunkCount;
 
 			uint* p = data;
@@ -2164,7 +2161,7 @@ namespace Emil.GMP
 
 		public bool Equals(BigInt other)
 		{
-			if(object.ReferenceEquals(other, null))
+			if(ReferenceEquals(other, null))
 				return false;
 
 			return Compare(this, other) == 0;
@@ -2172,12 +2169,12 @@ namespace Emil.GMP
 
 		public override bool Equals(object obj)
 		{
-			if(object.ReferenceEquals(obj, null))
+			if(ReferenceEquals(obj, null))
 				return false;
 
 			BigInt objAsBigInt = obj as BigInt;
 
-			if(object.ReferenceEquals(objAsBigInt, null))
+			if(ReferenceEquals(objAsBigInt, null))
 			{
 				if(obj is int)
 					return this == (int)obj;
@@ -2205,42 +2202,42 @@ namespace Emil.GMP
 				return false;
 			}
 
-			return this.CompareTo(objAsBigInt) == 0;
+			return CompareTo(objAsBigInt) == 0;
 		}
 
 		public bool Equals(int other)
 		{
-			return this.CompareTo(other) == 0;
+			return CompareTo(other) == 0;
 		}
 
 		public bool Equals(uint other)
 		{
-			return this.CompareTo(other) == 0;
+			return CompareTo(other) == 0;
 		}
 
 		public bool Equals(long other)
 		{
-			return this.CompareTo(other) == 0;
+			return CompareTo(other) == 0;
 		}
 
 		public bool Equals(ulong other)
 		{
-			return this.CompareTo(other) == 0;
+			return CompareTo(other) == 0;
 		}
 
 		public bool Equals(double other)
 		{
-			return this.CompareTo(other) == 0;
+			return CompareTo(other) == 0;
 		}
 
 		public bool Equals(decimal other)
 		{
-			return this.CompareTo(other) == 0;
+			return CompareTo(other) == 0;
 		}
 
 		public bool EqualsMod(BigInt x, BigInt mod)
 		{
-			return __gmpz_congruent_p(ref this.InternalValue, ref x.InternalValue, ref mod.InternalValue) != 0;
+			return __gmpz_congruent_p(ref InternalValue, ref x.InternalValue, ref mod.InternalValue) != 0;
 		}
 
 		public bool EqualsMod(int x, int mod)
@@ -2250,24 +2247,24 @@ namespace Emil.GMP
 
 			if(x >= 0)
 			{
-				return __gmpz_congruent_ui_p(ref this.InternalValue, (uint)x, (uint)mod) != 0;
+				return __gmpz_congruent_ui_p(ref InternalValue, (uint)x, (uint)mod) != 0;
 			}
 			else
 			{
 				uint xAsUint = (uint)((x % mod) + mod);
-				return __gmpz_congruent_ui_p(ref this.InternalValue, xAsUint, (uint)mod) != 0;
+				return __gmpz_congruent_ui_p(ref InternalValue, xAsUint, (uint)mod) != 0;
 			}
 		}
 
 		public bool EqualsMod(uint x, uint mod)
 		{
-			return __gmpz_congruent_ui_p(ref this.InternalValue, x, mod) != 0;
+			return __gmpz_congruent_ui_p(ref InternalValue, x, mod) != 0;
 		}
 
 		public static bool operator ==(BigInt x, BigInt y)
 		{
-			bool xNull = object.ReferenceEquals(x, null);
-			bool yNull = object.ReferenceEquals(y, null);
+			bool xNull = ReferenceEquals(x, null);
+			bool yNull = ReferenceEquals(y, null);
 
 			if(xNull || yNull)
 				return xNull && yNull;
@@ -2277,7 +2274,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(int x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return false;
 
 			if(x == 0)
@@ -2288,7 +2285,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(BigInt x, int y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return false;
 
 			if(y == 0)
@@ -2299,7 +2296,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(uint x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return false;
 
 			if(x == 0)
@@ -2310,7 +2307,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(BigInt x, uint y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return false;
 
 			if(y == 0)
@@ -2322,7 +2319,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly.
 		public static bool operator ==(long x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return false;
 
 			if(x == 0)
@@ -2334,7 +2331,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly.
 		public static bool operator ==(BigInt x, long y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return false;
 
 			if(y == 0)
@@ -2346,7 +2343,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly.
 		public static bool operator ==(ulong x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return false;
 
 			if(x == 0)
@@ -2358,7 +2355,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly.
 		public static bool operator ==(BigInt x, ulong y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return false;
 
 			if(y == 0)
@@ -2369,7 +2366,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(float x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return false;
 
 			if(x == 0)
@@ -2380,7 +2377,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(BigInt x, float y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return false;
 
 			if(y == 0)
@@ -2391,7 +2388,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(double x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return false;
 
 			if(x == 0)
@@ -2402,7 +2399,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(BigInt x, double y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return false;
 
 			if(y == 0)
@@ -2413,7 +2410,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(decimal x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return false;
 
 			if(x == 0)
@@ -2424,7 +2421,7 @@ namespace Emil.GMP
 
 		public static bool operator ==(BigInt x, decimal y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return false;
 
 			if(y == 0)
@@ -2435,8 +2432,8 @@ namespace Emil.GMP
 
 		public static bool operator !=(BigInt x, BigInt y)
 		{
-			bool xNull = object.ReferenceEquals(x, null);
-			bool yNull = object.ReferenceEquals(y, null);
+			bool xNull = ReferenceEquals(x, null);
+			bool yNull = ReferenceEquals(y, null);
 
 			if(xNull || yNull)
 				return !(xNull && yNull);
@@ -2446,7 +2443,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(int x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return true;
 
 			if(x == 0)
@@ -2457,7 +2454,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(BigInt x, int y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return true;
 
 			if(y == 0)
@@ -2468,7 +2465,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(uint x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return true;
 
 			if(x == 0)
@@ -2479,7 +2476,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(BigInt x, uint y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return true;
 
 			if(y == 0)
@@ -2491,7 +2488,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly
 		public static bool operator !=(long x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return true;
 
 			if(x == 0)
@@ -2503,7 +2500,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly
 		public static bool operator !=(BigInt x, long y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return true;
 
 			if(y == 0)
@@ -2515,7 +2512,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly
 		public static bool operator !=(ulong x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return true;
 
 			if(x == 0)
@@ -2527,7 +2524,7 @@ namespace Emil.GMP
 		// TODO: Optimize this by accessing memory directly
 		public static bool operator !=(BigInt x, ulong y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return true;
 
 			if(y == 0)
@@ -2538,7 +2535,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(float x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return true;
 
 			if(x == 0)
@@ -2549,7 +2546,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(BigInt x, float y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return true;
 
 			if(y == 0)
@@ -2560,7 +2557,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(double x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return true;
 
 			if(x == 0)
@@ -2571,7 +2568,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(BigInt x, double y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return true;
 
 			if(y == 0)
@@ -2582,7 +2579,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(decimal x, BigInt y)
 		{
-			if(object.ReferenceEquals(y, null))
+			if(ReferenceEquals(y, null))
 				return true;
 
 			if(x == 0)
@@ -2593,7 +2590,7 @@ namespace Emil.GMP
 
 		public static bool operator !=(BigInt x, decimal y)
 		{
-			if(object.ReferenceEquals(x, null))
+			if(ReferenceEquals(x, null))
 				return true;
 
 			if(y == 0)
@@ -2606,192 +2603,192 @@ namespace Emil.GMP
 		{
 			BigInt objAsBigInt = obj as BigInt;
 
-			if(object.ReferenceEquals(objAsBigInt, null))
+			if(ReferenceEquals(objAsBigInt, null))
 			{
 				if(obj is int)
-					return this.CompareTo((int)obj);
+					return CompareTo((int)obj);
 				else if(obj is uint)
-					return this.CompareTo((uint)obj);
+					return CompareTo((uint)obj);
 				else if(obj is long)
-					return this.CompareTo((long)obj);
+					return CompareTo((long)obj);
 				else if(obj is ulong)
-					return this.CompareTo((ulong)obj);
+					return CompareTo((ulong)obj);
 				else if(obj is double)
-					return this.CompareTo((double)obj);
+					return CompareTo((double)obj);
 				else if(obj is float)
-					return this.CompareTo((float)obj);
+					return CompareTo((float)obj);
 				else if(obj is short)
-					return this.CompareTo((short)obj);
+					return CompareTo((short)obj);
 				else if(obj is ushort)
-					return this.CompareTo((ushort)obj);
+					return CompareTo((ushort)obj);
 				else if(obj is byte)
-					return this.CompareTo((byte)obj);
+					return CompareTo((byte)obj);
 				else if(obj is sbyte)
-					return this.CompareTo((sbyte)obj);
+					return CompareTo((sbyte)obj);
 				else if(obj is decimal)
-					return this.CompareTo((decimal)obj);
+					return CompareTo((decimal)obj);
 				else if(obj is string)
-					return this.CompareTo(new BigInt(obj as string));
+					return CompareTo(new BigInt(obj as string));
 				else
 					throw new ArgumentException("Cannot compare to " + obj.GetType());
 			}
 
-			return this.CompareTo(objAsBigInt);
+			return CompareTo(objAsBigInt);
 		}
 
 		public int CompareTo(BigInt other)
 		{
-			return __gmpz_cmp(ref this.InternalValue, ref other.InternalValue);
+			return __gmpz_cmp(ref InternalValue, ref other.InternalValue);
 		}
 
 		public int CompareTo(int other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount;
+				return InternalValue.ChunkCount;
 
-			return __gmpz_cmp_si(ref this.InternalValue, other);
+			return __gmpz_cmp_si(ref InternalValue, other);
 		}
 
 		public int CompareTo(uint other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount;
+				return InternalValue.ChunkCount;
 
-			return __gmpz_cmp_ui(ref this.InternalValue, other);
+			return __gmpz_cmp_ui(ref InternalValue, other);
 		}
 
 		// TODO: Optimize by accessing the memory directly
 		public int CompareTo(long other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount;
+				return InternalValue.ChunkCount;
 
-			return this.CompareTo((BigInt)other);
+			return CompareTo((BigInt)other);
 		}
 
 		// TODO: Optimize by accessing the memory directly
 		public int CompareTo(ulong other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount;
+				return InternalValue.ChunkCount;
 
-			return this.CompareTo((BigInt)other);
+			return CompareTo((BigInt)other);
 		}
 
 		public int CompareTo(float other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount;
+				return InternalValue.ChunkCount;
 
-			return __gmpz_cmp_d(ref this.InternalValue, (double)other);
+			return __gmpz_cmp_d(ref InternalValue, other);
 		}
 
 		public int CompareTo(double other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount;
+				return InternalValue.ChunkCount;
 
-			return __gmpz_cmp_d(ref this.InternalValue, other);
+			return __gmpz_cmp_d(ref InternalValue, other);
 		}
 
 		public int CompareTo(decimal other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount;
+				return InternalValue.ChunkCount;
 
-			return __gmpz_cmp_d(ref this.InternalValue, (double)other);
+			return __gmpz_cmp_d(ref InternalValue, (double)other);
 		}
 
 		public int CompareAbsTo(object obj)
 		{
 			BigInt objAsBigInt = obj as BigInt;
 
-			if(object.ReferenceEquals(objAsBigInt, null))
+			if(ReferenceEquals(objAsBigInt, null))
 			{
 				if(obj is int)
-					return this.CompareAbsTo((int)obj);
+					return CompareAbsTo((int)obj);
 				else if(obj is uint)
-					return this.CompareAbsTo((uint)obj);
+					return CompareAbsTo((uint)obj);
 				else if(obj is long)
-					return this.CompareAbsTo((long)obj);
+					return CompareAbsTo((long)obj);
 				else if(obj is ulong)
-					return this.CompareAbsTo((ulong)obj);
+					return CompareAbsTo((ulong)obj);
 				else if(obj is double)
-					return this.CompareAbsTo((double)obj);
+					return CompareAbsTo((double)obj);
 				else if(obj is float)
-					return this.CompareAbsTo((float)obj);
+					return CompareAbsTo((float)obj);
 				else if(obj is short)
-					return this.CompareAbsTo((short)obj);
+					return CompareAbsTo((short)obj);
 				else if(obj is ushort)
-					return this.CompareAbsTo((ushort)obj);
+					return CompareAbsTo((ushort)obj);
 				else if(obj is byte)
-					return this.CompareAbsTo((byte)obj);
+					return CompareAbsTo((byte)obj);
 				else if(obj is sbyte)
-					return this.CompareAbsTo((sbyte)obj);
+					return CompareAbsTo((sbyte)obj);
 				else if(obj is decimal)
-					return this.CompareAbsTo((decimal)obj);
+					return CompareAbsTo((decimal)obj);
 				else if(obj is string)
-					return this.CompareAbsTo(new BigInt(obj as string));
+					return CompareAbsTo(new BigInt(obj as string));
 				else
 					throw new ArgumentException("Cannot compare to " + obj.GetType());
 			}
 
-			return this.CompareAbsTo(objAsBigInt);
+			return CompareAbsTo(objAsBigInt);
 		}
 
 		public int CompareAbsTo(BigInt other)
 		{
-			return __gmpz_cmpabs(ref this.InternalValue, ref other.InternalValue);
+			return __gmpz_cmpabs(ref InternalValue, ref other.InternalValue);
 		}
 
 		public int CompareAbsTo(int other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount == 0 ? 0 : 1;
+				return InternalValue.ChunkCount == 0 ? 0 : 1;
 
-			return __gmpz_cmpabs_ui(ref this.InternalValue, (uint)other);
+			return __gmpz_cmpabs_ui(ref InternalValue, (uint)other);
 		}
 
 		public int CompareAbsTo(uint other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount == 0 ? 0 : 1;
+				return InternalValue.ChunkCount == 0 ? 0 : 1;
 
-			return __gmpz_cmpabs_ui(ref this.InternalValue, other);
+			return __gmpz_cmpabs_ui(ref InternalValue, other);
 		}
 
 		// TODO: Optimize by accessing the memory directly
 		public int CompareAbsTo(long other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount == 0 ? 0 : 1;
+				return InternalValue.ChunkCount == 0 ? 0 : 1;
 
-			return this.CompareTo((BigInt)other);
+			return CompareTo((BigInt)other);
 		}
 
 		// TODO: Optimize by accessing the memory directly
 		public int CompareAbsTo(ulong other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount == 0 ? 0 : 1;
+				return InternalValue.ChunkCount == 0 ? 0 : 1;
 
-			return this.CompareTo((BigInt)other);
+			return CompareTo((BigInt)other);
 		}
 
 		public int CompareAbsTo(double other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount == 0 ? 0 : 1;
+				return InternalValue.ChunkCount == 0 ? 0 : 1;
 
-			return __gmpz_cmpabs_d(ref this.InternalValue, other);
+			return __gmpz_cmpabs_d(ref InternalValue, other);
 		}
 
 		public int CompareAbsTo(decimal other)
 		{
 			if(other == 0)
-				return this.InternalValue.ChunkCount == 0 ? 0 : 1;
+				return InternalValue.ChunkCount == 0 ? 0 : 1;
 
-			return __gmpz_cmpabs_d(ref this.InternalValue, (double)other);
+			return __gmpz_cmpabs_d(ref InternalValue, (double)other);
 		}
 
 		public static int Compare(BigInt x, object y)
@@ -2960,23 +2957,23 @@ namespace Emil.GMP
 				switch(value)
 				{
 					case 0:
-						return BigInt.Zero;
+						return Zero;
 					case 1:
-						return BigInt.One;
+						return One;
 					case 2:
-						return BigInt.Two;
+						return Two;
 					case 3:
-						return BigInt.Three;
+						return Three;
 					case 10:
-						return BigInt.Ten;
+						return Ten;
 					case -1:
-						return BigInt.NegativeOne;
+						return NegativeOne;
 					case -2:
-						return BigInt.NegativeTwo;
+						return NegativeTwo;
 					case -3:
-						return BigInt.Three;
+						return Three;
 					case -10:
-						return BigInt.NegativeTen;
+						return NegativeTen;
 				}
 			}
 
@@ -2990,13 +2987,13 @@ namespace Emil.GMP
 				switch(value)
 				{
 					case 0:
-						return BigInt.Zero;
+						return Zero;
 					case 1:
-						return BigInt.One;
+						return One;
 					case 2:
-						return BigInt.Two;
+						return Two;
 					case 10:
-						return BigInt.Ten;
+						return Ten;
 				}
 			}
 
@@ -3086,12 +3083,12 @@ namespace Emil.GMP
 				else if(chunkCount > 0)
 				{
 					data = value.InternalValue.Data;
-					return (uint)data[0];
+					return data[0];
 				}
 				else
 				{
 					data = value.InternalValue.Data;
-					return 0U - (uint)data[0];
+					return 0U - data[0];
 				}
 			}
 		}
@@ -3123,12 +3120,12 @@ namespace Emil.GMP
 					if(chunkCount == 1)
 					{
 						data = value.InternalValue.Data;
-						return (long)data[0];
+						return data[0];
 					}
 					else
 					{
 						data = value.InternalValue.Data;
-						return (long)((ulong)data[0] | (((ulong)data[1]) << 32));
+						return (long)(data[0] | (((ulong)data[1]) << 32));
 					}
 				}
 				else // chunkCount < 0
@@ -3136,12 +3133,12 @@ namespace Emil.GMP
 					if(chunkCount == -1)
 					{
 						data = value.InternalValue.Data;
-						return -(long)data[0];
+						return -data[0];
 					}
 					else
 					{
 						data = value.InternalValue.Data;
-						return -(long)((ulong)data[0] | (((ulong)data[1]) << 32));
+						return -(long)(data[0] | (((ulong)data[1]) << 32));
 					}
 				}
 			}
@@ -3163,12 +3160,12 @@ namespace Emil.GMP
 					if(size == 1)
 					{
 						data = value.InternalValue.Data;
-						return (ulong)data[0];
+						return data[0];
 					}
 					else
 					{
 						data = value.InternalValue.Data;
-						return ((ulong)data[0] | (((ulong)data[1]) << 32));
+						return data[0] | (((ulong)data[1]) << 32);
 					}
 				}
 				else
@@ -3176,12 +3173,12 @@ namespace Emil.GMP
 					if(size == -1)
 					{
 						data = value.InternalValue.Data;
-						return 0UL - (ulong)data[0];
+						return 0UL - data[0];
 					}
 					else
 					{
 						data = value.InternalValue.Data;
-						return 0UL - ((ulong)data[0] | (((ulong)data[1]) << 32));
+						return 0UL - (data[0] | (((ulong)data[1]) << 32));
 					}
 				}
 			}
@@ -3213,7 +3210,7 @@ namespace Emil.GMP
 
 		object ICloneable.Clone()
 		{
-			return this.Clone();
+			return Clone();
 		}
 
 		public BigInt Clone()
@@ -3229,17 +3226,17 @@ namespace Emil.GMP
 		{
 			byte[] data;
 
-			if(this.InternalValue.ChunkCount == 0)
+			if(InternalValue.ChunkCount == 0)
 			{
 				data = new byte[0];
 			}
 			else
 			{
-				uint size = (__gmpz_sizeinbase(ref this.InternalValue, 2) + 8 - 1) / 8;
+				uint size = (__gmpz_sizeinbase(ref InternalValue, 2) + 8 - 1) / 8;
 				data = new byte[size];
 
 				fixed(byte* dataPtr = data)
-					__gmpz_export(dataPtr, null, -1, sizeof(byte), 0, 0, ref this.InternalValue);
+					__gmpz_export(dataPtr, null, -1, sizeof(byte), 0, 0, ref InternalValue);
 			}
 
 			return data;
@@ -3247,7 +3244,7 @@ namespace Emil.GMP
 
 		public byte[] ToByteArray(out int sign)
 		{
-			int chunkCount = this.InternalValue.ChunkCount;
+			int chunkCount = InternalValue.ChunkCount;
 
 			byte[] data;
 
@@ -3258,21 +3255,21 @@ namespace Emil.GMP
 			}
 			else if(chunkCount > 0)
 			{
-				uint size = (__gmpz_sizeinbase(ref this.InternalValue, 2) + 8 - 1) / 8;
+				uint size = (__gmpz_sizeinbase(ref InternalValue, 2) + 8 - 1) / 8;
 				data = new byte[size];
 
 				fixed(byte* dataPtr = data)
-					__gmpz_export(dataPtr, null, -1, sizeof(byte), 0, 0, ref this.InternalValue);
+					__gmpz_export(dataPtr, null, -1, sizeof(byte), 0, 0, ref InternalValue);
 
 				sign = 1;
 			}
 			else
 			{
-				uint size = (__gmpz_sizeinbase(ref this.InternalValue, 2) + 8 - 1) / 8;
+				uint size = (__gmpz_sizeinbase(ref InternalValue, 2) + 8 - 1) / 8;
 				data = new byte[size];
 
 				fixed(byte* dataPtr = data)
-					__gmpz_export(dataPtr, null, -1, sizeof(byte), 0, 0, ref this.InternalValue);
+					__gmpz_export(dataPtr, null, -1, sizeof(byte), 0, 0, ref InternalValue);
 
 				sign = -1;
 			}
@@ -3284,17 +3281,17 @@ namespace Emil.GMP
 		{
 			uint[] data;
 
-			if(this.InternalValue.ChunkCount == 0)
+			if(InternalValue.ChunkCount == 0)
 			{
 				data = new uint[0];
 			}
 			else
 			{
-				uint size = (__gmpz_sizeinbase(ref this.InternalValue, 2) + 32 - 1) / 32;
+				uint size = (__gmpz_sizeinbase(ref InternalValue, 2) + 32 - 1) / 32;
 				data = new uint[size];
 
 				fixed(uint* dataPtr = data)
-					__gmpz_export(dataPtr, null, -1, sizeof(uint), 0, 0, ref this.InternalValue);
+					__gmpz_export(dataPtr, null, -1, sizeof(uint), 0, 0, ref InternalValue);
 			}
 
 			return data;
@@ -3302,7 +3299,7 @@ namespace Emil.GMP
 
 		public uint[] ToUIntArray(out int sign)
 		{
-			int chunkCount = this.InternalValue.ChunkCount;
+			int chunkCount = InternalValue.ChunkCount;
 
 			uint[] data;
 
@@ -3313,13 +3310,13 @@ namespace Emil.GMP
 			}
 			else if(chunkCount > 0)
 			{
-				uint size = (__gmpz_sizeinbase(ref this.InternalValue, 2) + 32 - 1) / 32;
+				uint size = (__gmpz_sizeinbase(ref InternalValue, 2) + 32 - 1) / 32;
 				data = new uint[size];
 
 				uint countp = 0;
 
 				fixed(uint* dataPtr = data)
-					__gmpz_export(dataPtr, &countp, -1, sizeof(uint), 0, 0, ref this.InternalValue);
+					__gmpz_export(dataPtr, &countp, -1, sizeof(uint), 0, 0, ref InternalValue);
 
 				Debug.Assert(countp == size, "countp = " + countp + ", size = " + size);
 
@@ -3327,13 +3324,13 @@ namespace Emil.GMP
 			}
 			else
 			{
-				uint size = (__gmpz_sizeinbase(ref this.InternalValue, 2) + 32 - 1) / 32;
+				uint size = (__gmpz_sizeinbase(ref InternalValue, 2) + 32 - 1) / 32;
 				data = new uint[size];
 
 				uint countp = 0;
 
 				fixed(uint* dataPtr = data)
-					__gmpz_export(dataPtr, &countp, -1, sizeof(uint), 0, 0, ref this.InternalValue);
+					__gmpz_export(dataPtr, &countp, -1, sizeof(uint), 0, 0, ref InternalValue);
 
 				Debug.Assert(countp == size, "countp = " + countp + ", size = " + size);
 
@@ -3353,11 +3350,11 @@ namespace Emil.GMP
 			if(@base > -2 && @base < 2 || @base > 62 || @base < -36)
 				throw new ArgumentOutOfRangeException();
 
-			int sizeInBase = (int)__gmpz_sizeinbase(ref this.InternalValue, @base);
+			int sizeInBase = (int)__gmpz_sizeinbase(ref InternalValue, @base);
 
 			StringBuilder s = new StringBuilder(sizeInBase + 2);
 			int baseParameter = (@base > 0 && @base <= 36) ? -@base : @base;
-			__gmpz_get_str(s, baseParameter, ref this.InternalValue);
+			__gmpz_get_str(s, baseParameter, ref InternalValue);
 
 			return s.ToString();
 		}
@@ -3426,7 +3423,7 @@ namespace Emil.GMP
 
 		string IConvertible.ToString(IFormatProvider provider)
 		{
-			return this.ToString();
+			return ToString();
 		}
 
 		object IConvertible.ToType(Type targetType, IFormatProvider provider)

@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Items
 
@@ -1016,7 +1015,7 @@ Public Module WS_Items
                     If ((client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) = UnitFlags.UNIT_FLAG_IN_COMBAT) _
                         Then
                         If _
-                            (CType(SPELLs(itemInfo.Spells(i).SpellID), SpellInfo).Attributes And
+                            (SPELLs(itemInfo.Spells(i).SpellID).Attributes And
                              SpellAttributes.SPELL_ATTR_NOT_WHILE_COMBAT) Then
                             SendInventoryChangeFailure(client.Character,
                                                        InventoryChangeFailure.EQUIP_ERR_CANT_DO_IN_COMBAT, itemGuid, 0)

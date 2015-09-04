@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Pets
 
@@ -71,7 +69,7 @@ Public Module WS_Pets
         End Sub
 
         Public Sub Spawn()
-            Me.AddToWorld()
+            AddToWorld()
 
             If TypeOf Owner Is CharacterObject Then
                 CType(Owner, CharacterObject).GroupUpdateFlag = CType(Owner, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_PET
@@ -81,7 +79,7 @@ Public Module WS_Pets
         End Sub
 
         Public Sub Hide()
-            Me.RemoveFromWorld()
+            RemoveFromWorld()
 
             If Not TypeOf Owner Is CharacterObject Then Exit Sub
 
@@ -209,7 +207,7 @@ Public Module WS_Pets
         If PetQuery.Rows.Count = 0 Then Exit Sub
         Dim PetInfo As DataRow = PetQuery.Rows(0)
 
-        objCharacter.Pet = New PetObject(CULng(PetInfo.Item("id")) + GUID_PET, CInt(PetInfo.Item("entry")))
+        objCharacter.Pet = New PetObject(CULng(PetInfo.Item("id")) + GUID_PET, PetInfo.Item("entry"))
         objCharacter.Pet.Owner = objCharacter
         objCharacter.Pet.SummonedBy = objCharacter.GUID
         objCharacter.Pet.CreatedBy = objCharacter.GUID

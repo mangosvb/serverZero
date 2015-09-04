@@ -16,21 +16,19 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.Global_Constants
 
 Public Module WS_PlayerHelper
 
     Public Class TSkill
-        Private _Current As Int16 = 0
-        Public Bonus As Int16 = 0
-        Public Base As Int16 = 300
-        Public Sub New(ByVal CurrentVal As Int16, Optional ByVal MaximumVal As Int16 = 375)
+        Private _Current As Short = 0
+        Public Bonus As Short = 0
+        Public Base As Short = 300
+        Public Sub New(ByVal CurrentVal As Short, Optional ByVal MaximumVal As Short = 375)
             Current = CurrentVal
             Base = MaximumVal
         End Sub
 
-        Public Sub Increment(Optional ByVal Incrementator As Int16 = 1)
+        Public Sub Increment(Optional ByVal Incrementator As Short = 1)
             If (Current + Incrementator) < Base Then
                 Current = Current + Incrementator
             Else
@@ -50,16 +48,16 @@ Public Module WS_PlayerHelper
             End Get
         End Property
 
-        Public Property Current() As Int16
+        Public Property Current() As Short
             Get
                 Return _Current
             End Get
-            Set(ByVal Value As Int16)
+            Set(ByVal Value As Short)
                 If Value <= Maximum Then _Current = Value
             End Set
         End Property
 
-        Public ReadOnly Property CurrentWithBonus() As Int16
+        Public ReadOnly Property CurrentWithBonus() As Short
             Get
                 Return _Current + Bonus
             End Get
@@ -67,7 +65,7 @@ Public Module WS_PlayerHelper
 
         Public ReadOnly Property GetSkill() As Integer
             Get
-                Return CType((_Current + (CType(Base + Bonus, Integer) << 16)), Integer)
+                Return _Current + (CType(Base + Bonus, Integer) << 16)
             End Get
         End Property
     End Class
@@ -102,7 +100,7 @@ Public Module WS_PlayerHelper
                 Return _Current * Modifier
             End Get
             Set(ByVal Value As Integer)
-                If Value <= Me.Maximum Then _Current = Value Else _Current = Me.Maximum
+                If Value <= Maximum Then _Current = Value Else _Current = Maximum
                 If _Current < 0 Then _Current = 0
             End Set
         End Property
@@ -270,7 +268,7 @@ Public Module WS_PlayerHelper
         Public Sub Repop(ByVal Obj As Object)
             CharacterRepop(Character.client)
             Character.repopTimer = Nothing
-            Me.Dispose()
+            Dispose()
         End Sub
 
 #Region "IDisposable Support"
@@ -504,14 +502,14 @@ Public Module WS_PlayerHelper
 
     Public Sub InitializeTalentSpells(ByVal objCharacter As CharacterObject)
         Dim t As New SpellTargets
-        t.SetTarget_SELF(CType(objCharacter, CharacterObject))
+        t.SetTarget_SELF(objCharacter)
 
         For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In objCharacter.Spells
             If SPELLs.ContainsKey(Spell.Key) AndAlso (SPELLs(Spell.Key).IsPassive) Then
                 'DONE: Add passive spell we don't have
                 'DONE: Remove passive spells we can't have anymore
                 If objCharacter.HavePassiveAura(Spell.Key) = False AndAlso SPELLs(Spell.Key).CanCast(objCharacter, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
-                    SPELLs(Spell.Key).Apply(CType(objCharacter, CharacterObject), t)
+                    SPELLs(Spell.Key).Apply(objCharacter, t)
                 ElseIf objCharacter.HavePassiveAura(Spell.Key) AndAlso SPELLs(Spell.Key).CanCast(objCharacter, t, False) <> SpellFailedReason.SPELL_NO_ERROR Then
                     objCharacter.RemoveAuraBySpell(Spell.Key)
                 End If

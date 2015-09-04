@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Transports
     Private Function GetNewGUID() As ULong
@@ -156,7 +154,7 @@ Public Module WS_Transports
 
         Public Function GenerateWaypoints() As Boolean
             Dim PathID As Integer = Sound(0)
-            Dim ShipSpeed As Single = CSng(Sound(1))
+            Dim ShipSpeed As Single = Sound(1)
             If TaxiPaths.ContainsKey(PathID) = False Then
                 Log.WriteLine(LogType.CRITICAL, "An transport [{0} - {1}] is created with an invalid TaxiPath.", ID, TransportName)
                 Return False
@@ -583,7 +581,7 @@ Public Module WS_Transports
 
         Public Overrides Sub FillAllUpdateFlags(ByRef Update As UpdateClass, ByRef Character As CharacterObject)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
-            Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, CType(ObjectType.TYPE_GAMEOBJECT + ObjectType.TYPE_OBJECT, Integer))
+            Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, ObjectType.TYPE_GAMEOBJECT + ObjectType.TYPE_OBJECT)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_ENTRY, ID)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Size)
 

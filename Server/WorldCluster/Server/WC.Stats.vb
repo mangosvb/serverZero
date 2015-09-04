@@ -20,7 +20,6 @@ Imports System.Xml
 Imports System.Reflection
 Imports System.Threading
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WC_Stats
 
@@ -117,7 +116,7 @@ Public Module WC_Stats
 
         Dim f As XmlWriter = XmlWriter.Create(Config.StatsLocation)
         f.WriteStartDocument(True)
-        f.WriteComment("generated at " & DateTime.Now.ToString("hh:mm:ss"))
+        f.WriteComment("generated at " & Date.Now.ToString("hh:mm:ss"))
         '<?xml-stylesheet type="text/xsl" href="stats.xsl"?>
         f.WriteProcessingInstruction("xml-stylesheet", "type=""text/xsl"" href=""stats.xsl""")
         '<server>

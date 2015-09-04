@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Misc
 
@@ -96,9 +95,9 @@ Public Module WS_Handlers_Misc
                         Try
                             SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
                             SMSG_NAME_QUERY_RESPONSE.AddString(CType(MySQLQuery.Rows(0).Item("char_name"), String))
-                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_race"), Integer))
-                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_gender"), Integer))
-                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CType(MySQLQuery.Rows(0).Item("char_class"), Integer))
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(MySQLQuery.Rows(0).Item("char_race"))
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(MySQLQuery.Rows(0).Item("char_gender"))
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(MySQLQuery.Rows(0).Item("char_class"))
                             client.Send(SMSG_NAME_QUERY_RESPONSE)
                         Finally
                             SMSG_NAME_QUERY_RESPONSE.Dispose()
@@ -117,7 +116,7 @@ Public Module WS_Handlers_Misc
                 If WORLD_CREATUREs.ContainsKey(GUID) Then
                     Try
                         SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                        SMSG_NAME_QUERY_RESPONSE.AddString(CType(WORLD_CREATUREs(GUID), CreatureObject).Name)
+                        SMSG_NAME_QUERY_RESPONSE.AddString(WORLD_CREATUREs(GUID).Name)
                         SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
                         SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
                         SMSG_NAME_QUERY_RESPONSE.AddInt32(0)

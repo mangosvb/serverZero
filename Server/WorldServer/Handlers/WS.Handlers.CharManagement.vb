@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 #Region "WS.CharMangment.Handlers"
 Public Module CharManagementHandler
@@ -82,7 +81,7 @@ Public Module CharManagementHandler
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, client.Character.cBytes1)
 
                 'DONE: Send packet
-                UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, CType(client.Character, CharacterObject))
+                UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, (client.Character))
                 client.Character.SendToNearPlayers(SMSG_UPDATE_OBJECT)
             Finally
                 SMSG_UPDATE_OBJECT.Dispose()
@@ -148,7 +147,7 @@ Public Module CharManagementHandler
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, client.Character.cBytes1)
 
                 'DONE: Send packet
-                UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, CType(client.Character, CharacterObject))
+                UpdateData.AddToPacket(SMSG_UPDATE_OBJECT, ObjectUpdateType.UPDATETYPE_VALUES, (client.Character))
                 client.Send(SMSG_UPDATE_OBJECT)
             Finally
                 SMSG_UPDATE_OBJECT.Dispose()

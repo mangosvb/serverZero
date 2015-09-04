@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
 
 Public Module WS_Spells
@@ -175,7 +173,7 @@ Public Module WS_Spells
 
         Public ReadOnly Property IsPassive() As Boolean
             Get
-                Return (Me.Attributes And SpellAttributes.SPELL_ATTR_PASSIVE) AndAlso ((Me.AttributesEx And SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE) = 0)
+                Return (Attributes And SpellAttributes.SPELL_ATTR_PASSIVE) AndAlso ((AttributesEx And SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE) = 0)
             End Get
         End Property
 
@@ -184,25 +182,25 @@ Public Module WS_Spells
                 For i As Byte = 0 To 2
                     If SpellEffects(i) IsNot Nothing AndAlso SpellEffects(i).IsNegative Then Return True
                 Next
-                Return (Me.AttributesEx And SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE)
+                Return (AttributesEx And SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE)
             End Get
         End Property
 
         Public ReadOnly Property IsAutoRepeat() As Boolean
             Get
-                Return (Me.AttributesEx2 And SpellAttributesEx2.SPELL_ATTR_EX2_AUTO_SHOOT)
+                Return (AttributesEx2 And SpellAttributesEx2.SPELL_ATTR_EX2_AUTO_SHOOT)
             End Get
         End Property
 
         Public ReadOnly Property IsRanged() As Boolean
             Get
-                Return (Me.DamageType = SpellDamageType.SPELL_DMG_TYPE_RANGED)
+                Return (DamageType = SpellDamageType.SPELL_DMG_TYPE_RANGED)
             End Get
         End Property
 
         Public ReadOnly Property IsMelee() As Boolean
             Get
-                Return (Me.DamageType = SpellDamageType.SPELL_DMG_TYPE_MELEE)
+                Return (DamageType = SpellDamageType.SPELL_DMG_TYPE_MELEE)
             End Get
         End Property
 
@@ -510,7 +508,7 @@ Public Module WS_Spells
                 castParams.Stopped = False
                 If TypeOf Caster Is CreatureObject Then
                     If Targets.unitTarget IsNot Nothing Then
-                        CType(Caster, CreatureObject).TurnTo(CType(Targets.unitTarget, BaseUnit))
+                        CType(Caster, CreatureObject).TurnTo((Targets.unitTarget))
                     ElseIf (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
                         CType(Caster, CreatureObject).TurnTo(Targets.dstX, Targets.dstY)
                     End If
@@ -552,7 +550,7 @@ Public Module WS_Spells
                     If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) AndAlso Targets.unitTarget IsNot Nothing Then SpellDistance = GetDistance(Caster, Targets.unitTarget)
                     If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) AndAlso (Targets.dstX <> 0 OrElse Targets.dstY <> 0 OrElse Targets.dstZ <> 0) Then SpellDistance = GetDistance(Caster, Targets.dstX, Targets.dstY, Targets.dstZ)
                     If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_OBJECT) AndAlso Targets.goTarget IsNot Nothing Then SpellDistance = GetDistance(Caster, Targets.goTarget)
-                    If SpellDistance > 0 Then SpellTime = CInt(Fix(SpellDistance / Speed * 1000))
+                    If SpellDistance > 0 Then SpellTime = Fix(SpellDistance / Speed * 1000)
                 End If
 
                 'DONE: Do one more control to see if you still can cast the spell (only if it's not instant)
@@ -560,7 +558,7 @@ Public Module WS_Spells
                 If (castParams.InstantCast = False OrElse GetCastTime = 0) AndAlso TypeOf Caster Is CharacterObject Then
                     SpellCastError = CanCast(CType(Caster, CharacterObject), Targets, False)
                     If SpellCastError <> SpellFailedReason.SPELL_NO_ERROR Then
-                        SendCastResult(SpellCastError, CType(Caster, CharacterObject).Client, ID)
+                        SendCastResult(SpellCastError, CType(Caster, CharacterObject).client, ID)
                         castParams.State = SpellCastState.SPELL_STATE_IDLE
                         castParams.Dispose() 'Clean up when we don't need it anymore
                         Exit Sub
@@ -577,7 +575,7 @@ Public Module WS_Spells
                 If (Attributes And SpellAttributes.SPELL_ATTR_NEXT_ATTACK) OrElse (Attributes And SpellAttributes.SPELL_ATTR_NEXT_ATTACK2) Then
                     If TypeOf Caster Is CharacterObject Then
                         If CType(Caster, CharacterObject).attackState.combatNextAttackSpell Then
-                            SendCastResult(SpellFailedReason.SPELL_FAILED_SPELL_IN_PROGRESS, CType(Caster, CharacterObject).Client, ID)
+                            SendCastResult(SpellFailedReason.SPELL_FAILED_SPELL_IN_PROGRESS, CType(Caster, CharacterObject).client, ID)
                             castParams.Dispose() 'Clean up when we don't need it anymore
                             Exit Sub
                         End If
@@ -705,7 +703,7 @@ Public Module WS_Spells
                 castParams.State = SpellCastState.SPELL_STATE_FINISHED
 
                 'DONE: Send the cast result
-                If TypeOf Caster Is CharacterObject Then SendCastResult(SpellFailedReason.SPELL_NO_ERROR, CType(Caster, CharacterObject).Client, ID)
+                If TypeOf Caster Is CharacterObject Then SendCastResult(SpellFailedReason.SPELL_NO_ERROR, CType(Caster, CharacterObject).client, ID)
 
                 'DONE: Send the GO message
                 Dim tmpTargets As New Dictionary(Of ULong, SpellMissInfo)
@@ -768,7 +766,7 @@ Public Module WS_Spells
 
                 If SpellCastError <> SpellFailedReason.SPELL_NO_ERROR Then
                     If TypeOf Caster Is CharacterObject Then
-                        SendCastResult(SpellCastError, CType(Caster, CharacterObject).Client, ID)
+                        SendCastResult(SpellCastError, CType(Caster, CharacterObject).client, ID)
                         SendInterrupted(0, Caster)
                         castParams.Dispose() 'Clean up when we don't need it anymore
                         Exit Sub
@@ -813,10 +811,10 @@ Public Module WS_Spells
             If (Character.cUnitFlags And UnitFlags.UNIT_FLAG_TAXI_FLIGHT) Then Return SpellFailedReason.SPELL_FAILED_ERROR
             If (Targets.unitTarget IsNot Nothing) AndAlso (Not Targets.unitTarget Is Character) Then
                 If (FacingCasterFlags And 1) Then
-                    If IsInFrontOf(CType(Character, CharacterObject), CType(Targets.unitTarget, BaseUnit)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_INFRONT
+                    If IsInFrontOf(Character, (Targets.unitTarget)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_INFRONT
                 End If
                 If (FacingCasterFlags And 2) Then
-                    If IsInBackOf(CType(Character, CharacterObject), CType(Targets.unitTarget, BaseUnit)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_BEHIND
+                    If IsInBackOf(Character, (Targets.unitTarget)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_BEHIND
                 End If
             End If
 
@@ -828,12 +826,12 @@ Public Module WS_Spells
             End If
 
             Dim StanceMask As Integer = 0
-            If Character.ShapeshiftForm > ShapeshiftForm.FORM_NORMAL Then StanceMask = 1 << (CInt(Character.ShapeshiftForm) - 1)
+            If Character.ShapeshiftForm > ShapeshiftForm.FORM_NORMAL Then StanceMask = 1 << (Character.ShapeshiftForm - 1)
             If (StanceMask And ShapeshiftExclude) Then Return SpellFailedReason.SPELL_FAILED_NOT_SHAPESHIFT
             If (StanceMask And RequredCasterStance) = 0 Then
                 Dim actAsShifted As Boolean = False
                 If Character.ShapeshiftForm > ShapeshiftForm.FORM_NORMAL Then
-                    Dim ShapeShift As TSpellShapeshiftForm = FindShapeshiftForm(CInt(Character.ShapeshiftForm))
+                    Dim ShapeShift As TSpellShapeshiftForm = FindShapeshiftForm(Character.ShapeshiftForm)
                     If ShapeShift IsNot Nothing Then
                         If (ShapeShift.Flags1 And 1) = 0 Then
                             actAsShifted = True
@@ -870,7 +868,7 @@ SkipShapeShift:
 
             Dim ManaCost As Integer = GetManaCost(Character.Level, Character.Mana.Base)
             If ManaCost > 0 Then
-                If powerType <> CInt(Character.ManaType) Then Return SpellFailedReason.SPELL_FAILED_NO_POWER
+                If powerType <> Character.ManaType Then Return SpellFailedReason.SPELL_FAILED_NO_POWER
                 Select Case powerType
                     Case ManaTypes.TYPE_MANA
                         If ManaCost > Character.Mana.Current Then Return SpellFailedReason.SPELL_FAILED_NO_POWER
@@ -990,7 +988,7 @@ SkipShapeShift:
                 Dim packet As New PacketClass(OPCODES.MSG_CHANNEL_START)
                 packet.AddInt32(ID)
                 packet.AddInt32(Duration)
-                CType(Caster, CharacterObject).Client.Send(packet)
+                CType(Caster, CharacterObject).client.Send(packet)
                 packet.Dispose()
             ElseIf Not TypeOf Caster Is CreatureObject Then 'Only characters and creatures can channel spells
                 Exit Sub
@@ -1054,7 +1052,7 @@ SkipShapeShift:
                 packet.AddUInt64(Caster.GUID) 'PackGuid?
                 packet.AddInt32(ID)
                 packet.AddInt8(result)
-                CType(Caster, CharacterObject).Client.Send(packet)
+                CType(Caster, CharacterObject).client.Send(packet)
                 packet.Dispose()
             End If
 
@@ -1173,13 +1171,13 @@ SkipShapeShift:
                         packet.AddPackGUID(ItemTargetGUID)
                     Case SpellEffects_Names.SPELL_EFFECT_CREATE_ITEM
                         packet.AddInt32(SpellEffects(i).ItemType)
-                    Case SpellEffects_Names.SPELL_EFFECT_SUMMON, SpellEffects_Names.SPELL_EFFECT_SUMMON_WILD, SpellEffects_Names.SPELL_EFFECT_SUMMON_GUARDIAN, _
-                        SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT, SpellEffects_Names.SPELL_EFFECT_SUMMON_PET, SpellEffects_Names.SPELL_EFFECT_SUMMON_POSSESSED, _
-                        SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_WILD, SpellEffects_Names.SPELL_EFFECT_CREATE_HOUSE, _
-                        SpellEffects_Names.SPELL_EFFECT_DUEL, SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT1, SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT2, _
-                        SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT3, SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT4, SpellEffects_Names.SPELL_EFFECT_SUMMON_PHANTASM, _
-                        SpellEffects_Names.SPELL_EFFECT_SUMMON_CRITTER, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT1, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT2, _
-                        SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT3, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT4, SpellEffects_Names.SPELL_EFFECT_SUMMON_DEMON, _
+                    Case SpellEffects_Names.SPELL_EFFECT_SUMMON, SpellEffects_Names.SPELL_EFFECT_SUMMON_WILD, SpellEffects_Names.SPELL_EFFECT_SUMMON_GUARDIAN,
+                        SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT, SpellEffects_Names.SPELL_EFFECT_SUMMON_PET, SpellEffects_Names.SPELL_EFFECT_SUMMON_POSSESSED,
+                        SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_WILD, SpellEffects_Names.SPELL_EFFECT_CREATE_HOUSE,
+                        SpellEffects_Names.SPELL_EFFECT_DUEL, SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT1, SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT2,
+                        SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT3, SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT4, SpellEffects_Names.SPELL_EFFECT_SUMMON_PHANTASM,
+                        SpellEffects_Names.SPELL_EFFECT_SUMMON_CRITTER, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT1, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT2,
+                        SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT3, SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT_SLOT4, SpellEffects_Names.SPELL_EFFECT_SUMMON_DEMON,
                         SpellEffects_Names.SPELL_EFFECT_150
 
                         If Targets.unitTarget IsNot Nothing Then
@@ -1260,7 +1258,7 @@ SkipShapeShift:
                 packet.AddInt32(Recovery)
             End If
 
-            objCharacter.Client.Send(packet)
+            objCharacter.client.Send(packet)
             packet.Dispose()
 
             'DONE: Send item cooldown
@@ -1268,7 +1266,7 @@ SkipShapeShift:
                 packet = New PacketClass(OPCODES.SMSG_ITEM_COOLDOWN)
                 packet.AddUInt64(castItem.GUID)
                 packet.AddInt32(ID)
-                objCharacter.Client.Send(packet)
+                objCharacter.client.Send(packet)
                 packet.Dispose()
             End If
         End Sub
@@ -1354,11 +1352,11 @@ SkipShapeShift:
                     End If
 
                     Select Case targets
-                        Case SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA, SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT, SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER, _
-                            SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA, SpellImplicitTargets.TARGET_ALL_PARTY, SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2, _
-                            SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL, SpellImplicitTargets.TARGET_AREA_EFFECT_SELECTED, SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM, _
-                            SpellImplicitTargets.TARGET_AREAEFFECT_PARTY, SpellImplicitTargets.TARGET_AREAEFFECT_PARTY_AND_CLASS, SpellImplicitTargets.TARGET_AROUND_CASTER_ENEMY, _
-                            SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY, SpellImplicitTargets.TARGET_INFRONT, SpellImplicitTargets.TARGET_TABLE_X_Y_Z_COORDINATES, _
+                        Case SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA, SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT, SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER,
+                            SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA, SpellImplicitTargets.TARGET_ALL_PARTY, SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2,
+                            SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL, SpellImplicitTargets.TARGET_AREA_EFFECT_SELECTED, SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM,
+                            SpellImplicitTargets.TARGET_AREAEFFECT_PARTY, SpellImplicitTargets.TARGET_AREAEFFECT_PARTY_AND_CLASS, SpellImplicitTargets.TARGET_AROUND_CASTER_ENEMY,
+                            SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY, SpellImplicitTargets.TARGET_INFRONT, SpellImplicitTargets.TARGET_TABLE_X_Y_Z_COORDINATES,
                             SpellImplicitTargets.TARGET_BEHIND_VICTIM
 
                             Return True
@@ -1476,31 +1474,31 @@ SkipShapeShift:
         End Sub
 
         Public Sub SetTarget_OBJECT(ByRef o As BaseObject)
-            Me.goTarget = o
+            goTarget = o
             targetMask += SpellCastTargetFlags.TARGET_FLAG_OBJECT
         End Sub
 
         Public Sub SetTarget_ITEM(ByRef i As ItemObject)
-            Me.itemTarget = i
+            itemTarget = i
             targetMask += SpellCastTargetFlags.TARGET_FLAG_ITEM
         End Sub
 
         Public Sub SetTarget_SOURCELOCATION(ByVal x As Single, ByVal y As Single, ByVal z As Single)
-            Me.srcX = x
-            Me.srcY = y
-            Me.srcZ = z
+            srcX = x
+            srcY = y
+            srcZ = z
             targetMask += SpellCastTargetFlags.TARGET_FLAG_SOURCE_LOCATION
         End Sub
 
         Public Sub SetTarget_DESTINATIONLOCATION(ByVal x As Single, ByVal y As Single, ByVal z As Single)
-            Me.dstX = x
-            Me.dstY = y
-            Me.dstZ = z
+            dstX = x
+            dstY = y
+            dstZ = z
             targetMask += SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION
         End Sub
 
         Public Sub SetTarget_STRING(ByVal str As String)
-            Me.stringTarget = str
+            stringTarget = str
             targetMask += SpellCastTargetFlags.TARGET_FLAG_STRING
         End Sub
     End Class
@@ -1522,16 +1520,16 @@ SkipShapeShift:
             Me.Targets = Targets
             Me.Caster = Caster
             Me.SpellID = SpellID
-            Me.Item = Nothing
-            Me.InstantCast = False
+            Item = Nothing
+            InstantCast = False
         End Sub
 
         Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As BaseObject, ByVal SpellID As Integer, ByVal Instant As Boolean)
             Me.Targets = Targets
             Me.Caster = Caster
             Me.SpellID = SpellID
-            Me.Item = Nothing
-            Me.InstantCast = Instant
+            Item = Nothing
+            InstantCast = Instant
         End Sub
 
         Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As BaseObject, ByVal SpellID As Integer, ByRef Item As ItemObject)
@@ -1539,7 +1537,7 @@ SkipShapeShift:
             Me.Caster = Caster
             Me.SpellID = SpellID
             Me.Item = Item
-            Me.InstantCast = False
+            InstantCast = False
         End Sub
 
         Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As BaseObject, ByVal SpellID As Integer, ByRef Item As ItemObject, ByVal Instant As Boolean)
@@ -1547,7 +1545,7 @@ SkipShapeShift:
             Me.Caster = Caster
             Me.SpellID = SpellID
             Me.Item = Item
-            Me.InstantCast = Instant
+            InstantCast = Instant
         End Sub
 
         Public ReadOnly Property SpellInfo() As SpellInfo
@@ -1712,7 +1710,7 @@ SkipShapeShift:
         'DONE: Update time for self
         Dim packet As New PacketClass(OPCODES.MSG_CHANNEL_UPDATE)
         packet.AddInt32(Time)
-        Caster.Client.Send(packet)
+        Caster.client.Send(packet)
         packet.Dispose()
 
         If Time = 0 Then
@@ -2652,7 +2650,7 @@ SkipShapeShift:
                 Target.unitTarget.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOD_DECREASE_SPEED)
                 Target.unitTarget.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOD_STALKED)
 
-                'TODO: Cast highest rank of stealth
+            'TODO: Cast highest rank of stealth
             Case 35729
                 For i As Byte = MAX_POSITIVE_AURA_EFFECTs To MAX_AURA_EFFECTs_VISIBLE - 1
                     If Not Target.unitTarget.ActiveSpells(i) Is Nothing Then
@@ -2715,7 +2713,7 @@ SkipShapeShift:
             'DONE: Take the power from the target and give to the caster
             'TODO: Rune power?
             TargetPower = 0
-            Select Case CType(SpellInfo.MiscValue, ManaTypes)
+            Select Case SpellInfo.MiscValue
                 Case ManaTypes.TYPE_MANA
                     If Damage > Unit.Mana.Current Then Damage = Unit.Mana.Current
                     Unit.Mana.Current -= Damage
@@ -2759,7 +2757,7 @@ SkipShapeShift:
         'TODO: SpellFailedReason.SPELL_FAILED_ALREADY_FULL_MANA
         'DONE: Send caster mana update, for near
         Dim CasterPower As Integer = 0
-        Select Case CType(SpellInfo.MiscValue, ManaTypes)
+        Select Case SpellInfo.MiscValue
             Case ManaTypes.TYPE_MANA
                 CasterPower = CType(Caster, BaseUnit).Mana.Current
             Case ManaTypes.TYPE_RAGE
@@ -2864,7 +2862,7 @@ SkipShapeShift:
         If lockID = 0 Then
             'TODO: Send loot for items
             If GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
-                CType(WORLD_GAMEOBJECTs(targetGUID), GameObjectObject).LootObject(CType(Caster, CharacterObject), LootType)
+                WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
             End If
 
             Return SpellFailedReason.SPELL_NO_ERROR
@@ -2887,25 +2885,25 @@ SkipShapeShift:
         Next
 
         Dim SkillID As Integer = 0
-        If (Not CType(SPELLs(SpellID), SpellInfo).SpellEffects(1) Is Nothing) AndAlso CType(SPELLs(SpellID), SpellInfo).SpellEffects(1).ID = SpellEffects_Names.SPELL_EFFECT_SKILL Then
-            SkillID = CType(SPELLs(SpellID), SpellInfo).SpellEffects(1).MiscValue
-        ElseIf (Not CType(SPELLs(SpellID), SpellInfo).SpellEffects(0) Is Nothing) AndAlso CType(SPELLs(SpellID), SpellInfo).SpellEffects(0).MiscValue = LockType.LOCKTYPE_PICKLOCK Then
+        If (Not SPELLs(SpellID).SpellEffects(1) Is Nothing) AndAlso SPELLs(SpellID).SpellEffects(1).ID = SpellEffects_Names.SPELL_EFFECT_SKILL Then
+            SkillID = SPELLs(SpellID).SpellEffects(1).MiscValue
+        ElseIf (Not SPELLs(SpellID).SpellEffects(0) Is Nothing) AndAlso SPELLs(SpellID).SpellEffects(0).MiscValue = LockType.LOCKTYPE_PICKLOCK Then
             SkillID = SKILL_IDs.SKILL_LOCKPICKING
         End If
 
-        Dim ReqSkillValue As Short = CType(Locks(lockID), TLock).RequiredMiningSkill
-        If CType(Locks(lockID), TLock).RequiredLockingSkill > 0 Then
+        Dim ReqSkillValue As Short = Locks(lockID).RequiredMiningSkill
+        If Locks(lockID).RequiredLockingSkill > 0 Then
             If SkillID <> SKILL_IDs.SKILL_LOCKPICKING Then 'Cheat attempt?
                 Return SpellFailedReason.SPELL_FAILED_FIZZLE
             End If
-            ReqSkillValue = CType(Locks(lockID), TLock).RequiredLockingSkill
+            ReqSkillValue = Locks(lockID).RequiredLockingSkill
         ElseIf SkillID = SKILL_IDs.SKILL_LOCKPICKING Then 'Apply picklock skill to wrong target
             Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
         End If
 
         If SkillID Then
             LootType = LootType.LOOTTYPE_SKINNING
-            If CType(Caster, CharacterObject).Skills.ContainsKey(SkillID) = False OrElse CType(CType(Caster, CharacterObject).Skills(SkillID), TSkill).Current < ReqSkillValue Then
+            If CType(Caster, CharacterObject).Skills.ContainsKey(SkillID) = False OrElse CType(Caster, CharacterObject).Skills(SkillID).Current < ReqSkillValue Then
                 Return SpellFailedReason.SPELL_FAILED_LOW_CASTLEVEL
             End If
 
@@ -2928,7 +2926,7 @@ SkipShapeShift:
             With CType(Target.unitTarget, CreatureObject)
                 If .CreatureInfo.CreatureType = UNIT_TYPE.HUMANOID OrElse .CreatureInfo.CreatureType = UNIT_TYPE.UNDEAD Then
                     If .isDead = False Then
-                        Dim chance As Integer = 10 + CInt(CType(Caster, BaseUnit).Level) - CInt(.Level)
+                        Dim chance As Integer = 10 + CType(Caster, BaseUnit).Level - .Level
 
                         If chance > Rnd.Next(0, 20) Then
                             'Successful pickpocket
@@ -2941,9 +2939,9 @@ SkipShapeShift:
                                     Template.Process(Loot, 0)
                                 End If
 
-                                Loot.SendLoot(CType(Caster, CharacterObject).Client)
+                                Loot.SendLoot(CType(Caster, CharacterObject).client)
                             Else
-                                SendEmptyLoot(.GUID, LootType.LOOTTYPE_PICKPOCKETING, CType(Caster, CharacterObject).Client)
+                                SendEmptyLoot(.GUID, LootType.LOOTTYPE_PICKPOCKETING, CType(Caster, CharacterObject).client)
                             End If
                         Else
                             'Failed pickpocket
@@ -2983,9 +2981,9 @@ SkipShapeShift:
                             Template.Process(Loot, 0)
                         End If
 
-                        Loot.SendLoot(CType(Caster, CharacterObject).Client)
+                        Loot.SendLoot(CType(Caster, CharacterObject).client)
                     Else
-                        SendEmptyLoot(.GUID, LootType.LOOTTYPE_SKINNING, CType(Caster, CharacterObject).Client)
+                        SendEmptyLoot(.GUID, LootType.LOOTTYPE_SKINNING, CType(Caster, CharacterObject).client)
                     End If
 
                     Dim TmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
@@ -3195,7 +3193,7 @@ SkipShapeShift:
                 Dim AuraEnd As Integer = 0
 
                 'DONE: Passives are not displayed
-                If CType(SPELLs(SpellID), SpellInfo).IsPassive Then
+                If SPELLs(SpellID).IsPassive Then
                     AuraStart = MAX_AURA_EFFECTs - 1
                     AuraEnd = MAX_AURA_EFFECTs_VISIBLE
                 End If
@@ -3291,7 +3289,7 @@ SkipShapeShift:
             CType(Caster, CharacterObject).SendCharacterUpdate(True)
             Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
             packetACK.AddInt8(CType(Caster, BaseUnit).StandState)
-            CType(Caster, CharacterObject).Client.Send(packetACK)
+            CType(Caster, CharacterObject).client.Send(packetACK)
             packetACK.Dispose()
         End If
 
@@ -3370,7 +3368,7 @@ SkipShapeShift:
                 If CType(Unit, CharacterObject).resurrectGUID <> 0 Then
                     If TypeOf Caster Is CharacterObject Then
                         Dim RessurectFailed As New PacketClass(OPCODES.SMSG_RESURRECT_FAILED)
-                        CType(Caster, CharacterObject).Client.Send(RessurectFailed)
+                        CType(Caster, CharacterObject).client.Send(RessurectFailed)
                         RessurectFailed.Dispose()
                     End If
                     Return SpellFailedReason.SPELL_NO_ERROR
@@ -3391,7 +3389,7 @@ SkipShapeShift:
                 RessurectRequest.AddUInt32(1)
                 RessurectRequest.AddUInt16(0)
                 RessurectRequest.AddUInt32(1)
-                CType(Unit, CharacterObject).Client.Send(RessurectRequest)
+                CType(Unit, CharacterObject).client.Send(RessurectRequest)
                 RessurectRequest.Dispose()
             ElseIf TypeOf Unit Is CreatureObject Then
                 'DONE: Ressurect pets
@@ -3425,7 +3423,7 @@ SkipShapeShift:
                         RessurectRequest.AddUInt32(1)
                         RessurectRequest.AddUInt16(0)
                         RessurectRequest.AddUInt32(1)
-                        .Client.Send(RessurectRequest)
+                        .client.Send(RessurectRequest)
                         RessurectRequest.Dispose()
                     End With
                 End If
@@ -3443,7 +3441,7 @@ SkipShapeShift:
                 If CType(Unit, CharacterObject).resurrectGUID <> 0 Then
                     If TypeOf Caster Is CharacterObject Then
                         Dim RessurectFailed As New PacketClass(OPCODES.SMSG_RESURRECT_FAILED)
-                        CType(Caster, CharacterObject).Client.Send(RessurectFailed)
+                        CType(Caster, CharacterObject).client.Send(RessurectFailed)
                         RessurectFailed.Dispose()
                     End If
                     Return SpellFailedReason.SPELL_NO_ERROR
@@ -3464,14 +3462,14 @@ SkipShapeShift:
                 RessurectRequest.AddUInt32(1)
                 RessurectRequest.AddUInt16(0)
                 RessurectRequest.AddUInt32(1)
-                CType(Unit, CharacterObject).Client.Send(RessurectRequest)
+                CType(Unit, CharacterObject).client.Send(RessurectRequest)
                 RessurectRequest.Dispose()
             ElseIf TypeOf Unit Is CreatureObject Then
                 'DONE: Ressurect pets
                 CType(Unit, CreatureObject).Life.Current = CType(Unit, CreatureObject).Life.Maximum * SpellInfo.valueBase \ 100
                 Dim packetForNear As New UpdatePacketClass
                 Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
-                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(CType(Unit, CreatureObject).Life.Current, Integer))
+                UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Unit, CreatureObject).Life.Current)
                 UpdateData.AddToPacket(packetForNear, ObjectUpdateType.UPDATETYPE_VALUES, CType(Unit, CreatureObject))
                 CType(Unit, CreatureObject).SendToNearPlayers(packetForNear)
                 packetForNear.Dispose()
@@ -3495,7 +3493,7 @@ SkipShapeShift:
                     RessurectRequest.AddUInt32(1)
                     RessurectRequest.AddUInt16(0)
                     RessurectRequest.AddUInt32(1)
-                    CHARACTERs(CType(Unit, CorpseObject).Owner).Client.Send(RessurectRequest)
+                    CHARACTERs(CType(Unit, CorpseObject).Owner).client.Send(RessurectRequest)
                     RessurectRequest.Dispose()
                 End If
             End If
@@ -3921,7 +3919,7 @@ SkipShapeShift:
             EnchantLog.AddInt32(Target.itemTarget.ItemEntry)
             EnchantLog.AddInt32(SpellInfo.MiscValue)
             EnchantLog.AddInt8(0)
-            CHARACTERs(Target.itemTarget.OwnerGUID).Client.Send(EnchantLog)
+            CHARACTERs(Target.itemTarget.OwnerGUID).client.Send(EnchantLog)
             'DONE: Send to trader also
             If CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo IsNot Nothing Then
                 If CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo.Trader Is CHARACTERs(Target.itemTarget.OwnerGUID) Then
@@ -3972,7 +3970,7 @@ SkipShapeShift:
             EnchantLog.AddInt32(Target.itemTarget.ItemEntry)
             EnchantLog.AddInt32(SpellInfo.MiscValue)
             EnchantLog.AddInt8(0)
-            CHARACTERs(Target.itemTarget.OwnerGUID).Client.Send(EnchantLog)
+            CHARACTERs(Target.itemTarget.OwnerGUID).client.Send(EnchantLog)
             EnchantLog.Dispose()
         End If
 
@@ -4012,7 +4010,7 @@ SkipShapeShift:
         If NearZ > (Target.unitTarget.positionZ + 2) Or NearZ < (Target.unitTarget.positionZ - 2) Then NearZ = Target.unitTarget.positionZ
 
         Dim moveDist As Single = GetDistance(Caster, NearX, NearY, NearZ)
-        Dim TimeToMove As Integer = CType(moveDist / SPELLs(SpellID).Speed * 1000.0F, Integer)
+        Dim TimeToMove As Integer = moveDist / SPELLs(SpellID).Speed * 1000.0F
 
         Dim SMSG_MONSTER_MOVE As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
         SMSG_MONSTER_MOVE.AddPackGUID(Caster.GUID)
@@ -4032,7 +4030,7 @@ SkipShapeShift:
         SMSG_MONSTER_MOVE.Dispose()
 
         If TypeOf Caster Is CharacterObject Then
-            SendAttackStart(Caster.GUID, Target.unitTarget.GUID, CType(Caster, CharacterObject).Client)
+            SendAttackStart(Caster.GUID, Target.unitTarget.GUID, CType(Caster, CharacterObject).client)
             CType(Caster, CharacterObject).attackState.AttackStart(Target.unitTarget)
         End If
 
@@ -4122,8 +4120,8 @@ SkipShapeShift:
                 Dim packet As New PacketClass(OPCODES.SMSG_DUEL_REQUESTED)
                 packet.AddUInt64(tmpGO.GUID)
                 packet.AddUInt64(Caster.GUID)
-                CType(Target.unitTarget, CharacterObject).Client.SendMultiplyPackets(packet)
-                CType(Caster, CharacterObject).Client.SendMultiplyPackets(packet)
+                CType(Target.unitTarget, CharacterObject).client.SendMultiplyPackets(packet)
+                CType(Caster, CharacterObject).client.SendMultiplyPackets(packet)
                 packet.Dispose()
             Case Else
                 Return SpellFailedReason.SPELL_FAILED_BAD_IMPLICIT_TARGETS
@@ -4500,8 +4498,8 @@ SkipShapeShift:
                 If TypeOf Target Is CharacterObject AndAlso CType(Target, CharacterObject).Skills.ContainsKey(EffectInfo.MiscValue) Then
                     With CType(Target, CharacterObject)
                         .Skills(EffectInfo.MiscValue).Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
-                        .SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + .SkillsPositions(EffectInfo.MiscValue) * 3 + 2, CType(.Skills(EffectInfo.MiscValue), TSkill).Bonus)                      'skill1.Bonus
-                        .SendCharacterUpdate(True)
+                        Call .SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + .SkillsPositions(EffectInfo.MiscValue) * 3 + 2, .Skills(EffectInfo.MiscValue).Bonus)                      'skill1.Bonus
+                        Call .SendCharacterUpdate(True)
                     End With
                 End If
 
@@ -4509,8 +4507,8 @@ SkipShapeShift:
                 If TypeOf Target Is CharacterObject AndAlso CType(Target, CharacterObject).Skills.ContainsKey(EffectInfo.MiscValue) Then
                     With CType(Target, CharacterObject)
                         .Skills(EffectInfo.MiscValue).Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
-                        .SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + .SkillsPositions(EffectInfo.MiscValue) * 3 + 2, CType(.Skills(EffectInfo.MiscValue), TSkill).Bonus)                      'skill1.Bonus
-                        .SendCharacterUpdate(True)
+                        Call .SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + .SkillsPositions(EffectInfo.MiscValue) * 3 + 2, .Skills(EffectInfo.MiscValue).Bonus)                      'skill1.Bonus
+                        Call .SendCharacterUpdate(True)
                     End With
                 End If
         End Select
@@ -4719,7 +4717,7 @@ SkipShapeShift:
 
                 'TODO: Increase threat (gain * 0.5)
 
-                If (CType(SPELLs(SpellID), SpellInfo).auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED) Then
+                If (SPELLs(SpellID).auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED) Then
                     'Eat emote
                     Target.DoEmote(Emotes.ONESHOT_EAT)
                 ElseIf SpellID = 20577 Then
@@ -4748,7 +4746,7 @@ SkipShapeShift:
                     CType(Target, CharacterObject).RageRegenBonus += ((Damage / 17) * 10)
                 End If
 
-                If (CType(SPELLs(SpellID), SpellInfo).auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED) Then
+                If (SPELLs(SpellID).auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED) Then
                     'Eat emote
                     Target.DoEmote(Emotes.ONESHOT_EAT)
                 ElseIf SpellID = 20577 Then
@@ -5503,12 +5501,12 @@ SkipShapeShift:
             CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
             CType(Target, CharacterObject).SendCharacterUpdate(True)
 
-            CType(Target, CharacterObject).Client.Send(response)
+            CType(Target, CharacterObject).client.Send(response)
         Else
             Dim packet As New UpdatePacketClass
             Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
             tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
-            tmpUpdate.AddToPacket(CType(packet, UpdatePacketClass), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+            tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
             Target.SendToNearPlayers(packet)
             tmpUpdate.Dispose()
             packet.Dispose()
@@ -5656,7 +5654,7 @@ SkipShapeShift:
                     packet.AddInt8(op)
                     packet.AddUInt16(send_val)
                     packet.AddUInt16(send_mark)
-                    CType(Caster, CharacterObject).Client.Send(packet)
+                    CType(Caster, CharacterObject).client.Send(packet)
                     packet.Dispose()
                 End If
                 shiftdata = shiftdata << 1
@@ -5699,7 +5697,7 @@ SkipShapeShift:
                     packet.AddInt8(op)
                     packet.AddUInt16(send_val)
                     packet.AddUInt16(send_mark)
-                    CType(Caster, CharacterObject).Client.Send(packet)
+                    CType(Caster, CharacterObject).client.Send(packet)
                     packet.Dispose()
                 End If
                 shiftdata = shiftdata << 1
@@ -5805,11 +5803,11 @@ SkipShapeShift:
         CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.OFF_ATTACK)
         CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
 
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(CType(Target, CharacterObject).Strength.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(CType(Target, CharacterObject).Agility.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(CType(Target, CharacterObject).Stamina.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(CType(Target, CharacterObject).Spirit.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(CType(Target, CharacterObject).Intellect.Base, Integer))
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, CharacterObject).Strength.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, CharacterObject).Agility.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, CharacterObject).Stamina.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, CharacterObject).Spirit.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, CharacterObject).Intellect.Base)
         'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT0, CType(CType(Target, CharacterObject).Strength.PositiveBonus, Integer))
         'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT1, CType(CType(Target, CharacterObject).Agility.PositiveBonus, Integer))
         'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT2, CType(CType(Target, CharacterObject).Stamina.PositiveBonus, Integer))
@@ -5898,11 +5896,11 @@ SkipShapeShift:
         CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.OFF_ATTACK)
         CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
 
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(CType(Target, CharacterObject).Strength.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(CType(Target, CharacterObject).Agility.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(CType(Target, CharacterObject).Stamina.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(CType(Target, CharacterObject).Spirit.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(CType(Target, CharacterObject).Intellect.Base, Integer))
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, CharacterObject).Strength.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, CharacterObject).Agility.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, CharacterObject).Stamina.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, CharacterObject).Spirit.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, CharacterObject).Intellect.Base)
         CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Target, CharacterObject).Life.Current)
         CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target, CharacterObject).Life.Maximum)
         If GetClassManaType(CType(Target, CharacterObject).Classe) = ManaTypes.TYPE_MANA Then
@@ -6010,11 +6008,11 @@ SkipShapeShift:
         CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.OFF_ATTACK)
         CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
 
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(CType(Target, CharacterObject).Strength.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(CType(Target, CharacterObject).Agility.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(CType(Target, CharacterObject).Stamina.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(CType(Target, CharacterObject).Spirit.Base, Integer))
-        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(CType(Target, CharacterObject).Intellect.Base, Integer))
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, CharacterObject).Strength.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, CharacterObject).Agility.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, CharacterObject).Stamina.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, CharacterObject).Spirit.Base)
+        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, CharacterObject).Intellect.Base)
         'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT0, CType(CType(Target, CharacterObject).Strength.PositiveBonus, Integer))
         'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT1, CType(CType(Target, CharacterObject).Agility.PositiveBonus, Integer))
         'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT2, CType(CType(Target, CharacterObject).Stamina.PositiveBonus, Integer))
@@ -6053,13 +6051,13 @@ SkipShapeShift:
         End Select
 
         If TypeOf Target Is CharacterObject Then
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target.Life.Maximum, Integer))
+            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
             CType(Target, CharacterObject).SendCharacterUpdate()
             CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
         Else
             Dim packet As New UpdatePacketClass
             Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
-            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target.Life.Maximum, Integer))
+            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
             UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
 
             CType(Target, CreatureObject).SendToNearPlayers(packet)
@@ -6083,13 +6081,13 @@ SkipShapeShift:
         End Select
 
         If TypeOf Target Is CharacterObject Then
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target.Life.Maximum, Integer))
+            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
             CType(Target, CharacterObject).SendCharacterUpdate()
             CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
         Else
             Dim packet As New UpdatePacketClass
             Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
-            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target.Life.Maximum, Integer))
+            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
             UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
 
             CType(Target, CreatureObject).SendToNearPlayers(packet)
@@ -6139,13 +6137,13 @@ SkipShapeShift:
         End Select
 
         If TypeOf Target Is CharacterObject Then
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_ENERGY, CType(CType(Target, CharacterObject).Energy.Maximum, Integer))
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_MANA, CType(CType(Target, CharacterObject).Mana.Maximum, Integer))
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_RAGE, CType(CType(Target, CharacterObject).Rage.Maximum, Integer))
+            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_ENERGY, CType(Target, CharacterObject).Energy.Maximum)
+            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_MANA, CType(Target, CharacterObject).Mana.Maximum)
+            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_RAGE, CType(Target, CharacterObject).Rage.Maximum)
         Else
             Dim packet As New UpdatePacketClass
             Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
-            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + Target.ManaType, CType(Target.Mana.Maximum, Integer))
+            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + Target.ManaType, Target.Mana.Maximum)
             UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
 
             CType(Target, CreatureObject).SendToNearPlayers(packet)
@@ -6528,8 +6526,8 @@ SkipShapeShift:
                     Dim packet As New UpdatePacketClass
                     Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
                     tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, Target.cDynamicFlags Or DynamicFlags.UNIT_DYNFLAG_SPECIALINFO)
-                    tmpUpdate.AddToPacket(CType(packet, UpdatePacketClass), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
-                    CType(Caster, CharacterObject).Client.Send(CType(packet, UpdatePacketClass))
+                    tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                    CType(Caster, CharacterObject).client.Send((packet))
                     tmpUpdate.Dispose()
                     packet.Dispose()
                 End If
@@ -6539,8 +6537,8 @@ SkipShapeShift:
                     Dim packet As New UpdatePacketClass
                     Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
                     tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, Target.cDynamicFlags)
-                    tmpUpdate.AddToPacket(CType(packet, UpdatePacketClass), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
-                    CType(Caster, CharacterObject).Client.Send(CType(packet, UpdatePacketClass))
+                    tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                    CType(Caster, CharacterObject).client.Send((packet))
                     tmpUpdate.Dispose()
                     packet.Dispose()
                 End If
@@ -6640,7 +6638,7 @@ SkipShapeShift:
                     Dim packet2 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                     packet2.AddPackGUID(Target.GUID)
                     packet2.AddInt8(1)
-                    CType(Caster, CharacterObject).Client.Send(packet2)
+                    CType(Caster, CharacterObject).client.Send(packet2)
                     packet2.Dispose()
 
                     CType(Caster, CharacterObject).cUnitFlags = CType(Caster, CharacterObject).cUnitFlags Or UnitFlags.UNIT_FLAG_UNK21
@@ -6657,7 +6655,7 @@ SkipShapeShift:
                     Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                     packet1.AddPackGUID(Target.GUID)
                     packet1.AddInt8(0)
-                    CType(Target, CharacterObject).Client.Send(packet1)
+                    CType(Target, CharacterObject).client.Send(packet1)
                     packet1.Dispose()
                 End If
 
@@ -6680,9 +6678,9 @@ SkipShapeShift:
                 tmpUpdate = New UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_CHARM, 0)
                 If TypeOf Caster Is CharacterObject Then
-                    tmpUpdate.AddToPacket(CType(packet, UpdatePacketClass), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CharacterObject))
+                    tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CharacterObject))
                 ElseIf TypeOf Caster Is CreatureObject Then
-                    tmpUpdate.AddToPacket(CType(packet, UpdatePacketClass), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
+                    tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
                 End If
                 Caster.SendToNearPlayers(packet)
                 packet.Dispose()
@@ -6691,13 +6689,13 @@ SkipShapeShift:
                 If TypeOf Caster Is CharacterObject Then
                     Dim packet1 As New PacketClass(OPCODES.SMSG_PET_SPELLS)
                     packet1.AddUInt64(0)
-                    CType(Caster, CharacterObject).Client.Send(packet1)
+                    CType(Caster, CharacterObject).client.Send(packet1)
                     packet1.Dispose()
 
                     Dim packet2 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                     packet2.AddPackGUID(Target.GUID)
                     packet2.AddInt8(0)
-                    CType(Caster, CharacterObject).Client.Send(packet2)
+                    CType(Caster, CharacterObject).client.Send(packet2)
                     packet2.Dispose()
 
                     CType(Caster, CharacterObject).cUnitFlags = CType(Caster, CharacterObject).cUnitFlags And (Not UnitFlags.UNIT_FLAG_UNK21)
@@ -6714,7 +6712,7 @@ SkipShapeShift:
                     Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                     packet1.AddPackGUID(Target.GUID)
                     packet1.AddInt8(1)
-                    CType(Target, CharacterObject).Client.Send(packet1)
+                    CType(Target, CharacterObject).client.Send(packet1)
                     packet1.Dispose()
                 End If
         End Select
@@ -6764,13 +6762,13 @@ SkipShapeShift:
 
         If TypeOf Target Is CharacterObject Then
             For Each CreatureGUID As ULong In CType(Target, CharacterObject).creaturesNear
-                If Not CType(WORLD_CREATUREs(CreatureGUID), CreatureObject).aiScript Is Nothing AndAlso _
-                CType(WORLD_CREATUREs(CreatureGUID), CreatureObject).aiScript.aiHateTable.ContainsKey(Target) Then
-                    CType(WORLD_CREATUREs(CreatureGUID), CreatureObject).aiScript.OnGenerateHate(Target, Value)
+                If Not WORLD_CREATUREs(CreatureGUID).aiScript Is Nothing AndAlso
+                WORLD_CREATUREs(CreatureGUID).aiScript.aiHateTable.ContainsKey(Target) Then
+                    WORLD_CREATUREs(CreatureGUID).aiScript.OnGenerateHate(Target, Value)
                 End If
             Next
         Else
-            If Not CType(Target, CreatureObject).aiScript Is Nothing AndAlso _
+            If Not CType(Target, CreatureObject).aiScript Is Nothing AndAlso
             CType(Target, CreatureObject).aiScript.aiHateTable.ContainsKey(Caster) Then
                 CType(Target, CreatureObject).aiScript.OnGenerateHate(Caster, Value)
             End If
@@ -6806,11 +6804,11 @@ SkipShapeShift:
 
     Public Sub CheckDuelDistance(ByRef objCharacter As CharacterObject)
         If WORLD_GAMEOBJECTs.ContainsKey(objCharacter.DuelArbiter) = False Then Exit Sub
-        If GetDistance(CType(objCharacter, CharacterObject), WORLD_GAMEOBJECTs(objCharacter.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
+        If GetDistance(objCharacter, WORLD_GAMEOBJECTs(objCharacter.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
             If objCharacter.DuelOutOfBounds = DUEL_COUNTER_DISABLED Then
                 'DONE: Notify for out of bounds of the duel flag and start counting
                 Dim packet As New PacketClass(OPCODES.SMSG_DUEL_OUTOFBOUNDS)
-                objCharacter.Client.Send(packet)
+                objCharacter.client.Send(packet)
                 packet.Dispose()
 
                 objCharacter.DuelOutOfBounds = DUEL_COUNTER_START
@@ -6821,7 +6819,7 @@ SkipShapeShift:
 
                 'DONE: Notify for in bounds of the duel flag
                 Dim packet As New PacketClass(OPCODES.SMSG_DUEL_INBOUNDS)
-                objCharacter.Client.Send(packet)
+                objCharacter.client.Send(packet)
                 packet.Dispose()
             End If
         End If
@@ -6834,8 +6832,8 @@ SkipShapeShift:
         'DONE: First stop the fight
         Dim response As New PacketClass(OPCODES.SMSG_DUEL_COMPLETE)
         response.AddInt8(1)
-        Winner.Client.SendMultiplyPackets(response)
-        Loser.Client.SendMultiplyPackets(response)
+        Winner.client.SendMultiplyPackets(response)
+        Loser.client.SendMultiplyPackets(response)
         response.Dispose()
 
         'DONE: Stop timed attacks for both
@@ -6928,8 +6926,8 @@ SkipShapeShift:
         'DONE: Start the duel
         Dim response As New PacketClass(OPCODES.SMSG_DUEL_COUNTDOWN)
         response.AddInt32(DUEL_COUNTDOWN)
-        c1.Client.SendMultiplyPackets(response)
-        c2.Client.SendMultiplyPackets(response)
+        c1.client.SendMultiplyPackets(response)
+        c2.client.SendMultiplyPackets(response)
         response.Dispose()
 
         Dim StartDuel As New Thread(AddressOf c2.StartDuel)
@@ -6945,14 +6943,14 @@ SkipShapeShift:
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DUEL_CANCELLED [{2:X}]", client.IP, client.Port, GUID)
 
         'DONE: Clear for client
-        WORLD_GAMEOBJECTs(Client.Character.DuelArbiter).Despawn()
+        WORLD_GAMEOBJECTs(client.Character.DuelArbiter).Despawn()
         client.Character.DuelArbiter = 0
         client.Character.DuelPartner.DuelArbiter = 0
 
         Dim response As New PacketClass(OPCODES.SMSG_DUEL_COMPLETE)
         response.AddInt8(0)
-        client.Character.Client.SendMultiplyPackets(response)
-        client.Character.DuelPartner.Client.SendMultiplyPackets(response)
+        client.Character.client.SendMultiplyPackets(response)
+        client.Character.DuelPartner.client.SendMultiplyPackets(response)
         response.Dispose()
 
         'DONE: Final clearing
@@ -6982,13 +6980,13 @@ SkipShapeShift:
         If GUID <> client.Character.resurrectGUID Then Exit Sub
 
         'DONE: Resurrect
-        CharacterResurrect(Client.Character)
+        CharacterResurrect(client.Character)
         client.Character.Life.Current = client.Character.resurrectHealth
         If client.Character.ManaType = ManaTypes.TYPE_MANA Then client.Character.Mana.Current = client.Character.resurrectMana
         client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, client.Character.Life.Current)
         If client.Character.ManaType = ManaTypes.TYPE_MANA Then client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, client.Character.Mana.Current)
         client.Character.SendCharacterUpdate()
-        client.Character.Teleport(Client.Character.resurrectPositionX, client.Character.resurrectPositionY, client.Character.resurrectPositionZ, client.Character.orientation, client.Character.resurrectMapID)
+        client.Character.Teleport(client.Character.resurrectPositionX, client.Character.resurrectPositionY, client.Character.resurrectPositionZ, client.Character.orientation, client.Character.resurrectMapID)
     End Sub
 
 #End Region
@@ -7056,20 +7054,20 @@ SkipShapeShift:
         Dim Targets As New SpellTargets
         Dim castResult As SpellFailedReason = SpellFailedReason.SPELL_FAILED_ERROR
         Try
-            Targets.ReadTargets(packet, CType(Client.Character, CharacterObject))
-            castResult = CType(SPELLs(spellID), SpellInfo).CanCast(Client.Character, Targets, True)
+            Targets.ReadTargets(packet, (client.Character))
+            castResult = SPELLs(spellID).CanCast(client.Character, Targets, True)
             If client.Character.spellCasted(SpellType) IsNot Nothing AndAlso client.Character.spellCasted(SpellType).Finished = False Then castResult = SpellFailedReason.SPELL_FAILED_SPELL_IN_PROGRESS
             If castResult = SpellFailedReason.SPELL_NO_ERROR Then
                 Dim tmpSpell As New CastSpellParameters(Targets, client.Character, spellID)
                 client.Character.spellCasted(SpellType) = tmpSpell
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
             Else
-                SendCastResult(castResult, Client, spellID)
+                SendCastResult(castResult, client, spellID)
             End If
 
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error casting spell {0}.{1}", spellID, vbNewLine & e.ToString)
-            SendCastResult(castResult, Client, spellID)
+            SendCastResult(castResult, client, spellID)
         End Try
     End Sub
 
@@ -7134,19 +7132,19 @@ SkipShapeShift:
 
             'DONE: Now the character can't cheat, he must have the earlier rank to get the new one
             If RequestedRank > 0 Then
-                If Not client.Character.HaveSpell(CType(Talents(TalentID), TalentInfo).RankID(RequestedRank - 1)) Then
+                If Not client.Character.HaveSpell(Talents(TalentID).RankID(RequestedRank - 1)) Then
                     Exit Sub
                 End If
             End If
 
             'DONE: Now the character can't cheat, he must have the other talents that is needed to get this one
             For j = 0 To 2
-                If CType(Talents(TalentID), TalentInfo).RequiredTalent(j) > 0 Then
+                If Talents(TalentID).RequiredTalent(j) > 0 Then
                     HasEnoughRank = False
-                    DependsOn = CType(Talents(TalentID), TalentInfo).RequiredTalent(j)
-                    For i As Integer = CType(Talents(TalentID), TalentInfo).RequiredPoints(j) To 4
-                        If CType(Talents(DependsOn), TalentInfo).RankID(i) <> 0 Then
-                            If client.Character.HaveSpell(CType(Talents(DependsOn), TalentInfo).RankID(i)) Then
+                    DependsOn = Talents(TalentID).RequiredTalent(j)
+                    For i As Integer = Talents(TalentID).RequiredPoints(j) To 4
+                        If Talents(DependsOn).RankID(i) <> 0 Then
+                            If client.Character.HaveSpell(Talents(DependsOn).RankID(i)) Then
                                 HasEnoughRank = True
                             End If
                         End If
@@ -7158,12 +7156,12 @@ SkipShapeShift:
 
             'DONE: Count spent talent points
             SpentPoints = 0
-            If CType(Talents(TalentID), TalentInfo).Row > 0 Then
+            If Talents(TalentID).Row > 0 Then
                 For Each TalentInfo As KeyValuePair(Of Integer, TalentInfo) In Talents
-                    If CType(Talents(TalentID), TalentInfo).TalentTab = CType(TalentInfo.Value, TalentInfo).TalentTab Then
+                    If Talents(TalentID).TalentTab = TalentInfo.Value.TalentTab Then
                         For i As Integer = 0 To 4
-                            If CType(TalentInfo.Value, TalentInfo).RankID(i) <> 0 Then
-                                If client.Character.HaveSpell(CType(TalentInfo.Value, TalentInfo).RankID(i)) Then
+                            If TalentInfo.Value.RankID(i) <> 0 Then
+                                If client.Character.HaveSpell(TalentInfo.Value.RankID(i)) Then
                                     SpentPoints += i + 1
                                 End If
                             End If
@@ -7176,9 +7174,9 @@ SkipShapeShift:
             Log.WriteLine(LogType.INFORMATION, "Talents spent: {0}", SpentPoints)
 #End If
 
-            If SpentPoints < (CType(Talents(TalentID), TalentInfo).Row * 5) Then Exit Sub
+            If SpentPoints < (Talents(TalentID).Row * 5) Then Exit Sub
 
-            SpellID = CType(Talents(TalentID), TalentInfo).RankID(RequestedRank)
+            SpellID = Talents(TalentID).RankID(RequestedRank)
 
             If SpellID = 0 Then Exit Sub
 
@@ -7187,18 +7185,18 @@ SkipShapeShift:
             client.Character.LearnSpell(SpellID)
 
             'DONE: Cast passive talents on the character
-            If SPELLs.ContainsKey(SpellID) AndAlso (CType(SPELLs(SpellID), SpellInfo).IsPassive) Then client.Character.ApplySpell(SpellID)
+            If SPELLs.ContainsKey(SpellID) AndAlso (SPELLs(SpellID).IsPassive) Then client.Character.ApplySpell(SpellID)
 
             'DONE: Unlearning the earlier rank of the talent
             If RequestedRank > 0 Then
-                ReSpellID = CType(Talents(TalentID), TalentInfo).RankID(RequestedRank - 1)
+                ReSpellID = Talents(TalentID).RankID(RequestedRank - 1)
                 client.Character.UnLearnSpell(ReSpellID)
                 client.Character.RemoveAuraBySpell(ReSpellID)
             End If
 
             'DONE: Remove 1 talentpoint from the character
             client.Character.TalentPoints -= 1
-            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_CHARACTER_POINTS1, CType(Client.Character.TalentPoints, Integer))
+            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_CHARACTER_POINTS1, client.Character.TalentPoints)
             client.Character.SendCharacterUpdate(True)
 
             client.Character.SaveCharacter()
@@ -7212,7 +7210,7 @@ SkipShapeShift:
 #Region "WS.Spells.Loot"
     Public Sub SendLoot(ByVal Player As CharacterObject, ByVal GUID As ULong, ByVal LootingType As LootType)
         If GuidIsGameObject(GUID) Then
-            Select Case CType(WORLD_GAMEOBJECTs(GUID), GameObjectObject).ObjectInfo.Type
+            Select Case WORLD_GAMEOBJECTs(GUID).ObjectInfo.Type
                 Case GameObjectType.GAMEOBJECT_TYPE_DOOR, GameObjectType.GAMEOBJECT_TYPE_BUTTON
                     Exit Sub
                 Case GameObjectType.GAMEOBJECT_TYPE_QUESTGIVER
@@ -7228,7 +7226,7 @@ SkipShapeShift:
         End If
 
         'DONE: Sending loot
-        CType(WORLD_GAMEOBJECTs(GUID), GameObjectObject).LootObject(Player, LootingType)
+        WORLD_GAMEOBJECTs(GUID).LootObject(Player, LootingType)
     End Sub
 #End Region
 

@@ -16,11 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
-Imports System.Collections.Generic
 Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.Global_Enums
 
@@ -178,7 +176,7 @@ Public Module WorldServer
                 AccountDatabase.SQLPort = AccountDBSettings(3)
                 AccountDatabase.SQLUser = AccountDBSettings(0)
                 AccountDatabase.SQLPass = AccountDBSettings(1)
-                AccountDatabase.SQLTypeServer = CType([Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5)), SQL.DB_Type)
+                AccountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
@@ -190,7 +188,7 @@ Public Module WorldServer
                 CharacterDatabase.SQLPort = CharacterDBSettings(3)
                 CharacterDatabase.SQLUser = CharacterDBSettings(0)
                 CharacterDatabase.SQLPass = CharacterDBSettings(1)
-                CharacterDatabase.SQLTypeServer = CType([Enum].Parse(GetType(SQL.DB_Type), CharacterDBSettings(5)), SQL.DB_Type)
+                CharacterDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), CharacterDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the character database!")
             End If
@@ -202,7 +200,7 @@ Public Module WorldServer
                 WorldDatabase.SQLPort = WorldDBSettings(3)
                 WorldDatabase.SQLUser = WorldDBSettings(0)
                 WorldDatabase.SQLPass = WorldDBSettings(1)
-                WorldDatabase.SQLTypeServer = CType([Enum].Parse(GetType(SQL.DB_Type), WorldDBSettings(5)), SQL.DB_Type)
+                WorldDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), WorldDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the world database!")
             End If
@@ -251,7 +249,7 @@ Public Module WorldServer
     End Sub
 #End Region
 
-    <MTAThreadAttribute()>
+    <MTAThread()>
     Sub Main()
         timeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
 
@@ -419,7 +417,7 @@ Public Module WorldServer
                                     Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                                     Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                                    AccountDatabase.InsertSQL([String].Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+                                    AccountDatabase.InsertSQL(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
                                     If AccountDatabase.QuerySQL("SELECT id FROM account WHERE username = """ & cmd(0) & """;") Then
                                         Console.ForegroundColor = ConsoleColor.DarkGreen
                                         Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
@@ -494,7 +492,7 @@ Public Module WorldServer
                                             Console.ForegroundColor = ConsoleColor.Red
                                             AccountDatabase.Update("UPDATE account_banned SET active = 0 WHERE id = '" & result.Rows(0).Item("id") & "';")
                                             IP = result.Rows(0).Item("last_ip")
-                                            AccountDatabase.Update([String].Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
+                                            AccountDatabase.Update(String.Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
                                             Console.WriteLine(String.Format("[{1}] Account [{0}] has been unbanned.", aName, Format(TimeOfDay, "HH:mm:ss")))
                                         End If
                                     End If

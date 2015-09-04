@@ -1,7 +1,4 @@
-Imports System
-Imports System.Threading
 Imports MangosVB.WorldServer
-Imports mangosVB.Common
 
 Namespace Scripts
     Public Class CreatureAI_Ragefire_Trogg

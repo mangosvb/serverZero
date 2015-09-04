@@ -15,7 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_NPCs
     Private Const DbcBankBagSlotsMax As Integer = 12
@@ -66,10 +65,10 @@ Public Module WS_NPCs
 
         'DONE: Check requirements
         Dim reqLevel As Byte
-        reqLevel = CByte(mySqlQuery.Rows(0).Item("reqlevel"))
-        If reqLevel = 0 Then reqLevel = CByte(spellInfo.spellLevel)
+        reqLevel = mySqlQuery.Rows(0).Item("reqlevel")
+        If reqLevel = 0 Then reqLevel = spellInfo.spellLevel
         Dim spellCost As UInteger
-        spellCost = CUInt(mySqlQuery.Rows(0).Item("spellcost"))
+        spellCost = mySqlQuery.Rows(0).Item("spellcost")
         Dim reqSpell As Integer
         reqSpell = 0
         If SpellChains.ContainsKey(spellInfo.ID) Then
@@ -80,7 +79,7 @@ Public Module WS_NPCs
         If client.Character.Copper < spellCost Then Exit Sub
         If client.Character.Level < reqLevel Then Exit Sub
         If reqSpell > 0 AndAlso client.Character.HaveSpell(reqSpell) = False Then Exit Sub
-        If CInt(mySqlQuery.Rows(0).Item("reqskill")) > 0 AndAlso client.Character.HaveSkill(CInt(mySqlQuery.Rows(0).Item("reqskill")), CInt(mySqlQuery.Rows(0).Item("reqskillvalue"))) = False Then Exit Sub
+        If CInt(mySqlQuery.Rows(0).Item("reqskill")) > 0 AndAlso client.Character.HaveSkill(mySqlQuery.Rows(0).Item("reqskill"), mySqlQuery.Rows(0).Item("reqskillvalue")) = False Then Exit Sub
 
         'TODO: Check proffessions - only alowed to learn 2!
         Try
@@ -166,7 +165,7 @@ Public Module WS_NPCs
 
         Dim spellID As Integer
         For Each sellRow As DataRow In spellsList
-            spellID = CType(sellRow.Item("spell"), Integer)
+            spellID = sellRow.Item("spell")
             If SPELLs.ContainsKey(spellID) = False Then Continue For
             Dim spellInfo As SpellInfo = SPELLs(spellID)
             If spellInfo.SpellEffects(0) IsNot Nothing AndAlso spellInfo.SpellEffects(0).TriggerSpell > 0 Then spellInfo = SPELLs(spellInfo.SpellEffects(0).TriggerSpell)
@@ -176,8 +175,8 @@ Public Module WS_NPCs
                 reqSpell = SpellChains(spellInfo.ID)
             End If
 
-            Dim spellLevel As Byte = CByte(sellRow.Item("reqlevel"))
-            If spellLevel = 0 Then spellLevel = CByte(spellInfo.spellLevel)
+            Dim spellLevel As Byte = sellRow.Item("reqlevel")
+            If spellLevel = 0 Then spellLevel = spellInfo.spellLevel
 
             'CanLearn (0):Green (1):Red (2):Gray
             Dim canLearnFlag As Byte = 0
@@ -215,8 +214,8 @@ Public Module WS_NPCs
             packet.AddInt32(0)
             packet.AddInt32(isProf) 'Profession
             packet.AddInt8(spellLevel)
-            packet.AddInt32(CType(sellRow.Item("reqskill"), Integer))          'Required Skill
-            packet.AddInt32(CType(sellRow.Item("reqskillvalue"), Integer))    'Required Skill Value
+            packet.AddInt32(sellRow.Item("reqskill"))          'Required Skill
+            packet.AddInt32(sellRow.Item("reqskillvalue"))    'Required Skill Value
             packet.AddInt32(reqSpell)          'Required Spell
             packet.AddInt32(0)
             packet.AddInt32(0)
@@ -224,7 +223,7 @@ Public Module WS_NPCs
 
         packet.AddString("Hello! Ready for some training?") ' Trainer UI message?
 
-        objCharacter.Client.Send(packet)
+        objCharacter.client.Send(packet)
         packet.Dispose()
     End Sub
 
@@ -724,7 +723,7 @@ Public Module WS_NPCs
             Dim i As Byte = 0
             Dim itemID As Integer
             For Each sellRow As DataRow In mySqlQuery.Rows
-                itemID = CType(sellRow.Item("item"), Integer)
+                itemID = sellRow.Item("item")
                 'DONE: You will now only see items for your class
                 If ITEMDatabase.ContainsKey(itemID) = False Then
                     Dim tmpItem As New ItemInfo(itemID)
@@ -746,14 +745,14 @@ Public Module WS_NPCs
 
                     'DONE: Discount on reputation
                     Dim discountMod As Single = objCharacter.GetDiscountMod(WORLD_CREATUREs(guid).Faction)
-                    packet.AddInt32(CInt(ITEMDatabase(itemID).BuyPrice * discountMod))
+                    packet.AddInt32(ITEMDatabase(itemID).BuyPrice * discountMod)
                     packet.AddInt32(-1) 'Durability
                     packet.AddInt32(ITEMDatabase(itemID).BuyCount)
                 End If
             Next
 
             If i > 0 Then packet.AddInt8(i, dataPos)
-            objCharacter.Client.Send(packet)
+            objCharacter.client.Send(packet)
             packet.Dispose()
         Catch e As Exception
             Log.WriteLine(LogType.DEBUG, "Error while listing inventory.{0}", vbNewLine & e.ToString)
@@ -807,7 +806,7 @@ Public Module WS_NPCs
     Public Sub On_CMSG_BUY_BANK_SLOT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_BANK_SLOT", client.IP, client.Port)
 
-        If client.Character.Items_AvailableBankSlots < DbcBankBagSlotsMax AndAlso _
+        If client.Character.Items_AvailableBankSlots < DbcBankBagSlotsMax AndAlso
            client.Character.Copper >= DbcBankBagSlotPrices(client.Character.Items_AvailableBankSlots) Then
             client.Character.Copper -= DbcBankBagSlotPrices(client.Character.Items_AvailableBankSlots)
             client.Character.Items_AvailableBankSlots += 1
@@ -856,7 +855,7 @@ Public Module WS_NPCs
         Dim packet As New PacketClass(OPCODES.SMSG_SHOW_BANK)
         Try
             packet.AddUInt64(guid)
-            objCharacter.Client.Send(packet)
+            objCharacter.client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -877,7 +876,7 @@ Public Module WS_NPCs
         Try
             packet.AddUInt64(guid)
             packet.AddInt32(objCharacter.ZoneID)
-            objCharacter.Client.Send(packet)
+            objCharacter.client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -917,7 +916,7 @@ Public Module WS_NPCs
         Try
             packet.AddUInt64(objCharacter.GUID)
             packet.AddInt32(cost)
-            objCharacter.Client.Send(packet)
+            objCharacter.client.Send(packet)
         Finally
             packet.Dispose()
         End Try
@@ -950,7 +949,7 @@ Public Module WS_NPCs
 
             'DONE: Reset Talentpoints to Level - 9
             client.Character.TalentPoints = client.Character.Level - 9
-            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_CHARACTER_POINTS1, CType(client.Character.TalentPoints, Integer))
+            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_CHARACTER_POINTS1, client.Character.TalentPoints)
             client.Character.SendCharacterUpdate(True)
 
             'DONE: Use spell 14867
@@ -1143,12 +1142,12 @@ Public Module WS_NPCs
 
                     If npcMenu.Menus.Count = 0 Then ' If we only have quests to list
                         If qMenu.IDs.Count = 1 Then ' If we only have one quest to list, we direct the client directly to it
-                            Dim questID As Integer = CType(qMenu.IDs(0), Integer)
+                            Dim questID As Integer = qMenu.IDs(0)
                             If Not ALLQUESTS.IsValidQuest(questID) Then
                                 'TODO: Another chunk that doesn't do anything but should
                                 Dim tmpQuest As New WS_QuestInfo(questID)
                             End If
-                            Dim status As QuestgiverStatusFlag = CType(qMenu.Icons(0), QuestgiverStatusFlag)
+                            Dim status As QuestgiverStatusFlag = qMenu.Icons(0)
                             If status = QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE Then
                                 For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                                     If objCharacter.TalkQuests(i) IsNot Nothing AndAlso objCharacter.TalkQuests(i).ID = questID Then
@@ -1160,7 +1159,7 @@ Public Module WS_NPCs
                                 Next
                             Else
                                 objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                                ALLQUESTS.SendQuestDetails(objCharacter.Client, objCharacter.TalkCurrentQuest, cGuid, True)
+                                ALLQUESTS.SendQuestDetails(objCharacter.client, objCharacter.TalkCurrentQuest, cGuid, True)
                             End If
                         Else ' There were more than one quest to list
                             ALLQUESTS.SendQuestMenu(objCharacter, cGuid, "I have some tasks for you, $N.", qMenu)
@@ -1185,13 +1184,13 @@ Public Module WS_NPCs
         ''' <param name="selected">The selected.</param>
         ''' <returns></returns>
         Public Overrides Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
-            Select Case CType(objCharacter.TalkMenuTypes(selected), Gossip_Option)
+            Select Case objCharacter.TalkMenuTypes(selected)
                 Case Gossip_Option.GOSSIP_OPTION_SPIRITHEALER
                     If objCharacter.DEAD = True Then
                         Dim response As New PacketClass(OPCODES.SMSG_SPIRIT_HEALER_CONFIRM)
                         Try
                             response.AddUInt64(cGUID)
-                            objCharacter.Client.Send(response)
+                            objCharacter.client.Send(response)
                         Finally
                             response.Dispose()
                         End Try

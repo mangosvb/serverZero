@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.Global_Constants
 
 Public Module WS_Player_Initializator
     Public DEFAULT_MAX_LEVEL As Integer = 60 'Max Player Level
@@ -40,7 +38,7 @@ Public Module WS_Player_Initializator
     End Function
 
     Private Function gainStat(ByVal level As Integer, ByVal a3 As Double, ByVal a2 As Double, ByVal a1 As Double, ByVal a0 As Double) As Integer
-        Return CType(Math.Round(a3 * level * level * level + a2 * level * level + a1 * level + a0), Integer) - _
+        Return CType(Math.Round(a3 * level * level * level + a2 * level * level + a1 * level + a0), Integer) -
                 CType(Math.Round(a3 * (level - 1) * (level - 1) * (level - 1) + a2 * (level - 1) * (level - 1) + a1 * (level - 1) + a0), Integer)
     End Function
 
@@ -203,7 +201,7 @@ Public Module WS_Player_Initializator
         If objCharacter.Level > 9 Then objCharacter.TalentPoints += 1
 
         For Each Skill As KeyValuePair(Of Integer, TSkill) In objCharacter.Skills
-            If SkillLines(CType(Skill.Key, Integer)) = SKILL_LineCategory.WEAPON_SKILLS Then
+            If SkillLines(Skill.Key) = SKILL_LineCategory.WEAPON_SKILLS Then
                 CType(Skill.Value, TSkill).Base += 5
             End If
         Next

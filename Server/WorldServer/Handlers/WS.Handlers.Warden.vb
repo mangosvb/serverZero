@@ -17,8 +17,6 @@
 '
 
 Imports System.Security.Cryptography
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common
 
 Public Module WS_Handlers_Warden
 
@@ -263,32 +261,32 @@ Public Module WS_Handlers_Warden
         Public Sub New(ByVal seed As Byte())
             'Initialization
             Dim sha1 As New SHA1Managed
-            Me.source1 = sha1.ComputeHash(seed, 0, 20)
-            Me.source2 = sha1.ComputeHash(seed, 20, 20)
-            Me.Update()
+            source1 = sha1.ComputeHash(seed, 0, 20)
+            source2 = sha1.ComputeHash(seed, 20, 20)
+            Update()
         End Sub
         Public Sub Update()
             Dim buffer1(20 * 3 - 1) As Byte
             Dim sha1 As New SHA1Managed
-            Buffer.BlockCopy(Me.source1, 0, buffer1, 0, 20)
-            Buffer.BlockCopy(Me.data, 0, buffer1, 20, 20)
-            Buffer.BlockCopy(Me.source2, 0, buffer1, 40, 20)
-            Me.data = sha1.ComputeHash(buffer1)
+            Buffer.BlockCopy(source1, 0, buffer1, 0, 20)
+            Buffer.BlockCopy(data, 0, buffer1, 20, 20)
+            Buffer.BlockCopy(source2, 0, buffer1, 40, 20)
+            data = sha1.ComputeHash(buffer1)
         End Sub
 
         Private Function GetByte() As Byte
-            Dim r As Byte = Me.data(index)
-            Me.index += 1
+            Dim r As Byte = data(index)
+            index += 1
             If index >= &H14 Then
-                Me.Update()
-                Me.index = 0
+                Update()
+                index = 0
             End If
             Return r
         End Function
         Public Function GetBytes(ByVal count As Integer) As Byte()
             Dim b(count - 1) As Byte
             For i As Integer = 0 To count - 1
-                b(i) = Me.GetByte
+                b(i) = GetByte
             Next
             Return b
         End Function
@@ -350,14 +348,14 @@ Public Module WS_Handlers_Warden
         Public Shared Sub Crypt(ByRef data As Byte(), ByVal key As Byte())
             Dim temp As Byte
             For i As Integer = 0 To data.Length - 1
-                key(256) = (CType(key(256), Integer) + 1) And &HFF
-                key(257) = (CType(key(257), Integer) + CType(key(key(256)), Integer)) And &HFF
+                key(256) = (key(256) + 1) And &HFF
+                key(257) = (key(257) + CType(key(key(256)), Integer)) And &HFF
 
                 temp = key(key(257) And &HFF)
                 key(key(257)) = key(key(256))
                 key(key(256)) = temp
 
-                data(i) = (data(i) Xor key((CType(key(key(257)), Integer) + CType(key(key(256)), Integer)) And &HFF))
+                data(i) = (data(i) Xor key((key(key(257)) + CType(key(key(256)), Integer)) And &HFF))
             Next
         End Sub
     End Class

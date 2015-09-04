@@ -15,8 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_GuardGossip
 
@@ -24,7 +22,7 @@ Public Module WS_GuardGossip
 
     Public Class TGuardTalk
         Inherits TBaseTalk
-        
+
 #Region "Gossip functions"
         Public Overrides Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
             Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
@@ -93,7 +91,7 @@ Public Module WS_GuardGossip
         End Sub
 
         Public Function GetGossip(ByVal Entry As Integer) As Gossips
-            Select Case CType(Entry, Guards)
+            Select Case Entry
                 Case Guards.Bluffwatcher
                     Return Gossips.Thunderbluff
                 Case Guards.Darnassus_Sentinel

@@ -18,7 +18,6 @@
 
 Imports System.Threading
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WC_Handlers_Group
 

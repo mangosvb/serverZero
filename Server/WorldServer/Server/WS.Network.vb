@@ -16,12 +16,8 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Runtime.Remoting
-Imports System.Collections.Generic
 Imports System.Security.Permissions
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common
 
 Public Module WS_Network
 
@@ -40,7 +36,7 @@ Public Module WS_Network
         Implements IWorld
         Implements IDisposable
 
-        <CLSCompliant(False)> _
+        <CLSCompliant(False)>
         Public _flagStopListen As Boolean = False
         Private m_RemoteChannel As Channels.IChannel = Nothing
         Private m_RemoteURI As String = ""
@@ -74,7 +70,7 @@ Public Module WS_Network
                 'NOTE: Password protected remoting
                 Authenticator = New Authenticator(Me, Config.ClusterPassword)
 
-                RemotingServices.Marshal(CType(Authenticator, Authenticator), "WorldServer.rem")
+                RemotingServices.Marshal(Authenticator, "WorldServer.rem")
                 Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}", m_LocalURI)
 
                 'Notify Cluster About Us
@@ -118,7 +114,7 @@ Public Module WS_Network
         End Sub
 #End Region
 
-        <SecurityPermissionAttribute(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)> _
+        <SecurityPermission(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)>
         Public Overrides Function InitializeLifetimeService() As Object
             Return Nothing
         End Function
@@ -165,7 +161,7 @@ Public Module WS_Network
         Public Sub ClientConnect(ByVal id As UInteger, ByVal client As ClientInfo) Implements IWorld.ClientConnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", id)
 
-            Dim objCharacter As New ClientClass(Client)
+            Dim objCharacter As New ClientClass(client)
 
             If CLIENTs.ContainsKey(id) = True Then  'Ooops, the character is already loaded, remove it
                 CLIENTs.Remove(id)
@@ -174,24 +170,24 @@ Public Module WS_Network
         End Sub
 
         Public Sub ClientDisconnect(ByVal id As UInteger) Implements IWorld.ClientDisconnect
-            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", ID)
+            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", id)
 
-            If CLIENTs(ID).Character IsNot Nothing Then
-                CLIENTs(ID).Character.Save()
+            If CLIENTs(id).Character IsNot Nothing Then
+                CLIENTs(id).Character.Save()
             End If
 
-            CLIENTs(ID).Delete()
-            CLIENTs.Remove(ID)
+            CLIENTs(id).Delete()
+            CLIENTs.Remove(id)
         End Sub
         Public Sub ClientLogin(ByVal id As UInteger, ByVal guid As ULong) Implements IWorld.ClientLogin
-            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", id, GUID)
+            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", id, guid)
 
             Try
                 Dim client As ClientClass = CLIENTs(id)
-                Dim Character As New CharacterObject(client, GUID)
+                Dim Character As New CharacterObject(client, guid)
 
                 CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                CHARACTERs(GUID) = Character
+                CHARACTERs(guid) = Character
                 CHARACTERs_Lock.ReleaseWriterLock()
 
                 'DONE: SMSG_CORPSE_RECLAIM_DELAY
@@ -202,18 +198,18 @@ Public Module WS_Network
 
                 Character.Login()
 
-                Log.WriteLine(LogType.USER, "[{0}:{1}] Player login complete [0x{2:X}]", client.IP, client.Port, GUID)
+                Log.WriteLine(LogType.USER, "[{0}:{1}] Player login complete [0x{2:X}]", client.IP, client.Port, guid)
             Catch e As Exception
                 Log.WriteLine(LogType.FAILED, "Error on login: {0}", e.ToString)
             End Try
         End Sub
         Public Sub ClientLogout(ByVal id As UInteger) Implements IWorld.ClientLogout
-            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client logout", ID)
+            Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client logout", id)
 
-            CLIENTs(ID).Character.Logout(Nothing)
+            CLIENTs(id).Character.Logout(Nothing)
         End Sub
         Public Sub ClientPacket(ByVal id As UInteger, ByVal data() As Byte) Implements IWorld.ClientPacket
-            Dim p As New PacketClass(Data)
+            Dim p As New PacketClass(data)
             Try
                 CLIENTs(id).Packets.Enqueue(p)
                 ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(id).OnPacket)
@@ -228,7 +224,7 @@ Public Module WS_Network
         Public Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer Implements IWorld.Ping
             Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime("") - timestamp)
             LastPing = timeGetTime("")
-            WC_MsTime = timestamp + Latency
+            WC_MsTime = timestamp + latency
 
             Return timeGetTime("")
         End Function
@@ -252,8 +248,8 @@ Public Module WS_Network
         End Sub
 
         Public Sub ServerInfo(ByRef cpuUsage As Single, ByRef memoryUsage As ULong) Implements IWorld.ServerInfo
-            memoryUsage = CULng(Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024))
-            CPUUsage = UsageCPU
+            memoryUsage = Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024)
+            cpuUsage = UsageCPU
         End Sub
 
         Public Sub InstanceCreate(ByVal MapID As UInteger) Implements IWorld.InstanceCreate
@@ -266,7 +262,7 @@ Public Module WS_Network
             Maps(MapID).Dispose()
         End Sub
         Public Function InstanceCanCreate(ByVal Type As Integer) As Boolean Implements IWorld.InstanceCanCreate
-            Select Case CType(Type, MapTypes)
+            Select Case Type
                 Case MapTypes.MAP_BATTLEGROUND
                     Return Config.CreateBattlegrounds
                 Case MapTypes.MAP_INSTANCE
@@ -348,7 +344,7 @@ Public Module WS_Network
             CHARACTERs(GUID).GuildRank = GuildRank
 
             CHARACTERs(GUID).SetUpdateFlag(EPlayerFields.PLAYER_GUILDID, GuildID)
-            CHARACTERs(GUID).SetUpdateFlag(EPlayerFields.PLAYER_GUILDRANK, CInt(GuildRank))
+            CHARACTERs(GUID).SetUpdateFlag(EPlayerFields.PLAYER_GUILDRANK, GuildRank)
             CHARACTERs(GUID).SendCharacterUpdate()
         End Sub
 
@@ -405,7 +401,7 @@ Public Module WS_Network
                     End If
                 Catch err As Exception
                     Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, vbNewLine)
-                    Me.Delete()
+                    Delete()
                 Finally
                     p.Dispose()
                 End Try
@@ -420,7 +416,7 @@ Public Module WS_Network
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
                     ClsWorldServer.Cluster = Nothing
-                    Me.Delete()
+                    Delete()
                 End Try
             End SyncLock
         End Sub
@@ -437,7 +433,7 @@ Public Module WS_Network
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
                     ClsWorldServer.Cluster = Nothing
-                    Me.Delete()
+                    Delete()
                 End Try
             End SyncLock
         End Sub
@@ -455,7 +451,7 @@ Public Module WS_Network
                     If DEBUG_CONNECTION Then Exit Sub
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
                     ClsWorldServer.Cluster = Nothing
-                    Me.Delete()
+                    Delete()
                 End Try
             End SyncLock
         End Sub
@@ -472,9 +468,9 @@ Public Module WS_Network
 
                 ClsWorldServer.Cluster.ClientDrop(Index)
                 CLIENTs.Remove(Index)
-                If Not Me.Character Is Nothing Then
-                    Me.Character.Client = Nothing
-                    Me.Character.Dispose()
+                If Not Character Is Nothing Then
+                    Character.client = Nothing
+                    Character.Dispose()
                 End If
             End If
             _disposedValue = True
@@ -492,14 +488,14 @@ Public Module WS_Network
             On Error Resume Next
 
             CLIENTs.Remove(Index)
-            If Not Me.Character Is Nothing Then
-                Me.Character.Client = Nothing
-                Me.Character.Dispose()
+            If Not Character Is Nothing Then
+                Character.client = Nothing
+                Character.Dispose()
             End If
-            Me.Dispose()
+            Dispose()
         End Sub
         Public Sub Disconnect()
-            Me.Delete()
+            Delete()
         End Sub
 
         Public Sub New()

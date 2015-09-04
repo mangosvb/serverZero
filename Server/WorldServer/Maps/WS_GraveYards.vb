@@ -1,6 +1,4 @@
-﻿Imports mangosVB.Common.BaseWriter
-
-Public Class WS_GraveYards
+﻿Public Class WS_GraveYards
     Implements IDisposable
 #Region "Graveyards"
     Public Graveyards As New Dictionary(Of Integer, TGraveyard)
@@ -29,10 +27,10 @@ Public Class WS_GraveYards
         Property X As Integer
 
             Get
-                Return Me._locationPosX
+                Return _locationPosX
             End Get
             Set(value As Integer)
-                Me._locationPosX = X
+                _locationPosX = X
             End Set
         End Property
 
@@ -43,10 +41,10 @@ Public Class WS_GraveYards
         Property Y As Integer
 
             Get
-                Return Me._locationPosY
+                Return _locationPosY
             End Get
             Set(value As Integer)
-                Me._locationPosY = Y
+                _locationPosY = Y
             End Set
         End Property
 
@@ -57,10 +55,10 @@ Public Class WS_GraveYards
         Property Z As Integer
 
             Get
-                Return Me._locationPosZ
+                Return _locationPosZ
             End Get
             Set(value As Integer)
-                Me._locationPosZ = Z
+                _locationPosZ = Z
             End Set
         End Property
 
@@ -71,10 +69,10 @@ Public Class WS_GraveYards
         Property Map As Integer
 
             Get
-                Return Me._locationMapID
+                Return _locationMapID
             End Get
             Set(value As Integer)
-                Me._locationMapID = Map
+                _locationMapID = Map
             End Set
         End Property
     End Structure
@@ -89,7 +87,7 @@ Public Class WS_GraveYards
     ''' <param name="locationMapID">The location map ID.</param>
     Public Sub AddGraveYard(ID As Integer, locationPosX As Single, locationPosY As Single, locationPosZ As Single, locationMapID As Integer)
         ' TODO: Complete member initialization
-        Me.Graveyards.Add(ID, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
+        Graveyards.Add(ID, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
     End Sub
 
     ''' <summary>
@@ -99,7 +97,7 @@ Public Class WS_GraveYards
     ''' <returns>a <c>classCoords</c> structure</returns>
     Public Function GetGraveYard(ID As Integer) As TGraveyard
         Dim ret As New TGraveyard
-        ret = Me.Graveyards(ID)
+        ret = Graveyards(ID)
         Return ret
     End Function
 
@@ -114,7 +112,7 @@ Public Class WS_GraveYards
     Public Sub InitializeGraveyards()
         Try
             Graveyards.Clear()
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\WorldSafeLocs.dbc")
+            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\WorldSafeLocs.dbc")
 
             Dim locationPosX As Single
             Dim locationPosY As Single
@@ -148,7 +146,7 @@ Public Class WS_GraveYards
 #End Region
 
     Public Sub GoToNearestGraveyard(ByRef Character As CharacterObject, ByVal Alive As Boolean, ByVal Teleport As Boolean)
-        
+
         Dim GraveQuery As New DataTable
         Dim Ghostzone As Integer
         Dim foundNear As Boolean = False

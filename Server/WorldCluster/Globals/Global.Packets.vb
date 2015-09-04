@@ -17,7 +17,6 @@
 '
 Imports System.IO
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module Packets
 
@@ -27,9 +26,9 @@ Public Module Packets
         Dim buffer As String = ""
         Try
             If Client Is Nothing Then
-                buffer = buffer + [String].Format("DEBUG: Packet Dump{0}", vbNewLine)
+                buffer = buffer + String.Format("DEBUG: Packet Dump{0}", vbNewLine)
             Else
-                buffer = buffer + [String].Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length, vbNewLine)
+                buffer = buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length, vbNewLine)
             End If
 
             If data.Length Mod 16 = 0 Then
@@ -68,10 +67,10 @@ Public Module Packets
 
             Dim TypeStr As String = "IN"
             If Server Then TypeStr = "OUT"
-            If Client Is Nothing Then
-                buffer = buffer + [String].Format("{4} Packet: (0x{0:X4}) {1} PacketSize = {2}{3}", CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
+            If client Is Nothing Then
+                buffer = buffer + String.Format("{4} Packet: (0x{0:X4}) {1} PacketSize = {2}{3}", CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
             Else
-                buffer = buffer + [String].Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", client.IP, client.Port, CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
+                buffer = buffer + String.Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", client.IP, client.Port, CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
             End If
 
             buffer += "|------------------------------------------------|----------------|" & vbNewLine
@@ -115,7 +114,7 @@ Public Module Packets
                 tmpChar(i) = "."c
             End If
         Next i
-        Return CStr(tmpChar)
+        Return tmpChar
     End Function
 
     Public Class PacketClass
@@ -139,8 +138,8 @@ Public Module Packets
             ReDim Preserve Data(3)
             Data(0) = 0
             Data(1) = 2
-            Data(2) = CType(opcode, Int16) Mod 256
-            Data(3) = CType(opcode, Int16) \ 256
+            Data(2) = CType(opcode, Short) Mod 256
+            Data(3) = CType(opcode, Short) \ 256
         End Sub
         Public Sub New(ByRef rawdata() As Byte)
             Data = rawdata
@@ -167,8 +166,8 @@ Public Module Packets
             Data(0) = (Data.Length - 2) \ 256
             Data(1) = (Data.Length - 2) Mod 256
 
-            Data(Data.Length - 2) = CType((buffer And 255), Byte)
-            Data(Data.Length - 1) = CType(((buffer >> 8) And 255), Byte)
+            Data(Data.Length - 2) = buffer And 255
+            Data(Data.Length - 1) = (buffer >> 8) And 255
         End Sub
         Public Sub AddInt32(ByVal buffer As Integer, Optional ByVal position As Integer = 0)
             If position <= 0 OrElse position > (Data.Length - 3) Then
@@ -178,28 +177,28 @@ Public Module Packets
                 Data(1) = (Data.Length - 2) Mod 256
             End If
 
-            Data(position) = CType((buffer And 255), Byte)
-            Data(position + 1) = CType(((buffer >> 8) And 255), Byte)
-            Data(position + 2) = CType(((buffer >> 16) And 255), Byte)
-            Data(position + 3) = CType(((buffer >> 24) And 255), Byte)
+            Data(position) = buffer And 255
+            Data(position + 1) = (buffer >> 8) And 255
+            Data(position + 2) = (buffer >> 16) And 255
+            Data(position + 3) = (buffer >> 24) And 255
         End Sub
         Public Sub AddInt64(ByVal buffer As Long)
             ReDim Preserve Data(Data.Length + 7)
             Data(0) = (Data.Length - 2) \ 256
             Data(1) = (Data.Length - 2) Mod 256
 
-            Data(Data.Length - 8) = CType((buffer And 255), Byte)
-            Data(Data.Length - 7) = CType(((buffer >> 8) And 255), Byte)
-            Data(Data.Length - 6) = CType(((buffer >> 16) And 255), Byte)
-            Data(Data.Length - 5) = CType(((buffer >> 24) And 255), Byte)
-            Data(Data.Length - 4) = CType(((buffer >> 32) And 255), Byte)
-            Data(Data.Length - 3) = CType(((buffer >> 40) And 255), Byte)
-            Data(Data.Length - 2) = CType(((buffer >> 48) And 255), Byte)
-            Data(Data.Length - 1) = CType(((buffer >> 56) And 255), Byte)
+            Data(Data.Length - 8) = buffer And 255
+            Data(Data.Length - 7) = (buffer >> 8) And 255
+            Data(Data.Length - 6) = (buffer >> 16) And 255
+            Data(Data.Length - 5) = (buffer >> 24) And 255
+            Data(Data.Length - 4) = (buffer >> 32) And 255
+            Data(Data.Length - 3) = (buffer >> 40) And 255
+            Data(Data.Length - 2) = (buffer >> 48) And 255
+            Data(Data.Length - 1) = (buffer >> 56) And 255
         End Sub
         Public Sub AddString(ByVal buffer As String)
             If IsDBNull(buffer) Or buffer = "" Then
-                Me.AddInt8(0)
+                AddInt8(0)
             Else
                 Dim Bytes As Byte() = Text.Encoding.UTF8.GetBytes(buffer.ToCharArray)
 
@@ -279,8 +278,8 @@ Public Module Packets
             Data(0) = (Data.Length - 2) \ 256
             Data(1) = (Data.Length - 2) Mod 256
 
-            Data(Data.Length - 2) = CType((buffer And 255), Byte)
-            Data(Data.Length - 1) = CType(((buffer >> 8) And 255), Byte)
+            Data(Data.Length - 2) = buffer And 255
+            Data(Data.Length - 1) = (buffer >> 8) And 255
         End Sub
 
         Public Sub AddUInt32(ByVal buffer As UInteger)
@@ -288,10 +287,10 @@ Public Module Packets
             Data(0) = (Data.Length - 2) \ 256
             Data(1) = (Data.Length - 2) Mod 256
 
-            Data(Data.Length - 4) = CType((buffer And 255), Byte)
-            Data(Data.Length - 3) = CType(((buffer >> 8) And 255), Byte)
-            Data(Data.Length - 2) = CType(((buffer >> 16) And 255), Byte)
-            Data(Data.Length - 1) = CType(((buffer >> 24) And 255), Byte)
+            Data(Data.Length - 4) = buffer And 255
+            Data(Data.Length - 3) = (buffer >> 8) And 255
+            Data(Data.Length - 2) = (buffer >> 16) And 255
+            Data(Data.Length - 1) = (buffer >> 24) And 255
         End Sub
 
         Public Sub AddUInt64(ByVal buffer As ULong)
@@ -299,14 +298,14 @@ Public Module Packets
             Data(0) = (Data.Length - 2) \ 256
             Data(1) = (Data.Length - 2) Mod 256
 
-            Data(Data.Length - 8) = CType((buffer And 255), Byte)
-            Data(Data.Length - 7) = CType(((buffer >> 8) And 255), Byte)
-            Data(Data.Length - 6) = CType(((buffer >> 16) And 255), Byte)
-            Data(Data.Length - 5) = CType(((buffer >> 24) And 255), Byte)
-            Data(Data.Length - 4) = CType(((buffer >> 32) And 255), Byte)
-            Data(Data.Length - 3) = CType(((buffer >> 40) And 255), Byte)
-            Data(Data.Length - 2) = CType(((buffer >> 48) And 255), Byte)
-            Data(Data.Length - 1) = CType(((buffer >> 56) And 255), Byte)
+            Data(Data.Length - 8) = buffer And 255
+            Data(Data.Length - 7) = (buffer >> 8) And 255
+            Data(Data.Length - 6) = (buffer >> 16) And 255
+            Data(Data.Length - 5) = (buffer >> 24) And 255
+            Data(Data.Length - 4) = (buffer >> 32) And 255
+            Data(Data.Length - 3) = (buffer >> 40) And 255
+            Data(Data.Length - 2) = (buffer >> 48) And 255
+            Data(Data.Length - 1) = (buffer >> 56) And 255
         End Sub
 
         Public Function GetInt8() As Byte

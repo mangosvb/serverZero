@@ -18,13 +18,12 @@
 
 Imports System.Threading
 Imports System.Net.Sockets
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WC_Handlers_Auth
 
     Const REQUIRED_BUILD_LOW As Integer = 5875 ' 1.12.1
-    Const REQUIRED_BUILD_HIGH As Integer = 5875
+    Const REQUIRED_BUILD_HIGH As Integer = 6141
 
     Public Sub SendLoginOK(ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
@@ -343,7 +342,7 @@ Public Module WC_Handlers_Auth
 
         Try
             AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = '{0}';", client.Account), MySQLQuery)
-            Account_ID = CType(MySQLQuery.Rows(0).Item("id"), Integer)
+            Account_ID = MySQLQuery.Rows(0).Item("id")
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE account_id = '{0}' ORDER BY char_guid;", Account_ID), MySQLQuery)
 
@@ -590,15 +589,15 @@ Public Module WC_Handlers_Auth
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", client.IP, client.Port, GUID)
 
         If client.Character Is Nothing Then
+            client.Character = New CharacterObject(GUID, Client)
+        Else
+            If client.Character.GUID <> GUID Then
+                client.Character.Dispose()
                 client.Character = New CharacterObject(GUID, Client)
             Else
-                If client.Character.GUID <> GUID Then
-                    client.Character.Dispose()
-                    client.Character = New CharacterObject(GUID, Client)
-                Else
-                    client.Character.ReLoad()
-                End If
+                client.Character.ReLoad()
             End If
+        End If
 
         If WorldServer.InstanceCheck(Client, client.Character.Map) Then
             client.Character.GetWorld.ClientConnect(Client.Index, client.GetClientInfo)

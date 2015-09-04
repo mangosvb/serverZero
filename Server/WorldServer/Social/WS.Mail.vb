@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Mail
 
@@ -153,14 +152,14 @@ Public Module WS_Mail
             Dim tmpItem As ItemObject
             If MySQLQuery.Rows.Count > 0 Then
                 For i As Byte = 0 To MySQLQuery.Rows.Count - 1
-                    response.AddInt32(CType(MySQLQuery.Rows(i).Item("mail_id"), Integer))
-                    response.AddInt8(CType(MySQLQuery.Rows(i).Item("mail_type"), Byte))
+                    response.AddInt32(MySQLQuery.Rows(i).Item("mail_id"))
+                    response.AddInt8(MySQLQuery.Rows(i).Item("mail_type"))
 
-                    Select Case CType(MySQLQuery.Rows(i).Item("mail_type"), Byte)
+                    Select Case MySQLQuery.Rows(i).Item("mail_type")
                         Case MailTypeInfo.NORMAL
-                            response.AddUInt64(CType(MySQLQuery.Rows(i).Item("mail_sender"), ULong))
+                            response.AddUInt64(MySQLQuery.Rows(i).Item("mail_sender"))
                         Case MailTypeInfo.AUCTION
-                            response.AddInt32(CType(MySQLQuery.Rows(i).Item("mail_sender"), Integer)) 'creature/gameobject entry, auction id
+                            response.AddInt32(MySQLQuery.Rows(i).Item("mail_sender")) 'creature/gameobject entry, auction id
                     End Select
 
                     response.AddString(MySQLQuery.Rows(i).Item("mail_subject"))
@@ -175,7 +174,7 @@ Public Module WS_Mail
                     response.AddInt32(MySQLQuery.Rows(i).Item("mail_stationary")) '41/62 = Mail Background
 
                     If CType(MySQLQuery.Rows(i).Item("item_guid"), ULong) > 0 Then
-                        tmpItem = LoadItemByGUID(CType(MySQLQuery.Rows(i).Item("item_guid"), ULong))
+                        tmpItem = LoadItemByGUID(MySQLQuery.Rows(i).Item("item_guid"))
                         response.AddInt32(tmpItem.ItemEntry)
 
                         If tmpItem.Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_PERM) Then
@@ -201,9 +200,9 @@ Public Module WS_Mail
                         response.AddInt32(0)
                     End If
 
-                    response.AddUInt32(CUInt(MySQLQuery.Rows(i).Item("mail_money")))    'Money on delivery
-                    response.AddUInt32(CUInt(MySQLQuery.Rows(i).Item("mail_COD")))      'Money as COD
-                    response.AddInt32(CInt(MySQLQuery.Rows(i).Item("mail_read")))
+                    response.AddUInt32(MySQLQuery.Rows(i).Item("mail_money"))    'Money on delivery
+                    response.AddUInt32(MySQLQuery.Rows(i).Item("mail_COD"))      'Money as COD
+                    response.AddInt32(MySQLQuery.Rows(i).Item("mail_read"))
                     response.AddSingle(((CType(MySQLQuery.Rows(i).Item("mail_time"), UInteger) - GetTimestamp(Now)) / Common.Global_Constants.DAY))
                     response.AddInt32(0) 'Mail template ID
                 Next
@@ -271,7 +270,7 @@ Public Module WS_Mail
                 Exit Sub
             End If
 
-            Dim tmpItem As ItemObject = LoadItemByGUID(CType(MySQLQuery.Rows(0).Item("item_guid"), ULong))
+            Dim tmpItem As ItemObject = LoadItemByGUID(MySQLQuery.Rows(0).Item("item_guid"))
             tmpItem.OwnerGUID = client.Character.GUID
             tmpItem.Save()
 
@@ -311,10 +310,10 @@ Public Module WS_Mail
 
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query(String.Format("SELECT mail_money FROM characters_mail WHERE mail_id = {0}; UPDATE characters_mail SET mail_money = 0 WHERE mail_id = {0};", MailID), MySQLQuery)
-        If (CLng(Client.Character.Copper) + CLng(MySQLQuery.Rows(0).Item("mail_money"))) > UInteger.MaxValue Then
+        If (client.Character.Copper + CLng(MySQLQuery.Rows(0).Item("mail_money"))) > UInteger.MaxValue Then
             client.Character.Copper = UInteger.MaxValue
         Else
-            client.Character.Copper += CUInt(MySQLQuery.Rows(0).Item("mail_money"))
+            client.Character.Copper += MySQLQuery.Rows(0).Item("mail_money")
         End If
         client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
@@ -401,7 +400,7 @@ Public Module WS_Mail
                 Exit Sub
             End If
             Dim ReceiverGUID As ULong = MySQLQuery.Rows(0).Item("char_guid")
-            Dim ReceiverSide As Boolean = GetCharacterSide(CType(MySQLQuery.Rows(0).Item("char_race"), Byte))
+            Dim ReceiverSide As Boolean = GetCharacterSide(MySQLQuery.Rows(0).Item("char_race"))
 
             If client.Character.GUID = ReceiverGUID Then
                 Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
@@ -469,7 +468,7 @@ Public Module WS_Mail
             If CHARACTERs.ContainsKey(ReceiverGUID) Then
                 Dim response As New PacketClass(OPCODES.SMSG_RECEIVED_MAIL)
                 response.AddInt32(0)
-                CHARACTERs(ReceiverGUID).Client.Send(response)
+                CHARACTERs(ReceiverGUID).client.Send(response)
                 response.Dispose()
             End If
             CHARACTERs_Lock.ReleaseReaderLock()

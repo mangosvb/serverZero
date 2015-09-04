@@ -17,7 +17,6 @@
 '
 
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WC_Handlers_Guild
 
@@ -28,7 +27,7 @@ Public Module WC_Handlers_Guild
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_QUERY [{2}]", client.IP, client.Port, GuildID)
 
-        SendGuildQuery(Client, GuildID)
+        SendGuildQuery(client, GuildID)
     End Sub
 
     Public Sub On_CMSG_GUILD_ROSTER(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -36,7 +35,7 @@ Public Module WC_Handlers_Guild
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_ROSTER", client.IP, client.Port)
 
-        SendGuildRoster(Client.Character)
+        SendGuildRoster(client.Character)
     End Sub
 
     Public Sub On_CMSG_GUILD_CREATE(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -47,7 +46,7 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_CREATE [{2}]", client.IP, client.Port, guildName)
 
         If client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_ALREADY_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_ALREADY_IN_GUILD)
             Exit Sub
         End If
 
@@ -55,7 +54,7 @@ Public Module WC_Handlers_Guild
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES (""{0}"", {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = ""{0}"";", guildName, client.Character.GUID, Now.Year - 2006, Now.Month, Now.Day), MySQLQuery)
 
-        AddCharacterToGuild(Client.Character, MySQLQuery.Rows(0).Item("guild_id"), 0)
+        AddCharacterToGuild(client.Character, MySQLQuery.Rows(0).Item("guild_id"), 0)
     End Sub
 
     Public Sub On_CMSG_GUILD_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -64,15 +63,15 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_INFO", client.IP, client.Port)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         End If
 
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_INFO)
-        response.AddString(Client.Character.Guild.Name)
-        response.AddInt32(Client.Character.Guild.cDay)
-        response.AddInt32(Client.Character.Guild.cMonth)
-        response.AddInt32(Client.Character.Guild.cYear)
+        response.AddString(client.Character.Guild.Name)
+        response.AddInt32(client.Character.Guild.cDay)
+        response.AddInt32(client.Character.Guild.cMonth)
+        response.AddInt32(client.Character.Guild.cYear)
         response.AddInt32(0)
         response.AddInt32(0)
         client.Send(response)
@@ -90,10 +89,10 @@ Public Module WC_Handlers_Guild
         If rankID < 0 OrElse rankID > 9 Then Exit Sub
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -102,8 +101,8 @@ Public Module WC_Handlers_Guild
 
         CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_rank{1} = ""{2}"", guild_rank{1}_Rights = {3} WHERE guild_id = {0};", client.Character.Guild.ID, rankID, rankName, rankRights))
 
-        SendGuildQuery(Client, client.Character.Guild.ID)
-        SendGuildRoster(Client.Character)
+        SendGuildQuery(client, client.Character.Guild.ID)
+        SendGuildRoster(client.Character)
     End Sub
 
     Public Sub On_CMSG_GUILD_ADD_RANK(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -114,13 +113,13 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_ADD_RANK [{2}]", client.IP, client.Port, NewRankName)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         ElseIf ValidateGuildName(NewRankName) = False Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
             Exit Sub
         End If
 
@@ -130,13 +129,13 @@ Public Module WC_Handlers_Guild
                 client.Character.Guild.RankRights(i) = GuildRankRights.GR_RIGHT_GCHATLISTEN Or GuildRankRights.GR_RIGHT_GCHATSPEAK
                 CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_rank{1} = '{2}', guild_rank{1}_Rights = '{3}' WHERE guild_id = {0};", client.Character.Guild.ID, i, NewRankName, client.Character.Guild.RankRights(i)))
 
-                SendGuildQuery(Client, client.Character.Guild.ID)
-                SendGuildRoster(Client.Character)
+                SendGuildQuery(client, client.Character.Guild.ID)
+                SendGuildRoster(client.Character)
                 Exit Sub
             End If
         Next
 
-        SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
+        SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
     End Sub
 
     Public Sub On_CMSG_GUILD_DEL_RANK(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -145,10 +144,10 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_DEL_RANK", client.IP, client.Port)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -158,13 +157,13 @@ Public Module WC_Handlers_Guild
             If client.Character.Guild.Ranks(i) <> "" Then
                 CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_rank{1} = '{2}', guild_rank{1}_Rights = '{3}' WHERE guild_id = {0};", client.Character.Guild.ID, i, "", 0))
 
-                SendGuildQuery(Client, client.Character.Guild.ID)
-                SendGuildRoster(Client.Character)
+                SendGuildQuery(client, client.Character.Guild.ID)
+                SendGuildRoster(client.Character)
                 Exit Sub
             End If
         Next
 
-        SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
+        SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_INTERNAL)
     End Sub
 
     Public Sub On_CMSG_GUILD_LEADER(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -177,10 +176,10 @@ Public Module WC_Handlers_Guild
         playerName = CapitalizeName(playerName)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -188,10 +187,10 @@ Public Module WC_Handlers_Guild
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query("SELECT char_guid, char_guildId, char_guildrank FROM characters WHERE char_name = '" & playerName & "';", MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         ElseIf CUInt(MySQLQuery.Rows(0).Item("char_guildId")) <> client.Character.Guild.ID Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
             Exit Sub
         End If
         Dim PlayerGUID As ULong = MySQLQuery.Rows(0).Item("char_guid")
@@ -211,7 +210,7 @@ Public Module WC_Handlers_Guild
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
         response.AddInt8(GuildEvent.LEADER_CHANGED)
         response.AddInt8(2)
-        response.AddString(Client.Character.Name)
+        response.AddString(client.Character.Name)
         response.AddString(playerName)
         BroadcastToGuild(response, client.Character.Guild)
         response.Dispose()
@@ -231,10 +230,10 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_SAVE_GUILD_EMBLEM [{2},{3}] [{4}:{5}:{6}:{7}:{8}]", client.IP, client.Port, unk0, unk1, tEmblemStyle, tEmblemColor, tBorderStyle, tBorderColor, tBackgroundColor)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
 
             'TODO: Check if you have enough money
@@ -251,11 +250,11 @@ Public Module WC_Handlers_Guild
 
         CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_tEmblemStyle = {1}, guild_tEmblemColor = {2}, guild_tBorderStyle = {3}, guild_tBorderColor = {4}, guild_tBackgroundColor = {5} WHERE guild_id = {0};", client.Character.Guild.ID, tEmblemStyle, tEmblemColor, tBorderStyle, tBorderColor, tBackgroundColor))
 
-        SendGuildQuery(Client, client.Character.Guild.ID)
+        SendGuildQuery(client, client.Character.Guild.ID)
 
         Dim packet_event As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
         packet_event.AddInt8(GuildEvent.TABARDCHANGE)
-        packet_event.AddInt32(Client.Character.Guild.ID)
+        packet_event.AddInt32(client.Character.Guild.ID)
         BroadcastToGuild(packet_event, client.Character.Guild)
         packet_event.Dispose()
 
@@ -271,10 +270,10 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_DISBAND", client.IP, client.Port)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -289,7 +288,7 @@ Public Module WC_Handlers_Guild
         For Each Member As ULong In tmpArray
             If CHARACTERs.ContainsKey(Member) Then
                 RemoveCharacterFromGuild(CHARACTERs(Member))
-                CHARACTERs(Member).Client.SendMultiplyPackets(response)
+                CHARACTERs(Member).client.SendMultiplyPackets(response)
             Else
                 RemoveCharacterFromGuild(Member)
             End If
@@ -313,10 +312,10 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_MOTD", client.IP, client.Port)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildRightSet(GuildRankRights.GR_RIGHT_SETMOTD) Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -344,16 +343,16 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_SET_OFFICER_NOTE [{2}]", client.IP, client.Port, playerName)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildRightSet(GuildRankRights.GR_RIGHT_EOFFNOTE) Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildOffNote = ""{1}"" WHERE char_name = ""{0}"";", playerName, Note.Replace("""", "_").Replace("'", "_")))
 
-        SendGuildRoster(Client.Character)
+        SendGuildRoster(client.Character)
     End Sub
 
     Public Sub On_CMSG_GUILD_SET_PUBLIC_NOTE(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -366,16 +365,16 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_SET_PUBLIC_NOTE [{2}]", client.IP, client.Port, playerName)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildRightSet(GuildRankRights.GR_RIGHT_EPNOTE) Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildPNote = ""{1}"" WHERE char_name = ""{0}"";", playerName, Note.Replace("""", "_").Replace("'", "_")))
 
-        SendGuildRoster(Client.Character)
+        SendGuildRoster(client.Character)
     End Sub
 
     Public Sub On_CMSG_GUILD_REMOVE(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -389,10 +388,10 @@ Public Module WC_Handlers_Guild
 
         'DONE: Player1 checks
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildRightSet(GuildRankRights.GR_RIGHT_REMOVE) Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -402,17 +401,17 @@ Public Module WC_Handlers_Guild
 
         'DONE: Removed checks
         If q.Rows.Count = 0 Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
-        ElseIf Not CHARACTERs.ContainsKey(CType(q.Rows(0).Item("char_guid"), ULong)) Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
+        ElseIf Not CHARACTERs.ContainsKey(q.Rows(0).Item("char_guid")) Then
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         End If
 
-        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        Dim objCharacter As CharacterObject = CHARACTERs(q.Rows(0).Item("char_guid"))
 
         If objCharacter.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_LEADER_LEAVE)
+            SendGuildResult(client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_LEADER_LEAVE)
             Exit Sub
         End If
 
@@ -436,10 +435,10 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_PROMOTE [{2}]", client.IP, client.Port, playerName)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildRightSet(GuildRankRights.GR_RIGHT_PROMOTE) Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -449,21 +448,21 @@ Public Module WC_Handlers_Guild
 
         'DONE: Promoted checks
         If q.Rows.Count = 0 Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NAME_INVALID)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NAME_INVALID)
             Exit Sub
-        ElseIf Not CHARACTERs.ContainsKey(CType(q.Rows(0).Item("char_guid"), ULong)) Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
+        ElseIf Not CHARACTERs.ContainsKey(q.Rows(0).Item("char_guid")) Then
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         End If
-        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        Dim objCharacter As CharacterObject = CHARACTERs(q.Rows(0).Item("char_guid"))
         If objCharacter.Guild.ID <> client.Character.Guild.ID Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
             Exit Sub
         ElseIf objCharacter.GuildRank <= client.Character.GuildRank Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         ElseIf objCharacter.GuildRank = GUILD_RANK_MIN Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
             Exit Sub
         End If
 
@@ -478,7 +477,7 @@ Public Module WC_Handlers_Guild
         response.AddInt8(3)
         response.AddString(objCharacter.Name)
         response.AddString(playerName)
-        response.AddString(Client.Character.Guild.Ranks(objCharacter.GuildRank))
+        response.AddString(client.Character.Guild.Ranks(objCharacter.GuildRank))
         BroadcastToGuild(response, client.Character.Guild)
         response.Dispose()
     End Sub
@@ -491,10 +490,10 @@ Public Module WC_Handlers_Guild
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_DEMOTE [{2}]", client.IP, client.Port, playerName)
 
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildRightSet(GuildRankRights.GR_RIGHT_PROMOTE) Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -504,28 +503,28 @@ Public Module WC_Handlers_Guild
 
         'DONE: Demoted checks
         If q.Rows.Count = 0 Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NAME_INVALID)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NAME_INVALID)
             Exit Sub
-        ElseIf Not CHARACTERs.ContainsKey(CType(q.Rows(0).Item("char_guid"), ULong)) Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
+        ElseIf Not CHARACTERs.ContainsKey(q.Rows(0).Item("char_guid")) Then
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         End If
 
-        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        Dim objCharacter As CharacterObject = CHARACTERs(q.Rows(0).Item("char_guid"))
         If objCharacter.Guild.ID <> client.Character.Guild.ID Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
             Exit Sub
         ElseIf objCharacter.GuildRank <= client.Character.GuildRank Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         ElseIf objCharacter.GuildRank = GUILD_RANK_MAX Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
             Exit Sub
         End If
 
         'DONE: Max defined rank check
-        If Trim(Client.Character.Guild.Ranks(objCharacter.GuildRank + 1)) = "" Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
+        If Trim(client.Character.Guild.Ranks(objCharacter.GuildRank + 1)) = "" Then
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
             Exit Sub
         End If
 
@@ -540,7 +539,7 @@ Public Module WC_Handlers_Guild
         response.AddInt8(3)
         response.AddString(objCharacter.Name)
         response.AddString(playerName)
-        response.AddString(Client.Character.Guild.Ranks(objCharacter.GuildRank))
+        response.AddString(client.Character.Guild.Ranks(objCharacter.GuildRank))
         BroadcastToGuild(response, client.Character.Guild)
         response.Dispose()
     End Sub
@@ -555,10 +554,10 @@ Public Module WC_Handlers_Guild
 
         'DONE: Inviter checks
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf Not client.Character.IsGuildRightSet(GuildRankRights.GR_RIGHT_INVITE) Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -568,29 +567,29 @@ Public Module WC_Handlers_Guild
 
         'DONE: Invited checks
         If q.Rows.Count = 0 Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NAME_INVALID)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NAME_INVALID)
             Exit Sub
-        ElseIf Not CHARACTERs.ContainsKey(CType(q.Rows(0).Item("char_guid"), ULong)) Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
+        ElseIf Not CHARACTERs.ContainsKey(q.Rows(0).Item("char_guid")) Then
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
             Exit Sub
         End If
 
-        Dim objCharacter As CharacterObject = CHARACTERs(CType(q.Rows(0).Item("char_guid"), ULong))
+        Dim objCharacter As CharacterObject = CHARACTERs(q.Rows(0).Item("char_guid"))
         If objCharacter.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.ALREADY_IN_GUILD, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.ALREADY_IN_GUILD, playerName)
             Exit Sub
         ElseIf objCharacter.Side <> client.Character.Side Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NOT_ALLIED, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_NOT_ALLIED, playerName)
             Exit Sub
         ElseIf objCharacter.GuildInvited <> 0 Then
-            SendGuildResult(Client, GuildCommand.GUILD_INVITE_S, GuildError.ALREADY_INVITED_TO_GUILD, playerName)
+            SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.ALREADY_INVITED_TO_GUILD, playerName)
             Exit Sub
         End If
 
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_INVITE)
-        response.AddString(Client.Character.Name)
-        response.AddString(Client.Character.Guild.Name)
-        objCharacter.Client.Send(response)
+        response.AddString(client.Character.Name)
+        response.AddString(client.Character.Guild.Name)
+        objCharacter.client.Send(response)
         response.Dispose()
 
         objCharacter.GuildInvited = client.Character.Guild.ID
@@ -600,27 +599,27 @@ Public Module WC_Handlers_Guild
     Public Sub On_CMSG_GUILD_ACCEPT(ByRef packet As PacketClass, ByRef client As ClientClass)
         If client.Character.GuildInvited = 0 Then Throw New ApplicationException("Character accepting guild invitation whihtout being invited.")
 
-        AddCharacterToGuild(Client.Character, client.Character.GuildInvited)
+        AddCharacterToGuild(client.Character, client.Character.GuildInvited)
         client.Character.GuildInvited = 0
 
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
         response.AddInt8(GuildEvent.JOINED)
         response.AddInt8(1)
-        response.AddString(Client.Character.Name)
+        response.AddString(client.Character.Name)
         BroadcastToGuild(response, client.Character.Guild)
         response.Dispose()
 
-        SendGuildRoster(Client.Character)
-        SendGuildMOTD(Client.Character)
+        SendGuildRoster(client.Character)
+        SendGuildMOTD(client.Character)
     End Sub
 
     Public Sub On_CMSG_GUILD_DECLINE(ByRef packet As PacketClass, ByRef client As ClientClass)
         client.Character.GuildInvited = 0
 
-        If CHARACTERs.ContainsKey(CType(Client.Character.GuildInvitedBy, Long)) Then
+        If CHARACTERs.ContainsKey(CType(client.Character.GuildInvitedBy, Long)) Then
             Dim response As New PacketClass(OPCODES.SMSG_GUILD_DECLINE)
-            response.AddString(Client.Character.Name)
-            CHARACTERs(CType(Client.Character.GuildInvitedBy, Long)).Client.Send(response)
+            response.AddString(client.Character.Name)
+            CHARACTERs(CType(client.Character.GuildInvitedBy, Long)).client.Send(response)
             response.Dispose()
         End If
     End Sub
@@ -632,20 +631,20 @@ Public Module WC_Handlers_Guild
 
         'DONE: Checks
         If Not client.Character.IsInGuild Then
-            SendGuildResult(Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         ElseIf client.Character.IsGuildLeader Then
-            SendGuildResult(Client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_LEADER_LEAVE)
+            SendGuildResult(client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_LEADER_LEAVE)
             Exit Sub
         End If
 
-        RemoveCharacterFromGuild(Client.Character)
-        SendGuildResult(Client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_PLAYER_NO_MORE_IN_GUILD, client.Character.Name)
+        RemoveCharacterFromGuild(client.Character)
+        SendGuildResult(client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_PLAYER_NO_MORE_IN_GUILD, client.Character.Name)
 
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
         response.AddInt8(GuildEvent.LEFT)
         response.AddInt8(1)
-        response.AddString(Client.Character.Name)
+        response.AddString(client.Character.Name)
         BroadcastToGuild(response, client.Character.Guild)
         response.Dispose()
     End Sub
@@ -694,19 +693,19 @@ Public Module WC_Handlers_Guild
         'DONE: Create guild and add members
         CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES ('{0}', {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = '{0}';", Name, client.Character.GUID, Now.Year - 2006, Now.Month, Now.Day), q2)
 
-        AddCharacterToGuild(Client.Character, q2.Rows(0).Item("guild_id"), 0)
+        AddCharacterToGuild(client.Character, q2.Rows(0).Item("guild_id"), 0)
 
         'DONE: Adding 9 more signed characters
         For i As Byte = 1 To 9
-            If CHARACTERs.ContainsKey(CType(q.Rows(0).Item("petition_signedMember" & i), ULong)) Then
-                AddCharacterToGuild(CHARACTERs(CType(q.Rows(0).Item("petition_signedMember" & i), ULong)), q2.Rows(0).Item("guild_id"))
+            If CHARACTERs.ContainsKey(q.Rows(0).Item("petition_signedMember" & i)) Then
+                AddCharacterToGuild(CHARACTERs(q.Rows(0).Item("petition_signedMember" & i)), q2.Rows(0).Item("guild_id"))
             Else
                 AddCharacterToGuild(CType(q.Rows(0).Item("petition_signedMember" & i), ULong), q2.Rows(0).Item("guild_id"))
             End If
         Next
 
         'DONE: Delete guild charter item, on the world server
-        client.Character.GetWorld.ClientPacket(Client.Index, packet.Data)
+        client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
 
         Dim success As New PacketClass(OPCODES.SMSG_TURN_IN_PETITION_RESULTS)
         success.AddInt32(0) 'Okay

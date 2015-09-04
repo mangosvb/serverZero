@@ -19,9 +19,7 @@
 Imports System.IO
 Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
-Imports mangosVB.Common
 Imports mangosVB.Common.NativeMethods
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Warden
 
@@ -174,35 +172,35 @@ Public Module WS_Warden
 #End Region
 
 #Region "Prepare Module"
-        <StructLayout(LayoutKind.Explicit, Size:=&H8)> _
+        <StructLayout(LayoutKind.Explicit, Size:=&H8)>
         Public Structure CLibraryEntry
-            <FieldOffset(&H0)> _
+            <FieldOffset(&H0)>
             Public dwFileName As Integer
-            <FieldOffset(&H4)> _
+            <FieldOffset(&H4)>
             Public dwImports As Integer
         End Structure
 
-        <StructLayout(LayoutKind.Explicit, Size:=&H28)> _
+        <StructLayout(LayoutKind.Explicit, Size:=&H28)>
         Public Structure CHeader
-            <FieldOffset(&H0)> _
+            <FieldOffset(&H0)>
             Public dwModuleSize As Integer
-            <FieldOffset(&H4)> _
+            <FieldOffset(&H4)>
             Public dwDestructor As Integer
-            <FieldOffset(&H8)> _
+            <FieldOffset(&H8)>
             Public dwSizeOfCode As Integer
-            <FieldOffset(&HC)> _
+            <FieldOffset(&HC)>
             Public dwRelocationCount As Integer
-            <FieldOffset(&H10)> _
+            <FieldOffset(&H10)>
             Public dwProcedureTable As Integer
-            <FieldOffset(&H14)> _
+            <FieldOffset(&H14)>
             Public dwProcedureCount As Integer
-            <FieldOffset(&H18)> _
+            <FieldOffset(&H18)>
             Public dwProcedureAdjust As Integer
-            <FieldOffset(&H1C)> _
+            <FieldOffset(&H1C)>
             Public dwLibraryTable As Integer
-            <FieldOffset(&H20)> _
+            <FieldOffset(&H20)>
             Public dwLibraryCount As Integer
-            <FieldOffset(&H24)> _
+            <FieldOffset(&H24)>
             Public dwChunkCount As Integer
         End Structure
 
@@ -216,7 +214,7 @@ Public Module WS_Warden
         Private Function PrepairModule(ByRef data() As Byte) As Boolean
             Try
                 Dim pModule As Integer = ByteArrPtr(data)
-                Header = CType(Marshal.PtrToStructure(New IntPtr(pModule), GetType(CHeader)), CHeader)
+                Header = Marshal.PtrToStructure(New IntPtr(pModule), GetType(CHeader))
 
                 dwModuleSize = Header.dwModuleSize
 
@@ -274,7 +272,7 @@ Public Module WS_Warden
 
                         Dim dwLibraryIndex As Integer = 0
                         While dwLibraryIndex < Header.dwLibraryCount
-                            Dim pLibraryTable As CLibraryEntry = CType(Marshal.PtrToStructure(New IntPtr(m_Mod + Header.dwLibraryTable + (dwLibraryIndex * 8)), GetType(CLibraryEntry)), CLibraryEntry)
+                            Dim pLibraryTable As CLibraryEntry = Marshal.PtrToStructure(New IntPtr(m_Mod + Header.dwLibraryTable + (dwLibraryIndex * 8)), GetType(CLibraryEntry))
 
                             Dim procLib As String = Marshal.PtrToStringAnsi(New IntPtr(m_Mod + pLibraryTable.dwFileName))
 
@@ -369,16 +367,16 @@ Public Module WS_Warden
         Public Delegate Function SetRC4DataDelegate(ByVal lpKeys As Integer, ByVal dwSize As Integer) As Integer
         Public Delegate Function GetRC4DataDelegate(ByVal lpBuffer As Integer, ByRef dwSize As Integer) As Integer
 
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Function InitializeModule(ByVal lpPtr2Table As Integer) As Integer
 
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub GenerateRC4KeysDelegate(ByVal ppFncList As Integer, ByVal lpData As Integer, ByVal dwSize As Integer)
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub UnloadModuleDelegate(ByVal ppFncList As Integer)
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub PacketHandlerDelegate(ByVal ppFncList As Integer, ByVal pPacket As Integer, ByVal dwSize As Integer, ByVal dwBuffer As Integer)
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub TickDelegate(ByVal ppFncList As Integer, ByVal dwTick As Integer)
 
         Private SendPacketD As SendPacketDelegate = Nothing
@@ -422,13 +420,13 @@ Public Module WS_Warden
             InitPointer = m_Mod + fInit
             Console.WriteLine("Initialize Function is mapped at 0x{0:X}", InitPointer)
 
-            SendPacketD = CType(AddressOf SendPacket, SendPacketDelegate)
-            CheckModuleD = CType(AddressOf CheckModule, CheckModuleDelegate)
-            ModuleLoadD = CType(AddressOf ModuleLoad, ModuleLoadDelegate)
-            AllocateMemD = CType(AddressOf AllocateMem, AllocateMemDelegate)
-            FreeMemoryD = CType(AddressOf FreeMemory, FreeMemoryDelegate)
-            SetRC4DataD = CType(AddressOf SetRC4Data, SetRC4DataDelegate)
-            GetRC4DataD = CType(AddressOf GetRC4Data, GetRC4DataDelegate)
+            SendPacketD = AddressOf SendPacket
+            CheckModuleD = AddressOf CheckModule
+            ModuleLoadD = AddressOf ModuleLoad
+            AllocateMemD = AddressOf AllocateMem
+            FreeMemoryD = AddressOf FreeMemory
+            SetRC4DataD = AddressOf SetRC4Data
+            GetRC4DataD = AddressOf GetRC4Data
 
             myFunctionList = New FuncList
             myFunctionList.fpSendPacket = Marshal.GetFunctionPointerForDelegate(SendPacketD).ToInt32()
@@ -490,33 +488,33 @@ Public Module WS_Warden
 
 #Region "Module Handlers"
 
-        <StructLayout(LayoutKind.Explicit, Size:=&H1C)> _
+        <StructLayout(LayoutKind.Explicit, Size:=&H1C)>
         Private Structure FuncList
-            <FieldOffset(&H0)> _
+            <FieldOffset(&H0)>
             Public fpSendPacket As Integer
-            <FieldOffset(&H4)> _
+            <FieldOffset(&H4)>
             Public fpCheckModule As Integer
-            <FieldOffset(&H8)> _
+            <FieldOffset(&H8)>
             Public fpLoadModule As Integer
-            <FieldOffset(&HC)> _
+            <FieldOffset(&HC)>
             Public fpAllocateMemory As Integer
-            <FieldOffset(&H10)> _
+            <FieldOffset(&H10)>
             Public fpReleaseMemory As Integer
-            <FieldOffset(&H14)> _
+            <FieldOffset(&H14)>
             Public fpSetRC4Data As Integer
-            <FieldOffset(&H18)> _
+            <FieldOffset(&H18)>
             Public fpGetRC4Data As Integer
         End Structure
 
-        <StructLayout(LayoutKind.Explicit, Size:=&H10)> _
+        <StructLayout(LayoutKind.Explicit, Size:=&H10)>
         Private Structure WardenFuncList
-            <FieldOffset(&H0)> _
+            <FieldOffset(&H0)>
             Public fpGenerateRC4Keys As Integer
-            <FieldOffset(&H4)> _
+            <FieldOffset(&H4)>
             Public fpUnload As Integer
-            <FieldOffset(&H8)> _
+            <FieldOffset(&H8)>
             Public fpPacketHandler As Integer
-            <FieldOffset(&HC)> _
+            <FieldOffset(&HC)>
             Public fpTick As Integer
         End Structure
 
@@ -902,7 +900,7 @@ Public Module WS_Warden
         Buffer.BlockCopy(b, 0, Packet.Data, 4, b.Length)
         'END
 
-        objCharacter.Client.Send(Packet)
+        objCharacter.client.Send(Packet)
     End Sub
 
 End Module

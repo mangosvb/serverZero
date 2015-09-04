@@ -17,7 +17,6 @@
 '
 
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.BaseWriter
 
 Module WS_CharMovement
 
@@ -135,7 +134,7 @@ Module WS_CharMovement
                     SetFlag(client.Character.ZonesExplored(areaFlagOffset), areaFlag, True)
 
                     Dim GainedXP As Integer = AreaTable(exploreFlag).Level * 10
-                    GainedXP = CInt(AreaTable(exploreFlag).Level) * 10
+                    GainedXP = AreaTable(exploreFlag).Level * 10
 
                     Dim SMSG_EXPLORATION_EXPERIENCE As New PacketClass(OPCODES.SMSG_EXPLORATION_EXPERIENCE)
                     SMSG_EXPLORATION_EXPERIENCE.AddInt32(AreaTable(exploreFlag).ID)
@@ -246,11 +245,11 @@ Module WS_CharMovement
     End Sub
 
     Public Sub OnStartSwim(ByRef packet As PacketClass, ByRef client As ClientClass)
-        OnMovementPacket(packet, Client)
+        OnMovementPacket(packet, client)
 
-        If client.Character.positionZ < GetWaterLevel(Client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
-            If (Client.Character.underWaterTimer Is Nothing) AndAlso (Not client.Character.underWaterBreathing) AndAlso (Not client.Character.DEAD) Then
-                client.Character.underWaterTimer = New TDrowningTimer(Client.Character)
+        If client.Character.positionZ < GetWaterLevel(client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
+            If (client.Character.underWaterTimer Is Nothing) AndAlso (Not client.Character.underWaterBreathing) AndAlso (Not client.Character.DEAD) Then
+                client.Character.underWaterTimer = New TDrowningTimer(client.Character)
             End If
         Else
             If client.Character.underWaterTimer IsNot Nothing Then
@@ -266,7 +265,7 @@ Module WS_CharMovement
             client.Character.underWaterTimer = Nothing
         End If
 
-        OnMovementPacket(packet, Client)
+        OnMovementPacket(packet, client)
     End Sub
 
     Public Sub OnChangeSpeed(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -353,7 +352,7 @@ Module WS_CharMovement
             q.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_involvedrelation WHERE id = {0};", triggerID), q)
             If q.Rows.Count > 0 Then
-                ALLQUESTS.OnQuestExplore(Client.Character, triggerID)
+                ALLQUESTS.OnQuestExplore(client.Character, triggerID)
                 Exit Sub
             End If
 
@@ -373,20 +372,20 @@ Module WS_CharMovement
             If q.Rows.Count > 0 Then
                 If client.Character.DEAD Then
                     If client.Character.corpseMapID = q.Rows(0).Item("target_map") Then
-                        CharacterResurrect(Client.Character)
+                        CharacterResurrect(client.Character)
                     Else
-                        AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
+                        AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
                         Exit Sub
                     End If
                 End If
 
                 If q.Rows(0).Item("required_level") <> 0 AndAlso client.Character.Level < q.Rows(0).Item("required_level") Then
-                    SendAreaTriggerMessage(Client, "Your level is too low")
+                    SendAreaTriggerMessage(client, "Your level is too low")
                     Exit Sub
                 End If
 
                 If CSng(q.Rows(0).Item("target_position_x")) <> 0 OrElse CSng(q.Rows(0).Item("target_position_y")) <> 0 OrElse CSng(q.Rows(0).Item("target_position_z")) <> 0 Then
-                    client.Character.Teleport(q.Rows(0).Item("target_position_x"), q.Rows(0).Item("target_position_y"), q.Rows(0).Item("target_position_z"), _
+                    client.Character.Teleport(q.Rows(0).Item("target_position_x"), q.Rows(0).Item("target_position_y"), q.Rows(0).Item("target_position_z"),
                                               q.Rows(0).Item("target_orientation"), q.Rows(0).Item("target_map"))
                 End If
                 Exit Sub
@@ -394,7 +393,7 @@ Module WS_CharMovement
 
             'DONE: Handling all other scripted triggers
             If AreaTriggers.ContainsMethod("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID)) Then
-                AreaTriggers.InvokeFunction("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID), New Object() {Client.Character.GUID})
+                AreaTriggers.InvokeFunction("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID), New Object() {client.Character.GUID})
             Else
                 Log.WriteLine(LogType.WARNING, "[{0}:{1}] AreaTrigger [{2}] not found!", client.IP, client.Port, triggerID)
             End If
@@ -405,7 +404,7 @@ Module WS_CharMovement
 
     Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
-            OnMovementPacket(packet, Client)
+            OnMovementPacket(packet, client)
 
             packet.Offset = 6
             Dim movFlags As Integer = packet.GetInt32()
@@ -427,7 +426,7 @@ Module WS_CharMovement
             Dim FallTime As Integer = packet.GetInt32()
 
             'DONE: If FallTime > 1100 and not Dead
-            If FallTime > 1100 AndAlso (Not client.Character.DEAD) AndAlso client.Character.positionZ > GetWaterLevel(Client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
+            If FallTime > 1100 AndAlso (Not client.Character.DEAD) AndAlso client.Character.positionZ > GetWaterLevel(client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
                 If client.Character.HaveAuraType(AuraEffects_Names.SPELL_AURA_FEATHER_FALL) = False Then
                     Dim safe_fall As Integer = client.Character.GetAuraModifier(AuraEffects_Names.SPELL_AURA_SAFE_FALL)
                     If safe_fall > 0 Then
@@ -512,24 +511,24 @@ Module WS_CharMovement
 
         'DONE: Send weather
         If WeatherZones.ContainsKey(newZone) Then
-            SendWeather(newZone, Client)
+            SendWeather(newZone, client)
         End If
     End Sub
 
     Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef client As ClientClass)
-        OnMovementPacket(packet, Client)
+        OnMovementPacket(packet, client)
 
-        If client.Character.CellX <> GetMapTileX(Client.Character.positionX) Or client.Character.CellY <> GetMapTileY(Client.Character.positionY) Then
-            MoveCell(Client.Character)
+        If client.Character.CellX <> GetMapTileX(client.Character.positionX) Or client.Character.CellY <> GetMapTileY(client.Character.positionY) Then
+            MoveCell(client.Character)
         End If
-        UpdateCell(Client.Character)
+        UpdateCell(client.Character)
 
         client.Character.GroupUpdateFlag = client.Character.GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION
 
         client.Character.ZoneCheck()
 
         'DONE: Check for out of continent - coordinates from WorldMapContinent.dbc
-        If IsOutsideOfMap(CType(Client.Character, CharacterObject)) Then
+        If IsOutsideOfMap((client.Character)) Then
             If client.Character.outsideMapID_ = False Then
                 client.Character.outsideMapID_ = True
                 client.Character.StartMirrorTimer(MirrorTimer.FATIGUE, 30000)
@@ -542,15 +541,15 @@ Module WS_CharMovement
         End If
 
         'DONE: Duel check
-        If client.Character.IsInDuel Then CheckDuelDistance(Client.Character)
+        If client.Character.IsInDuel Then CheckDuelDistance(client.Character)
 
         'DONE: Aggro range
         For Each cGUID As ULong In client.Character.creaturesNear.ToArray
             If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso ((TypeOf WORLD_CREATUREs(cGUID).aiScript Is DefaultAI) OrElse (TypeOf WORLD_CREATUREs(cGUID).aiScript Is GuardAI)) Then
                 If WORLD_CREATUREs(cGUID).isDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
                     If client.Character.inCombatWith.Contains(cGUID) Then Continue For
-                    If client.Character.GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(WORLD_CREATUREs(cGUID), client.Character) <= WORLD_CREATUREs(cGUID).AggroRange(Client.Character) Then
-                        WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Client.Character, 1)
+                    If client.Character.GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(WORLD_CREATUREs(cGUID), client.Character) <= WORLD_CREATUREs(cGUID).AggroRange(client.Character) Then
+                        WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(client.Character, 1)
                         client.Character.AddToCombat(WORLD_CREATUREs(cGUID))
                         WORLD_CREATUREs(cGUID).aiScript.State = TBaseAI.AIState.AI_ATTACKING
                         WORLD_CREATUREs(cGUID).aiScript.DoThink()
@@ -561,8 +560,8 @@ Module WS_CharMovement
 
         'DONE: Creatures that are following you will have a more smooth movement
         For Each CombatUnit As ULong In client.Character.inCombatWith.ToArray
-            If GuidIsCreature(CombatUnit) AndAlso WORLD_CREATUREs.ContainsKey(CombatUnit) AndAlso CType(WORLD_CREATUREs(CombatUnit), CreatureObject).aiScript IsNot Nothing Then
-                With CType(WORLD_CREATUREs(CombatUnit), CreatureObject)
+            If GuidIsCreature(CombatUnit) AndAlso WORLD_CREATUREs.ContainsKey(CombatUnit) AndAlso WORLD_CREATUREs(CombatUnit).aiScript IsNot Nothing Then
+                With WORLD_CREATUREs(CombatUnit)
                     If (Not .aiScript.aiTarget Is Nothing) AndAlso .aiScript.aiTarget Is client.Character Then
                         .SetToRealPosition() 'Make sure it moves from it's location and not from where it was already heading before this
                         .aiScript.State = TBaseAI.AIState.AI_MOVE_FOR_ATTACK
@@ -883,7 +882,7 @@ Module WS_CharMovement
         'Log.WriteLine(LogType.DEBUG, "Update: {0}ms", timeGetTime("") - start)
     End Sub
 
-    <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+    <MethodImpl(MethodImplOptions.Synchronized)>
     Public Sub UpdatePlayersInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
         Dim list() As ULong
 
@@ -899,9 +898,9 @@ Module WS_CharMovement
                         packet.AddInt8(0)
                         Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
                         CHARACTERs(GUID).FillAllUpdateFlags(tmpUpdate)
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(CHARACTERs(GUID), CharacterObject))
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CHARACTERs(GUID))
                         tmpUpdate.Dispose()
-                        Character.Client.Send(packet)
+                        Character.client.Send(packet)
                         packet.Dispose()
 
                         CHARACTERs(GUID).SeenBy.Add(Character.GUID)
@@ -918,7 +917,7 @@ Module WS_CharMovement
                         Character.FillAllUpdateFlags(myTmpUpdate)
                         myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Character)
                         myTmpUpdate.Dispose()
-                        CHARACTERs(GUID).Client.Send(myPacket)
+                        CHARACTERs(GUID).client.Send(myPacket)
                         myPacket.Dispose()
 
                         Character.SeenBy.Add(GUID)
@@ -997,7 +996,7 @@ Module WS_CharMovement
         'DONE: Send creatures, game objects and dynamic objects in the same packet
         If packet.UpdatesCount > 0 Then
             packet.CompressUpdatePacket()
-            Character.Client.Send(packet)
+            Character.client.Send(packet)
         End If
         packet.Dispose()
     End Sub
@@ -1016,9 +1015,9 @@ Module WS_CharMovement
                         packet.AddInt8(0)
                         Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
                         WORLD_CREATUREs(GUID).FillAllUpdateFlags(tmpUpdate)
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(WORLD_CREATUREs(GUID), CreatureObject))
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_CREATUREs(GUID))
                         tmpUpdate.Dispose()
-                        Character.Client.Send(packet)
+                        Character.client.Send(packet)
                         packet.Dispose()
 
                         Character.creaturesNear.Add(GUID)
@@ -1044,9 +1043,9 @@ Module WS_CharMovement
                         packet.AddInt8(0)
                         Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
                         WORLD_GAMEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(WORLD_GAMEOBJECTs(GUID), GameObjectObject))
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_GAMEOBJECTs(GUID))
                         tmpUpdate.Dispose()
-                        Character.Client.Send(packet)
+                        Character.client.Send(packet)
                         packet.Dispose()
 
                         Character.gameObjectsNear.Add(GUID)
@@ -1074,9 +1073,9 @@ Module WS_CharMovement
                         packet.AddInt8(0)
                         Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
                         WORLD_CORPSEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate)
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(WORLD_CORPSEOBJECTs(GUID), CorpseObject))
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_CORPSEOBJECTs(GUID))
                         tmpUpdate.Dispose()
-                        Character.Client.Send(packet)
+                        Character.client.Send(packet)
                         packet.Dispose()
 
                         Character.corpseObjectsNear.Add(GUID)

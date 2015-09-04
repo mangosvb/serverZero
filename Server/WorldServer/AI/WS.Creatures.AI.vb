@@ -16,9 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Creatures_AI
 
@@ -55,7 +52,7 @@ Public Module WS_Creatures_AI
             Next
         End Sub
         Public Overridable Function IsMoving() As Boolean
-            Select Case Me.State
+            Select Case State
                 Case AIState.AI_ATTACKING, AIState.AI_MOVE_FOR_ATTACK, AIState.AI_MOVING, AIState.AI_WANDERING, AIState.AI_MOVING_TO_SPAWN
                     Return True
                 Case Else
@@ -63,7 +60,7 @@ Public Module WS_Creatures_AI
             End Select
         End Function
         Public Overridable Function IsRunning() As Boolean
-            Return Me.State = AIState.AI_MOVE_FOR_ATTACK
+            Return State = AIState.AI_MOVE_FOR_ATTACK
         End Function
         Public Overridable Sub Reset()
             State = AIState.AI_DO_NOTHING
@@ -156,7 +153,7 @@ Public Module WS_Creatures_AI
         End Sub
         Public Overrides Function IsMoving() As Boolean
             If (timeGetTime("") - aiCreature.LastMove) < aiTimer Then
-                Select Case Me.State
+                Select Case State
                     Case AIState.AI_MOVE_FOR_ATTACK
                         Return True
                     Case AIState.AI_MOVING
@@ -183,7 +180,7 @@ Public Module WS_Creatures_AI
             ResetZ = aiCreature.positionZ
             ResetO = aiCreature.orientation
 
-            Me.State = AIState.AI_ATTACKING
+            State = AIState.AI_ATTACKING
             DoThink()
 
             'If MonsterSayCombat.ContainsKey(aiCreature.ID) Then
@@ -232,7 +229,7 @@ Public Module WS_Creatures_AI
         End Sub
         Public Overrides Sub OnGenerateHate(ByRef Attacker As BaseUnit, ByVal HateValue As Integer)
             If Attacker Is aiCreature Then Exit Sub
-            If Me.State <> AIState.AI_DEAD AndAlso Me.State <> AIState.AI_RESPAWN AndAlso Me.State <> AIState.AI_MOVING_TO_SPAWN Then
+            If State <> AIState.AI_DEAD AndAlso State <> AIState.AI_RESPAWN AndAlso State <> AIState.AI_MOVING_TO_SPAWN Then
                 aiCreature.SetToRealPosition()
                 LastHitX = aiCreature.positionX
                 LastHitY = aiCreature.positionY
@@ -242,7 +239,7 @@ Public Module WS_Creatures_AI
                     CType(Attacker, CharacterObject).AddToCombat(aiCreature)
                 End If
 
-                If Me.InCombat = False Then
+                If InCombat() = False Then
                     aiHateTable.Add(Attacker, HateValue * Attacker.Spell_ThreatModifier)
                     OnEnterCombat()
                     Exit Sub
@@ -260,7 +257,7 @@ Public Module WS_Creatures_AI
             OnLeaveCombat(True)
         End Sub
         Protected Sub GoBackToSpawn()
-            Me.State = AIState.AI_MOVING_TO_SPAWN
+            State = AIState.AI_MOVING_TO_SPAWN
             ResetX = aiCreature.SpawnX
             ResetY = aiCreature.SpawnY
             ResetZ = aiCreature.SpawnZ
@@ -298,7 +295,7 @@ Public Module WS_Creatures_AI
                     aiCreature.TurnTo(aiTarget.positionX, aiTarget.positionY)
                     aiCreature.SendTargetUpdate(tmpTarget.GUID)
 
-                    Me.State = AIState.AI_ATTACKING
+                    State = AIState.AI_ATTACKING
                 End If
             Catch ex As Exception
                 Log.WriteLine(LogType.CRITICAL, "Error selecting target.{0}{1}", vbNewLine, ex.ToString)
@@ -339,8 +336,8 @@ Public Module WS_Creatures_AI
             End If
 
             'DONE: Fixes a bug where creatures attack you when they are dead
-            If Me.State <> AIState.AI_DEAD AndAlso Me.State <> AIState.AI_RESPAWN AndAlso aiCreature.Life.Current = 0 Then
-                Me.State = AIState.AI_DEAD
+            If State <> AIState.AI_DEAD AndAlso State <> AIState.AI_RESPAWN AndAlso aiCreature.Life.Current = 0 Then
+                State = AIState.AI_DEAD
             End If
 
             'DONE: If stunned
@@ -354,9 +351,9 @@ Public Module WS_Creatures_AI
                 'Here!
             End If
 
-            Select Case Me.State
+            Select Case State
                 Case AIState.AI_DEAD
-                    If Me.aiHateTable.Count > 0 Then
+                    If aiHateTable.Count > 0 Then
                         OnLeaveCombat(False)
 
                         aiTimer = CorpseDecay(aiCreature.CreatureInfo.Elite) * 1000
@@ -367,7 +364,7 @@ Public Module WS_Creatures_AI
                             aiTimer = CorpseDecay(aiCreature.CreatureInfo.Elite) * 1000
                             ignoreLoot = True 'And make sure the corpse decay after this
                         Else
-                            Me.State = AIState.AI_RESPAWN
+                            State = AIState.AI_RESPAWN
 
                             Dim RespawnTime As Integer = aiCreature.SpawnTime
                             If RespawnTime > 0 Then
@@ -379,7 +376,7 @@ Public Module WS_Creatures_AI
                         End If
                     End If
                 Case AIState.AI_RESPAWN
-                    Me.State = AIState.AI_WANDERING
+                    State = AIState.AI_WANDERING
                     aiCreature.Respawn()
                     aiTimer = 10000 'Wait 10 seconds before starting to react
                 Case AIState.AI_MOVE_FOR_ATTACK
@@ -418,7 +415,7 @@ Public Module WS_Creatures_AI
             'DONE: Change the target to the one with most threat
             SelectTarget()
 
-            If Me.State <> AIState.AI_ATTACKING Then
+            If State <> AIState.AI_ATTACKING Then
                 'DONE: Seems like we lost our target
                 aiTimer = AI_INTERVAL_SLEEP
             Else
@@ -438,8 +435,8 @@ Public Module WS_Creatures_AI
                     'DONE: Far objects handling
                     If distance > (BaseUnit.CombatReach_Base + aiCreature.CombatReach + aiTarget.BoundingRadius) Then
                         'DONE: Move closer
-                        Me.State = AIState.AI_MOVE_FOR_ATTACK
-                        Me.DoMove()
+                        State = AIState.AI_MOVE_FOR_ATTACK
+                        DoMove()
                         Exit Sub
                     End If
 
@@ -516,7 +513,7 @@ Public Module WS_Creatures_AI
                 End While
 
                 If aiCreature.CanMoveTo(selectedX, selectedY, selectedZ) Then
-                    Me.State = AIState.AI_WANDERING
+                    State = AIState.AI_WANDERING
                     aiTimer = aiCreature.MoveTo(selectedX, selectedY, selectedZ, , False)
                 Else
                     aiTimer = AI_INTERVAL_MOVE
@@ -539,7 +536,7 @@ Public Module WS_Creatures_AI
 
                 If distanceToTarget < distance Then
                     'DONE: Move to target
-                    Me.State = AIState.AI_ATTACKING
+                    State = AIState.AI_ATTACKING
 
                     Dim destDist As Single = BaseUnit.CombatReach_Base + aiCreature.CombatReach + aiTarget.BoundingRadius
                     If distanceToTarget <= destDist Then
@@ -568,7 +565,7 @@ Public Module WS_Creatures_AI
 
                 Else
                     'DONE: Move to target by vector
-                    Me.State = AIState.AI_MOVE_FOR_ATTACK
+                    State = AIState.AI_MOVE_FOR_ATTACK
 
                     Dim angle As Single = GetOrientation(aiCreature.positionX, aiTarget.positionX, aiCreature.positionY, aiTarget.positionY)
                     aiCreature.orientation = angle
@@ -653,7 +650,7 @@ Public Module WS_Creatures_AI
         End Sub
         Public Overrides Function IsMoving() As Boolean
             If (timeGetTime("") - aiCreature.LastMove) < aiTimer Then
-                Select Case Me.State
+                Select Case State
                     Case AIState.AI_MOVE_FOR_ATTACK
                         Return True
                     Case AIState.AI_MOVING
@@ -694,8 +691,8 @@ Public Module WS_Creatures_AI
             End If
 
             'DONE: Fixes a bug where creatures attack you when they are dead
-            If Me.State <> AIState.AI_DEAD AndAlso Me.State <> AIState.AI_RESPAWN AndAlso aiCreature.Life.Current = 0 Then
-                Me.State = AIState.AI_DEAD
+            If State <> AIState.AI_DEAD AndAlso State <> AIState.AI_RESPAWN AndAlso aiCreature.Life.Current = 0 Then
+                State = AIState.AI_DEAD
             End If
 
             'DONE: If stunned
@@ -704,7 +701,7 @@ Public Module WS_Creatures_AI
                 Exit Sub
             End If
 
-            Select Case Me.State
+            Select Case State
                 Case AIState.AI_DEAD
                     If WasAlive Then
                         OnLeaveCombat(False)
@@ -712,7 +709,7 @@ Public Module WS_Creatures_AI
                         aiTimer = 30000 '30 seconds until the corpse disappear
                         WasAlive = False
                     Else
-                        Me.State = AIState.AI_RESPAWN
+                        State = AIState.AI_RESPAWN
                         WasAlive = True
 
                         Dim RespawnTime As Integer = aiCreature.SpawnTime
@@ -724,7 +721,7 @@ Public Module WS_Creatures_AI
                         End If
                     End If
                 Case AIState.AI_RESPAWN
-                    Me.State = AIState.AI_WANDERING
+                    State = AIState.AI_WANDERING
                     aiCreature.Respawn()
                     aiTimer = 10000 'Wait 10 seconds before starting to react
                 Case AIState.AI_MOVE_FOR_ATTACK
@@ -745,7 +742,7 @@ Public Module WS_Creatures_AI
                 Case AIState.AI_DO_NOTHING
                 Case Else
                     aiCreature.SendChatMessage("Unknown AI mode!", ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL)
-                    Me.State = AIState.AI_DO_NOTHING
+                    State = AIState.AI_DO_NOTHING
             End Select
         End Sub
 

@@ -76,7 +76,7 @@ Public Module WS_DynamicObjects
 
         Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
-            Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, CType(ObjectType.TYPE_DYNAMICOBJECT + ObjectType.TYPE_OBJECT, Integer))
+            Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, ObjectType.TYPE_DYNAMICOBJECT + ObjectType.TYPE_OBJECT)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, 0.5F * Radius)
 
             Update.SetUpdateFlag(EDynamicObjectFields.DYNAMICOBJECT_CASTER, Caster.GUID)

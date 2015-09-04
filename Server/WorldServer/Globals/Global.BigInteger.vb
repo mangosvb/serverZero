@@ -47,7 +47,7 @@ Public Class BigInteger
         If Not TypeOf obj Is BigInteger Then Return False
         Dim bi As BigInteger = DirectCast(obj, BigInteger)
 
-        Dim bytes1() As Byte = Me.GetBytes()
+        Dim bytes1() As Byte = GetBytes()
         Dim bytes2() As Byte = bi.GetBytes()
 
         If bytes1.Length <> bytes2.Length Then Return False
@@ -252,7 +252,7 @@ Public Class BigInteger
     End Operator
 
     Public Overrides Function GetHashCode() As Integer
-        Return Me.GetBytes().GetHashCode()
+        Return GetBytes().GetHashCode()
     End Function
 
     Public Overrides Function ToString() As String
@@ -260,7 +260,7 @@ Public Class BigInteger
     End Function
 
     Public Overloads Function ToString(ByVal radix As Integer) As String
-        Dim bytes() As Byte = Me.GetBytes()
+        Dim bytes() As Byte = GetBytes()
         If bytes.Length = 0 Then Return "0"
 
         Dim a As BigInteger = Me
@@ -294,7 +294,7 @@ Public Class BigInteger
     End Function
 
     Public Function ToHEX() As String
-        Dim bytes() As Byte = Me.GetBytes()
+        Dim bytes() As Byte = GetBytes()
         If bytes.Length = 0 Then Return "00"
 
         Dim sHEX As New Text.StringBuilder(bytes.Length * 2)

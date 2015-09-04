@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
-Imports System.Collections.Generic
 
 Public Module WS_Base
     Public Class BaseObject
@@ -75,7 +73,7 @@ Public Module WS_Base
                 packet.AddInt32(SoundID)
                 packet.AddUInt64(GUID)
                 If OnlyToSelf AndAlso (TypeOf Me Is CharacterObject) Then
-                    CType(Me, CharacterObject).Client.Send(packet)
+                    CType(Me, CharacterObject).client.Send(packet)
                 Else
                     SendToNearPlayers(packet)
                 End If
@@ -85,9 +83,9 @@ Public Module WS_Base
         End Sub
 
         Public Sub SendToNearPlayers(ByRef packet As PacketClass, Optional ByVal NotTo As ULong = 0, Optional ByVal ToSelf As Boolean = True)
-            If ToSelf AndAlso (TypeOf Me Is CharacterObject) AndAlso CType(Me, CharacterObject).Client IsNot Nothing Then CType(Me, CharacterObject).Client.SendMultiplyPackets(packet)
+            If ToSelf AndAlso (TypeOf Me Is CharacterObject) AndAlso CType(Me, CharacterObject).client IsNot Nothing Then CType(Me, CharacterObject).client.SendMultiplyPackets(packet)
             For Each objCharacter As ULong In SeenBy.ToArray
-                If objCharacter <> NotTo AndAlso CHARACTERs.ContainsKey(objCharacter) AndAlso CHARACTERs(objCharacter).Client IsNot Nothing Then CHARACTERs(objCharacter).Client.SendMultiplyPackets(packet)
+                If objCharacter <> NotTo AndAlso CHARACTERs.ContainsKey(objCharacter) AndAlso CHARACTERs(objCharacter).client IsNot Nothing Then CHARACTERs(objCharacter).client.SendMultiplyPackets(packet)
             Next
         End Sub
     End Class
@@ -120,7 +118,7 @@ Public Module WS_Base
                 Return (cBytes0 And &HFF000000) >> 24
             End Get
             Set(ByVal value As ManaTypes)
-                cBytes0 = ((cBytes0 And &HFFFFFF) Or (CInt(value) << 24))
+                cBytes0 = ((cBytes0 And &HFFFFFF) Or (value << 24))
             End Set
         End Property
 
@@ -325,7 +323,7 @@ Public Module WS_Base
                     Try
                         SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
                         SMSG_UPDATE_AURA_DURATION.AddInt32(Duration)
-                        CType(Me, CharacterObject).Client.Send(SMSG_UPDATE_AURA_DURATION)
+                        CType(Me, CharacterObject).client.Send(SMSG_UPDATE_AURA_DURATION)
                     Finally
                         SMSG_UPDATE_AURA_DURATION.Dispose()
                     End Try
@@ -420,7 +418,7 @@ Public Module WS_Base
                     RemoveAura(i, ActiveSpells(i).SpellCaster)
 
                     'DONE: Removing additional spell auras (Mind Vision)
-                    If (TypeOf Me Is CharacterObject) AndAlso _
+                    If (TypeOf Me Is CharacterObject) AndAlso
                         (CType(Me, CharacterObject).DuelArbiter <> 0) AndAlso (CType(Me, CharacterObject).DuelPartner Is Nothing) Then
                         WORLD_CREATUREs(CType(Me, CharacterObject).DuelArbiter).RemoveAuraBySpell(SpellID)
                         CType(Me, CharacterObject).DuelArbiter = 0
@@ -468,8 +466,8 @@ Public Module WS_Base
             'DONE: Removing SpellAuras with a certain interruptflag
             For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing Then
-                    If SPELLs.ContainsKey(ActiveSpells(i).SpellID) AndAlso (CType(SPELLs(ActiveSpells(i).SpellID), SpellInfo).auraInterruptFlags And AuraInterruptFlag) Then
-                        If (CType(SPELLs(ActiveSpells(i).SpellID), SpellInfo).procFlags And SpellAuraProcFlags.AURA_PROC_REMOVEONUSE) = 0 Then
+                    If SPELLs.ContainsKey(ActiveSpells(i).SpellID) AndAlso (SPELLs(ActiveSpells(i).SpellID).auraInterruptFlags And AuraInterruptFlag) Then
+                        If (SPELLs(ActiveSpells(i).SpellID).procFlags And SpellAuraProcFlags.AURA_PROC_REMOVEONUSE) = 0 Then
                             RemoveAura(i, ActiveSpells(i).SpellCaster)
                         End If
                     End If
@@ -523,22 +521,22 @@ Public Module WS_Base
         Public Sub AddAura(ByVal SpellID As Integer, ByVal Duration As Integer, ByRef Caster As BaseUnit)
             Dim AuraStart As Integer = 0
             Dim AuraEnd As Integer = MAX_POSITIVE_AURA_EFFECTs - 1
-            If CType(SPELLs(SpellID), SpellInfo).IsPassive Then
+            If SPELLs(SpellID).IsPassive Then
                 AuraStart = MAX_AURA_EFFECTs_VISIBLE
                 AuraEnd = MAX_AURA_EFFECTs
-            ElseIf CType(SPELLs(SpellID), SpellInfo).IsNegative Then
+            ElseIf SPELLs(SpellID).IsNegative Then
                 AuraStart = MAX_POSITIVE_AURA_EFFECTs
                 AuraEnd = MAX_AURA_EFFECTs_VISIBLE - 1
             End If
 
             'Try to remove spells that can't be used at the same time as this one
             Try
-                If Not CType(SPELLs(SpellID), SpellInfo).IsPassive Then
+                If Not SPELLs(SpellID).IsPassive Then
                     Dim SpellInfo As SpellInfo = SPELLs(SpellID)
                     For slot As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
-                        If ActiveSpells(slot) IsNot Nothing AndAlso ActiveSpells(slot).GetSpellInfo.Target = SpellInfo.Target AndAlso _
-                            ActiveSpells(slot).GetSpellInfo.Category = SpellInfo.Category AndAlso ActiveSpells(slot).GetSpellInfo.SpellIconID = SpellInfo.SpellIconID AndAlso _
-                            ActiveSpells(slot).GetSpellInfo.SpellVisual = SpellInfo.SpellVisual AndAlso ActiveSpells(slot).GetSpellInfo.Attributes = SpellInfo.Attributes AndAlso _
+                        If ActiveSpells(slot) IsNot Nothing AndAlso ActiveSpells(slot).GetSpellInfo.Target = SpellInfo.Target AndAlso
+                            ActiveSpells(slot).GetSpellInfo.Category = SpellInfo.Category AndAlso ActiveSpells(slot).GetSpellInfo.SpellIconID = SpellInfo.SpellIconID AndAlso
+                            ActiveSpells(slot).GetSpellInfo.SpellVisual = SpellInfo.SpellVisual AndAlso ActiveSpells(slot).GetSpellInfo.Attributes = SpellInfo.Attributes AndAlso
                             ActiveSpells(slot).GetSpellInfo.AttributesEx = SpellInfo.AttributesEx AndAlso ActiveSpells(slot).GetSpellInfo.AttributesEx2 = SpellInfo.AttributesEx2 Then
                             RemoveAura(slot, ActiveSpells(slot).SpellCaster)
                         End If
@@ -572,7 +570,7 @@ Public Module WS_Base
 
             Dim AuraFlag_Slot As Integer = Slot \ 4
             Dim AuraFlag_SubSlot As Integer = (Slot Mod 4) * 8
-            SetAuraStackCount(Slot, CByte(ActiveSpells(Slot).StackCount))
+            SetAuraStackCount(Slot, ActiveSpells(Slot).StackCount)
 
             If TypeOf Me Is CharacterObject Then
                 CType(Me, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraFlag_Slot, ActiveSpells_Count(AuraFlag_Slot))
@@ -582,7 +580,7 @@ Public Module WS_Base
                 Try
                     SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
                     SMSG_UPDATE_AURA_DURATION.AddInt32(ActiveSpells(Slot).SpellDuration)
-                    CType(Me, CharacterObject).Client.Send(SMSG_UPDATE_AURA_DURATION)
+                    CType(Me, CharacterObject).client.Send(SMSG_UPDATE_AURA_DURATION)
                 Finally
                     SMSG_UPDATE_AURA_DURATION.Dispose()
                 End Try
@@ -713,10 +711,10 @@ Public Module WS_Base
         End Sub
 
         Public Function GetMagicSpellHitResult(ByRef Caster As BaseUnit, ByVal Spell As SpellInfo) As SpellMissInfo
-            If Me.isDead Then Return SpellMissInfo.SPELL_MISS_NONE 'Can't miss dead target
+            If isDead Then Return SpellMissInfo.SPELL_MISS_NONE 'Can't miss dead target
 
             Dim lchance As Integer = If((TypeOf Me Is CharacterObject), 7, 11)
-            Dim leveldiff As Integer = CInt(Me.Level) - CInt(Caster.Level)
+            Dim leveldiff As Integer = Level - CInt(Caster.Level)
             Dim modHitChance As Integer = 0
             If leveldiff < 3 Then
                 modHitChance = 96 - leveldiff
@@ -776,7 +774,7 @@ Public Module WS_Base
 
             'bonus from skills is 0.04% per skill Diff
             Dim attackerWeaponSkill As Integer = Caster.GetWeaponSkill(attType, Me)
-            Dim skillDiff As Integer = attackerWeaponSkill - (CInt(Level) * 5)
+            Dim skillDiff As Integer = attackerWeaponSkill - (Level * 5)
             Dim fullSkillDiff As Integer = attackerWeaponSkill - GetDefenceSkill(Caster)
 
             Dim roll As Integer = Rnd.Next(0, 10001)
@@ -823,7 +821,7 @@ Public Module WS_Base
 
                 Return value
             Else
-                Return CInt(Level) * 5
+                Return Level * 5
             End If
         End Function
 
@@ -846,7 +844,7 @@ Public Module WS_Base
                     If attType <> WeaponAttackType.BASE_ATTACK AndAlso item Is Nothing Then Return 0
 
                     'always maximized SKILL_FERAL_COMBAT in fact
-                    If IsInFeralForm Then Return CInt(Level) * 5
+                    If IsInFeralForm Then Return Level * 5
 
                     'weapon skill or (unarmed for base attack)
                     Dim skill As Integer = If((item Is Nothing), SKILL_IDs.SKILL_UNARMED, item.GetSkill)
@@ -861,7 +859,7 @@ Public Module WS_Base
 
                 Return value
             Else
-                Return CInt(Level) * 5
+                Return Level * 5
             End If
         End Function
 
@@ -869,10 +867,10 @@ Public Module WS_Base
             Dim DamageReduction As Single = 0.0F
 
             If School = DamageTypes.DMG_PHYSICAL Then
-                DamageReduction = (Me.Resistances(0).Base / (Me.Resistances(0).Base + 400 + 85 * CInt(Me.Level)))
+                DamageReduction = (Resistances(0).Base / (Resistances(0).Base + 400 + 85 * Level))
             Else
-                Dim effectiveResistanceRating As Integer = t.Resistances(School).Base + Math.Max((CInt(t.Level) - CInt(Me.Level)) * 5, 0)
-                DamageReduction = (effectiveResistanceRating / (Me.Level * 5)) * 0.75F
+                Dim effectiveResistanceRating As Integer = t.Resistances(School).Base + Math.Max((t.Level - CInt(Level)) * 5, 0)
+                DamageReduction = (effectiveResistanceRating / (Level * 5)) * 0.75F
             End If
 
             If DamageReduction > 0.75F Then
@@ -948,7 +946,7 @@ Public Module WS_Base
                         ListChange.Add(tmpSpell.Key, AbsorbDamage)
                         Exit For
                     End If
-                ElseIf (Schools And (1 << CInt(School))) Then
+                ElseIf (Schools And (1 << School)) Then
                     MsgBox("AHA?!")
                 End If
             Next

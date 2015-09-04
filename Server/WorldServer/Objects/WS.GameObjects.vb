@@ -16,9 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_GameObjects
 
@@ -231,7 +229,7 @@ Public Module WS_GameObjects
             Dim Rotation As Long = 0
             Dim f_rot1 As Single = Math.Sin(orientation / 2)
             Dim i_rot1 As Long = f_rot1 / Math.Atan(Math.Pow(2, -20))
-            Rotation = Rotation Or ((CLng(i_rot1) << CLng(43) >> CLng(43)) And &H1FFFFFL)
+            Rotation = Rotation Or ((i_rot1 << 43 >> 43) And &H1FFFFFL)
             Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION, Rotation)
 
             'If a game object has bit 4 set in the flag it needs to be activated (used for quests)
@@ -274,7 +272,7 @@ Public Module WS_GameObjects
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                Me.RemoveFromWorld()
+                RemoveFromWorld()
                 If Not Loot Is Nothing AndAlso Type <> GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then Loot.Dispose()
                 If TypeOf Me Is TransportObject Then
                     WORLD_TRANSPORTs_Lock.AcquireWriterLock(Timeout.Infinite)
@@ -404,7 +402,7 @@ Public Module WS_GameObjects
 
             'DONE: If there's a loottable open for this gameobject already then hook it to the gameobject
             If LootTable.ContainsKey(GUID) Then
-                Loot = CType(LootTable(GUID), LootObject)
+                Loot = LootTable(GUID)
             End If
 
             'DONE: Calculate mines remaining
@@ -711,7 +709,7 @@ Public Module WS_GameObjects
             SendToNearPlayers(packet)
             packet.Dispose()
 
-            Me.Dispose()
+            Dispose()
         End Sub
 
         Public Sub TurnTo(ByRef Target As BaseObject)
@@ -754,7 +752,7 @@ Public Module WS_GameObjects
 #End Region
 #Region "WS.GameObjects.HelperSubs"
 
-    <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+    <MethodImpl(MethodImplOptions.Synchronized)> _
     Private Function GetNewGUID() As ULong
         GameObjectsGUIDCounter += 1
         GetNewGUID = GameObjectsGUIDCounter
@@ -856,8 +854,8 @@ Public Module WS_GameObjects
 
         client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_USE)
 
-        Log.WriteLine(LogType.DEBUG, "GameObjectType: {0}", CType(WORLD_GAMEOBJECTs(GameObjectGUID).Type, GameObjectType))
-        Select Case CType(GO.Type, GameObjectType)
+        Log.WriteLine(LogType.DEBUG, "GameObjectType: {0}", WORLD_GAMEOBJECTs(GameObjectGUID).Type)
+        Select Case GO.Type
 
             Case GameObjectType.GAMEOBJECT_TYPE_BUTTON, GameObjectType.GAMEOBJECT_TYPE_DOOR
                 'DONE: Doors opening
@@ -867,7 +865,7 @@ Public Module WS_GameObjects
                 'DONE: Chair sitting again
                 Dim StandState As New PacketClass(OPCODES.CMSG_STANDSTATECHANGE)
                 Try
-                    StandState.AddInt8(4 + CType(WORLD_GAMEOBJECTs(GameObjectGUID), GameObjectObject).Sound(1))
+                    StandState.AddInt8(4 + WORLD_GAMEOBJECTs(GameObjectGUID).Sound(1))
                     client.Character.Teleport(GO.positionX, GO.positionY, GO.positionZ, GO.orientation, GO.MapID)
                     client.Send(StandState)
                 Finally
@@ -924,7 +922,7 @@ Public Module WS_GameObjects
                 Log.WriteLine(LogType.DEBUG, "Casted spellcaster spell.")
                 client.Character.CastOnSelf(GO.Sound(0))
 
-                'TODO: Remove one charge
+            'TODO: Remove one charge
 
             Case GameObjectType.GAMEOBJECT_TYPE_MEETINGSTONE
                 If client.Character.Level < GO.Sound(0) Then 'Too low level
@@ -965,7 +963,7 @@ Public Module WS_GameObjects
 
                     Dim zoneSkill As Integer = 0
                     If MySQLQuery.Rows.Count > 0 Then
-                        zoneSkill = CType(MySQLQuery.Rows(0).Item("skill"), Integer)
+                        zoneSkill = MySQLQuery.Rows(0).Item("skill")
                     Else
                         Log.WriteLine(LogType.CRITICAL, "No fishing entry in 'skill_fishing_base_level' for area [{0}] in zone [{1}]", AreaTable(AreaFlag).ID, AreaTable(AreaFlag).Zone)
                     End If

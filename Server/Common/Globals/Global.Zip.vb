@@ -22,7 +22,7 @@ Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 Public Module Global_Zip
 
-    <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+    <MethodImpl(MethodImplOptions.Synchronized)>
     Public Function Compress(ByVal b As Byte(), ByVal offset As Integer, ByVal len As Integer) As Byte()
         Dim buffer2() As Byte
 
@@ -41,7 +41,7 @@ Public Module Global_Zip
         Return buffer2
     End Function
 
-    <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+    <MethodImpl(MethodImplOptions.Synchronized)>
     Public Function DeCompress(ByVal b As Byte()) As Byte()
         Dim buffer2() As Byte = Nothing
         Dim writeBuffer(Short.MaxValue) As Byte

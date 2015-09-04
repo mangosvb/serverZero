@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Loot
 
@@ -76,8 +74,8 @@ Public Module WS_Loot
         End Property
 
         Public Sub New(ByRef Item As LootStoreItem)
-            Me.ItemID = Item.ItemID
-            Me.ItemCount = CByte(Rnd.Next(Item.MinCountOrRef, Item.MaxCount + 1))
+            ItemID = Item.ItemID
+            ItemCount = Rnd.Next(Item.MinCountOrRef, Item.MaxCount + 1)
         End Sub
 
 #Region "IDisposable Support"
@@ -114,7 +112,7 @@ Public Module WS_Loot
         Public NeedQuest As Boolean = False
 
         Public Sub New(ByVal Item As Integer, ByVal Chance As Single, ByVal Group As Byte, ByVal MinCountOrRef As Integer, ByVal MaxCount As Byte, ByVal LootCondition As ConditionType, ByVal NeedQuest As Boolean)
-            Me.ItemID = Item
+            ItemID = Item
             Me.Chance = Chance
             Me.Group = Group
             Me.MinCountOrRef = MinCountOrRef
@@ -192,7 +190,7 @@ Public Module WS_Loot
 
         Public Sub SendLoot(ByRef client As ClientClass)
             If Items.Count = 0 Then
-                SendEmptyLoot(GUID, LootType, Client)
+                SendEmptyLoot(GUID, LootType, client)
                 Exit Sub
             End If
             If LootOwner <> 0 AndAlso client.Character.GUID <> LootOwner Then
@@ -246,7 +244,7 @@ Public Module WS_Loot
                     'DONE: Check threshold if in group
                     For i As Byte = 0 To Items.Count - 1
                         If Not Items(i) Is Nothing Then
-                            If CType(ITEMDatabase(Items(i).ItemID), ItemInfo).Quality >= client.Character.Group.LootThreshold Then
+                            If ITEMDatabase(Items(i).ItemID).Quality >= client.Character.Group.LootThreshold Then
                                 GroupLootInfo(i) = New GroupLootInfo
                                 CType(GroupLootInfo(i), GroupLootInfo).LootObject = Me
                                 CType(GroupLootInfo(i), GroupLootInfo).LootSlot = i
@@ -307,7 +305,7 @@ Public Module WS_Loot
 
                     If LootType = LootType.LOOTTYPE_FISHING AndAlso IsEmpty Then
                         SendRelease(client)
-                        Me.Dispose()
+                        Dispose()
                     End If
                 Else
                     tmpItem.Delete()
@@ -548,7 +546,7 @@ Public Module WS_Loot
         End Sub
         Public Sub Broadcast(ByRef packet As PacketClass)
             For Each objCharacter As CharacterObject In Rolls
-                objCharacter.Client.SendMultiplyPackets(packet)
+                objCharacter.client.SendMultiplyPackets(packet)
             Next
         End Sub
         Public Sub EndRoll(ByVal state As Object)
@@ -585,8 +583,8 @@ Public Module WS_Loot
             Dim slot As Byte = packet.GetInt8
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_LOOT_ITEM [slot={2}]", client.IP, client.Port, slot)
 
-            If LootTable.ContainsKey(Client.Character.lootGUID) Then
-                CType(LootTable(Client.Character.lootGUID), LootObject).GetLoot(Client, slot)
+            If LootTable.ContainsKey(client.Character.lootGUID) Then
+                LootTable(client.Character.lootGUID).GetLoot(client, slot)
             Else
                 Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                 response.AddInt8(InventoryChangeFailure.EQUIP_ERR_ALREADY_LOOTED)
@@ -603,18 +601,18 @@ Public Module WS_Loot
     Public Sub On_CMSG_LOOT_MONEY(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_MONEY", client.IP, client.Port)
 
-        If Not LootTable.ContainsKey(Client.Character.lootGUID) Then Exit Sub
+        If Not LootTable.ContainsKey(client.Character.lootGUID) Then Exit Sub
 
         If client.Character.IsInGroup Then
             'DONE: Party share
-            Dim members As List(Of BaseUnit) = GetPartyMembersAroundMe(Client.Character, 100)
-            Dim copper As Integer = (CType(LootTable(Client.Character.lootGUID), LootObject).Money \ members.Count) + 1
-            CType(LootTable(Client.Character.lootGUID), LootObject).Money = 0
+            Dim members As List(Of BaseUnit) = GetPartyMembersAroundMe(client.Character, 100)
+            Dim copper As Integer = (LootTable(client.Character.lootGUID).Money \ members.Count) + 1
+            CType(LootTable(client.Character.lootGUID), LootObject).Money = 0
 
             Dim sharePcket As New PacketClass(OPCODES.SMSG_LOOT_MONEY_NOTIFY)
             sharePcket.AddInt32(copper)
             For Each character As CharacterObject In members
-                character.Client.SendMultiplyPackets(sharePcket)
+                character.client.SendMultiplyPackets(sharePcket)
 
                 character.Copper += copper
                 character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, character.Copper)
@@ -626,9 +624,9 @@ Public Module WS_Loot
             sharePcket.Dispose()
         Else
             'DONE: Not in party
-            Dim copper As Integer = CType(LootTable(Client.Character.lootGUID), LootObject).Money
+            Dim copper As Integer = LootTable(client.Character.lootGUID).Money
             client.Character.Copper += copper
-            CType(LootTable(Client.Character.lootGUID), LootObject).Money = 0
+            CType(LootTable(client.Character.lootGUID), LootObject).Money = 0
 
             Dim lootPacket As New PacketClass(OPCODES.SMSG_LOOT_MONEY_NOTIFY)
             lootPacket.AddInt32(copper)
@@ -657,9 +655,9 @@ Public Module WS_Loot
         client.Character.SendCharacterUpdate()
 
         If LootTable.ContainsKey(GUID) Then
-            CType(LootTable(GUID), LootObject).SendLoot(Client)
+            LootTable(GUID).SendLoot(client)
         Else
-            SendEmptyLoot(GUID, LootType.LOOTTYPE_CORPSE, Client)
+            SendEmptyLoot(GUID, LootType.LOOTTYPE_CORPSE, client)
         End If
     End Sub
     Public Sub On_CMSG_LOOT_RELEASE(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -678,7 +676,7 @@ Public Module WS_Loot
         client.Character.SendCharacterUpdate()
 
         If LootTable.ContainsKey(GUID) Then
-            LootTable(GUID).SendRelease(Client)
+            LootTable(GUID).SendRelease(client)
 
             'DONE: Remove loot owner
             LootTable(GUID).LootOwner = 0
@@ -767,11 +765,11 @@ Public Module WS_Loot
                     End If
 
                 ElseIf GuidIsItem(GUID) Then
-                    CType(LootTable(GUID), LootObject).Dispose()
+                    LootTable(GUID).Dispose()
                     client.Character.ItemREMOVE(GUID, True, True)
                 Else
                     'DONE: In all other cases - delete the loot
-                    CType(LootTable(GUID), LootObject).Dispose()
+                    LootTable(GUID).Dispose()
                 End If
 
             End If
@@ -837,12 +835,12 @@ Public Module WS_Loot
         startRoll.AddInt32(60000)
 
         For Each objCharacter As CharacterObject In rollCharacters
-            objCharacter.Client.SendMultiplyPackets(startRoll)
+            objCharacter.client.SendMultiplyPackets(startRoll)
         Next
         startRoll.Dispose()
 
-        CType(CType(LootTable(LootGUID), LootObject).GroupLootInfo(CType(Slot, Byte)), GroupLootInfo).Rolls = rollCharacters
-        CType(CType(LootTable(LootGUID), LootObject).GroupLootInfo(CType(Slot, Byte)), GroupLootInfo).RollTimeoutTimer = New Timer(AddressOf CType(CType(LootTable(LootGUID), LootObject).GroupLootInfo(CType(Slot, Byte)), GroupLootInfo).EndRoll, 0, 60000, Timeout.Infinite)
+        CType(LootTable(LootGUID).GroupLootInfo(Slot), GroupLootInfo).Rolls = rollCharacters
+        CType(LootTable(LootGUID).GroupLootInfo(Slot), GroupLootInfo).RollTimeoutTimer = New Timer(AddressOf LootTable(LootGUID).GroupLootInfo(Slot).EndRoll, 0, 60000, Timeout.Infinite)
     End Sub
     Public Sub On_CMSG_LOOT_ROLL(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 18 Then Exit Sub
@@ -861,8 +859,8 @@ Public Module WS_Loot
         Dim response As New PacketClass(OPCODES.SMSG_LOOT_ROLL)
         response.AddUInt64(GUID)
         response.AddInt32(Slot)
-        response.AddUInt64(Client.Character.GUID)
-        response.AddInt32(CType(CType(CType(LootTable(GUID), LootObject).GroupLootInfo(Slot), GroupLootInfo).Item, LootItem).ItemID)
+        response.AddUInt64(client.Character.GUID)
+        response.AddInt32(LootTable(GUID).GroupLootInfo(Slot).Item.ItemID)
         response.AddInt32(0)
         response.AddInt32(0)
 
@@ -880,11 +878,11 @@ Public Module WS_Loot
                 response.AddInt8(2)
         End Select
 
-        CType(CType(LootTable(GUID), LootObject).GroupLootInfo(CType(Slot, Byte)), GroupLootInfo).Broadcast(response)
+        LootTable(GUID).GroupLootInfo(Slot).Broadcast(response)
         response.Dispose()
 
-        CType(CType(LootTable(GUID), LootObject).GroupLootInfo(CType(Slot, Byte)), GroupLootInfo).Looters(Client.Character) = rollType
-        CType(CType(LootTable(GUID), LootObject).GroupLootInfo(CType(Slot, Byte)), GroupLootInfo).Check()
+        CType(LootTable(GUID).GroupLootInfo(Slot), GroupLootInfo).Looters(client.Character) = rollType
+        LootTable(GUID).GroupLootInfo(Slot).Check()
     End Sub
 #End Region
 

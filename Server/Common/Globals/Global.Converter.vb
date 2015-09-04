@@ -39,39 +39,39 @@ Public Module Converter
     End Sub
     'Int16
     Public Sub ToBytes(ByVal a As Short, ByVal b As Byte(), ByRef t As Integer)
-        b(t) = CType((a And 255), Byte)
+        b(t) = a And 255
         t = t + 1
-        b(t) = CType(((a >> 8) And 255), Byte)
+        b(t) = (a >> 8) And 255
         t = t + 1
     End Sub
     'Int32
     Public Sub ToBytes(ByVal a As Integer, ByVal b As Byte(), ByRef t As Integer)
-        b(t) = CType((a And 255), Byte)
+        b(t) = a And 255
         t = t + 1
-        b(t) = CType(((a >> 8) And 255), Byte)
+        b(t) = (a >> 8) And 255
         t = t + 1
-        b(t) = CType(((a >> 16) And 255), Byte)
+        b(t) = (a >> 16) And 255
         t = t + 1
-        b(t) = CType(((a >> 24) And 255), Byte)
+        b(t) = (a >> 24) And 255
         t = t + 1
     End Sub
     'Int64
     Public Sub ToBytes(ByVal a As Long, ByVal b As Byte(), ByRef t As Integer)
-        b(t) = CType((a And 255), Byte)
+        b(t) = a And 255
         t = t + 1
-        b(t) = CType(((a >> 8) And 255), Byte)
+        b(t) = (a >> 8) And 255
         t = t + 1
-        b(t) = CType(((a >> 16) And 255), Byte)
+        b(t) = (a >> 16) And 255
         t = t + 1
-        b(t) = CType(((a >> 24) And 255), Byte)
+        b(t) = (a >> 24) And 255
         t = t + 1
-        b(t) = CType(((a >> 32) And 255), Byte)
+        b(t) = (a >> 32) And 255
         t = t + 1
-        b(t) = CType(((a >> 40) And 255), Byte)
+        b(t) = (a >> 40) And 255
         t = t + 1
-        b(t) = CType(((a >> 48) And 255), Byte)
+        b(t) = (a >> 48) And 255
         t = t + 1
-        b(t) = CType(((a >> 56) And 255), Byte)
+        b(t) = (a >> 56) And 255
         t = t + 1
     End Sub
     'String
@@ -80,7 +80,7 @@ Public Module Converter
         Dim chArray2 As Char() = chArray1
         Dim num1 As Integer
         For num1 = 0 To chArray2.Length - 1
-            b(t) = CType(Asc(chArray2(num1)), Byte)
+            b(t) = Asc(chArray2(num1))
             t = t + 1
         Next num1
     End Sub
@@ -108,8 +108,8 @@ Public Module Converter
         offset = (offset + 2)
         Return num1
     End Function
-    Public Function ToUInt16(ByVal d As Byte(), ByRef offset As Integer) As UInt16
-        Dim num1 As UInt16 = BitConverter.ToUInt16(d, offset)
+    Public Function ToUInt16(ByVal d As Byte(), ByRef offset As Integer) As UShort
+        Dim num1 As UShort = BitConverter.ToUInt16(d, offset)
         offset = (offset + 2)
         Return num1
     End Function
@@ -121,8 +121,8 @@ Public Module Converter
         offset = (offset + 4)
         Return num1
     End Function
-    Public Function ToUInt32(ByVal d As Byte(), ByRef offset As Integer) As UInt32
-        Dim num1 As UInt32 = BitConverter.ToUInt32(d, offset)
+    Public Function ToUInt32(ByVal d As Byte(), ByRef offset As Integer) As UInteger
+        Dim num1 As UInteger = BitConverter.ToUInt32(d, offset)
         offset = (offset + 4)
         Return num1
     End Function
@@ -134,8 +134,8 @@ Public Module Converter
         offset = (offset + 8)
         Return num1
     End Function
-    Public Function ToUInt64(ByVal d As Byte(), ByRef offset As Integer) As UInt64
-        Dim num1 As UInt64 = BitConverter.ToUInt64(d, offset)
+    Public Function ToUInt64(ByVal d As Byte(), ByRef offset As Integer) As ULong
+        Dim num1 As ULong = BitConverter.ToUInt64(d, offset)
         offset = (offset + 8)
         Return num1
     End Function

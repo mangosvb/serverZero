@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Battleground
     Public Sub On_CMSG_BATTLEMASTER_HELLO(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -49,12 +48,12 @@ Public Module WS_Handlers_Battleground
             'response.AddInt32(0)    'Unk
             'Else
             Dim Battlegrounds As List(Of Integer) = ClsWorldServer.Cluster.BattlefieldList(BGType)
-                response.AddInt8(0)                     'Unk
-                response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
+            response.AddInt8(0)                     'Unk
+            response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
 
-                For Each Instance As Integer In Battlegrounds
-                    response.AddInt32(Instance)
-                Next
+            For Each Instance As Integer In Battlegrounds
+                response.AddInt32(Instance)
+            Next
             'End If
 
             client.Send(response)

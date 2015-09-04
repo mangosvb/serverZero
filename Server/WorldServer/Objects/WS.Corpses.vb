@@ -17,7 +17,6 @@
 '
 
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Corpses
     'WARNING: Use only with WORLD_GAMEOBJECTs()
@@ -36,7 +35,7 @@ Public Module WS_Corpses
 
         Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
-            Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, CType(ObjectType.TYPE_CORPSE + ObjectType.TYPE_OBJECT, Integer))
+            Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, ObjectType.TYPE_CORPSE + ObjectType.TYPE_OBJECT)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_ENTRY, 0)
             Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, 1.0F)
 
@@ -143,7 +142,7 @@ Public Module WS_Corpses
             Finally
                 packet.Dispose()
             End Try
-            Me.Dispose()
+            Dispose()
         End Sub
 
 #Region "IDisposable Support"
@@ -154,7 +153,7 @@ Public Module WS_Corpses
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                Me.RemoveFromWorld()
+                RemoveFromWorld()
                 WORLD_CORPSEOBJECTs.Remove(GUID)
             End If
             _disposedValue = True
@@ -275,7 +274,7 @@ Public Module WS_Corpses
                                 list = .PlayersHere.ToArray
                                 For Each plGUID As ULong In list
                                     If CHARACTERs.ContainsKey(plGUID) AndAlso CHARACTERs(plGUID).CanSee(Me) Then
-                                        CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                        CHARACTERs(plGUID).client.SendMultiplyPackets(packet)
                                         CHARACTERs(plGUID).corpseObjectsNear.Add(GUID)
                                         SeenBy.Add(plGUID)
                                     End If
@@ -313,7 +312,7 @@ Public Module WS_Corpses
         End Sub
     End Class
 
-    <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+    <MethodImpl(MethodImplOptions.Synchronized)>
     Private Function GetNewGUID() As ULong
         CorpseGUIDCounter += 1
         GetNewGUID = CorpseGUIDCounter

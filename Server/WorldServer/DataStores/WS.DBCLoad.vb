@@ -15,9 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports System
 Imports System.IO
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.DBC
 
 Public Module WS_DBCLoad
@@ -25,7 +23,7 @@ Public Module WS_DBCLoad
 #Region "Spells"
     Public Sub InitializeSpellRadius()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRadius.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellRadius.dbc")
 
             Dim radiusID As Integer
             Dim radiusValue As Single
@@ -49,7 +47,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellCastTime()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellCastTimes.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellCastTimes.dbc")
 
             Dim spellCastID As Integer
             Dim spellCastTimeS As Integer
@@ -71,7 +69,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellRange()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellRange.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellRange.dbc")
 
             Dim spellRangeIndex As Integer
             'Dim spellRangeMin As Single
@@ -95,7 +93,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellShapeShift()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellShapeshiftForm.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellShapeshiftForm.dbc")
 
             Dim id As Integer
             Dim flags1 As Integer
@@ -121,7 +119,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellFocusObject()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellFocusObject.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellFocusObject.dbc")
 
             Dim spellFocusIndex As Integer
             Dim spellFocusObjectName As String
@@ -143,7 +141,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellDuration()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SpellDuration.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellDuration.dbc")
 
             Dim spellDurationIndex As Integer
             Dim spellDurationValue As Integer
@@ -170,7 +168,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeSpells()
         Try
-            Dim spellDBC As BufferedDBC = New BufferedDBC("dbc\Spell.dbc")
+            Dim spellDBC As BufferedDbc = New BufferedDbc("dbc\Spell.dbc")
             'Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & SpellDBC.GetFileInformation)
             Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
 
@@ -358,7 +356,7 @@ Public Module WS_DBCLoad
             WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", spellChainQuery)
 
             For Each spellChain As DataRow In spellChainQuery.Rows
-                SpellChains.Add(CInt(spellChain.Item("spell_id")), CInt(spellChain.Item("prev_spell")))
+                SpellChains.Add(spellChain.Item("spell_id"), spellChain.Item("prev_spell"))
             Next
 
             Log.WriteLine(LogType.INFORMATION, "Database: {0} SpellChains initialized.", spellChainQuery.Rows.Count)
@@ -373,7 +371,7 @@ Public Module WS_DBCLoad
 #Region "Taxi"
     Public Sub InitializeTaxiNodes()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiNodes.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\TaxiNodes.dbc")
 
             Dim taxiPosX As Single
             Dim taxiPosY As Single
@@ -408,7 +406,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeTaxiPaths()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPath.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\TaxiPath.dbc")
 
             Dim taxiNode As Integer
             Dim taxiFrom As Integer
@@ -436,7 +434,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeTaxiPathNodes()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\TaxiPathNode.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\TaxiPathNode.dbc")
 
             'Dim taxiNode As Integer
             Dim taxiPath As Integer
@@ -480,7 +478,7 @@ Public Module WS_DBCLoad
 #Region "Skills"
     Public Sub InitializeSkillLines()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLine.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SkillLine.dbc")
 
             Dim skillID As Integer
             Dim skillLine As Integer
@@ -512,7 +510,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeSkillLineAbility()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\SkillLineAbility.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SkillLineAbility.dbc")
 
             For i As Integer = 0 To tmpDBC.Rows - 1
                 Dim tmpSkillLineAbility As New TSkillLineAbility
@@ -547,7 +545,7 @@ Public Module WS_DBCLoad
 #Region "Locks"
     Public Sub InitializeLocks()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Lock.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\Lock.dbc")
 
             Dim lockID As Integer
             Dim keyType(4) As Byte
@@ -557,11 +555,11 @@ Public Module WS_DBCLoad
 
             For i As Integer = 0 To tmpDBC.Rows - 1
                 lockID = tmpDBC.Item(i, 0)
-                keyType(0) = CByte(tmpDBC.Item(i, 1))
-                keyType(1) = CByte(tmpDBC.Item(i, 2))
-                keyType(2) = CByte(tmpDBC.Item(i, 3))
-                keyType(3) = CByte(tmpDBC.Item(i, 4))
-                keyType(4) = CByte(tmpDBC.Item(i, 5))
+                keyType(0) = tmpDBC.Item(i, 1)
+                keyType(1) = tmpDBC.Item(i, 2)
+                keyType(2) = tmpDBC.Item(i, 3)
+                keyType(3) = tmpDBC.Item(i, 4)
+                keyType(4) = tmpDBC.Item(i, 5)
                 key(0) = tmpDBC.Item(i, 9)
                 key(1) = tmpDBC.Item(i, 10)
                 key(2) = tmpDBC.Item(i, 11)
@@ -586,7 +584,7 @@ Public Module WS_DBCLoad
 #Region "AreaTable"
     Public Sub InitializeAreaTable()
         Try
-            Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\AreaTable.dbc")
+            Dim tmpDbc As BufferedDbc = New BufferedDbc("dbc\AreaTable.dbc")
 
             Dim areaID As Integer
             Dim areaMapID As Integer
@@ -640,7 +638,7 @@ Public Module WS_DBCLoad
 #Region "Emotes"
     Public Sub InitializeEmotes()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Emotes.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\Emotes.dbc")
             Dim emoteID As Integer
             Dim emoteState As Integer
 
@@ -662,7 +660,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeEmotesText()
         Try
-            Dim tmpDbc As BufferedDBC = New BufferedDBC("dbc\EmotesText.dbc")
+            Dim tmpDbc As BufferedDbc = New BufferedDbc("dbc\EmotesText.dbc")
             Dim textEmoteID As Integer
             Dim emoteID As Integer
             'Dim EmoteID2 As Integer
@@ -696,7 +694,7 @@ Public Module WS_DBCLoad
 #Region "Factions"
     Public Sub InitializeFactions()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\Faction.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\Faction.dbc")
 
             Dim factionID As Integer
             Dim factionFlag As Integer
@@ -722,9 +720,9 @@ Public Module WS_DBCLoad
                 reputationFlags(3) = tmpDBC.Item(i, 17)
                 'factionName = tmpDBC.Item(i, 19) ' May be needed in the future
 
-                FactionInfo(factionID) = New TFaction(factionID, factionFlag, _
-                   flags(0), flags(1), flags(2), flags(3), _
-                   reputationStats(0), reputationStats(1), reputationStats(2), reputationStats(3), _
+                FactionInfo(factionID) = New TFaction(factionID, factionFlag,
+                   flags(0), flags(1), flags(2), flags(3),
+                   reputationStats(0), reputationStats(1), reputationStats(2), reputationStats(3),
                    reputationFlags(0), reputationFlags(1), reputationFlags(2), reputationFlags(3))
             Next i
 
@@ -740,7 +738,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeFactionTemplates()
         Try
             'Loading from DBC
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\FactionTemplate.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\FactionTemplate.dbc")
 
             Dim templateID As Integer
 
@@ -773,7 +771,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeCharRaces()
         Try
             'Loading from DBC
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrRaces.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\ChrRaces.dbc")
 
             Dim raceID As Integer
             Dim factionID As Integer
@@ -794,7 +792,7 @@ Public Module WS_DBCLoad
                 cinematicID = tmpDBC.Item(i, 16)
                 name = tmpDBC.Item(i, 17, DBCValueType.DBC_STRING)
 
-                CharRaces(CByte(raceID)) = New TCharRace(CShort(factionID), modelM, modelF, CByte(teamID), taxiMask, cinematicID, name)
+                CharRaces(CByte(raceID)) = New TCharRace(factionID, modelM, modelF, teamID, taxiMask, cinematicID, name)
             Next i
 
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
@@ -809,7 +807,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeCharClasses()
         Try
             'Loading from DBC
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\ChrClasses.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\ChrClasses.dbc")
 
             Dim classID As Integer
             Dim cinematicID As Integer
@@ -834,7 +832,7 @@ Public Module WS_DBCLoad
 #Region "DurabilityCosts"
     Public Sub InitializeDurabilityCosts()
         Try
-            Dim tmpDBC As BufferedDBC = New BufferedDBC("dbc\DurabilityCosts.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\DurabilityCosts.dbc")
 
             Dim itemBroken As Integer
             Dim itemType As Integer
@@ -863,7 +861,7 @@ Public Module WS_DBCLoad
 #Region "Talents"
     Public Sub LoadTalentDbc()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\Talent.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\Talent.dbc")
 
             Dim tmpInfo As TalentInfo
 
@@ -901,7 +899,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadTalentTabDbc()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\TalentTab.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\TalentTab.dbc")
 
             Dim talentTab As Integer
             Dim talentMask As Integer
@@ -928,7 +926,7 @@ Public Module WS_DBCLoad
 #Region "AuctionHouse"
     Public Sub LoadAuctionHouseDbc()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\AuctionHouse.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\AuctionHouse.dbc")
 
             Dim ahId As Integer
             Dim fee As Integer
@@ -963,7 +961,7 @@ Public Module WS_DBCLoad
 #Region "Items"
     Public Sub LoadSpellItemEnchantments()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\SpellItemEnchantment.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\SpellItemEnchantment.dbc")
 
             Dim id As Integer
             Dim type(2) As Integer
@@ -1002,7 +1000,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadItemSet()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemSet.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\ItemSet.dbc")
 
             Dim id As Integer
             Dim name As String
@@ -1056,7 +1054,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadItemDisplayInfoDbc()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemDisplayInfo.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\ItemDisplayInfo.dbc")
 
             Dim tmpItemDisplayInfo As TItemDisplayInfo
 
@@ -1081,7 +1079,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadItemRandomPropertiesDbc()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\ItemRandomProperties.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\ItemRandomProperties.dbc")
 
             Dim tmpInfo As TItemRandomPropertiesInfo
 
@@ -1131,7 +1129,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadCreatureFamilyDbc()
         Try
-            Dim dbc As BufferedDBC = New BufferedDBC("dbc\CreatureFamily.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc\CreatureFamily.dbc")
 
             Dim tmpInfo As CreatureFamilyInfo
 
@@ -1162,7 +1160,7 @@ Public Module WS_DBCLoad
 
             Dim id As Integer
             For Each movement As DataRow In movementsQuery.Rows
-                id = CType(movement.Item("id"), Integer)
+                id = movement.Item("id")
                 If CreatureMovement.ContainsKey(id) = False Then
                     CreatureMovement.Add(id, New Dictionary(Of Integer, CreatureMovePoint))
                 End If
@@ -1183,7 +1181,7 @@ Public Module WS_DBCLoad
 
             Dim entry As Integer
             For Each equipInfo As DataRow In equipQuery.Rows
-                entry = CType(equipInfo.Item("entry"), Integer)
+                entry = equipInfo.Item("entry")
                 If CreatureEquip.ContainsKey(entry) Then Continue For
                 CreatureEquip.Add(entry, New CreatureEquipInfo(equipInfo.Item("equipmodel1"), equipInfo.Item("equipmodel2"), equipInfo.Item("equipmodel3"), equipInfo.Item("equipinfo1"), equipInfo.Item("equipinfo2"), equipInfo.Item("equipinfo3"), equipInfo.Item("equipslot1"), equipInfo.Item("equipslot2"), equipInfo.Item("equipslot3")))
             Next
@@ -1202,7 +1200,7 @@ Public Module WS_DBCLoad
 
             Dim entry As Integer
             For Each modelInfo As DataRow In modelQuery.Rows
-                entry = CType(modelInfo.Item("modelid"), Integer)
+                entry = modelInfo.Item("modelid")
                 If CreatureModel.ContainsKey(entry) Then Continue For
                 CreatureModel.Add(entry, New CreatureModelInfo(modelInfo.Item("bounding_radius"), modelInfo.Item("combat_reach"), modelInfo.Item("gender"), modelInfo.Item("modelid_other_gender")))
             Next
@@ -1222,8 +1220,8 @@ Public Module WS_DBCLoad
         WorldDatabase.Query("SELECT * FROM creature_questrelation;", questStarters)
 
         For Each starter As DataRow In questStarters.Rows
-            Dim entry As Integer = CInt(starter.Item("id"))
-            Dim quest As Integer = CInt(starter.Item("quest"))
+            Dim entry As Integer = starter.Item("id")
+            Dim quest As Integer = starter.Item("quest")
             If CreatureQuestStarters.ContainsKey(entry) = False Then CreatureQuestStarters.Add(entry, New List(Of Integer))
             CreatureQuestStarters(entry).Add(quest)
         Next
@@ -1232,8 +1230,8 @@ Public Module WS_DBCLoad
         questStarters.Clear()
         WorldDatabase.Query("SELECT * FROM gameobject_questrelation;", questStarters)
         For Each starter As DataRow In questStarters.Rows
-            Dim entry As Integer = CInt(starter.Item("id"))
-            Dim quest As Integer = CInt(starter.Item("quest"))
+            Dim entry As Integer = starter.Item("id")
+            Dim quest As Integer = starter.Item("quest")
             If GameobjectQuestStarters.ContainsKey(entry) = False Then GameobjectQuestStarters.Add(entry, New List(Of Integer))
             GameobjectQuestStarters(entry).Add(quest)
         Next
@@ -1246,8 +1244,8 @@ Public Module WS_DBCLoad
         WorldDatabase.Query("SELECT * FROM creature_involvedrelation;", questFinishers)
 
         For Each starter As DataRow In questFinishers.Rows
-            Dim entry As Integer = CInt(starter.Item("id"))
-            Dim quest As Integer = CInt(starter.Item("quest"))
+            Dim entry As Integer = starter.Item("id")
+            Dim quest As Integer = starter.Item("quest")
             If CreatureQuestFinishers.ContainsKey(entry) = False Then CreatureQuestFinishers.Add(entry, New List(Of Integer))
             CreatureQuestFinishers(entry).Add(quest)
         Next
@@ -1256,8 +1254,8 @@ Public Module WS_DBCLoad
         questFinishers.Clear()
         WorldDatabase.Query("SELECT * FROM gameobject_involvedrelation;", questFinishers)
         For Each starter As DataRow In questFinishers.Rows
-            Dim entry As Integer = CInt(starter.Item("id"))
-            Dim quest As Integer = CInt(starter.Item("quest"))
+            Dim entry As Integer = starter.Item("id")
+            Dim quest As Integer = starter.Item("quest")
             If GameobjectQuestFinishers.ContainsKey(entry) = False Then GameobjectQuestFinishers.Add(entry, New List(Of Integer))
             GameobjectQuestFinishers(entry).Add(quest)
         Next

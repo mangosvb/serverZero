@@ -1,8 +1,5 @@
-Imports System
 Imports System.Collections.Generic
-Imports System.Threading
 Imports mangosVB.WorldServer
-Imports mangosVB.Common
 
 Namespace Scripts
     Public Class CreatureAI_The_Plains_Vision

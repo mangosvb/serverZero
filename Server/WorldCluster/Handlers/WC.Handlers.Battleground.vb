@@ -18,7 +18,6 @@
 
 Imports System.Threading
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WC_Handlers_Battleground
 
@@ -52,7 +51,7 @@ Public Module WC_Handlers_Battleground
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEAVE_BATTLEFIELD [MapType: {2}, Unk1: {3}, Unk2: {4}, ID: {5}]", client.IP, client.Port, MapType, Unk1, Unk2, ID)
 
-        BATTLEFIELDs(ID).Leave(Client.Character)
+        BATTLEFIELDs(ID).Leave(client.Character)
     End Sub
 
     Public Sub On_CMSG_BATTLEMASTER_JOIN(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -65,7 +64,7 @@ Public Module WC_Handlers_Battleground
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_JOIN [MapType: {2}, Instance: {3}, Group: {4}]", client.IP, client.Port, MapType, Intance, AsGroup)
 
-        GetBattlefield(MapType, client.Character.Level).Enqueue(Client.Character)
+        GetBattlefield(MapType, client.Character.Level).Enqueue(client.Character)
     End Sub
 
     Public BATTLEFIELDs As New Dictionary(Of Integer, Battlefield)
@@ -376,10 +375,7 @@ Public Module WC_Handlers_Battleground
         '1 - Your group has joined the queue for AV
         '2 - Your group has joined the queue for WS
         '3 - Your group has joined the queue for AB
-        '4 - Your group has joined the queue for NA
-        '5 - Your group has joined the queue for BE Arena
-        '6 - Your group has joined the queue for All Arenas
-        '7 - Your group has joined the queue for EotS
+
 
         Dim p As New PacketClass(OPCODES.SMSG_GROUP_JOINED_BATTLEGROUND)
         Try

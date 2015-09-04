@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Class WS_QuestInfo
     Implements IDisposable
@@ -350,7 +349,7 @@ Public Class WS_QuestInfo
         retValue = True  'Start off with being able to see the quest
 
         '        Try
-        If (CInt(objCharacter.Level) + 6) < Level_Start Then
+        If (objCharacter.Level + 6) < Level_Start Then
             retValue = False
         End If
 

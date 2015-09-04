@@ -15,7 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports System.Data
 Imports System.ComponentModel
 Imports System.Threading
 Imports System.Data.SqlClient
@@ -189,12 +188,12 @@ Public Class SQL
 
             Select Case v_SQLType
                 Case DB_Type.MySQL
-                    MySQLConn = New MySqlConnection([String].Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    MySQLConn = New MySqlConnection(String.Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
                     MySQLConn.Open()
                     RaiseEvent SQLMessage(EMessages.ID_Message, "MySQL Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
 
                 Case DB_Type.MSSQL
-                    MSSQLConn = New SqlConnection([String].Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    MSSQLConn = New SqlConnection(String.Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
                     If MSSQLConn.State = ConnectionState.Closed Then
                         MSSQLConn.Open()
                     End If
@@ -227,7 +226,7 @@ Public Class SQL
                 Case DB_Type.MySQL
                     MySQLConn.Close()
                     MySQLConn.Dispose()
-                    MySQLConn = New MySqlConnection([String].Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    MySQLConn = New MySqlConnection(String.Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
                     MySQLConn.Open()
 
                     If MySQLConn.State = ConnectionState.Open Then
@@ -238,7 +237,7 @@ Public Class SQL
                 Case DB_Type.MSSQL
                     MSSQLConn.Close()
                     MSSQLConn.Dispose()
-                    MSSQLConn = New SqlConnection([String].Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    MSSQLConn = New SqlConnection(String.Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
                     MSSQLConn.Open()
 
                     If MSSQLConn.State = ConnectionState.Open Then

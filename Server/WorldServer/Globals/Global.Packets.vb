@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module Packets
     ''' <summary>
@@ -32,9 +31,9 @@ Public Module Packets
         Dim buffer As String = ""
         Try
             If client Is Nothing Then
-                buffer = buffer + [String].Format("DEBUG: Packet Dump{0}", vbNewLine)
+                buffer = buffer + String.Format("DEBUG: Packet Dump{0}", vbNewLine)
             Else
-                buffer = buffer + [String].Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length - start, vbNewLine)
+                buffer = buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length - start, vbNewLine)
             End If
 
             If (data.Length - start) Mod 16 = 0 Then
@@ -194,7 +193,7 @@ Public Module Packets
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
-                packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
+                packet.AddInt8((updateCount + 32) \ 32)
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
                 For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
@@ -269,7 +268,7 @@ Public Module Packets
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
-                packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
+                packet.AddInt8((updateCount + 32) \ 32)
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
                 For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
@@ -316,7 +315,7 @@ Public Module Packets
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
-                packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
+                packet.AddInt8((updateCount + 32) \ 32)
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
                 For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
@@ -388,7 +387,7 @@ Public Module Packets
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
-                packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
+                packet.AddInt8((updateCount + 32) \ 32)
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
                 For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
@@ -436,7 +435,7 @@ Public Module Packets
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
-                packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
+                packet.AddInt8((updateCount + 32) \ 32)
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
                 For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
@@ -485,7 +484,7 @@ Public Module Packets
                     If UpdateMask.Get(i) Then updateCount = i
                 Next
 
-                packet.AddInt8(CType((updateCount + 32) \ 32, Byte))
+                packet.AddInt8((updateCount + 32) \ 32)
                 packet.AddBitArray(UpdateMask, CType((updateCount + 32) \ 32, Byte) * 4)      'OK Flags are Int32, so to byte -> *4
                 For i As Integer = 0 To UpdateMask.Count - 1
                     If UpdateMask.Get(i) Then
@@ -548,8 +547,8 @@ Public Module Packets
             ReDim Data(3)
             Data(0) = 0
             Data(1) = 0
-            Data(2) = CType(opcode, Int16) Mod 256
-            Data(3) = CType(opcode, Int16) \ 256
+            Data(2) = CType(opcode, Short) Mod 256
+            Data(3) = CType(opcode, Short) \ 256
         End Sub
 
         Public Sub New(ByRef rawdata() As Byte)
@@ -572,8 +571,8 @@ Public Module Packets
             ReDim Data(3)
             Data(0) = 0
             Data(1) = 0
-            Data(2) = CType(OPCODES.SMSG_COMPRESSED_UPDATE_OBJECT, Int16) Mod 256
-            Data(3) = CType(OPCODES.SMSG_COMPRESSED_UPDATE_OBJECT, Int16) \ 256
+            Data(2) = CType(OPCODES.SMSG_COMPRESSED_UPDATE_OBJECT, Short) Mod 256
+            Data(3) = CType(OPCODES.SMSG_COMPRESSED_UPDATE_OBJECT, Short) \ 256
 
             AddInt32(uncompressedSize)
             AddByteArray(compressedBuffer)
@@ -620,8 +619,8 @@ Public Module Packets
                 position = Data.Length
                 ReDim Preserve Data(Data.Length + 1)
             End If
-            Data(position) = CType((buffer And 255), Byte)
-            Data(position + 1) = CType(((buffer >> 8) And 255), Byte)
+            Data(position) = buffer And 255
+            Data(position + 1) = (buffer >> 8) And 255
         End Sub
 
         ''' <summary>
@@ -636,10 +635,10 @@ Public Module Packets
                 ReDim Preserve Data(Data.Length + 3)
             End If
 
-            Data(position) = CType((buffer And 255), Byte)
-            Data(position + 1) = CType(((buffer >> 8) And 255), Byte)
-            Data(position + 2) = CType(((buffer >> 16) And 255), Byte)
-            Data(position + 3) = CType(((buffer >> 24) And 255), Byte)
+            Data(position) = buffer And 255
+            Data(position + 1) = (buffer >> 8) And 255
+            Data(position + 2) = (buffer >> 16) And 255
+            Data(position + 3) = (buffer >> 24) And 255
         End Sub
 
         ''' <summary>
@@ -654,14 +653,14 @@ Public Module Packets
                 ReDim Preserve Data(Data.Length + 7)
             End If
 
-            Data(position) = CType((buffer And 255), Byte)
-            Data(position + 1) = CType(((buffer >> 8) And 255), Byte)
-            Data(position + 2) = CType(((buffer >> 16) And 255), Byte)
-            Data(position + 3) = CType(((buffer >> 24) And 255), Byte)
-            Data(position + 4) = CType(((buffer >> 32) And 255), Byte)
-            Data(position + 5) = CType(((buffer >> 40) And 255), Byte)
-            Data(position + 6) = CType(((buffer >> 48) And 255), Byte)
-            Data(position + 7) = CType(((buffer >> 56) And 255), Byte)
+            Data(position) = buffer And 255
+            Data(position + 1) = (buffer >> 8) And 255
+            Data(position + 2) = (buffer >> 16) And 255
+            Data(position + 3) = (buffer >> 24) And 255
+            Data(position + 4) = (buffer >> 32) And 255
+            Data(position + 5) = (buffer >> 40) And 255
+            Data(position + 6) = (buffer >> 48) And 255
+            Data(position + 7) = (buffer >> 56) And 255
         End Sub
 
         ''' <summary>
@@ -764,8 +763,8 @@ Public Module Packets
         Public Sub AddUInt16(ByVal buffer As UShort)
             ReDim Preserve Data(Data.Length + 1)
 
-            Data(Data.Length - 2) = CType((buffer And 255), Byte)
-            Data(Data.Length - 1) = CType(((buffer >> 8) And 255), Byte)
+            Data(Data.Length - 2) = buffer And 255
+            Data(Data.Length - 1) = (buffer >> 8) And 255
         End Sub
 
         ''' <summary>
@@ -776,10 +775,10 @@ Public Module Packets
         Public Sub AddUInt32(ByVal buffer As UInteger)
             ReDim Preserve Data(Data.Length + 3)
 
-            Data(Data.Length - 4) = CType((buffer And 255), Byte)
-            Data(Data.Length - 3) = CType(((buffer >> 8) And 255), Byte)
-            Data(Data.Length - 2) = CType(((buffer >> 16) And 255), Byte)
-            Data(Data.Length - 1) = CType(((buffer >> 24) And 255), Byte)
+            Data(Data.Length - 4) = buffer And 255
+            Data(Data.Length - 3) = (buffer >> 8) And 255
+            Data(Data.Length - 2) = (buffer >> 16) And 255
+            Data(Data.Length - 1) = (buffer >> 24) And 255
         End Sub
 
         ''' <summary>
@@ -1059,10 +1058,10 @@ Public Module Packets
                 Return BitConverter.ToInt32(Data, 4)
             End Get
             Set(ByVal value As Integer)
-                Data(4) = CType((value And 255), Byte)
-                Data(5) = CType(((value >> 8) And 255), Byte)
-                Data(6) = CType(((value >> 16) And 255), Byte)
-                Data(7) = CType(((value >> 24) And 255), Byte)
+                Data(4) = value And 255
+                Data(5) = (value >> 8) And 255
+                Data(6) = (value >> 16) And 255
+                Data(7) = (value >> 24) And 255
             End Set
         End Property
 

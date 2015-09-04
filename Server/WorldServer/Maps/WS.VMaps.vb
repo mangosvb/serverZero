@@ -17,8 +17,6 @@
 '
 
 Imports System.IO
-Imports System.Collections.Generic
-Imports mangosVB.Common.BaseWriter
 
 #If VMAPS Then
 
@@ -133,8 +131,8 @@ Public Module VMAP_Module
                 Log.WriteLine(LogType.DEBUG, "NumNodes: {0}", numNodes)
                 iTreeNodes = New List(Of TreeNode)(numNodes)
                 For i As Integer = 0 To numNodes - 1
-                    iTreeNodes.Add(New TreeNode(i, b.ReadSingle(), b.ReadInt32(), b.ReadInt32(), b.ReadInt32(), b.ReadInt32(), _
-                                            New AABox(New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle()), New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())), _
+                    iTreeNodes.Add(New TreeNode(i, b.ReadSingle(), b.ReadInt32(), b.ReadInt32(), b.ReadInt32(), b.ReadInt32(),
+                                            New AABox(New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle()), New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())),
                                             b.ReadUInt16(), b.ReadUInt16()))
 
 #If VMAPS_DEBUG Then
@@ -159,8 +157,8 @@ Public Module VMAP_Module
                 Log.WriteLine(LogType.DEBUG, "NumTriangles: {0}", numTriangles)
                 iTriangles = New List(Of BaseCollision)(numTriangles)
                 For i As Integer = 0 To numTriangles - 1
-                    iTriangles.Add(New TriangleBox(New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()), _
-                                                   New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()), _
+                    iTriangles.Add(New TriangleBox(New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()),
+                                                   New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()),
                                                    New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16())))
 #If VMAPS_DEBUG Then
                     sw.WriteLine(CType(iTriangles(i), TriangleBox).ToString(i))
@@ -433,8 +431,8 @@ Public Module VMAP_Module
             Private sortLocation As Single
 
             Public Sub New(ByVal a As Vector3.Axis, ByVal l As Single)
-                Me.sortAxis = a
-                Me.sortLocation = l
+                sortAxis = a
+                sortLocation = l
             End Sub
 
             Public Function Compare(ByVal x As BaseCollision, ByVal y As BaseCollision) As Integer Implements IComparer(Of BaseCollision).Compare
@@ -539,10 +537,10 @@ Public Module VMAP_Module
                 'See if the ray will ever hit this node or its children
                 Dim location As Vector3
                 Dim alreadyInsideBounds As Boolean = False
-                Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(ray.origin, _
+                Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(ray.origin,
                             ray.direction, splitBounds, location, alreadyInsideBounds)
 
-                Dim canHitThisNode As Boolean = (alreadyInsideBounds OrElse _
+                Dim canHitThisNode As Boolean = (alreadyInsideBounds OrElse
                         (rayWillHitBounds AndAlso ((location - ray.origin).SquaredLength() < (distance * distance))))
 
                 Return canHitThisNode
@@ -576,10 +574,10 @@ Public Module VMAP_Module
                         Log.WriteLine(LogType.DEBUG, "valueArray({1}): {0}", bounds, v)
 #End If
                         Dim alreadyInsideBounds As Boolean = False
-                        Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox( _
+                        Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(
                                 ray.origin, ray.direction, bounds, location, alreadyInsideBounds)
 
-                        canHitThisObject = (alreadyInsideBounds OrElse _
+                        canHitThisObject = (alreadyInsideBounds OrElse
                             (rayWillHitBounds AndAlso ((location - ray.origin).SquaredLength() < (distance * distance))))
                     End If
 
@@ -957,10 +955,10 @@ Public Module VMAP_Module
         End Sub
 
         Public Sub New(ByVal i As Integer, ByVal iSplitLocation As Single, ByVal iChild0 As Integer, ByVal iChild1 As Integer, ByVal iStartPosition As Integer, ByVal iSplitAxis As Vector3.Axis, ByVal iBounds As AABox, ByVal iNumberOfValues As UShort, ByVal dummy As UShort)
-            Me.ID = i
+            ID = i
             Me.iSplitLocation = iSplitLocation
-            Me.iChilds(0) = iChild0
-            Me.iChilds(1) = iChild1
+            iChilds(0) = iChild0
+            iChilds(1) = iChild1
             Me.iStartPosition = iStartPosition
             Me.iSplitAxis = iSplitAxis
             Me.iBounds = iBounds
@@ -972,10 +970,10 @@ Public Module VMAP_Module
             'See if the ray will ever hit this node or its children
             Dim location As Vector3
             Dim alreadyInsideBounds As Boolean = False
-            Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(ray.origin, _
+            Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(ray.origin,
                         ray.direction, iBounds, location, alreadyInsideBounds)
 
-            Dim canHitThisNode As Boolean = (alreadyInsideBounds OrElse _
+            Dim canHitThisNode As Boolean = (alreadyInsideBounds OrElse
                     (rayWillHitBounds AndAlso ((location - ray.origin).SquaredLength() < (distance * distance))))
 
             Return canHitThisNode
@@ -1012,10 +1010,10 @@ Public Module VMAP_Module
                     Log.WriteLine(LogType.DEBUG, "submodel({1}) iBounds: {0}", bounds, v)
 #End If
                     Dim alreadyInsideBounds As Boolean = False
-                    Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox( _
+                    Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(
                         ray.origin, ray.direction, bounds, location, alreadyInsideBounds)
 
-                    canHitThisObject = (alreadyInsideBounds OrElse _
+                    canHitThisObject = (alreadyInsideBounds OrElse
                         (rayWillHitBounds AndAlso ((location - ray.origin).SquaredLength() < (distance * distance))))
                 End If
 
@@ -1213,7 +1211,7 @@ Public Module VMAP_Module
         Public Sub Intersect(ByVal pBox As AABox, ByVal pRay As Ray, ByRef pMaxDist As Single, ByRef pOutLocation As Vector3)
             Dim inside As Boolean = False
 
-            Dim d As Single = collisionLocationForMovingPointFixedAABox(pRay.origin, pRay.direction, _
+            Dim d As Single = collisionLocationForMovingPointFixedAABox(pRay.origin, pRay.direction,
                         pBox, pOutLocation, inside)
             If inside = False AndAlso d > 0.0F AndAlso d < pMaxDist Then
                 pMaxDist = d
@@ -1224,10 +1222,10 @@ Public Module VMAP_Module
             'See if the ray will ever hit this node or its children
             Dim location As Vector3
             Dim alreadyInsideBounds As Boolean = False
-            Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(pRay.origin, pRay.direction, _
+            Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(pRay.origin, pRay.direction,
                         pBox, location, alreadyInsideBounds)
 
-            Dim canHitThisNode As Boolean = (alreadyInsideBounds OrElse _
+            Dim canHitThisNode As Boolean = (alreadyInsideBounds OrElse
                      (rayWillHitBounds AndAlso ((location - pRay.origin).SquaredLength() < (pMaxDist * pMaxDist))))
 
             Return canHitThisNode
@@ -1271,7 +1269,7 @@ Public Module VMAP_Module
             iTrianglesPos = b.ReadInt32() '(32)
             iHasInternalMemAlloc = (b.ReadByte() <> 0) '(36)
             b.ReadByte() '(37)
-            iBox = New ShortBox(New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()), _
+            iBox = New ShortBox(New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()),
                                 New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16())) '(38)
             b.ReadInt16()
         End Sub
@@ -1301,9 +1299,9 @@ Public Module VMAP_Module
         Public z As Single
 
         Public Sub New(ByVal v As Vector3)
-            Me.x = v.x
-            Me.y = v.y
-            Me.z = v.z
+            x = v.x
+            y = v.y
+            z = v.z
         End Sub
 
         Public Sub New(ByVal x As Single, ByVal y As Single, ByVal z As Single)
@@ -1474,7 +1472,7 @@ Public Module VMAP_Module
         End Function
 
         Public Function Cross(ByRef rkVector As Vector3) As Vector3
-            Return New Vector3(y * rkVector.z - z * rkVector.y, z * rkVector.x - x * rkVector.z, _
+            Return New Vector3(y * rkVector.z - z * rkVector.y, z * rkVector.x - x * rkVector.z,
                        x * rkVector.y - y * rkVector.x)
         End Function
 
@@ -1535,7 +1533,7 @@ Public Module VMAP_Module
         End Operator
 
         Public Overrides Function GetHashCode() As Integer
-            Return (CLng(x.GetHashCode()) + CLng(y.GetHashCode()) + CLng(z.GetHashCode())) And &HFFFFFFFF
+            Return (x.GetHashCode() + CLng(y.GetHashCode()) + z.GetHashCode()) And &HFFFFFFFF
         End Function
 
         Public Overrides Function ToString() As String
@@ -1575,19 +1573,19 @@ Public Module VMAP_Module
 
         Public ReadOnly Property getX() As Single
             Get
-                Return CSng(iX)
+                Return iX
             End Get
         End Property
 
         Public ReadOnly Property getY() As Single
             Get
-                Return CSng(iY)
+                Return iY
             End Get
         End Property
 
         Public ReadOnly Property getZ() As Single
             Get
-                Return CSng(iZ)
+                Return iZ
             End Get
         End Property
 
@@ -1604,7 +1602,7 @@ Public Module VMAP_Module
             ElseIf fv <= fixpoint_minvalue Then
                 sv = minvalue
             Else
-                sv = CType(fv * fixpointdiv + 0.5F, Short)
+                sv = fv * fixpointdiv + 0.5F
             End If
             Return sv
         End Function
@@ -1616,7 +1614,7 @@ Public Module VMAP_Module
             ElseIf sv <= minvalue Then
                 fv = Single.NegativeInfinity
             Else
-                fv = CSng(sv) / CSng(fixpointdiv)
+                fv = sv / fixpointdiv
             End If
             Return fv
         End Function
@@ -1717,7 +1715,7 @@ Public Module VMAP_Module
         'Zero-area box
         Public Sub New(ByVal lo As Vector3)
             Me.lo = lo
-            Me.hi = lo
+            hi = lo
         End Sub
 
         Public Sub New(ByVal lo As Vector3, ByVal hi As Vector3)
@@ -1758,18 +1756,18 @@ Public Module VMAP_Module
         End Property
 
         Public Function Contains(ByRef point As Vector3) As Boolean
-            Return (point.x >= lo.x) AndAlso _
-                (point.y >= lo.y) AndAlso _
-                (point.z >= lo.z) AndAlso _
-                (point.x <= hi.x) AndAlso _
-                (point.y <= hi.y) AndAlso _
+            Return (point.x >= lo.x) AndAlso
+                (point.y >= lo.y) AndAlso
+                (point.z >= lo.z) AndAlso
+                (point.x <= hi.x) AndAlso
+                (point.y <= hi.y) AndAlso
                 (point.z <= hi.z)
         End Function
 
         'Returns true if there is any overlap
         Public Function Intersects(ByRef other As AABox) As Boolean
             For a As Integer = 0 To 2
-                If lo(a) > other.hi(a) OrElse _
+                If lo(a) > other.hi(a) OrElse
                     hi(a) < other.lo(a) Then Return False
             Next
             Return True
@@ -1800,7 +1798,7 @@ Public Module VMAP_Module
         End Sub
 
         Public Overrides Function GetHashCode() As Integer
-            Return (CLng(lo.GetHashCode()) + CLng(hi.GetHashCode())) And &HFFFFFFFF
+            Return (lo.GetHashCode() + CLng(hi.GetHashCode())) And &HFFFFFFFF
         End Function
 
         Public Shared Operator =(ByVal a As AABox, ByVal b As AABox) As Boolean
@@ -1877,7 +1875,7 @@ Public Module VMAP_Module
                 If edgeMagnitude(i) = 0.0F Then
                     edgeDirection(i) = Vector3.Zero
                 Else
-                    edgeDirection(i) = e / CSng(edgeMagnitude(i))
+                    edgeDirection(i) = e / edgeMagnitude(i)
                 End If
             Next
 
@@ -1885,7 +1883,7 @@ Public Module VMAP_Module
             edge02 = _vertex(2) - _vertex(0)
 
             _primaryAxis = _plane.Normal().PrimaryAxis()
-            _area = CSng(edgeDirection(0).Cross(edgeDirection(2)).Magnitude() * (edgeMagnitude(0) * edgeMagnitude(2)))
+            _area = edgeDirection(0).Cross(edgeDirection(2)).Magnitude() * (edgeMagnitude(0) * edgeMagnitude(2))
         End Sub
 
         Public Sub New(ByVal v0 As Vector3, ByVal v1 As Vector3, ByVal v2 As Vector3)

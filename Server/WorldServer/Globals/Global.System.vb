@@ -18,8 +18,6 @@
 Imports System.IO
 Imports System.Reflection
 Imports System.CodeDom.Compiler
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common.Global_Constants
 
 'NOTE: How to use ScriptedObject as Function
 '   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")
@@ -54,7 +52,7 @@ Public Class ScriptedObject
         Log.WriteLine(LogType.SUCCESS, "Compiling: \Scripts\*.*")
 
         Try
-            Dim vBcp As New Microsoft.VisualBasic.VBCodeProvider
+            Dim vBcp As New VBCodeProvider
             'Dim CScp As New Microsoft.CSharp.CSharpCodeProvider
 
             Dim cParameters As New CompilerParameters
@@ -98,7 +96,7 @@ Public Class ScriptedObject
         Log.WriteLine(LogType.SUCCESS, "Compiling: {0}", AssemblySourceFile)
 
         Try
-            Dim VBcp As New Microsoft.VisualBasic.VBCodeProvider
+            Dim VBcp As New VBCodeProvider
             Dim CScp As New Microsoft.CSharp.CSharpCodeProvider
 
             Dim cParameters As New CompilerParameters

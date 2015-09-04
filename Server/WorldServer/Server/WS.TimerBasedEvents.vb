@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Collections.Generic
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_TimerBasedEvents
 
@@ -62,8 +60,8 @@ Public Module WS_TimerBasedEvents
                 For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                     'DONE: If all invalid check passed then regenerate
                     'DONE: If dead don't regenerate
-                    If (Not Character.Value.DEAD) AndAlso (Character.Value.underWaterTimer Is Nothing) AndAlso (Character.Value.LogoutTimer Is Nothing) AndAlso (Character.Value.Client IsNot Nothing) Then
-                        With CType(Character.Value, CharacterObject)
+                    If (Not Character.Value.DEAD) AndAlso (Character.Value.underWaterTimer Is Nothing) AndAlso (Character.Value.LogoutTimer Is Nothing) AndAlso (Character.Value.client IsNot Nothing) Then
+                        With Character.Value
 
                             BaseMana = .Mana.Current
                             BaseRage = .Rage.Current
@@ -160,7 +158,7 @@ Public Module WS_TimerBasedEvents
                             'DONE: Duel counter
                             If .DuelOutOfBounds <> DUEL_COUNTER_DISABLED Then
                                 .DuelOutOfBounds -= REGENERATION_TIMER
-                                If .DuelOutOfBounds = 0 Then DuelComplete(.DuelPartner, .Client.Character)
+                                If .DuelOutOfBounds = 0 Then DuelComplete(.DuelPartner, .client.Character)
                             End If
 
                             'Check combat, incase of pvp action
@@ -174,7 +172,7 @@ Public Module WS_TimerBasedEvents
                         End With
                     End If
                 Next
-                if CHARACTERs_Lock.IsReaderLockHeld=true Then CHARACTERs_Lock.ReleaseReaderLock()
+                If CHARACTERs_Lock.IsReaderLockHeld = True Then CHARACTERs_Lock.ReleaseReaderLock()
 
             Catch ex As Exception
                 Log.WriteLine(LogType.WARNING, "Error at regenerate.{0}", vbNewLine & ex.ToString)
@@ -307,8 +305,8 @@ Public Module WS_TimerBasedEvents
 
                             'DONE: Cast aura (check if: there is aura; aura is periodic; time for next activation)
                             For j As Byte = 0 To 2
-                                If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura(j) IsNot Nothing AndAlso _
-                                objCharacter.ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso _
+                                If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura(j) IsNot Nothing AndAlso
+                                objCharacter.ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso
                                 ((objCharacter.ActiveSpells(i).GetSpellInfo.GetDuration - objCharacter.ActiveSpells(i).SpellDuration) Mod objCharacter.ActiveSpells(i).Aura_Info(j).Amplitude) = 0 Then
                                     objCharacter.ActiveSpells(i).Aura(j).Invoke(objCharacter, objCharacter.ActiveSpells(i).SpellCaster, objCharacter.ActiveSpells(i).Aura_Info(j), objCharacter.ActiveSpells(i).SpellID, objCharacter.ActiveSpells(i).StackCount + 1, AuraAction.AURA_UPDATE)
                                 End If

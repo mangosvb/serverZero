@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Module WS_Auction
 
@@ -52,7 +51,7 @@ Module WS_Auction
     End Enum
     Public Function GetAuctionSide(ByVal GUID As ULong) As AuctionHouses
         If Config.GlobalAuction Then Return AuctionHouses.AUCTION_UNDEFINED
-        Select Case CType(WORLD_CREATUREs(GUID), CreatureObject).CreatureInfo.Faction
+        Select Case WORLD_CREATUREs(GUID).CreatureInfo.Faction
             Case 29, 68, 104
                 Return AuctionHouses.AUCTION_HORDE
             Case 12, 55, 79
@@ -142,7 +141,7 @@ Module WS_Auction
         Dim packet As New PacketClass(OPCODES.MSG_AUCTION_HELLO)
         packet.AddUInt64(GUID)
         packet.AddInt32(GetAuctionSide(GUID))          'AuctionID (on this is based the fees shown in client side)
-        objCharacter.Client.Send(packet)
+        objCharacter.client.Send(packet)
         packet.Dispose()
     End Sub
 
@@ -213,7 +212,7 @@ Module WS_Auction
         packet.AddInt32(0)          'Diff
         packet.AddInt32(0)          'ItemID
         packet.AddInt32(0)          'RandomProperyID
-        objCharacter.Client.Send(packet)
+        objCharacter.client.Send(packet)
         packet.Dispose()
     End Sub
     Public Sub SendAuctionOwnerNotification(ByRef objCharacter As CharacterObject)
@@ -227,7 +226,7 @@ Module WS_Auction
         packet.AddInt32(0)
         packet.AddInt32(0)          'ItemID
         packet.AddInt32(0)          'RandomProperyID
-        objCharacter.Client.Send(packet)
+        objCharacter.client.Send(packet)
         packet.Dispose()
     End Sub
     Public Sub SendAuctionRemovedNotification(ByRef objCharacter As CharacterObject)
@@ -237,7 +236,7 @@ Module WS_Auction
         packet.AddInt32(0)          'AutionID
         packet.AddInt32(0)          'ItemID
         packet.AddInt32(0)          'RandomProperyID
-        objCharacter.Client.Send(packet)
+        objCharacter.client.Send(packet)
         packet.Dispose()
     End Sub
     Public Sub SendAuctionListOwnerItems(ByRef client As ClientClass)
@@ -296,7 +295,7 @@ Module WS_Auction
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_AUCTION_HELLO [GUID={2}]", client.IP, client.Port, guid)
 
-        SendShowAuction(Client.Character, guid)
+        SendShowAuction(client.Character, guid)
     End Sub
 
     Public Sub On_CMSG_AUCTION_SELL_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -309,7 +308,7 @@ Module WS_Auction
         Dim Time As Integer = packet.GetInt32
 
         'DONE: Calculate deposit with time in hours
-        Dim Deposit As Integer = GetAuctionDeposit(cGUID, CType(WORLD_ITEMs(iGUID), ItemObject).ItemInfo.SellPrice, CType(WORLD_ITEMs(iGUID), ItemObject).StackCount, Time)
+        Dim Deposit As Integer = GetAuctionDeposit(cGUID, WORLD_ITEMs(iGUID).ItemInfo.SellPrice, WORLD_ITEMs(iGUID).StackCount, Time)
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_SELL_ITEM [Bid={2} BuyOut={3} Time={4}]", client.IP, client.Port, Bid, Buyout, Time)
 
@@ -317,13 +316,13 @@ Module WS_Auction
         Time = Time * 60
 
         'DONE: Check if item is bag with items
-        If CType(WORLD_ITEMs(iGUID), ItemObject).ItemInfo.IsContainer AndAlso Not CType(WORLD_ITEMs(iGUID), ItemObject).IsFree Then
-            SendAuctionCommandResult(Client, 0, AuctionAction.AUCTION_SELL_ITEM, AuctionError.CANNOT_BID_YOUR_AUCTION_ERROR, 0)
+        If WORLD_ITEMs(iGUID).ItemInfo.IsContainer AndAlso Not WORLD_ITEMs(iGUID).IsFree Then
+            SendAuctionCommandResult(client, 0, AuctionAction.AUCTION_SELL_ITEM, AuctionError.CANNOT_BID_YOUR_AUCTION_ERROR, 0)
             Return
         End If
         'DONE: Check deposit
         If client.Character.Copper < Deposit Then
-            SendAuctionCommandResult(Client, 0, AuctionAction.AUCTION_SELL_ITEM, AuctionError.AUCTION_NOT_ENOUGHT_MONEY, 0)
+            SendAuctionCommandResult(client, 0, AuctionAction.AUCTION_SELL_ITEM, AuctionError.AUCTION_NOT_ENOUGHT_MONEY, 0)
             Return
         End If
 
@@ -334,14 +333,14 @@ Module WS_Auction
         client.Character.ItemREMOVE(iGUID, False, True)
 
         'DONE: Add auction entry into table
-        CharacterDatabase.Update(String.Format("INSERT INTO auctionhouse (auction_bid, auction_buyout, auction_timeleft, auction_bidder, auction_owner, auction_itemId, auction_itemGuid, auction_itemCount) VALUES ({0},{1},{2},{3},{4},{5},{6},{7});", Bid, Buyout, Time, 0, client.Character.GUID, CType(WORLD_ITEMs(iGUID), ItemObject).ItemEntry, iGUID - GUID_ITEM, CType(WORLD_ITEMs(iGUID), ItemObject).StackCount))
+        CharacterDatabase.Update(String.Format("INSERT INTO auctionhouse (auction_bid, auction_buyout, auction_timeleft, auction_bidder, auction_owner, auction_itemId, auction_itemGuid, auction_itemCount) VALUES ({0},{1},{2},{3},{4},{5},{6},{7});", Bid, Buyout, Time, 0, client.Character.GUID, WORLD_ITEMs(iGUID).ItemEntry, iGUID - GUID_ITEM, WORLD_ITEMs(iGUID).StackCount))
 
         'DONE: Send result packet
         Dim MySQLQuery As New DataTable
         CharacterDatabase.Query("SELECT auction_id FROM auctionhouse WHERE auction_itemGuid = " & iGUID - GUID_ITEM & ";", MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-        SendAuctionCommandResult(Client, MySQLQuery.Rows(0).Item("auction_id"), AuctionAction.AUCTION_SELL_ITEM, AuctionError.AUCTION_OK, 0)
+        SendAuctionCommandResult(client, MySQLQuery.Rows(0).Item("auction_id"), AuctionAction.AUCTION_SELL_ITEM, AuctionError.AUCTION_OK, 0)
 
         'NOTE: Not needed, client would request it
         'SendAuctionListOwnerItems(Client)
@@ -373,7 +372,7 @@ Module WS_Auction
         'DONE: Remove from auction table
         CharacterDatabase.Update("DELETE FROM auctionhouse WHERE auction_id = " & AuctionID & ";")
 
-        SendAuctionCommandResult(Client, AuctionID, AuctionAction.AUCTION_CANCEL, AuctionError.AUCTION_OK, 0)
+        SendAuctionCommandResult(client, AuctionID, AuctionAction.AUCTION_CANCEL, AuctionError.AUCTION_OK, 0)
         'WS_Mail.SendNotify(Client) 'Notifies the client that they have mail
         'NOTE: Not needed, client would request it
         'SendAuctionListOwnerItems(Client)
@@ -407,7 +406,7 @@ Module WS_Auction
             Dim buffer As Byte()
 
             'DONE: Send auction succ to owner (PurchasedBy:SalePrice:BuyoutPrice:Deposit:AuctionHouseCut)
-            buffer = BitConverter.GetBytes(CType(Client.Character.GUID, Long))
+            buffer = BitConverter.GetBytes(CType(client.Character.GUID, Long))
             Array.Reverse(buffer)
             bodyText = BitConverter.ToString(buffer).Replace("-", "") & ":" & Bid & ":" & MySQLQuery.Rows(0).Item("auction_buyout") & ":0:0"
             CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_type, mail_stationary, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read) VALUES ({0},{1},{2},62,'{3}','{4}',{5},{6},{7},{8});", AuctionID, MySQLQuery.Rows(0).Item("auction_owner"), 2, MySQLQuery.Rows(0).Item("auction_itemId") & ":0:2", bodyText, MySQLQuery.Rows(0).Item("auction_bid"), 0, MailTime, 0))
@@ -440,7 +439,7 @@ Module WS_Auction
         client.Character.SendCharacterUpdate(False)
 
         'DONE: Send result packet
-        SendAuctionCommandResult(Client, MySQLQuery.Rows(0).Item("auction_id"), AuctionAction.AUCTION_PLACE_BID, AuctionError.AUCTION_OK, 0)
+        SendAuctionCommandResult(client, MySQLQuery.Rows(0).Item("auction_id"), AuctionAction.AUCTION_PLACE_BID, AuctionError.AUCTION_OK, 0)
 
         'NOTE: Not needed, client would request it
         'SendAuctionListBidderItems(Client)
@@ -499,7 +498,7 @@ Module WS_Auction
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_OWNER_ITEMS [GUID={2:X}]", client.IP, client.Port, GUID)
 
-        SendAuctionListOwnerItems(Client)
+        SendAuctionListOwnerItems(client)
 
     End Sub
     Public Sub On_CMSG_AUCTION_LIST_BIDDER_ITEMS(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -510,7 +509,7 @@ Module WS_Auction
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_BIDDER_ITEMS [GUID={2:X} UNK={3}]", client.IP, client.Port, GUID, Unk)
 
-        SendAuctionListBidderItems(Client)
+        SendAuctionListBidderItems(client)
     End Sub
 #End Region
 End Module

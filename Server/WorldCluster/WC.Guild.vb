@@ -71,7 +71,7 @@ Public Module WC_Guild
             MySQLQuery.Clear()
             CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_guildId = " & ID & ";", MySQLQuery)
             For Each MemberInfo As DataRow In MySQLQuery.Rows
-                Members.Add(CULng(MemberInfo.Item("char_guid")))
+                Members.Add(MemberInfo.Item("char_guid"))
             Next
 
             GUILDs.Add(ID, Me)

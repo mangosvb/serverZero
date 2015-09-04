@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Guilds
 
@@ -260,7 +259,7 @@ Public Module WS_Guilds
         response.AddUInt64(client.Character.GUID)
         response.AddInt32(PetitionSignError.PETITIONSIGN_OK)
         client.SendMultiplyPackets(response)
-        If CHARACTERs.ContainsKey(CType(MySQLQuery.Rows(0).Item("petition_owner"), ULong)) Then CHARACTERs(CType(MySQLQuery.Rows(0).Item("petition_owner"), ULong)).client.SendMultiplyPackets(response)
+        If CHARACTERs.ContainsKey(MySQLQuery.Rows(0).Item("petition_owner")) Then CHARACTERs(MySQLQuery.Rows(0).Item("petition_owner")).client.SendMultiplyPackets(response)
         response.Dispose()
     End Sub
 
@@ -278,7 +277,7 @@ Public Module WS_Guilds
         'DONE: Send message to player
         Dim response As New PacketClass(OPCODES.MSG_PETITION_DECLINE)
         response.AddUInt64(client.Character.GUID)
-        If q.Rows.Count > 0 AndAlso CHARACTERs.ContainsKey(CType(q.Rows(0).Item("petition_owner"), ULong)) Then CHARACTERs(CType(q.Rows(0).Item("petition_owner"), ULong)).client.SendMultiplyPackets(response)
+        If q.Rows.Count > 0 AndAlso CHARACTERs.ContainsKey(q.Rows(0).Item("petition_owner")) Then CHARACTERs(q.Rows(0).Item("petition_owner")).client.SendMultiplyPackets(response)
         response.Dispose()
     End Sub
 

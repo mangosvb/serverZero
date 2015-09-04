@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Weather
 
@@ -84,7 +83,7 @@ Public Module WS_Weather
             Dim oldIntensity As Single = Intensity
 
             '78 days between January 1st and March 20nd; 365/4=91 days by season
-            Dim TimeSince1Jan As Integer = CInt(Fix(Now.Subtract(New Date(Now.Year, 1, 1)).TotalDays))
+            Dim TimeSince1Jan As Integer = Fix(Now.Subtract(New Date(Now.Year, 1, 1)).TotalDays)
             Dim Season As Integer = ((TimeSince1Jan - 78 + 365) \ 91) Mod 4
 
             If u < 60 AndAlso Intensity < 0.333333343F Then 'Get fine
@@ -149,7 +148,7 @@ Public Module WS_Weather
             If CurrentWeather = WeatherType.WEATHER_FINE Then
                 Intensity = 0.0F
             ElseIf u < 90 Then
-                Intensity = CSng(Rnd.NextDouble() * 0.3333F)
+                Intensity = Rnd.NextDouble() * 0.3333F
             Else
                 'Severe change, but how severe?
                 r = Rnd.Next(0, 100)
@@ -206,8 +205,8 @@ Public Module WS_Weather
 
                 Try
                     For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                        If Character.Value.Client IsNot Nothing AndAlso Character.Value.ZoneID = ZoneID Then
-                            Character.Value.Client.SendMultiplyPackets(SMSG_WEATHER)
+                        If Character.Value.client IsNot Nothing AndAlso Character.Value.ZoneID = ZoneID Then
+                            Character.Value.client.SendMultiplyPackets(SMSG_WEATHER)
                         End If
                     Next
                 Catch ex As Exception

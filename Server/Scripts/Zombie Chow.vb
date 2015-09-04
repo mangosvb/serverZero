@@ -1,6 +1,3 @@
-Imports System
-Imports System.Threading
-Imports mangosVB.Common
 Imports mangosVB.WorldServer
 
 'Basically, this AI is kitable and if the AI hits Gluth, it heals her for 5% of her HP (50,000 in this case.). Since we can't really do it that way, it has a set waypoint.

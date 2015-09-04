@@ -1,5 +1,3 @@
-Imports System
-Imports System.Threading
 Imports MangosVB.WorldServer
 Imports mangosVB.Common
 

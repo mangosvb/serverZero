@@ -16,14 +16,13 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Gamemaster
 
     Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", client.IP, client.Port)
 
-        If client.Access >= Common.AccessLevel.GameMaster Then
+        If client.Access >= AccessLevel.GameMaster Then
             packet.GetInt16()
             Dim Time As Integer = packet.GetInt32
             Dim Map As UInteger = packet.GetUInt32

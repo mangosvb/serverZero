@@ -26,7 +26,6 @@ Imports System.Text
 Imports System.Reflection
 Imports mangosVB.Common
 Imports mangosVB.Common.Global_Constants
-Imports mangosVB.Common.BaseWriter
 
 Public Module RealmServer
 
@@ -80,7 +79,7 @@ Public Module RealmServer
                 _accountDatabase.SQLPort = accountDbSettings(3)
                 _accountDatabase.SQLUser = accountDbSettings(0)
                 _accountDatabase.SQLPass = accountDbSettings(1)
-                _accountDatabase.SQLTypeServer = CType([Enum].Parse(GetType(SQL.DB_Type), accountDbSettings(5)), SQL.DB_Type)
+                _accountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), accountDbSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
@@ -217,9 +216,9 @@ Public Module RealmServer
                     'Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
                     On_RS_REALMLIST(data, Me)
 
-                    'TODO: No Value listed for AuthCMD
-                    'Case CMD_AUTH_UPDATESRV
-                    '    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
+                'TODO: No Value listed for AuthCMD
+                'Case CMD_AUTH_UPDATESRV
+                '    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
 
                 Case AuthCMD.CMD_XFER_ACCEPT
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
@@ -342,7 +341,7 @@ Public Module RealmServer
 #Region "RS_OPCODES"
 
     Private Sub On_RS_LOGON_CHALLENGE(ByRef data() As Byte, ByRef client As ClientClass)
-        Dim iUpper As Integer = (CInt(data(33)) - 1)
+        Dim iUpper As Integer = (data(33) - 1)
         'Dim packetSize As Integer = BitConverter.ToInt16(New Byte() {data(3), data(2)}, 0)
         Dim packetAccount As String
         Dim packetIp As String
@@ -359,10 +358,10 @@ Public Module RealmServer
         packetIp = CInt(data(29)).ToString & "." & CInt(data(30)).ToString & "." & CInt(data(31)).ToString & "." & CInt(data(32)).ToString
 
         'Get the client build from packet.
-        Dim bMajor As Integer = CInt(data(8))
-        Dim bMinor As Integer = CInt(data(9))
-        Dim bRevision As Integer = CInt(data(10))
-        Dim clientBuild As Integer = BitConverter.ToInt16(New Byte() {data(11), data(12)}, 0)
+        Dim bMajor As Integer = data(8)
+        Dim bMinor As Integer = data(9)
+        Dim bRevision As Integer = data(10)
+        Dim clientBuild As Integer = BitConverter.ToInt16((New Byte() {data(11), data(12)}), 0)
         Dim clientLanguage As String = Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21))
 
         Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_CHALLENGE [{3}] [{4}], WoW Version [{5}.{6}.{7}.{8}] [{9}].", Format(TimeOfDay, "HH:mm:ss"), client.Ip, client.Port, packetAccount, packetIp, bMajor.ToString, bMinor.ToString, bRevision.ToString, clientBuild.ToString, clientLanguage)
@@ -384,7 +383,7 @@ Public Module RealmServer
             Dim result As DataTable = Nothing
             Try
                 'Get Account info
-                _accountDatabase.Query([String].Format("SELECT id, sha_pass_hash, gmlevel, expansion FROM account WHERE username = ""{0}"";", packetAccount), result)
+                _accountDatabase.Query(String.Format("SELECT id, sha_pass_hash, gmlevel, expansion FROM account WHERE username = ""{0}"";", packetAccount), result)
 
                 'Check Account state
                 If result.Rows.Count > 0 Then
@@ -581,7 +580,7 @@ Public Module RealmServer
                     sshash = sshash + Hex(client.AuthEngine.SsHash(i))
                 End If
             Next
-            _accountDatabase.Update([String].Format("UPDATE account SET sessionkey = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';", client.Account, sshash, client.Ip.ToString, Format(Now, "yyyy-MM-dd")))
+            _accountDatabase.Update(String.Format("UPDATE account SET sessionkey = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';", client.Account, sshash, client.Ip.ToString, Format(Now, "yyyy-MM-dd")))
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, client.Account, sshash)
         Else
@@ -603,15 +602,15 @@ Public Module RealmServer
         Dim countresult As DataTable = Nothing
 
         ' Retrieve the Account ID
-        _accountDatabase.Query([String].Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), result)
-        Dim accountId As Integer = CType(result.Rows(0).Item("id"), Integer)
+        _accountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), result)
+        Dim accountId As Integer = result.Rows(0).Item("id")
 
         If client.Access < AccessLevel.GameMaster Then
             'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
-            _accountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE allowedSecurityLevel = '0';"), result)
+            _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE allowedSecurityLevel = '0';"), result)
         Else
             'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
-            _accountDatabase.Query([String].Format("SELECT * FROM realmlist;"), result)
+            _accountDatabase.Query(String.Format("SELECT * FROM realmlist;"), result)
         End If
 
         For Each row As DataRow In result.Rows
@@ -641,7 +640,7 @@ Public Module RealmServer
             Dim hostRealmId As Integer = host.Item("id")
 
             ' Get Number of Characters for the Realm
-            _accountDatabase.Query([String].Format("SELECT * FROM realmcharacters WHERE realmid = '" & hostRealmId & "' AND acctid = '" & accountId & "';"), countresult)
+            _accountDatabase.Query(String.Format("SELECT * FROM realmcharacters WHERE realmid = '" & hostRealmId & "' AND acctid = '" & accountId & "';"), countresult)
 
             If (countresult.Rows.Count > 0) Then
                 characterCount = countresult.Rows(0).Item("numchars")
@@ -824,9 +823,9 @@ Public Module RealmServer
         Dim j As Integer
         Dim buffer As String = ""
         If client Is Nothing Then
-            buffer = buffer + [String].Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "hh:mm:ss"), vbNewLine)
+            buffer = buffer + String.Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "hh:mm:ss"), vbNewLine)
         Else
-            buffer = buffer + [String].Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, vbNewLine)
+            buffer = buffer + String.Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, vbNewLine)
         End If
 
         If data.Length Mod 16 = 0 Then
@@ -857,7 +856,7 @@ Public Module RealmServer
     Private Sub WorldServer_Status_Report()
         Dim result1 As DataTable = New DataTable
         Dim returnValues As Integer
-        returnValues = _accountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE allowedSecurityLevel < '1';"), result1)
+        returnValues = _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE allowedSecurityLevel < '1';"), result1)
         If returnValues > SQL.ReturnState.Success Then 'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -868,7 +867,7 @@ Public Module RealmServer
         End If
 
         Dim result2 As DataTable = New DataTable
-        returnValues = _accountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE realmflags < 2 && allowedSecurityLevel < '1';"), result2)
+        returnValues = _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE realmflags < 2 && allowedSecurityLevel < '1';"), result2)
         If returnValues > SQL.ReturnState.Success Then 'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -879,7 +878,7 @@ Public Module RealmServer
         End If
 
         Dim result3 As DataTable = New DataTable
-        returnValues = _accountDatabase.Query([String].Format("SELECT * FROM realmlist WHERE realmflags < 2 && allowedSecurityLevel >= '1';"), result3)
+        returnValues = _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE realmflags < 2 && allowedSecurityLevel >= '1';"), result3)
         If returnValues > SQL.ReturnState.Success Then 'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -966,10 +965,10 @@ Public Module RealmServer
         If ipSplit.Length <> 4 Then Return 0
         Dim ipBytes(3) As Byte
         Try
-            ipBytes(0) = CByte(ipSplit(3))
-            ipBytes(1) = CByte(ipSplit(2))
-            ipBytes(2) = CByte(ipSplit(1))
-            ipBytes(3) = CByte(ipSplit(0))
+            ipBytes(0) = ipSplit(3)
+            ipBytes(1) = ipSplit(2)
+            ipBytes(2) = ipSplit(1)
+            ipBytes(3) = ipSplit(0)
             Return BitConverter.ToUInt32(ipBytes, 0)
         Catch
             Return 0

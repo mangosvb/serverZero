@@ -18,7 +18,6 @@
 
 'WARNING: Use only with ITEMs()
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.BaseWriter
 
 Public NotInheritable Class ItemObject
     Implements IDisposable
@@ -300,7 +299,7 @@ Public NotInheritable Class ItemObject
         For Each row As DataRow In mySqlQuery.Rows
             If row.Item("item_slot") <> ITEM_SLOT_NULL Then
                 Dim tmpItem As New ItemObject(CType(row.Item("item_guid"), Long))
-                Items(CType(row.Item("item_slot"), Byte)) = tmpItem
+                Items(row.Item("item_slot")) = tmpItem
             End If
         Next
 

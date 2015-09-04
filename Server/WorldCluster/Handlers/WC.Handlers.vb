@@ -17,123 +17,122 @@
 '
 
 
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WC_Handlers
 
     Public Sub IntializePacketHandlers()
         'NOTE: These opcodes are not used in any way
-        PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = CType(AddressOf On_CMSG_MOVE_TIME_SKIPPED, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = AddressOf On_CMSG_MOVE_TIME_SKIPPED
 
-        PacketHandlers(OPCODES.CMSG_NEXT_CINEMATIC_CAMERA) = CType(AddressOf On_CMSG_NEXT_CINEMATIC_CAMERA, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_COMPLETE_CINEMATIC) = CType(AddressOf On_CMSG_COMPLETE_CINEMATIC, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_UPDATE_ACCOUNT_DATA) = CType(AddressOf On_CMSG_UPDATE_ACCOUNT_DATA, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_REQUEST_ACCOUNT_DATA) = CType(AddressOf On_CMSG_REQUEST_ACCOUNT_DATA, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_NEXT_CINEMATIC_CAMERA) = AddressOf On_CMSG_NEXT_CINEMATIC_CAMERA
+        PacketHandlers(OPCODES.CMSG_COMPLETE_CINEMATIC) = AddressOf On_CMSG_COMPLETE_CINEMATIC
+        PacketHandlers(OPCODES.CMSG_UPDATE_ACCOUNT_DATA) = AddressOf On_CMSG_UPDATE_ACCOUNT_DATA
+        PacketHandlers(OPCODES.CMSG_REQUEST_ACCOUNT_DATA) = AddressOf On_CMSG_REQUEST_ACCOUNT_DATA
 
         'NOTE: These opcodes are only partialy handled by Cluster and must be handled by WorldServer
-        PacketHandlers(OPCODES.MSG_MOVE_HEARTBEAT) = CType(AddressOf On_MSG_MOVE_HEARTBEAT, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CANCEL_TRADE) = CType(AddressOf On_CMSG_CANCEL_TRADE, HandlePacket)
+        PacketHandlers(OPCODES.MSG_MOVE_HEARTBEAT) = AddressOf On_MSG_MOVE_HEARTBEAT
+        PacketHandlers(OPCODES.CMSG_CANCEL_TRADE) = AddressOf On_CMSG_CANCEL_TRADE
 
         'NOTE: These opcodes below must be exluded form WorldServer
-        PacketHandlers(OPCODES.CMSG_PING) = CType(AddressOf On_CMSG_PING, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_AUTH_SESSION) = CType(AddressOf On_CMSG_AUTH_SESSION, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_PING) = AddressOf On_CMSG_PING
+        PacketHandlers(OPCODES.CMSG_AUTH_SESSION) = AddressOf On_CMSG_AUTH_SESSION
 
-        PacketHandlers(OPCODES.CMSG_CHAR_ENUM) = CType(AddressOf On_CMSG_CHAR_ENUM, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHAR_CREATE) = CType(AddressOf On_CMSG_CHAR_CREATE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHAR_DELETE) = CType(AddressOf On_CMSG_CHAR_DELETE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHAR_RENAME) = CType(AddressOf On_CMSG_CHAR_RENAME, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_PLAYER_LOGIN) = CType(AddressOf On_CMSG_PLAYER_LOGIN, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_PLAYER_LOGOUT) = CType(AddressOf On_CMSG_PLAYER_LOGOUT, HandlePacket)
-        PacketHandlers(OPCODES.MSG_MOVE_WORLDPORT_ACK) = CType(AddressOf On_MSG_MOVE_WORLDPORT_ACK, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_CHAR_ENUM) = AddressOf On_CMSG_CHAR_ENUM
+        PacketHandlers(OPCODES.CMSG_CHAR_CREATE) = AddressOf On_CMSG_CHAR_CREATE
+        PacketHandlers(OPCODES.CMSG_CHAR_DELETE) = AddressOf On_CMSG_CHAR_DELETE
+        PacketHandlers(OPCODES.CMSG_CHAR_RENAME) = AddressOf On_CMSG_CHAR_RENAME
+        PacketHandlers(OPCODES.CMSG_PLAYER_LOGIN) = AddressOf On_CMSG_PLAYER_LOGIN
+        PacketHandlers(OPCODES.CMSG_PLAYER_LOGOUT) = AddressOf On_CMSG_PLAYER_LOGOUT
+        PacketHandlers(OPCODES.MSG_MOVE_WORLDPORT_ACK) = AddressOf On_MSG_MOVE_WORLDPORT_ACK
 
-        PacketHandlers(OPCODES.CMSG_QUERY_TIME) = CType(AddressOf On_CMSG_QUERY_TIME, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_INSPECT) = CType(AddressOf On_CMSG_INSPECT, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_WHO) = CType(AddressOf On_CMSG_WHO, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_WHOIS) = CType(AddressOf On_CMSG_WHOIS, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_PLAYED_TIME) = CType(AddressOf On_CMSG_PLAYED_TIME, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_NAME_QUERY) = CType(AddressOf On_CMSG_NAME_QUERY, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_QUERY_TIME) = AddressOf On_CMSG_QUERY_TIME
+        PacketHandlers(OPCODES.CMSG_INSPECT) = AddressOf On_CMSG_INSPECT
+        PacketHandlers(OPCODES.CMSG_WHO) = AddressOf On_CMSG_WHO
+        PacketHandlers(OPCODES.CMSG_WHOIS) = AddressOf On_CMSG_WHOIS
+        PacketHandlers(OPCODES.CMSG_PLAYED_TIME) = AddressOf On_CMSG_PLAYED_TIME
+        PacketHandlers(OPCODES.CMSG_NAME_QUERY) = AddressOf On_CMSG_NAME_QUERY
 
-        PacketHandlers(OPCODES.CMSG_BUG) = CType(AddressOf On_CMSG_BUG, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GMTICKET_GETTICKET) = CType(AddressOf On_CMSG_GMTICKET_GETTICKET, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GMTICKET_CREATE) = CType(AddressOf On_CMSG_GMTICKET_CREATE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GMTICKET_SYSTEMSTATUS) = CType(AddressOf On_CMSG_GMTICKET_SYSTEMSTATUS, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GMTICKET_DELETETICKET) = CType(AddressOf On_CMSG_GMTICKET_DELETETICKET, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GMTICKET_UPDATETEXT) = CType(AddressOf On_CMSG_GMTICKET_UPDATETEXT, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_BUG) = AddressOf On_CMSG_BUG
+        PacketHandlers(OPCODES.CMSG_GMTICKET_GETTICKET) = AddressOf On_CMSG_GMTICKET_GETTICKET
+        PacketHandlers(OPCODES.CMSG_GMTICKET_CREATE) = AddressOf On_CMSG_GMTICKET_CREATE
+        PacketHandlers(OPCODES.CMSG_GMTICKET_SYSTEMSTATUS) = AddressOf On_CMSG_GMTICKET_SYSTEMSTATUS
+        PacketHandlers(OPCODES.CMSG_GMTICKET_DELETETICKET) = AddressOf On_CMSG_GMTICKET_DELETETICKET
+        PacketHandlers(OPCODES.CMSG_GMTICKET_UPDATETEXT) = AddressOf On_CMSG_GMTICKET_UPDATETEXT
 
-        PacketHandlers(OPCODES.CMSG_BATTLEMASTER_JOIN) = CType(AddressOf On_CMSG_BATTLEMASTER_JOIN, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_BATTLEFIELD_PORT) = CType(AddressOf On_CMSG_BATTLEFIELD_PORT, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_LEAVE_BATTLEFIELD) = CType(AddressOf On_CMSG_LEAVE_BATTLEFIELD, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_BATTLEMASTER_JOIN) = AddressOf On_CMSG_BATTLEMASTER_JOIN
+        PacketHandlers(OPCODES.CMSG_BATTLEFIELD_PORT) = AddressOf On_CMSG_BATTLEFIELD_PORT
+        PacketHandlers(OPCODES.CMSG_LEAVE_BATTLEFIELD) = AddressOf On_CMSG_LEAVE_BATTLEFIELD
 
-        PacketHandlers(OPCODES.CMSG_FRIEND_LIST) = CType(AddressOf On_CMSG_FRIEND_LIST, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_ADD_FRIEND) = CType(AddressOf On_CMSG_ADD_FRIEND, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_ADD_IGNORE) = CType(AddressOf On_CMSG_ADD_IGNORE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_DEL_FRIEND) = CType(AddressOf On_CMSG_DEL_FRIEND, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_DEL_IGNORE) = CType(AddressOf On_CMSG_DEL_IGNORE, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_FRIEND_LIST) = AddressOf On_CMSG_FRIEND_LIST
+        PacketHandlers(OPCODES.CMSG_ADD_FRIEND) = AddressOf On_CMSG_ADD_FRIEND
+        PacketHandlers(OPCODES.CMSG_ADD_IGNORE) = AddressOf On_CMSG_ADD_IGNORE
+        PacketHandlers(OPCODES.CMSG_DEL_FRIEND) = AddressOf On_CMSG_DEL_FRIEND
+        PacketHandlers(OPCODES.CMSG_DEL_IGNORE) = AddressOf On_CMSG_DEL_IGNORE
 
-        PacketHandlers(OPCODES.CMSG_REQUEST_RAID_INFO) = CType(AddressOf On_CMSG_REQUEST_RAID_INFO, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_REQUEST_RAID_INFO) = AddressOf On_CMSG_REQUEST_RAID_INFO
 
-        PacketHandlers(OPCODES.CMSG_GROUP_INVITE) = CType(AddressOf On_CMSG_GROUP_INVITE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_CANCEL) = CType(AddressOf On_CMSG_GROUP_CANCEL, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_ACCEPT) = CType(AddressOf On_CMSG_GROUP_ACCEPT, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_DECLINE) = CType(AddressOf On_CMSG_GROUP_DECLINE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_UNINVITE) = CType(AddressOf On_CMSG_GROUP_UNINVITE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_UNINVITE_GUID) = CType(AddressOf On_CMSG_GROUP_UNINVITE_GUID, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_DISBAND) = CType(AddressOf On_CMSG_GROUP_DISBAND, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_RAID_CONVERT) = CType(AddressOf On_CMSG_GROUP_RAID_CONVERT, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_SET_LEADER) = CType(AddressOf On_CMSG_GROUP_SET_LEADER, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_CHANGE_SUB_GROUP) = CType(AddressOf On_CMSG_GROUP_CHANGE_SUB_GROUP, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GROUP_SWAP_SUB_GROUP) = CType(AddressOf On_CMSG_GROUP_SWAP_SUB_GROUP, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_LOOT_METHOD) = CType(AddressOf On_CMSG_LOOT_METHOD, HandlePacket)
-        PacketHandlers(OPCODES.MSG_MINIMAP_PING) = CType(AddressOf On_MSG_MINIMAP_PING, HandlePacket)
-        PacketHandlers(OPCODES.MSG_RANDOM_ROLL) = CType(AddressOf On_MSG_RANDOM_ROLL, HandlePacket)
-        PacketHandlers(OPCODES.MSG_RAID_READY_CHECK) = CType(AddressOf On_MSG_RAID_READY_CHECK, HandlePacket)
-        PacketHandlers(OPCODES.MSG_RAID_ICON_TARGET) = CType(AddressOf On_MSG_RAID_ICON_TARGET, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_GROUP_INVITE) = AddressOf On_CMSG_GROUP_INVITE
+        PacketHandlers(OPCODES.CMSG_GROUP_CANCEL) = AddressOf On_CMSG_GROUP_CANCEL
+        PacketHandlers(OPCODES.CMSG_GROUP_ACCEPT) = AddressOf On_CMSG_GROUP_ACCEPT
+        PacketHandlers(OPCODES.CMSG_GROUP_DECLINE) = AddressOf On_CMSG_GROUP_DECLINE
+        PacketHandlers(OPCODES.CMSG_GROUP_UNINVITE) = AddressOf On_CMSG_GROUP_UNINVITE
+        PacketHandlers(OPCODES.CMSG_GROUP_UNINVITE_GUID) = AddressOf On_CMSG_GROUP_UNINVITE_GUID
+        PacketHandlers(OPCODES.CMSG_GROUP_DISBAND) = AddressOf On_CMSG_GROUP_DISBAND
+        PacketHandlers(OPCODES.CMSG_GROUP_RAID_CONVERT) = AddressOf On_CMSG_GROUP_RAID_CONVERT
+        PacketHandlers(OPCODES.CMSG_GROUP_SET_LEADER) = AddressOf On_CMSG_GROUP_SET_LEADER
+        PacketHandlers(OPCODES.CMSG_GROUP_CHANGE_SUB_GROUP) = AddressOf On_CMSG_GROUP_CHANGE_SUB_GROUP
+        PacketHandlers(OPCODES.CMSG_GROUP_SWAP_SUB_GROUP) = AddressOf On_CMSG_GROUP_SWAP_SUB_GROUP
+        PacketHandlers(OPCODES.CMSG_LOOT_METHOD) = AddressOf On_CMSG_LOOT_METHOD
+        PacketHandlers(OPCODES.MSG_MINIMAP_PING) = AddressOf On_MSG_MINIMAP_PING
+        PacketHandlers(OPCODES.MSG_RANDOM_ROLL) = AddressOf On_MSG_RANDOM_ROLL
+        PacketHandlers(OPCODES.MSG_RAID_READY_CHECK) = AddressOf On_MSG_RAID_READY_CHECK
+        PacketHandlers(OPCODES.MSG_RAID_ICON_TARGET) = AddressOf On_MSG_RAID_ICON_TARGET
 
-        PacketHandlers(OPCODES.CMSG_REQUEST_PARTY_MEMBER_STATS) = CType(AddressOf On_CMSG_REQUEST_PARTY_MEMBER_STATS, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_REQUEST_PARTY_MEMBER_STATS) = AddressOf On_CMSG_REQUEST_PARTY_MEMBER_STATS
 
-        PacketHandlers(OPCODES.CMSG_TURN_IN_PETITION) = CType(AddressOf On_CMSG_TURN_IN_PETITION, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_TURN_IN_PETITION) = AddressOf On_CMSG_TURN_IN_PETITION
 
-        PacketHandlers(OPCODES.CMSG_GUILD_QUERY) = CType(AddressOf On_CMSG_GUILD_QUERY, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_CREATE) = CType(AddressOf On_CMSG_GUILD_CREATE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_DISBAND) = CType(AddressOf On_CMSG_GUILD_DISBAND, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_ROSTER) = CType(AddressOf On_CMSG_GUILD_ROSTER, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_INFO) = CType(AddressOf On_CMSG_GUILD_INFO, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_RANK) = CType(AddressOf On_CMSG_GUILD_RANK, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_ADD_RANK) = CType(AddressOf On_CMSG_GUILD_ADD_RANK, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_DEL_RANK) = CType(AddressOf On_CMSG_GUILD_DEL_RANK, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_PROMOTE) = CType(AddressOf On_CMSG_GUILD_PROMOTE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_DEMOTE) = CType(AddressOf On_CMSG_GUILD_DEMOTE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_LEADER) = CType(AddressOf On_CMSG_GUILD_LEADER, HandlePacket)
-        PacketHandlers(OPCODES.MSG_SAVE_GUILD_EMBLEM) = CType(AddressOf On_MSG_SAVE_GUILD_EMBLEM, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_SET_OFFICER_NOTE) = CType(AddressOf On_CMSG_GUILD_SET_OFFICER_NOTE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_SET_PUBLIC_NOTE) = CType(AddressOf On_CMSG_GUILD_SET_PUBLIC_NOTE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_MOTD) = CType(AddressOf On_CMSG_GUILD_MOTD, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_INVITE) = CType(AddressOf On_CMSG_GUILD_INVITE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_ACCEPT) = CType(AddressOf On_CMSG_GUILD_ACCEPT, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_DECLINE) = CType(AddressOf On_CMSG_GUILD_DECLINE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_REMOVE) = CType(AddressOf On_CMSG_GUILD_REMOVE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_GUILD_LEAVE) = CType(AddressOf On_CMSG_GUILD_LEAVE, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_GUILD_QUERY) = AddressOf On_CMSG_GUILD_QUERY
+        PacketHandlers(OPCODES.CMSG_GUILD_CREATE) = AddressOf On_CMSG_GUILD_CREATE
+        PacketHandlers(OPCODES.CMSG_GUILD_DISBAND) = AddressOf On_CMSG_GUILD_DISBAND
+        PacketHandlers(OPCODES.CMSG_GUILD_ROSTER) = AddressOf On_CMSG_GUILD_ROSTER
+        PacketHandlers(OPCODES.CMSG_GUILD_INFO) = AddressOf On_CMSG_GUILD_INFO
+        PacketHandlers(OPCODES.CMSG_GUILD_RANK) = AddressOf On_CMSG_GUILD_RANK
+        PacketHandlers(OPCODES.CMSG_GUILD_ADD_RANK) = AddressOf On_CMSG_GUILD_ADD_RANK
+        PacketHandlers(OPCODES.CMSG_GUILD_DEL_RANK) = AddressOf On_CMSG_GUILD_DEL_RANK
+        PacketHandlers(OPCODES.CMSG_GUILD_PROMOTE) = AddressOf On_CMSG_GUILD_PROMOTE
+        PacketHandlers(OPCODES.CMSG_GUILD_DEMOTE) = AddressOf On_CMSG_GUILD_DEMOTE
+        PacketHandlers(OPCODES.CMSG_GUILD_LEADER) = AddressOf On_CMSG_GUILD_LEADER
+        PacketHandlers(OPCODES.MSG_SAVE_GUILD_EMBLEM) = AddressOf On_MSG_SAVE_GUILD_EMBLEM
+        PacketHandlers(OPCODES.CMSG_GUILD_SET_OFFICER_NOTE) = AddressOf On_CMSG_GUILD_SET_OFFICER_NOTE
+        PacketHandlers(OPCODES.CMSG_GUILD_SET_PUBLIC_NOTE) = AddressOf On_CMSG_GUILD_SET_PUBLIC_NOTE
+        PacketHandlers(OPCODES.CMSG_GUILD_MOTD) = AddressOf On_CMSG_GUILD_MOTD
+        PacketHandlers(OPCODES.CMSG_GUILD_INVITE) = AddressOf On_CMSG_GUILD_INVITE
+        PacketHandlers(OPCODES.CMSG_GUILD_ACCEPT) = AddressOf On_CMSG_GUILD_ACCEPT
+        PacketHandlers(OPCODES.CMSG_GUILD_DECLINE) = AddressOf On_CMSG_GUILD_DECLINE
+        PacketHandlers(OPCODES.CMSG_GUILD_REMOVE) = AddressOf On_CMSG_GUILD_REMOVE
+        PacketHandlers(OPCODES.CMSG_GUILD_LEAVE) = AddressOf On_CMSG_GUILD_LEAVE
 
-        PacketHandlers(OPCODES.CMSG_CHAT_IGNORED) = CType(AddressOf On_CMSG_CHAT_IGNORED, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_MESSAGECHAT) = CType(AddressOf On_CMSG_MESSAGECHAT, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_CHAT_IGNORED) = AddressOf On_CMSG_CHAT_IGNORED
+        PacketHandlers(OPCODES.CMSG_MESSAGECHAT) = AddressOf On_CMSG_MESSAGECHAT
 
-        PacketHandlers(OPCODES.CMSG_JOIN_CHANNEL) = CType(AddressOf On_CMSG_JOIN_CHANNEL, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_LEAVE_CHANNEL) = CType(AddressOf On_CMSG_LEAVE_CHANNEL, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_LIST) = CType(AddressOf On_CMSG_CHANNEL_LIST, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_PASSWORD) = CType(AddressOf On_CMSG_CHANNEL_PASSWORD, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_SET_OWNER) = CType(AddressOf On_CMSG_CHANNEL_SET_OWNER, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_OWNER) = CType(AddressOf On_CMSG_CHANNEL_OWNER, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATOR) = CType(AddressOf On_CMSG_CHANNEL_MODERATOR, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_UNMODERATOR) = CType(AddressOf On_CMSG_CHANNEL_UNMODERATOR, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_MUTE) = CType(AddressOf On_CMSG_CHANNEL_MUTE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_UNMUTE) = CType(AddressOf On_CMSG_CHANNEL_UNMUTE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_KICK) = CType(AddressOf On_CMSG_CHANNEL_KICK, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_INVITE) = CType(AddressOf On_CMSG_CHANNEL_INVITE, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_BAN) = CType(AddressOf On_CMSG_CHANNEL_BAN, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_UNBAN) = CType(AddressOf On_CMSG_CHANNEL_UNBAN, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_ANNOUNCEMENTS) = CType(AddressOf On_CMSG_CHANNEL_ANNOUNCEMENTS, HandlePacket)
-        PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATE) = CType(AddressOf On_CMSG_CHANNEL_MODERATE, HandlePacket)
+        PacketHandlers(OPCODES.CMSG_JOIN_CHANNEL) = AddressOf On_CMSG_JOIN_CHANNEL
+        PacketHandlers(OPCODES.CMSG_LEAVE_CHANNEL) = AddressOf On_CMSG_LEAVE_CHANNEL
+        PacketHandlers(OPCODES.CMSG_CHANNEL_LIST) = AddressOf On_CMSG_CHANNEL_LIST
+        PacketHandlers(OPCODES.CMSG_CHANNEL_PASSWORD) = AddressOf On_CMSG_CHANNEL_PASSWORD
+        PacketHandlers(OPCODES.CMSG_CHANNEL_SET_OWNER) = AddressOf On_CMSG_CHANNEL_SET_OWNER
+        PacketHandlers(OPCODES.CMSG_CHANNEL_OWNER) = AddressOf On_CMSG_CHANNEL_OWNER
+        PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATOR) = AddressOf On_CMSG_CHANNEL_MODERATOR
+        PacketHandlers(OPCODES.CMSG_CHANNEL_UNMODERATOR) = AddressOf On_CMSG_CHANNEL_UNMODERATOR
+        PacketHandlers(OPCODES.CMSG_CHANNEL_MUTE) = AddressOf On_CMSG_CHANNEL_MUTE
+        PacketHandlers(OPCODES.CMSG_CHANNEL_UNMUTE) = AddressOf On_CMSG_CHANNEL_UNMUTE
+        PacketHandlers(OPCODES.CMSG_CHANNEL_KICK) = AddressOf On_CMSG_CHANNEL_KICK
+        PacketHandlers(OPCODES.CMSG_CHANNEL_INVITE) = AddressOf On_CMSG_CHANNEL_INVITE
+        PacketHandlers(OPCODES.CMSG_CHANNEL_BAN) = AddressOf On_CMSG_CHANNEL_BAN
+        PacketHandlers(OPCODES.CMSG_CHANNEL_UNBAN) = AddressOf On_CMSG_CHANNEL_UNBAN
+        PacketHandlers(OPCODES.CMSG_CHANNEL_ANNOUNCEMENTS) = AddressOf On_CMSG_CHANNEL_ANNOUNCEMENTS
+        PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATE) = AddressOf On_CMSG_CHANNEL_MODERATE
 
         'NOTE: TODO Opcodes
         '   none
@@ -141,11 +140,11 @@ Public Module WC_Handlers
     End Sub
 
     Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, CType(packet.OpCode, OPCODES))
+        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, packet.OpCode)
     End Sub
 
     Public Sub OnClusterPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Redirected Packet]", client.IP, client.Port, CType(packet.OpCode, OPCODES))
+        Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Redirected Packet]", client.IP, client.Port, packet.OpCode)
 
         If client.Character Is Nothing OrElse client.Character.IsInWorld = False Then
             Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", client.IP, client.Port, packet.OpCode, vbNewLine, packet.Length)

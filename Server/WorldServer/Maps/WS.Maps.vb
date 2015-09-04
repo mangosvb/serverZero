@@ -16,11 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Collections.Generic
 Imports System.IO
-Imports System.Threading
-Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Maps
 #Region "Zones"
@@ -36,9 +32,7 @@ Public Module WS_Maps
             End If
         Next
 
-
-
-        Return -999
+        Return -999 'Lol?
     End Function
 
     Public Class TArea
@@ -59,12 +53,15 @@ Public Module WS_Maps
         Public Function IsCity() As Boolean
             Return ZoneType = 312
         End Function
+        'TODO: REMOVE
         Public Function NeedFlyingMount() As Boolean
             Return (ZoneType And AreaFlag.AREA_FLAG_NEED_FLY)
         End Function
+        'TODO: REMOVE
         Public Function IsSanctuary() As Boolean
             Return (ZoneType And AreaFlag.AREA_FLAG_SANCTUARY)
         End Function
+        'TODO: REMOVE
         Public Function IsArena() As Boolean
             Return (ZoneType And AreaFlag.AREA_FLAG_ARENA)
         End Function
@@ -548,22 +545,22 @@ Public Module WS_Maps
         Try
             Dim MapTileX As Byte = Fix(32 - (x / SIZE))
             Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX), Byte)
-            Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY), Byte)
+            Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
             Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
             Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
 
             If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
 
             Try
-                Dim topHeight As Single = MathLerp( _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY), _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY), _
+                Dim topHeight As Single = MathLerp(
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
                     xNormalized)
 
-                Dim bottomHeight As Single = MathLerp( _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1), _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1), _
+                Dim bottomHeight As Single = MathLerp(
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
                     xNormalized)
 
                 Return MathLerp(topHeight, bottomHeight, yNormalized)
@@ -577,8 +574,8 @@ Public Module WS_Maps
     Public Function GetWaterLevel(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Single
         Dim MapTileX As Byte = Fix(32 - (x / SIZE))
         Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = CType(RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY), Byte)
+        Dim MapTile_LocalX As Byte = RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX)
+        Dim MapTile_LocalY As Byte = RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY)
 
         If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
         Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
@@ -586,8 +583,8 @@ Public Module WS_Maps
     Public Function GetTerrainType(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Byte
         Dim MapTileX As Byte = Fix(32 - (x / SIZE))
         Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = CType(RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY), Byte)
+        Dim MapTile_LocalX As Byte = RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX)
+        Dim MapTile_LocalY As Byte = RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY)
 
         If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
         Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
@@ -595,8 +592,8 @@ Public Module WS_Maps
     Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
         Dim MapTileX As Byte = Fix(32 - (x / SIZE))
         Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = CType(RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX), Byte)
-        Dim MapTile_LocalY As Byte = CType(RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY), Byte)
+        Dim MapTile_LocalX As Byte = RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX)
+        Dim MapTile_LocalY As Byte = RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY)
 
         If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
         Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
@@ -776,8 +773,8 @@ Public Module WS_Maps
         Try
             Dim MapTileX As Byte = Fix(32 - (x / SIZE))
             Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = CType(RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX), Byte)
-            Dim MapTile_LocalY As Byte = CType(RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY), Byte)
+            Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
             Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
             Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
 
@@ -800,14 +797,14 @@ Public Module WS_Maps
             End If
 
             Try
-                Dim topHeight As Single = MathLerp( _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY), _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY), _
+                Dim topHeight As Single = MathLerp(
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
                     xNormalized)
 
-                Dim bottomHeight As Single = MathLerp( _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1), _
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1), _
+                Dim bottomHeight As Single = MathLerp(
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
+                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
                     xNormalized)
 
                 Return MathLerp(topHeight, bottomHeight, yNormalized)
@@ -970,7 +967,7 @@ Public Module WS_Maps
         MysqlQuery.Clear()
         WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_map={0} AND spawn_spawntime>=0 AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
         For Each InfoRow As DataRow In MysqlQuery.Rows
-            If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso _
+            If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso
               Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_TRANSPORT) Then
                 Try
                     Dim tmpGo As GameObjectObject = New GameObjectObject(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd, InfoRow)
@@ -990,7 +987,7 @@ Public Module WS_Maps
         For Each InfoRow As DataRow In MysqlQuery.Rows
             If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + GUID_CORPSE) Then
                 Try
-                    Dim tmpCorpse As CorpseObject = New CorpseObject(CType(InfoRow.Item("guid"), ULong), InfoRow)
+                    Dim tmpCorpse As CorpseObject = New CorpseObject(InfoRow.Item("guid"), InfoRow)
                     tmpCorpse.instance = TileInstance
                     tmpCorpse.AddToWorld()
                 Catch ex As Exception
@@ -1040,7 +1037,7 @@ Public Module WS_Maps
         Try
             WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Creature As KeyValuePair(Of ULong, CreatureObject) In WORLD_CREATUREs
-                If Creature.Value.MapID = TileMap AndAlso Creature.Value.SpawnX >= MinX AndAlso Creature.Value.SpawnX <= MaxX AndAlso Creature.Value.SpawnY >= MinY AndAlso CType(Creature.Value, CreatureObject).SpawnY <= MaxY Then
+                If Creature.Value.MapID = TileMap AndAlso Creature.Value.SpawnX >= MinX AndAlso Creature.Value.SpawnX <= MaxX AndAlso Creature.Value.SpawnY >= MinY AndAlso Creature.Value.SpawnY <= MaxY Then
                     Creature.Value.Destroy()
                 End If
             Next
@@ -1051,14 +1048,14 @@ Public Module WS_Maps
         End Try
 
         For Each Gameobject As KeyValuePair(Of ULong, GameObjectObject) In WORLD_GAMEOBJECTs
-            If CType(Gameobject.Value, GameObjectObject).MapID = TileMap AndAlso CType(Gameobject.Value, GameObjectObject).positionX >= MinX AndAlso CType(Gameobject.Value, GameObjectObject).positionX <= MaxX AndAlso CType(Gameobject.Value, GameObjectObject).positionY >= MinY AndAlso CType(Gameobject.Value, GameObjectObject).positionY <= MaxY Then
-                CType(Gameobject.Value, GameObjectObject).Destroy(Gameobject)
+            If Gameobject.Value.MapID = TileMap AndAlso Gameobject.Value.positionX >= MinX AndAlso Gameobject.Value.positionX <= MaxX AndAlso Gameobject.Value.positionY >= MinY AndAlso Gameobject.Value.positionY <= MaxY Then
+                Gameobject.Value.Destroy(Gameobject)
             End If
         Next
 
         For Each Corpseobject As KeyValuePair(Of ULong, CorpseObject) In WORLD_CORPSEOBJECTs
-            If CType(Corpseobject.Value, CorpseObject).MapID = TileMap AndAlso CType(Corpseobject.Value, CorpseObject).positionX >= MinX AndAlso CType(Corpseobject.Value, CorpseObject).positionX <= MaxX AndAlso CType(Corpseobject.Value, CorpseObject).positionY >= MinY AndAlso CType(Corpseobject.Value, CorpseObject).positionY <= MaxY Then
-                CType(Corpseobject.Value, CorpseObject).Destroy()
+            If Corpseobject.Value.MapID = TileMap AndAlso Corpseobject.Value.positionX >= MinX AndAlso Corpseobject.Value.positionX <= MaxX AndAlso Corpseobject.Value.positionY >= MinY AndAlso Corpseobject.Value.positionY <= MaxY Then
+                Corpseobject.Value.Destroy()
             End If
         Next
 

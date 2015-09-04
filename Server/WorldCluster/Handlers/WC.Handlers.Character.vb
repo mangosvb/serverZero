@@ -17,7 +17,6 @@
 '
 Imports System.Reflection
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
 
 Public Module WC_Handler_Character
 
@@ -119,19 +118,19 @@ Public Module WC_Handler_Character
             If MySQLQuery.Rows.Count > 0 Then
                 Race = CType(MySQLQuery.Rows(0).Item("char_race"), Byte)
                 Classe = CType(MySQLQuery.Rows(0).Item("char_class"), Byte)
-                Gender = CType(MySQLQuery.Rows(0).Item("char_gender"), Byte)
+                Gender = MySQLQuery.Rows(0).Item("char_gender")
 
                 Name = CType(MySQLQuery.Rows(0).Item("char_name"), String)
                 Level = CType(MySQLQuery.Rows(0).Item("char_level"), Byte)
 
-                Zone = CType(MySQLQuery.Rows(0).Item("char_zone_id"), UInteger)
-                Map = CType(MySQLQuery.Rows(0).Item("char_map_id"), UInteger)
+                Zone = MySQLQuery.Rows(0).Item("char_zone_id")
+                Map = MySQLQuery.Rows(0).Item("char_map_id")
 
-                PositionX = CType(MySQLQuery.Rows(0).Item("char_positionX"), Single)
-                PositionY = CType(MySQLQuery.Rows(0).Item("char_positionY"), Single)
+                PositionX = MySQLQuery.Rows(0).Item("char_positionX")
+                PositionY = MySQLQuery.Rows(0).Item("char_positionY")
 
                 'DONE: Get guild info
-                Dim GuildID As UInteger = CType(MySQLQuery.Rows(0).Item("char_guildId"), UInteger)
+                Dim GuildID As UInteger = MySQLQuery.Rows(0).Item("char_guildId")
                 If GuildID > 0 Then
                     If GUILDs.ContainsKey(GuildID) = False Then
                         Dim tmpGuild As New Guild(GuildID)
@@ -139,7 +138,7 @@ Public Module WC_Handler_Character
                     Else
                         Guild = GUILDs(GuildID)
                     End If
-                    GuildRank = CType(MySQLQuery.Rows(0).Item("char_guildRank"), Byte)
+                    GuildRank = MySQLQuery.Rows(0).Item("char_guildRank")
                 End If
             Else
                 Log.WriteLine(LogType.DATABASE, "Failed to load expected results from:")
@@ -229,7 +228,7 @@ Public Module WC_Handler_Character
             IsInWorld = False
             GetWorld.ClientDisconnect(client.Index)
 
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};", _
+            CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};",
                                           Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), map, GUID))
 
             'Do global transfer
@@ -249,7 +248,7 @@ Public Module WC_Handler_Character
             CharacterDatabase.Query(String.Format("SELECT char_moviePlayed FROM characters WHERE char_guid = {0} AND char_moviePlayed = 0;", GUID), q)
             If q.Rows.Count > 0 Then
                 CharacterDatabase.Update("UPDATE characters SET char_moviePlayed = 1 WHERE char_guid = " & GUID & ";")
-                SendTrigerCinematic(client, Me)
+                SendTriggerCinematic(client, Me)
             End If
 
             'DONE: SMSG_LOGIN_SETTIMESPEED
@@ -339,7 +338,7 @@ Public Module WC_Handler_Character
             CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = ""{0}"";", EscapeString(Name)), q)
 
             If q.Rows.Count > 0 Then
-                Return CType(q.Rows(0).Item("char_guid"), ULong)
+                Return q.Rows(0).Item("char_guid")
             Else
                 Return 0
             End If

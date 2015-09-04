@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Handlers_Chat
 
@@ -57,10 +56,10 @@ Public Module WS_Handlers_Chat
                     Finally
                         toCommand.Dispose()
                     End Try
-                    OnCommand(Client, Message)
+                    OnCommand(client, Message)
                     Exit Sub
                 Else
-                    client.Character.SendChatMessage(Client.Character, Message, msgType, msgLanguage, "", True)
+                    client.Character.SendChatMessage(client.Character, Message, msgType, msgLanguage, "", True)
                 End If
                 Exit Select
 
@@ -94,7 +93,7 @@ Public Module WS_Handlers_Chat
 
             Case Else
                 Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
-                DumpPacket(packet.Data, Client)
+                DumpPacket(packet.Data, client)
         End Select
 
     End Sub

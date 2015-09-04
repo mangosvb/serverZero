@@ -67,7 +67,7 @@ Public Module Functions
     End Function
 
     Public Function GuidHigh(ByVal guid As ULong) As UInteger
-        Return CUInt((guid And GUID_MASK_HIGH) >> 32UL)
+        Return (guid And GUID_MASK_HIGH) >> 32UL
     End Function
 
     Public Function GuidLow(ByVal guid As ULong) As UInteger

@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common
 
 Public Module WS_Handlers_Trade
 
@@ -112,7 +110,7 @@ Public Module WS_Handlers_Trade
                     End If
                 Next i
 
-                Trader.Client.Send(packet)
+                Trader.client.Send(packet)
             Finally
                 packet.Dispose()
             End Try
@@ -162,7 +160,7 @@ Public Module WS_Handlers_Trade
                     End If
                 Next i
 
-                Target.Client.Send(packet)
+                Target.client.Send(packet)
             Finally
                 packet.Dispose()
             End Try
@@ -173,10 +171,10 @@ Public Module WS_Handlers_Trade
             Try
                 response.AddInt32(TradeStatus.TRADE_STATUS_COMPLETE)
                 If Trader Is Who Then
-                    Target.Client.SendMultiplyPackets(response)
+                    Target.client.SendMultiplyPackets(response)
                     TraderAccept = True
                 Else
-                    Trader.Client.SendMultiplyPackets(response)
+                    Trader.client.SendMultiplyPackets(response)
                     TargetAccept = True
                 End If
             Finally
@@ -201,9 +199,9 @@ Public Module WS_Handlers_Trade
                     Dim responseUnAccept As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                     Try
                         responseUnAccept.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
-                        Target.Client.SendMultiplyPackets(responseUnAccept)
+                        Target.client.SendMultiplyPackets(responseUnAccept)
                         TraderAccept = False
-                        Trader.Client.SendMultiplyPackets(responseUnAccept)
+                        Trader.client.SendMultiplyPackets(responseUnAccept)
                         TraderAccept = False
                     Finally
                         responseUnAccept.Dispose()
@@ -215,7 +213,7 @@ Public Module WS_Handlers_Trade
                         responseNoSlot.AddUInt64(0)
                         responseNoSlot.AddUInt64(0)
                         responseNoSlot.AddInt8(0)
-                        Target.Client.Send(responseNoSlot)
+                        Target.client.Send(responseNoSlot)
                     Finally
                         responseNoSlot.Dispose()
                     End Try
@@ -226,9 +224,9 @@ Public Module WS_Handlers_Trade
                     Dim responseUnAccept As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                     Try
                         responseUnAccept.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
-                        Target.Client.SendMultiplyPackets(responseUnAccept)
+                        Target.client.SendMultiplyPackets(responseUnAccept)
                         TraderAccept = False
-                        Trader.Client.SendMultiplyPackets(responseUnAccept)
+                        Trader.client.SendMultiplyPackets(responseUnAccept)
                         TargetAccept = False
                     Finally
                         responseUnAccept.Dispose()
@@ -240,7 +238,7 @@ Public Module WS_Handlers_Trade
                         responseNoSlot.AddUInt64(0)
                         responseNoSlot.AddUInt64(0)
                         responseNoSlot.AddInt8(0)
-                        Trader.Client.Send(responseNoSlot)
+                        Trader.client.Send(responseNoSlot)
                     Finally
                         responseNoSlot.Dispose()
                     End Try
@@ -294,11 +292,11 @@ Public Module WS_Handlers_Trade
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_COMPLETE)
-                    Target.Client.SendMultiplyPackets(response)
-                    Trader.Client.SendMultiplyPackets(response)
+                    Target.client.SendMultiplyPackets(response)
+                    Trader.client.SendMultiplyPackets(response)
                 Finally
                     response.Dispose()
-                    Me.Dispose()
+                    Dispose()
                 End Try
 
             Catch e As Exception
@@ -309,7 +307,7 @@ Public Module WS_Handlers_Trade
 
 
     Public Sub On_CMSG_CANCEL_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
-        If Client Is Nothing Then Exit Sub
+        If client Is Nothing Then Exit Sub
         If client.Character Is Nothing Then Exit Sub
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_TRADE", client.IP, client.Port)
@@ -318,8 +316,8 @@ Public Module WS_Handlers_Trade
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
             Try
                 response.AddInt32(TradeStatus.TRADE_STATUS_CANCELED)
-                If client.Character.tradeInfo.Target IsNot Nothing Then client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
-                If client.Character.tradeInfo.Trader IsNot Nothing Then client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
+                If client.Character.tradeInfo.Target IsNot Nothing Then client.Character.tradeInfo.Target.client.SendMultiplyPackets(response)
+                If client.Character.tradeInfo.Trader IsNot Nothing Then client.Character.tradeInfo.Trader.client.SendMultiplyPackets(response)
             Finally
                 response.Dispose()
             End Try
@@ -397,7 +395,7 @@ Public Module WS_Handlers_Trade
                 response.Dispose()
             End Try
             Exit Sub
-        ElseIf (Client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then
+        ElseIf (client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
             Try
                 response.AddInt32(TradeStatus.TRADE_STUNNED)
@@ -457,7 +455,7 @@ Public Module WS_Handlers_Trade
             Exit Sub
         End If
 
-        If Not CType(CHARACTERs(targetGUID), CharacterObject).tradeInfo Is Nothing Then
+        If Not CHARACTERs(targetGUID).tradeInfo Is Nothing Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
             Try
                 response.AddInt32(TradeStatus.TRADE_TARGET_UNAVIABLE2)
@@ -468,7 +466,7 @@ Public Module WS_Handlers_Trade
             Exit Sub
         End If
 
-        If CType(CHARACTERs(targetGUID), CharacterObject).IsHorde <> client.Character.IsHorde Then
+        If CHARACTERs(targetGUID).IsHorde <> client.Character.IsHorde Then
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
             Try
                 response.AddInt32(TradeStatus.TRADE_TARGET_DIFF_FACTION)
@@ -517,8 +515,8 @@ Public Module WS_Handlers_Trade
         Dim response_ok As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
         Try
             response_ok.AddInt32(TradeStatus.TRADE_STATUS_OK)
-            response_ok.AddUInt64(Client.Character.GUID)
-            client.Character.tradeInfo.Target.Client.Send(response_ok)
+            response_ok.AddUInt64(client.Character.GUID)
+            client.Character.tradeInfo.Target.client.Send(response_ok)
         Finally
             response_ok.Dispose()
         End Try
@@ -532,9 +530,9 @@ Public Module WS_Handlers_Trade
         Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
         Try
             response.AddInt32(TradeStatus.TRADE_TRADE_WINDOW_OPEN)
-            response.AddInt32(Client.Character.tradeInfo.ID)
-            client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
-            client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
+            response.AddInt32(client.Character.tradeInfo.ID)
+            client.Character.tradeInfo.Trader.client.SendMultiplyPackets(response)
+            client.Character.tradeInfo.Target.client.SendMultiplyPackets(response)
         Finally
             response.Dispose()
         End Try
@@ -546,10 +544,10 @@ Public Module WS_Handlers_Trade
         Try
             response.AddInt32(TradeStatus.TRADE_STATUS_UNACCEPT)
             If client.Character.tradeInfo.Trader Is client.Character Then
-                client.Character.tradeInfo.Target.Client.SendMultiplyPackets(response)
+                client.Character.tradeInfo.Target.client.SendMultiplyPackets(response)
                 client.Character.tradeInfo.TraderAccept = False
             Else
-                client.Character.tradeInfo.Trader.Client.SendMultiplyPackets(response)
+                client.Character.tradeInfo.Trader.client.SendMultiplyPackets(response)
                 client.Character.tradeInfo.TargetAccept = False
             End If
         Finally
@@ -558,7 +556,7 @@ Public Module WS_Handlers_Trade
     End Sub
     Public Sub On_CMSG_ACCEPT_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ACCEPT_TRADE", client.IP, client.Port)
-        client.Character.tradeInfo.DoTrade(Client.Character)
+        client.Character.tradeInfo.DoTrade(client.Character)
     End Sub
 
     Public Sub On_CMSG_IGNORE_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)

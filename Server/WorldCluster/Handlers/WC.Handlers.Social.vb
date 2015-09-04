@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WC_Handlers_Social
@@ -30,7 +29,7 @@ Public Module WC_Handlers_Social
 
         'DONE: Add to list
         For Each r As DataRow In q.Rows
-            objCharacter.IgnoreList.Add(CType(r.Item("friend"), ULong))
+            objCharacter.IgnoreList.Add(r.Item("friend"))
         Next
     End Sub
 
@@ -55,9 +54,9 @@ Public Module WC_Handlers_Social
                     'Else
                     SMSG_FRIEND_LIST.AddInt8(FriendStatus.FRIEND_STATUS_ONLINE)
                     'End If
-                    SMSG_FRIEND_LIST.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Zone)    'Area
-                    SMSG_FRIEND_LIST.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Level)   'Level
-                    SMSG_FRIEND_LIST.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Classe)  'Class
+                    SMSG_FRIEND_LIST.AddInt32(CHARACTERs(GUID).Zone)    'Area
+                    SMSG_FRIEND_LIST.AddInt32(CHARACTERs(GUID).Level)   'Level
+                    SMSG_FRIEND_LIST.AddInt32(CHARACTERs(GUID).Classe)  'Class
                 Else
                     SMSG_FRIEND_LIST.AddInt8(FriendStatus.FRIEND_STATUS_OFFLINE)
                 End If
@@ -83,7 +82,7 @@ Public Module WC_Handlers_Social
             SMSG_IGNORE_LIST.AddInt8(q.Rows.Count)
 
             For Each r As DataRow In q.Rows
-                SMSG_IGNORE_LIST.AddUInt64(CType(r.Item("friend"), ULong))                    'Player GUID
+                SMSG_IGNORE_LIST.AddUInt64(r.Item("friend"))                    'Player GUID
             Next
         Else
             SMSG_IGNORE_LIST.AddInt8(0)
@@ -207,7 +206,7 @@ Public Module WC_Handlers_Social
 
         If q.Rows.Count > 0 Then
             GUID = CType(q.Rows(0).Item("char_guid"), Long)
-            Dim FriendSide As Boolean = GetCharacterSide(CType(q.Rows(0).Item("char_race"), Byte))
+            Dim FriendSide As Boolean = GetCharacterSide(q.Rows(0).Item("char_race"))
 
             q.Clear()
             CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE flags = {0}", CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
@@ -231,16 +230,16 @@ Public Module WC_Handlers_Social
                 response.AddInt8(FriendResult.FRIEND_ADDED_ONLINE)
                 response.AddUInt64(GUID)
                 response.AddString(name)
-                If CType(CHARACTERs(GUID), CharacterObject).DND Then
+                If CHARACTERs(GUID).DND Then
                     response.AddInt8(FriendStatus.FRIEND_STATUS_DND)
-                ElseIf CType(CHARACTERs(GUID), CharacterObject).AFK Then
+                ElseIf CHARACTERs(GUID).AFK Then
                     response.AddInt8(FriendStatus.FRIEND_STATUS_AFK)
                 Else
                     response.AddInt8(FriendStatus.FRIEND_STATUS_ONLINE)
                 End If
-                response.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Zone)
-                response.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Level)
-                response.AddInt32(CType(CHARACTERs(GUID), CharacterObject).Classe)
+                response.AddInt32(CHARACTERs(GUID).Zone)
+                response.AddInt32(CHARACTERs(GUID).Level)
+                response.AddInt32(CHARACTERs(GUID).Classe)
                 CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.GUID, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
             Else
                 response.AddInt8(FriendResult.FRIEND_ADDED_OFFLINE)
@@ -318,7 +317,7 @@ Public Module WC_Handlers_Social
             CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE guid = {0} AND friend = {1};", client.Character.GUID, GUID), q)
 
             If q.Rows.Count > 0 Then
-                Dim flags As Integer = CType(q.Rows(0).Item("flags"), Integer)
+                Dim flags As Integer = q.Rows(0).Item("flags")
                 Dim newFlags As Integer = (flags And (Not SocialFlag.SOCIAL_FLAG_FRIEND))
                 If (newFlags And (SocialFlag.SOCIAL_FLAG_FRIEND Or SocialFlag.SOCIAL_FLAG_IGNORED)) = 0 Then
                     CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE friend = {1} AND guid = {0};", client.Character.GUID, GUID))
@@ -352,7 +351,7 @@ Public Module WC_Handlers_Social
             CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE guid = {0} AND friend = {1};", client.Character.GUID, GUID), q)
 
             If q.Rows.Count > 0 Then
-                Dim flags As Integer = CType(q.Rows(0).Item("flags"), Integer)
+                Dim flags As Integer = q.Rows(0).Item("flags")
                 Dim newFlags As Integer = (flags And (Not SocialFlag.SOCIAL_FLAG_IGNORED))
                 If (newFlags And (SocialFlag.SOCIAL_FLAG_FRIEND Or SocialFlag.SOCIAL_FLAG_IGNORED)) = 0 Then
                     CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE friend = {1} AND guid = {0};", client.Character.GUID, GUID))

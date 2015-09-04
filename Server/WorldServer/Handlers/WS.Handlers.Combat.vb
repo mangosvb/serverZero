@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
-Imports mangosVB.Common.BaseWriter
 
 Public Module WS_Combat
 
@@ -261,7 +259,7 @@ Public Module WS_Combat
 
         'DONE: Glancing blow (only VS Creatures)
         Dim chanceToGlancingBlow As Short = 0
-        If (TypeOf Attacker Is CharacterObject) AndAlso (TypeOf Victim Is CreatureObject) AndAlso (Attacker.Level > Victim.Level + 2) AndAlso skillDiference <= -15 Then chanceToGlancingBlow = (CInt(Victim.Level) - CInt(Attacker.Level)) * 10
+        If (TypeOf Attacker Is CharacterObject) AndAlso (TypeOf Victim Is CreatureObject) AndAlso (Attacker.Level > Victim.Level + 2) AndAlso skillDiference <= -15 Then chanceToGlancingBlow = (Victim.Level - CInt(Attacker.Level)) * 10
 
         'DONE: Crushing blow, fix real damage (only for Creatures)
         Dim chanceToCrushingBlow As Short = 0
@@ -311,7 +309,7 @@ Public Module WS_Combat
                 'DONE: Dodge attack
                 result.Damage = 0
                 result.victimState = AttackVictimState.VICTIMSTATE_DODGE
-                DoEmote(Emotes.ONESHOT_PARRYUNARMED, CType(Victim, BaseUnit))
+                DoEmote(Emotes.ONESHOT_PARRYUNARMED, Victim)
                 'TODO: Remove after 5 secs?
                 Victim.AuraState = Victim.AuraState Or SpellAuraStates.AURASTATE_FLAG_DODGE_BLOCK
                 If TypeOf Victim Is CharacterObject Then
@@ -322,7 +320,7 @@ Public Module WS_Combat
                 'DONE: Parry attack
                 result.Damage = 0
                 result.victimState = AttackVictimState.VICTIMSTATE_PARRY
-                DoEmote(Emotes.ONESHOT_PARRYUNARMED, CType(Victim, BaseUnit))
+                DoEmote(Emotes.ONESHOT_PARRYUNARMED, Victim)
                 'TODO: Remove after 5 secs?
                 Victim.AuraState = Victim.AuraState Or SpellAuraStates.AURASTATE_FLAG_PARRY
                 If TypeOf Victim Is CharacterObject Then
@@ -331,7 +329,7 @@ Public Module WS_Combat
                 End If
             Case Is < chanceToMiss + chanceToDodge + chanceToParry + chanceToGlancingBlow
                 'DONE: Glancing Blow
-                result.Damage -= CInt(Fix(skillDiference * 0.03F * result.Damage))
+                result.Damage -= Fix(skillDiference * 0.03F * result.Damage)
                 result.HitInfo = result.HitInfo Or AttackHitState.HITINFO_HITANIMATION
                 result.HitInfo = result.HitInfo Or AttackHitState.HIT_GLANCING_BLOW
             Case Is < chanceToMiss + chanceToDodge + chanceToParry + chanceToGlancingBlow + chanceToBlock
@@ -339,9 +337,9 @@ Public Module WS_Combat
                 If TypeOf Victim Is CharacterObject Then
                     result.Blocked = CType(Victim, CharacterObject).combatBlockValue + (CType(Victim, CharacterObject).Strength.Base / 20)     '... hits you for 60. (40 blocked)
                     If CType(Victim, CharacterObject).combatBlockValue <> 0 Then
-                        DoEmote(Emotes.ONESHOT_PARRYSHIELD, CType(Victim, BaseUnit))
+                        DoEmote(Emotes.ONESHOT_PARRYSHIELD, Victim)
                     Else
-                        DoEmote(Emotes.ONESHOT_PARRYUNARMED, CType(Victim, BaseUnit))
+                        DoEmote(Emotes.ONESHOT_PARRYUNARMED, Victim)
                     End If
                     result.victimState = AttackVictimState.VICTIMSTATE_BLOCKS
                 End If
@@ -352,7 +350,7 @@ Public Module WS_Combat
                 result.Damage *= 2
                 result.HitInfo = result.HitInfo Or AttackHitState.HITINFO_HITANIMATION
                 result.HitInfo = result.HitInfo Or AttackHitState.HITINFO_CRITICALHIT
-                DoEmote(Emotes.ONESHOT_WOUNDCRITICAL, CType(Victim, BaseUnit))
+                DoEmote(Emotes.ONESHOT_WOUNDCRITICAL, Victim)
             Case Is < chanceToMiss + chanceToDodge + chanceToParry + chanceToGlancingBlow + chanceToBlock + chanceToCrit + chanceToCrushingBlow
                 'DONE: Crushing Blow
                 result.Damage = (result.Damage * 3) >> 1
@@ -457,7 +455,7 @@ Public Module WS_Combat
                     'NOTE: Character is with selected hand weapons
                     If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) Then
                         'NOTE: Character is with equiped offhand item, checking if it is weapon
-                        If CType(.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then
+                        If .Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then
                             'DualWield Miss chance
                             If skillDiference > 10 Then
                                 Return 19 + 5 - skillDiference * 0.1F
@@ -591,7 +589,7 @@ Public Module WS_Combat
                 End Select
 
                 If tmpSkill = 0 Then
-                    Return CInt(objCharacter.Level) * 5
+                    Return objCharacter.Level * 5
                 Else
                     .UpdateSkill(tmpSkill, 0.01F)
                     Return .Skills(tmpSkill).CurrentWithBonus
@@ -600,15 +598,15 @@ Public Module WS_Combat
             End With
         End If
 
-        Return CInt(objCharacter.Level) * 5
+        Return objCharacter.Level * 5
     End Function
 
     Public Function GetSkillDefence(ByRef objCharacter As BaseUnit) As Integer
         If TypeOf objCharacter Is CharacterObject Then
             CType(objCharacter, CharacterObject).UpdateSkill(SKILL_IDs.SKILL_DEFENSE, 0.01)
-            Return CType(CType(objCharacter, CharacterObject).Skills(CType(SKILL_IDs.SKILL_DEFENSE, Integer)), TSkill).CurrentWithBonus
+            Return CType(objCharacter, CharacterObject).Skills(SKILL_IDs.SKILL_DEFENSE).CurrentWithBonus
         End If
-        Return CInt(objCharacter.Level) * 5
+        Return objCharacter.Level * 5
     End Function
 
     Public Function GetAttackTime(ByRef objCharacter As CharacterObject, ByRef combatDualWield As Boolean) As Integer
@@ -656,7 +654,7 @@ Public Module WS_Combat
         Else
             With CType(objCharacter, CreatureObject)
                 result.DamageType = DamageTypes.DMG_PHYSICAL
-                result.Damage = Rnd.Next(CType(CREATURESDatabase(.ID), CreatureInfo).Damage.Minimum, CType(CREATURESDatabase(.ID), CreatureInfo).Damage.Maximum + 1) ' + (CType(CREATURESDatabase(.ID), CreatureInfo).AtackPower / 14 * (CType(CREATURESDatabase(.ID), CreatureInfo).BaseAttackTime / 1000))
+                result.Damage = Rnd.Next(CREATURESDatabase(.ID).Damage.Minimum, CREATURESDatabase(.ID).Damage.Maximum + 1) ' + (CType(CREATURESDatabase(.ID), CreatureInfo).AtackPower / 14 * (CType(CREATURESDatabase(.ID), CreatureInfo).BaseAttackTime / 1000))
             End With
         End If
     End Sub
@@ -800,7 +798,7 @@ Public Module WS_Combat
                 'DONE: If it's the same target we do nothing
                 Exit Sub
             Else
-                SendAttackStop(Character.GUID, Victim.GUID, Character.Client)
+                SendAttackStop(Character.GUID, Victim.GUID, Character.client)
                 Victim = Victim_
                 combatReach = BaseUnit.CombatReach_Base + Victim.BoundingRadius + Character.CombatReach
                 minRanged = Victim.BoundingRadius + 8.0F
@@ -838,7 +836,7 @@ Public Module WS_Combat
         Public Sub DoMeleeAttack(ByVal Status As Object)
             If Victim Is Nothing Then
                 Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
-                Character.Client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
+                Character.client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
                 SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
 
                 Character.AutoShotSpell = 0
@@ -857,7 +855,7 @@ Public Module WS_Combat
 
                 If Victim.isDead Then
                     Dim SMSG_ATTACKSWING_DEADTARGET As New PacketClass(OPCODES.SMSG_ATTACKSWING_DEADTARGET)
-                    Character.Client.Send(SMSG_ATTACKSWING_DEADTARGET)
+                    Character.client.Send(SMSG_ATTACKSWING_DEADTARGET)
                     SMSG_ATTACKSWING_DEADTARGET.Dispose()
 
                     Character.AutoShotSpell = 0
@@ -867,7 +865,7 @@ Public Module WS_Combat
 
                 If Character.isDead Then
                     Dim SMSG_ATTACKSWING_DEADTARGET As New PacketClass(OPCODES.SMSG_ATTACKSWING_DEADTARGET)
-                    Character.Client.Send(SMSG_ATTACKSWING_DEADTARGET)
+                    Character.client.Send(SMSG_ATTACKSWING_DEADTARGET)
                     SMSG_ATTACKSWING_DEADTARGET.Dispose()
 
                     Character.AutoShotSpell = 0
@@ -877,7 +875,7 @@ Public Module WS_Combat
 
                 If Character.StandState > 0 Then
                     Dim SMSG_ATTACKSWING_NOTSTANDING As New PacketClass(OPCODES.SMSG_ATTACKSWING_NOTSTANDING)
-                    Character.Client.Send(SMSG_ATTACKSWING_NOTSTANDING)
+                    Character.client.Send(SMSG_ATTACKSWING_NOTSTANDING)
                     SMSG_ATTACKSWING_NOTSTANDING.Dispose()
 
                     Character.AutoShotSpell = 0
@@ -901,14 +899,14 @@ Public Module WS_Combat
                     Else
                         NextAttackTimer.Change(2000, Timeout.Infinite)
                         Dim SMSG_ATTACKSWING_NOTINRANGE As New PacketClass(OPCODES.SMSG_ATTACKSWING_NOTINRANGE)
-                        Character.Client.Send(SMSG_ATTACKSWING_NOTINRANGE)
+                        Character.client.Send(SMSG_ATTACKSWING_NOTINRANGE)
                         SMSG_ATTACKSWING_NOTINRANGE.Dispose()
                         Exit Sub
                     End If
                 ElseIf tmpDist > combatReach Then
                     NextAttackTimer.Change(2000, Timeout.Infinite)
                     Dim SMSG_ATTACKSWING_NOTINRANGE As New PacketClass(OPCODES.SMSG_ATTACKSWING_NOTINRANGE)
-                    Character.Client.Send(SMSG_ATTACKSWING_NOTINRANGE)
+                    Character.client.Send(SMSG_ATTACKSWING_NOTINRANGE)
                     SMSG_ATTACKSWING_NOTINRANGE.Dispose()
                     Exit Sub
                 End If
@@ -916,7 +914,7 @@ Public Module WS_Combat
                 If Not IsInFrontOf(Character, tmpPosX, tmpPosY) Then
                     NextAttackTimer.Change(2000, Timeout.Infinite)
                     Dim SMSG_ATTACKSWING_BADFACING As New PacketClass(OPCODES.SMSG_ATTACKSWING_BADFACING)
-                    Character.Client.Send(SMSG_ATTACKSWING_BADFACING)
+                    Character.client.Send(SMSG_ATTACKSWING_BADFACING)
                     SMSG_ATTACKSWING_BADFACING.Dispose()
                     Exit Sub
                 End If
@@ -967,9 +965,9 @@ Public Module WS_Combat
                 NextAttackTimer.Change(NextAttack, Timeout.Infinite)
 
             Catch e As Exception
-                If (Not Character Is Nothing) AndAlso (Not Character.Client Is Nothing) Then
+                If (Not Character Is Nothing) AndAlso (Not Character.client Is Nothing) Then
                     Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
-                    Character.Client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
+                    Character.client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
                     SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
                 End If
                 AttackStop()
@@ -992,7 +990,7 @@ Public Module WS_Combat
 
             If Victim.Life.Current = 0 Then
                 Dim SMSG_ATTACKSWING_DEADTARGET As New PacketClass(OPCODES.SMSG_ATTACKSWING_DEADTARGET)
-                Character.Client.Send(SMSG_ATTACKSWING_DEADTARGET)
+                Character.client.Send(SMSG_ATTACKSWING_DEADTARGET)
                 SMSG_ATTACKSWING_DEADTARGET.Dispose()
 
                 Character.AutoShotSpell = 0
@@ -1002,7 +1000,7 @@ Public Module WS_Combat
 
             If Character.DEAD Then
                 Dim SMSG_ATTACKSWING_DEADTARGET As New PacketClass(OPCODES.SMSG_ATTACKSWING_DEADTARGET)
-                Character.Client.Send(SMSG_ATTACKSWING_DEADTARGET)
+                Character.client.Send(SMSG_ATTACKSWING_DEADTARGET)
                 SMSG_ATTACKSWING_DEADTARGET.Dispose()
 
                 Character.AutoShotSpell = 0
@@ -1012,7 +1010,7 @@ Public Module WS_Combat
 
             If Character.StandState > 0 Then
                 Dim SMSG_ATTACKSWING_NOTSTANDING As New PacketClass(OPCODES.SMSG_ATTACKSWING_NOTSTANDING)
-                Character.Client.Send(SMSG_ATTACKSWING_NOTSTANDING)
+                Character.client.Send(SMSG_ATTACKSWING_NOTSTANDING)
                 SMSG_ATTACKSWING_NOTSTANDING.Dispose()
 
                 Character.AutoShotSpell = 0
@@ -1030,7 +1028,7 @@ Public Module WS_Combat
             ElseIf tmpDist < minRanged Then
                 NextAttackTimer.Change(2000, Timeout.Infinite)
                 Dim SMSG_ATTACKSWING_NOTINRANGE As New PacketClass(OPCODES.SMSG_ATTACKSWING_NOTINRANGE)
-                Character.Client.Send(SMSG_ATTACKSWING_NOTINRANGE)
+                Character.client.Send(SMSG_ATTACKSWING_NOTINRANGE)
                 SMSG_ATTACKSWING_NOTINRANGE.Dispose()
                 Exit Sub
             End If
@@ -1038,7 +1036,7 @@ Public Module WS_Combat
             If Not IsInFrontOf(Character, tmpPosX, tmpPosY) Then
                 NextAttackTimer.Change(2000, Timeout.Infinite)
                 Dim SMSG_ATTACKSWING_BADFACING As New PacketClass(OPCODES.SMSG_ATTACKSWING_BADFACING)
-                Character.Client.Send(SMSG_ATTACKSWING_BADFACING)
+                Character.client.Send(SMSG_ATTACKSWING_BADFACING)
                 SMSG_ATTACKSWING_BADFACING.Dispose()
                 Exit Sub
             End If
@@ -1052,7 +1050,7 @@ Public Module WS_Combat
         Public Sub DoMeleeDamage()
 
             Dim damageInfo As DamageInfo = CalculateDamage(Character, Victim, combatDualWield, False)
-            SendAttackerStateUpdate(Character, Victim, damageInfo, Character.Client)
+            SendAttackerStateUpdate(Character, Victim, damageInfo, Character.client)
 
             'TODO: If the victim has a spelltrigger on melee attacks
             Dim Target As New SpellTargets
@@ -1100,7 +1098,7 @@ Public Module WS_Combat
         'Spells
         Public Sub DoMeleeDamageBySpell(ByRef Character As CharacterObject, ByRef Victim2 As BaseObject, ByVal BonusDamage As Integer, ByVal SpellID As Integer)
 
-            Dim damageInfo As DamageInfo = CalculateDamage(CType(Character, CharacterObject), Victim2, False, False, SPELLs(SpellID))
+            Dim damageInfo As DamageInfo = CalculateDamage(Character, Victim2, False, False, SPELLs(SpellID))
             Dim IsCrit As Boolean = False
 
             If damageInfo.Damage > 0 Then damageInfo.Damage += BonusDamage
@@ -1109,7 +1107,7 @@ Public Module WS_Combat
                 IsCrit = True
             End If
 
-            SendNonMeleeDamageLog(CType(Character, CharacterObject), Victim2, SpellID, damageInfo.DamageType, damageInfo.Damage, 0, damageInfo.Absorbed, IsCrit)
+            SendNonMeleeDamageLog(Character, Victim2, SpellID, damageInfo.DamageType, damageInfo.Damage, 0, damageInfo.Absorbed, IsCrit)
 
             If TypeOf Victim2 Is CreatureObject Then
                 CType(Victim2, CreatureObject).DealDamage(damageInfo.GetDamage, Character)
@@ -1176,7 +1174,7 @@ Public Module WS_Combat
             Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
             client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
             SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
-            SendAttackStop(Client.Character.GUID, GUID, Client)
+            SendAttackStop(client.Character.GUID, GUID, client)
             Exit Sub
         End If
 
@@ -1188,7 +1186,7 @@ Public Module WS_Combat
             Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
             client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
             SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
-            SendAttackStop(Client.Character.GUID, GUID, Client)
+            SendAttackStop(client.Character.GUID, GUID, client)
         End If
     End Sub
 
@@ -1197,7 +1195,7 @@ Public Module WS_Combat
             packet.GetInt16()
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSTOP", client.IP, client.Port)
 
-            SendAttackStop(Client.Character.GUID, client.Character.TargetGUID, Client)
+            SendAttackStop(client.Character.GUID, client.Character.TargetGUID, client)
             client.Character.attackState.AttackStop()
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Error stopping attack: {0}", e.ToString)
@@ -1211,7 +1209,7 @@ Public Module WS_Combat
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_AMMO [{2}]", client.IP, client.Port, AmmoID)
 
         If client.Character.isDead Then
-            SendInventoryChangeFailure(Client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, 0, 0)
+            SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, 0, 0)
             Exit Sub
         End If
 
@@ -1221,18 +1219,18 @@ Public Module WS_Combat
                 'TODO: Another one of these useless bits of code, needs to be implemented correctly
                 Dim tmpItem As ItemInfo = New ItemInfo(AmmoID)
             End If
-            Dim CanUse As InventoryChangeFailure = CanUseAmmo(Client.Character, AmmoID)
+            Dim CanUse As InventoryChangeFailure = CanUseAmmo(client.Character, AmmoID)
             If CanUse <> InventoryChangeFailure.EQUIP_ERR_OK Then
-                SendInventoryChangeFailure(Client.Character, CanUse, 0, 0)
+                SendInventoryChangeFailure(client.Character, CanUse, 0, 0)
                 Exit Sub
             End If
             Dim currentDPS As Single = 0
-            If ITEMDatabase.ContainsKey(AmmoID) = True AndAlso ITEMDatabase(AmmoID).ObjectClass = ITEM_CLASS.ITEM_CLASS_PROJECTILE OrElse CheckAmmoCompatibility(Client.Character, AmmoID) Then
+            If ITEMDatabase.ContainsKey(AmmoID) = True AndAlso ITEMDatabase(AmmoID).ObjectClass = ITEM_CLASS.ITEM_CLASS_PROJECTILE OrElse CheckAmmoCompatibility(client.Character, AmmoID) Then
                 currentDPS = ITEMDatabase(AmmoID).Damage(0).Minimum
             End If
             If client.Character.AmmoDPS <> currentDPS Then
                 client.Character.AmmoDPS = currentDPS
-                CalculateMinMaxDamage(Client.Character, WeaponAttackType.RANGED_ATTACK)
+                CalculateMinMaxDamage(client.Character, WeaponAttackType.RANGED_ATTACK)
             End If
 
             client.Character.AmmoID = AmmoID
@@ -1242,7 +1240,7 @@ Public Module WS_Combat
         Else 'Remove Ammo
             If client.Character.AmmoID Then
                 client.Character.AmmoDPS = 0
-                CalculateMinMaxDamage(Client.Character, WeaponAttackType.RANGED_ATTACK)
+                CalculateMinMaxDamage(client.Character, WeaponAttackType.RANGED_ATTACK)
 
                 client.Character.AmmoID = 0
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_AMMO_ID, 0)
@@ -1257,7 +1255,7 @@ Public Module WS_Combat
         Dim sheathed As SHEATHE_SLOT = packet.GetInt32
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SETSHEATHED [{2}]", client.IP, client.Port, sheathed)
 
-        SetSheath(Client.Character, sheathed)
+        SetSheath(client.Character, sheathed)
     End Sub
 
     Public Sub SetSheath(ByRef objCharacter As CharacterObject, ByVal State As SHEATHE_SLOT)
@@ -1284,8 +1282,8 @@ Public Module WS_Combat
                     SetVirtualItemInfo(objCharacter, 1, objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND))
                     'DONE: Must be applyed SPELL_EFFECT_DUAL_WIELD and weapon in offhand
                     Log.WriteLine(LogType.DEBUG, "spellCanDualWeild = {0}", objCharacter.spellCanDualWeild)
-                    Log.WriteLine(LogType.DEBUG, "objectClass = {0}", CType(objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass)
-                    If objCharacter.spellCanDualWeild AndAlso CType(objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND), ItemObject).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then objCharacter.combatCanDualWield = True
+                    Log.WriteLine(LogType.DEBUG, "objectClass = {0}", objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass)
+                    If objCharacter.spellCanDualWeild AndAlso objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then objCharacter.combatCanDualWield = True
                 Else
                     SetVirtualItemInfo(objCharacter, 1, Nothing)
                 End If
@@ -1369,7 +1367,7 @@ Public Module WS_Combat
         packet.AddInt32(0)
         packet.AddInt32(damageInfo.Blocked)                                 'Damage amount blocked
 
-        If Client IsNot Nothing Then
+        If client IsNot Nothing Then
             client.Character.SendToNearPlayers(packet)
         Else
             Attacker.SendToNearPlayers(packet)

@@ -15,8 +15,6 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports mangosVB.Common.BaseWriter
-Imports mangosVB.Common
 
 Public Module WS_DBCDatabase
 
@@ -475,7 +473,7 @@ Public Module WS_DBCDatabase
     End Class
 
     Public Function GetNearestTaxi(ByVal x As Single, ByVal y As Single, ByVal map As Integer) As Integer
-        Dim minDistance As Single = 99999999.0F
+        Dim minDistance As Single = 1.0E+8F
         Dim selectedTaxiNode As Integer = 0
         Dim tmp As Single
 
@@ -1583,7 +1581,7 @@ Public Module WS_DBCDatabase
         Dim dbLvl As Integer
         Dim dbXp As Long
         Try
-            WorldDatabase.Query([String].Format("SELECT * FROM player_xp_for_level order by lvl;"), result)
+            WorldDatabase.Query(String.Format("SELECT * FROM player_xp_for_level order by lvl;"), result)
             If result.Rows.Count > 0 Then
                 For Each row As DataRow In result.Rows
                     dbLvl = row.Item("lvl")
@@ -1606,7 +1604,7 @@ Public Module WS_DBCDatabase
         WorldDatabase.Query(String.Format("SELECT * FROM battlemaster_entry"), MySQLQuery)
 
         For Each row As DataRow In MySQLQuery.Rows
-            Battlemasters.Add(CInt(row.Item("entry")), CByte(row.Item("bg_template")))
+            Battlemasters.Add(row.Item("entry"), row.Item("bg_template"))
         Next
 
         Log.WriteLine(LogType.INFORMATION, "World: {0} Battlemasters Loaded.", MySQLQuery.Rows.Count)
@@ -1781,10 +1779,10 @@ Public Module WS_DBCDatabase
         Public actionchance As Integer
 
         Public Sub New(ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Wait As Integer, ByVal MoveFlag As Integer, ByVal Action As Integer, ByVal ActionChance As Integer)
-            Me.x = PosX
-            Me.y = PosY
-            Me.z = PosZ
-            Me.waittime = Wait
+            x = PosX
+            y = PosY
+            z = PosZ
+            waittime = Wait
             Me.moveflag = MoveFlag
             Me.action = Action
             Me.actionchance = ActionChance

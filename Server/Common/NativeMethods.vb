@@ -1,6 +1,4 @@
-﻿Imports System.Runtime.InteropServices
-
-'
+﻿'
 ' Copyright (C) 2013 - 2014 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -17,6 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports System.Runtime.InteropServices
+
 Public Module NativeMethods
     <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
     Private Function BN_add(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer

@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.Global_Constants
 
 Public Module WS_Player_Creation
@@ -37,8 +36,8 @@ Public Module WS_Player_Creation
 
         'DONE: Query Access Level and Account ID
         AccountDatabase.Query(String.Format("SELECT id, gmlevel FROM account WHERE username = ""{0}"";", Account), MySQLQuery)
-        Dim Account_ID As Integer = CType(MySQLQuery.Rows(0).Item("id"), Integer)
-        Dim Account_Access As AccessLevel = CType(MySQLQuery.Rows(0).Item("gmlevel"), AccessLevel)
+        Dim Account_ID As Integer = MySQLQuery.Rows(0).Item("id")
+        Dim Account_Access As AccessLevel = MySQLQuery.Rows(0).Item("gmlevel")
         Character.Access = Account_Access
 
         If Not ValidateName(Character.Name) Then
@@ -72,7 +71,7 @@ Public Module WS_Player_Creation
             MySQLQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT char_race FROM characters WHERE account_id = ""{0}"" LIMIT 1;", Account_ID), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
-                If Character.IsHorde <> GetCharacterSide(CByte(MySQLQuery.Rows(0).Item("char_race"))) Then
+                If Character.IsHorde <> GetCharacterSide(MySQLQuery.Rows(0).Item("char_race")) Then
                     Return CharResponse.CHAR_CREATE_PVP_TEAMS_VIOLATION
                 End If
             End If
@@ -248,7 +247,7 @@ Public Module WS_Player_Creation
         Dim Used As New List(Of Integer)
 
         For Each ItemRow As DataRow In CreateInfoItems.Rows
-            Items.Add(CType(ItemRow.Item("itemid"), Integer), CType(ItemRow.Item("amount"), Integer))
+            Items.Add(ItemRow.Item("itemid"), ItemRow.Item("amount"))
         Next
 
         'First add bags
@@ -262,7 +261,7 @@ Public Module WS_Player_Creation
                 Dim Slots() As Byte = ITEMDatabase(Item.Key).GetSlots
                 For Each tmpSlot As Byte In Slots
                     If Not objCharacter.Items.ContainsKey(tmpSlot) Then
-                        objCharacter.ItemADD(Item.Key, CType(0, Byte), tmpSlot, Item.Value)
+                        objCharacter.ItemADD(Item.Key, 0, tmpSlot, Item.Value)
                         Used.Add(Item.Key)
                         Exit For
                     End If
@@ -277,8 +276,8 @@ Public Module WS_Player_Creation
             Dim Slots() As Byte = ITEMDatabase(Item.Key).GetSlots
             For Each tmpSlot As Byte In Slots
                 If Not objCharacter.Items.ContainsKey(tmpSlot) Then
-                    objCharacter.ItemADD(Item.Key, CType(0, Byte), tmpSlot, Item.Value)
-                    GoTo nextitem
+                    objCharacter.ItemADD(Item.Key, 0, tmpSlot, Item.Value)
+                    GoTo NextItem
                 End If
             Next
             objCharacter.ItemADD(Item.Key, 255, 255, Item.Value)

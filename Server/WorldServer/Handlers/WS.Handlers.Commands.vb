@@ -16,10 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Threading
 Imports System.Reflection
-Imports System.Collections.Generic
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common.NativeMethods
 
 #Region "WS.Commands.Attributes"
@@ -94,7 +91,7 @@ Public Module WS_Commands
                         Dim cmd As New ChatCommand
                         cmd.CommandHelp = info.cmdHelp
                         cmd.CommandAccess = info.cmdAccess
-                        cmd.CommandDelegate = ChatCommandDelegate.CreateDelegate(GetType(ChatCommandDelegate), tmpMethod)
+                        cmd.CommandDelegate = [Delegate].CreateDelegate(GetType(ChatCommandDelegate), tmpMethod)
 
                         ChatCommands.Add(UCase(info.cmdName), cmd)
 #If DEBUG Then
@@ -143,10 +140,10 @@ Public Module WS_Commands
 
 #Region "WS.Commands.InternalCommands"
 
-    <ChatCommandAttribute("Help", "HELP <CMD>" & vbNewLine & "Displays usage information about command, if no command specified - displays list of available commands.", AccessLevel.GameMaster)> _
+    <ChatCommand("Help", "HELP <CMD>" & vbNewLine & "Displays usage information about command, if no command specified - displays list of available commands.", AccessLevel.GameMaster)>
     Public Function Help(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Trim(Message) <> "" Then
-            Dim Command As ChatCommand = CType(ChatCommands(Trim(UCase(Message))), ChatCommand)
+            Dim Command As ChatCommand = ChatCommands(Trim(UCase(Message)))
             If Command Is Nothing Then
                 objCharacter.CommandResponse("Unknown command.")
             ElseIf Command.CommandAccess > objCharacter.Access Then
@@ -157,7 +154,7 @@ Public Module WS_Commands
         Else
             Dim cmdList As String = "Listing available commands:" & vbNewLine
             For Each Command As KeyValuePair(Of String, ChatCommand) In ChatCommands
-                If CType(Command.Value, ChatCommand).CommandAccess <= objCharacter.Access Then cmdList += UCase(Command.Key) & vbNewLine '", "
+                If Command.Value.CommandAccess <= objCharacter.Access Then cmdList += UCase(Command.Key) & vbNewLine '", "
             Next
             cmdList += vbNewLine + "Use HELP <CMD> for usage information about particular command."
             objCharacter.CommandResponse(cmdList)
@@ -168,7 +165,7 @@ Public Module WS_Commands
 
     Dim x As Integer = 0
     Dim currentSpError As SpellFailedReason = SpellFailedReason.SPELL_NO_ERROR
-    <ChatCommandAttribute("SpellFailedMSG", "SPELLFAILEDMSG <optional ID> - Sends test spell failed message.", AccessLevel.Developer)> _
+    <ChatCommand("SpellFailedMSG", "SPELLFAILEDMSG <optional ID> - Sends test spell failed message.", AccessLevel.Developer)>
     Public Function cmdSpellFailed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then
             currentSpError += 1
@@ -181,7 +178,7 @@ Public Module WS_Commands
     End Function
 
     Dim currentInvError As InventoryChangeFailure = InventoryChangeFailure.EQUIP_ERR_OK
-    <ChatCommandAttribute("InvFailedMSG", "INVFAILEDMSG <optional ID> - Sends test inventory failed message.", AccessLevel.Developer)> _
+    <ChatCommand("InvFailedMSG", "INVFAILEDMSG <optional ID> - Sends test inventory failed message.", AccessLevel.Developer)>
     Public Function cmdInventoryFailed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then
             currentInvError += 1
@@ -200,7 +197,7 @@ Public Module WS_Commands
     End Function
 
     Dim currentInstanceResetError As ResetFailedReason = ResetFailedReason.INSTANCE_RESET_FAILED_ZONING
-    <ChatCommandAttribute("InstanceResetFailedMSG", "INSTANCERESETFAILEDMSG <optional ID> - Sends test inventory failed message.", AccessLevel.Developer)> _
+    <ChatCommand("InstanceResetFailedMSG", "INSTANCERESETFAILEDMSG <optional ID> - Sends test inventory failed message.", AccessLevel.Developer)>
     Public Function cmdInstanceResetFailedReason(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then
             currentInstanceResetError += 1
@@ -212,7 +209,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("CastSpell", "CASTSPELL <SpellID> <Target> - Selected unit will start casting spell. Target can be ME or SELF.", AccessLevel.Developer)> _
+    <ChatCommand("CastSpell", "CASTSPELL <SpellID> <Target> - Selected unit will start casting spell. Target can be ME or SELF.", AccessLevel.Developer)>
     Public Function cmdCastSpellMe(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim tmp As String() = Split(Message, " ", 2)
         If tmp.Length < 2 Then Return False
@@ -224,7 +221,7 @@ Public Module WS_Commands
                 Case "ME"
                     WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, objCharacter)
                 Case "SELF"
-                    WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, CType(WORLD_CREATUREs(objCharacter.TargetGUID), CreatureObject))
+                    WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, WORLD_CREATUREs(objCharacter.TargetGUID))
             End Select
         ElseIf GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
             Select Case Target
@@ -243,7 +240,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Control", "CONTROL - Takes or removes control over the selected unit.", AccessLevel.Admin)> _
+    <ChatCommand("Control", "CONTROL - Takes or removes control over the selected unit.", AccessLevel.Admin)>
     Public Function cmdControl(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.MindControl IsNot Nothing Then
             If TypeOf objCharacter.MindControl Is CharacterObject Then
@@ -302,7 +299,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("CreateGuild", "CreateGuild <Name> - Creates a guild.", AccessLevel.GameMaster)> _
+    <ChatCommand("CreateGuild", "CreateGuild <Name> - Creates a guild.", AccessLevel.GameMaster)>
     Public Function cmdCreateGuild(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         'TODO: Creating guilds must be done in the cluster
 
@@ -315,7 +312,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Cast", "CAST <SpellID> - You will start casting spell on selected target.", AccessLevel.Developer)> _
+    <ChatCommand("Cast", "CAST <SpellID> - You will start casting spell on selected target.", AccessLevel.Developer)>
     Public Function cmdCastSpell(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim tmp As String() = Split(Message, " ", 2)
         Dim SpellID As Integer = tmp(0)
@@ -341,7 +338,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Save", "SAVE - Saves selected character.", AccessLevel.GameMaster)> _
+    <ChatCommand("Save", "SAVE - Saves selected character.", AccessLevel.GameMaster)>
     Public Function cmdSave(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
             CHARACTERs(objCharacter.TargetGUID).Save()
@@ -354,7 +351,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Spawns", "SPAWNS - Tells you the spawn in memory information.", AccessLevel.Developer)> _
+    <ChatCommand("Spawns", "SPAWNS - Tells you the spawn in memory information.", AccessLevel.Developer)>
     Public Function cmdSpawns(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         objCharacter.CommandResponse("Spawns loaded in server memory:")
         objCharacter.CommandResponse("-------------------------------")
@@ -364,7 +361,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Near", "NEAR - Tells you the near objects count.", AccessLevel.Developer)> _
+    <ChatCommand("Near", "NEAR - Tells you the near objects count.", AccessLevel.Developer)>
     Public Function cmdNear(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         objCharacter.CommandResponse("Near objects:")
         objCharacter.CommandResponse("-------------------------------")
@@ -377,7 +374,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetWaterWalk", "SETWATERWALK <TRUE/FALSE> - Enables/Disables walking over water for selected target.", AccessLevel.Developer)> _
+    <ChatCommand("SetWaterWalk", "SETWATERWALK <TRUE/FALSE> - Enables/Disables walking over water for selected target.", AccessLevel.Developer)>
     Public Function cmdSetWaterWalk(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -386,9 +383,9 @@ Public Module WS_Commands
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
             If UCase(Message) = "TRUE" Then
-                CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SetWaterWalk()
+                CHARACTERs(objCharacter.TargetGUID).SetWaterWalk()
             ElseIf UCase(Message) = "FALSE" Then
-                CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SetLandWalk()
+                CHARACTERs(objCharacter.TargetGUID).SetLandWalk()
             Else
                 Return False
             End If
@@ -398,7 +395,7 @@ Public Module WS_Commands
         End If
     End Function
 
-    <ChatCommandAttribute("AI", "AI <ENABLE/DISABLE> - Enables/Disables AI updating.", AccessLevel.Developer)> _
+    <ChatCommand("AI", "AI <ENABLE/DISABLE> - Enables/Disables AI updating.", AccessLevel.Developer)>
     Public Function cmdAI(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If UCase(Message) = "ENABLE" Then
             AIManager.AIManagerTimer.Change(TAIManager.UPDATE_TIMER, TAIManager.UPDATE_TIMER)
@@ -413,7 +410,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AIState", "AIState - Shows debug information about AI state of selected creature.", AccessLevel.Developer)> _
+    <ChatCommand("AIState", "AIState - Shows debug information about AI state of selected creature.", AccessLevel.Developer)>
     Public Function cmdAIState(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -439,7 +436,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Broadcast", "BROADCAST <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)> _
+    <ChatCommand("Broadcast", "BROADCAST <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)>
     Public Function cmdBroadcast(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
 
@@ -448,7 +445,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("GameMessage", "GAMEMESSAGE <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)> _
+    <ChatCommand("GameMessage", "GAMEMESSAGE <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)>
     Public Function cmdGameMessage(ByRef objCharacter As CharacterObject, ByVal Text As String) As Boolean
         If Text = "" Then Return False
 
@@ -463,7 +460,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("ServerMessage", "SERVERMESSAGE <TYPE> <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)> _
+    <ChatCommand("ServerMessage", "SERVERMESSAGE <TYPE> <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)>
     Public Function cmdServerMessage(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '1,"[SERVER] Shutdown in %s"
         '2,"[SERVER] Restart in %s"
@@ -487,7 +484,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("NotifyMessage", "NOTIFYMESSAGE <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)> _
+    <ChatCommand("NotifyMessage", "NOTIFYMESSAGE <TEXT> - Send text message to all players on the server.", AccessLevel.GameMaster)>
     Public Function cmdNotificationMessage(ByRef objCharacter As CharacterObject, ByVal Text As String) As Boolean
         If Text = "" Then Return False
 
@@ -501,15 +498,15 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Say", "SAY <TEXT> - Target Player / NPC will say this.", AccessLevel.GameMaster)> _
+    <ChatCommand("Say", "SAY <TEXT> - Target Player / NPC will say this.", AccessLevel.GameMaster)>
     Public Function cmdSay(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         If objCharacter.TargetGUID = 0 Then Return False
 
         If GuidIsPlayer(objCharacter.TargetGUID) Then
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SendChatMessage(CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject), Message, ChatMsg.CHAT_MSG_SAY, LANGUAGES.LANG_UNIVERSAL, , True)
+            CHARACTERs(objCharacter.TargetGUID).SendChatMessage(CHARACTERs(objCharacter.TargetGUID), Message, ChatMsg.CHAT_MSG_SAY, LANGUAGES.LANG_UNIVERSAL, , True)
         ElseIf GuidIsCreature(objCharacter.TargetGUID) Then
-            CType(WORLD_CREATUREs(objCharacter.TargetGUID), CreatureObject).SendChatMessage(Message, ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL, objCharacter.GUID)
+            WORLD_CREATUREs(objCharacter.TargetGUID).SendChatMessage(Message, ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL, objCharacter.GUID)
         Else
             Return False
         End If
@@ -517,7 +514,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("ResetFactions", "RESETFACTIONS - Resets reputation standings.", AccessLevel.Admin)> _
+    <ChatCommand("ResetFactions", "RESETFACTIONS - Resets reputation standings.", AccessLevel.Admin)>
     Public Function cmdResetFactions(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
             InitializeReputations(CHARACTERs(objCharacter.TargetGUID))
@@ -529,13 +526,13 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetDurability", "SETDURABILITY <PERCENT> - Set all the target's itemdurability to a certain percentage.", AccessLevel.Admin)> _
+    <ChatCommand("SetDurability", "SETDURABILITY <PERCENT> - Set all the target's itemdurability to a certain percentage.", AccessLevel.Admin)>
     Public Function cmdSetDurability(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim Percent As Integer = 0
         If Integer.TryParse(Message, Percent) = True Then
             If Percent < 0 Then Percent = 0
             If Percent > 100 Then Percent = 100
-            Dim sngPercent As Single = CSng(Percent / 100)
+            Dim sngPercent As Single = Percent / 100
 
             If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
@@ -556,7 +553,7 @@ Public Module WS_Commands
         Return False
     End Function
 
-    <ChatCommandAttribute("GetMax", "GETMAX - Get all spells and skills maxed out for your level.", AccessLevel.Admin)> _
+    <ChatCommand("GetMax", "GETMAX - Get all spells and skills maxed out for your level.", AccessLevel.Admin)>
     Public Function cmdGetMax(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         'DONE: Max out all skills you know
         For Each skill As KeyValuePair(Of Integer, TSkill) In objCharacter.Skills
@@ -570,7 +567,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetLevel", "SETLEVEL <LEVEL> - Set the level of selected character.", AccessLevel.Developer)> _
+    <ChatCommand("SetLevel", "SETLEVEL <LEVEL> - Set the level of selected character.", AccessLevel.Developer)>
     Public Function cmdSetLevel(ByRef objCharacter As CharacterObject, ByVal tLevel As String) As Boolean
         If IsNumeric(tLevel) = False Then Return False
 
@@ -588,7 +585,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddXP", "ADDXP <XP> - Add X experience points to selected character.", AccessLevel.Admin)> _
+    <ChatCommand("AddXP", "ADDXP <XP> - Add X experience points to selected character.", AccessLevel.Admin)>
     Public Function cmdAddXP(ByRef objCharacter As CharacterObject, ByVal tXP As String) As Boolean
         If IsNumeric(tXP) = False Then Return False
 
@@ -603,7 +600,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddRestedXP", "ADDRESTEDXP <XP> - Add X rested bonus experience points to selected character.", AccessLevel.Admin)> _
+    <ChatCommand("AddRestedXP", "ADDRESTEDXP <XP> - Add X rested bonus experience points to selected character.", AccessLevel.Admin)>
     Public Function cmdAddRestedXP(ByRef objCharacter As CharacterObject, ByVal tXP As String) As Boolean
         If IsNumeric(tXP) = False Then Return False
 
@@ -623,7 +620,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddTP", "ADDTP <POINTs> - Add X talent points to selected character.", AccessLevel.Admin)> _
+    <ChatCommand("AddTP", "ADDTP <POINTs> - Add X talent points to selected character.", AccessLevel.Admin)>
     Public Function cmdAddTP(ByRef objCharacter As CharacterObject, ByVal tTP As String) As Boolean
         If IsNumeric(tTP) = False Then Return False
 
@@ -631,7 +628,7 @@ Public Module WS_Commands
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
             CHARACTERs(objCharacter.TargetGUID).TalentPoints += TP
-            CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_CHARACTER_POINTS1, CType(CHARACTERs(objCharacter.TargetGUID).TalentPoints, Integer))
+            CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_CHARACTER_POINTS1, CHARACTERs(objCharacter.TargetGUID).TalentPoints)
             CHARACTERs(objCharacter.TargetGUID).SaveCharacter()
         Else
             objCharacter.CommandResponse("Target not found or not character.")
@@ -640,7 +637,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddHonor", "ADDHONOR <POINTs> - Add X honor points to selected character.", AccessLevel.Admin)> _
+    <ChatCommand("AddHonor", "ADDHONOR <POINTs> - Add X honor points to selected character.", AccessLevel.Admin)>
     Public Function cmdAddHonor(ByRef objCharacter As CharacterObject, ByVal tHONOR As String) As Boolean
         If IsNumeric(tHONOR) = False Then Return False
 
@@ -657,7 +654,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("EditUnitFlag", "EDITUNITFLAG <UNITFLAG> - Change your unitflag.", AccessLevel.Developer)> _
+    <ChatCommand("EditUnitFlag", "EDITUNITFLAG <UNITFLAG> - Change your unitflag.", AccessLevel.Developer)>
     Public Function cmdEditUnitflag(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If IsNumeric(Message) = False AndAlso InStr(Message, "0x") = 0 Then Return False
         If InStr(Message, "0x") > 0 Then
@@ -671,7 +668,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("EditPlayerFlag", "EDITPLAYERFLAG <PLAYERFLAG> - Change your PLAYER_FLAGS.", AccessLevel.Developer)> _
+    <ChatCommand("EditPlayerFlag", "EDITPLAYERFLAG <PLAYERFLAG> - Change your PLAYER_FLAGS.", AccessLevel.Developer)>
     Public Function cmdEditPlayerflag(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If IsNumeric(Message) = False AndAlso InStr(Message, "0x") = 0 Then Return False
         If InStr(Message, "0x") > 0 Then
@@ -685,7 +682,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("EditPlayerFieldBytes", "EDITPLAYERFIELDBYTES <PLAYERFIELDBYTES> - Change your PLAYER_FIELD_BYTES.", AccessLevel.Developer)> _
+    <ChatCommand("EditPlayerFieldBytes", "EDITPLAYERFIELDBYTES <PLAYERFIELDBYTES> - Change your PLAYER_FIELD_BYTES.", AccessLevel.Developer)>
     Public Function cmdEditPlayerFieldBytes(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If IsNumeric(Message) = False AndAlso InStr(Message, "0x") = 0 Then Return False
         If InStr(Message, "0x") > 0 Then
@@ -699,7 +696,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("GroupUpdate", "GROUPUPDATE - Get a groupupdate for selected player.", AccessLevel.Developer)> _
+    <ChatCommand("GroupUpdate", "GROUPUPDATE - Get a groupupdate for selected player.", AccessLevel.Developer)>
     Public Function cmdGroupUpdate(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
             CHARACTERs(objCharacter.TargetGUID).GroupUpdate(PartyMemberStatsFlag.GROUP_UPDATE_FULL)
@@ -709,7 +706,7 @@ Public Module WS_Commands
         Return False
     End Function
 
-    <ChatCommandAttribute("PlaySound", "PLAYSOUND - Plays a specific sound for every player around you.", AccessLevel.Developer)> _
+    <ChatCommand("PlaySound", "PLAYSOUND - Plays a specific sound for every player around you.", AccessLevel.Developer)>
     Public Function cmdPlaySound(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim soundID As Integer = 0
 
@@ -720,7 +717,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("CombatList", "COMBATLIST - Lists everyone in your targets combatlist.", AccessLevel.Developer)> _
+    <ChatCommand("CombatList", "COMBATLIST - Lists everyone in your targets combatlist.", AccessLevel.Developer)>
     Public Function cmdCombatList(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim combatList() As ULong = {}
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
@@ -737,7 +734,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("CooldownList", "COOLDOWNLIST - Lists all cooldowns of your target.", AccessLevel.GameMaster)> _
+    <ChatCommand("CooldownList", "COOLDOWNLIST - Lists all cooldowns of your target.", AccessLevel.GameMaster)>
     Public Function cmdCooldownList(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim targetUnit As BaseUnit = Nothing
         If GuidIsPlayer(objCharacter.TargetGUID) Then
@@ -775,7 +772,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("ClearCooldowns", "CLEARCOOLDOWNS - Clears all cooldowns of your target.", AccessLevel.Admin)> _
+    <ChatCommand("ClearCooldowns", "CLEARCOOLDOWNS - Clears all cooldowns of your target.", AccessLevel.Admin)>
     Public Function cmdClearCooldowns(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim targetUnit As BaseUnit = Nothing
         If GuidIsPlayer(objCharacter.TargetGUID) Then
@@ -813,7 +810,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("StartCheck", "STARTCHECK - Initialize Warden anti-cheat engine for selected character.", AccessLevel.Developer)> _
+    <ChatCommand("StartCheck", "STARTCHECK - Initialize Warden anti-cheat engine for selected character.", AccessLevel.Developer)>
     Public Function cmdStartCheck(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 #If WARDEN Then
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
@@ -828,7 +825,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SendCheck", "SENDCHECK - Sends a Warden anti-cheat check packet to the selected character.", AccessLevel.Developer)> _
+    <ChatCommand("SendCheck", "SENDCHECK - Sends a Warden anti-cheat check packet to the selected character.", AccessLevel.Developer)>
     Public Function cmdSendCheck(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 #If WARDEN Then
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
@@ -843,7 +840,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("GetSpeed", "GETSPEED - Displays all current speed.", AccessLevel.GameMaster)> _
+    <ChatCommand("GetSpeed", "GETSPEED - Displays all current speed.", AccessLevel.GameMaster)>
     Public Function cmdGetSpeed(ByRef objCharacter As CharacterObject, ByVal tCopper As String) As Boolean
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
             CHARACTERs(objCharacter.TargetGUID).CommandResponse("WalkSpeed: " & CHARACTERs(objCharacter.TargetGUID).WalkSpeed)
@@ -864,7 +861,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("GetAP", "GETAP - Displays attack power.", AccessLevel.GameMaster)> _
+    <ChatCommand("GetAP", "GETAP - Displays attack power.", AccessLevel.GameMaster)>
     Public Function cmdGetAttackPower(ByRef objCharacter As CharacterObject, ByVal tCopper As String) As Boolean
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
             CHARACTERs(objCharacter.TargetGUID).CommandResponse("AttackPower: " & CHARACTERs(objCharacter.TargetGUID).AttackPower)
@@ -881,7 +878,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("GetDPS", "GETDPS - Tells you about damage info.", AccessLevel.Developer)> _
+    <ChatCommand("GetDPS", "GETDPS - Tells you about damage info.", AccessLevel.Developer)>
     Public Function cmdGetDPS(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         objCharacter.CommandResponse("Ammo ID: " & objCharacter.AmmoID)
         objCharacter.CommandResponse("Ammo DPS: " & objCharacter.AmmoDPS)
@@ -891,7 +888,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddItem", "ADDITEM <ID> <optional COUNT> - Add Y items with id X to selected character.", AccessLevel.GameMaster)> _
+    <ChatCommand("AddItem", "ADDITEM <ID> <optional COUNT> - Add Y items with id X to selected character.", AccessLevel.GameMaster)>
     Public Function cmdAddItem(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim tmp() As String = Split(Message, " ", 2)
         If tmp.Length < 1 Then Return False
@@ -920,7 +917,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddItemSet", "ADDITEMSET <ID> - Add the items in the item set with id X to selected character.", AccessLevel.GameMaster)> _
+    <ChatCommand("AddItemSet", "ADDITEMSET <ID> - Add the items in the item set with id X to selected character.", AccessLevel.GameMaster)>
     Public Function cmdAddItemSet(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim tmp() As String = Split(Message, " ", 2)
         If tmp.Length < 1 Then Return False
@@ -954,13 +951,13 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddMoney", "ADDMONEY <XP> - Add X copper yours.", AccessLevel.GameMaster)> _
+    <ChatCommand("AddMoney", "ADDMONEY <XP> - Add X copper yours.", AccessLevel.GameMaster)>
     Public Function cmdAddMoney(ByRef objCharacter As CharacterObject, ByVal tCopper As String) As Boolean
         If tCopper = "" Then Return False
 
         Dim Copper As ULong = tCopper
 
-        If CType(objCharacter.Copper, ULong) + Copper > UInteger.MaxValue Then
+        If objCharacter.Copper + Copper > UInteger.MaxValue Then
             objCharacter.Copper = UInteger.MaxValue
         Else
             objCharacter.Copper += Copper
@@ -972,7 +969,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("LearnSkill", "LearnSkill <ID> <CURRENT> <MAX> - Add skill id X with value Y of Z to selected character.", AccessLevel.Developer)> _
+    <ChatCommand("LearnSkill", "LearnSkill <ID> <CURRENT> <MAX> - Add skill id X with value Y of Z to selected character.", AccessLevel.Developer)>
     Public Function cmdLearnSkill(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
 
@@ -981,8 +978,8 @@ Public Module WS_Commands
             tmp = Split(Trim(Message), " ")
 
             Dim SkillID As Integer = tmp(0)
-            Dim Current As Int16 = tmp(1)
-            Dim Maximum As Int16 = tmp(2)
+            Dim Current As Short = tmp(1)
+            Dim Maximum As Short = tmp(2)
 
             If CHARACTERs(objCharacter.TargetGUID).Skills.ContainsKey(SkillID) Then
                 CType(CHARACTERs(objCharacter.TargetGUID).Skills(SkillID), TSkill).Base = Maximum
@@ -1000,7 +997,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("LearnSpell", "LearnSpell <ID> - Add spell X to selected character.", AccessLevel.Developer)> _
+    <ChatCommand("LearnSpell", "LearnSpell <ID> - Add spell X to selected character.", AccessLevel.Developer)>
     Public Function cmdLearnSpell(ByRef objCharacter As CharacterObject, ByVal tID As String) As Boolean
         If tID = "" Then Return False
 
@@ -1025,7 +1022,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("UnlearnSpell", "UnlearnSpell <ID> - Remove spell X from selected character.", AccessLevel.Developer)> _
+    <ChatCommand("UnlearnSpell", "UnlearnSpell <ID> - Remove spell X from selected character.", AccessLevel.Developer)>
     Public Function cmdUnlearnSpell(ByRef objCharacter As CharacterObject, ByVal tID As String) As Boolean
         If tID = "" Then Return False
 
@@ -1045,13 +1042,13 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("ShowTaxi", "SHOWTAXI - Unlock all taxi locations.", AccessLevel.Developer)> _
+    <ChatCommand("ShowTaxi", "SHOWTAXI - Unlock all taxi locations.", AccessLevel.Developer)>
     Public Function cmdShowTaxi(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         objCharacter.TaxiZones.SetAll(True)
         Return True
     End Function
 
-    <ChatCommandAttribute("SET", "SET <INDEX> <VALUE> - Set update value (A9).", AccessLevel.Developer)> _
+    <ChatCommand("SET", "SET <INDEX> <VALUE> - Set update value (A9).", AccessLevel.Developer)>
     Public Function cmdSetUpdateField(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         Dim tmp() As String = Split(Message, " ", 2)
@@ -1060,7 +1057,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetRunSpeed", "SETRUNSPEED <VALUE> - Change your run speed.", AccessLevel.GameMaster)> _
+    <ChatCommand("SetRunSpeed", "SETRUNSPEED <VALUE> - Change your run speed.", AccessLevel.GameMaster)>
     Public Function cmdSetRunSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         objCharacter.ChangeSpeedForced(ChangeSpeedType.RUN, Message)
@@ -1068,7 +1065,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetSwimSpeed", "SETSWIMSPEED <VALUE> - Change your swim speed.", AccessLevel.GameMaster)> _
+    <ChatCommand("SetSwimSpeed", "SETSWIMSPEED <VALUE> - Change your swim speed.", AccessLevel.GameMaster)>
     Public Function cmdSetSwimSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         objCharacter.ChangeSpeedForced(ChangeSpeedType.SWIM, Message)
@@ -1076,7 +1073,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetRunBackSpeed", "SETRUNBACKSPEED <VALUE> - Change your run back speed.", AccessLevel.GameMaster)> _
+    <ChatCommand("SetRunBackSpeed", "SETRUNBACKSPEED <VALUE> - Change your run back speed.", AccessLevel.GameMaster)>
     Public Function cmdSetRunBackSpeed(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         objCharacter.ChangeSpeedForced(ChangeSpeedType.SWIMBACK, Message)
@@ -1084,7 +1081,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetReputation", "SETREPUTATION <FACTION> <VALUE> - Change your reputation standings.", AccessLevel.GameMaster)> _
+    <ChatCommand("SetReputation", "SETREPUTATION <FACTION> <VALUE> - Change your reputation standings.", AccessLevel.GameMaster)>
     Public Function cmdSetReputation(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         Dim tmp() As String = Split(Message, " ", 2)
@@ -1093,7 +1090,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Model", "MODEL <ID> - Will morph you into specified model ID.", AccessLevel.GameMaster)> _
+    <ChatCommand("Model", "MODEL <ID> - Will morph you into specified model ID.", AccessLevel.GameMaster)>
     Public Function cmdModel(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim value As Integer = 0
         If Integer.TryParse(Message, value) = False OrElse value < 0 Then Return False
@@ -1110,7 +1107,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Mount", "MOUNT <ID> - Will mount you to specified model ID.", AccessLevel.GameMaster)> _
+    <ChatCommand("Mount", "MOUNT <ID> - Will mount you to specified model ID.", AccessLevel.GameMaster)>
     Public Function cmdMount(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim value As Integer = 0
         If Integer.TryParse(Message, value) = False OrElse value < 0 Then Return False
@@ -1120,7 +1117,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Hurt", "HURT - Hurt selected character.", AccessLevel.GameMaster)> _
+    <ChatCommand("Hurt", "HURT - Hurt selected character.", AccessLevel.GameMaster)>
     Public Function cmdHurt(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1129,7 +1126,7 @@ Public Module WS_Commands
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
             CHARACTERs(objCharacter.TargetGUID).Life.Current -= CHARACTERs(objCharacter.TargetGUID).Life.Maximum * 0.1
-            CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Life.Current)
+            CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CHARACTERs(objCharacter.TargetGUID).Life.Current)
             CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate()
             Return True
         End If
@@ -1137,7 +1134,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Vulnerable", "VULNERABLE - Changes the selected characters vulnerability (ON/OFF).", AccessLevel.GameMaster)> _
+    <ChatCommand("Vulnerable", "VULNERABLE - Changes the selected characters vulnerability (ON/OFF).", AccessLevel.GameMaster)>
     Public Function cmdVulnerable(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Message = Message.ToUpper()
         Dim Enabled As Boolean = False
@@ -1159,7 +1156,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Root", "ROOT - Instantly root selected character.", AccessLevel.GameMaster)> _
+    <ChatCommand("Root", "ROOT - Instantly root selected character.", AccessLevel.GameMaster)>
     Public Function cmdRoot(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1167,14 +1164,14 @@ Public Module WS_Commands
         End If
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SetMoveRoot()
+            CHARACTERs(objCharacter.TargetGUID).SetMoveRoot()
             Return True
         End If
 
         Return True
     End Function
 
-    <ChatCommandAttribute("UnRoot", "UNROOT - Instantly unroot selected character.", AccessLevel.GameMaster)> _
+    <ChatCommand("UnRoot", "UNROOT - Instantly unroot selected character.", AccessLevel.GameMaster)>
     Public Function cmdUnRoot(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1182,14 +1179,14 @@ Public Module WS_Commands
         End If
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SetMoveUnroot()
+            CHARACTERs(objCharacter.TargetGUID).SetMoveUnroot()
             Return True
         End If
 
         Return True
     End Function
 
-    <ChatCommandAttribute("Revive", "REVIVE - Instantly revive selected character.", AccessLevel.GameMaster)> _
+    <ChatCommand("Revive", "REVIVE - Instantly revive selected character.", AccessLevel.GameMaster)>
     Public Function cmdRevive(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1197,14 +1194,14 @@ Public Module WS_Commands
         End If
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            CharacterResurrect(CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject))
+            CharacterResurrect(CHARACTERs(objCharacter.TargetGUID))
             Return True
         End If
 
         Return True
     End Function
 
-    <ChatCommandAttribute("GoToGraveyard", "GOTOGRAVEYARD - Instantly teleports selected character to nearest graveyard.", AccessLevel.GameMaster)> _
+    <ChatCommand("GoToGraveyard", "GOTOGRAVEYARD - Instantly teleports selected character to nearest graveyard.", AccessLevel.GameMaster)>
     Public Function cmdGoToGraveyard(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1212,14 +1209,14 @@ Public Module WS_Commands
         End If
 
         If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            AllGraveYards.GoToNearestGraveyard(CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject), False, True)
+            AllGraveYards.GoToNearestGraveyard(CHARACTERs(objCharacter.TargetGUID), False, True)
             Return True
         End If
 
         Return True
     End Function
 
-    <ChatCommandAttribute("GoToStart", "GOTOSTART <RACE> - Instantly teleports selected character to specified race start location.", AccessLevel.GameMaster)> _
+    <ChatCommand("GoToStart", "GOTOSTART <RACE> - Instantly teleports selected character to specified race start location.", AccessLevel.GameMaster)>
     Public Function cmdGoToStart(ByRef objCharacter As CharacterObject, ByVal StringRace As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1261,15 +1258,15 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Summon", "SUMMON <NAME> - Instantly teleports the player to you.", AccessLevel.GameMaster)> _
+    <ChatCommand("Summon", "SUMMON <NAME> - Instantly teleports the player to you.", AccessLevel.GameMaster)>
     Public Function cmdSummon(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         Dim GUID As ULong = GetGUID(CapitalizeName(Name))
         If CHARACTERs.ContainsKey(GUID) Then
             If objCharacter.OnTransport IsNot Nothing Then
                 CType(CHARACTERs(GUID), CharacterObject).OnTransport = objCharacter.OnTransport
-                CType(CHARACTERs(GUID), CharacterObject).Transfer(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
+                CHARACTERs(GUID).Transfer(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
             Else
-                CType(CHARACTERs(GUID), CharacterObject).Teleport(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
+                CHARACTERs(GUID).Teleport(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
             End If
             Return True
         Else
@@ -1278,11 +1275,11 @@ Public Module WS_Commands
         End If
     End Function
 
-    <ChatCommandAttribute("Appear", "APPEAR <NAME> - Instantly teleports you to the player.", AccessLevel.GameMaster)> _
+    <ChatCommand("Appear", "APPEAR <NAME> - Instantly teleports you to the player.", AccessLevel.GameMaster)>
     Public Function cmdAppear(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         Dim GUID As ULong = GetGUID(CapitalizeName(Name))
         If CHARACTERs.ContainsKey(GUID) Then
-            With CType(CHARACTERs(GUID), CharacterObject)
+            With CHARACTERs(GUID)
                 If .OnTransport IsNot Nothing Then
                     objCharacter.OnTransport = .OnTransport
                     objCharacter.Transfer(.positionX, .positionY, .positionZ, .orientation, .MapID)
@@ -1297,7 +1294,7 @@ Public Module WS_Commands
         End If
     End Function
 
-    <ChatCommandAttribute("VmapTest", "VMAPTEST - Tests VMAP functionality.", AccessLevel.Developer)> _
+    <ChatCommand("VmapTest", "VMAPTEST - Tests VMAP functionality.", AccessLevel.Developer)>
     Public Function cmdVmapTest(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 #If VMAPS Then
         If Config.VMapsEnabled Then
@@ -1342,7 +1339,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("VmapTest2", "VMAPTEST2 - Tests VMAP functionality.", AccessLevel.Developer)> _
+    <ChatCommand("VmapTest2", "VMAPTEST2 - Tests VMAP functionality.", AccessLevel.Developer)>
     Public Function cmdVmapTest2(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 #If VMAPS Then
         If Config.VMapsEnabled Then
@@ -1375,7 +1372,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("VmapTest3", "VMAPTEST3 - Tests VMAP functionality.", AccessLevel.Developer)> _
+    <ChatCommand("VmapTest3", "VMAPTEST3 - Tests VMAP functionality.", AccessLevel.Developer)>
     Public Function cmdVmapTest3(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 #If VMAPS Then
         Dim CellMap As UInteger = objCharacter.MapID
@@ -1420,7 +1417,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("LineOfSight", "LINEOFSIGHT <ON/OFF> - Enables/Disables line of sight calculation.", AccessLevel.Developer)> _
+    <ChatCommand("LineOfSight", "LINEOFSIGHT <ON/OFF> - Enables/Disables line of sight calculation.", AccessLevel.Developer)>
     Public Function cmdLineOfSight(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message.ToUpper = "ON" Then
             Config.LineOfSightEnabled = True
@@ -1434,7 +1431,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("GPS", "GPS - Tells you where you are located.", AccessLevel.GameMaster)> _
+    <ChatCommand("GPS", "GPS - Tells you where you are located.", AccessLevel.GameMaster)>
     Public Function cmdGPS(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         objCharacter.CommandResponse("X: " & objCharacter.positionX)
         objCharacter.CommandResponse("Y: " & objCharacter.positionY)
@@ -1444,7 +1441,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetInstance", "SETINSTANCE <ID> - Sets you into another instance.", AccessLevel.GameMaster)> _
+    <ChatCommand("SetInstance", "SETINSTANCE <ID> - Sets you into another instance.", AccessLevel.GameMaster)>
     Public Function cmdSetInstance(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim instanceID As Integer = 0
         If Integer.TryParse(Message, instanceID) = False Then Return False
@@ -1454,7 +1451,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Port", "PORT <X> <Y> <Z> <ORIENTATION> <MAP> - Teleports Character To Given Coordinates.", AccessLevel.GameMaster)> _
+    <ChatCommand("Port", "PORT <X> <Y> <Z> <ORIENTATION> <MAP> - Teleports Character To Given Coordinates.", AccessLevel.GameMaster)>
     Public Function cmdPort(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
 
@@ -1463,10 +1460,10 @@ Public Module WS_Commands
 
         If tmp.Length <> 5 Then Return False
 
-        Dim posX As Single = CSng(tmp(0))
-        Dim posY As Single = CSng(tmp(1))
-        Dim posZ As Single = CSng(tmp(2))
-        Dim posO As Single = CSng(tmp(3))
+        Dim posX As Single = tmp(0)
+        Dim posY As Single = tmp(1)
+        Dim posZ As Single = tmp(2)
+        Dim posO As Single = tmp(3)
         Dim posMap As Integer = CSng(tmp(4))
 
         objCharacter.Teleport(posX, posY, posZ, posO, posMap)
@@ -1479,7 +1476,7 @@ Public Module WS_Commands
     ''' <param name="objCharacter">The objCharacter.</param>
     ''' <param name="location">The location. Use PortByName list to get a list of locations (can use * as wildcard).</param>
     ''' <returns></returns>
-    <ChatCommandAttribute("PortByName", "PORT <LocationName> - Teleports Character To The LocationName Location. Use PortByName list to get a list of locations (can use * as wildcard).", AccessLevel.GameMaster)> _
+    <ChatCommand("PortByName", "PORT <LocationName> - Teleports Character To The LocationName Location. Use PortByName list to get a list of locations (can use * as wildcard).", AccessLevel.GameMaster)>
     Public Function CmdPortByName(ByRef objCharacter As CharacterObject, ByVal location As String) As Boolean
 
         If location = "" Then Return False
@@ -1516,11 +1513,11 @@ Public Module WS_Commands
         If mySqlQuery.Rows.Count > 0 Then
             If mySqlQuery.Rows.Count = 1 Then
 
-                posX = CType(mySqlQuery.Rows(0).Item("position_x"), Single)
-                posY = CType(mySqlQuery.Rows(0).Item("position_y"), Single)
-                posZ = CType(mySqlQuery.Rows(0).Item("position_z"), Single)
-                posO = CType(mySqlQuery.Rows(0).Item("orientation"), Single)
-                posMap = CType(mySqlQuery.Rows(0).Item("map"), Integer)
+                posX = mySqlQuery.Rows(0).Item("position_x")
+                posY = mySqlQuery.Rows(0).Item("position_y")
+                posZ = mySqlQuery.Rows(0).Item("position_z")
+                posO = mySqlQuery.Rows(0).Item("orientation")
+                posMap = mySqlQuery.Rows(0).Item("map")
                 objCharacter.Teleport(posX, posY, posZ, posO, posMap)
             Else
                 Dim cmdList As String = "Listing of matching locations:" & vbNewLine
@@ -1537,15 +1534,15 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Slap", "SLAP <DAMAGE> - Slap target creature or player for X damage.", AccessLevel.Admin)> _
+    <ChatCommand("Slap", "SLAP <DAMAGE> - Slap target creature or player for X damage.", AccessLevel.Admin)>
     Public Function cmdSlap(ByRef objCharacter As CharacterObject, ByVal tDamage As String) As Boolean
         Dim Damage As Integer = tDamage
 
         If GuidIsCreature(objCharacter.TargetGUID) Then
-            CType(WORLD_CREATUREs(objCharacter.TargetGUID), CreatureObject).DealDamage(Damage)
+            WORLD_CREATUREs(objCharacter.TargetGUID).DealDamage(Damage)
         ElseIf GuidIsPlayer(objCharacter.TargetGUID) Then
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).DealDamage(Damage)
-            CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).SystemMessage(objCharacter.Name & " slaps you for " & Damage & " damage.")
+            CHARACTERs(objCharacter.TargetGUID).DealDamage(Damage)
+            CHARACTERs(objCharacter.TargetGUID).SystemMessage(objCharacter.Name & " slaps you for " & Damage & " damage.")
         Else
             objCharacter.CommandResponse("Not supported target selected.")
         End If
@@ -1553,7 +1550,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Kick", "KICK <optional NAME> - Kick selected player or character with name specified if found.", AccessLevel.GameMaster)> _
+    <ChatCommand("Kick", "KICK <optional NAME> - Kick selected player or character with name specified if found.", AccessLevel.GameMaster)>
     Public Function cmdKick(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         If Name = "" Then
 
@@ -1562,7 +1559,7 @@ Public Module WS_Commands
                 objCharacter.CommandResponse("No target selected.")
             ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 'DONE: Kick gracefully
-                objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Name))
+                objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CHARACTERs(objCharacter.TargetGUID).Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
                 CHARACTERs(objCharacter.TargetGUID).Logout()
             Else
@@ -1574,11 +1571,11 @@ Public Module WS_Commands
             'DONE: Kick by name
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UCase(CType(Character.Value, CharacterObject).Name) = Name Then
+                If UCase(Character.Value.Name) = Name Then
                     CHARACTERs_Lock.ReleaseReaderLock()
                     'DONE: Kick gracefully
                     Character.Value.Logout()
-                    objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(Character.Value, CharacterObject).Name))
+                    objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", Character.Value.Name))
                     Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, Name)
                     Return True
                 End If
@@ -1590,12 +1587,12 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("KickReason", "KICKREASON <TEXT> - Display message for 2 seconds and kick selected player.", AccessLevel.GameMaster)> _
+    <ChatCommand("KickReason", "KICKREASON <TEXT> - Display message for 2 seconds and kick selected player.", AccessLevel.GameMaster)>
     Public Function cmdKickReason(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("No target selected.")
         Else
-            SystemMessage(String.Format("Character [{0}] kicked form server.{3}Reason: {1}{3}GameMaster: [{2}].", SetColor(CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Name, 255, 0, 0), SetColor(Message, 255, 0, 0), SetColor(objCharacter.Name, 255, 0, 0), vbNewLine))
+            SystemMessage(String.Format("Character [{0}] kicked form server.{3}Reason: {1}{3}GameMaster: [{2}].", SetColor(CHARACTERs(objCharacter.TargetGUID).Name, 255, 0, 0), SetColor(Message, 255, 0, 0), SetColor(objCharacter.Name, 255, 0, 0), vbNewLine))
             Thread.Sleep(2000)
 
             cmdKick(objCharacter, "")
@@ -1604,7 +1601,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Disconnect", "DISCONNECT <optional NAME> - Disconnects selected player or character with name specified if found.", AccessLevel.GameMaster)> _
+    <ChatCommand("Disconnect", "DISCONNECT <optional NAME> - Disconnects selected player or character with name specified if found.", AccessLevel.GameMaster)>
     Public Function cmdDisconnect(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         If Name = "" Then
 
@@ -1612,9 +1609,9 @@ Public Module WS_Commands
             If objCharacter.TargetGUID = 0 Then
                 objCharacter.CommandResponse("No target selected.")
             ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).Name))
+                objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CHARACTERs(objCharacter.TargetGUID).Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
-                CType(CHARACTERs(objCharacter.TargetGUID), CharacterObject).client.Disconnect()
+                CHARACTERs(objCharacter.TargetGUID).client.Disconnect()
             Else
                 objCharacter.CommandResponse(String.Format("Character GUID=[{0}] not found.", objCharacter.TargetGUID))
             End If
@@ -1624,11 +1621,11 @@ Public Module WS_Commands
             'DONE: Kick by name
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UCase(CType(Character.Value, CharacterObject).Name) = Name Then
+                If UCase(Character.Value.Name) = Name Then
                     CHARACTERs_Lock.ReleaseReaderLock()
-                    objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CType(Character.Value, CharacterObject).Name))
+                    objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", Character.Value.Name))
                     Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, Name)
-                    CType(Character.Value, CharacterObject).client.Disconnect()
+                    Character.Value.client.Disconnect()
                     Return True
                 End If
             Next
@@ -1639,7 +1636,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("ForceRename", "FORCERENAME - Force selected player to change his name next time on char enum.", AccessLevel.GameMaster)> _
+    <ChatCommand("ForceRename", "FORCERENAME - Force selected player to change his name next time on char enum.", AccessLevel.GameMaster)>
     Public Function cmdForceRename(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("No target selected.")
@@ -1653,7 +1650,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("BanChar", "BANCHAR - Selected player won't be able to login next time with this character.", AccessLevel.GameMaster)> _
+    <ChatCommand("BanChar", "BANCHAR - Selected player won't be able to login next time with this character.", AccessLevel.GameMaster)>
     Public Function cmdBanChar(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("No target selected.")
@@ -1667,7 +1664,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Ban", "BAN <ACCOUNT> - Ban specified account from server.", AccessLevel.GameMaster)> _
+    <ChatCommand("Ban", "BAN <ACCOUNT> - Ban specified account from server.", AccessLevel.GameMaster)>
     Public Function cmdBan(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         'TODO: Allow Reason For BAN to be Specified, and Inserted.
         If Name = "" Then Return False
@@ -1696,7 +1693,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("UnBan", "UNBAN <ACCOUNT> - Remove ban of specified account from server.", AccessLevel.GameMaster)> _
+    <ChatCommand("UnBan", "UNBAN <ACCOUNT> - Remove ban of specified account from server.", AccessLevel.GameMaster)>
     Public Function cmdUnBan(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         If Name = "" Then Return False
 
@@ -1724,7 +1721,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Info", "INFO <optional NAME> - Show account information for selected target or character with name specified if found.", AccessLevel.GameMaster)> _
+    <ChatCommand("Info", "INFO <optional NAME> - Show account information for selected target or character with name specified if found.", AccessLevel.GameMaster)>
     Public Function cmdInfo(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         If Name = "" Then
 
@@ -1732,35 +1729,35 @@ Public Module WS_Commands
 
             'DONE: Info by selection
             If CHARACTERs.ContainsKey(GUID) Then
-                objCharacter.CommandResponse(String.Format("Information for character [{0}]:{1}account = {2}{1}ip = {3}{1}guid = {4:X}{1}access = {5}{1}boundingradius = {6}{1}combatreach = {7}", _
-                CHARACTERs(GUID).Name, vbNewLine, _
-                CHARACTERs(GUID).client.Account, _
-                CHARACTERs(GUID).client.IP.ToString, _
-                CHARACTERs(GUID).GUID, _
-                CHARACTERs(GUID).Access, _
-                CHARACTERs(GUID).BoundingRadius, _
+                objCharacter.CommandResponse(String.Format("Information for character [{0}]:{1}account = {2}{1}ip = {3}{1}guid = {4:X}{1}access = {5}{1}boundingradius = {6}{1}combatreach = {7}",
+                CHARACTERs(GUID).Name, vbNewLine,
+                CHARACTERs(GUID).client.Account,
+                CHARACTERs(GUID).client.IP.ToString,
+                CHARACTERs(GUID).GUID,
+                CHARACTERs(GUID).Access,
+                CHARACTERs(GUID).BoundingRadius,
                 CHARACTERs(GUID).CombatReach))
             ElseIf WORLD_CREATUREs.ContainsKey(GUID) Then
-                objCharacter.CommandResponse(String.Format("Information for creature [{0}]:{1}id = {2}{1}guid = {3:X}{1}model = {4}{1}boundingradius = {11}{1}combatreach = {12}{1}ai = {5}{1}his reaction = {6}{1}guard = {7}{1}waypoint = {10}{1}damage = {8}-{9}", _
-                WORLD_CREATUREs(GUID).Name, vbNewLine, _
-                WORLD_CREATUREs(GUID).ID, _
-                GUID, _
-                WORLD_CREATUREs(GUID).Model, _
-                WORLD_CREATUREs(GUID).aiScript.GetType().ToString, _
-                objCharacter.GetReaction(WORLD_CREATUREs(GUID).Faction), _
-                WORLD_CREATUREs(GUID).isGuard, _
-                WORLD_CREATUREs(GUID).CreatureInfo.Damage.Minimum, WORLD_CREATUREs(GUID).CreatureInfo.Damage.Maximum, _
-                (WORLD_CREATUREs(GUID).MoveType = 2), _
-                WORLD_CREATUREs(GUID).BoundingRadius, _
+                objCharacter.CommandResponse(String.Format("Information for creature [{0}]:{1}id = {2}{1}guid = {3:X}{1}model = {4}{1}boundingradius = {11}{1}combatreach = {12}{1}ai = {5}{1}his reaction = {6}{1}guard = {7}{1}waypoint = {10}{1}damage = {8}-{9}",
+                WORLD_CREATUREs(GUID).Name, vbNewLine,
+                WORLD_CREATUREs(GUID).ID,
+                GUID,
+                WORLD_CREATUREs(GUID).Model,
+                WORLD_CREATUREs(GUID).aiScript.GetType().ToString,
+                objCharacter.GetReaction(WORLD_CREATUREs(GUID).Faction),
+                WORLD_CREATUREs(GUID).isGuard,
+                WORLD_CREATUREs(GUID).CreatureInfo.Damage.Minimum, WORLD_CREATUREs(GUID).CreatureInfo.Damage.Maximum,
+                (WORLD_CREATUREs(GUID).MoveType = 2),
+                WORLD_CREATUREs(GUID).BoundingRadius,
                 WORLD_CREATUREs(GUID).CombatReach))
             ElseIf WORLD_GAMEOBJECTs.ContainsKey(GUID) Then
-                objCharacter.CommandResponse(String.Format("Information for gameobject [{0}]:{1}id = {2}{1}guid = {3:X}{1}model = {4}", _
-                WORLD_GAMEOBJECTs(GUID).Name, vbNewLine, _
-                WORLD_GAMEOBJECTs(GUID).ID, _
-                GUID, _
+                objCharacter.CommandResponse(String.Format("Information for gameobject [{0}]:{1}id = {2}{1}guid = {3:X}{1}model = {4}",
+                WORLD_GAMEOBJECTs(GUID).Name, vbNewLine,
+                WORLD_GAMEOBJECTs(GUID).ID,
+                GUID,
                 GAMEOBJECTSDatabase(WORLD_GAMEOBJECTs(GUID).ID).Model))
             Else
-                objCharacter.CommandResponse(String.Format("Information about yourself.{0}guid = {1:X}{0}model = {2}{0}mount = {3}", _
+                objCharacter.CommandResponse(String.Format("Information about yourself.{0}guid = {1:X}{0}model = {2}{0}mount = {3}",
                 vbNewLine, objCharacter.GUID, objCharacter.Model, objCharacter.Mount))
             End If
 
@@ -1769,14 +1766,14 @@ Public Module WS_Commands
             'DONE: Info by name
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UCase(CType(Character.Value, CharacterObject).Name) = Name Then
+                If UCase(Character.Value.Name) = Name Then
                     CHARACTERs_Lock.ReleaseReaderLock()
-                    objCharacter.CommandResponse(String.Format("Information for character [{0}]:{1}account = {2}{1}ip = {3}{1}guid = {4}{1}access = {5}", _
-                    CType(Character.Value, CharacterObject).Name, vbNewLine, _
-                    CType(Character.Value, CharacterObject).client.Account, _
-                    CType(Character.Value, CharacterObject).client.IP.ToString, _
-                    CType(Character.Value, CharacterObject).GUID, _
-                    CType(Character.Value, CharacterObject).Access))
+                    objCharacter.CommandResponse(String.Format("Information for character [{0}]:{1}account = {2}{1}ip = {3}{1}guid = {4}{1}access = {5}",
+                    Character.Value.Name, vbNewLine,
+                    Character.Value.client.Account,
+                    Character.Value.client.IP.ToString,
+                    Character.Value.GUID,
+                    Character.Value.Access))
                     Exit Function
                 End If
             Next
@@ -1788,7 +1785,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Where", "WHERE - Display your position information.", AccessLevel.GameMaster)> _
+    <ChatCommand("Where", "WHERE - Display your position information.", AccessLevel.GameMaster)>
     Public Function cmdWhere(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         objCharacter.SystemMessage(String.Format("Coords: x={0}, y={1}, z={2}, or={3}, map={4}", objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID))
         objCharacter.SystemMessage(String.Format("Cell: {0},{1} SubCell: {2},{3}", GetMapTileX(objCharacter.positionX), GetMapTileY(objCharacter.positionY), GetSubMapTileX(objCharacter.positionX), GetSubMapTileY(objCharacter.positionY)))
@@ -1802,7 +1799,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetGM", "SETGM <FLAG> <INVISIBILITY> - Toggles gameMaster status. You can use values like On/Off/1/0.", AccessLevel.GameMaster)> _
+    <ChatCommand("SetGM", "SETGM <FLAG> <INVISIBILITY> - Toggles gameMaster status. You can use values like On/Off/1/0.", AccessLevel.GameMaster)>
     Public Function cmdSetGM(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim tmp() As String = Split(Message, " ", 2)
         Dim value1 As String = tmp(0)
@@ -1835,7 +1832,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetWeather", "SETWEATHER <TYPE> <INTENSITY> - Change weather in current zone. Intensity is float value!", AccessLevel.Developer)> _
+    <ChatCommand("SetWeather", "SETWEATHER <TYPE> <INTENSITY> - Change weather in current zone. Intensity is float value!", AccessLevel.Developer)>
     Public Function cmdSetWeather(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim tmp() As String = Split(Message, " ", 2)
         Dim Type As Integer = tmp(0)
@@ -1852,7 +1849,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Remove", "REMOVE <ID> - Delete selected creature or gameobject.", AccessLevel.Developer)> _
+    <ChatCommand("Remove", "REMOVE <ID> - Delete selected creature or gameobject.", AccessLevel.Developer)>
     Public Function cmdDeleteObject(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1884,7 +1881,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Turn", "TURN - Selected creature or game object will turn to your position.", AccessLevel.Developer)> _
+    <ChatCommand("Turn", "TURN - Selected creature or game object will turn to your position.", AccessLevel.Developer)>
     Public Function cmdTurnObject(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1898,7 +1895,7 @@ Public Module WS_Commands
                 Return True
             End If
 
-            CType(WORLD_CREATUREs(objCharacter.TargetGUID), CreatureObject).TurnTo(objCharacter.positionX, objCharacter.positionY)
+            WORLD_CREATUREs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
 
         ElseIf GuidIsGameObject(objCharacter.TargetGUID) Then
             'DONE: Turn GO
@@ -1907,7 +1904,7 @@ Public Module WS_Commands
                 Return True
             End If
 
-            CType(WORLD_GAMEOBJECTs(objCharacter.TargetGUID), GameObjectObject).TurnTo(objCharacter.positionX, objCharacter.positionY)
+            WORLD_GAMEOBJECTs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
 
             Dim q As New DataTable
             Dim GUID As ULong = objCharacter.TargetGUID - GUID_GAMEOBJECT
@@ -1919,20 +1916,20 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddNPC", "ADDNPC <ID> - Spawn creature at your position.", AccessLevel.Developer)> _
+    <ChatCommand("AddNPC", "ADDNPC <ID> - Spawn creature at your position.", AccessLevel.Developer)>
     Public Function cmdAddCreature(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 
-        Dim tmpCr As CreatureObject = New CreatureObject(CType(Message, Integer), objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
+        Dim tmpCr As CreatureObject = New CreatureObject(Message, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
         tmpCr.AddToWorld()
         objCharacter.CommandResponse("Creature [" & tmpCr.Name & "] spawned.")
 
         Return True
     End Function
 
-    <ChatCommandAttribute("NPCFlood", "NPCFLOOD <Amount> - Spawn a number of creatures at your position.", AccessLevel.Developer)> _
+    <ChatCommand("NPCFlood", "NPCFLOOD <Amount> - Spawn a number of creatures at your position.", AccessLevel.Developer)>
     Public Function cmdCreatureFlood(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If IsNumeric(Message) = False OrElse CInt(Message) <= 0 Then Return False
-        For i As Integer = 1 To CInt(Message)
+        For i As Integer = 1 To Message
             Dim tmpCreature As New CreatureObject(7385, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
             tmpCreature.CreatedBy = objCharacter.GUID
             tmpCreature.CreatedBySpell = 10673
@@ -1943,7 +1940,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Come", "COME - Selected creature will come to your position.", AccessLevel.Developer)> _
+    <ChatCommand("Come", "COME - Selected creature will come to your position.", AccessLevel.Developer)>
     Public Function cmdComeCreature(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1970,7 +1967,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("Kill", "KILL - Selected creature or character will die.", AccessLevel.GameMaster)> _
+    <ChatCommand("Kill", "KILL - Selected creature or character will die.", AccessLevel.GameMaster)>
     Public Function cmdKillCreature(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("Select target first!")
@@ -1981,13 +1978,13 @@ Public Module WS_Commands
             CHARACTERs(objCharacter.TargetGUID).Die(objCharacter)
             Return True
         ElseIf WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
-            CType(WORLD_CREATUREs(objCharacter.TargetGUID), CreatureObject).DealDamage(CType(WORLD_CREATUREs(objCharacter.TargetGUID), CreatureObject).Life.Maximum)
+            WORLD_CREATUREs(objCharacter.TargetGUID).DealDamage(WORLD_CREATUREs(objCharacter.TargetGUID).Life.Maximum)
             Return True
         End If
         Return False
     End Function
 
-    <ChatCommandAttribute("TargetGo", "TARGETGO - Nearest game object will be selected.", AccessLevel.Developer)> _
+    <ChatCommand("TargetGo", "TARGETGO - Nearest game object will be selected.", AccessLevel.Developer)>
     Public Function cmdTargetGameObject(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim targetGO As GameObjectObject = GetClosestGameobject(objCharacter)
 
@@ -2001,7 +1998,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("ActivateGo", "ACTIVATEGO - Activates your targetted game object.", AccessLevel.Developer)> _
+    <ChatCommand("ActivateGo", "ACTIVATEGO - Activates your targetted game object.", AccessLevel.Developer)>
     Public Function cmdActivateGameObject(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) = False Then Return False
 
@@ -2018,10 +2015,10 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("AddGameObject", "ADDGAMEOBJECT <ID> - Spawn game object at your position.", AccessLevel.Developer)> _
+    <ChatCommand("AddGameObject", "ADDGAMEOBJECT <ID> - Spawn game object at your position.", AccessLevel.Developer)>
     Public Function cmdAddGameObject(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
 
-        Dim tmpGO As GameObjectObject = New GameObjectObject(CType(Message, Integer), objCharacter.MapID, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation)
+        Dim tmpGO As GameObjectObject = New GameObjectObject(Message, objCharacter.MapID, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation)
         tmpGO.Rotations(2) = Math.Sin(tmpGO.orientation / 2)
         tmpGO.Rotations(3) = Math.Cos(tmpGO.orientation / 2)
         tmpGO.AddToWorld()
@@ -2031,7 +2028,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("CreateAccount", "CreateAccount <Name> <Password> <Email> - Add a new account using Name, Password, and Email.", AccessLevel.Admin)> _
+    <ChatCommand("CreateAccount", "CreateAccount <Name> <Password> <Email> - Add a new account using Name, Password, and Email.", AccessLevel.Admin)>
     Public Function cmdCreateAccount(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         Dim result As New DataTable
@@ -2056,7 +2053,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("ChangePassword", "ChangePassword <Name> <Password> - Changes the password of an account.", AccessLevel.Admin)> _
+    <ChatCommand("ChangePassword", "ChangePassword <Name> <Password> - Changes the password of an account.", AccessLevel.Admin)>
     Public Function cmdChangePassword(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         Dim result As New DataTable
@@ -2071,7 +2068,7 @@ Public Module WS_Commands
         If result.Rows.Count = 0 Then
             objCharacter.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else
-            Dim targetLevel As AccessLevel = CType(result.Rows(0).Item("gmlevel"), AccessLevel)
+            Dim targetLevel As AccessLevel = result.Rows(0).Item("gmlevel")
             If targetLevel >= objCharacter.Access Then
                 objCharacter.CommandResponse("You cannot change password for accounts with the same or a higher access level than yourself.")
             Else
@@ -2086,7 +2083,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommandAttribute("SetAccess", "SetAccess <Name> <AccessLevel> - Sets the account to a specific access level.", AccessLevel.Admin)> _
+    <ChatCommand("SetAccess", "SetAccess <Name> <AccessLevel> - Sets the account to a specific access level.", AccessLevel.Admin)>
     Public Function cmdSetAccess(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
         Dim result As New DataTable
@@ -2103,7 +2100,7 @@ Public Module WS_Commands
             Return True
         End If
 
-        Dim newLevel As AccessLevel = CType(aLevel, AccessLevel)
+        Dim newLevel As AccessLevel = aLevel
         If newLevel >= objCharacter.Access Then
             objCharacter.CommandResponse("You cannot set access levels to your own or above your own access level.")
             Return True
@@ -2113,7 +2110,7 @@ Public Module WS_Commands
         If result.Rows.Count = 0 Then
             objCharacter.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else
-            Dim targetLevel As AccessLevel = CType(result.Rows(0).Item("gmlevel"), AccessLevel)
+            Dim targetLevel As AccessLevel = result.Rows(0).Item("gmlevel")
             If targetLevel >= objCharacter.Access Then
                 objCharacter.CommandResponse("You cannot set access levels to accounts with the same or a higher access level than yourself.")
             Else
@@ -2133,7 +2130,7 @@ Public Module WS_Commands
         CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = ""{0}"";", Name), MySQLQuery)
 
         If MySQLQuery.Rows.Count > 0 Then
-            Return CType(MySQLQuery.Rows(0).Item("char_guid"), ULong)
+            Return MySQLQuery.Rows(0).Item("char_guid")
         Else
             Return 0
         End If

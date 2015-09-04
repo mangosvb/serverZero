@@ -16,14 +16,12 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System
 Imports System.Threading
 Imports System.Net
 Imports System.Net.Sockets
 Imports System.Runtime.Remoting
 Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
-Imports mangosVB.Common.BaseWriter
 Imports mangosVB.Common
 
 Public Module WC_Network
@@ -44,7 +42,7 @@ Public Module WC_Network
         Implements ICluster
         Implements IDisposable
 
-        <CLSCompliant(False)> _
+        <CLSCompliant(False)>
         Public m_flagStopListen As Boolean = False
         Private m_TimerPing As Timer
         Private m_TimerStats As Timer
@@ -78,7 +76,7 @@ Public Module WC_Network
                 'NOTE: Password protected remoting
                 Authenticator = New Authenticator(Me, Config.ClusterPassword)
 
-                RemotingServices.Marshal(CType(Authenticator, Authenticator), "Cluster.rem")
+                RemotingServices.Marshal(Authenticator, "Cluster.rem")
                 Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", Config.ClusterListenMethod, Config.ClusterListenAddress, Config.ClusterListenPort)
 
                 'Creating ping timer
@@ -137,7 +135,7 @@ Public Module WC_Network
         End Sub
 #End Region
 
-        <SecurityPermissionAttribute(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)> _
+        <SecurityPermission(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)>
         Public Overrides Function InitializeLifetimeService() As Object
             Return Nothing
         End Function
@@ -147,7 +145,7 @@ Public Module WC_Network
 
         Public Function Connect(ByVal uri As String, ByVal maps As ICollection) As Boolean Implements ICluster.Connect
             Try
-                Disconnect(uri, Maps)
+                Disconnect(uri, maps)
 
                 'NOTE: Password protected remoting
                 Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), uri)
@@ -160,7 +158,7 @@ Public Module WC_Network
                 Log.WriteLine(LogType.INFORMATION, "Connected Map Server: {0}", uri)
 
                 SyncLock CType(Worlds, ICollection).SyncRoot
-                    For Each Map As UInteger In Maps
+                    For Each Map As UInteger In maps
                         Worlds(Map) = WorldServer
                         WorldsInfo(Map) = WorldServerInfo
                     Next
@@ -183,8 +181,8 @@ Public Module WC_Network
                 'DONE: Disconnecting clients
                 SyncLock CType(CLIENTs, ICollection).SyncRoot
                     For Each objCharacter As KeyValuePair(Of UInteger, ClientClass) In CLIENTs
-                        If Not objCharacter.Value.Character Is Nothing AndAlso _
-                        objCharacter.Value.Character.IsInWorld AndAlso _
+                        If Not objCharacter.Value.Character Is Nothing AndAlso
+                        objCharacter.Value.Character.IsInWorld AndAlso
                         objCharacter.Value.Character.Map = Map Then
                             Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
                             objCharacter.Value.Send(SMSG_LOGOUT_COMPLETE)
@@ -258,7 +256,7 @@ Public Module WC_Network
         End Sub
 
         Public Sub ClientSend(ByVal id As UInteger, ByVal data() As Byte) Implements ICluster.ClientSend
-            If CLIENTs.ContainsKey(id) Then CLIENTs(id).Send(Data)
+            If CLIENTs.ContainsKey(id) Then CLIENTs(id).Send(data)
         End Sub
         Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
             Try
@@ -288,14 +286,14 @@ Public Module WC_Network
             Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Update Zone {1:000}", ID, zone)
 
             CLIENTs(ID).Character.Zone = zone
-            CLIENTs(ID).Character.Level = Level
+            CLIENTs(ID).Character.Level = level
         End Sub
 
         Public Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal flag As Byte) Implements ICluster.ClientSetChatFlag
             If CLIENTs(ID).Character Is Nothing Then Return
-            Log.WriteLine(LogType.DEBUG, "[{0:000000}] Client chat flag update [0x{1:X}]", ID, Flag)
+            Log.WriteLine(LogType.DEBUG, "[{0:000000}] Client chat flag update [0x{1:X}]", ID, flag)
 
-            CLIENTs(ID).Character.ChatFlag = Flag
+            CLIENTs(ID).Character.ChatFlag = flag
         End Sub
 
         Public Function ClientGetCryptKey(ByVal ID As UInteger) As Byte() Implements ICluster.ClientGetCryptKey
@@ -325,7 +323,7 @@ Public Module WC_Network
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
         Public Sub BroadcastGroup(ByVal groupId As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGroup
-            With GROUPs(GroupID)
+            With GROUPs(groupId)
                 For i As Byte = 0 To .Members.Length - 1
                     If .Members(i) IsNot Nothing Then
                         Dim buffer() As Byte = Data.Clone
@@ -451,7 +449,7 @@ Public Module WC_Network
             Return tmpList
         End Function
         Public Sub BattlefieldFinish(ByVal battlefieldId As Integer) Implements ICluster.BattlefieldFinish
-            Log.WriteLine(LogType.INFORMATION, "[B{0:0000}] Battlefield finished", BattlefieldID)
+            Log.WriteLine(LogType.INFORMATION, "[B{0:0000}] Battlefield finished", battlefieldId)
         End Sub
 
         Public Sub GroupRequestUpdate(ByVal ID As UInteger) Implements ICluster.GroupRequestUpdate
@@ -592,7 +590,7 @@ Public Module WC_Network
             Try
                 SocketBytes = Socket.EndReceive(ar)
                 If SocketBytes = 2 Then
-                    Me.Dispose()
+                    Dispose()
                 Else
                     Interlocked.Add(DataTransferIn, SocketBytes)
 
@@ -649,7 +647,7 @@ Public Module WC_Network
             End Try
         End Sub
 
-        <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+        <MethodImpl(MethodImplOptions.Synchronized)>
         Public Sub OnPacket(state As Object)
             HandingPackets = True
             While Queue.Count > 0
@@ -796,7 +794,7 @@ Public Module WC_Network
 
             For i As Integer = 0 To 6 - 1
                 tmp = data(i)
-                data(i) = SS_Hash(Key(1)) Xor CByte((256 + CInt(data(i)) - Key(0)) Mod 256)
+                data(i) = SS_Hash(Key(1)) Xor CByte((256 + data(i) - Key(0)) Mod 256)
                 Key(0) = tmp
                 Key(1) = (Key(1) + 1) Mod 40
             Next i
@@ -833,10 +831,10 @@ Public Module WC_Network
         If IpSplit.Length <> 4 Then Return 0
         Dim IpBytes(3) As Byte
         Try
-            IpBytes(0) = CByte(IpSplit(3))
-            IpBytes(1) = CByte(IpSplit(2))
-            IpBytes(2) = CByte(IpSplit(1))
-            IpBytes(3) = CByte(IpSplit(0))
+            IpBytes(0) = IpSplit(3)
+            IpBytes(1) = IpSplit(2)
+            IpBytes(2) = IpSplit(1)
+            IpBytes(3) = IpSplit(0)
             Return BitConverter.ToUInt32(IpBytes, 0)
         Catch
             Return 0

@@ -1,7 +1,4 @@
-Imports System
-Imports System.Threading
 Imports mangosVB.WorldServer
-Imports mangosVB.Common
 
 Namespace Scripts
     Public Class CreatureAI_Taragaman_the_Hungerer

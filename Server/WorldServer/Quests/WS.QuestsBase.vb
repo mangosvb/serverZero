@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.BaseWriter
 
 Public Class WS_QuestsBase
     Implements IDisposable
@@ -181,7 +180,7 @@ Public Class WS_QuestsBase
                 Dim response As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_FAILED)
                 response.AddInt32(ID)
                 response.AddInt32(QuestFailedReason.FAILED_INVENTORY_FULL)
-                objCharacter.Client.Send(response)
+                objCharacter.client.Send(response)
                 response.Dispose()
                 Exit Sub
             Else
@@ -227,21 +226,21 @@ Public Class WS_QuestsBase
     Public Overridable Function GetProgress(Optional ByVal ForSave As Boolean = False) As Integer
         Dim tmpProgress As Integer = 0
         If ForSave Then
-            tmpProgress += CType(Progress(0), Integer)
+            tmpProgress += Progress(0)
             tmpProgress += CType(Progress(1), Integer) << 6
             tmpProgress += CType(Progress(2), Integer) << 12
             tmpProgress += CType(Progress(3), Integer) << 18
-            If Explored Then tmpProgress += CType(1, Integer) << 24
-            If Complete Then tmpProgress += CType(1, Integer) << 25
-            If Failed Then tmpProgress += CType(1, Integer) << 26
+            If Explored Then tmpProgress += 1 << 24
+            If Complete Then tmpProgress += 1 << 25
+            If Failed Then tmpProgress += 1 << 26
         Else
-            tmpProgress += CType(Progress(0), Integer)
+            tmpProgress += Progress(0)
             tmpProgress += CType(Progress(1), Integer) << 6
             tmpProgress += CType(Progress(2), Integer) << 12
             tmpProgress += CType(Progress(3), Integer) << 18
 
-            If Complete Then tmpProgress += CType(1, Integer) << 24
-            If Failed Then tmpProgress += CType(1, Integer) << 25
+            If Complete Then tmpProgress += 1 << 24
+            If Failed Then tmpProgress += 1 << 25
         End If
         Return tmpProgress
     End Function
@@ -271,7 +270,7 @@ Public Class WS_QuestsBase
         IsCompleted()
         objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageAddKill(objCharacter.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+        ALLQUESTS.SendQuestMessageAddKill(objCharacter.client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
     End Sub
 
     ''' <summary>
@@ -285,7 +284,7 @@ Public Class WS_QuestsBase
         IsCompleted()
         objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageAddKill(objCharacter.Client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+        ALLQUESTS.SendQuestMessageAddKill(objCharacter.client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
     End Sub
 
     ''' <summary>
@@ -297,7 +296,7 @@ Public Class WS_QuestsBase
         IsCompleted()
         objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageComplete(objCharacter.Client, ID)
+        ALLQUESTS.SendQuestMessageComplete(objCharacter.client, ID)
     End Sub
 
     ''' <summary>
@@ -310,7 +309,7 @@ Public Class WS_QuestsBase
         IsCompleted()
         objCharacter.TalkUpdateQuest(Slot)
 
-        ALLQUESTS.SendQuestMessageComplete(objCharacter.Client, ID)
+        ALLQUESTS.SendQuestMessageComplete(objCharacter.client, ID)
     End Sub
 
     ''' <summary>
@@ -327,7 +326,7 @@ Public Class WS_QuestsBase
 
         'TODO: When item quest event is fired as it should, remove -1 here.
         Dim ItemCount As Integer = Count - 1
-        ALLQUESTS.SendQuestMessageAddItem(objCharacter.Client, ObjectivesItem(index), ItemCount)
+        ALLQUESTS.SendQuestMessageAddItem(objCharacter.client, ObjectivesItem(index), ItemCount)
     End Sub
 
     ''' <summary>
@@ -337,7 +336,7 @@ Public Class WS_QuestsBase
     ''' <param name="index">The index.</param>
     ''' <param name="Count">The count.</param>
     Public Sub RemoveItem(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal Count As Byte)
-        If CInt(ProgressItem(index)) - CInt(Count) < 0 Then Count = ProgressItem(index)
+        If ProgressItem(index) - CInt(Count) < 0 Then Count = ProgressItem(index)
         ProgressItem(index) -= Count
         IsCompleted()
         objCharacter.TalkUpdateQuest(Slot)

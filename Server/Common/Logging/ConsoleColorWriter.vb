@@ -22,7 +22,7 @@ Imports System.Runtime.CompilerServices
 Public Class ColoredConsoleWriter
     Inherits BaseWriter
 
-    <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+    <MethodImpl(MethodImplOptions.Synchronized)> _
     Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
         If LogLevel > type Then Return
 
@@ -55,7 +55,7 @@ Public Class ColoredConsoleWriter
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
 
-    <MethodImplAttribute(MethodImplOptions.Synchronized)> _
+    <MethodImpl(MethodImplOptions.Synchronized)> _
     Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
         If LogLevel > type Then Return
 

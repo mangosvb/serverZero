@@ -218,7 +218,7 @@ Public Module WS_DBCDatabase
                 teamID = tmpDBC.Item(i, 8)
                 cinematicID = tmpDBC.Item(i, 16)
 
-                CharRaces(CByte(raceID)) = New TCharRace(CShort(factionID), modelM, modelF, CByte(teamID), cinematicID)
+                CharRaces(CByte(raceID)) = New TCharRace(factionID, modelM, modelF, teamID, cinematicID)
             Next i
 
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)

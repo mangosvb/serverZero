@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common
 
 Public Class BaseWriter
     Implements IDisposable
@@ -103,21 +102,21 @@ Public Class BaseWriter
         Try
             Select Case UCase(logType)
                 Case "COLORCONSOLE"
-                    Log = New ColoredConsoleWriter
+                    log = New ColoredConsoleWriter
                 Case "CONSOLE"
-                    Log = New ConsoleWriter
+                    log = New ConsoleWriter
                 Case "FILE"
-                    Log = New FileWriter(logConfig)
+                    log = New FileWriter(logConfig)
                 Case "TELNET"
                     Dim info As String() = Split(logConfig, ":")
-                    Log = New TelnetWriter(Net.IPAddress.Parse(info(0)), info(1))
+                    log = New TelnetWriter(Net.IPAddress.Parse(info(0)), info(1))
                 Case "IRC"
                     Dim info As String() = Split(logConfig, ":")
                     Dim server As String = info(0)
                     Dim port As String = info(1)
                     Dim nick As String = info(2)
                     Dim channel As String = info(3)
-                    Log = New IrcWriter(server, port, nick, channel)
+                    log = New IrcWriter(server, port, nick, channel)
             End Select
         Catch e As Exception
             Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "hh:mm:ss"))
