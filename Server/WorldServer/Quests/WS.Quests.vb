@@ -82,11 +82,13 @@ Public Class WS_Quests
     ''' <returns>Bool</returns>
     ''' <remarks></remarks>
     Public Function IsValidQuest(ByVal questID As Integer) As Boolean
-        Dim ret As Boolean = False
-        For Each thisQuest As WS_QuestInfo In _quests
-            If thisQuest.ID = questID Then Return True
-        Next
-        Return ret
+        ''For Each thisQuest As WS_QuestInfo In _quests
+        ''    If thisQuest.ID = questID Then Return True
+        ''Next
+        If _quests.Contains(questID.ToString()) Then
+            Return True
+        End If
+        Return False
     End Function
 
     ''' <summary>
@@ -112,11 +114,9 @@ Public Class WS_Quests
     Public Function ReturnQuestInfoById(ByVal questId As Integer) As WS_QuestInfo
         Dim ret As WS_QuestInfo = Nothing
         Try
-            For Each thisQuest As WS_QuestInfo In _quests
-                If thisQuest.ID = questId Then
-                    Return thisQuest
-                End If
-            Next
+            If _quests.Contains(questId.ToString()) Then
+                Return _quests.Item(questId.ToString())
+            End If
         Catch ex As Exception
             Log.WriteLine(LogType.WARNING, "ReturnQuestInfoById returned error on QuestId {0}", questId)
         End Try
@@ -1213,18 +1213,20 @@ Public Class WS_Quests
                         End Try
                     Next
 
-                    For Each questID As Integer In CreatureQuestFinishers(creatureQuestId)
-                        Try
-                            If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
-                                If objCharacter.IsQuestInProgress(questID) = True Then
-                                    status = QuestgiverStatusFlag.DIALOG_STATUS_REWARD
-                                    Return status
+                    If CreatureQuestFinishers.ContainsKey(creatureQuestId) Then
+                        For Each questID As Integer In CreatureQuestFinishers(creatureQuestId)
+                            Try
+                                If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
+                                    If objCharacter.IsQuestInProgress(questID) = True Then
+                                        status = QuestgiverStatusFlag.DIALOG_STATUS_REWARD
+                                        Return status
+                                    End If
                                 End If
-                            End If
-                        Catch ex As Exception
-                            Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
-                        End Try
-                    Next
+                            Catch ex As Exception
+                                Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
+                            End Try
+                        Next
+                    End If
                 End If
             End If
             'If WORLD_CREATUREs(cGUID).CreatureInfo.Id
@@ -1282,7 +1284,7 @@ Public Class WS_Quests
             Dim response As New PacketClass(OPCODES.SMSG_QUESTGIVER_STATUS)
             Try
                 response.AddUInt64(guid)
-                response.AddInt32(status)
+                response.AddUInt32(status)
                 client.Send(response)
             Finally
                 response.Dispose()
