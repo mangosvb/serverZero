@@ -607,8 +607,11 @@ Public Module WC_Network
 
                         If SocketBytes < PacketLen Then
                             SavedBytes = New Byte(SocketBytes - 1) {}
-                            Array.Copy(SocketBuffer, 1, SavedBytes, 1, SocketBytes)
-                            Log.WriteLine(LogType.CRITICAL, "[{0}:{1}] BAD PACKET {2}({3}) bytes, ", IP, Port, SocketBytes, PacketLen)
+                            Try
+                                Array.Copy(SocketBuffer, 1, SavedBytes, 1, SocketBytes)
+                            Catch ex As Exception
+                                Log.WriteLine(LogType.CRITICAL, "[{0}:{1}] BAD PACKET {2}({3}) bytes, ", IP, Port, SocketBytes, PacketLen)
+                            End Try
                             Exit While
                         End If
 
