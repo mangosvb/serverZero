@@ -397,42 +397,43 @@ Public Class WS_Quests
     Public Sub SendQuest(ByRef client As ClientClass, ByRef quest As WS_QuestInfo)
         Dim packet As New PacketClass(OPCODES.SMSG_QUEST_QUERY_RESPONSE)
         Try
-            packet.AddInt32(quest.ID)
+            packet.AddUInt32(quest.ID)
 
             'Basic Details
-            packet.AddInt32(quest.Level_Start)
-            packet.AddInt32(quest.Level_Normal)
-            packet.AddInt32(quest.ZoneOrSort)
-            packet.AddInt32(quest.Type)
-            packet.AddInt32(quest.ObjectiveRepFaction)
-            packet.AddInt32(quest.ObjectiveRepStanding)
-            packet.AddInt32(0)
-            packet.AddInt32(0)
-            packet.AddInt32(quest.NextQuestInChain)
-            packet.AddInt32(quest.RewardGold) 'Negative is required money
-            packet.AddInt32(quest.RewMoneyMaxLevel)
+            packet.AddUInt32(quest.Level_Start)
+            packet.AddUInt32(quest.Level_Normal)
+            packet.AddUInt32(quest.ZoneOrSort)
+            packet.AddUInt32(quest.Type)
+            packet.AddUInt32(quest.ObjectiveRepFaction)
+            packet.AddUInt32(quest.ObjectiveRepStanding)
+            packet.AddUInt32(0)
+            packet.AddUInt32(0)
+            packet.AddUInt32(quest.NextQuestInChain)
+
+            packet.AddUInt32(quest.RewardGold) 'Negative is required money
+            packet.AddUInt32(quest.RewMoneyMaxLevel)
 
             If quest.RewardSpell > 0 Then
                 If SPELLs.ContainsKey(quest.RewardSpell) Then
                     If SPELLs(quest.RewardSpell).SpellEffects(0) IsNot Nothing AndAlso SPELLs(quest.RewardSpell).SpellEffects(0).ID = SpellEffects_Names.SPELL_EFFECT_LEARN_SPELL Then
-                        packet.AddInt32(SPELLs(quest.RewardSpell).SpellEffects(0).TriggerSpell)
+                        packet.AddUInt32(SPELLs(quest.RewardSpell).SpellEffects(0).TriggerSpell)
                     Else
-                        packet.AddInt32(quest.RewardSpell)
+                        packet.AddUInt32(quest.RewardSpell)
                     End If
                 Else
-                    packet.AddInt32(0)
+                    packet.AddUInt32(0)
                 End If
             Else
-                packet.AddInt32(0)
+                packet.AddUInt32(0)
             End If
 
-            packet.AddInt32(quest.ObjectivesDeliver) ' Item given at the start of a quest (srcItem)
-            packet.AddInt32((quest.QuestFlags And &HFFFF))
+            packet.AddUInt32(quest.ObjectivesDeliver) ' Item given at the start of a quest (srcItem)
+            packet.AddUInt32((quest.QuestFlags And &HFFFF))
 
             Try
                 For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
-                    packet.AddInt32(quest.RewardStaticItems(i))
-                    packet.AddInt32(quest.RewardStaticItems_Count(i))
+                    packet.AddUInt32(quest.RewardStaticItems(i))
+                    packet.AddUInt32(quest.RewardStaticItems_Count(i))
                 Next
             Catch ex As Exception
                 Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
@@ -440,17 +441,17 @@ Public Class WS_Quests
 
             Try
                 For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
-                    packet.AddInt32(quest.RewardItems(i))
-                    packet.AddInt32(quest.RewardItems_Count(i))
+                    packet.AddUInt32(quest.RewardItems(i))
+                    packet.AddUInt32(quest.RewardItems_Count(i))
                 Next
             Catch ex As Exception
                 Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
             End Try
 
-            packet.AddInt32(quest.PointMapID)       'Point MapID
+            packet.AddUInt32(quest.PointMapID)       'Point MapID
             packet.AddSingle(quest.PointX)          'Point X
             packet.AddSingle(quest.PointY)          'Point Y
-            packet.AddInt32(quest.PointOpt)         'Point Opt
+            packet.AddUInt32(quest.PointOpt)         'Point Opt
 
             'Texts
             packet.AddString(quest.Title)
@@ -459,11 +460,11 @@ Public Class WS_Quests
             packet.AddString(quest.TextEnd)
 
             'Objectives
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
-                packet.AddInt32(quest.ObjectivesKill(i))
-                packet.AddInt32(quest.ObjectivesKill_Count(i))
-                packet.AddInt32(quest.ObjectivesItem(i))
-                packet.AddInt32(quest.ObjectivesItem_Count(i))
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT - 1
+                packet.AddUInt32(quest.ObjectivesKill(i))
+                packet.AddUInt32(quest.ObjectivesKill_Count(i))
+                packet.AddUInt32(quest.ObjectivesItem(i))
+                packet.AddUInt32(quest.ObjectivesItem_Count(i))
 
                 'HACK: Fix for not showing "Unknown Item" (sometimes client doesn't get items on time)
                 If quest.ObjectivesItem(i) <> 0 Then SendItemInfo(client, quest.ObjectivesItem(i))
