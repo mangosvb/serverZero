@@ -773,11 +773,32 @@ Public Module WS_NPCs
         packet.GetInt16()
         Dim srcBag As Byte = packet.GetInt8
         Dim srcSlot As Byte = packet.GetInt8
-        If srcBag = 0 Then srcBag = 0
+        If srcBag = 255 Then srcBag = 0
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOBANK_ITEM [srcSlot={2}:{3}]", client.IP, client.Port, srcBag, srcSlot)
 
-        'TODO: Do real moving
+        For dstSlot As Byte = BankItemSlots.BANK_SLOT_ITEM_START To BankItemSlots.BANK_SLOT_ITEM_END
+            If Not client.Character.Items.ContainsKey(dstSlot) Then
+                client.Character.ItemSWAP(srcBag, srcSlot, 0, dstSlot)
+                Exit Sub
+            End If
+        Next
+
+        For dstBag As Byte = BankBagSlots.BANK_SLOT_BAG_START To BankBagSlots.BANK_SLOT_BAG_END - 1
+            If client.Character.Items.ContainsKey(dstBag) Then
+                If client.Character.Items(dstBag).ItemInfo.IsContainer Then
+                    For dstSlot As Byte = 0 To client.Character.Items(dstBag).ItemInfo.ContainerSlots - 1
+                        If Not client.Character.Items(dstBag).Items.ContainsKey(dstSlot) Then
+                            client.Character.ItemSWAP(srcBag, srcSlot, dstBag, dstSlot)
+                            ' Not sure, but we probably have to send the "EQUIP_ERR_OK = 0," packet to play the "moving sound".
+                            Exit Sub
+                        End If
+                    Next
+                End If
+            End If
+        Next
+
+        ' If you ever get here, send error packet. I think it should be "EQUIP_ERR_INVENTORY_FULL = 50, // ERR_INV_FULL" here.
     End Sub
 
     ''' <summary>
@@ -791,11 +812,32 @@ Public Module WS_NPCs
         packet.GetInt16()
         Dim srcBag As Byte = packet.GetInt8
         Dim srcSlot As Byte = packet.GetInt8
-        If srcBag = 0 Then srcBag = 0
+        If srcBag = 255 Then srcBag = 0
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BANK_ITEM [srcSlot={2}:{3}]", client.IP, client.Port, srcBag, srcSlot)
 
-        'TODO: Do real moving
+        For dstSlot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END
+            If Not client.Character.Items.ContainsKey(dstSlot) Then
+                client.Character.ItemSWAP(srcBag, srcSlot, 0, dstSlot)
+                Exit Sub
+            End If
+        Next
+
+        For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_START To InventorySlots.INVENTORY_SLOT_BAG_END - 1
+            If client.Character.Items.ContainsKey(bag) Then
+                If client.Character.Items(bag).ItemInfo.IsContainer Then
+                    For dstSlot As Byte = 0 To client.Character.Items(bag).ItemInfo.ContainerSlots - 1
+                        If Not client.Character.Items(bag).Items.ContainsKey(dstSlot) Then
+                            client.Character.ItemSWAP(srcBag, srcSlot, bag, dstSlot)
+                            ' Not sure, but we probably have to send the "EQUIP_ERR_OK = 0," packet to play the "moving sound".
+                            Exit Sub
+                        End If
+                    Next
+                End If
+            End If
+        Next
+
+        ' If you ever get here, send error packet I think it should be "EQUIP_ERR_BAG_FULL3 = 53, // ERR_BAG_FULL" here.
     End Sub
 
     ''' <summary>
