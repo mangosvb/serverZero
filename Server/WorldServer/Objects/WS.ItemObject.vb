@@ -308,31 +308,35 @@ Public NotInheritable Class ItemObject
 
     Public Sub New(ByVal itemId As Integer, ByVal owner As ULong)
         'DONE: Load ItemID in cashe if not loaded
-        If ITEMDatabase.ContainsKey(itemId) = False Then
-            'TODO: This needs to actually do something
-            Dim tmpItem As New ItemInfo(itemId)
-        End If
-        ItemEntry = itemId
-        OwnerGUID = owner
-        Durability = ITEMDatabase(ItemEntry).Durability
-
-        For i As Integer = 0 To 4
-            If _
-                ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
-                ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE Then
-                If ITEMDatabase(ItemEntry).Spells(i).SpellCharges <> 0 Then
-                    ChargesLeft = ITEMDatabase(ItemEntry).Spells(i).SpellCharges
-                    Exit For
-                End If
+        Try
+            If ITEMDatabase.ContainsKey(itemId) = False Then
+                'TODO: This needs to actually do something
+                Dim tmpItem As New ItemInfo(itemId)
             End If
-        Next i
+            ItemEntry = itemId
+            OwnerGUID = owner
+            Durability = ITEMDatabase(ItemEntry).Durability
 
-        'DONE: Create new GUID
-        GUID = GetNewGUID()
-        InitializeBag()
-        SaveAsNew()
+            For i As Integer = 0 To 4
+                If _
+                    ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
+                    ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE Then
+                    If ITEMDatabase(ItemEntry).Spells(i).SpellCharges <> 0 Then
+                        ChargesLeft = ITEMDatabase(ItemEntry).Spells(i).SpellCharges
+                        Exit For
+                    End If
+                End If
+            Next i
 
-        WORLD_ITEMs.Add(GUID, Me)
+            'DONE: Create new GUID
+            GUID = GetNewGUID()
+            InitializeBag()
+            SaveAsNew()
+
+            WORLD_ITEMs.Add(GUID, Me)
+        Catch Ex As Exception
+            Log.WriteLine(LogType.WARNING, "Duplicate Key Warning ITEMID:{0} OWNERGUID:{1}", itemId, owner)
+        End Try
     End Sub
 
     Private Sub SaveAsNew()
