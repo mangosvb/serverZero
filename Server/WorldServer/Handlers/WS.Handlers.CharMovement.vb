@@ -178,6 +178,7 @@ Module WS_CharMovement
         End If
 
         'DONE: Movement time calculation
+        'TODO: PROPERLY MOVE THIS OVER TO THE CMSG_MOVE_TIME_SKIPPED OPCODE, Reference @ LN 406
         Dim MsTime As Integer = WS_Network.msTime()
         Dim ClientTimeDelay As Integer = MsTime - Time
         Dim MoveTime As Integer = (Time - (MsTime - ClientTimeDelay)) + 500 + MsTime
@@ -402,6 +403,17 @@ Module WS_CharMovement
         End Try
     End Sub
 
+    Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As PacketClass, ByRef client As ClientClass)
+        'TODO: Figure out why this is causing a freeze everytime the packet is called, Reference @ LN 180
+
+        'packet.GetUInt64()
+        'packet.GetUInt32()
+        'Dim MsTime As Integer = WS_Network.msTime()
+        'Dim ClientTimeDelay As Integer = MsTime - MsTime
+        'Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 500 + MsTime
+        'packet.AddInt32(MoveTime, 10)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
+    End Sub
     Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
             OnMovementPacket(packet, client)
