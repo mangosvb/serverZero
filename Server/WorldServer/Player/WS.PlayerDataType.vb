@@ -1970,7 +1970,7 @@ CheckXPAgain:
                     'DONE: Search this bag
                     Dim slot As Byte = 0
                     For slot = 0 To Items(bag).ItemInfo.ContainerSlots - 1
-                        If Items(bag).Items.ContainsKey(slot) = False Then
+                        If Items(bag).Items.ContainsKey(slot) Then
 
                             If Items(bag).Items(slot).GUID = itemGuid Then
                                 CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(bag).Items(slot).GUID - GUID_ITEM))

@@ -365,25 +365,26 @@ Public Module WS_NPCs
                     End If
                 Next
 
-                For i As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_4
-                    For Each item As KeyValuePair(Of Byte, ItemObject) In client.Character.Items
-                        If item.Value.GUID = itemGuid Then
-                            client.Character.Copper += (ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
-                            client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
+                For bag As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_4
+                    If client.Character.Items.ContainsKey(bag) Then
+                        For Each item As KeyValuePair(Of Byte, ItemObject) In client.Character.Items(bag).Items
+                            If item.Value.GUID = itemGuid Then
+                                client.Character.Copper += (ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
+                                client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
-                            client.Character.ItemREMOVE(item.Value.GUID, False, True)
-                            client.Character.ItemADD_BuyBack(item.Value)
+                                client.Character.ItemREMOVE(item.Value.GUID, False, True)
+                                client.Character.ItemADD_BuyBack(item.Value)
 
-                            Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
-                            okPckt.AddUInt64(vendorGuid)
-                            okPckt.AddUInt64(itemGuid)
-                            okPckt.AddInt8(0)
-                            client.Send(okPckt)
-                            okPckt.Dispose()
-                            Exit Sub
-                        End If
-                    Next
-
+                                Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                                okPckt.AddUInt64(vendorGuid)
+                                okPckt.AddUInt64(itemGuid)
+                                okPckt.AddInt8(0)
+                                client.Send(okPckt)
+                                okPckt.Dispose()
+                                Exit Sub
+                            End If
+                        Next
+                    End If
                 Next
             End If
 
