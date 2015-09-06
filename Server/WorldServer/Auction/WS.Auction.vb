@@ -146,50 +146,31 @@ Module WS_Auction
     End Sub
 
     Public Sub AuctionListAddItem(ByRef packet As PacketClass, ByRef Row As DataRow)
-        '136 bytes per record (2.0.10)
+        packet.AddUInt32(Row.Item("auction_id"))
+        Dim itemId As UInt32 = Row.Item("auction_itemId")
+        packet.AddUInt32(itemId)
 
-        packet.AddInt32(Row.Item("auction_id"))
-        packet.AddInt32(Row.Item("auction_itemId"))
-
-        '6 Enchnatments
-        packet.AddInt32(0)                                  'Item Permanent enchantment 1 ID
-        packet.AddInt32(0)                                  'Item Permanent enchantment 1 ?Duration
-        packet.AddInt32(0)                                  'Item Permanent enchantment 1 Charges
-        packet.AddInt32(0)                                  'Item Permanent enchantment 2 ID
-        packet.AddInt32(0)                                  'Item Permanent enchantment 2 ?Duration
-        packet.AddInt32(0)                                  'Item Permanent enchantment 2 Charges
-        packet.AddInt32(0)                                  'Item Permanent enchantment 3 ID
-        packet.AddInt32(0)                                  'Item Permanent enchantment 3 ?Duration
-        packet.AddInt32(0)                                  'Item Permanent enchantment 3 Charges
-        packet.AddInt32(0)                                  'Item Permanent enchantment 4 ID
-        packet.AddInt32(0)                                  'Item Permanent enchantment 4 ?Duration
-        packet.AddInt32(0)                                  'Item Permanent enchantment 4 Charges
-        packet.AddInt32(0)                                  'Item Permanent enchantment 5 ID
-        packet.AddInt32(0)                                  'Item Permanent enchantment 5 ?Duration
-        packet.AddInt32(0)                                  'Item Permanent enchantment 5 Charges
-        packet.AddInt32(0)                                  'Item Permanent enchantment 6 ID
-        packet.AddInt32(0)                                  'Item Permanent enchantment 6 ?Duration
-        packet.AddInt32(0)                                  'Item Permanent enchantment 6 Charges
-
-        packet.AddInt32(0)                                  'Item Random Property ID
-        packet.AddInt32(0)
-
-        packet.AddInt32(Row.Item("auction_itemCount"))      'Item Count
-        packet.AddInt32(-1)                                 'Item Spell Charges
-        packet.AddInt32(0)
-        packet.AddUInt64(Row.Item("auction_owner"))                'Bid Owner
-        packet.AddInt32(Row.Item("auction_bid"))                  'Bid Price
-        packet.AddInt32(Fix(Row.Item("auction_bid") * 0.1F) + 1)  'Bid Step
-        packet.AddInt32(Row.Item("auction_buyout"))               'Bid Buyout
-        packet.AddInt32(Row.Item("auction_timeleft") * 1000)      'Bid Timeleft (in ms)
-        packet.AddUInt64(Row.Item("auction_bidder"))               'Bidder GUID
-
-        If Row.Item("auction_bidder") = 0 Then
-            packet.AddInt32(0)                                    'Bidder Current Bid
+        Dim item As ItemInfo
+        If ITEMDatabase.ContainsKey(itemId) Then
+            item = ITEMDatabase(itemId)
         Else
-            packet.AddInt32(Row.Item("auction_bid"))              'Bidder Current Bid
+            item = New ItemInfo(itemId)
         End If
 
+        packet.AddUInt32(0)                                        ' PERM_ENCHANMENT_SLOT (Not sure if we have to do anything here)
+
+        packet.AddUInt32(item.RandomProp)                          'Item Random Property ID
+        packet.AddUInt32(item.RandomSuffix)                        'SuffixFactor
+
+        packet.AddUInt32(Row.Item("auction_itemCount"))            'Item Count
+        packet.AddInt32(item.Spells(0).SpellCharges)               'Item Spell Charges
+        packet.AddUInt64(Row.Item("auction_owner"))                'Bid Owner
+        packet.AddUInt32(Row.Item("auction_bid"))                  'Bid Price
+        packet.AddUInt32(Fix(Row.Item("auction_bid") * 0.1F) + 1)  'Bid Step
+        packet.AddUInt32(Row.Item("auction_buyout"))               'Bid Buyout
+        packet.AddUInt32(Row.Item("auction_timeleft") * 1000)      'Bid Timeleft (in ms)
+        packet.AddUInt64(Row.Item("auction_bidder"))               'Bidder GUID
+        packet.AddUInt32(Row.Item("auction_bid"))                  'Bidder Current Bid
     End Sub
     Public Sub SendAuctionCommandResult(ByRef client As ClientClass, ByVal AuctionID As Integer, ByVal AuctionAction As AuctionAction, ByVal AuctionError As AuctionError, ByVal BidError As Integer)
         Dim response As New PacketClass(OPCODES.SMSG_AUCTION_COMMAND_RESULT)
