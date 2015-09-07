@@ -1080,6 +1080,7 @@ Public Module WS_Commands
         objCharacter.CommandResponse("Your RunBackSpeed is changed to " & Message)
         Return True
     End Function
+
     <ChatCommand("SetTurnRate", "SETTURNRATE <VALUE> - Change your turn rate speed.", AccessLevel.Developer)>
     Public Function cmdSetTurnRate(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Message = "" Then Return False
