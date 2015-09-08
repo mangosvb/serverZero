@@ -10,7 +10,7 @@ copyrighted by [Blizzard Entertainment, Inc.][1].
 System Requirements
 ------------
 Windows OS 7/8/8.1
-Visual Basic 2010 or 2012
+Visual Basic 2010 or later
 
 Minium Requirements without Clustering - 
 RAM 2GB, 
