@@ -55,7 +55,7 @@ Public Module DBC_Stuff
     End Sub
 
     Private Sub LoadSpells()
-        Dim SpellDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\Spell.dbc")
+        Dim SpellDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Spell.dbc")
 
         Dim i As Long
         Dim ID As Integer
@@ -98,7 +98,7 @@ Public Module DBC_Stuff
                 SPELLs(ID).manaPerSecond = SpellDBC.Item(i, 32)
                 SPELLs(ID).manaPerSecondPerLevel = SpellDBC.Item(i, 33)
                 SPELLs(ID).rangeIndex = SpellDBC.Item(i, 34)
-                SPELLs(ID).Speed = SpellDBC.Item(i, 35, DBC.DBCValueType.DBC_FLOAT)
+                SPELLs(ID).Speed = SpellDBC.Item(i, 35, DBCValueType.DBC_FLOAT)
                 SPELLs(ID).modalNextSpell = SpellDBC.Item(i, 36)
                 SPELLs(ID).maxStack = SpellDBC.Item(i, 37)
                 SPELLs(ID).Totem(0) = SpellDBC.Item(i, 38)
@@ -136,7 +136,7 @@ Public Module DBC_Stuff
                         SPELLs(ID).SpellEffects(j).valueDie = SpellDBC.Item(i, 61 + j)
                         SPELLs(ID).SpellEffects(j).diceBase = SpellDBC.Item(i, 64 + j)
                         SPELLs(ID).SpellEffects(j).dicePerLevel = SpellDBC.Item(i, 67 + j, DBCValueType.DBC_FLOAT)
-                        SPELLs(ID).SpellEffects(j).valuePerLevel = SpellDBC.Item(i, 70 + j, DBC.DBCValueType.DBC_FLOAT)
+                        SPELLs(ID).SpellEffects(j).valuePerLevel = SpellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT)
                         SPELLs(ID).SpellEffects(j).valueBase = SpellDBC.Item(i, 73 + j)
                         SPELLs(ID).SpellEffects(j).mechanic = SpellDBC.Item(i, 76 + j)
                         SPELLs(ID).SpellEffects(j).implicitTargetA = SpellDBC.Item(i, 79 + j)
@@ -232,7 +232,7 @@ Public Module DBC_Stuff
 
     Public Sub LoadSpellRanges()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellRange.dbc")
+            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\SpellRange.dbc")
 
             Dim spellRangeIndex As Integer
             Dim spellRangeMin As Single
@@ -241,8 +241,8 @@ Public Module DBC_Stuff
             Dim i As Integer
             For i = 0 To tmpDBC.Rows - 1
                 spellRangeIndex = tmpDBC.Item(i, 0)
-                spellRangeMin = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_FLOAT) ' Added back may be needed in the future
-                spellRangeMax = tmpDBC.Item(i, 2, DBC.DBCValueType.DBC_FLOAT)
+                spellRangeMin = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT) ' Added back may be needed in the future
+                spellRangeMax = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
 
                 SpellRange(spellRangeIndex) = spellRangeMax
 
@@ -260,7 +260,7 @@ Public Module DBC_Stuff
 
     Public Sub LoadSpellCasttimes()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellCastTimes.dbc")
+            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\SpellCastTimes.dbc")
 
             Dim spellCastID As Integer
             Dim spellCastTimeS As Integer
@@ -286,7 +286,7 @@ Public Module DBC_Stuff
 
     Public Sub LoadSpellDurations()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellDuration.dbc")
+            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\SpellDuration.dbc")
 
             Dim SpellDurationIndex As Integer
             Dim SpellDurationValue As Integer
@@ -312,7 +312,7 @@ Public Module DBC_Stuff
 
     Public Sub LoadSpellRadius()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellRadius.dbc")
+            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\SpellRadius.dbc")
 
             Dim radiusID As Integer
             Dim radiusValue As Single
@@ -320,7 +320,7 @@ Public Module DBC_Stuff
             Dim i As Integer
             For i = 0 To tmpDBC.Rows - 1
                 radiusID = tmpDBC.Item(i, 0)
-                radiusValue = tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_FLOAT)
+                radiusValue = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT)
 
                 SpellRadius(radiusID) = radiusValue
 
@@ -338,7 +338,7 @@ Public Module DBC_Stuff
 
     Public Sub LoadSpellIcons()
         Try
-            Dim tmpDBC As DBC.BufferedDBC = New DBC.BufferedDBC("dbc\SpellIcon.dbc")
+            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\SpellIcon.dbc")
 
             Dim iconID As Integer
             Dim iconStr As String
@@ -346,7 +346,7 @@ Public Module DBC_Stuff
             Dim i As Integer
             For i = 0 To tmpDBC.Rows - 1
                 iconID = tmpDBC.Item(i, 0)
-                iconStr = CStr(tmpDBC.Item(i, 1, DBC.DBCValueType.DBC_STRING)).Replace("Interface\Icons\", "").Replace("Spells\Icon\", "")
+                iconStr = CStr(tmpDBC.Item(i, 1, DBCValueType.DBC_STRING)).Replace("Interface\Icons\", "").Replace("Spells\Icon\", "")
 
                 SpellIcon(iconID) = iconStr
 
