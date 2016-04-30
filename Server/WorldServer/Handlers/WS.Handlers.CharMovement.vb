@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 - 2014 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -178,6 +178,7 @@ Module WS_CharMovement
         End If
 
         'DONE: Movement time calculation
+        'TODO: PROPERLY MOVE THIS OVER TO THE CMSG_MOVE_TIME_SKIPPED OPCODE, Reference @ LN 406
         Dim MsTime As Integer = WS_Network.msTime()
         Dim ClientTimeDelay As Integer = MsTime - Time
         Dim MoveTime As Integer = (Time - (MsTime - ClientTimeDelay)) + 500 + MsTime
@@ -304,14 +305,22 @@ Module WS_CharMovement
 
         Dim newSpeed As Single = packet.GetFloat()
 
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] {3} [{2}]", client.IP, client.Port, newSpeed, packet.OpCode)
-
-        'DONE: Anti hack
-        If client.Character.antiHackSpeedChanged_ <= 0 Then
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Possible speed hack detected!", client.IP, client.Port)
-            client.Character.Logout(Nothing)
-            Exit Sub
-        End If
+        Try
+            'DONE: Anti hack
+            'This doesn't even work anyway, If i'm correct this is suppose to detect when some ones speed changed via abnormal method's and DC the offender.
+            'However how would this even work against speeding up the process it's self?
+            'At the moment, this just flat out does not work.
+            If client.Character.antiHackSpeedChanged_ <= 0 Then
+                Try
+                    client.Character.Logout(Nothing)
+                    Exit Sub
+                Catch ex As Exception
+                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Possible speed hack detected!", client.IP, client.Port)
+                End Try
+            End If
+        Catch ex As Exception
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] {3} [{2}]", client.IP, client.Port, newSpeed, packet.OpCode)
+        End Try
 
         'DONE: Update speed value and create packet
         client.Character.antiHackSpeedChanged_ -= 1
@@ -402,6 +411,17 @@ Module WS_CharMovement
         End Try
     End Sub
 
+    Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As PacketClass, ByRef client As ClientClass)
+        'TODO: Figure out why this is causing a freeze everytime the packet is called, Reference @ LN 180
+
+        'packet.GetUInt64()
+        'packet.GetUInt32()
+        'Dim MsTime As Integer = WS_Network.msTime()
+        'Dim ClientTimeDelay As Integer = MsTime - MsTime
+        'Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 500 + MsTime
+        'packet.AddInt32(MoveTime, 10)
+        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
+    End Sub
     Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As PacketClass, ByRef client As ClientClass)
         Try
             OnMovementPacket(packet, client)

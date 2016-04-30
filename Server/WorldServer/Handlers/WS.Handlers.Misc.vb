@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 - 2014 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -554,16 +554,6 @@ Public Module WS_Handlers_Misc
     Public Sub On_MSG_PVP_LOG_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
         ' TODO: Implement this packet - As far as I know, this packet only applys if the character is in a battleground.
         If (Not Maps(client.Character.MapID).IsBattleGround) Then Return
-    End Sub
-
-    Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As PacketClass, ByRef client As ClientClass)
-        packet.GetUInt64()
-        packet.GetUInt32()
-        Dim MsTime As Integer = WS_Network.msTime()
-        Dim ClientTimeDelay As Integer = MsTime - MsTime
-        Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 50 + MsTime
-        packet.AddInt32(MoveTime, 10)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
     End Sub
 
 End Module

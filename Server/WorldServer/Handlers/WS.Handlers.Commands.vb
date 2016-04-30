@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 - 2014 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -299,7 +299,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("CreateGuild", "CreateGuild <Name> - Creates a guild.", AccessLevel.GameMaster)>
+    <ChatCommand("CreateGuild", "CreateGuild <Name> - Creates a guild.", AccessLevel.Developer)>
     Public Function cmdCreateGuild(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         'TODO: Creating guilds must be done in the cluster
 
@@ -338,7 +338,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("Save", "SAVE - Saves selected character.", AccessLevel.GameMaster)>
+    <ChatCommand("Save", "SAVE - Saves selected character.", AccessLevel.Developer)>
     Public Function cmdSave(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
             CHARACTERs(objCharacter.TargetGUID).Save()
@@ -553,7 +553,7 @@ Public Module WS_Commands
         Return False
     End Function
 
-    <ChatCommand("GetMax", "GETMAX - Get all spells and skills maxed out for your level.", AccessLevel.Admin)>
+    <ChatCommand("GetMax", "GETMAX - Get all spells and skills maxed out for your level.", AccessLevel.Developer)>
     Public Function cmdGetMax(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         'DONE: Max out all skills you know
         For Each skill As KeyValuePair(Of Integer, TSkill) In objCharacter.Skills
@@ -585,7 +585,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("AddXP", "ADDXP <XP> - Add X experience points to selected character.", AccessLevel.Admin)>
+    <ChatCommand("AddXP", "ADDXP <XP> - Add X experience points to selected character.", AccessLevel.Developer)>
     Public Function cmdAddXP(ByRef objCharacter As CharacterObject, ByVal tXP As String) As Boolean
         If IsNumeric(tXP) = False Then Return False
 
@@ -600,7 +600,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("AddRestedXP", "ADDRESTEDXP <XP> - Add X rested bonus experience points to selected character.", AccessLevel.Admin)>
+    <ChatCommand("AddRestedXP", "ADDRESTEDXP <XP> - Add X rested bonus experience points to selected character.", AccessLevel.Developer)>
     Public Function cmdAddRestedXP(ByRef objCharacter As CharacterObject, ByVal tXP As String) As Boolean
         If IsNumeric(tXP) = False Then Return False
 
@@ -772,7 +772,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("ClearCooldowns", "CLEARCOOLDOWNS - Clears all cooldowns of your target.", AccessLevel.Admin)>
+    <ChatCommand("ClearCooldowns", "CLEARCOOLDOWNS - Clears all cooldowns of your target.", AccessLevel.Developer)>
     Public Function cmdClearCooldowns(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         Dim targetUnit As BaseUnit = Nothing
         If GuidIsPlayer(objCharacter.TargetGUID) Then
@@ -878,7 +878,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("GetDPS", "GETDPS - Tells you about damage info.", AccessLevel.Developer)>
+    <ChatCommand("GetDPS", "GETDPS - Tells you about damage info.", AccessLevel.GameMaster)>
     Public Function cmdGetDPS(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         objCharacter.CommandResponse("Ammo ID: " & objCharacter.AmmoID)
         objCharacter.CommandResponse("Ammo DPS: " & objCharacter.AmmoDPS)
@@ -1078,6 +1078,14 @@ Public Module WS_Commands
         If Message = "" Then Return False
         objCharacter.ChangeSpeedForced(ChangeSpeedType.SWIMBACK, Message)
         objCharacter.CommandResponse("Your RunBackSpeed is changed to " & Message)
+        Return True
+    End Function
+
+    <ChatCommand("SetTurnRate", "SETTURNRATE <VALUE> - Change your turn rate speed.", AccessLevel.Developer)>
+    Public Function cmdSetTurnRate(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
+        If Message = "" Then Return False
+        objCharacter.ChangeSpeedForced(ChangeSpeedType.TURNRATE, Message)
+        objCharacter.CommandResponse("Your TurnRate is changed to " & Message)
         Return True
     End Function
 
@@ -1534,7 +1542,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("Slap", "SLAP <DAMAGE> - Slap target creature or player for X damage.", AccessLevel.Admin)>
+    <ChatCommand("Slap", "SLAP <DAMAGE> - Slap target creature or player for X damage.", AccessLevel.Developer)>
     Public Function cmdSlap(ByRef objCharacter As CharacterObject, ByVal tDamage As String) As Boolean
         Dim Damage As Integer = tDamage
 
@@ -1587,13 +1595,13 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("KickReason", "KICKREASON <TEXT> - Display message for 2 seconds and kick selected player.", AccessLevel.GameMaster)>
+    <ChatCommand("KickReason", "KICKREASON <TEXT> - Display message for 5 seconds and kick selected player.", AccessLevel.GameMaster)>
     Public Function cmdKickReason(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("No target selected.")
         Else
-            SystemMessage(String.Format("Character [{0}] kicked form server.{3}Reason: {1}{3}GameMaster: [{2}].", SetColor(CHARACTERs(objCharacter.TargetGUID).Name, 255, 0, 0), SetColor(Message, 255, 0, 0), SetColor(objCharacter.Name, 255, 0, 0), vbNewLine))
-            Thread.Sleep(2000)
+            SystemMessage(String.Format("Character [{0}] kicked from server.{3}Reason: {1}{3}GameMaster: [{2}].", SetColor(CHARACTERs(objCharacter.TargetGUID).Name, 255, 0, 0), SetColor(Message, 255, 0, 0), SetColor(objCharacter.Name, 255, 0, 0), vbNewLine))
+            Thread.Sleep(5000)
 
             cmdKick(objCharacter, "")
         End If
@@ -1609,7 +1617,7 @@ Public Module WS_Commands
             If objCharacter.TargetGUID = 0 Then
                 objCharacter.CommandResponse("No target selected.")
             ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CHARACTERs(objCharacter.TargetGUID).Name))
+                objCharacter.CommandResponse(String.Format("Character [{0}] kicked from server.", CHARACTERs(objCharacter.TargetGUID).Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
                 CHARACTERs(objCharacter.TargetGUID).client.Disconnect()
             Else
@@ -1693,7 +1701,7 @@ Public Module WS_Commands
         Return True
     End Function
 
-    <ChatCommand("UnBan", "UNBAN <ACCOUNT> - Remove ban of specified account from server.", AccessLevel.GameMaster)>
+    <ChatCommand("UnBan", "UNBAN <ACCOUNT> - Remove ban of specified account from server.", AccessLevel.Admin)>
     Public Function cmdUnBan(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
         If Name = "" Then Return False
 

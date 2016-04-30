@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 - 2014 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ Public Module WC_Handlers
 
     Public Sub IntializePacketHandlers()
         'NOTE: These opcodes are not used in any way
-        PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = AddressOf On_CMSG_MOVE_TIME_SKIPPED
+        'PacketHandlers(OPCODES.CMSG_MOVE_TIME_SKIPPED) = AddressOf On_CMSG_MOVE_TIME_SKIPPED
 
         PacketHandlers(OPCODES.CMSG_NEXT_CINEMATIC_CAMERA) = AddressOf On_CMSG_NEXT_CINEMATIC_CAMERA
         PacketHandlers(OPCODES.CMSG_COMPLETE_CINEMATIC) = AddressOf On_CMSG_COMPLETE_CINEMATIC
