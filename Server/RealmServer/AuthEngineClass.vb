@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2017 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ Imports mangosVB.Common
 
 Public NotInheritable Class AuthEngineClass
     Implements IDisposable
-    Private ReadOnly _log As New BaseWriter
+    Private ReadOnly _log As New mangosVB.Common.Logging.BaseWriter
 
 #Region "AuthEngine.Constructive"
 

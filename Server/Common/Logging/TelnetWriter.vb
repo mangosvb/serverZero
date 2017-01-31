@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2017 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ Imports System.Net.Sockets
 
 'Using this logging type, you can watch logs with ordinary telnet client.
 'Writting commands requires client, which don't send every key typed.
+Imports MangosVB.Common.Logging
+
 Public Class TelnetWriter
     Inherits BaseWriter
 

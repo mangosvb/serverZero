@@ -7,7 +7,7 @@
     <ProjectGuid>{95F188B3-62F6-4C78-86EE-12329F33A2B4}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ApplicationIcon>mangostools_Icon_64x64.ico</ApplicationIcon>
+    <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
     <AssemblyName>WorldServer</AssemblyName>
@@ -30,7 +30,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -306,7 +306,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="mangostools_Icon_64x64.ico" />
+    <Content Include="mvb0___vanilla_256x256.ico" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />

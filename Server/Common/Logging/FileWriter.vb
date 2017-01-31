@@ -1,5 +1,5 @@
 ﻿'
-' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2017 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ Imports System.IO
 
 'Using this logging type, all logs are saved in files numbered by date.
 'Writting commands is done trought console.
+Imports MangosVB.Common.Logging
+
 Public Class FileWriter
     Inherits BaseWriter
 

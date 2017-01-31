@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2017 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -20,8 +20,9 @@ Imports System.Threading
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
+Imports mangosVB.Common.Logging
 Imports mangosVB.Common
-Imports mangosVB.Common.BaseWriter
+Imports mangosVB.Common.Logging.BaseWriter
 Imports mangosVB.Common.Global_Enums
 
 Public Module WorldCluster

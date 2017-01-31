@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 - 2015 getMaNGOS <http://www.getmangos.eu>
+' Copyright (C) 2013 - 2017 getMaNGOS <http://www.getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -24,8 +24,9 @@ Imports System.Net.Sockets
 Imports System.Threading
 Imports System.Text
 Imports System.Reflection
+Imports mangosVB.Common.Global_Enums
 Imports mangosVB.Common
-Imports mangosVB.Common.Global_Constants
+Imports mangosVB.Common.Logging
 
 Public Module RealmServer
 
@@ -931,6 +932,15 @@ Public Module RealmServer
         Console.WriteLine("                                                              ####   ##  ##")
         Console.WriteLine("   Forum: http://community.getmangos.co.uk                     ##    ##### ")
         Console.WriteLine("")
+
+        Console.WriteLine("  __  __      _  _  ___  ___  ___      __   __ ___                    ")
+        Console.WriteLine(" |  \\/  |__ _| \\| |/ __|/ _ \\/ __|  \\ \\ / /| _ )      We Love      ")
+        Console.WriteLine(" | |\\/| / _` | .` | (_ | (_) \\__ \\   \\ V / | _ \   Vanilla Wow    ")
+        Console.WriteLine(" |_|  |_\\__,_|_|\\_|\\___|\\___/|___/   \\_/  |___/                   ")
+        Console.WriteLine("                                         ____              ")
+        Console.WriteLine(" For help and support please visit:    /_  /___ _ _ ___   ")
+        Console.WriteLine("      Website: https://getmangos.eu     / // -_) '_/ _ \\ ")
+        Console.WriteLine(" Forum / Wiki: https://getmangos.eu    /___\\___|_| \\___/")
 
         Console.ForegroundColor = ConsoleColor.Magenta
 
