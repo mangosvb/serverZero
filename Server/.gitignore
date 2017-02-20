@@ -9,5 +9,4 @@
 #
 # Special folder that is created by the ReSharper Visual Studio Addon
 #
-*.sln
 _ReSharper*
