@@ -383,17 +383,16 @@ Public Module WS_Network
                 Dim start As Integer = timeGetTime("")
                 Try
 
-                    Dim opCode As OPCODES = p.OpCode
-                    If PacketHandlers.ContainsKey(opCode) = True Then
+                    If PacketHandlers.ContainsKey(p.OpCode) = True Then
                         Try
-                            PacketHandlers(opCode).Invoke(p, Me)
+                            PacketHandlers(p.OpCode).Invoke(p, Me)
 
                             If timeGetTime("") - start > 100 Then
                                 Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
                             End If
                         Catch e As Exception 'TargetInvocationException
                             Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, p.OpCode)
-                            'DumpPacket(packet.Data, Me)
+                            DumpPacket(p.Data, Me)
                         End Try
                     Else
                         Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
@@ -403,7 +402,12 @@ Public Module WS_Network
                     Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, vbNewLine)
                     Delete()
                 Finally
-                    p.Dispose()
+                    Try
+                    Catch ex As Exception
+                        If Packets.Count = 0 Then p.Dispose()
+                        Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
+                        DumpPacket(p.Data, Me)
+                    End Try
                 End Try
             End While
         End Sub
