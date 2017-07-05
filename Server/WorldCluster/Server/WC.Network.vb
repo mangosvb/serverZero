@@ -654,43 +654,44 @@ Public Module WC_Network
 
         <MethodImpl(MethodImplOptions.Synchronized)>
         Public Sub OnPacket(state As Object)
-                HandingPackets = True
+            Try
+            Catch ex As Exception
+                HandingPackets = True 'Seems to be a crash coming in from around here, still occurs, just much less likely..
                 Log.WriteLine(LogType.FAILED, "Handing Packets Failed:{0}", HandingPackets)
+            End Try
             While Queue.Count > 0
 
                 Dim p As PacketClass
                 SyncLock Queue.SyncRoot
-                    p = Queue.Dequeue
-                End SyncLock
+                p = Queue.Dequeue
+            End SyncLock
 
-                If Config.PacketLogging Then LogPacket(p.Data, False, Me)
-                If PacketHandlers.ContainsKey(p.OpCode) = True Then
-                    Try
-                        PacketHandlers(p.OpCode).Invoke(p, Me)
-                    Catch e As Exception
-                        Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode)
-                    End Try
-                Else
-                    If Character Is Nothing OrElse Character.IsInWorld = False Then
-                        Socket.Dispose()
-                        Socket.Close()
-                        Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", IP, Port, p.OpCode, vbNewLine, p.Length)
-                        DumpPacket(p.Data, Me)
-                    Else
-                        Try
-                            Character.GetWorld.ClientPacket(Index, p.Data)
-                        Catch
-                            WorldServer.Disconnect("NULL", New Integer() {Character.Map})
-                        End Try
-                    End If
-
-                End If
+            If Config.PacketLogging Then LogPacket(p.Data, False, Me)
+            If PacketHandlers.ContainsKey(p.OpCode) = True Then
                 Try
-                Catch ex As Exception
-                    If Queue.Count = 0 Then p.Dispose()
-                    Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
-                    DumpPacket(p.Data, Me)
+                    PacketHandlers(p.OpCode).Invoke(p, Me)
+                Catch e As Exception
+                    Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode)
                 End Try
+            Else
+                If Character Is Nothing OrElse Character.IsInWorld = False Then
+                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", IP, Port, p.OpCode, vbNewLine, p.Length)
+                    DumpPacket(p.Data, Me)
+                Else
+                    Try
+                        Character.GetWorld.ClientPacket(Index, p.Data)
+                    Catch
+                        WorldServer.Disconnect("NULL", New Integer() {Character.Map})
+                    End Try
+                End If
+
+            End If
+            Try
+            Catch ex As Exception
+                If Queue.Count = 0 Then p.Dispose()
+                Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
+                DumpPacket(p.Data, Me)
+            End Try
             End While
             HandingPackets = False
         End Sub
