@@ -610,6 +610,8 @@ Public Module WC_Network
                             Try
                                 Array.Copy(SocketBuffer, 1, SavedBytes, 1, SocketBytes)
                             Catch ex As Exception
+                                Socket.Dispose()
+                                Socket.Close()
                                 Log.WriteLine(LogType.CRITICAL, "[{0}:{1}] BAD PACKET {2}({3}) bytes, ", IP, Port, SocketBytes, PacketLen)
                             End Try
                             Exit While
@@ -652,10 +654,11 @@ Public Module WC_Network
 
         <MethodImpl(MethodImplOptions.Synchronized)>
         Public Sub OnPacket(state As Object)
-            HandingPackets = True
+                HandingPackets = True
+                Log.WriteLine(LogType.FAILED, "Handing Packets Failed:{0}", HandingPackets)
             While Queue.Count > 0
-                Dim p As PacketClass
 
+                Dim p As PacketClass
                 SyncLock Queue.SyncRoot
                     p = Queue.Dequeue
                 End SyncLock
@@ -669,6 +672,8 @@ Public Module WC_Network
                     End Try
                 Else
                     If Character Is Nothing OrElse Character.IsInWorld = False Then
+                        Socket.Dispose()
+                        Socket.Close()
                         Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", IP, Port, p.OpCode, vbNewLine, p.Length)
                         DumpPacket(p.Data, Me)
                     Else
@@ -680,8 +685,12 @@ Public Module WC_Network
                     End If
 
                 End If
-
-                p.Dispose()
+                Try
+                Catch ex As Exception
+                    If Queue.Count = 0 Then p.Dispose()
+                    Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
+                    DumpPacket(p.Data, Me)
+                End Try
             End While
             HandingPackets = False
         End Sub
