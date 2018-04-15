@@ -654,8 +654,11 @@ Public Module WC_Network
 
         <MethodImpl(MethodImplOptions.Synchronized)>
         Public Sub OnPacket(state As Object)
+            Try
+            Catch ex As Exception
                 HandingPackets = True
-                Log.WriteLine(LogType.FAILED, "Handing Packets Failed:{0}", HandingPackets)
+                Log.WriteLine(LogType.FAILED, "Handing Packets Failed: {0}", HandingPackets)
+            End Try
             While Queue.Count > 0
 
                 Dim p As PacketClass
@@ -668,7 +671,7 @@ Public Module WC_Network
                     Try
                         PacketHandlers(p.OpCode).Invoke(p, Me)
                     Catch e As Exception
-                        Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode)
+                        Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error: {1}{0}", e.ToString, vbNewLine, p.OpCode)
                     End Try
                 Else
                     If Character Is Nothing OrElse Character.IsInWorld = False Then
