@@ -502,7 +502,7 @@ Public Module WC_Handlers_Auth
             CharacterDatabase.Update(String.Format("DELETE FROM petitions WHERE petition_owner = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM auctionhouse WHERE auction_owner = ""{0}"";", guid))
             CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = ""{0}"";", guid))
-            CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE corpse_owner = ""{0}"";", guid))
+            CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE guid = ""{0}"";", guid))
 
             q.Clear()
             CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_leader = ""{0}"";", guid), q)
