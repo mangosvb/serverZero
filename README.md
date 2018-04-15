@@ -32,6 +32,7 @@ From time to time there may be additional branches when new features are being d
 Documentation
 -------------
 All Information about Authors and other things are in the Documentation Folder.
+In addition, thoroughtly read through our [Issue Tracker Guide](IssueTemplate.md), to ensure your report contains the required information need to help us. Incorrectly or porrly formed reports will be reject on the spot.
 
 
 Compilation Guides
