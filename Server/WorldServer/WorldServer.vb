@@ -141,14 +141,14 @@ Public Module WorldServer
             'Make sure a config file exists
             If File.Exists(FileName) = False Then
                 Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), FileName)
+                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "hh:mm:ss"), FileName)
                 Console.WriteLine("Please copy the ini files into the same directory as the Server exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End
             End If
             'Load config
-            Console.Write("[{0}] Loading Configuration from {1}...", Format(TimeOfDay, "HH:mm:ss"), FileName)
+            Console.Write("[{0}] Loading Configuration from {1}...", Format(TimeOfDay, "hh:mm:ss"), FileName)
 
             Config = New XMLConfigFile
             Console.Write("...")
@@ -232,6 +232,7 @@ Public Module WorldServer
                 Log.WriteLine(LogType.SUCCESS, "[ACCOUNT] " & OutBuf)
         End Select
     End Sub
+
     Public Sub CharacterSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
@@ -240,6 +241,7 @@ Public Module WorldServer
                 Log.WriteLine(LogType.SUCCESS, "[CHARACTER] " & OutBuf)
         End Select
     End Sub
+
     Public Sub WorldSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
@@ -286,7 +288,7 @@ Public Module WorldServer
         Console.ForegroundColor = ConsoleColor.Gray
 
         Dim dateTimeStarted As Date = Now
-        Log.WriteLine(LogType.INFORMATION, "[{0}] World Server Starting...", Format(TimeOfDay, "HH:mm:ss"))
+        Log.WriteLine(LogType.INFORMATION, "[{0}] World Server Starting...", Format(TimeOfDay, "hh:mm:ss"))
 
         Dim currentDomain As AppDomain = AppDomain.CurrentDomain
         AddHandler currentDomain.UnhandledException, AddressOf GenericExceptionHandler

@@ -102,7 +102,7 @@ Module WS_CharMovement
         If (client.Character.charMovementFlags And (MovementFlags.MOVEMENTFLAG_SWIMMING)) Then
             Dim swimAngle As Single = packet.GetFloat
             '#If DEBUG Then
-            '                Console.WriteLine("[{0}] [{1}:{2}] Client swim angle:{3}", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, swimAngle)
+            '                Console.WriteLine("[{0}] [{1}:{2}] Client swim angle:{3}", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, swimAngle)
             '#End If
         End If
 
@@ -114,7 +114,7 @@ Module WS_CharMovement
             Dim cosAngle As Single = packet.GetFloat
             Dim xySpeed As Single = packet.GetFloat
             '#If DEBUG Then
-            '                Console.WriteLine("[{0}] [{1}:{2}] Client jump: 0x{3:X} {4} {5} {6}", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, unk, sinAngle, cosAngle, xySpeed)
+            '                Console.WriteLine("[{0}] [{1}:{2}] Client jump: 0x{3:X} {4} {5} {6}", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, unk, sinAngle, cosAngle, xySpeed)
             '#End If
         End If
 

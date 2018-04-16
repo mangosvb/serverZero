@@ -169,7 +169,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeSpells()
         Try
             Dim spellDBC As BufferedDbc = New BufferedDbc("dbc\Spell.dbc")
-            'Console.WriteLine("[" & Format(TimeOfDay, "HH:mm:ss") & "] " & SpellDBC.GetFileInformation)
+            'Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & SpellDBC.GetFileInformation)
             Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
 
             Dim id As Integer

@@ -83,14 +83,14 @@ Public Module WorldCluster
             'Make sure WorldCluster.ini exists
             If File.Exists("configs/WorldCluster.ini") = False Then
                 Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "HH:mm:ss"), "WorldCluster.ini")
+                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "hh:mm:ss"), "configs/WorldCluster.ini")
                 Console.WriteLine("Please copy the ini files into the same directory as the mangosVB exe files.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End
             End If
 
-            Console.Write("[{0}] Loading Configuration...", Format(TimeOfDay, "HH:mm:ss"))
+            Console.Write("[{0}] Loading Configuration...", Format(TimeOfDay, "hh:mm:ss"))
 
             Config = New XMLConfigFile
             Console.Write("...")
@@ -225,7 +225,7 @@ Public Module WorldCluster
         Console.ForegroundColor = ConsoleColor.Gray
 
         Dim dateTimeStarted As Date = Now
-        Log.WriteLine(LogType.INFORMATION, "[{0}] World Cluster Starting...", Format(TimeOfDay, "HH:mm:ss"))
+        Log.WriteLine(LogType.INFORMATION, "[{0}] World Cluster Starting...", Format(TimeOfDay, "hh:mm:ss"))
 
         Dim currentDomain As AppDomain = AppDomain.CurrentDomain
         AddHandler currentDomain.UnhandledException, AddressOf GenericExceptionHandler
@@ -311,7 +311,7 @@ Public Module WorldCluster
                             Case "createaccount", "/createaccount"
                                 If cmd.Length <> 3 Then
                                     Console.ForegroundColor = ConsoleColor.Yellow
-                                    Console.WriteLine("[{0}] USAGE: createaccount <account> <password> <email>", Format(TimeOfDay, "HH:mm:ss"))
+                                    Console.WriteLine("[{0}] USAGE: createaccount <account> <password> <email>", Format(TimeOfDay, "hh:mm:ss"))
                                 Else
                                     Dim passwordStr() As Byte = Text.Encoding.ASCII.GetBytes(cmd(0).ToUpper & ":" & cmd(1).ToUpper)
                                     Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
@@ -346,7 +346,7 @@ Public Module WorldCluster
                 Next
             Catch e As Exception
                 'Needed to be rewritten do to an unknown call from this line.
-                'Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "HH:mm:ss"), tmp, e.ToString, vbNewLine)
+                'Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "hh:mm:ss"), tmp, e.ToString, vbNewLine)
             End Try
         End While
     End Sub

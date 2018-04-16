@@ -208,13 +208,13 @@ Public Module RealmServer
         Private Sub OnData(ByVal data() As Byte)
             Select Case data(0)
                 Case AuthCMD.CMD_AUTH_LOGON_CHALLENGE
-                    'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_CHALLENGE", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                    'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_CHALLENGE", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_RS_LOGON_CHALLENGE(data, Me)
                 Case AuthCMD.CMD_AUTH_LOGON_PROOF
-                    'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                    'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_RS_LOGON_PROOF(data, Me)
                 Case AuthCMD.CMD_AUTH_REALMLIST
-                    'Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                    'Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_RS_REALMLIST(data, Me)
 
                 'TODO: No Value listed for AuthCMD
@@ -222,13 +222,13 @@ Public Module RealmServer
                 '    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
 
                 Case AuthCMD.CMD_XFER_ACCEPT
-                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_CMD_XFER_ACCEPT(data, Me)
                 Case AuthCMD.CMD_XFER_RESUME
-                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_CMD_XFER_RESUME(data, Me)
                 Case AuthCMD.CMD_XFER_CANCEL
-                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "HH:mm:ss"), IP, Port)
+                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_CMD_XFER_CANCEL(data, Me)
                 Case Else
                     Console.ForegroundColor = ConsoleColor.Red
@@ -301,12 +301,10 @@ Public Module RealmServer
         Public Sub Send(ByVal data() As Byte, ByVal packetName As String)
             Try
                 Dim i As Integer = Socket.Send(data, 0, data.Length, SocketFlags.None)
-
-#If DEBUG Then
                 Console.ForegroundColor = ConsoleColor.DarkGray
                 Console.WriteLine("[{0}] [{1}:{2}] ({4}) Data sent, result code={3}", Format(TimeOfDay, "hh:mm:ss"), Ip, Port, i, packetName)
                 Console.ForegroundColor = ConsoleColor.Gray
-#End If
+
             Catch err As Exception
                 Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("[{0}] Connection from [{1}:{2}] do not exist - ERROR!!!", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
@@ -365,7 +363,7 @@ Public Module RealmServer
         Dim clientBuild As Integer = BitConverter.ToInt16((New Byte() {data(11), data(12)}), 0)
         Dim clientLanguage As String = Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21))
 
-        Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_CHALLENGE [{3}] [{4}], WoW Version [{5}.{6}.{7}.{8}] [{9}].", Format(TimeOfDay, "HH:mm:ss"), client.Ip, client.Port, packetAccount, packetIp, bMajor.ToString, bMinor.ToString, bRevision.ToString, clientBuild.ToString, clientLanguage)
+        Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_CHALLENGE [{3}] [{4}], WoW Version [{5}.{6}.{7}.{8}] [{9}].", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount, packetIp, bMajor.ToString, bMinor.ToString, bRevision.ToString, clientBuild.ToString, clientLanguage)
 
         'DONE: Check if our build can join the server
         'If ((RequiredVersion1 = 0 AndAlso RequiredVersion2 = 0 AndAlso RequiredVersion3 = 0) OrElse
@@ -607,10 +605,10 @@ Public Module RealmServer
         Dim accountId As Integer = result.Rows(0).Item("id")
 
         If client.Access < AccessLevel.GameMaster Then
-            'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
+            'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
             _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE allowedSecurityLevel = '0';"), result)
         Else
-            'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
+            'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
             _accountDatabase.Query(String.Format("SELECT * FROM realmlist;"), result)
         End If
 
@@ -891,15 +889,15 @@ Public Module RealmServer
 
         Console.WriteLine()
         Console.WriteLine("[{0}] Known World Servers are {1}, Online World Servers are {2}", Format(TimeOfDay, "hh:mm:ss"), result1.Rows.Count, result2.Rows.Count)
-        Console.WriteLine("[{0}] GM Only World Servers are {1}", Format(TimeOfDay, "HH:mm:ss"), result3.Rows.Count)
+        Console.WriteLine("[{0}] GM Only World Servers are {1}", Format(TimeOfDay, "hh:mm:ss"), result3.Rows.Count)
 
         Console.ForegroundColor = ConsoleColor.DarkGreen
         For Each row As DataRow In result1.Rows
-            Console.WriteLine("           {3} [{1}] at {0}:{2}", row.Item("address").PadRight(6), row.Item("name").PadRight(6), Format(row.Item("port")).PadRight(6), WorldServerStatus(Int(row.Item("realmflags"))).PadRight(6))
+            Console.WriteLine("     [{1}] at {0}:{2} - {3}", row.Item("address").PadRight(6), row.Item("name").PadRight(6), Format(row.Item("port")).PadRight(6), WorldServerStatus(Int(row.Item("realmflags"))).PadRight(6))
         Next
         Console.ForegroundColor = ConsoleColor.Yellow
         For Each row As DataRow In result3.Rows
-            Console.WriteLine("           {3} [{1}] at {0}:{2}", row.Item("address").PadRight(6), row.Item("name").PadRight(20), Format(row.Item("port")), WorldServerStatus(Int(row.Item("realmflags"))).PadRight(10))
+            Console.WriteLine("     [{1}] at {0}:{2} - {3}", row.Item("address").PadRight(6), row.Item("name").PadRight(20), Format(row.Item("port")), WorldServerStatus(Int(row.Item("realmflags"))).PadRight(10))
         Next
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
@@ -933,11 +931,9 @@ Public Module RealmServer
         Console.WriteLine("[{0}] Realm Server Starting...", Format(TimeOfDay, "hh:mm:ss"))
         LoadConfig()
 
-#If DEBUG Then
         Console.ForegroundColor = ConsoleColor.Yellow
         log.WriteLine(LogType.INFORMATION, "Running from: {0}", AppDomain.CurrentDomain.BaseDirectory)
         Console.ForegroundColor = ConsoleColor.Gray
-#End If
 
         AddHandler _accountDatabase.SQLMessage, AddressOf SqlEventHandler
         _accountDatabase.Connect()

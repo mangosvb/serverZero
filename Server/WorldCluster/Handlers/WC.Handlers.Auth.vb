@@ -39,7 +39,7 @@ Public Module WC_Handlers_Auth
     End Sub
 
     Public Sub On_CMSG_AUTH_SESSION(ByRef packet As PacketClass, ByRef client As ClientClass)
-        'Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port)
+        'Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
 
         packet.GetInt16()
         Dim clientVersion As Integer = packet.GetInt32

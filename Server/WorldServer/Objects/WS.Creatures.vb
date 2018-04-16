@@ -1369,7 +1369,7 @@ Public Module WS_Creatures
                 Exit Sub
             Else
                 Creature = CREATURESDatabase(CreatureID)
-                'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [CreatureID={2} CreatureGUID={3:X}]", Format(TimeOfDay, "HH:mm:ss"), client.IP, client.Port, CreatureID, CreatureGUID - GUID_UNIT)
+                'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [CreatureID={2} CreatureGUID={3:X}]", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, CreatureID, CreatureGUID - GUID_UNIT)
             End If
 
             response.AddInt32(Creature.Id)
