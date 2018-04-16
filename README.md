@@ -42,6 +42,10 @@ Please see our compilation and installation guides at our [Wiki][20]
 License
 -------
 *MaNGOSVB ServerOne* is open source, and licensed under the terms of the GNU GPL version 2.
+ 
+## Requirements
+    Visual Studio 2015 (Windows)
+    Visual Basic Compiler Enabled
 
   Copyright (C) 2005-2014  MaNGOS <http://getmangos.co.uk>
 
