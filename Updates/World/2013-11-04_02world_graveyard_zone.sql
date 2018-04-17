@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS `world_graveyard_zone`;
