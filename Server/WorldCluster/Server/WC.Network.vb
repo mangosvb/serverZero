@@ -95,6 +95,7 @@ Public Module WC_Network
                 Log.WriteLine(LogType.FAILED, "Error in {1}: {0}.", e.Message, e.Source)
             End Try
         End Sub
+
         Protected Sub AcceptConnection(ByVal ar As IAsyncResult)
             If m_flagStopListen Then Return
 
@@ -171,6 +172,7 @@ Public Module WC_Network
 
             Return True
         End Function
+
         Public Sub Disconnect(ByVal URI As String, ByVal Maps As ICollection) Implements ICluster.Disconnect
             If Maps.Count = 0 Then Return
 
@@ -258,6 +260,7 @@ Public Module WC_Network
         Public Sub ClientSend(ByVal id As UInteger, ByVal data() As Byte) Implements ICluster.ClientSend
             If CLIENTs.ContainsKey(id) Then CLIENTs(id).Send(data)
         End Sub
+
         Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
             Try
                 Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Dropped Map {1:000}", ID, CLIENTs(ID).Character.Map)
@@ -267,6 +270,7 @@ Public Module WC_Network
                 Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Dropped Exception: {1}", ID, ex.ToString)
             End Try
         End Sub
+
         Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger) Implements ICluster.ClientTransfer
             Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Transfer Map {1:000} to Map {2:000}", ID, CLIENTs(ID).Character.Map, map)
 
@@ -322,6 +326,7 @@ Public Module WC_Network
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
+
         Public Sub BroadcastGroup(ByVal groupId As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGroup
             With GROUPs(groupId)
                 For i As Byte = 0 To .Members.Length - 1
@@ -333,6 +338,7 @@ Public Module WC_Network
                 Next
             End With
         End Sub
+
         Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
             With GROUPs(GroupID)
                 For i As Byte = 0 To .Members.Length - 1
@@ -344,9 +350,11 @@ Public Module WC_Network
                 Next
             End With
         End Sub
+
         Public Sub BroadcastGuild(ByVal GuildID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuildOfficers
             'TODO: Not implement yet
         End Sub
+
         Public Sub BroadcastGuildOfficers(ByVal GuildID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastRaid
             'TODO: Not implement yet
         End Sub
@@ -401,6 +409,7 @@ Public Module WC_Network
             End If
 
         End Function
+
         Public Function BattlefieldCheck(ByVal MapID As UInteger) As Boolean
             'Create map
             If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
@@ -448,6 +457,7 @@ Public Module WC_Network
             BATTLEFIELDs_Lock.ReleaseReaderLock()
             Return tmpList
         End Function
+
         Public Sub BattlefieldFinish(ByVal battlefieldId As Integer) Implements ICluster.BattlefieldFinish
             Log.WriteLine(LogType.INFORMATION, "[B{0:0000}] Battlefield finished", battlefieldId)
         End Sub
@@ -465,6 +475,7 @@ Public Module WC_Network
                 End Try
             End If
         End Sub
+
         Public Sub GroupSendUpdate(ByVal GroupID As Long)
             Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update", GroupID)
 
@@ -481,6 +492,7 @@ Public Module WC_Network
                 Next
             End SyncLock
         End Sub
+
         Public Sub GroupSendUpdateLoot(ByVal GroupID As Long)
             Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
@@ -583,6 +595,7 @@ Public Module WC_Network
 
             ConnectionsIncrement()
         End Sub
+
         Public Sub OnData(ByVal ar As IAsyncResult)
             If Not Socket.Connected Then Return
             If WorldServer.m_flagStopListen Then Return
@@ -719,6 +732,7 @@ Public Module WC_Network
                 Delete()
             End Try
         End Sub
+
         Public Sub Send(ByRef packet As PacketClass)
             If packet Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
             If Socket Is Nothing OrElse Socket.Connected = False Then Exit Sub
@@ -737,6 +751,7 @@ Public Module WC_Network
             'Cleaning, no memory leak :)
             packet.Dispose()
         End Sub
+
         Public Sub SendMultiplyPackets(ByRef packet As PacketClass)
             If packet Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
 
@@ -822,6 +837,7 @@ Public Module WC_Network
                 Key(1) = (Key(1) + 1) Mod 40
             Next i
         End Sub
+
         Public Sub Encode(ByRef data() As Byte)
             For i As Integer = 0 To 4 - 1
                 data(i) = (CInt(SS_Hash(Key(3)) Xor data(i)) + Key(2)) Mod 256
