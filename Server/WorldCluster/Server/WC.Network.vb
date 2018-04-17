@@ -589,13 +589,13 @@ Public Module WC_Network
 
             Try
                 SocketBytes = Socket.EndReceive(ar)
-                If SocketBytes = 2 Then
-                    Dispose()
+                If SocketBytes = 0 Then
+                    Dispose(SocketBytes)
                 Else
                     Interlocked.Add(DataTransferIn, SocketBytes)
 
-                    While SocketBytes > 1
-                        If SavedBytes.Length > 1 Then
+                    While SocketBytes > 0
+                        If SavedBytes.Length > 0 Then
                             SocketBuffer = Concat(SavedBytes, SocketBuffer)
                             SavedBytes = New Byte() {}
                         Else
@@ -608,8 +608,9 @@ Public Module WC_Network
                         If SocketBytes < PacketLen Then
                             SavedBytes = New Byte(SocketBytes - 1) {}
                             Try
-                                Array.Copy(SocketBuffer, 1, SavedBytes, 1, SocketBytes)
+                                Array.Copy(SocketBuffer, 0, SavedBytes, 0, SocketBytes)
                             Catch ex As Exception
+                                Dispose(SocketBytes)
                                 Socket.Dispose()
                                 Socket.Close()
                                 Log.WriteLine(LogType.CRITICAL, "[{0}:{1}] BAD PACKET {2}({3}) bytes, ", IP, Port, SocketBytes, PacketLen)
@@ -627,15 +628,19 @@ Public Module WC_Network
                             Queue.Enqueue(p)
                         End SyncLock
 
-                        'Delete packet from buffer
-                        SocketBytes -= PacketLen
-                        Array.Copy(SocketBuffer, PacketLen, SocketBuffer, 0, SocketBytes)
+                        Try
+                            'Delete packet from buffer
+                            SocketBytes -= PacketLen
+                            Array.Copy(SocketBuffer, PacketLen, SocketBuffer, 0, SocketBytes)
+                        Catch Ex As Exception
+                            Log.WriteLine(LogType.CRITICAL, "[{0}:{1}] Could not delete packet from buffer! {2}({3}{4}) bytes, ", IP, Port, SocketBuffer, PacketLen, SocketBytes)
+                        End Try
 
                     End While
 
-                    If SocketBuffer.Length > 1 Then
+                    If SocketBuffer.Length > 0 Then
                         Try
-                            Socket.BeginReceive(SocketBuffer, 0, SocketBuffer.Length, SocketFlags.None, AddressOf OnData, Nothing)
+                            Socket.BeginReceive(SocketBuffer, 0, SocketBuffer.Length, SocketBytes, SocketFlags.None, AddressOf OnData, Nothing)
 
                             If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
                         Catch ex As Exception
@@ -648,7 +653,10 @@ Public Module WC_Network
                 'NOTE: If it's a error here it means the connection is closed?
                 Log.WriteLine(LogType.WARNING, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
 #End If
-                Dispose()
+                Dispose(SocketBuffer.Length)
+                Dispose(HandingPackets)
+                Socket.Dispose()
+                Socket.Close()
             End Try
         End Sub
 
