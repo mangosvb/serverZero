@@ -53,7 +53,6 @@ Public Module WC_Network
 
         Public Sub New()
             Try
-
                 m_Socket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
                 m_Socket.Bind(New IPEndPoint(IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort))
                 m_Socket.Listen(5)
@@ -69,9 +68,6 @@ Public Module WC_Network
                         m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.ClusterListenPort)
                 End Select
                 Channels.ChannelServices.RegisterChannel(m_RemoteChannel, False)
-
-                'NOTE: Not protected remoting
-                'RemotingServices.Marshal(CType(Me, ICluster), "Cluster.rem")
 
                 'NOTE: Password protected remoting
                 Authenticator = New Authenticator(Me, Config.ClusterPassword)
@@ -152,9 +148,6 @@ Public Module WC_Network
                 Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), uri)
                 Dim WorldServer As IWorld = a.Login(Config.ClusterPassword)
 
-                'NOTE: Not protected remoting
-                'Dim WorldServer As IWorld = CType(RemotingServices.Connect(GetType(IWorld), URI), IWorld)
-
                 Dim WorldServerInfo As New WorldInfo
                 Log.WriteLine(LogType.INFORMATION, "Connected Map Server: {0}", uri)
 
@@ -177,7 +170,6 @@ Public Module WC_Network
             If Maps.Count = 0 Then Return
 
             'TODO: Unload arenas or battlegrounds that is hosted on this server!
-
             For Each Map As UInteger In Maps
 
                 'DONE: Disconnecting clients
@@ -206,7 +198,7 @@ Public Module WC_Network
                         SyncLock CType(Worlds, ICollection).SyncRoot
                             Worlds.Remove(Map)
                             WorldsInfo.Remove(Map)
-                            Log.WriteLine(LogType.INFORMATION, "Disconnected Map: {0:000}", Map)
+                            Log.WriteLine(LogType.INFORMATION, "Map: {0:000} has been disconnected!", Map)
                         End SyncLock
                     End Try
                 End If
@@ -243,15 +235,14 @@ Public Module WC_Network
                         End If
 
                     Catch ex As Exception
-                        Log.WriteLine(LogType.WARNING, "Map {0:000} Down!", w.Key)
-
+                        Log.WriteLine(LogType.WARNING, "Map {0:000} is currently down!", w.Key)
                         DeadServers.Add(w.Key)
                     End Try
                 Next
             End SyncLock
 
             'Notification message
-            If Worlds.Count = 0 Then Log.WriteLine(LogType.WARNING, "No Maps Available!")
+            If Worlds.Count = 0 Then Log.WriteLine(LogType.WARNING, "No maps are currently available!")
 
             'Drop WorldServers
             Disconnect("NULL", DeadServers)
@@ -263,16 +254,16 @@ Public Module WC_Network
 
         Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
             Try
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Dropped Map {1:000}", ID, CLIENTs(ID).Character.Map)
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped map {1:000}", ID, CLIENTs(ID).Character.Map)
                 CLIENTs(ID).Character.IsInWorld = False
                 CLIENTs(ID).Character.OnLogout()
             Catch ex As Exception
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Dropped Exception: {1}", ID, ex.ToString)
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped an exception: {1}", ID, ex.ToString)
             End Try
         End Sub
 
         Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger) Implements ICluster.ClientTransfer
-            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Transfer Map {1:000} to Map {2:000}", ID, CLIENTs(ID).Character.Map, map)
+            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has transferred from map {1:000} to map {2:000}", ID, CLIENTs(ID).Character.Map, map)
 
             Dim p As New PacketClass(OPCODES.SMSG_NEW_WORLD)
             p.AddUInt32(map)
@@ -287,7 +278,7 @@ Public Module WC_Network
 
         Public Sub ClientUpdate(ByVal ID As UInteger, ByVal zone As UInteger, ByVal level As Byte) Implements ICluster.ClientUpdate
             If CLIENTs(ID).Character Is Nothing Then Return
-            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client Update Zone {1:000}", ID, zone)
+            Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has an updated zone {1:000}", ID, zone)
 
             CLIENTs(ID).Character.Zone = zone
             CLIENTs(ID).Character.Level = level
@@ -657,19 +648,17 @@ Public Module WC_Network
 
                             If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
                         Catch ex As Exception
-                            Log.WriteLine(LogType.WARNING, "Packet Disconnect from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                            Log.WriteLine(LogType.WARNING, "Packet Disconnect from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
                         End Try
                     End If
                 End If
             Catch Err As Exception
 #If DEBUG Then
                 'NOTE: If it's a error here it means the connection is closed?
-                Log.WriteLine(LogType.WARNING, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                Log.WriteLine(LogType.WARNING, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
 #End If
                 Dispose(SocketBuffer.Length)
                 Dispose(HandingPackets)
-                Socket.Dispose()
-                Socket.Close()
             End Try
         End Sub
 
@@ -728,7 +717,7 @@ Public Module WC_Network
                 Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
             Catch Err As Exception
                 'NOTE: If it's a error here it means the connection is closed?
-                'Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
                 Delete()
             End Try
         End Sub
@@ -744,7 +733,7 @@ Public Module WC_Network
                 Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
             Catch Err As Exception
                 'NOTE: If it's a error here it means the connection is closed?
-                'Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
                 Delete()
             End Try
 
@@ -764,11 +753,12 @@ Public Module WC_Network
                 Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
             Catch Err As Exception
                 'NOTE: If it's a error here it means the connection is closed?
-                'Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
                 Delete()
             End Try
 
             'Don't forget to clean after using this function
+            packet.Dispose()
         End Sub
 
         Public Sub OnSendComplete(ByVal ar As IAsyncResult)
