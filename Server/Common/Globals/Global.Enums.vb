@@ -275,6 +275,43 @@ Public Module Global_Enums
         CHAR_NAME_INVALID_CHARACTER = &H46
     End Enum
 
+    <Flags()>
+    Public Enum CharacterFlagState
+        CHARACTER_FLAG_NONE = &H0
+        CHARACTER_FLAG_UNK1 = &H1
+        CHARACTER_FLAG_UNK2 = &H2
+        CHARACTER_FLAG_LOCKED_FOR_TRANSFER = &H4                    'Character Locked for Paid Character Transfer
+        CHARACTER_FLAG_UNK4 = &H8
+        CHARACTER_FLAG_UNK5 = &H10
+        CHARACTER_FLAG_UNK6 = &H20
+        CHARACTER_FLAG_UNK7 = &H40
+        CHARACTER_FLAG_UNK8 = &H80
+        CHARACTER_FLAG_UNK9 = &H100
+        CHARACTER_FLAG_UNK10 = &H200
+        CHARACTER_FLAG_HIDE_HELM = &H400
+        CHARACTER_FLAG_HIDE_CLOAK = &H800
+        CHARACTER_FLAG_UNK13 = &H1000
+        CHARACTER_FLAG_GHOST = &H2000                               'Player is ghost in char selection screen
+        CHARACTER_FLAG_RENAME = &H4000                              'On login player will be asked to change name
+        CHARACTER_FLAG_UNK16 = &H8000
+        CHARACTER_FLAG_UNK17 = &H10000
+        CHARACTER_FLAG_UNK18 = &H20000
+        CHARACTER_FLAG_UNK19 = &H40000
+        CHARACTER_FLAG_UNK20 = &H80000
+        CHARACTER_FLAG_UNK21 = &H100000
+        CHARACTER_FLAG_UNK22 = &H200000
+        CHARACTER_FLAG_UNK23 = &H400000
+        CHARACTER_FLAG_UNK24 = &H800000
+        CHARACTER_FLAG_LOCKED_BY_BILLING = &H1000000
+        CHARACTER_FLAG_DECLINED = &H2000000
+        CHARACTER_FLAG_UNK27 = &H4000000
+        CHARACTER_FLAG_UNK28 = &H8000000
+        CHARACTER_FLAG_UNK29 = &H10000000
+        CHARACTER_FLAG_UNK30 = &H20000000
+        CHARACTER_FLAG_UNK31 = &H40000000
+        CHARACTER_FLAG_UNK32 = &H80000000
+    End Enum
+
     Public Enum ATLoginFlags As Byte
         AT_LOGIN_NONE = &H0
         AT_LOGIN_RENAME = &H1
@@ -545,6 +582,30 @@ Public Module Global_Enums
         Uncommon = 2
         Rare = 3
         Epic = 4
+    End Enum
+
+    Public Enum PartyCommand As Byte
+        PARTY_OP_INVITE = 0
+        PARTY_OP_LEAVE = 2
+    End Enum
+
+    Public Enum PartyCommandResult As Byte
+        INVITE_OK = 0                   'You have invited [name] to join your group.
+        INVITE_NOT_FOUND = 1            'Cannot find [name].
+        INVITE_NOT_IN_YOUR_PARTY = 2    '[name] is not in your party.
+        INVITE_NOT_IN_YOUR_INSTANCE = 3 '[name] is not in your instance.
+        INVITE_PARTY_FULL = 4           'Your party is full.
+        INVITE_ALREADY_IN_GROUP = 5     '[name] is already in group.
+        INVITE_NOT_IN_PARTY = 6         'You aren't in party.
+        INVITE_NOT_LEADER = 7           'You are not the party leader.
+        INVITE_NOT_SAME_SIDE = 8        'gms - Target is not part of your alliance.
+        INVITE_IGNORED = 9              'Test is ignoring you.
+        INVITE_RESTRICTED = 13
+    End Enum
+
+    Private Enum PromoteToMain As Byte
+        MainTank = 0
+        MainAssist = 1
     End Enum
 
     Public Enum LANGUAGES As Integer
@@ -820,6 +881,22 @@ Public Module Global_Enums
         BATTLEGROUND_AlteracValley = 1
         BATTLEGROUND_WarsongGulch = 2
         BATTLEGROUND_ArathiBasin = 3
+    End Enum
+
+    Public Enum BattlegroundStatus
+        STATUS_CLEAR = 0
+        STATUS_WAIT_QUEUE = 1
+        STATUS_WAIT_JOIN = 2
+        STATUS_IN_PROGRESS = 3
+    End Enum
+
+    'indexes of BattlemasterList.dbc 
+    'This did not exist in Vanilla, Revisit in future!
+    Public Enum BattleGroundTypeId As Byte
+        BATTLEGROUND_TYPE_NONE = 0
+        BATTLEGROUND_AV = 1
+        BATTLEGROUND_WS = 2
+        BATTLEGROUND_AB = 3
     End Enum
 
     Public Enum GuildRankRights
@@ -2495,7 +2572,7 @@ Public Module Global_Enums
         DBC_FLOAT
     End Enum
 
-    <Flags()> _
+    <Flags()>
     Public Enum ChatChannelsFlags
         FLAG_NONE = &H0
         FLAG_INITIAL = &H1              ' General, Trade, LocalDefense, LFG
@@ -2507,6 +2584,75 @@ Public Module Global_Enums
         FLAG_DEFENSE = &H10000          ' LocalDefense, WorldDefense
         FLAG_GUILD_REQ = &H20000        ' GuildRecruitment
         FLAG_LFG = &H40000              ' LookingForGroup
+    End Enum
+
+    <Flags()>
+    Public Enum CHANNEL_FLAG As Byte
+        'General                  0x18 = 0x10 | 0x08
+        'Trade                    0x3C = 0x20 | 0x10 | 0x08 | 0x04
+        'LocalDefence             0x18 = 0x10 | 0x08
+        'GuildRecruitment         0x38 = 0x20 | 0x10 | 0x08
+        'LookingForGroup          0x50 = 0x40 | 0x10
+
+        CHANNEL_FLAG_NONE = &H0
+        CHANNEL_FLAG_CUSTOM = &H1
+        CHANNEL_FLAG_UNK1 = &H2
+        CHANNEL_FLAG_TRADE = &H4
+        CHANNEL_FLAG_NOT_LFG = &H8
+        CHANNEL_FLAG_GENERAL = &H10
+        CHANNEL_FLAG_CITY = &H20
+        CHANNEL_FLAG_LFG = &H40
+    End Enum
+
+    <Flags()>
+    Public Enum CHANNEL_USER_FLAG As Byte
+        CHANNEL_FLAG_NONE = &H0
+        CHANNEL_FLAG_OWNER = &H1
+        CHANNEL_FLAG_MODERATOR = &H2
+        CHANNEL_FLAG_MUTED = &H4
+        CHANNEL_FLAG_CUSTOM = &H10
+    End Enum
+
+    Public Enum CHANNEL_NOTIFY_FLAGS
+        CHANNEL_JOINED = 0                      ' %s joined channel.
+        CHANNEL_LEFT = 1                        ' %s left channel.
+        CHANNEL_YOU_JOINED = 2                  ' Joined Channel: [%s]
+        CHANNEL_YOU_LEFT = 3                    ' Left Channel: [%s]
+        CHANNEL_WRONG_PASS = 4                  ' Wrong password for %s.
+        CHANNEL_NOT_ON = 5                      ' Not on channel %s.
+        CHANNEL_NOT_MODERATOR = 6               ' Not a moderator of %s.
+        CHANNEL_SET_PASSWORD = 7                ' [%s] Password changed by %s.
+        CHANNEL_CHANGE_OWNER = 8                ' [%s] Owner changed to %s.
+        CHANNEL_NOT_ON_FOR_NAME = 9             ' [%s] Player %s was not found.
+        CHANNEL_NOT_OWNER = &HA                 ' [%s] You are not the channel owner.
+        CHANNEL_WHO_OWNER = &HB                 ' [%s] Channel owner is %s.
+        CHANNEL_MODE_CHANGE = &HC               '
+        CHANNEL_ENABLE_ANNOUNCE = &HD           ' [%s] Channel announcements enabled by %s.
+        CHANNEL_DISABLE_ANNOUNCE = &HE          ' [%s] Channel announcements disabled by %s.
+        CHANNEL_MODERATED = &HF                 ' [%s] Channel moderation enabled by %s.
+        CHANNEL_UNMODERATED = &H10              ' [%s] Channel moderation disabled by %s.
+        CHANNEL_YOUCANTSPEAK = &H11             ' [%s] You do not have permission to speak.
+        CHANNEL_KICKED = &H12                   ' [%s] Player %s kicked by %s.
+        CHANNEL_YOU_ARE_BANNED = &H13           ' [%s] You are banned from that channel.
+        CHANNEL_BANNED = &H14                   ' [%s] Player %s banned by %s.
+        CHANNEL_UNBANNED = &H15                 ' [%s] Player %s unbanned by %s.
+        CHANNEL_NOT_BANNED = &H16               ' [%s] Player %s is not banned.
+        CHANNEL_ALREADY_ON = &H17               ' [%s] Player %s is already on the channel.
+        CHANNEL_INVITED = &H18                  ' %s has invited you to join the channel '%s'
+        CHANNEL_INVITED_WRONG_FACTION = &H19    ' Target is in the wrong alliance for %s.
+        CHANNEL_WRONG_FACTION = &H1A            ' Wrong alliance for %s.
+        CHANNEL_INVALID_NAME = &H1B             ' Invalid channel name
+        CHANNEL_NOT_MODERATED = &H1C            ' %s is not moderated
+        CHANNEL_PLAYER_INVITED = &H1D           ' [%s] You invited %s to join the channel
+        CHANNEL_PLAYER_INVITE_BANNED = &H1E     ' [%s] %s has been banned.
+        CHANNEL_THROTTLED = &H1F                ' [%s] The number of messages that can be sent to this channel is limited, please wait to send another message.
+        CHANNEL_NOT_IN_AREA = &H20              ' [%s] You are not in the correct area for this channel.
+        CHANNEL_NOT_IN_LFG = &H21               ' [%s] You must be queued in looking for group before joining this channel.
+    End Enum
+
+    Public Enum SuggestionType As Integer
+        TYPE_BUG_REPORT = 0
+        TYPE_SUGGESTION = 1
     End Enum
 
 

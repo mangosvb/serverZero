@@ -369,25 +369,6 @@ Public Module WC_Handlers_Group
 
     End Sub
 
-    Public Enum PartyCommand As Byte
-        PARTY_OP_INVITE = 0
-        PARTY_OP_LEAVE = 2
-    End Enum
-
-    Public Enum PartyCommandResult As Byte
-        INVITE_OK = 0                   'You have invited [name] to join your group.
-        INVITE_NOT_FOUND = 1            'Cannot find [name].
-        INVITE_NOT_IN_YOUR_PARTY = 2    '[name] is not in your party.
-        INVITE_NOT_IN_YOUR_INSTANCE = 3 '[name] is not in your instance.
-        INVITE_PARTY_FULL = 4           'Your party is full.
-        INVITE_ALREADY_IN_GROUP = 5     '[name] is already in group.
-        INVITE_NOT_IN_PARTY = 6         'You aren't in party.
-        INVITE_NOT_LEADER = 7           'You are not the party leader.
-        INVITE_NOT_SAME_SIDE = 8        'gms - Target is not part of your alliance.
-        INVITE_IGNORED = 9              'Test is ignoring you.
-        INVITE_RESTRICTED = 13
-    End Enum
-
     Public Sub SendPartyResult(ByVal objCharacter As ClientClass, ByVal Name As String, ByVal operation As PartyCommand, ByVal result As PartyCommandResult)
         Dim response As New PacketClass(OPCODES.SMSG_PARTY_COMMAND_RESULT)
         response.AddInt32(operation)
@@ -768,11 +749,6 @@ Public Module WC_Handlers_Group
             response.Dispose()
         End If
     End Sub
-
-    Private Enum PromoteToMain As Byte
-        MainTank = 0
-        MainAssist = 1
-    End Enum
 
     Public Sub On_CMSG_REQUEST_PARTY_MEMBER_STATS(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub

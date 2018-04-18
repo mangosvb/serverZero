@@ -230,13 +230,6 @@ Public Module WC_Handlers_Battleground
             SendBattlegroundStatus(objCharacter, 0)
         End Sub
 
-        Private Enum BattlegroundStatus
-            STATUS_CLEAR = 0
-            STATUS_WAIT_QUEUE = 1
-            STATUS_WAIT_JOIN = 2
-            STATUS_IN_PROGRESS = 3
-        End Enum
-
         ''' <summary>
         ''' Sends the battleground status.
         ''' </summary>
@@ -320,14 +313,6 @@ Public Module WC_Handlers_Battleground
         End If
         Return battlefield
     End Function
-
-    'indexes of BattlemasterList.dbc
-    Private Enum BattleGroundTypeId As Byte
-        BATTLEGROUND_TYPE_NONE = 0
-        BATTLEGROUND_AV = 1
-        BATTLEGROUND_WS = 2
-        BATTLEGROUND_AB = 3
-    End Enum
 
     ' ''' <summary>
     ' ''' Gets the battle ground type id by map id.

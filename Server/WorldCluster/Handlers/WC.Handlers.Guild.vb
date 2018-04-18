@@ -649,12 +649,6 @@ Public Module WC_Handlers_Guild
         response.Dispose()
     End Sub
 
-    Public Enum PetitionTurnInError As Integer
-        PETITIONTURNIN_OK = 0                   ':Closes the window
-        PETITIONTURNIN_ALREADY_IN_GUILD = 2     'You are already in a guild
-        PETITIONTURNIN_NEED_MORE_SIGNATURES = 4 'You need more signatures
-    End Enum
-
     Public Sub On_CMSG_TURN_IN_PETITION(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 13 Then Exit Sub
         packet.GetInt16()

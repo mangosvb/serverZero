@@ -21,10 +21,6 @@ Imports mangosVB.Common
 
 Public Module WC_Handlers_Tickets
 
-    Private Enum SuggestionType As Integer
-        TYPE_BUG_REPORT = 0
-        TYPE_SUGGESTION = 1
-    End Enum
     Public Sub On_CMSG_BUG(ByRef packet As PacketClass, ByRef client As ClientClass)
         If (packet.Data.Length - 1) < 14 Then Exit Sub
         packet.GetInt16()
