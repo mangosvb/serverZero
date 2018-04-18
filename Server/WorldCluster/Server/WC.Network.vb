@@ -758,7 +758,6 @@ Public Module WC_Network
             End Try
 
             'Don't forget to clean after using this function
-            packet.Dispose()
         End Sub
 
         Public Sub OnSendComplete(ByVal ar As IAsyncResult)
