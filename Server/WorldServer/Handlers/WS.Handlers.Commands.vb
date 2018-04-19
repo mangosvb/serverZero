@@ -21,7 +21,7 @@ Imports mangosVB.Common.NativeMethods
 
 #Region "WS.Commands.Attributes"
 
-<AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)> _
+<AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)>
 Public Class ChatCommandAttribute
     Inherits Attribute
 

@@ -403,9 +403,9 @@ Public Module VMAP_Module
         Private Class CenterComparator
             Implements IComparer(Of BaseCollision)
 
-            Private sortAxis As Vector3.Axis
+            Private sortAxis As Axis
 
-            Public Sub New(ByVal sortAxis As Vector3.Axis)
+            Public Sub New(ByVal sortAxis As Axis)
                 Me.sortAxis = sortAxis
             End Sub
 
@@ -427,10 +427,10 @@ Public Module VMAP_Module
         Private Class Comparator
             Implements IComparer(Of BaseCollision)
 
-            Private sortAxis As Vector3.Axis
+            Private sortAxis As Axis
             Private sortLocation As Single
 
-            Public Sub New(ByVal a As Vector3.Axis, ByVal l As Single)
+            Public Sub New(ByVal a As Axis, ByVal l As Single)
                 sortAxis = a
                 sortLocation = l
             End Sub
@@ -458,7 +458,7 @@ Public Module VMAP_Module
             'Spatial bounds on all values at this node and its children, based purely on
             'the parent's splitting planes.  May be infinite.
             Public splitBounds As AABox
-            Public splitAxis As Vector3.Axis
+            Public splitAxis As Axis
             Public splitLocation As Single 'Location along the specified axis
 
             'child(0) contains all values strictly
@@ -489,7 +489,7 @@ Public Module VMAP_Module
 
             'Creates node with NULL children
             Public Sub New()
-                splitAxis = Vector3.Axis.X_AXIS
+                splitAxis = Axis.X_AXIS
                 splitLocation = 0.0F
                 splitBounds = New AABox(Vector3.MinInf(), Vector3.MaxInf())
                 child(0) = Nothing
@@ -512,7 +512,7 @@ Public Module VMAP_Module
             'Copies the specified subarray of pt into point, NULLs the children.
             'Assumes a second pass will set splitBounds.
             Public Sub New(ByRef pt As List(Of BaseCollision))
-                splitAxis = Vector3.Axis.X_AXIS
+                splitAxis = Axis.X_AXIS
                 splitLocation = 0.0F
                 child(0) = Nothing
                 child(1) = Nothing
@@ -829,7 +829,7 @@ Public Module VMAP_Module
                 Dim bounds As AABox = ComputeBounds(source, 0, source.Count - 1)
                 Dim extent As Vector3 = bounds.High() - bounds.Low()
 
-                Dim splitAxis As Vector3.Axis = extent.PrimaryAxis()
+                Dim splitAxis As Axis = extent.PrimaryAxis()
 
                 Dim splitLocation As Single
 
@@ -946,7 +946,7 @@ Public Module VMAP_Module
         Private iSplitLocation As Single 'Location along the specified axis
         Private iChilds(1) As Integer 'Offest or the clients
         Private iStartPosition As Integer 'Position within the TriangleBox array
-        Private iSplitAxis As Vector3.Axis
+        Private iSplitAxis As Axis
         Private iBounds As AABox
         Private iNumberOfValues As UShort
 
@@ -954,7 +954,7 @@ Public Module VMAP_Module
 
         End Sub
 
-        Public Sub New(ByVal i As Integer, ByVal iSplitLocation As Single, ByVal iChild0 As Integer, ByVal iChild1 As Integer, ByVal iStartPosition As Integer, ByVal iSplitAxis As Vector3.Axis, ByVal iBounds As AABox, ByVal iNumberOfValues As UShort, ByVal dummy As UShort)
+        Public Sub New(ByVal i As Integer, ByVal iSplitLocation As Single, ByVal iChild0 As Integer, ByVal iChild1 As Integer, ByVal iStartPosition As Integer, ByVal iSplitAxis As Axis, ByVal iBounds As AABox, ByVal iNumberOfValues As UShort, ByVal dummy As UShort)
             ID = i
             Me.iSplitLocation = iSplitLocation
             iChilds(0) = iChild0
@@ -1287,12 +1287,7 @@ Public Module VMAP_Module
 
     Public Structure Vector3
 
-        Public Enum Axis As Integer
-            X_AXIS = 0
-            Y_AXIS = 1
-            Z_AXIS = 2
-            DETECT_AXIS = -1
-        End Enum
+
 
         Public x As Single
         Public y As Single
@@ -1780,7 +1775,7 @@ Public Module VMAP_Module
             Return New AABox(H, L)
         End Function
 
-        Public Sub Split(ByVal axis As Vector3.Axis, ByVal location As Single, ByRef low As AABox, ByRef high As AABox)
+        Public Sub Split(ByVal axis As Axis, ByVal location As Single, ByRef low As AABox, ByRef high As AABox)
             'Low, medium, and high along the chosen axis
             Dim L As Single = Math.Min(location, lo(axis))
             Dim M As Single = Math.Min(Math.Max(location, lo(axis)), hi(axis))
@@ -1851,7 +1846,7 @@ Public Module VMAP_Module
         Private edgeMagnitude() As Double
 
         Private _plane As Plane
-        Private _primaryAxis As Vector3.Axis
+        Private _primaryAxis As Axis
 
         'vertex[1] - vertex[0]
         Friend edge01 As Vector3

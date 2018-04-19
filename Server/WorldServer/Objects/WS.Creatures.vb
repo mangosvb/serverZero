@@ -121,7 +121,7 @@ Public Module WS_Creatures
         Public Overrides ReadOnly Property isDead() As Boolean
             Get
                 If aiScript IsNot Nothing Then
-                    Return (Life.Current = 0 OrElse aiScript.State = TBaseAI.AIState.AI_DEAD OrElse aiScript.State = TBaseAI.AIState.AI_RESPAWN)
+                    Return (Life.Current = 0 OrElse aiScript.State = AIState.AI_DEAD OrElse aiScript.State = AIState.AI_RESPAWN)
                 Else
                     Return (Life.Current = 0)
                 End If
@@ -130,7 +130,7 @@ Public Module WS_Creatures
 
         Public ReadOnly Property Evade() As Boolean
             Get
-                If aiScript IsNot Nothing AndAlso aiScript.State = TBaseAI.AIState.AI_MOVING_TO_SPAWN Then
+                If aiScript IsNot Nothing AndAlso aiScript.State = AIState.AI_MOVING_TO_SPAWN Then
                     Return True
                 Else
                     Return False
@@ -333,13 +333,13 @@ Public Module WS_Creatures
         Public PositionUpdated As Boolean = True
         Public Sub SetToRealPosition(Optional ByVal Forced As Boolean = False)
             If aiScript Is Nothing Then Exit Sub
-            If Forced = False AndAlso aiScript.State = TBaseAI.AIState.AI_MOVING_TO_SPAWN Then Exit Sub
+            If Forced = False AndAlso aiScript.State = AIState.AI_MOVING_TO_SPAWN Then Exit Sub
 
             Dim timeDiff As Integer = timeGetTime("") - LastMove
             If (Forced OrElse aiScript.IsMoving) AndAlso LastMove > 0 AndAlso timeDiff < LastMove_Time Then
                 Dim distance As Single
 
-                If aiScript.State = TBaseAI.AIState.AI_MOVING OrElse aiScript.State = TBaseAI.AIState.AI_WANDERING Then
+                If aiScript.State = AIState.AI_MOVING OrElse aiScript.State = AIState.AI_WANDERING Then
                     distance = timeDiff / 1000.0F * (CreatureInfo.WalkSpeed * SpeedMod)
                 Else
                     distance = timeDiff / 1000.0F * (CreatureInfo.RunSpeed * SpeedMod)
@@ -496,7 +496,7 @@ Public Module WS_Creatures
                 LastMove = 0
                 LastMove_Time = 0
 
-                aiScript.State = TBaseAI.AIState.AI_DEAD
+                aiScript.State = AIState.AI_DEAD
                 aiScript.DoThink()
             End If
 
@@ -872,7 +872,7 @@ Public Module WS_Creatures
             tmpCreature.aiScript = New DefaultAI(tmpCreature)
             tmpCreature.aiScript.aiHateTable = aiScript.aiHateTable
             tmpCreature.aiScript.OnEnterCombat()
-            tmpCreature.aiScript.State = TBaseAI.AIState.AI_ATTACKING
+            tmpCreature.aiScript.State = AIState.AI_ATTACKING
             tmpCreature.aiScript.DoThink()
         End Sub
 
@@ -1215,7 +1215,7 @@ Public Module WS_Creatures
 
             If SpawnTime > 0 Then
                 If aiScript IsNot Nothing Then
-                    aiScript.State = TBaseAI.AIState.AI_RESPAWN
+                    aiScript.State = AIState.AI_RESPAWN
                     aiScript.Pause(SpawnTime * 1000)
                 End If
             Else
@@ -1236,7 +1236,7 @@ Public Module WS_Creatures
 
             If aiScript IsNot Nothing Then
                 aiScript.OnLeaveCombat(False)
-                aiScript.State = TBaseAI.AIState.AI_WANDERING
+                aiScript.State = AIState.AI_WANDERING
             End If
 
             If SeenBy.Count > 0 Then
@@ -1605,16 +1605,6 @@ Public Module WS_Creatures
     '#End Region
 
 End Module
-
-#Region "WS.Creatures.HelperTypes"
-Public Enum InvisibilityLevel As Byte
-    VISIBLE = 0
-    STEALTH = 1
-    INIVISIBILITY = 2
-    DEAD = 3
-    GM = 4
-End Enum
-#End Region
 
 #Region "WS.Creatures.Gossip"
 Public Class GossipMenu

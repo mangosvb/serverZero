@@ -19,25 +19,6 @@
 
 Public Module WS_Weather
 
-    Public Enum WeatherSounds As Integer
-        WEATHER_SOUND_NOSOUND = 0
-        WEATHER_SOUND_RAINLIGHT = 8533
-        WEATHER_SOUND_RAINMEDIUM = 8534
-        WEATHER_SOUND_RAINHEAVY = 8535
-        WEATHER_SOUND_SNOWLIGHT = 8536
-        WEATHER_SOUND_SNOWMEDIUM = 8537
-        WEATHER_SOUND_SNOWHEAVY = 8538
-        WEATHER_SOUND_SANDSTORMLIGHT = 8556
-        WEATHER_SOUND_SANDSTORMMEDIUM = 8557
-        WEATHER_SOUND_SANDSTORMHEAVY = 8558
-    End Enum
-    Public Enum WeatherType As Integer
-        WEATHER_FINE = 0
-        WEATHER_RAIN = 1
-        WEATHER_SNOW = 2
-        WEATHER_SANDSTORM = 3
-    End Enum
-
     Public WeatherZones As New Dictionary(Of Integer, WeatherZone)
 
     Public Class WeatherSeasonChances

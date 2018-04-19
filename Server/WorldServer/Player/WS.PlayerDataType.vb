@@ -656,7 +656,7 @@ Public Module WS_PlayerData
 
             If TypeOf objCharacter Is CreatureObject Then
                 If Not CType(objCharacter, CreatureObject).aiScript Is Nothing Then
-                    If CType(objCharacter, CreatureObject).aiScript.State = TBaseAI.AIState.AI_RESPAWN Then Return False
+                    If CType(objCharacter, CreatureObject).aiScript.State = AIState.AI_RESPAWN Then Return False
                 End If
             ElseIf TypeOf objCharacter Is GameObjectObject Then
                 If CType(objCharacter, GameObjectObject).Despawned Then Return False

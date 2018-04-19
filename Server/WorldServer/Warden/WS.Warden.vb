@@ -26,17 +26,6 @@ Public Module WS_Warden
 #Region "Maiev"
     Public Maiev As New WardenMaiev
 
-    Public Enum CheckTypes As Byte
-        MEM_CHECK = 0
-        PAGE_CHECK_A_B = 1
-        MPQ_CHECK = 2
-        LUA_STR_CHECK = 3
-        DRIVER_CHECK = 4
-        TIMING_CHECK = 5
-        PROC_CHECK = 6
-        MODULE_CHECK = 7
-    End Enum
-
     Public Class WardenMaiev
         Implements IDisposable
 

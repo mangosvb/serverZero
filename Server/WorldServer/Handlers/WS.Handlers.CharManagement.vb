@@ -41,11 +41,6 @@ Public Module CharManagementHandler
         client.Character.ActionButtons(button) = New TActionButton(action, actionType, actionMisc)
     End Sub
 
-    Public Enum LogoutResponseCode As Byte
-        LOGOUT_RESPONSE_ACCEPTED = &H0
-        LOGOUT_RESPONSE_DENIED = &HC
-    End Enum
-
     Public Sub On_CMSG_LOGOUT_REQUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_REQUEST", client.IP, client.Port)
         client.Character.Save()

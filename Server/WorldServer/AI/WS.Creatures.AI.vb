@@ -22,16 +22,6 @@ Public Module WS_Creatures_AI
 #Region "WS.Creatures.AI.Framework"
     Public Class TBaseAI
         Implements IDisposable
-        Public Enum AIState
-            AI_DO_NOTHING
-            AI_DEAD
-            AI_MOVING_TO_SPAWN
-            AI_ATTACKING
-            AI_MOVE_FOR_ATTACK
-            AI_MOVING
-            AI_WANDERING
-            AI_RESPAWN
-        End Enum
 
         Public State As AIState = AIState.AI_DO_NOTHING
         Public aiTarget As BaseUnit = Nothing

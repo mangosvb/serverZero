@@ -571,7 +571,7 @@ Module WS_CharMovement
                     If client.Character.GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(WORLD_CREATUREs(cGUID), client.Character) <= WORLD_CREATUREs(cGUID).AggroRange(client.Character) Then
                         WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(client.Character, 1)
                         client.Character.AddToCombat(WORLD_CREATUREs(cGUID))
-                        WORLD_CREATUREs(cGUID).aiScript.State = TBaseAI.AIState.AI_ATTACKING
+                        WORLD_CREATUREs(cGUID).aiScript.State = AIState.AI_ATTACKING
                         WORLD_CREATUREs(cGUID).aiScript.DoThink()
                     End If
                 End If
@@ -584,7 +584,7 @@ Module WS_CharMovement
                 With WORLD_CREATUREs(CombatUnit)
                     If (Not .aiScript.aiTarget Is Nothing) AndAlso .aiScript.aiTarget Is client.Character Then
                         .SetToRealPosition() 'Make sure it moves from it's location and not from where it was already heading before this
-                        .aiScript.State = TBaseAI.AIState.AI_MOVE_FOR_ATTACK
+                        .aiScript.State = AIState.AI_MOVE_FOR_ATTACK
                         .aiScript.DoMove()
                     End If
                 End With

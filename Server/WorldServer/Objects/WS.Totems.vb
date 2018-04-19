@@ -17,11 +17,6 @@
 '
 
 Public Module WS_Totems
-    Public Enum TotemType As Byte
-        TOTEM_PASSIVE = 0
-        TOTEM_ACTIVE = 1
-        TOTEM_STATUE = 2
-    End Enum
 
     Public Class TotemObject
         Inherits CreatureObject
@@ -54,8 +49,8 @@ Public Module WS_Totems
 
                         'DONE: Cast aura (check if: there is aura; aura is periodic; time for next activation)
                         For j As Byte = 0 To 2
-                            If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).Aura(j) IsNot Nothing AndAlso _
-                            ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso _
+                            If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).Aura(j) IsNot Nothing AndAlso
+                            ActiveSpells(i).Aura_Info(j).Amplitude <> 0 AndAlso
                             ((Duration - ActiveSpells(i).SpellDuration) Mod ActiveSpells(i).Aura_Info(j).Amplitude) = 0 Then
                                 ActiveSpells(i).Aura(j).Invoke(Me, ActiveSpells(i).SpellCaster, ActiveSpells(i).Aura_Info(j), ActiveSpells(i).SpellID, ActiveSpells(i).StackCount + 1, AuraAction.AURA_UPDATE)
                             End If
