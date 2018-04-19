@@ -29,6 +29,9 @@ Imports mangosVB.Common
 Imports mangosVB.Common.Logging
 
 Public Module RealmServer
+#Region "Global.Variables"
+    Dim Log As New BaseWriter
+#End Region
 
 #Region "Global.Config"
     Private _config As XmlConfigFile
@@ -960,4 +963,17 @@ Public Module RealmServer
             Return 0
         End Try
     End Function
+
+    Private Sub GenericExceptionHandler(ByVal sender As Object, ByVal e As UnhandledExceptionEventArgs)
+        Dim EX As Exception
+        EX = e.ExceptionObject
+
+        Log.WriteLine(LogType.CRITICAL, EX.ToString & vbNewLine)
+        Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'RealmServer-Error-yyyy-mmm-d-h-mm.log' file has been created. Check your log folder for more information.")
+
+        Dim tw As TextWriter
+        tw = New StreamWriter(New FileStream(String.Format("logs/RealmServer-Error-{0}.log", Format(Now, "yyyy-MMM-d-H-mm")), FileMode.Create))
+        tw.Write(EX.ToString)
+        tw.Close()
+    End Sub
 End Module
