@@ -253,13 +253,17 @@ Public Module WC_Network
         End Sub
 
         Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
-            Try
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped map {1:000}", ID, CLIENTs(ID).Character.Map)
-                CLIENTs(ID).Character.IsInWorld = False
-                CLIENTs(ID).Character.OnLogout()
-            Catch ex As Exception
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped an exception: {1}", ID, ex.ToString)
-            End Try
+            If CLIENTs.ContainsKey(ID) Then
+                Try
+                    Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped map {1:000}", ID, CLIENTs(ID).Character.Map)
+                    CLIENTs(ID).Character.IsInWorld = False
+                    CLIENTs(ID).Character.OnLogout()
+                Catch ex As Exception
+                    Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped an exception: {1}", ID, ex.ToString)
+                End Try
+            Else
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client connection has been lost.", ID)
+            End If
         End Sub
 
         Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger) Implements ICluster.ClientTransfer
