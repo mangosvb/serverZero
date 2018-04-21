@@ -1,5 +1,5 @@
 # Build and Object Folders
-obj/
+
 
 #User Specific Files
 *.user
@@ -80,7 +80,6 @@ publish
 
 # Others
 [Oo]bj
-sql
 TestResults
 [Tt]est[Rr]esult*
 *.Cache
