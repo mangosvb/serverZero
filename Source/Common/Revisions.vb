@@ -17,7 +17,7 @@
 '
 
 Public Class Revisions
-    Private Const RevisionDbCharacters As String = "required_s1350_11716_09_characters_mail"
+    Private Const RevisionDbCharacters As String = "required_2018_04_21_01_version_updates"
     Private Const RevisionDbMangos As String = "required_s2034_12522_01_mangos_db_script_string"
     Private Const RevisionDbRealmd As String = "required_c12484_02_realmd_account_access"
 

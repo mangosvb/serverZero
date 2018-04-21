@@ -79,6 +79,7 @@ Public Module WorldServer
     Public Const SERVERSEED As Integer = &HDE133700
 
 #End Region
+
 #Region "Global.Config"
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="WorldServer")>
@@ -329,6 +330,10 @@ Public Module WorldServer
             End
         End If
         WorldDatabase.Update("SET NAMES 'utf8';")
+
+        'Check the Database version, exit if its wrong
+        'If Revisions.CheckRequiredDbVersion(CharacterDatabase, "CHARACTERS") = False Then End
+        'If Revisions.CheckRequiredDbVersion(WorldDatabase, "WORLD") = False Then End
 
 #If DEBUG Then
         Console.ForegroundColor = ConsoleColor.White
