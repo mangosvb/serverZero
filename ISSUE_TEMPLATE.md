@@ -1,5 +1,4 @@
-MangosVB Issue Tracker Template
-==========
+
 **Description:**
 
 Description of the problem or issue here.
