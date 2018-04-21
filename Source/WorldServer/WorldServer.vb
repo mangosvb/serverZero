@@ -531,7 +531,7 @@ Public Module WorldServer
         Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'WorldServer-Error-yyyy-mmm-d-h-mm.log' file has been created. Check your log folder for more information.")
 
         Dim tw As TextWriter
-        tw = New StreamWriter(New FileStream(String.Format("logs/WorldServer-Error-{0}.log", Format(Now, "yyyy-MMM-d-H-mm")), FileMode.Create))
+        tw = New StreamWriter(New FileStream(String.Format("WorldServer-Error-{0}.log", Format(Now, "yyyy-MMM-d-H-mm")), FileMode.Create))
         tw.Write(EX.ToString)
         tw.Close()
     End Sub

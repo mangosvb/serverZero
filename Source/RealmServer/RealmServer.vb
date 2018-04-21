@@ -969,9 +969,8 @@ Public Module RealmServer
         Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'RealmServer-Error-yyyy-mmm-d-h-mm.log' file has been created. Check your log folder for more information.")
 
         Dim tw As TextWriter
-        tw = New StreamWriter(New FileStream(String.Format("logs/RealmServer-Error-{0}.log", Format(Now, "yyyy-MMM-d-H-mm")), FileMode.Create))
+        tw = New StreamWriter(New FileStream(String.Format("RealmServer-Error-{0}.log", Format(Now, "yyyy-MMM-d-H-mm")), FileMode.Create))
         tw.Write(EX.ToString)
         tw.Close()
     End Sub
 End Module
->>>>>>> a6535a7... [WIP][Part 1] Reorganizing our project files a little bit here. A cleaner view is a better view.:Source/RealmServer/RealmServer.vb
