@@ -364,7 +364,7 @@ Module WS_Auction
             buffer = BitConverter.GetBytes(CType(MySQLQuery.Rows(0).Item("auction_owner"), Long))
             Array.Reverse(buffer)
             bodyText = BitConverter.ToString(buffer).Replace("-", "") & ":" & Bid & ":" & MySQLQuery.Rows(0).Item("auction_buyout")
-            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_type, mail_stationary, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read., item_guid) 
+            CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_type, mail_stationary, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, item_guid) 
                 VALUES ({0},{1},{2},62,'{3}','{4}',{5},{6},{7},{8});", AuctionID, client.Character.GUID, 2, MySQLQuery.Rows(0).Item("auction_itemId") & ":0:1", bodyText, 0, 0, MailTime, 0, MySQLQuery.Rows(0).Item("auction_itemGuid")))
 
             Dim MailQuery As New DataTable
