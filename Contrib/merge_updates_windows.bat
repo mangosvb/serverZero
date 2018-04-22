@@ -1,1 +1,1 @@
-copy /a ..\Updates\World\*.sql /b world_updates.sql
+copy /a ..\SQL\Updates\World\*.sql /b world_updates.sql
