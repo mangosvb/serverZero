@@ -161,6 +161,8 @@ Public Module WS_Network
         Public Sub ClientConnect(ByVal id As UInteger, ByVal client As ClientInfo) Implements IWorld.ClientConnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", id)
 
+            If client Is Nothing Then Throw New ApplicationException("Client doesn't exist!")
+
             Dim objCharacter As New ClientClass(client)
 
             If CLIENTs.ContainsKey(id) = True Then  'Ooops, the character is already loaded, remove it

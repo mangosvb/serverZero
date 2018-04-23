@@ -555,6 +555,8 @@ Public Module WC_Network
         End Function
 
         Public Sub OnConnect(ByVal state As Object)
+            If Socket Is Nothing Then Throw New ApplicationException("socket doesn't exist!")
+            If CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
             IP = CType(Socket.RemoteEndPoint, IPEndPoint).Address
             Port = CType(Socket.RemoteEndPoint, IPEndPoint).Port
 
@@ -594,6 +596,12 @@ Public Module WC_Network
         Public Sub OnData(ByVal ar As IAsyncResult)
             If Not Socket.Connected Then Return
             If WorldServer.m_flagStopListen Then Return
+            If ar Is Nothing Then Throw New ApplicationException("Value ar is empty!")
+            If SocketBuffer Is Nothing Then Throw New ApplicationException("SocketBuffer is empty!")
+            If Socket Is Nothing Then Throw New ApplicationException("Socket is Null!")
+            If CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
+            If Queue Is Nothing Then Throw New ApplicationException("Queue is Null!")
+            If SavedBytes Is Nothing Then Throw New ApplicationException("SavedBytes is empty!")
 
             Try
                 SocketBytes = Socket.EndReceive(ar)
@@ -668,6 +676,13 @@ Public Module WC_Network
 
         <MethodImpl(MethodImplOptions.Synchronized)>
         Public Sub OnPacket(state As Object)
+            If SocketBuffer Is Nothing Then Throw New ApplicationException("SocketBuffer is empty!")
+            If Socket Is Nothing Then Throw New ApplicationException("Socket is Null!")
+            If CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
+            If Queue Is Nothing Then Throw New ApplicationException("Queue is Null!")
+            If SavedBytes Is Nothing Then Throw New ApplicationException("SavedBytes is empty!")
+            If PacketHandlers Is Nothing Then Throw New ApplicationException("PacketHandler is empty!")
+
             Try
             Catch ex As Exception
                 HandingPackets = True
