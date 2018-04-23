@@ -114,10 +114,6 @@ Public Module WC_Handlers_Misc
         End If
     End Sub
 
-    Public Sub On_CMSG_LOGOUT_CANCEL(ByRef packet As PacketClass, ByRef client As ClientClass)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_CANCEL", client.IP, client.Port)
-    End Sub
-
     'Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As PacketClass, ByRef client As ClientClass)
     '    packet.GetUInt64()
     '    packet.GetUInt32()

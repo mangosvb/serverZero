@@ -33,7 +33,6 @@ Public Module WC_Handlers
         'NOTE: These opcodes are only partialy handled by Cluster and must be handled by WorldServer
         PacketHandlers(OPCODES.MSG_MOVE_HEARTBEAT) = AddressOf On_MSG_MOVE_HEARTBEAT
         PacketHandlers(OPCODES.CMSG_CANCEL_TRADE) = AddressOf On_CMSG_CANCEL_TRADE
-        PacketHandlers(OPCODES.CMSG_LOGOUT_CANCEL) = AddressOf On_CMSG_LOGOUT_CANCEL
 
         'NOTE: These opcodes below must be exluded form WorldServer
         PacketHandlers(OPCODES.CMSG_PING) = AddressOf On_CMSG_PING

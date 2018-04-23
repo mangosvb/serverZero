@@ -159,7 +159,6 @@ Public Module WS_Network
         End Sub
 
         Public Sub ClientConnect(ByVal id As UInteger, ByVal client As ClientInfo) Implements IWorld.ClientConnect
-            If client Is Nothing Then Throw New ApplicationException("Client doesn't exist!")
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", id)
 
             Dim objCharacter As New ClientClass(client)
