@@ -284,7 +284,7 @@ Module WS_Auction
         packet.GetInt16()
         Dim GUID As ULong = packet.GetUInt64
         Dim AuctionID As Integer = packet.GetInt32
-        Dim MailTime As Integer = GetTimestamp(Now) + (86400 * 30)
+        Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30)
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_REMOVE_ITEM [GUID={2} AuctionID={3}]", client.IP, client.Port, GUID, AuctionID)
 
@@ -323,7 +323,7 @@ Module WS_Auction
         Dim cGUID As ULong = packet.GetUInt64
         Dim AuctionID As Integer = packet.GetInt32
         Dim Bid As Integer = packet.GetInt32
-        Dim MailTime As Integer = GetTimestamp(Now) + (86400 * 30)
+        Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30)
 
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_PLACE_BID [AuctionID={2} Bid={3}]", client.IP, client.Port, AuctionID, Bid)

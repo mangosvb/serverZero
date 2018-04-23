@@ -38,8 +38,6 @@ Public Module Global_Constants
     Public Const DEFAULT_DISTANCE_VISIBLE As Single = 155.8
     Public Const DEFAULT_DISTANCE_DETECTION As Single = 7
 
-    Public Const DAY As Single = 86400.0F
-
     'TODO: Is this correct? The amount of time since last pvp action until you go out of combat again
     Public Const DEFAULT_PVP_COMBAT_TIME As Integer = 6000 ' 6 seconds
 
