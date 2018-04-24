@@ -72,7 +72,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\ServerFiles\</OutputPath>
+    <OutputPath>..\..\Bin\</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
     <BaseAddress>285212672</BaseAddress>
