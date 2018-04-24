@@ -88,29 +88,29 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Arcanist Doan.vb" />
-    <Compile Include="Baron Geddon.vb" />
-    <Compile Include="Druid of the Fang.vb" />
-    <Compile Include="Earthborer.vb" />
-    <Compile Include="Example AI.vb" />
-    <Compile Include="Gluth.vb" />
-    <Compile Include="Golemagg the Incinerator.vb" />
-    <Compile Include="Kurinnaxx.vb" />
-    <Compile Include="Lord Cobrahn.vb" />
-    <Compile Include="Lord Pythas.vb" />
-    <Compile Include="Lord Serpentis.vb" />
-    <Compile Include="Lucifron.vb" />
-    <Compile Include="Onyxia.vb" />
-    <Compile Include="Patchwerk.vb" />
-    <Compile Include="Ragefire Shaman.vb" />
-    <Compile Include="Ragefire Trogg.vb" />
-    <Compile Include="ScriptHarness.vb" />
-    <Compile Include="Searing Blade Cultist.vb" />
-    <Compile Include="Searing Blade Enforcer.vb" />
-    <Compile Include="Taragaman the Hungerer.vb" />
-    <Compile Include="Targorr the Dread.vb" />
-    <Compile Include="The Plains Vision.vb" />
-    <Compile Include="Zombie Chow.vb" />
+    <Compile Include="Creatures\Arcanist Doan.vb" />
+    <Compile Include="Creatures\Baron Geddon.vb" />
+    <Compile Include="Creatures\Druid of the Fang.vb" />
+    <Compile Include="Creatures\Earthborer.vb" />
+    <Compile Include="Examples\Example AI.vb" />
+    <Compile Include="Creatures\Gluth.vb" />
+    <Compile Include="Creatures\Golemagg the Incinerator.vb" />
+    <Compile Include="Creatures\Kurinnaxx.vb" />
+    <Compile Include="Creatures\Lord Cobrahn.vb" />
+    <Compile Include="Creatures\Lord Pythas.vb" />
+    <Compile Include="Creatures\Lord Serpentis.vb" />
+    <Compile Include="Creatures\Lucifron.vb" />
+    <Compile Include="Creatures\Onyxia.vb" />
+    <Compile Include="Creatures\Patchwerk.vb" />
+    <Compile Include="Creatures\Ragefire Shaman.vb" />
+    <Compile Include="Creatures\Ragefire Trogg.vb" />
+    <Compile Include="Creatures\ScriptHarness.vb" />
+    <Compile Include="Creatures\Searing Blade Cultist.vb" />
+    <Compile Include="Creatures\Searing Blade Enforcer.vb" />
+    <Compile Include="Creatures\Taragaman the Hungerer.vb" />
+    <Compile Include="Creatures\Targorr the Dread.vb" />
+    <Compile Include="Creatures\The Plains Vision.vb" />
+    <Compile Include="Creatures\Zombie Chow.vb" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
