@@ -316,10 +316,6 @@
       <Project>{0697622C-938D-4486-A3A4-D438D0B7503F}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Emil.GMP\Emil.GMP.csproj">
-      <Project>{dc17e27a-47d4-436b-b885-a4d285cb9ba1}</Project>
-      <Name>Emil.GMP</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
