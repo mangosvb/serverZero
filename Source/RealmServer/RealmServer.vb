@@ -83,7 +83,7 @@ Public Module RealmServer
                 _accountDatabase.SQLPort = accountDbSettings(3)
                 _accountDatabase.SQLUser = accountDbSettings(0)
                 _accountDatabase.SQLPass = accountDbSettings(1)
-                _accountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), accountDbSettings(5))
+                _accountDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), accountDbSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
@@ -174,9 +174,9 @@ Public Module RealmServer
 
     Private Sub SqlEventHandler(ByVal messageId As SQL.EMessages, ByVal outBuf As String)
         Select Case messageId
-            Case SQL.EMessages.ID_Error
+            Case Sql.EMessages.IdError
                 Console.ForegroundColor = ConsoleColor.Red
-            Case SQL.EMessages.ID_Message
+            Case Sql.EMessages.IdMessage
                 Console.ForegroundColor = ConsoleColor.DarkGreen
         End Select
 

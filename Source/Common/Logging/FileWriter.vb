@@ -19,51 +19,53 @@ Imports System.IO
 
 'Using this logging type, all logs are saved in files numbered by date.
 'Writting commands is done trought console.
-Imports MangosVB.Common.Logging
 
-Public Class FileWriter
-    Inherits BaseWriter
+Namespace Logging
+    Public Class FileWriter
+        Inherits BaseWriter
 
-    Protected Output As StreamWriter
-    Protected LastDate As Date = #1/1/2007#
-    Protected Filename As String = ""
+        Protected Output As StreamWriter
+        Protected LastDate As Date = #1/1/2007#
+        Protected Filename As String = ""
 
-    Protected Sub CreateNewFile()
-        LastDate = Now.Date
-        Output = New StreamWriter(String.Format("{0}-{1}.log", Filename, Format(LastDate, "yyyy-MM-dd")), True)
-        Output.AutoFlush = True
+        Protected Sub CreateNewFile()
+            LastDate = Now.Date
+            Output = New StreamWriter(String.Format("{0}-{1}.log", Filename, Format(LastDate, "yyyy-MM-dd")), True) With {
+                .AutoFlush = True
+            }
 
-        WriteLine(LogType.INFORMATION, "Log started successfully.")
-    End Sub
+            WriteLine(LogType.INFORMATION, "Log started successfully.")
+        End Sub
 
-    Public Sub New(ByVal createfilename As String)
-        Filename = createfilename
-        CreateNewFile()
-    End Sub
+        Public Sub New(ByVal createfilename As String)
+            Filename = createfilename
+            CreateNewFile()
+        End Sub
 
-    Private _disposedValue As Boolean ' To detect redundant calls
+        Private _disposedValue As Boolean ' To detect redundant calls
 
-    ' IDisposable
-    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
-        If Not _disposedValue Then
-            ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-            ' TODO: set large fields to null.
-            Output.Close()
-        End If
-        _disposedValue = True
-    End Sub
+        ' IDisposable
+        Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+            If Not _disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Output.Close()
+            End If
+            _disposedValue = True
+        End Sub
 
-    Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-        If LastDate <> Now.Date Then CreateNewFile()
+        Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+            If LogLevel > type Then Return
+            If LastDate <> Now.Date Then CreateNewFile()
 
-        Output.Write(formatStr, arg)
-    End Sub
-    Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-        If LastDate <> Now.Date Then CreateNewFile()
+            Output.Write(formatStr, arg)
+        End Sub
+        Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+            If LogLevel > type Then Return
+            If LastDate <> Now.Date Then CreateNewFile()
 
-        Output.WriteLine(L(type) & ":[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
-    End Sub
+            Output.WriteLine(L(type) & ":[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
+        End Sub
 
-End Class
+    End Class
+End Namespace

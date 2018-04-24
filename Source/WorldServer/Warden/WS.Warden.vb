@@ -20,6 +20,7 @@ Imports System.IO
 Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
 Imports mangosVB.Common.NativeMethods
+Imports mangosVB.Common.Globals.GlobalZip
 
 Public Module WS_Warden
 
@@ -411,14 +412,15 @@ Public Module WS_Warden
             SetRC4DataD = AddressOf SetRC4Data
             GetRC4DataD = AddressOf GetRC4Data
 
-            myFunctionList = New FuncList
-            myFunctionList.fpSendPacket = Marshal.GetFunctionPointerForDelegate(SendPacketD).ToInt32()
-            myFunctionList.fpCheckModule = Marshal.GetFunctionPointerForDelegate(CheckModuleD).ToInt32()
-            myFunctionList.fpLoadModule = Marshal.GetFunctionPointerForDelegate(ModuleLoadD).ToInt32()
-            myFunctionList.fpAllocateMemory = Marshal.GetFunctionPointerForDelegate(AllocateMemD).ToInt32()
-            myFunctionList.fpReleaseMemory = Marshal.GetFunctionPointerForDelegate(FreeMemoryD).ToInt32()
-            myFunctionList.fpSetRC4Data = Marshal.GetFunctionPointerForDelegate(SetRC4DataD).ToInt32()
-            myFunctionList.fpGetRC4Data = Marshal.GetFunctionPointerForDelegate(GetRC4DataD).ToInt32()
+            myFunctionList = New FuncList With {
+                .fpSendPacket = Marshal.GetFunctionPointerForDelegate(SendPacketD).ToInt32(),
+                .fpCheckModule = Marshal.GetFunctionPointerForDelegate(CheckModuleD).ToInt32(),
+                .fpLoadModule = Marshal.GetFunctionPointerForDelegate(ModuleLoadD).ToInt32(),
+                .fpAllocateMemory = Marshal.GetFunctionPointerForDelegate(AllocateMemD).ToInt32(),
+                .fpReleaseMemory = Marshal.GetFunctionPointerForDelegate(FreeMemoryD).ToInt32(),
+                .fpSetRC4Data = Marshal.GetFunctionPointerForDelegate(SetRC4DataD).ToInt32(),
+                .fpGetRC4Data = Marshal.GetFunctionPointerForDelegate(GetRC4DataD).ToInt32()
+            }
 
             Console.WriteLine("Imports: ")
             Console.WriteLine("  SendPacket: 0x{0:X}", myFunctionList.fpSendPacket)
@@ -465,7 +467,7 @@ Public Module WS_Warden
 #Region "Unload Module"
         Private Sub Unload_Module()
             'TODO!!
-            free(m_Mod)
+            Free(m_Mod)
         End Sub
 #End Region
 
@@ -531,7 +533,7 @@ Public Module WS_Warden
         End Function
         Private Sub FreeMemory(ByVal dwMemory As Integer)
             Console.WriteLine("Warden.FreeMemory() Memory={0}", dwMemory)
-            free(dwMemory)
+            Free(dwMemory)
         End Sub
         Private Function SetRC4Data(ByVal lpKeys As Integer, ByVal dwSize As Integer) As Integer
             Console.WriteLine("Warden.SetRC4Data() Keys={0}, Size={1}", lpKeys, dwSize)
@@ -554,7 +556,7 @@ Public Module WS_Warden
             m_RC4 = 0
             Dim pK As Integer = ByteArrPtr(K)
             GenerateRC4Keys(m_ModMem, pK, K.Length)
-            free(pK)
+            Free(pK)
         End Sub
 
         Public Function HandlePacket(ByVal PacketData() As Byte) As Integer
@@ -563,7 +565,7 @@ Public Module WS_Warden
             BytesRead = VarPtr(BytesRead)
             Dim pPacket As Integer = ByteArrPtr(PacketData)
             PacketHandler(m_ModMem, pPacket, PacketData.Length, BytesRead)
-            free(pPacket)
+            Free(pPacket)
             Return Marshal.ReadInt32(New IntPtr(BytesRead))
         End Function
 
@@ -630,46 +632,51 @@ Public Module WS_Warden
         End Sub
 
         Public Sub Do_MEM_CHECK(ByVal ScanModule As String, ByVal Offset As Integer, ByVal Length As Byte)
-            Dim newCheck As New CheatCheck(CheckTypes.MEM_CHECK)
-            newCheck.Str = ScanModule
-            newCheck.Addr = Offset
-            newCheck.Length = Length
+            Dim newCheck As New CheatCheck(CheckTypes.MEM_CHECK) With {
+                .Str = ScanModule,
+                .Addr = Offset,
+                .Length = Length
+            }
 
             If ScanModule <> "" Then UsedStrings.Add(ScanModule)
             Checks.Add(newCheck)
         End Sub
 
         Public Sub Do_PAGE_CHECK_A_B(ByVal Seed As Integer, ByVal Hash() As Byte, ByVal Offset As Integer, ByVal Length As Byte)
-            Dim newCheck As New CheatCheck(CheckTypes.PAGE_CHECK_A_B)
-            newCheck.Seed = Seed
-            newCheck.Hash = Hash
-            newCheck.Addr = Offset
-            newCheck.Length = Length
+            Dim newCheck As New CheatCheck(CheckTypes.PAGE_CHECK_A_B) With {
+                .Seed = Seed,
+                .Hash = Hash,
+                .Addr = Offset,
+                .Length = Length
+            }
 
             Checks.Add(newCheck)
         End Sub
 
         Public Sub Do_MPQ_CHECK(ByVal File As String)
-            Dim newCheck As New CheatCheck(CheckTypes.MPQ_CHECK)
-            newCheck.Str = File
+            Dim newCheck As New CheatCheck(CheckTypes.MPQ_CHECK) With {
+                .Str = File
+            }
 
             UsedStrings.Add(File)
             Checks.Add(newCheck)
         End Sub
 
         Public Sub Do_LUA_STR_CHECK(ByVal str As String)
-            Dim newCheck As New CheatCheck(CheckTypes.LUA_STR_CHECK)
-            newCheck.Str = str
+            Dim newCheck As New CheatCheck(CheckTypes.LUA_STR_CHECK) With {
+                .Str = str
+            }
 
             UsedStrings.Add(str)
             Checks.Add(newCheck)
         End Sub
 
         Public Sub Do_DRIVER_CHECK(ByVal Seed As Integer, ByVal Hash() As Byte, ByVal Driver As String)
-            Dim newCheck As New CheatCheck(CheckTypes.DRIVER_CHECK)
-            newCheck.Seed = Seed
-            newCheck.Hash = Hash
-            newCheck.Str = Driver
+            Dim newCheck As New CheatCheck(CheckTypes.DRIVER_CHECK) With {
+                .Seed = Seed,
+                .Hash = Hash,
+                .Str = Driver
+            }
 
             UsedStrings.Add(Driver)
             Checks.Add(newCheck)
@@ -682,13 +689,14 @@ Public Module WS_Warden
         End Sub
 
         Public Sub Do_PROC_CHECK(ByVal Seed As Integer, ByVal Hash() As Byte, ByVal ScanModule As String, ByVal ProcName As String, ByVal Offset As Integer, ByVal Length As Byte)
-            Dim newCheck As New CheatCheck(CheckTypes.PROC_CHECK)
-            newCheck.Seed = Seed
-            newCheck.Hash = Hash
-            newCheck.Str = ScanModule
-            newCheck.Str2 = ProcName
-            newCheck.Addr = Offset
-            newCheck.Length = Length
+            Dim newCheck As New CheatCheck(CheckTypes.PROC_CHECK) With {
+                .Seed = Seed,
+                .Hash = Hash,
+                .Str = ScanModule,
+                .Str2 = ProcName,
+                .Addr = Offset,
+                .Length = Length
+            }
 
             UsedStrings.Add(ScanModule)
             UsedStrings.Add(ProcName)
@@ -696,9 +704,10 @@ Public Module WS_Warden
         End Sub
 
         Public Sub Do_MODULE_CHECK(ByVal Seed As Integer, ByVal Hash() As Byte)
-            Dim newCheck As New CheatCheck(CheckTypes.MODULE_CHECK)
-            newCheck.Seed = Seed
-            newCheck.Hash = Hash
+            Dim newCheck As New CheatCheck(CheckTypes.MODULE_CHECK) With {
+                .Seed = Seed,
+                .Hash = Hash
+            }
 
             Checks.Add(newCheck)
         End Sub
@@ -861,14 +870,14 @@ Public Module WS_Warden
         Return pData
     End Function
 
-    Private Function malloc(ByVal length As Integer) As Integer
+    Private Function Malloc(ByVal length As Integer) As Integer
         Dim tmpHandle As Integer = Marshal.AllocHGlobal(length + 4).ToInt32()
         Dim lockedHandle As Integer = GlobalLock(tmpHandle, "") + 4
         Marshal.WriteInt32(New IntPtr(lockedHandle - 4), tmpHandle)
         Return lockedHandle
     End Function
 
-    Private Sub free(ByVal ptr As Integer)
+    Private Sub Free(ByVal ptr As Integer)
         Dim tmpHandle As Integer = Marshal.ReadInt32(New IntPtr(ptr - 4))
         GlobalUnlock(tmpHandle, "")
         Marshal.FreeHGlobal(New IntPtr(tmpHandle))

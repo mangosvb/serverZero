@@ -178,7 +178,7 @@ Public Module WorldServer
                 AccountDatabase.SQLPort = AccountDBSettings(3)
                 AccountDatabase.SQLUser = AccountDBSettings(0)
                 AccountDatabase.SQLPass = AccountDBSettings(1)
-                AccountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5))
+                AccountDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), AccountDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
@@ -190,7 +190,7 @@ Public Module WorldServer
                 CharacterDatabase.SQLPort = CharacterDBSettings(3)
                 CharacterDatabase.SQLUser = CharacterDBSettings(0)
                 CharacterDatabase.SQLPass = CharacterDBSettings(1)
-                CharacterDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), CharacterDBSettings(5))
+                CharacterDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), CharacterDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the character database!")
             End If
@@ -202,7 +202,7 @@ Public Module WorldServer
                 WorldDatabase.SQLPort = WorldDBSettings(3)
                 WorldDatabase.SQLUser = WorldDBSettings(0)
                 WorldDatabase.SQLPass = WorldDBSettings(1)
-                WorldDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), WorldDBSettings(5))
+                WorldDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), WorldDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the world database!")
             End If
@@ -227,27 +227,27 @@ Public Module WorldServer
     Public WorldDatabase As New SQL
     Public Sub AccountSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
-            Case SQL.EMessages.ID_Error
+            Case Sql.EMessages.IdError
                 Log.WriteLine(LogType.FAILED, "[ACCOUNT] " & OutBuf)
-            Case SQL.EMessages.ID_Message
+            Case Sql.EMessages.IdMessage
                 Log.WriteLine(LogType.SUCCESS, "[ACCOUNT] " & OutBuf)
         End Select
     End Sub
 
-    Public Sub CharacterSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
+    Public Sub CharacterSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
         Select Case MessageID
-            Case SQL.EMessages.ID_Error
+            Case Sql.EMessages.IdError
                 Log.WriteLine(LogType.FAILED, "[CHARACTER] " & OutBuf)
-            Case SQL.EMessages.ID_Message
+            Case Sql.EMessages.IdMessage
                 Log.WriteLine(LogType.SUCCESS, "[CHARACTER] " & OutBuf)
         End Select
     End Sub
 
-    Public Sub WorldSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
+    Public Sub WorldSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
         Select Case MessageID
-            Case SQL.EMessages.ID_Error
+            Case Sql.EMessages.IdError
                 Log.WriteLine(LogType.FAILED, "[WORLD] " & OutBuf)
-            Case SQL.EMessages.ID_Message
+            Case Sql.EMessages.IdMessage
                 Log.WriteLine(LogType.SUCCESS, "[WORLD] " & OutBuf)
         End Select
     End Sub
@@ -255,7 +255,7 @@ Public Module WorldServer
 
     <MTAThread()>
     Sub Main()
-        timeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
+        TimeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
 
         Console.BackgroundColor = ConsoleColor.Black
         Console.Title = String.Format("{0} v{1}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title, [Assembly].GetExecutingAssembly().GetName().Version)
@@ -293,13 +293,13 @@ Public Module WorldServer
 
         LoadConfig()
         Console.ForegroundColor = ConsoleColor.Gray
-        AddHandler AccountDatabase.SQLMessage, AddressOf AccountSQLEventHandler
-        AddHandler CharacterDatabase.SQLMessage, AddressOf CharacterSQLEventHandler
-        AddHandler WorldDatabase.SQLMessage, AddressOf WorldSQLEventHandler
+        AddHandler AccountDatabase.SqlMessage, AddressOf AccountSQLEventHandler
+        AddHandler CharacterDatabase.SqlMessage, AddressOf CharacterSQLEventHandler
+        AddHandler WorldDatabase.SqlMessage, AddressOf WorldSQLEventHandler
 
         Dim ReturnValues As Integer
         ReturnValues = AccountDatabase.Connect()
-        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+        If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
             Console.WriteLine("* Press any key to exit *")
@@ -310,7 +310,7 @@ Public Module WorldServer
         AccountDatabase.Update("SET NAMES 'utf8';")
 
         ReturnValues = CharacterDatabase.Connect()
-        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+        If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
             Console.WriteLine("* Press any key to exit *")
@@ -321,7 +321,7 @@ Public Module WorldServer
         CharacterDatabase.Update("SET NAMES 'utf8';")
 
         ReturnValues = WorldDatabase.Connect()
-        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+        If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
             Console.WriteLine("* Press any key to exit *")

@@ -32,12 +32,12 @@ Public Module NativeMethods
         Return BN_sub(r, a, b)
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
-    Private Function BN_bin2bn(ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
+    Private Function BN_bin2bn(ByVal byteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
     End Function
 
-    Public Function BN_bin2bn(ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr, ByVal dummy As String) As IntPtr
-        Return BN_bin2bn(ByteArrayIn, length, [to])
+    Public Function BN_bin2bn(ByVal byteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr, ByVal dummy As String) As IntPtr
+        Return BN_bin2bn(byteArrayIn, length, [to])
     End Function
 
     <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
@@ -108,14 +108,14 @@ Public Module NativeMethods
         Return 0
     End Function
 #Else
-    Private Declare Function timeGetTime Lib "winmm.dll" () As Integer
-    Private Declare Function timeBeginPeriod Lib "winmm.dll" (ByVal uPeriod As Integer) As Integer
+    Private Declare Function TimeGetTime Lib "winmm.dll" () As Integer
+    Private Declare Function TimeBeginPeriod Lib "winmm.dll" (ByVal uPeriod As Integer) As Integer
 
-    Public Function timeGetTime(ByVal dummy As String) As Integer
-        Return timeGetTime()
+    Public Function TimeGetTime(ByVal dummy As String) As Integer
+        Return TimeGetTime()
     End Function
-    Public Function timeBeginPeriod(ByVal uPeriod As Integer, ByVal dummy As String) As Integer
-        Return timeBeginPeriod(uPeriod)
+    Public Function TimeBeginPeriod(ByVal uPeriod As Integer, ByVal dummy As String) As Integer
+        Return TimeBeginPeriod(uPeriod)
     End Function
 #End If
 

@@ -19,75 +19,76 @@ Imports System.Runtime.CompilerServices
 
 'Using this logging type, all logs are displayed in console.
 'Writting commands is done trought console.
-Imports MangosVB.Common.Logging
 
-Public Class ColoredConsoleWriter
-    Inherits BaseWriter
+Namespace Logging
+    Public Class ColoredConsoleWriter
+        Inherits BaseWriter
 
-    <MethodImpl(MethodImplOptions.Synchronized)> _
-    Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
+        <MethodImpl(MethodImplOptions.Synchronized)>
+        Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+            If LogLevel > type Then Return
 
-        Select Case type
-            Case LogType.NETWORK
-                Console.ForegroundColor = ConsoleColor.DarkGray
-            Case LogType.DEBUG
-                Console.ForegroundColor = ConsoleColor.Gray
-            Case LogType.INFORMATION
-                Console.ForegroundColor = ConsoleColor.White
-            Case LogType.USER
-                Console.ForegroundColor = ConsoleColor.Blue
-            Case LogType.SUCCESS
-                Console.ForegroundColor = ConsoleColor.DarkGreen
-            Case LogType.WARNING
-                Console.ForegroundColor = ConsoleColor.Yellow
-            Case LogType.FAILED
-                Console.ForegroundColor = ConsoleColor.Red
-            Case LogType.CRITICAL
-                Console.ForegroundColor = ConsoleColor.DarkRed
-            Case LogType.DATABASE
-                Console.ForegroundColor = ConsoleColor.DarkMagenta
-        End Select
+            Select Case type
+                Case LogType.NETWORK
+                    Console.ForegroundColor = ConsoleColor.DarkGray
+                Case LogType.DEBUG
+                    Console.ForegroundColor = ConsoleColor.Gray
+                Case LogType.INFORMATION
+                    Console.ForegroundColor = ConsoleColor.White
+                Case LogType.USER
+                    Console.ForegroundColor = ConsoleColor.Blue
+                Case LogType.SUCCESS
+                    Console.ForegroundColor = ConsoleColor.DarkGreen
+                Case LogType.WARNING
+                    Console.ForegroundColor = ConsoleColor.Yellow
+                Case LogType.FAILED
+                    Console.ForegroundColor = ConsoleColor.Red
+                Case LogType.CRITICAL
+                    Console.ForegroundColor = ConsoleColor.DarkRed
+                Case LogType.DATABASE
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta
+            End Select
 
-        If arg Is Nothing Then
-            Console.Write(formatStr)
-        Else
-            Console.Write(formatStr, arg)
-        End If
-        Console.ForegroundColor = ConsoleColor.Gray
-    End Sub
+            If arg Is Nothing Then
+                Console.Write(formatStr)
+            Else
+                Console.Write(formatStr, arg)
+            End If
+            Console.ForegroundColor = ConsoleColor.Gray
+        End Sub
 
-    <MethodImpl(MethodImplOptions.Synchronized)> _
-    Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
+        <MethodImpl(MethodImplOptions.Synchronized)>
+        Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+            If LogLevel > type Then Return
 
-        Select Case type
-            Case LogType.NETWORK
-                Console.ForegroundColor = ConsoleColor.DarkGray
-            Case LogType.DEBUG
-                Console.ForegroundColor = ConsoleColor.Gray
-            Case LogType.INFORMATION
-                Console.ForegroundColor = ConsoleColor.White
-            Case LogType.USER
-                Console.ForegroundColor = ConsoleColor.Blue
-            Case LogType.SUCCESS
-                Console.ForegroundColor = ConsoleColor.DarkGreen
-            Case LogType.WARNING
-                Console.ForegroundColor = ConsoleColor.Yellow
-            Case LogType.FAILED
-                Console.ForegroundColor = ConsoleColor.Red
-            Case LogType.CRITICAL
-                Console.ForegroundColor = ConsoleColor.DarkRed
-            Case LogType.DATABASE
-                Console.ForegroundColor = ConsoleColor.DarkMagenta
-        End Select
+            Select Case type
+                Case LogType.NETWORK
+                    Console.ForegroundColor = ConsoleColor.DarkGray
+                Case LogType.DEBUG
+                    Console.ForegroundColor = ConsoleColor.Gray
+                Case LogType.INFORMATION
+                    Console.ForegroundColor = ConsoleColor.White
+                Case LogType.USER
+                    Console.ForegroundColor = ConsoleColor.Blue
+                Case LogType.SUCCESS
+                    Console.ForegroundColor = ConsoleColor.DarkGreen
+                Case LogType.WARNING
+                    Console.ForegroundColor = ConsoleColor.Yellow
+                Case LogType.FAILED
+                    Console.ForegroundColor = ConsoleColor.Red
+                Case LogType.CRITICAL
+                    Console.ForegroundColor = ConsoleColor.DarkRed
+                Case LogType.DATABASE
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta
+            End Select
 
-        If arg Is Nothing Then
-            Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr)
-        Else
-            Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
-        End If
-        Console.ForegroundColor = ConsoleColor.Gray
-    End Sub
+            If arg Is Nothing Then
+                Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr)
+            Else
+                Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
+            End If
+            Console.ForegroundColor = ConsoleColor.Gray
+        End Sub
 
-End Class
+    End Class
+End Namespace

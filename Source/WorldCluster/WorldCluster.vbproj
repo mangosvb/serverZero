@@ -160,17 +160,17 @@
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>..\Common\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Meebey.SmartIrc4net, Version=0.4.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\Meebey.SmartIrc4net.dll</HintPath>
+      <HintPath>..\Common\Meebey.SmartIrc4net.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\MySql.Data.dll</HintPath>
+      <HintPath>..\Common\MySql.Data.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System">

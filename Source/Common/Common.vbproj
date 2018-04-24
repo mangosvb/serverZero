@@ -142,10 +142,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <Name>ICSharpCode.SharpZipLib</Name>
-      <HintPath>..\..\Bin\ICSharpCode.SharpZipLib.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Meebey.SmartIrc4net, Version=0.4.0.34161, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
@@ -191,7 +190,7 @@
     <Compile Include="Globals\Global.Constants.vb" />
     <Compile Include="Globals\Global.Converter.vb" />
     <Compile Include="Globals\Global.Opcodes.vb" />
-    <Compile Include="Globals\Global.Zip.vb" />
+    <Compile Include="Globals\GlobalZip.Zip.vb" />
     <Compile Include="Logging\IrcWriter.vb" />
     <Compile Include="Logging\BaseWriter.vb" />
     <Compile Include="Logging\ConsoleColorWriter.vb" />

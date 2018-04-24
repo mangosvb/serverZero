@@ -21,24 +21,24 @@ Imports System.Data.SqlClient
 Imports MySql.Data.MySqlClient
 'Imports System.Data.OracleClient
 
-<CLSCompliant(True), ComClass(SQL.ClassId, SQL.InterfaceId, SQL.EventsId)> _
-Public Class SQL
+<CLSCompliant(True), ComClass(Sql.ClassId, Sql.InterfaceId, Sql.EventsId)>
+Public Class Sql
     Implements IDisposable
 
 #Region "Class's used"
-    <CLSCompliant(False)> _
-    Private MySQLConn As MySqlConnection
-    Private MSSQLConn As SqlConnection
+    <CLSCompliant(False)>
+    Private _mySqlConn As MySqlConnection
+    Private _mssqlConn As SqlConnection
     'Private OracleConn As OracleConnection
 #End Region
 
 #Region "Events and event ID's"
     Public Enum EMessages
-        ID_Error = 0
-        ID_Message = 1
+        IdError = 0
+        IdMessage = 1
     End Enum
 
-    Public Event SQLMessage(ByVal MessageID As EMessages, ByVal OutBuf As String)
+    Public Event SqlMessage(ByVal messageId As EMessages, ByVal outBuf As String)
 #End Region
 
 #Region "COM GUIDs"
@@ -72,16 +72,16 @@ Public Class SQL
 
 #Region "SQL startup Propertys, connections and disposal"
     'SQL Host name/password/etc..
-    Private v_SQLHost As String = "localhost"
-    Private v_SQLPort As String = "3306"
-    Private v_SQLUser As String = ""
-    Private v_SQLPass As String = ""
-    Private v_SQLDBName As String = ""
-    Public Enum DB_Type
-        MySQL = 0
-        MSSQL = 1
-        Oracle = 2
-        SQLite = 3
+    Private _vSqlHost As String = "localhost"
+    Private _vSqlPort As String = "3306"
+    Private _vSqlUser As String = ""
+    Private _vSqlPass As String = ""
+    Private _vSqldbName As String = ""
+    Public Enum DbType
+        MySql = 0
+        Mssql = 1
+        'Oracle = 2
+        'SqLite = 3
     End Enum
 
     Public Enum ReturnState
@@ -90,114 +90,114 @@ Public Class SQL
         FatalError = 2
     End Enum
 
-    Private v_SQLType As DB_Type
+    Private _vSqlType As DbType
 
 #Region "Main propertys"
 #Region "Server type selection      MySQL|MSSQL|Oracle Supported"
-    <Description("SQL Server selection.")> _
-    Public Property SQLTypeServer() As DB_Type
+    <Description("SQL Server selection.")>
+    Public Property SqlTypeServer() As DbType
         Get
-            SQLTypeServer = v_SQLType
+            SqlTypeServer = _vSqlType
         End Get
-        Set(ByVal value As DB_Type)
-            v_SQLType = value
+        Set(ByVal value As DbType)
+            _vSqlType = value
         End Set
     End Property
 #End Region
 #Region "Server host ip"
-    <Description("SQL Host name.")> _
-    Public Property SQLHost() As String
+    <Description("SQL Host name.")>
+    Public Property SqlHost() As String
         Get
-            SQLHost = v_SQLHost
+            SqlHost = _vSqlHost
         End Get
         Set(ByVal value As String)
-            v_SQLHost = value
+            _vSqlHost = value
         End Set
     End Property
 #End Region
 #Region "Server host port"
-    <Description("SQL Host port.")> _
-    Public Property SQLPort() As String
+    <Description("SQL Host port.")>
+    Public Property SqlPort() As String
         Get
-            SQLPort = v_SQLPort
+            SqlPort = _vSqlPort
         End Get
         Set(ByVal value As String)
-            v_SQLPort = value
+            _vSqlPort = value
         End Set
     End Property
 #End Region
 #Region "Server username"
-    <Description("SQL User name.")> _
-    Public Property SQLUser() As String
+    <Description("SQL User name.")>
+    Public Property SqlUser() As String
         Get
-            SQLUser = v_SQLUser
+            SqlUser = _vSqlUser
         End Get
         Set(ByVal value As String)
-            v_SQLUser = value
+            _vSqlUser = value
         End Set
     End Property
 #End Region
 #Region "Server Password"
-    <Description("SQL Password.")> _
-    Public Property SQLPass() As String
+    <Description("SQL Password.")>
+    Public Property SqlPass() As String
         Get
-            SQLPass = v_SQLPass
+            SqlPass = _vSqlPass
         End Get
         Set(ByVal value As String)
-            v_SQLPass = value
+            _vSqlPass = value
         End Set
     End Property
 #End Region
 #Region "Database Name"
-    <Description("SQL Database name.")> _
-    Public Property SQLDBName() As String
+    <Description("SQL Database name.")>
+    Public Property SqldbName() As String
         Get
-            SQLDBName = v_SQLDBName
+            SqldbName = _vSqldbName
         End Get
         Set(ByVal value As String)
-            v_SQLDBName = value
+            _vSqldbName = value
         End Set
     End Property
 #End Region
 #End Region
 #Region "Main Functions"
 #Region "Connect()                  MySQL|MSSQL|Oracle Supported"
-    <Description("Start up the SQL connection.")> _
+    <Description("Start up the SQL connection.")>
     Public Function Connect() As Integer
         Try
             If SQLHost.Length < 1 Then
-                RaiseEvent SQLMessage(EMessages.ID_Error, "You have to set the SQLHost cannot be empty")
+                RaiseEvent SqlMessage(EMessages.IdError, "You have to set the SQLHost cannot be empty")
                 Return ReturnState.FatalError
             End If
             If SQLPort.Length < 1 Then
-                RaiseEvent SQLMessage(EMessages.ID_Error, "You have to set the SQLPort cannot be empty")
+                RaiseEvent SqlMessage(EMessages.IdError, "You have to set the SQLPort cannot be empty")
                 Return ReturnState.FatalError
             End If
             If SQLUser.Length < 1 Then
-                RaiseEvent SQLMessage(EMessages.ID_Error, "You have to set the SQLUser cannot be empty")
+                RaiseEvent SqlMessage(EMessages.IdError, "You have to set the SQLUser cannot be empty")
                 Return ReturnState.FatalError
             End If
             If SQLPass.Length < 1 Then
-                RaiseEvent SQLMessage(EMessages.ID_Error, "You have to set the SQLPassword cannot be empty")
+                RaiseEvent SqlMessage(EMessages.IdError, "You have to set the SQLPassword cannot be empty")
                 Return ReturnState.FatalError
             End If
             If SQLDBName.Length < 1 Then
-                RaiseEvent SQLMessage(EMessages.ID_Error, "You have to set the SQLDatabaseName cannot be empty")
+                RaiseEvent SqlMessage(EMessages.IdError, "You have to set the SQLDatabaseName cannot be empty")
                 Return ReturnState.FatalError
             End If
 
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    MySQLConn = New MySqlConnection(String.Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
-                    MySQLConn.Open()
-                    RaiseEvent SQLMessage(EMessages.ID_Message, "MySQL Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
+            Select Case _vSqlType
+                Case DbType.MySql
+                    _mySqlConn = New MySqlConnection(String.Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    _mySqlConn.Open()
+                    RaiseEvent SqlMessage(EMessages.IdMessage, "MySQL Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
 
-                Case DB_Type.MSSQL
-                    MSSQLConn = New SqlConnection(String.Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
-                    If MSSQLConn.State = ConnectionState.Closed Then
-                        MSSQLConn.Open()
+                Case DbType.Mssql
+                    _mssqlConn = New SqlConnection(String.Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    If _mssqlConn.State = ConnectionState.Closed Then
+                        _mssqlConn.Open()
                     End If
-                    RaiseEvent SQLMessage(EMessages.ID_Message, "MS-SQL Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
+                    RaiseEvent SqlMessage(EMessages.IdMessage, "MS-SQL Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
 
                     'Case DB_Type.Oracle
                     '    Dim OracleConn As New OracleConnection([String].Format("Host={0};Port={4};User Id={1};Password={2};Data Source={3};", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
@@ -207,10 +207,10 @@ Public Class SQL
             End Select
 
         Catch e As MySqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "MySQL Connection Error [" & e.Message & "]")
+            RaiseEvent SqlMessage(EMessages.IdError, "MySQL Connection Error [" & e.Message & "]")
             Return ReturnState.FatalError
         Catch e As SqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "MSSQL Connection Error [" & e.Message & "]")
+            RaiseEvent SqlMessage(EMessages.IdError, "MSSQL Connection Error [" & e.Message & "]")
             Return ReturnState.FatalError
             'Catch e As OracleException
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Connection Error [" & e.Message & "]")
@@ -219,31 +219,31 @@ Public Class SQL
     End Function
 #End Region
 #Region "Restart()                  MySQL|MSSQL|Oracle Supported"
-    <Description("Restart the SQL connection.")> _
+    <Description("Restart the SQL connection.")>
     Public Sub Restart()
         Try
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    MySQLConn.Close()
-                    MySQLConn.Dispose()
-                    MySQLConn = New MySqlConnection(String.Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
-                    MySQLConn.Open()
+            Select Case _vSqlType
+                Case DbType.MySql
+                    _mySqlConn.Close()
+                    _mySqlConn.Dispose()
+                    _mySqlConn = New MySqlConnection(String.Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    _mySqlConn.Open()
 
-                    If MySQLConn.State = ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Message, "MySQL Connection restarted!")
+                    If _mySqlConn.State = ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdMessage, "MySQL Connection restarted!")
                     Else
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "Unable to restart MySQL connection.")
+                        RaiseEvent SqlMessage(EMessages.IdError, "Unable to restart MySQL connection.")
                     End If
-                Case DB_Type.MSSQL
-                    MSSQLConn.Close()
-                    MSSQLConn.Dispose()
-                    MSSQLConn = New SqlConnection(String.Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
-                    MSSQLConn.Open()
+                Case DbType.Mssql
+                    _mssqlConn.Close()
+                    _mssqlConn.Dispose()
+                    _mssqlConn = New SqlConnection(String.Format("Server={0},{4};User ID={1};Password={2};Database={3};Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
+                    _mssqlConn.Open()
 
-                    If MSSQLConn.State = ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Message, "MSSQL Connection restarted!")
+                    If _mssqlConn.State = ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdMessage, "MSSQL Connection restarted!")
                     Else
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "Unable to restart MSSQL connection.")
+                        RaiseEvent SqlMessage(EMessages.IdError, "Unable to restart MSSQL connection.")
                     End If
                     'Case DB_Type.Oracle
                     '    OracleConn.Close()
@@ -259,9 +259,9 @@ Public Class SQL
             End Select
 
         Catch e As MySqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "MySQL Connection Error [" & e.Message & "]")
+            RaiseEvent SqlMessage(EMessages.IdError, "MySQL Connection Error [" & e.Message & "]")
         Catch e As SqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "MSSQL Connection Error [" & e.Message & "]")
+            RaiseEvent SqlMessage(EMessages.IdError, "MSSQL Connection Error [" & e.Message & "]")
             'Catch e As OracleException
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Oracle Connection Error [" & e.Message & "]")
         End Try
@@ -272,18 +272,18 @@ Public Class SQL
     Private _disposedValue As Boolean ' To detect redundant calls
 
     ' IDisposable
-    <Description("Close file and dispose the wdb reader.")> _
+    <Description("Close file and dispose the wdb reader.")>
     Protected Overridable Sub Dispose(ByVal disposing As Boolean)
         If Not _disposedValue Then
             ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
             ' TODO: set large fields to null.
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    MySQLConn.Close()
-                    MySQLConn.Dispose()
-                Case DB_Type.MSSQL
-                    MSSQLConn.Close()
-                    MSSQLConn.Dispose()
+            Select Case _vSqlType
+                Case DbType.MySql
+                    _mySqlConn.Close()
+                    _mySqlConn.Dispose()
+                Case DbType.Mssql
+                    _mssqlConn.Close()
+                    _mssqlConn.Dispose()
                     'Case DB_Type.Oracle
                     '    OracleConn.Close()
                     '    OracleConn.Dispose()
@@ -304,15 +304,15 @@ Public Class SQL
 #End Region
 
 #Region "SQL Wraper for VB 6.0."
-    Private mQuery As String = ""
-    Private mResult As DataTable
+    Private _mQuery As String = ""
+    Private _mResult As DataTable
 
 #Region "Query Wraper"
-    <Description("SQLQuery. EG.: (SELECT * FROM db_accounts WHERE account = 'name';')")> _
-    Public Function QuerySQL(ByVal SQLQuery As String) As Boolean
-        mQuery = SQLQuery
-        Query(mQuery, mResult)
-        If mResult.Rows.Count > 0 Then
+    <Description("SQLQuery. EG.: (SELECT * FROM db_accounts WHERE account = 'name';')")>
+    Public Function QuerySql(ByVal sqlQuery As String) As Boolean
+        _mQuery = sqlQuery
+        Query(_mQuery, _mResult)
+        If _mResult.Rows.Count > 0 Then
             'Table gathered
             Return True
         Else
@@ -321,46 +321,50 @@ Public Class SQL
         End If
     End Function
 #End Region
-#Region "SQL Get [STRING], [DataTable]"
-    <Description("SQLGet. Used after the query to get a section value")> _
-    Public Function GetSQL(ByVal TableSection As String) As String
-        Return (mResult.Rows(0).Item(TableSection)).ToString
-    End Function
-    Public Function GetDataTableSQL() As DataTable
-        Return mResult
-    End Function
-#End Region
+    '#Region "SQL Get [STRING], [DataTable]"
+    '    <Description("SQLGet. Used after the query to get a section value")>
+    '    Public Function GetSql(ByVal tableSection As String) As String
+    '        Return (mResult.Rows(0).Item(tableSection)).ToString
+    '    End Function
+    '    Public Function GetDataTableSql() As DataTable
+    '        Return mResult
+    '    End Function
+    '#End Region
 #Region "Insert Wraper"
-    <Description("SQLInsert. EG.: (INSERT INTO db_textpage (pageid, text, nextpageid, wdbversion, checksum) VALUES ('pageid DWORD', 'pagetext STRING', 'nextpage DWORD', 'version DWORD', 'checksum DWORD')")> _
-    Public Sub InsertSQL(ByVal SQLInsertionQuery As String)
-        Insert(SQLInsertionQuery)
+    <Description("SQLInsert. EG.: (INSERT INTO db_textpage (pageid, text, nextpageid, wdbversion, checksum) VALUES ('pageid DWORD', 'pagetext STRING', 'nextpage DWORD', 'version DWORD', 'checksum DWORD')")>
+    Public Sub InsertSql(ByVal sqlInsertionQuery As String)
+        Insert(sqlInsertionQuery)
     End Sub
 #End Region
-#Region "Update Wraper"
-    <Description("SQLUpdate. EG.: (UPDATE db_textpage SET pagetext='pagetextstring' WHERE pageid = 'pageiddword';")> _
-    Public Sub UpdateSQL(ByVal SQLUpdateQuery As String)
-        Update(SQLUpdateQuery)
-    End Sub
-#End Region
+    '#Region "Update Wraper"
+    '    <Description("SQLUpdate. EG.: (UPDATE db_textpage SET pagetext='pagetextstring' WHERE pageid = 'pageiddword';")>
+    '    Public Sub UpdateSQL(ByVal SQLUpdateQuery As String)
+    '        Update(SQLUpdateQuery)
+    '    End Sub
+    '#End Region
 #End Region
 
 #Region "Main SQL Functions Used."
 #Region "Query      MySQL|MSSQL|Oracle Supported       [SELECT * FROM db_accounts WHERE account = 'name';']"
-    Public Function Query(ByVal sqlquery As String, ByRef Result As DataTable) As Integer
-        Select Case v_SQLType
-            Case DB_Type.MySQL
-                If MySQLConn.State <> ConnectionState.Open Then
+    Public Function Query(ByVal sqlquery As String, ByRef result As DataTable) As Integer
+        If result Is Nothing Then
+            Throw New ArgumentNullException(NameOf(result))
+        End If
+
+        Select Case _vSqlType
+            Case DbType.MySql
+                If _mySqlConn.State <> ConnectionState.Open Then
                     Restart()
-                    If MySQLConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "MySQL Database Request Failed!")
+                    If _mySqlConn.State <> ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdError, "MySQL Database Request Failed!")
                         Return ReturnState.MinorError
                     End If
                 End If
-            Case DB_Type.MSSQL
-                If MSSQLConn.State <> ConnectionState.Open Then
+            Case DbType.Mssql
+                If _mssqlConn.State <> ConnectionState.Open Then
                     Restart()
-                    If MSSQLConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "MSSQL Database Request Failed!")
+                    If _mssqlConn.State <> ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdError, "MSSQL Database Request Failed!")
                         Return ReturnState.MinorError
                     End If
                 End If
@@ -374,32 +378,32 @@ Public Class SQL
                 '    End If
         End Select
 
-        Dim ExitCode As Integer = ReturnState.Success
+        Dim exitCode As Integer = ReturnState.Success
         Try
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    Monitor.Enter(MySQLConn)
-                    Dim MySQLCommand As New MySqlCommand(sqlquery, MySQLConn)
-                    Dim MySQLAdapter As New MySqlDataAdapter(MySQLCommand)
+            Select Case _vSqlType
+                Case DbType.MySql
+                    Monitor.Enter(_mySqlConn)
+                    Dim mySqlCommand As New MySqlCommand(sqlquery, _mySqlConn)
+                    Dim mySqlAdapter As New MySqlDataAdapter(mySqlCommand)
 
-                    If Result Is Nothing Then
-                        Result = New DataTable
+                    If result Is Nothing Then
+                        result = New DataTable
                     Else
-                        Result.Clear()
+                        result.Clear()
                     End If
-                    MySQLAdapter.Fill(Result)
+                    mySqlAdapter.Fill(result)
 
-                Case DB_Type.MSSQL
-                    Monitor.Enter(MSSQLConn)
-                    Dim MSSQLCommand As SqlCommand = New SqlCommand(sqlquery, MSSQLConn)
-                    Dim MSSQLAdapter As New SqlDataAdapter(MSSQLCommand)
+                Case DbType.Mssql
+                    Monitor.Enter(_mssqlConn)
+                    Dim mssqlCommand As SqlCommand = New SqlCommand(sqlquery, _mssqlConn)
+                    Dim mssqlAdapter As New SqlDataAdapter(mssqlCommand)
 
-                    If Result Is Nothing Then
-                        Result = New DataTable
+                    If result Is Nothing Then
+                        result = New DataTable
                     Else
-                        Result.Clear()
+                        result.Clear()
                     End If
-                    MSSQLAdapter.Fill(Result)
+                    mssqlAdapter.Fill(result)
 
                     'Case DB_Type.Oracle
                     '    Monitor.Enter(OracleConn)
@@ -415,45 +419,45 @@ Public Class SQL
             End Select
 
         Catch e As MySqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MySQL Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
-            ExitCode = ReturnState.FatalError
+            RaiseEvent SqlMessage(EMessages.IdError, "Error Reading From MySQL Database " & e.Message)
+            RaiseEvent SqlMessage(EMessages.IdError, "Query string was: " & sqlquery)
+            exitCode = ReturnState.FatalError
         Catch e As SqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MSSQL Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
-            ExitCode = ReturnState.FatalError
+            RaiseEvent SqlMessage(EMessages.IdError, "Error Reading From MSSQL Database " & e.Message)
+            RaiseEvent SqlMessage(EMessages.IdError, "Query string was: " & sqlquery)
+            exitCode = ReturnState.FatalError
             'Catch e As OracleException
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
         Finally
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    Monitor.Exit(MySQLConn)
-                Case DB_Type.MSSQL
-                    Monitor.Exit(MSSQLConn)
+            Select Case _vSqlType
+                Case DbType.MySql
+                    Monitor.Exit(_mySqlConn)
+                Case DbType.Mssql
+                    Monitor.Exit(_mssqlConn)
                     'Case DB_Type.Oracle
                     '    Monitor.Exit(OracleConn)
             End Select
         End Try
-        Return ExitCode
+        Return exitCode
     End Function
 #End Region
 #Region "Insert     MySQL|MSSQL|Oracle Supported       [INSERT INTO db_textpage (pageid, text, nextpageid, wdbversion, checksum) VALUES ('pageid DWORD', 'pagetext STRING', 'nextpage DWORD', 'version DWORD', 'checksum DWORD']"
     Public Sub Insert(ByVal sqlquery As String)
-        Select Case v_SQLType
-            Case DB_Type.MySQL
-                If MySQLConn.State <> ConnectionState.Open Then
+        Select Case _vSqlType
+            Case DbType.MySql
+                If _mySqlConn.State <> ConnectionState.Open Then
                     Restart()
-                    If MySQLConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "MySQL Database Request Failed!")
+                    If _mySqlConn.State <> ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdError, "MySQL Database Request Failed!")
                         Exit Sub
                     End If
                 End If
-            Case DB_Type.MSSQL
-                If MSSQLConn.State <> ConnectionState.Open Then
+            Case DbType.Mssql
+                If _mssqlConn.State <> ConnectionState.Open Then
                     Restart()
-                    If MSSQLConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "MSSQL Database Request Failed!")
+                    If _mssqlConn.State <> ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdError, "MSSQL Database Request Failed!")
                         Exit Sub
                     End If
                 End If
@@ -468,23 +472,23 @@ Public Class SQL
         End Select
 
         Try
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    Monitor.Enter(MySQLConn)
-                    Dim MySQLTransaction As MySqlTransaction = MySQLConn.BeginTransaction
-                    Dim MySQLCommand As New MySqlCommand(sqlquery, MySQLConn, MySQLTransaction)
+            Select Case _vSqlType
+                Case DbType.MySql
+                    Monitor.Enter(_mySqlConn)
+                    Dim mySqlTransaction As MySqlTransaction = _mySqlConn.BeginTransaction
+                    Dim mySqlCommand As New MySqlCommand(sqlquery, _mySqlConn, mySqlTransaction)
 
-                    MySQLCommand.ExecuteNonQuery()
-                    MySQLTransaction.Commit()
+                    mySqlCommand.ExecuteNonQuery()
+                    mySqlTransaction.Commit()
                     Console.WriteLine("transaction completed")
 
-                Case DB_Type.MSSQL
-                    Monitor.Enter(MSSQLConn)
-                    Dim MSSQLTransaction As SqlTransaction = MSSQLConn.BeginTransaction()
-                    Dim MSSQLCommand As New SqlCommand(sqlquery, MSSQLConn, MSSQLTransaction)
+                Case DbType.Mssql
+                    Monitor.Enter(_mssqlConn)
+                    Dim mssqlTransaction As SqlTransaction = _mssqlConn.BeginTransaction()
+                    Dim mssqlCommand As New SqlCommand(sqlquery, _mssqlConn, mssqlTransaction)
 
-                    MSSQLCommand.ExecuteNonQuery()
-                    MSSQLTransaction.Commit()
+                    mssqlCommand.ExecuteNonQuery()
+                    mssqlTransaction.Commit()
                     Console.WriteLine("transaction completed")
 
                     'Case DB_Type.Oracle
@@ -498,20 +502,20 @@ Public Class SQL
             End Select
 
         Catch e As MySqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MySQL Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Insert string was: " & sqlquery)
+            RaiseEvent SqlMessage(EMessages.IdError, "Error Reading From MySQL Database " & e.Message)
+            RaiseEvent SqlMessage(EMessages.IdError, "Insert string was: " & sqlquery)
         Catch e As SqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MSSQL Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
+            RaiseEvent SqlMessage(EMessages.IdError, "Error Reading From MSSQL Database " & e.Message)
+            RaiseEvent SqlMessage(EMessages.IdError, "Query string was: " & sqlquery)
             'Catch e As OracleException
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
         Finally
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    Monitor.Exit(MySQLConn)
-                Case DB_Type.MSSQL
-                    Monitor.Exit(MSSQLConn)
+            Select Case _vSqlType
+                Case DbType.MySql
+                    Monitor.Exit(_mySqlConn)
+                Case DbType.Mssql
+                    Monitor.Exit(_mssqlConn)
                     'Case DB_Type.Oracle
                     '    Monitor.Exit(OracleConn)
             End Select
@@ -520,20 +524,20 @@ Public Class SQL
 #End Region
 #Region "Update     MySQL|MSSQL|Oracle Supported       [UPDATE db_textpage SET pagetext='pagetextstring' WHERE pageid = 'pageiddword';]"
     Public Sub Update(ByVal sqlquery As String)
-        Select Case v_SQLType
-            Case DB_Type.MySQL
-                If MySQLConn.State <> ConnectionState.Open Then
+        Select Case _vSqlType
+            Case DbType.MySql
+                If _mySqlConn.State <> ConnectionState.Open Then
                     Restart()
-                    If MySQLConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "MySQL Database Request Failed!")
+                    If _mySqlConn.State <> ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdError, "MySQL Database Request Failed!")
                         Exit Sub
                     End If
                 End If
-            Case DB_Type.MSSQL
-                If MSSQLConn.State <> ConnectionState.Open Then
+            Case DbType.Mssql
+                If _mssqlConn.State <> ConnectionState.Open Then
                     Restart()
-                    If MSSQLConn.State <> ConnectionState.Open Then
-                        RaiseEvent SQLMessage(EMessages.ID_Error, "MSSQL Database Request Failed!")
+                    If _mssqlConn.State <> ConnectionState.Open Then
+                        RaiseEvent SqlMessage(EMessages.IdError, "MSSQL Database Request Failed!")
                         Exit Sub
                     End If
                 End If
@@ -548,22 +552,22 @@ Public Class SQL
         End Select
 
         Try
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    Monitor.Enter(MySQLConn)
-                    Dim MySQLCommand As New MySqlCommand(sqlquery, MySQLConn)
-                    Dim MySQLAdapter As New MySqlDataAdapter(MySQLCommand)
+            Select Case _vSqlType
+                Case DbType.MySql
+                    Monitor.Enter(_mySqlConn)
+                    Dim mySqlCommand As New MySqlCommand(sqlquery, _mySqlConn)
+                    Dim mySqlAdapter As New MySqlDataAdapter(mySqlCommand)
 
                     Dim result As New DataTable
-                    MySQLAdapter.Fill(result)
+                    mySqlAdapter.Fill(result)
 
-                Case DB_Type.MSSQL
-                    Monitor.Enter(MSSQLConn)
-                    Dim MSSQLCommand As New SqlCommand(sqlquery, MSSQLConn)
-                    Dim MSSQLAdapter As New SqlDataAdapter(MSSQLCommand)
+                Case DbType.Mssql
+                    Monitor.Enter(_mssqlConn)
+                    Dim mssqlCommand As New SqlCommand(sqlquery, _mssqlConn)
+                    Dim mssqlAdapter As New SqlDataAdapter(mssqlCommand)
 
                     Dim result As New DataTable
-                    MSSQLAdapter.Fill(result)
+                    mssqlAdapter.Fill(result)
 
                     'Case DB_Type.Oracle
                     '    Monitor.Enter(OracleConn)
@@ -575,20 +579,20 @@ Public Class SQL
             End Select
 
         Catch e As MySqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MySQL Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Update string was: " & sqlquery)
+            RaiseEvent SqlMessage(EMessages.IdError, "Error Reading From MySQL Database " & e.Message)
+            RaiseEvent SqlMessage(EMessages.IdError, "Update string was: " & sqlquery)
         Catch e As SqlException
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From MSSQL Database " & e.Message)
-            RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
+            RaiseEvent SqlMessage(EMessages.IdError, "Error Reading From MSSQL Database " & e.Message)
+            RaiseEvent SqlMessage(EMessages.IdError, "Query string was: " & sqlquery)
             'Catch e As OracleException
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Error Reading From Oracle Database " & e.Message)
             '    RaiseEvent SQLMessage(EMessages.ID_Error, "Query string was: " & sqlquery)
         Finally
-            Select Case v_SQLType
-                Case DB_Type.MySQL
-                    Monitor.Exit(MySQLConn)
-                Case DB_Type.MSSQL
-                    Monitor.Exit(MSSQLConn)
+            Select Case _vSqlType
+                Case DbType.MySql
+                    Monitor.Exit(_mySqlConn)
+                Case DbType.Mssql
+                    Monitor.Exit(_mssqlConn)
                     'Case DB_Type.Oracle
                     '    Monitor.Exit(OracleConn)
             End Select

@@ -19,73 +19,74 @@ Imports System.Threading
 Imports System.Net.Sockets
 
 'Using this logging type, you can watch logs with ordinary telnet client.
-'Writting commands requires client, which don't send every key typed.
-Imports MangosVB.Common.Logging
+'Writing commands requires client, which don't send every key typed.
 
-Public Class TelnetWriter
-    Inherits BaseWriter
+Namespace Logging
+    Public Class TelnetWriter
+        Inherits BaseWriter
 
-    Protected Conn As TcpListener
-    Protected Socket As Socket = Nothing
-    Protected Const SleepTime As Integer = 1000
+        Protected Conn As TcpListener
+        Protected Socket As Socket = Nothing
+        Protected Const SleepTime As Integer = 1000
 
-    Public Sub New(ByVal host As Net.IPAddress, ByVal port As Integer)
-        conn = New TcpListener(host, port)
-        conn.Start()
-        ThreadPool.QueueUserWorkItem(AddressOf ConnWaitListen)
-    End Sub
+        Public Sub New(ByVal host As Net.IPAddress, ByVal port As Integer)
+            Conn = New TcpListener(host, port)
+            Conn.Start()
+            ThreadPool.QueueUserWorkItem(AddressOf ConnWaitListen)
+        End Sub
 
-    Private _disposedValue As Boolean ' To detect redundant calls
+        Private _disposedValue As Boolean ' To detect redundant calls
 
-    ' IDisposable
-    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
-        If Not _disposedValue Then
-            ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-            ' TODO: set large fields to null.
-            conn.Stop()
-            conn = Nothing
-            socket.Close()
-        End If
-        _disposedValue = True
-    End Sub
-
-    Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-        If socket Is Nothing Then Return
-
-        Try
-            socket.Send(Text.Encoding.UTF8.GetBytes(String.Format(formatStr, arg).ToCharArray))
-        Catch
-            socket = Nothing
-        End Try
-    End Sub
-    Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
-        If LogLevel > type Then Return
-        If socket Is Nothing Then Return
-
-        Try
-            socket.Send(Text.Encoding.UTF8.GetBytes(String.Format(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr & vbNewLine, arg).ToCharArray))
-        Catch
-            socket = Nothing
-        End Try
-    End Sub
-    Public Overrides Function ReadLine() As String
-        While (socket Is Nothing) OrElse (socket.Available = 0)
-            Thread.Sleep(SleepTime)
-        End While
-
-        Dim buffer(socket.Available) As Byte
-        socket.Receive(buffer)
-        Return Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length)
-    End Function
-
-    Protected Sub ConnWaitListen(ByVal state As Object)
-        Do While (Not conn Is Nothing)
-            Thread.Sleep(SleepTime)
-            If conn.Pending() Then
-                socket = conn.AcceptSocket
+        ' IDisposable
+        Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+            If Not _disposedValue Then
+                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                ' TODO: set large fields to null.
+                Conn.Stop()
+                Conn = Nothing
+                Socket.Close()
             End If
-        Loop
-    End Sub
+            _disposedValue = True
+        End Sub
 
-End Class
+        Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+            If LogLevel > type Then Return
+            If Socket Is Nothing Then Return
+
+            Try
+                Socket.Send(Text.Encoding.UTF8.GetBytes(String.Format(formatStr, arg).ToCharArray))
+            Catch
+                Socket = Nothing
+            End Try
+        End Sub
+        Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+            If LogLevel > type Then Return
+            If Socket Is Nothing Then Return
+
+            Try
+                Socket.Send(Text.Encoding.UTF8.GetBytes(String.Format(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr & vbNewLine, arg).ToCharArray))
+            Catch
+                Socket = Nothing
+            End Try
+        End Sub
+        Public Overrides Function ReadLine() As String
+            While (Socket Is Nothing) OrElse (Socket.Available = 0)
+                Thread.Sleep(SleepTime)
+            End While
+
+            Dim buffer(Socket.Available) As Byte
+            Socket.Receive(buffer)
+            Return Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length)
+        End Function
+
+        Protected Sub ConnWaitListen(ByVal state As Object)
+            Do While (Not Conn Is Nothing)
+                Thread.Sleep(SleepTime)
+                If Conn.Pending() Then
+                    Socket = Conn.AcceptSocket
+                End If
+            Loop
+        End Sub
+
+    End Class
+End Namespace
