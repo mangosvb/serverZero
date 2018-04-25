@@ -28,8 +28,8 @@ Namespace Handlers
         Class CharacterObject
             Implements IDisposable
 
-            Public GUID As ULong
-            Public client As WC_Network.ClientClass
+            Public Guid As ULong
+            Public Client As ClientClass
 
             Public IsInWorld As Boolean = False
             Public Map As UInteger
@@ -170,19 +170,19 @@ Namespace Handlers
             Private _disposedValue As Boolean ' To detect redundant calls
 
             ' IDisposable
-            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            Protected Overridable Sub Dispose(disposing As Boolean)
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    client = Nothing
+                    Client = Nothing
 
                     'DONE: Update character status in database
-                    CharacterDatabase.Update(String.Format("UPDATE characters SET char_online = 0, char_logouttime = '{1}' WHERE char_guid = '{0}';", GUID, GetTimestamp(Now)))
+                    CharacterDatabase.Update(String.Format("UPDATE characters SET char_online = 0, char_logouttime = '{1}' WHERE char_guid = '{0}';", Guid, GetTimestamp(Now)))
 
                     'NOTE: Don't leave group on normal disconnect, only on logout
                     If IsInGroup Then
                         'DONE: Tell the group the member is offline
-                        Dim response As Packets.PacketClass = BuildPartyMemberStatsOffline(GUID)
+                        Dim response As PacketClass = BuildPartyMemberStatsOffline(Guid)
                         Group.Broadcast(response)
                         response.Dispose()
 
@@ -209,7 +209,7 @@ Namespace Handlers
                     End While
 
                     CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                    CHARACTERs.Remove(GUID)
+                    CHARACTERs.Remove(Guid)
                     CHARACTERs_Lock.ReleaseWriterLock()
                 End If
                 _disposedValue = True

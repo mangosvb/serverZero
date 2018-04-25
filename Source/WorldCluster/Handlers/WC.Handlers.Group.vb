@@ -32,7 +32,7 @@ Namespace Handlers
         Public Class Group
             Implements IDisposable
 
-            Public ID As Long
+            Public Id As Long
             Public Type As GroupType = GroupType.PARTY
             Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
             Private LootMaster As Byte
@@ -40,7 +40,7 @@ Namespace Handlers
             Public LootThreshold As GroupLootThreshold = GroupLootThreshold.Uncommon
 
             Public Leader As Byte
-            Public Members(GROUP_SIZE) As WcHandlerCharacter.CharacterObject
+            Public Members(GROUP_SIZE) As CharacterObject
             Public TargetIcons(7) As ULong
 
             Public Sub New(ByRef objCharacter As CharacterObject)
@@ -66,11 +66,11 @@ Namespace Handlers
             Private _disposedValue As Boolean ' To detect redundant calls
 
             ' IDisposable
-            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            Protected Overridable Sub Dispose(disposing As Boolean)
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    Dim packet As Packets.PacketClass
+                    Dim packet As PacketClass
 
                     If Type = GroupType.RAID Then
                         packet = New PacketClass(OPCODES.SMSG_GROUP_LIST)
@@ -83,17 +83,17 @@ Namespace Handlers
                     For i As Byte = 0 To Members.Length - 1
                         If Not Members(i) Is Nothing Then
                             Members(i).Group = Nothing
-                            If Not Members(i).client Is Nothing Then
-                                Members(i).client.SendMultiplyPackets(packet)
-                                Members(i).GetWorld.ClientSetGroup(Members(i).client.Index, -1)
+                            If Not Members(i).Client Is Nothing Then
+                                Members(i).Client.SendMultiplyPackets(packet)
+                                Members(i).GetWorld.ClientSetGroup(Members(i).Client.Index, -1)
                             End If
                             Members(i) = Nothing
                         End If
                     Next
                     packet.Dispose()
 
-                    WorldServer.GroupSendUpdate(ID)
-                    GROUPs.Remove(ID)
+                    WorldServer.GroupSendUpdate(Id)
+                    GROUPs.Remove(Id)
                 End If
                 _disposedValue = True
             End Sub
@@ -355,12 +355,12 @@ Namespace Handlers
             End Sub
         End Class
 
-        Public Sub On_CMSG_REQUEST_RAID_INFO(ByRef packet As PacketClass, ByRef client As WC_Network.ClientClass)
+        Public Sub On_CMSG_REQUEST_RAID_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_RAID_INFO", client.IP, client.Port)
 
             Dim q As New DataTable
             If client.Character IsNot Nothing Then
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", client.Character.GUID), q)
+                CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", client.Character.Guid), q)
             End If
 
             Dim response As New PacketClass(OPCODES.SMSG_RAID_INSTANCE_INFO)
@@ -371,8 +371,8 @@ Namespace Handlers
                 response.AddUInt32(r.Item("map"))                               'MapID
                 response.AddUInt32(CInt(r.Item("expire")) - GetTimestamp(Now))  'TimeLeft
                 response.AddUInt32(r.Item("instance"))                          'InstanceID
-                'TODO: Is this is a counter, shouldn't it be counting ?
                 response.AddUInt32(i)                                           'Counter
+                i = i + 1
             Next
             client.Send(response)
             response.Dispose()

@@ -24,14 +24,14 @@ Namespace Handlers
 
     Public Module WC_Handlers_Guild
 
-        Public Sub On_CMSG_GUILD_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+        Public Sub On_CMSG_GUILD_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
-            Dim GuildID As UInteger = packet.GetUInt32
+            Dim guildId As UInteger = packet.GetUInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_QUERY [{2}]", client.IP, client.Port, GuildID)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_QUERY [{2}]", client.IP, client.Port, guildId)
 
-            SendGuildQuery(client, GuildID)
+            SendGuildQuery(client, guildId)
         End Sub
 
         Public Sub On_CMSG_GUILD_ROSTER(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -412,7 +412,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            Dim objCharacter As WcHandlerCharacter.CharacterObject = CHARACTERs(q.Rows(0).Item("char_guid"))
+            Dim objCharacter As CharacterObject = CHARACTERs(q.Rows(0).Item("char_guid"))
 
             If objCharacter.IsGuildLeader Then
                 SendGuildResult(client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_LEADER_LEAVE)

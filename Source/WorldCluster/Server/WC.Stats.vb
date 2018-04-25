@@ -85,7 +85,7 @@ Namespace Server
             Latency = 0
 
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-            For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                 If objCharacter.Value.IsInWorld Then
                     CountPlayers += 1
 
@@ -112,7 +112,7 @@ Namespace Server
                 w(objCharacter.Value).Add(objCharacter.Key)
             Next
         End Sub
-        Public Sub GenerateStats(ByVal State As Object)
+        Public Sub GenerateStats(state As Object)
             Log.WriteLine(LogType.DEBUG, "Generating stats")
             PrepareStats()
 

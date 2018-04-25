@@ -145,7 +145,7 @@ Namespace Handlers
 
         End Sub
 
-        Public Sub OnUnhandledPacket(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+        Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
             Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, packet.OpCode)
         End Sub
 

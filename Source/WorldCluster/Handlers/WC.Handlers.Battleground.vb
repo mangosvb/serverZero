@@ -26,23 +26,23 @@ Namespace Handlers
 
     Public Module WC_Handlers_Battleground
 
-        Public Sub On_CMSG_BATTLEFIELD_PORT(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+        Public Sub On_CMSG_BATTLEFIELD_PORT(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
 
             'Dim Unk1 As Byte = packet.GetInt8
             'Dim Unk2 As Byte = packet.GetInt8                   'unk, can be 0x0 (may be if was invited?) and 0x1
             'Dim MapType As UInteger = packet.GetInt32           'type id from dbc
             'Dim MapType As Byte = packet.GetUInt8
-            Dim ID As UInteger = packet.GetUInt16               'ID
-            Dim Action As Byte = packet.GetUInt8                 'enter battle 0x1, leave queue 0x0
+            Dim id As UInteger = packet.GetUInt16               'ID
+            Dim action As Byte = packet.GetUInt8                 'enter battle 0x1, leave queue 0x0
 
             'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [MapType: {2}, Action: {3}, Unk1: {4}, Unk2: {5}, ID: {6}]", client.IP, client.Port, MapType, Action, Unk1, Unk2, ID)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [Action: {1}, ID: {2}]", client.IP, client.Port, Action, ID)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [Action: {1}, ID: {2}]", client.IP, client.Port, action, id)
 
-            If Action = 0 Then
-                BATTLEFIELDs(ID).Leave(client.Character)
+            If action = 0 Then
+                BATTLEFIELDs(id).Leave(client.Character)
             Else
-                BATTLEFIELDs(ID).Join(client.Character)
+                BATTLEFIELDs(id).Join(client.Character)
             End If
         End Sub
 

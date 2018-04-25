@@ -29,12 +29,12 @@ Namespace Handlers
         Const REQUIRED_BUILD_LOW As Integer = 5875 ' 1.12.1
         Const REQUIRED_BUILD_HIGH As Integer = 6141
 
-        Public Sub SendLoginOK(ByRef client As WC_Network.ClientClass)
+        Public Sub SendLoginOk(ByRef client As ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
 
             Thread.Sleep(500)
 
-            Dim response As New Packets.PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
+            Dim response As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
             response.AddInt8(LoginResponse.LOGIN_OK)
             response.AddInt32(0)
             response.AddInt8(2) 'BillingPlanFlags

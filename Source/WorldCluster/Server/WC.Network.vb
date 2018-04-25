@@ -175,21 +175,21 @@ Namespace Server
                 Return True
             End Function
 
-            Public Sub Disconnect(ByVal URI As String, ByVal Maps As ICollection) Implements ICluster.Disconnect
-                If Maps.Count = 0 Then Return
+            Public Sub Disconnect(uri As String, maps As ICollection) Implements ICluster.Disconnect
+                If maps.Count = 0 Then Return
 
                 'TODO: Unload arenas or battlegrounds that is hosted on this server!
-                For Each Map As UInteger In Maps
+                For Each map As UInteger In maps
 
                     'DONE: Disconnecting clients
                     SyncLock CType(CLIENTs, ICollection).SyncRoot
                         For Each objCharacter As KeyValuePair(Of UInteger, ClientClass) In CLIENTs
                             If Not objCharacter.Value.Character Is Nothing AndAlso
                                objCharacter.Value.Character.IsInWorld AndAlso
-                               objCharacter.Value.Character.Map = Map Then
-                                Dim SMSG_LOGOUT_COMPLETE As New Packets.PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-                                objCharacter.Value.Send(SMSG_LOGOUT_COMPLETE)
-                                SMSG_LOGOUT_COMPLETE.Dispose()
+                               objCharacter.Value.Character.Map = map Then
+                                Dim smsgLogoutComplete As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
+                                objCharacter.Value.Send(smsgLogoutComplete)
+                                smsgLogoutComplete.Dispose()
 
                                 objCharacter.Value.Character.Dispose()
                                 objCharacter.Value.Character = Nothing
@@ -197,17 +197,17 @@ Namespace Server
                         Next
                     End SyncLock
 
-                    If Worlds.ContainsKey(Map) Then
+                    If Worlds.ContainsKey(map) Then
                         Try
-                            RemotingServices.Disconnect(Worlds(Map))
-                            Worlds(Map) = Nothing
-                            WorldsInfo(Map) = Nothing
+                            RemotingServices.Disconnect(Worlds(map))
+                            Worlds(map) = Nothing
+                            WorldsInfo(map) = Nothing
                         Catch
                         Finally
                             SyncLock CType(Worlds, ICollection).SyncRoot
-                                Worlds.Remove(Map)
-                                WorldsInfo.Remove(Map)
-                                Log.WriteLine(LogType.INFORMATION, "Map: {0:000} has been disconnected!", Map)
+                                Worlds.Remove(map)
+                                WorldsInfo.Remove(map)
+                                Log.WriteLine(LogType.INFORMATION, "Map: {0:000} has been disconnected!", map)
                             End SyncLock
                         End Try
                     End If
@@ -309,10 +309,10 @@ Namespace Server
                 Return CLIENTs(ID).SS_Hash
             End Function
 
-            Public Sub Broadcast(ByVal p As PacketClass)
+            Public Sub Broadcast(p As PacketClass)
                 CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In CHARACTERs
-                    If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.client IsNot Nothing Then objCharacter.Value.client.SendMultiplyPackets(p)
+                For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                    If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then objCharacter.Value.Client.SendMultiplyPackets(p)
                 Next
                 CHARACTERs_Lock.ReleaseReaderLock()
             End Sub
@@ -322,9 +322,9 @@ Namespace Server
                 CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
                 For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
 
-                    If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.client IsNot Nothing Then
+                    If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then
                         b = Data.Clone
-                        objCharacter.Value.client.Send(Data)
+                        objCharacter.Value.Client.Send(Data)
                     End If
 
                 Next
@@ -336,7 +336,7 @@ Namespace Server
                     For i As Byte = 0 To .Members.Length - 1
                         If .Members(i) IsNot Nothing Then
                             Dim buffer() As Byte = Data.Clone
-                            .Members(i).client.Send(buffer)
+                            .Members(i).Client.Send(buffer)
                         End If
 
                     Next
@@ -346,9 +346,9 @@ Namespace Server
             Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
                 With GROUPs(GroupID)
                     For i As Byte = 0 To .Members.Length - 1
-                        If .Members(i) IsNot Nothing AndAlso .Members(i).client IsNot Nothing Then
+                        If .Members(i) IsNot Nothing AndAlso .Members(i).Client IsNot Nothing Then
                             Dim buffer() As Byte = Data.Clone
-                            .Members(i).client.Send(buffer)
+                            .Members(i).Client.Send(buffer)
                         End If
 
                     Next
@@ -469,11 +469,11 @@ Namespace Server
             Public Sub GroupRequestUpdate(ByVal ID As UInteger) Implements ICluster.GroupRequestUpdate
                 If CLIENTs.ContainsKey(ID) AndAlso CLIENTs(ID).Character IsNot Nothing AndAlso CLIENTs(ID).Character.IsInWorld AndAlso CLIENTs(ID).Character.IsInGroup Then
 
-                    Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update request", CLIENTs(ID).Character.Group.ID)
+                    Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update request", CLIENTs(ID).Character.Group.Id)
 
                     Try
-                        CLIENTs(ID).Character.GetWorld.GroupUpdate(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.Type, CLIENTs(ID).Character.Group.GetLeader.GUID, CLIENTs(ID).Character.Group.GetMembers)
-                        CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.ID, CLIENTs(ID).Character.Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.GUID)
+                        CLIENTs(ID).Character.GetWorld.GroupUpdate(CLIENTs(ID).Character.Group.Id, CLIENTs(ID).Character.Group.Type, CLIENTs(ID).Character.Group.GetLeader.Guid, CLIENTs(ID).Character.Group.GetMembers)
+                        CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.Id, CLIENTs(ID).Character.Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.Guid)
                     Catch
                         WorldServer.Disconnect("NULL", New Integer() {CLIENTs(ID).Character.Map})
                     End Try
@@ -485,7 +485,7 @@ Namespace Server
 
                 SyncLock CType(Worlds, ICollection).SyncRoot
                     Dim Type As Byte = GROUPs(GroupID).Type
-                    Dim Leader As ULong = GROUPs(GroupID).GetLeader.GUID
+                    Dim Leader As ULong = GROUPs(GroupID).GetLeader.Guid
                     Dim Members() As ULong = GROUPs(GroupID).GetMembers
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
@@ -504,7 +504,7 @@ Namespace Server
                     Dim Difficulty As GroupDungeonDifficulty = GROUPs(GroupID).DungeonDifficulty
                     Dim Method As GroupLootMethod = GROUPs(GroupID).LootMethod
                     Dim Threshold As GroupLootThreshold = GROUPs(GroupID).LootThreshold
-                    Dim Master As ULong = GROUPs(GroupID).GetLootMaster.GUID
+                    Dim Master As ULong = GROUPs(GroupID).GetLootMaster.Guid
 
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
@@ -876,7 +876,7 @@ Namespace Server
                     Log.WriteLine(LogType.INFORMATION, "[{1}:{2}] AUTH_WAIT_QUEUE: Server player limit reached!", IP, Port)
                     Thread.Sleep(6000)
                 End While
-                SendLoginOK(Me)
+                SendLoginOk(Me)
             End Sub
         End Class
 

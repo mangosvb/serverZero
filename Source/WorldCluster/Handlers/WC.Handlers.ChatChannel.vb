@@ -74,18 +74,18 @@ Namespace Handlers
             End Sub
 #End Region
 
-            Public Sub New(ByVal Name As String)
+            Public Sub New(ByVal name As String)
                 ID = GetNexyChatChannelID()
                 ChannelIndex = 0
-                ChannelName = Name
+                ChannelName = name
                 ChannelFlags = CHANNEL_FLAG.CHANNEL_FLAG_NONE
 
                 CHAT_CHANNELs.Add(ChannelName, Me)
 
-                Dim sZone As String = Name.Substring(Name.IndexOf(" - ") + 3)
-                For Each ChatChannel As KeyValuePair(Of Integer, WS_DBCDatabase.ChatChannelInfo) In ChatChannelsInfo
-                    If ChatChannel.Value.Name.Replace("%s", sZone).ToUpper() = Name.ToUpper() Then
-                        ChannelIndex = ChatChannel.Key
+                Dim sZone As String = name.Substring(name.IndexOf(" - ") + 3)
+                For Each chatChannel As KeyValuePair(Of Integer, ChatChannelInfo) In ChatChannelsInfo
+                    If chatChannel.Value.Name.Replace("%s", sZone).ToUpper() = name.ToUpper() Then
+                        ChannelIndex = chatChannel.Key
                         Exit For
                     End If
                 Next
@@ -115,50 +115,50 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub Say(ByVal Message As String, ByVal msgLang As Integer, ByRef Character As WcHandlerCharacter.CharacterObject)
-                If Muted.Contains(Character.GUID) Then
-                    Dim p As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOUCANTSPEAK, Character.GUID, Nothing, Nothing)
-                    Character.client.Send(p)
+            Public Sub Say(message As String, msgLang As Integer, ByRef character As CharacterObject)
+                If Muted.Contains(character.Guid) Then
+                    Dim p As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOUCANTSPEAK, character.Guid, Nothing, Nothing)
+                    character.Client.Send(p)
                     p.Dispose()
                     Exit Sub
-                ElseIf Not Joined.Contains(Character.GUID) Then
-                    Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.GUID, Nothing, Nothing)
-                    Character.client.Send(p)
+                ElseIf Not Joined.Contains(character.Guid) Then
+                    Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, character.Guid, Nothing, Nothing)
+                    character.Client.Send(p)
                     p.Dispose()
                     Exit Sub
                 Else
-                    Dim packet As PacketClass = BuildChatMessage(Character.GUID, Message, ChatMsg.CHAT_MSG_CHANNEL, msgLang, Character.ChatFlag, ChannelName)
+                    Dim packet As PacketClass = BuildChatMessage(character.Guid, message, ChatMsg.CHAT_MSG_CHANNEL, msgLang, character.ChatFlag, ChannelName)
                     Broadcast(packet)
                     packet.Dispose()
-                    Log.WriteLine(LogType.USER, "[{0}:{1}] SMSG_MESSAGECHAT [{2}: <{3}> {4}]", Character.client.IP, Character.client.Port, ChannelName, Character.Name, Message)
+                    Log.WriteLine(LogType.USER, "[{0}:{1}] SMSG_MESSAGECHAT [{2}: <{3}> {4}]", character.Client.IP, character.Client.Port, ChannelName, character.Name, message)
                 End If
             End Sub
 
-            Public Overridable Sub Join(ByRef Character As CharacterObject, ByVal ClientPassword As String)
+            Public Overridable Sub Join(ByRef character As CharacterObject, clientPassword As String)
                 'DONE: Check if Already joined
-                If Joined.Contains(Character.GUID) Then
+                If Joined.Contains(character.Guid) Then
 
-                    If Character.JoinedChannels.Contains(0) Then
-                        Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_ALREADY_ON, Character.GUID, Nothing, Nothing)
-                        Character.client.Send(p)
+                    If character.JoinedChannels.Contains(0) Then
+                        Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_ALREADY_ON, character.Guid, Nothing, Nothing)
+                        character.Client.Send(p)
                         p.Dispose()
                         Exit Sub
                     End If
                 End If
 
                 'DONE: Check if banned
-                If Banned.Contains(Character.GUID) Then
-                    Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_ARE_BANNED, Character.GUID, Nothing, Nothing)
-                    Character.client.Send(p)
+                If Banned.Contains(character.Guid) Then
+                    Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_ARE_BANNED, character.Guid, Nothing, Nothing)
+                    character.Client.Send(p)
                     p.Dispose()
                     Exit Sub
                 End If
 
                 'DONE: Check for password
                 If Password <> "" Then
-                    If Password <> ClientPassword Then
-                        Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_WRONG_PASS, Character.GUID, Nothing, Nothing)
-                        Character.client.Send(p)
+                    If Password <> clientPassword Then
+                        Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_WRONG_PASS, character.Guid, Nothing, Nothing)
+                        character.Client.Send(p)
                         p.Dispose()
                         Exit Sub
                     End If
@@ -166,45 +166,45 @@ Namespace Handlers
 
                 'DONE: {0} Joined channel
                 If Announce Then
-                    Dim response As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_JOINED, Character.GUID, Nothing, Nothing)
+                    Dim response As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_JOINED, character.Guid, Nothing, Nothing)
                     Broadcast(response)
                     response.Dispose()
                 End If
 
                 'DONE: You Joined channel
-                Dim response2 As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_JOINED, Character.GUID, Nothing, Nothing)
-                Character.client.Send(response2)
+                Dim response2 As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_JOINED, character.Guid, Nothing, Nothing)
+                character.Client.Send(response2)
                 response2.Dispose()
 
-                If Joined.Contains(Character.GUID) = False Then
-                    Joined.Add(Character.GUID)
+                If Joined.Contains(character.Guid) = False Then
+                    Joined.Add(character.Guid)
                 End If
 
-                If Joined_Mode.ContainsKey(Character.GUID) = False Then
-                    Joined_Mode.Add(Character.GUID, CHANNEL_USER_FLAG.CHANNEL_FLAG_NONE)
+                If Joined_Mode.ContainsKey(character.Guid) = False Then
+                    Joined_Mode.Add(character.Guid, CHANNEL_USER_FLAG.CHANNEL_FLAG_NONE)
                 End If
 
-                If Character.JoinedChannels.Contains(ChannelName) = False Then
-                    Character.JoinedChannels.Add(ChannelName)
+                If character.JoinedChannels.Contains(ChannelName) = False Then
+                    character.JoinedChannels.Add(ChannelName)
                 End If
 
                 'DONE: If new channel, set owner
                 If HaveFlags(ChannelFlags, CHANNEL_FLAG.CHANNEL_FLAG_CUSTOM) AndAlso Owner = 0 Then
-                    SetOwner(Character)
+                    SetOwner(character)
                 End If
 
                 'DONE: Update flags
                 Dim modes As Byte = CHANNEL_USER_FLAG.CHANNEL_FLAG_NONE
-                If Muted.Contains(Character.GUID) Then
+                If Muted.Contains(character.Guid) Then
                     modes = modes Or CHANNEL_USER_FLAG.CHANNEL_FLAG_MUTED
                 End If
-                If Moderators.Contains(Character.GUID) Then
+                If Moderators.Contains(character.Guid) Then
                     modes = modes Or CHANNEL_USER_FLAG.CHANNEL_FLAG_MODERATOR
                 End If
-                If Owner = Character.GUID Then
+                If Owner = character.Guid Then
                     modes = modes Or CHANNEL_USER_FLAG.CHANNEL_FLAG_OWNER
                 End If
-                Joined_Mode(Character.GUID) = modes
+                Joined_Mode(character.Guid) = modes
             End Sub
 
             Public Overridable Sub Part(ByRef Character As CharacterObject)

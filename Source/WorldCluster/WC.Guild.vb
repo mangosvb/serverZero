@@ -107,8 +107,8 @@ Public Module WC_Guild
 #End Region
 
     'Basic Guild Framework
-    Public Sub AddCharacterToGuild(ByRef objCharacter As WcHandlerCharacter.CharacterObject, ByVal guildId As Integer, Optional ByVal guildRank As Integer = 4)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, objCharacter.GUID, guildRank))
+    Public Sub AddCharacterToGuild(ByRef objCharacter As CharacterObject, guildId As Integer, Optional ByVal guildRank As Integer = 4)
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, objCharacter.Guid, guildRank))
 
         If GUILDs.ContainsKey(guildId) = False Then
             Dim tmpGuild As New Guild(guildId)
@@ -116,7 +116,7 @@ Public Module WC_Guild
         End If
 
         objCharacter.Guild = GUILDs(guildId)
-        objCharacter.Guild.Members.Add(objCharacter.GUID)
+        objCharacter.Guild.Members.Add(objCharacter.Guid)
         objCharacter.GuildRank = guildRank
 
         objCharacter.SendGuildUpdate()
@@ -127,9 +127,9 @@ Public Module WC_Guild
     End Sub
 
     Public Sub RemoveCharacterFromGuild(ByRef objCharacter As CharacterObject)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, objCharacter.GUID))
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, objCharacter.Guid))
 
-        objCharacter.Guild.Members.Remove(objCharacter.GUID)
+        objCharacter.Guild.Members.Remove(objCharacter.Guid)
         objCharacter.Guild = Nothing
         objCharacter.GuildRank = 0
         objCharacter.SendGuildUpdate()
@@ -139,28 +139,28 @@ Public Module WC_Guild
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, GUID))
     End Sub
 
-    Public Sub BroadcastChatMessageGuild(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal GuildID As Integer)
+    Public Sub BroadcastChatMessageGuild(ByRef sender As CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
         'DONE: Check for guild member
-        If Not Sender.IsInGuild Then
-            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+        If Not sender.IsInGuild Then
+            SendGuildResult(sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         End If
 
         'DONE: Check for rights to speak
-        If Not Sender.IsGuildRightSet(GuildRankRights.GR_RIGHT_GCHATSPEAK) Then
-            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+        If Not sender.IsGuildRightSet(GuildRankRights.GR_RIGHT_GCHATSPEAK) Then
+            SendGuildResult(sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
         'DONE: Build packet
-        Dim packet As Packets.PacketClass = BuildChatMessage(Sender.GUID, Message, ChatMsg.CHAT_MSG_GUILD, Language, Sender.ChatFlag)
+        Dim packet As PacketClass = BuildChatMessage(sender.Guid, message, ChatMsg.CHAT_MSG_GUILD, language, sender.ChatFlag)
 
         'DONE: Send message to everyone
-        Dim tmpArray() As ULong = Sender.Guild.Members.ToArray
-        For Each Member As ULong In tmpArray
-            If CHARACTERs.ContainsKey(Member) Then
-                If CHARACTERs(Member).IsGuildRightSet(GuildRankRights.GR_RIGHT_GCHATLISTEN) Then
-                    CHARACTERs(Member).client.SendMultiplyPackets(packet)
+        Dim tmpArray() As ULong = sender.Guild.Members.ToArray
+        For Each member As ULong In tmpArray
+            If CHARACTERs.ContainsKey(member) Then
+                If CHARACTERs(member).IsGuildRightSet(GuildRankRights.GR_RIGHT_GCHATLISTEN) Then
+                    CHARACTERs(member).Client.SendMultiplyPackets(packet)
                 End If
             End If
         Next
@@ -171,25 +171,25 @@ Public Module WC_Guild
     Public Sub BroadcastChatMessageOfficer(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal GuildID As Integer)
         'DONE: Check for guild member
         If Not Sender.IsInGuild Then
-            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         End If
 
         'DONE: Check for rights to speak
         If Not Sender.IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATSPEAK) Then
-            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
         'DONE: Build packet
-        Dim packet As PacketClass = BuildChatMessage(Sender.GUID, Message, ChatMsg.CHAT_MSG_OFFICER, Language, Sender.ChatFlag)
+        Dim packet As PacketClass = BuildChatMessage(Sender.Guid, Message, ChatMsg.CHAT_MSG_OFFICER, Language, Sender.ChatFlag)
 
         'DONE: Send message to everyone
         Dim tmpArray() As ULong = Sender.Guild.Members.ToArray
         For Each Member As ULong In tmpArray
             If CHARACTERs.ContainsKey(Member) Then
                 If CHARACTERs(Member).IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATLISTEN) Then
-                    CHARACTERs(Member).client.SendMultiplyPackets(packet)
+                    CHARACTERs(Member).Client.SendMultiplyPackets(packet)
                 End If
             End If
         Next
@@ -284,7 +284,7 @@ Public Module WC_Guild
             End If
         Next
 
-        objCharacter.client.Send(response)
+        objCharacter.Client.Send(response)
         response.Dispose()
     End Sub
 
@@ -307,7 +307,7 @@ Public Module WC_Guild
         statuspacket.AddInt8(0)
         statuspacket.AddInt8(0)
         statuspacket.AddInt8(0)
-        BroadcastToGuild(statuspacket, objCharacter.Guild, objCharacter.GUID)
+        BroadcastToGuild(statuspacket, objCharacter.Guild, objCharacter.Guid)
         statuspacket.Dispose()
     End Sub
 
@@ -316,7 +316,7 @@ Public Module WC_Guild
         For Each Member As ULong In tmpArray
             If Member = NotTo Then Continue For
             If CHARACTERs.ContainsKey(Member) Then
-                CHARACTERs(Member).client.SendMultiplyPackets(Packet)
+                CHARACTERs(Member).Client.SendMultiplyPackets(Packet)
             End If
         Next
     End Sub
@@ -329,7 +329,7 @@ Public Module WC_Guild
                 response.AddInt8(GuildEvent.MOTD)
                 response.AddInt8(1)
                 response.AddString(objCharacter.Guild.Motd)
-                objCharacter.client.Send(response)
+                objCharacter.Client.Send(response)
                 response.Dispose()
             End If
         End If

@@ -24,7 +24,7 @@ Namespace Globals
 
     Public Module Packets
 
-        Public Sub DumpPacket(ByVal data() As Byte, Optional ByRef client As WC_Network.ClientClass = Nothing)
+        Public Sub DumpPacket(data() As Byte, Optional ByRef client As ClientClass = Nothing)
             '#If DEBUG Then
             Dim j As Integer
             Dim buffer As String = ""

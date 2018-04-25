@@ -24,15 +24,15 @@ Namespace Handlers
 
     Public Module WC_Handlers_Chat
 
-        Public Sub On_CMSG_CHAT_IGNORED(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+        Public Sub On_CMSG_CHAT_IGNORED(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
 
-            Dim GUID As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAT_IGNORED [0x{2}]", client.IP, client.Port, GUID)
+            Dim guid As ULong = packet.GetUInt64
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAT_IGNORED [0x{2}]", client.IP, client.Port, guid)
 
-            If CHARACTERs.ContainsKey(GUID) Then
-                Dim response As PacketClass = BuildChatMessage(client.Character.GUID, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, 0, "")
-                CHARACTERs(GUID).client.Send(response)
+            If CHARACTERs.ContainsKey(guid) Then
+                Dim response As PacketClass = BuildChatMessage(client.Character.Guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, 0, "")
+                CHARACTERs(guid).Client.Send(response)
                 response.Dispose()
             End If
         End Sub
@@ -48,20 +48,20 @@ Namespace Handlers
             Select Case msgType
 
                 Case ChatMsg.CHAT_MSG_CHANNEL
-                    Dim Channel As String = packet.GetString()
-                    If (packet.Data.Length - 1) < (14 + Channel.Length) Then Exit Sub
-                    Dim Message As String = packet.GetString()
+                    Dim channel As String = packet.GetString()
+                    If (packet.Data.Length - 1) < (14 + channel.Length) Then Exit Sub
+                    Dim message As String = packet.GetString()
 
                     'DONE: Broadcast to all
-                    If CHAT_CHANNELs.ContainsKey(Channel) Then
-                        CHAT_CHANNELs(Channel).Say(Message, msgLanguage, client.Character)
+                    If CHAT_CHANNELs.ContainsKey(channel) Then
+                        CHAT_CHANNELs(channel).Say(message, msgLanguage, client.Character)
                     End If
                     Exit Sub
 
                 Case ChatMsg.CHAT_MSG_WHISPER
-                    Dim ToUser As String = CapitalizeName(packet.GetString())
-                    If (packet.Data.Length - 1) < (14 + ToUser.Length) Then Exit Sub
-                    Dim Message As String = packet.GetString()
+                    Dim toUser As String = CapitalizeName(packet.GetString())
+                    If (packet.Data.Length - 1) < (14 + toUser.Length) Then Exit Sub
+                    Dim message As String = packet.GetString()
 
                     'DONE: Handle admin/gm commands
                     'If ToUser = "Warden" AndAlso client.Character.Access > 0 Then
@@ -70,45 +70,45 @@ Namespace Handlers
                     'End If
 
                     'DONE: Send whisper MSG to receiver
-                    Dim GUID As ULong = 0
+                    Dim guid As ULong = 0
                     CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                    For Each Character As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In CHARACTERs
-                        If UCase(Character.Value.Name) = UCase(ToUser) Then
-                            GUID = Character.Value.GUID
+                    For Each character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                        If UCase(character.Value.Name) = UCase(toUser) Then
+                            guid = character.Value.Guid
                             Exit For
                         End If
                     Next
                     CHARACTERs_Lock.ReleaseReaderLock()
 
-                    If GUID > 0 AndAlso CHARACTERs.ContainsKey(GUID) Then
+                    If guid > 0 AndAlso CHARACTERs.ContainsKey(guid) Then
                         'DONE: Check if ignoring
-                        If CHARACTERs(GUID).IgnoreList.Contains(client.Character.GUID) AndAlso client.Character.Access < AccessLevel.GameMaster Then
+                        If CHARACTERs(guid).IgnoreList.Contains(client.Character.Guid) AndAlso client.Character.Access < AccessLevel.GameMaster Then
                             'Client.Character.SystemMessage(String.Format("{0} is ignoring you.", ToUser))
-                            client.Character.SendChatMessage(GUID, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL)
+                            client.Character.SendChatMessage(guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL)
                         Else
                             'To message
-                            client.Character.SendChatMessage(GUID, Message, ChatMsg.CHAT_MSG_WHISPER_INFORM, msgLanguage)
-                            If CHARACTERs(GUID).DND = False OrElse client.Character.Access >= AccessLevel.GameMaster Then
+                            client.Character.SendChatMessage(guid, message, ChatMsg.CHAT_MSG_WHISPER_INFORM, msgLanguage)
+                            If CHARACTERs(guid).DND = False OrElse client.Character.Access >= AccessLevel.GameMaster Then
                                 'From message
-                                CHARACTERs(GUID).SendChatMessage(client.Character.GUID, Message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage)
+                                CHARACTERs(guid).SendChatMessage(client.Character.Guid, message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage)
                             Else
                                 'DONE: Send the DND message
-                                client.Character.SendChatMessage(GUID, CHARACTERs(GUID).AfkMessage, ChatMsg.CHAT_MSG_DND, msgLanguage)
+                                client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_DND, msgLanguage)
                             End If
 
                             'DONE: Send the AFK message
-                            If CHARACTERs(GUID).AFK Then client.Character.SendChatMessage(GUID, CHARACTERs(GUID).AfkMessage, ChatMsg.CHAT_MSG_AFK, msgLanguage)
+                            If CHARACTERs(guid).AFK Then client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_AFK, msgLanguage)
                         End If
                     Else
-                        Dim SMSG_CHAT_PLAYER_NOT_FOUND As New PacketClass(OPCODES.SMSG_CHAT_PLAYER_NOT_FOUND)
-                        SMSG_CHAT_PLAYER_NOT_FOUND.AddString(ToUser)
-                        client.Send(SMSG_CHAT_PLAYER_NOT_FOUND)
-                        SMSG_CHAT_PLAYER_NOT_FOUND.Dispose()
+                        Dim smsgChatPlayerNotFound As New PacketClass(OPCODES.SMSG_CHAT_PLAYER_NOT_FOUND)
+                        smsgChatPlayerNotFound.AddString(toUser)
+                        client.Send(smsgChatPlayerNotFound)
+                        smsgChatPlayerNotFound.Dispose()
                     End If
                     Exit Select
 
                 Case ChatMsg.CHAT_MSG_PARTY, ChatMsg.CHAT_MSG_RAID, ChatMsg.CHAT_MSG_RAID_LEADER, ChatMsg.CHAT_MSG_RAID_WARNING
-                    Dim Message As String = packet.GetString()
+                    Dim message As String = packet.GetString()
 
                     'DONE: Check in group
                     If Not client.Character.IsInGroup Then
@@ -116,16 +116,16 @@ Namespace Handlers
                     End If
 
                     'DONE: Broadcast to party
-                    client.Character.Group.SendChatMessage(client.Character, Message, msgLanguage, msgType)
+                    client.Character.Group.SendChatMessage(client.Character, message, msgLanguage, msgType)
                     Exit Select
 
                 Case ChatMsg.CHAT_MSG_AFK
-                    Dim Message As String = packet.GetString()
+                    Dim message As String = packet.GetString()
                     'TODO: Can not be used while in combat!
-                    If Message = "" OrElse client.Character.AFK = False Then
+                    If message = "" OrElse client.Character.AFK = False Then
                         If client.Character.AFK = False Then
-                            If Message = "" Then Message = "Away From Keyboard"
-                            client.Character.AfkMessage = Message
+                            If message = "" Then message = "Away From Keyboard"
+                            client.Character.AfkMessage = message
                         End If
                         client.Character.AFK = Not client.Character.AFK
                         If client.Character.AFK AndAlso client.Character.DND Then
@@ -142,11 +142,11 @@ Namespace Handlers
                     Exit Select
 
                 Case ChatMsg.CHAT_MSG_DND
-                    Dim Message As String = packet.GetString()
-                    If Message = "" OrElse client.Character.DND = False Then
+                    Dim message As String = packet.GetString()
+                    If message = "" OrElse client.Character.DND = False Then
                         If client.Character.DND = False Then
-                            If Message = "" Then Message = "Do Not Disturb"
-                            client.Character.AfkMessage = Message
+                            If message = "" Then message = "Do Not Disturb"
+                            client.Character.AfkMessage = message
                         End If
                         client.Character.DND = Not client.Character.DND
                         If client.Character.DND AndAlso client.Character.AFK Then
@@ -167,17 +167,17 @@ Namespace Handlers
                     Exit Select
 
                 Case ChatMsg.CHAT_MSG_GUILD
-                    Dim Message As String = packet.GetString()
+                    Dim message As String = packet.GetString()
 
                     'DONE: Broadcast to guild
-                    BroadcastChatMessageGuild(client.Character, Message, msgLanguage, client.Character.Guild.ID)
+                    BroadcastChatMessageGuild(client.Character, message, msgLanguage, client.Character.Guild.ID)
                     Exit Select
 
                 Case ChatMsg.CHAT_MSG_OFFICER
-                    Dim Message As String = packet.GetString()
+                    Dim message As String = packet.GetString()
 
                     'DONE: Broadcast to officer chat
-                    BroadcastChatMessageOfficer(client.Character, Message, msgLanguage, client.Character.Guild.ID)
+                    BroadcastChatMessageOfficer(client.Character, message, msgLanguage, client.Character.Guild.ID)
                     Exit Select
 
                 Case Else

@@ -24,17 +24,17 @@ Namespace Handlers
 
     Public Module WC_Handlers_Tickets
 
-        Public Sub On_CMSG_BUG(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+        Public Sub On_CMSG_BUG(ByRef packet As PacketClass, ByRef client As ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
-            Dim Suggestion As SuggestionType = packet.GetInt32
+            Dim suggestion As SuggestionType = packet.GetInt32
             Dim cLength As Integer = packet.GetInt32
             Dim cString As String = EscapeString(packet.GetString)
             If (packet.Data.Length - 1) < (14 + cString.Length + 5) Then Exit Sub
             Dim tLength As Integer = packet.GetInt32
             Dim tString As String = EscapeString(packet.GetString)
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUG [2]", client.IP, client.Port, Suggestion)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUG [2]", client.IP, client.Port, suggestion)
             Log.WriteLine(LogType.INFORMATION, "Bug report [{0}:{1} Lengths:{2}, {3}] " & cString & vbNewLine & tString, cLength.ToString(), tLength.ToString())
         End Sub
 

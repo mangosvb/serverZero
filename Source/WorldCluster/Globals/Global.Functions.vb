@@ -349,15 +349,15 @@ Namespace Globals
 
 #Region "Packets"
 
-        Public Sub SendMessageMOTD(ByRef client As WC_Network.ClientClass, ByVal Message As String)
-            Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
+        Public Sub SendMessageMOTD(ByRef client As ClientClass, message As String)
+            Dim packet As PacketClass = BuildChatMessage(0, message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
             client.Send(packet)
         End Sub
 
-        Public Sub SendMessageNotification(ByRef client As ClientClass, ByVal Message As String)
+        Public Sub SendMessageNotification(ByRef client As ClientClass, message As String)
             Dim packet As New PacketClass(OPCODES.SMSG_NOTIFICATION)
             Try
-                packet.AddString(Message)
+                packet.AddString(message)
                 client.Send(packet)
             Finally
                 packet.Dispose()
@@ -373,10 +373,10 @@ Namespace Globals
             End Try
         End Sub
 
-        Public Sub Broadcast(ByVal Message As String)
+        Public Sub Broadcast(message As String)
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-            For Each Character As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In CHARACTERs
-                If Character.Value.client IsNot Nothing Then SendMessageSystem(Character.Value.client, "System Message: " & SetColor(Message, 255, 0, 0))
+            For Each character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                If character.Value.client IsNot Nothing Then SendMessageSystem(character.Value.client, "System Message: " & SetColor(message, 255, 0, 0))
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
