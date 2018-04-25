@@ -1,5 +1,9 @@
-serverZero
+MangosVB (Master)
 ==========
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/mangosVB/serverZero.svg)](http://isitmaintained.com/project/mangosVB/serverZero "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/mangosVB/serverZero.svg)](http://isitmaintained.com/project/mangosVB/serverZero "Percentage of issues still open")
+[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+
 *MaNGOSVB Zero* is a full featured server for [World of Warcraft][2], in its vanilla
 version supporting clients from the [patch 1.12][50] branch, specifically patch
 1.12.1, 1.12.2, and 1.12.3.
@@ -25,9 +29,6 @@ Branch Information
 There are several branches available to download the code from
 
     master      - This is the last released stable version, this will also build and work without issues
-    development - This branch is the current development branch, this has new updates but some fixes may wip.
-    
-From time to time there may be additional branches when new features are being developed and tested.    
 
 Documentation
 -------------
@@ -41,13 +42,13 @@ Please see our compilation and installation guides at our [Wiki][20]
 
 License
 -------
-*MaNGOSVB ServerOne* is open source, and licensed under the terms of the GNU GPL version 2.
+*MaNGOSVB* is open source, and licensed under the terms of the GNU GPL version 2.
  
 ## Requirements
     Visual Studio 2015 (Windows)
     Visual Basic Compiler Enabled
 
-  Copyright (C) 2005-2014  MaNGOS <http://getmangos.co.uk>
+  Copyright (C) 2005-2018  MaNGOS <https://getmangos.eu>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
