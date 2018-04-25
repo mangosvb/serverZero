@@ -197,9 +197,6 @@ Namespace Handlers
             If Not CHAT_CHANNELs.ContainsKey(channelName) Then
                 'The New does a an add to the .Containskey collection above
                 Dim newChannel As New ChatChannelClass(channelName)
-
-                'Then add it to the main list of channels
-                CHAT_CHANNELs.Add(channelName, newChannel)
             End If
             CHAT_CHANNELs(channelName).Join(client.Character, password)
         End Sub
