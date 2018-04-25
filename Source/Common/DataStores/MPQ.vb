@@ -666,7 +666,7 @@ Namespace MPQ
             _mPosition += 1
             Return _mCurrentData(localposition)
         End Function
-        Private Function ReadInternal(ByVal Buffer As Byte(), ByVal Offset As Integer, ByVal Count As Integer) As Integer
+        Private Function ReadInternal(ByVal buffer As Byte(), ByVal offset As Integer, ByVal count As Integer) As Integer
 
             'Avoid reading past the contents of the file
             If (_mPosition >= Length) Then
@@ -676,54 +676,54 @@ Namespace MPQ
             BufferData()
 
             Dim localposition As Integer = _mPosition Mod _mBlockSize
-            Dim bytestocopy As Integer = Math.Min((_mCurrentData.Length - localposition), Count)
+            Dim bytestocopy As Integer = Math.Min((_mCurrentData.Length - localposition), count)
             If (bytestocopy <= 0) Then
                 Return 0
             End If
 
-            Array.Copy(_mCurrentData, localposition, Buffer, Offset, bytestocopy)
+            Array.Copy(_mCurrentData, localposition, buffer, offset, bytestocopy)
 
             _mPosition += bytestocopy
             Return bytestocopy
 
         End Function
-        Public Overrides Function Seek(ByVal Offset As Long, ByVal Origin As SeekOrigin) As Long
+        Public Overrides Function Seek(ByVal offset As Long, ByVal origin As SeekOrigin) As Long
             Dim target As Long
 
-            Select Case Origin
+            Select Case origin
                 Case SeekOrigin.Begin
-                    target = Offset
+                    target = offset
                 Case SeekOrigin.Current
-                    target = (Position + Offset)
+                    target = (Position + offset)
                 Case SeekOrigin.End
-                    target = (Length + Offset)
+                    target = (Length + offset)
                 Case Else
-                    Throw New ArgumentException("Origin", "Invalid SeekOrigin")
+                    Throw New ArgumentException("Origin", $"Invalid SeekOrigin")
             End Select
 
             If (target < 0) Then
-                Throw New ArgumentOutOfRangeException("Attmpted to Seek before the beginning of the stream")
+                Throw New ArgumentOutOfRangeException($"Attmpted to Seek before the beginning of the stream")
             End If
             If (target >= Length) Then
-                Throw New ArgumentOutOfRangeException("Attmpted to Seek beyond the end of the stream")
+                Throw New ArgumentOutOfRangeException($"Attmpted to Seek beyond the end of the stream")
             End If
             _mPosition = target
             Return _mPosition
         End Function
-        Public Overrides Sub SetLength(ByVal Value As Long)
+        Public Overrides Sub SetLength(ByVal value As Long)
             Throw New NotSupportedException("SetLength is not supported")
         End Sub
-        Public Overrides Sub Write(ByVal Buffer As Byte(), ByVal Offset As Integer, ByVal Count As Integer)
+        Public Overrides Sub Write(ByVal Buffer As Byte(), ByVal offset As Integer, ByVal count As Integer)
             Throw New NotSupportedException("Writing is not supported")
         End Sub
-        Private Shared Function ZlibDecompress(ByVal Data As Stream, ByVal ExpectedLength As Integer) As Byte()
+        Private Shared Function ZlibDecompress(ByVal data As Stream, ByVal expectedLength As Integer) As Byte()
             'This assumes that Zlib won't be used in combination with another compression type
 
-            Dim Output As Byte() = New Byte(ExpectedLength - 1) {}
-            Dim s As Stream = New InflaterInputStream(Data)
+            Dim Output As Byte() = New Byte(expectedLength - 1) {}
+            Dim s As Stream = New InflaterInputStream(data)
             Dim Offset As Integer = 0
             Do While True
-                Dim size As Integer = s.Read(Output, Offset, ExpectedLength)
+                Dim size As Integer = s.Read(Output, Offset, expectedLength)
                 If (size = 0) Then
                     Return Output
                 End If

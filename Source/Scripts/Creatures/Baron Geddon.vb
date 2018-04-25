@@ -1,8 +1,8 @@
-Imports mangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Baron_Geddon
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000

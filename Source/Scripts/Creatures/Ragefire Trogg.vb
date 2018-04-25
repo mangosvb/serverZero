@@ -1,6 +1,6 @@
-Imports MangosVB.WorldServer
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Ragefire_Trogg
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
@@ -33,7 +33,7 @@ Namespace Scripts
             For i As Integer = 0 To 3
                 Dim Target As BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
-                aiCreature.CastSpell(Strike_SPELL, aiTarget)
+                aiCreature.CastSpell(STRIKE_SPELL, aiTarget)
             Next
         End Sub
     End Class

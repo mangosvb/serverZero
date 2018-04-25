@@ -1,7 +1,7 @@
 Imports System.Collections.Generic
 Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_The_Plains_Vision
         Inherits TBaseAI
         Protected aiCreature As CreatureObject = Nothing

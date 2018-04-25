@@ -1,6 +1,6 @@
 Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Taragaman_the_Hungerer
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000

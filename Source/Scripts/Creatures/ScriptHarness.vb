@@ -1,5 +1,7 @@
-﻿Module ScriptHarness
-    Sub Main()
+﻿Namespace Creatures
+    Module ScriptHarness
+        Sub Main()
 
-    End Sub
-End Module
+        End Sub
+    End Module
+End Namespace

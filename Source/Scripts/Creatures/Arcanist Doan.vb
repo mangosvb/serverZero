@@ -1,7 +1,7 @@
-Imports mangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Arcanist_Doan
         Inherits BossAI
         'AI TODO: Fix arcane explosion. Make the AoE silence an AoE instead of random target.
@@ -71,7 +71,7 @@ Namespace Scripts
 
         Public Sub CastPolymorph()
             For i As Integer = 1 To 2
-                Dim target As BaseUnit = aiCreature.GetRandomTarget 'Finally learned how random target functions work. 
+                Dim target As BaseUnit = aiCreature.GetRandomTarget 'Finally learned how random target functions work.
                 If target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(SPELL_POLYMORPH, aiCreature.GetRandomTarget) 'Might not properly work.

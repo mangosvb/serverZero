@@ -1,9 +1,9 @@
-Imports mangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
 'Example AI for combat. 
 'TODO: Fix AoE spells on AIs and then insert it as an example into this.
-Namespace Scripts
+Namespace Examples
     Public Class CreatureAI
         Inherits BossAI
 

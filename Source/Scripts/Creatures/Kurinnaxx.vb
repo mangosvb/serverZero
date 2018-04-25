@@ -1,9 +1,9 @@
-Imports MangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
 'Summon implementation isn't yet supported.
 'Sand trap not implemented into script, need to make a gameobject I assume.
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Kurinnax
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
@@ -88,7 +88,7 @@ Namespace Scripts
             MyBase.OnHealthChange(Percent)
             If phase = 1 Then
                 If Percent <= 20 Then
-                    aiCreature.CastSpellOnSelf(spell_Frenzy)
+                    aiCreature.CastSpellOnSelf(Spell_Frenzy)
                 End If
             End If
         End Sub

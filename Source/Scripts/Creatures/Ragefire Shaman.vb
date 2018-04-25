@@ -1,6 +1,6 @@
-Imports MangosVB.WorldServer
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Ragefire_Shaman
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000

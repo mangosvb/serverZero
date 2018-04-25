@@ -1,7 +1,7 @@
-Imports MangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Patchwerk
         Inherits BossAI
 

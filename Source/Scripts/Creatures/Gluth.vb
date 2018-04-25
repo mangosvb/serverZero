@@ -1,7 +1,7 @@
-Imports mangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Gluth
         Inherits BossAI
         'TODO: Implement proper zombie chow summons. Fix decimate. Fix him going underground. Fix mortal wound a debuff instead of dispellable buff. Fix terrifying roar.

@@ -1,7 +1,7 @@
-Imports MangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Druid_of_the_Fang
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000

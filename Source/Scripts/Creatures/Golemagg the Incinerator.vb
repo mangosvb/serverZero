@@ -1,7 +1,7 @@
-Imports MangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Golemagg_the_Incinerator
         Inherits BossAI
 
@@ -65,16 +65,16 @@ Namespace Scripts
                 'NextSummon -= AI_UPDATE
 
                 If NextEarthQuake <= 0 Then
-                    NextEarthQuake = EarthQuake_COOLDOWN
-                    aiCreature.CastSpell(EarthQuake_SPELL, aiTarget) 'EarthQuake
+                    NextEarthQuake = EARTHQUAKE_COOLDOWN
+                    aiCreature.CastSpell(EARTHQUAKE_SPELL, aiTarget) 'EarthQuake
                 End If
                 If NextMagmaSplash <= 1 Then
-                    NextMagmaSplash = MagmaSplash_COOLDOWN
-                    aiCreature.CastSpell(MagmaSplash_SPELL, aiTarget) 'MagmaSplash
+                    NextMagmaSplash = MAGMASPLASH_COOLDOWN
+                    aiCreature.CastSpell(MAGMASPLASH_SPELL, aiTarget) 'MagmaSplash
                 End If
                 If NextPyroBlast <= 2 Then
-                    NextPyroBlast = PyroBlast_COOLDOWN
-                    aiCreature.CastSpell(PyroBlast_SPELL, aiTarget) 'PyroBlast
+                    NextPyroBlast = PYROBLAST_COOLDOWN
+                    aiCreature.CastSpell(PYROBLAST_SPELL, aiTarget) 'PyroBlast
                 End If
                 'If NextSummon <= 0 Then
                 '    NextSummon = SUMMONPLAYER_COOLDOWN
@@ -88,7 +88,7 @@ Namespace Scripts
                 Dim Target As BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
-                    aiCreature.CastSpell(EarthQuake_SPELL, aiTarget)
+                    aiCreature.CastSpell(EARTHQUAKE_SPELL, aiTarget)
                 Catch Ex As Exception
                     aiCreature.SendChatMessage("Earthquake FAILED TO CAST ON MY TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
@@ -100,7 +100,7 @@ Namespace Scripts
                 Dim Target As BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
-                    aiCreature.CastSpell(MagmaSplash_SPELL, aiTarget)
+                    aiCreature.CastSpell(MAGMASPLASH_SPELL, aiTarget)
                 Catch Ex As Exception
                     aiCreature.SendChatMessage("MAGMASPLASH FAILED TO CAST ON TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try

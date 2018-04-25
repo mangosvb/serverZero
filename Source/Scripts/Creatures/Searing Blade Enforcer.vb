@@ -1,6 +1,6 @@
-Imports MangosVB.WorldServer
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Searing_Blade_Enforcer
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000

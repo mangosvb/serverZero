@@ -1,7 +1,7 @@
-Imports MangosVB.WorldServer
 Imports mangosVB.Common
+Imports mangosVB.WorldServer
 
-Namespace Scripts
+Namespace Creatures
     Public Class CreatureAI_Lord_Pythas
         Inherits BossAI
         Private Const AI_UPDATE As Integer = 1000
