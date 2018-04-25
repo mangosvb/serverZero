@@ -83,7 +83,7 @@ Public Module RealmServer
                 _accountDatabase.SQLPort = accountDbSettings(3)
                 _accountDatabase.SQLUser = accountDbSettings(0)
                 _accountDatabase.SQLPass = accountDbSettings(1)
-                _accountDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), accountDbSettings(5))
+                _accountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), accountDbSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
@@ -174,9 +174,9 @@ Public Module RealmServer
 
     Private Sub SqlEventHandler(ByVal messageId As SQL.EMessages, ByVal outBuf As String)
         Select Case messageId
-            Case Sql.EMessages.IdError
+            Case SQL.EMessages.ID_Error
                 Console.ForegroundColor = ConsoleColor.Red
-            Case Sql.EMessages.IdMessage
+            Case SQL.EMessages.ID_Message
                 Console.ForegroundColor = ConsoleColor.DarkGreen
         End Select
 
@@ -267,7 +267,7 @@ Public Module RealmServer
             Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.ForegroundColor = ConsoleColor.Gray
-            If Not _accountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = """ & Ip.ToString & """;") Then
+            If Not _accountDatabase.QuerySql("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
 
                 While Not _realmServer.FlagStopListen
                     Thread.Sleep(ConnectionSleepTime)
@@ -276,7 +276,7 @@ Public Module RealmServer
                             Exit While
                         End If
                         ReDim buffer(Socket.Available - 1)
-                        Dim dummyBytes As Integer = Socket.Receive(buffer, 0)
+                        Dim dummyBytes As Integer = Socket.Receive(buffer, buffer.Length, 0)
                         Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
                         Console.WriteLine("[{0}] Data Packet Flood:", dummyBytes)
 

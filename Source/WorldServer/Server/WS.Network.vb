@@ -129,9 +129,10 @@ Public Module WS_Network
 
                     'NOTE: Not protected remoting
                     'Cluster = RemotingServices.Connect(GetType(ICluster), m_RemoteURI)
-
-                    If Cluster.Connect(m_LocalURI, Config.Maps) Then Exit While
-                    Cluster.Disconnect(m_LocalURI, Config.Maps)
+                    If Not IsNothing(Cluster) Then
+                        If Cluster.Connect(m_LocalURI, Config.Maps) Then Exit While
+                        Cluster.Disconnect(m_LocalURI, Config.Maps)
+                    End If
                 Catch e As Exception
                     Log.WriteLine(LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
                 End Try

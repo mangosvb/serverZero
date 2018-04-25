@@ -179,7 +179,7 @@ Public Module WorldServer
                 AccountDatabase.SQLPort = AccountDBSettings(3)
                 AccountDatabase.SQLUser = AccountDBSettings(0)
                 AccountDatabase.SqlPass = AccountDBSettings(1)
-                AccountDatabase.SqlTypeServer = [Enum].Parse(GetType(Sql.DbType), AccountDBSettings(5))
+                AccountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
@@ -191,7 +191,7 @@ Public Module WorldServer
                 CharacterDatabase.SQLPort = CharacterDBSettings(3)
                 CharacterDatabase.SQLUser = CharacterDBSettings(0)
                 CharacterDatabase.SQLPass = CharacterDBSettings(1)
-                CharacterDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), CharacterDBSettings(5))
+                CharacterDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), CharacterDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the character database!")
             End If
@@ -203,7 +203,7 @@ Public Module WorldServer
                 WorldDatabase.SQLPort = WorldDBSettings(3)
                 WorldDatabase.SQLUser = WorldDBSettings(0)
                 WorldDatabase.SQLPass = WorldDBSettings(1)
-                WorldDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), WorldDBSettings(5))
+                WorldDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), WorldDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the world database!")
             End If
@@ -228,27 +228,27 @@ Public Module WorldServer
     Public WorldDatabase As New SQL
     Public Sub AccountSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
-            Case Sql.EMessages.IdError
+            Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[ACCOUNT] " & OutBuf)
-            Case Sql.EMessages.IdMessage
+            Case SQL.EMessages.ID_Message
                 Log.WriteLine(LogType.SUCCESS, "[ACCOUNT] " & OutBuf)
         End Select
     End Sub
 
     Public Sub CharacterSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
         Select Case MessageID
-            Case Sql.EMessages.IdError
+            Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[CHARACTER] " & OutBuf)
-            Case Sql.EMessages.IdMessage
+            Case SQL.EMessages.ID_Message
                 Log.WriteLine(LogType.SUCCESS, "[CHARACTER] " & OutBuf)
         End Select
     End Sub
 
     Public Sub WorldSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
         Select Case MessageID
-            Case Sql.EMessages.IdError
+            Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[WORLD] " & OutBuf)
-            Case Sql.EMessages.IdMessage
+            Case SQL.EMessages.ID_Message
                 Log.WriteLine(LogType.SUCCESS, "[WORLD] " & OutBuf)
         End Select
     End Sub
