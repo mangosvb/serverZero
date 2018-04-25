@@ -78,8 +78,8 @@ Public Class Sql
     Private _vSqlPass As String = ""
     Private _vSqldbName As String = ""
     Public Enum DbType
-        MySql = 0
-        Mssql = 1
+        MySQL = 0
+        MsSQL = 1
         'Oracle = 2
         'SqLite = 3
     End Enum

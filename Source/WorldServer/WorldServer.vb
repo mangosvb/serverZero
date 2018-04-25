@@ -178,8 +178,8 @@ Public Module WorldServer
                 AccountDatabase.SQLHost = AccountDBSettings(2)
                 AccountDatabase.SQLPort = AccountDBSettings(3)
                 AccountDatabase.SQLUser = AccountDBSettings(0)
-                AccountDatabase.SQLPass = AccountDBSettings(1)
-                AccountDatabase.SQLTypeServer = [Enum].Parse(GetType(Sql.DbType), AccountDBSettings(5))
+                AccountDatabase.SqlPass = AccountDBSettings(1)
+                AccountDatabase.SqlTypeServer = [Enum].Parse(GetType(Sql.DbType), AccountDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
             End If

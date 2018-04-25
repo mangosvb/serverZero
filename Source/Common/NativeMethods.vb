@@ -18,7 +18,7 @@
 Imports System.Runtime.InteropServices
 
 Public Module NativeMethods
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_add(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
     End Function
 
@@ -32,7 +32,7 @@ Public Module NativeMethods
         Return BN_sub(r, a, b)
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_bin2bn(ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
     End Function
 
@@ -40,7 +40,7 @@ Public Module NativeMethods
         Return BN_bin2bn(ByteArrayIn, length, [to])
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_bn2bin(ByVal a As IntPtr, ByVal [to] As Byte()) As Integer
     End Function
 
@@ -48,11 +48,11 @@ Public Module NativeMethods
         Return BN_bn2bin(a, [to])
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_CTX_free(ByVal a As IntPtr) As Integer
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_CTX_new() As IntPtr
     End Function
 
@@ -60,7 +60,7 @@ Public Module NativeMethods
         Return BN_CTX_new()
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_mod(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
     End Function
 
@@ -68,7 +68,7 @@ Public Module NativeMethods
         Return BN_mod(r, a, b, ctx)
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_mod_exp(ByVal res As IntPtr, ByVal a As IntPtr, ByVal p As IntPtr, ByVal m As IntPtr, ByVal ctx As IntPtr) As IntPtr
     End Function
 
@@ -76,7 +76,7 @@ Public Module NativeMethods
         Return BN_mod_exp(res, a, p, m, ctx)
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_mul(ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
     End Function
 
@@ -84,7 +84,7 @@ Public Module NativeMethods
         Return BN_mul(r, a, b, ctx)
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function BN_new() As IntPtr
     End Function
 
@@ -92,7 +92,7 @@ Public Module NativeMethods
         Return BN_new()
     End Function
 
-    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)> _
+    <DllImport("LIBEAY32.dll", SetLastError:=True, CharSet:=CharSet.Auto, CallingConvention:=CallingConvention.Cdecl)>
     Private Function RAND_bytes(ByVal buf As Byte(), ByVal num As Integer) As Integer
     End Function
 
@@ -162,7 +162,7 @@ Public Module NativeMethods
     End Function
 
     '    Private Declare Function GetProcAddress Lib "kernel32.dll" (ByVal hModule As Integer, ByVal lpProcName As String) As Integer
-    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Unicode, ExactSpelling:=True)> _
+    <DllImport("kernel32.dll", SetLastError:=True, CharSet:=CharSet.Unicode, ExactSpelling:=True)>
     Private Function GetProcAddress(ByVal hModule As IntPtr, ByVal procName As String) As UIntPtr
     End Function
 
@@ -170,7 +170,7 @@ Public Module NativeMethods
         Return GetProcAddress(hModule, lpProcName)
     End Function
 
-    <DllImport("kernel32.dll", SetLastError:=True)> _
+    <DllImport("kernel32.dll", SetLastError:=True)>
     Private Function CloseHandle(ByVal hObject As IntPtr) As <MarshalAs(UnmanagedType.Bool)> Boolean
     End Function
 
