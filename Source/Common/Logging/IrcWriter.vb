@@ -62,14 +62,14 @@ Namespace Logging
             _disposedValue = True
         End Sub
 
-        Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub Write(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             For Each channel As String In Conn.JoinedChannels
                 Conn.SendMessage(SendType.Message, channel, String.Format(formatStr, arg))
             Next
         End Sub
-        Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub WriteLine(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             For Each channel As String In Conn.JoinedChannels
@@ -86,14 +86,14 @@ Namespace Logging
             Return msg
         End Function
 
-        Public Sub OnQueryMessage(ByVal sender As Object, ByVal e As IrcEventArgs)
+        Public Sub OnQueryMessage(sender As Object, e As IrcEventArgs)
             Console.WriteLine(e.Data.Message)
             _message = e.Data.Message
         End Sub
-        Public Sub OnRawMessage(ByVal sender As Object, ByVal e As IrcEventArgs)
+        Public Sub OnRawMessage(sender As Object, e As IrcEventArgs)
             Console.WriteLine(e.Data.RawMessage)
         End Sub
-        Public Sub OnErrorMessage(ByVal sender As Object, ByVal e As ErrorEventArgs)
+        Public Sub OnErrorMessage(sender As Object, e As ErrorEventArgs)
             Console.WriteLine(e.ErrorMessage)
         End Sub
 
