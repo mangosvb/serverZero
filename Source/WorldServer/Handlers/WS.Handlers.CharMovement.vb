@@ -379,8 +379,15 @@ Module WS_CharMovement
             q.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_teleport WHERE id = {0};", triggerID), q)
             If q.Rows.Count > 0 Then
+                Dim posX As Single = q.Rows(0).Item("target_position_x")
+                Dim posY As Single = q.Rows(0).Item("target_position_y")
+                Dim posZ As Single = q.Rows(0).Item("target_position_z")
+                Dim ori As Single = q.Rows(0).Item("target_orientation")
+                Dim tMap As Integer = q.Rows(0).Item("target_map")
+                Dim reqLevel As Byte = q.Rows(0).Item("required_level")
+
                 If client.Character.DEAD Then
-                    If client.Character.corpseMapID = q.Rows(0).Item("target_map") Then
+                    If client.Character.corpseMapID = tMap Then
                         CharacterResurrect(client.Character)
                     Else
                         AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
@@ -388,14 +395,14 @@ Module WS_CharMovement
                     End If
                 End If
 
-                If q.Rows(0).Item("required_level") <> 0 AndAlso client.Character.Level < q.Rows(0).Item("required_level") Then
+                If reqLevel <> 0 AndAlso client.Character.Level < reqLevel Then
                     SendAreaTriggerMessage(client, "Your level is too low")
                     Exit Sub
                 End If
 
-                If CSng(q.Rows(0).Item("target_position_x")) <> 0 OrElse CSng(q.Rows(0).Item("target_position_y")) <> 0 OrElse CSng(q.Rows(0).Item("target_position_z")) <> 0 Then
-                    client.Character.Teleport(q.Rows(0).Item("target_position_x"), q.Rows(0).Item("target_position_y"), q.Rows(0).Item("target_position_z"),
-                                              q.Rows(0).Item("target_orientation"), q.Rows(0).Item("target_map"))
+
+                If posX <> 0 And posY <> 0 And posZ <> 0 Then
+                    client.Character.Teleport(posX, posY, posZ, ori, tMap)
                 End If
                 Exit Sub
             End If
