@@ -20,6 +20,7 @@ Imports System.Xml
 Imports System.Reflection
 Imports System.Threading
 Imports mangosVB.Common
+Imports WorldCluster.Handlers
 
 Public Module WC_Stats
 
@@ -83,7 +84,7 @@ Public Module WC_Stats
         Latency = 0
 
         CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-        For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+        For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In CHARACTERs
             If objCharacter.Value.IsInWorld Then
                 CountPlayers += 1
 

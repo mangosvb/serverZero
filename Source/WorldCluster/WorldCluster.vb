@@ -25,6 +25,9 @@ Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Logging.BaseWriter
 Imports mangosVB.Common.Global_Enums
+Imports WorldCluster.Globals
+Imports WorldCluster.Handlers
+Imports WorldCluster.DataStores
 
 Public Module WorldCluster
 
@@ -35,14 +38,14 @@ Public Module WorldCluster
     Public CLIENTs As New Dictionary(Of UInteger, ClientClass)
 
     Public CHARACTERs_Lock As New ReaderWriterLock
-    Public CHARACTERs As New Dictionary(Of ULong, CharacterObject)
+    Public CHARACTERs As New Dictionary(Of ULong, WcHandlerCharacter.CharacterObject)
     'Public CHARACTER_NAMEs As New Hashtable
 
     'System Things...
     Public Log As New BaseWriter
     Public PacketHandlers As New Dictionary(Of OPCODES, HandlePacket)
     Public Rnd As New Random
-    Delegate Sub HandlePacket(ByRef Packet As PacketClass, ByRef client As ClientClass)
+    Delegate Sub HandlePacket(ByRef Packet As Packets.PacketClass, ByRef client As ClientClass)
 
 #End Region
 

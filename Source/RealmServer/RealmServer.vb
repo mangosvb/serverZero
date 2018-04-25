@@ -276,7 +276,7 @@ Public Module RealmServer
                             Exit While
                         End If
                         ReDim buffer(Socket.Available - 1)
-                        Dim dummyBytes As Integer = Socket.Receive(buffer, buffer.Length, 0)
+                        Dim dummyBytes As Integer = Socket.Receive(buffer, 0)
                         Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
                         Console.WriteLine("[{0}] Data Packet Flood:", dummyBytes)
 
@@ -935,7 +935,7 @@ Public Module RealmServer
         log.WriteLine(LogType.INFORMATION, "Running from: {0}", AppDomain.CurrentDomain.BaseDirectory)
         Console.ForegroundColor = ConsoleColor.Gray
 
-        AddHandler _accountDatabase.SQLMessage, AddressOf SqlEventHandler
+        AddHandler _accountDatabase.SqlMessage, AddressOf SqlEventHandler
         _accountDatabase.Connect()
 
         _realmServer = New RealmServerClass

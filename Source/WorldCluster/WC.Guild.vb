@@ -18,6 +18,8 @@
 
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports WorldCluster.Globals
+Imports WorldCluster.Handlers
 
 Public Module WC_Guild
 
@@ -104,7 +106,7 @@ Public Module WC_Guild
 #End Region
 
     'Basic Guild Framework
-    Public Sub AddCharacterToGuild(ByRef objCharacter As CharacterObject, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
+    Public Sub AddCharacterToGuild(ByRef objCharacter As WcHandlerCharacter.CharacterObject, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", GuildID, objCharacter.GUID, GuildRank))
 
         If GUILDs.ContainsKey(GuildID) = False Then
@@ -149,7 +151,7 @@ Public Module WC_Guild
         End If
 
         'DONE: Build packet
-        Dim packet As PacketClass = BuildChatMessage(Sender.GUID, Message, ChatMsg.CHAT_MSG_GUILD, Language, Sender.ChatFlag)
+        Dim packet As Packets.PacketClass = BuildChatMessage(Sender.GUID, Message, ChatMsg.CHAT_MSG_GUILD, Language, Sender.ChatFlag)
 
         'DONE: Send message to everyone
         Dim tmpArray() As ULong = Sender.Guild.Members.ToArray

@@ -15,7 +15,8 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
-Public Module WC_Handlers_Petition
-    'TODO: Need to code the petition handlers for guild creation
-End Module
+Namespace Handlers
+    Public Module WC_Handlers_Petition
+        'TODO: Need to code the petition handlers for guild creation
+    End Module
+End Namespace

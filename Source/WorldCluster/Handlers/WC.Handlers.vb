@@ -19,6 +19,8 @@
 
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports WorldCluster.Globals
+Imports WorldCluster.Handlers
 
 Public Module WC_Handlers
 
@@ -141,7 +143,7 @@ Public Module WC_Handlers
 
     End Sub
 
-    Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
+    Public Sub OnUnhandledPacket(ByRef packet As Packets.PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, packet.OpCode)
     End Sub
 

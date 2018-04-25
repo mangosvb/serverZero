@@ -15,31 +15,32 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports mangosVB.Common
 
-Imports mangosVB.Common.Global_Enums
+Namespace DataStores
+    Public Module WS_DBCLoad
 
-Public Module WS_DBCLoad
+        Public Sub InitializeInternalDatabase()
 
-    Public Sub InitializeInternalDatabase()
+            InitializeLoadDbCs()
 
-        InitializeLoadDbCs()
+            Try
+                'Set all characters offline
+                CharacterDatabase.Update("UPDATE characters SET char_online = 0;")
 
-        Try
-            'Set all characters offline
-            CharacterDatabase.Update("UPDATE characters SET char_online = 0;")
+            Catch e As Exception
+                Log.WriteLine(Global_Enums.LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
+            End Try
+        End Sub
 
-        Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
-        End Try
-    End Sub
+        Private Sub InitializeLoadDbCs()
+            InitializeMaps()
+            InitializeChatChannels()
+            InitializeBattlegrounds()
+            InitializeWorldSafeLocs()
+            InitializeCharRaces()
+            InitializeCharClasses()
+        End Sub
 
-    Private Sub InitializeLoadDbCs()
-        InitializeMaps()
-        InitializeChatChannels()
-        InitializeBattlegrounds()
-        InitializeWorldSafeLocs()
-        InitializeCharRaces()
-        InitializeCharClasses()
-    End Sub
-
-End Module
+    End Module
+End Namespace

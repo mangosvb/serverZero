@@ -24,6 +24,9 @@ Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports WorldCluster.Globals
+Imports WorldCluster.Handlers
+Imports WorldCluster.DataStores
 
 Public Module WC_Network
 
@@ -180,7 +183,7 @@ Public Module WC_Network
                         If Not objCharacter.Value.Character Is Nothing AndAlso
                         objCharacter.Value.Character.IsInWorld AndAlso
                         objCharacter.Value.Character.Map = Map Then
-                            Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
+                            Dim SMSG_LOGOUT_COMPLETE As New Packets.PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
                             objCharacter.Value.Send(SMSG_LOGOUT_COMPLETE)
                             SMSG_LOGOUT_COMPLETE.Dispose()
 
@@ -223,9 +226,9 @@ Public Module WC_Network
                         If SentPingTo.ContainsKey(WorldsInfo(w.Key)) Then
                             Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
                         Else
-                            MyTime = timeGetTime("")
+                            MyTime = TimeGetTime("")
                             ServerTime = w.Value.Ping(MyTime, WorldsInfo(w.Key).Latency)
-                            Latency = Math.Abs(MyTime - timeGetTime(""))
+                            Latency = Math.Abs(MyTime - TimeGetTime(""))
 
                             WorldsInfo(w.Key).Latency = Latency
                             SentPingTo(WorldsInfo(w.Key)) = Latency
@@ -304,7 +307,7 @@ Public Module WC_Network
 
         Public Sub Broadcast(ByVal p As PacketClass)
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In CHARACTERs
                 If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.client IsNot Nothing Then objCharacter.Value.client.SendMultiplyPackets(p)
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
