@@ -12,9 +12,9 @@
 
 MangosVB (Master)
 ==========
-*MaNGOSVB Zero* is a full featured server for [World of Warcraft][2], in its vanilla
-version supporting clients from the [patch 1.12][50] branch, specifically patch
-1.12.1, 1.12.2, and 1.12.3.
+*MaNGOSVB Zero* is a fully featured server for [World of Warcraft][2], in its vanilla
+version supporting clients from the [patch 1.12][50] branch, specifically patches
+1.12.1, 1.12.2, and 1.12.3. written in VB.Net.
 
 World of Warcraft, and all World of Warcraft or Warcraft art, images, and lore are
 copyrighted by [Blizzard Entertainment, Inc.][1].
@@ -22,26 +22,21 @@ copyrighted by [Blizzard Entertainment, Inc.][1].
 System Requirements
 ------------
 Windows OS 7/8/8.1
-Visual Basic 2010 or later
+Visual Basic 2015 or later
 
 Minium Requirements without Clustering - 
 RAM 2GB, 
-CPU  1.90GHz
+CPU 1.90GHz
 
 Required Requirements with Clustering - 
 RAM 4GB or higher, 
 CPU 2.30GHz or better
 
-Branch Information
-------------------
-There are several branches available to download the code from
-
-    master      - This is the last released stable version, this will also build and work without issues
-
 Documentation
 -------------
 All Information about Authors and other things are in the Documentation Folder.
-In addition, thoroughtly read through our [Issue Tracker Guide](IssueTemplate.md), to ensure your report contains the required information need to help us. Incorrectly or porrly formed reports will be reject on the spot.
+In addition, throughly read through our [Issue Tracker Guide](ISSUE_TEMPLATE.md), to ensure your report contains the required information need to help us.
+Incorrectly or poorly formed reports will be rejected on the spot.
 
 
 Compilation Guides
@@ -72,7 +67,7 @@ License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-  You can find the full license text in the file COPYING delivered with this
+  You can find the full license text in the file [LICENSE](LICENSE.MD) delivered with this
   package.
 
 ### Exceptions to GPL
@@ -96,8 +91,7 @@ License
 
 [50]: http://www.wowpedia.org/Patch_1.12.0 "Vanilla WoW � Patch 1.12.0 release notes"
 
-[100]: http://getmangos.co.uk/ "MaNGOS Community Project Website"
-[101]: http://community.getmangos.co.uk/ "MaNGOS Community Discussion Forums"
+[100]: https://getmangos.eu/ "MaNGOS Community Project Website / Forums"
 
 [110]: http://github.com/mangosvb "MaNGOSVB� github organization"
 [111]: http://github.com/mangosvb/serverZero "MaNGOSVB ServerZero � server repository"
