@@ -39,7 +39,10 @@ Namespace Server
         Private LastPing As Integer = 0
         Public Function MsTime() As Integer
             'DONE: Calculate the clusters timeGetTime("")
-            Return MsTime + (TimeGetTime("") - LastPing)
+            ' The following code didn't actually make sense as it was self callig recursively
+            ' Return MsTime + (TimeGetTime("") - LastPing)
+            ' Modified to only create a new time
+            Return (TimeGetTime("") - LastPing)
         End Function
 
         Class WorldServerClass
