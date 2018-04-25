@@ -1,9 +1,17 @@
+<table border=0 cellpadding=0 cellspacing=0 valign='top'><tr>
+<td><a href='https://www.getmangos.eu' target='getmangos.eu'><img src='https://www.getmangos.eu/!assets_mangos/logo.png' border=0></a></td>
+<td valign='top'>
+<a href='https://www.getmangos.eu/forums/' target='getmangos.forum'><img src='/icons/FORUM.gif' border=0></a>
+<a href='https://www.getmangos.eu/wiki' target='getmangos.wiki'><img src='/icons/WIKI.gif' border=0></a>
+<a href='https://www.getmangos.eu/github-activity/' target='getmangos.activity'><img src='/icons/ACTIVITY.gif' border=0></a>
+<a href='https://www.getmangos.eu/bug-tracker/mangos-zero/' target='getmangos.tracker'><img src='/icons/TRACKER.gif' border=0></a>
+<br /> <br/> 
+<a href='http://isitmaintained.com/project/mangosVB/serverZero' target='MangosZero'><img src='http://isitmaintained.com/badge/resolution/mangosVB/serverZero.svg' border=0></a> <a href='http://isitmaintained.com/project/mangosVB/serverZero' target='MangosZero'><img src='http://isitmaintained.com/badge/open/mangosVB/serverZero.svg' border=0></a> 
+<a href="http://makeapullrequest.com"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat"/></a>
+</td></tr></table>
+
 MangosVB (Master)
 ==========
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/mangosVB/serverZero.svg)](http://isitmaintained.com/project/mangosVB/serverZero "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/mangosVB/serverZero.svg)](http://isitmaintained.com/project/mangosVB/serverZero "Percentage of issues still open")
-[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
-
 *MaNGOSVB Zero* is a full featured server for [World of Warcraft][2], in its vanilla
 version supporting clients from the [patch 1.12][50] branch, specifically patch
 1.12.1, 1.12.2, and 1.12.3.
