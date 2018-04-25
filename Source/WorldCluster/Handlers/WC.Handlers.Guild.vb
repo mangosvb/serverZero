@@ -18,12 +18,13 @@
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
     Public Module WC_Handlers_Guild
 
-        Public Sub On_CMSG_GUILD_QUERY(ByRef packet As Packets.PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_GUILD_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim GuildID As UInteger = packet.GetUInt32

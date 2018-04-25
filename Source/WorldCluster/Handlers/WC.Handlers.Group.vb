@@ -19,6 +19,7 @@ Imports System.Threading
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
@@ -339,16 +340,22 @@ Namespace Handlers
                 Next
             End Sub
 
-            Public Sub SendChatMessage(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal Type As ChatMsg)
-                Dim packet As PacketClass = BuildChatMessage(Sender.GUID, Message, Type, Language, Sender.ChatFlag)
+            Public Sub SendChatMessage(ByRef sender As CharacterObject, ByVal message As String, ByVal language As LANGUAGES, ByVal thisType As ChatMsg)
+                Dim packet As PacketClass = BuildChatMessage(sender.GUID, message, thisType, language, sender.ChatFlag)
 
                 Broadcast(packet)
                 packet.Dispose()
             End Sub
 
+            Public Sub SendChatMessage(ByRef sender As CharacterObject, ByVal message As String, ByVal language As LANGUAGES)
+                Dim packet As PacketClass = BuildChatMessage(sender.GUID, message, Type, language, sender.ChatFlag)
+
+                Broadcast(packet)
+                packet.Dispose()
+            End Sub
         End Class
 
-        Public Sub On_CMSG_REQUEST_RAID_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_REQUEST_RAID_INFO(ByRef packet As PacketClass, ByRef client As WC_Network.ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_RAID_INFO", client.IP, client.Port)
 
             Dim q As New DataTable
@@ -417,8 +424,9 @@ Namespace Handlers
                 errCode = PartyCommandResult.INVITE_IGNORED
             Else
                 If Not client.Character.IsInGroup Then
-                    Dim g As New Group(client.Character)
-                    CHARACTERs(GUID).Group = client.Character.Group
+                    Dim newGroup As New Group(client.Character)
+                    'TODO: Need to do fully test this
+                    CHARACTERs(GUID).Group = newGroup
                     CHARACTERs(GUID).GroupInvitedFlag = True
                 Else
                     If client.Character.Group.IsFull Then

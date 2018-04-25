@@ -20,6 +20,7 @@ Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
 Imports WorldCluster.Handlers
+Imports WorldCluster.Server
 
 Public Module WC_Guild
 
@@ -106,16 +107,17 @@ Public Module WC_Guild
 #End Region
 
     'Basic Guild Framework
-    Public Sub AddCharacterToGuild(ByRef objCharacter As WcHandlerCharacter.CharacterObject, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", GuildID, objCharacter.GUID, GuildRank))
+    Public Sub AddCharacterToGuild(ByRef objCharacter As WcHandlerCharacter.CharacterObject, ByVal guildId As Integer, Optional ByVal guildRank As Integer = 4)
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, objCharacter.GUID, guildRank))
 
-        If GUILDs.ContainsKey(GuildID) = False Then
-            Dim tmpGuild As New Guild(GuildID)
+        If GUILDs.ContainsKey(guildId) = False Then
+            Dim tmpGuild As New Guild(guildId)
+            GUILDs.Add(guildId, tmpGuild)
         End If
 
-        objCharacter.Guild = GUILDs(GuildID)
+        objCharacter.Guild = GUILDs(guildId)
         objCharacter.Guild.Members.Add(objCharacter.GUID)
-        objCharacter.GuildRank = GuildRank
+        objCharacter.GuildRank = guildRank
 
         objCharacter.SendGuildUpdate()
     End Sub
@@ -195,26 +197,27 @@ Public Module WC_Guild
         packet.Dispose()
     End Sub
 
-    Public Sub SendGuildQuery(ByRef client As ClientClass, ByVal GuildID As UInteger)
-        If GuildID = 0 Then Exit Sub
+    Public Sub SendGuildQuery(ByRef client As WC_Network.ClientClass, ByVal guildId As UInteger)
+        If guildId = 0 Then Exit Sub
         'WARNING: This opcode is used also in character enum, so there must not be used any references to CharacterObject, only ClientClass
 
         'DONE: Load the guild if it doesn't exist in the memory
-        If GUILDs.ContainsKey(GuildID) = False Then
-            Dim tmpGuild As New Guild(GuildID)
+        If GUILDs.ContainsKey(guildId) = False Then
+            Dim tmpGuild As New Guild(guildId)
+            GUILDs.Add(guildId, tmpGuild)
         End If
 
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_QUERY_RESPONSE)
-        response.AddUInt32(GuildID)
-        response.AddString(GUILDs(GuildID).Name)
+        response.AddUInt32(guildId)
+        response.AddString(GUILDs(guildId).Name)
         For i As Integer = 0 To 9
-            response.AddString(GUILDs(GuildID).Ranks(i))
+            response.AddString(GUILDs(guildId).Ranks(i))
         Next
-        response.AddInt32(GUILDs(GuildID).EmblemStyle)
-        response.AddInt32(GUILDs(GuildID).EmblemColor)
-        response.AddInt32(GUILDs(GuildID).BorderStyle)
-        response.AddInt32(GUILDs(GuildID).BorderColor)
-        response.AddInt32(GUILDs(GuildID).BackgroundColor)
+        response.AddInt32(GUILDs(guildId).EmblemStyle)
+        response.AddInt32(GUILDs(guildId).EmblemColor)
+        response.AddInt32(GUILDs(guildId).BorderStyle)
+        response.AddInt32(GUILDs(guildId).BorderColor)
+        response.AddInt32(GUILDs(guildId).BackgroundColor)
         response.AddInt32(0)
         client.Send(response)
         response.Dispose()
