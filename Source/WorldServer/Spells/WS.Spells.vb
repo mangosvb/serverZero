@@ -821,7 +821,7 @@ Public Module WS_Spells
 
             If Targets.unitTarget IsNot Nothing AndAlso (Not Targets.unitTarget Is Character) AndAlso (TypeOf Targets.unitTarget Is CharacterObject) AndAlso CType(Targets.unitTarget, CharacterObject).GM Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
 
-            If (Attributes And SpellAttributes.SPELL_ATTR_WHILE_DEAD) = 0 AndAlso Character.isDead Then Return SpellFailedReason.SPELL_FAILED_CASTER_DEAD
+            If (Attributes And SpellAttributes.SPELL_ATTR_WHILE_DEAD) = 0 AndAlso Character.IsDead Then Return SpellFailedReason.SPELL_FAILED_CASTER_DEAD
             If (Attributes And SpellAttributes.SPELL_ATTR_NOT_WHILE_COMBAT) Then
                 If Character.IsInCombat Then Return SpellFailedReason.SPELL_FAILED_INTERRUPTED_COMBAT
             End If
@@ -929,7 +929,7 @@ SkipShapeShift:
                                 If Targets.unitTarget.Life.Current > (Targets.unitTarget.Life.Maximum * 0.2) Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
                             End If
                         Case SpellEffects_Names.SPELL_EFFECT_CHARGE
-                            If Character.isRooted Then Return SpellFailedReason.SPELL_FAILED_ROOTED
+                            If Character.IsRooted Then Return SpellFailedReason.SPELL_FAILED_ROOTED
                         Case SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT
                             If SpellEffects(i).MiscValue = 35591 Then
                                 Dim selectedX As Single = 0.0F
@@ -2506,7 +2506,7 @@ SkipShapeShift:
         If (TypeOf Target.unitTarget Is CreatureObject) AndAlso CType(Caster, BaseUnit).IsFriendlyTo(Target.unitTarget) = False Then
             With CType(Target.unitTarget, CreatureObject)
                 If .CreatureInfo.CreatureType = UNIT_TYPE.HUMANOID OrElse .CreatureInfo.CreatureType = UNIT_TYPE.UNDEAD Then
-                    If .isDead = False Then
+                    If .IsDead = False Then
                         Dim chance As Integer = 10 + CType(Caster, BaseUnit).Level - .Level
 
                         If chance > Rnd.Next(0, 20) Then
@@ -2548,7 +2548,7 @@ SkipShapeShift:
         'DONE: Skin the creature!
         If (TypeOf Target.unitTarget Is CreatureObject) Then
             With CType(Target.unitTarget, CreatureObject)
-                If .isDead AndAlso HaveFlags(.cUnitFlags, UnitFlags.UNIT_FLAG_SKINNABLE) Then
+                If .IsDead AndAlso HaveFlags(.cUnitFlags, UnitFlags.UNIT_FLAG_SKINNABLE) Then
                     .cUnitFlags = .cUnitFlags And (Not UnitFlags.UNIT_FLAG_SKINNABLE)
                     'TODO: Is skinning skill requirement met?
                     'TODO: Update skinning skill!
@@ -3645,7 +3645,7 @@ SkipShapeShift:
             If SPELLs(SpellID).SpellIconID = 70 OrElse SPELLs(SpellID).SpellIconID = 242 Then
                 Return SPELL_EFFECT_HEAL(Target, Caster, SpellInfo, SpellID, Infected, Item)
             ElseIf (SPELLs(SpellID).SpellFamilyFlags And (1 << 23)) Then
-                If Target.unitTarget Is Nothing OrElse Target.unitTarget.isDead Then Return SpellFailedReason.SPELL_FAILED_TARGETS_DEAD
+                If Target.unitTarget Is Nothing OrElse Target.unitTarget.IsDead Then Return SpellFailedReason.SPELL_FAILED_TARGETS_DEAD
 
                 Dim SpellID2 As Integer = 0
                 For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
@@ -3727,20 +3727,20 @@ SkipShapeShift:
 
         If TypeOf objCharacter Is CharacterObject Then
             For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(objCharacter, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(objCharacter, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(objCharacter, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(objCharacter, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(objCharacter, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(objCharacter, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).IsDead = False Then
                     If GetDistance(CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
             For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
-                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
+                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
                     If GetDistance(WORLD_CREATUREs(cGUID), PosX, PosY, PosZ) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
                 End If
             Next
 
         ElseIf TypeOf objCharacter Is CreatureObject Then
             For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) <= TReaction.NEUTRAL Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) <= TReaction.NEUTRAL Then
                     If GetDistance(CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
@@ -3755,20 +3755,20 @@ SkipShapeShift:
         If r Is Nothing Then r = objCharacter
         If TypeOf r Is CharacterObject Then
             For Each pGUID As ULong In CType(r, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).IsDead = False Then
                     If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
             For Each cGUID As ULong In CType(r, CharacterObject).creaturesNear.ToArray
-                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(r, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
+                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(r, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
                     If GetDistance(WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
                 End If
             Next
 
         ElseIf TypeOf r Is CreatureObject Then
             For Each pGUID As ULong In r.SeenBy.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(r, CreatureObject).Faction) <= TReaction.NEUTRAL Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(r, CreatureObject).Faction) <= TReaction.NEUTRAL Then
                     If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
@@ -3782,20 +3782,20 @@ SkipShapeShift:
 
         If TypeOf objCharacter Is CharacterObject Then
             For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).IsDead = False Then
                     If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
             For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
-                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).isDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
+                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
                     If GetDistance(WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
                 End If
             Next
 
         ElseIf TypeOf objCharacter Is CreatureObject Then
             For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
                     If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
@@ -3809,14 +3809,14 @@ SkipShapeShift:
 
         If TypeOf objCharacter Is CharacterObject Then
             For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).isDead = False Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).IsDead = False Then
                     If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next
 
         ElseIf TypeOf objCharacter Is CreatureObject Then
             For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).isDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
+                If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
                     If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
                 End If
             Next

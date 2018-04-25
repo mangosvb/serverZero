@@ -18,6 +18,7 @@
 
 Imports System.Threading
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 
 Public Module WC_Handlers_Group
 
@@ -768,8 +769,9 @@ Public Module WC_Handlers_Group
             response.Dispose()
         Else
             'Request information from WorldServer
-            Dim response As New PacketClass(0)
-            response.Data = CHARACTERs(GUID).GetWorld.GroupMemberStats(GUID, 0)
+            Dim response As New PacketClass(0) With {
+                .Data = CHARACTERs(GUID).GetWorld.GroupMemberStats(GUID, 0)
+            }
             client.Send(response)
             response.Dispose()
         End If

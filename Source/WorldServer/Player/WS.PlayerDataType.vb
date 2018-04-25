@@ -487,7 +487,7 @@ Public Module WS_PlayerData
             End Get
         End Property
 
-        Public Overrides ReadOnly Property isDead() As Boolean
+        Public Overrides ReadOnly Property IsDead() As Boolean
             Get
                 Return DEAD
             End Get
@@ -1318,7 +1318,7 @@ Public Module WS_PlayerData
 
                 packet.AddInt8(&H71) 'flags
                 packet.AddInt32(flags2) 'flags2
-                packet.AddInt32(msTime)
+                packet.AddInt32(MsTime)
                 packet.AddSingle(positionX)
                 packet.AddSingle(positionY)
                 packet.AddSingle(positionZ)
@@ -3348,7 +3348,7 @@ CheckXPAgain:
                 packet.AddPackGUID(GUID)
                 packet.AddInt32(0)              'Counter
                 packet.AddInt32(0)              'Movement flags
-                packet.AddInt32(msTime)
+                packet.AddInt32(MsTime)
                 packet.AddSingle(posX)
                 packet.AddSingle(posY)
                 packet.AddSingle(posZ)
@@ -4018,7 +4018,7 @@ CheckXPAgain:
                 'DONE: Fight support by NPCs
                 For Each cGUID As ULong In creaturesNear.ToArray
                     If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso WORLD_CREATUREs(cGUID).isGuard Then
-                        If WORLD_CREATUREs(cGUID).isDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
+                        If WORLD_CREATUREs(cGUID).IsDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
                             If inCombatWith.Contains(cGUID) Then Continue For
                             If GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.FIGHT_SUPPORT AndAlso GetDistance(WORLD_CREATUREs(cGUID), Me) <= WORLD_CREATUREs(cGUID).AggroRange(Me) Then
                                 WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Attacker, Damage)

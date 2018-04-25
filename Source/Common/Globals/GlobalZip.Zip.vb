@@ -23,7 +23,7 @@ Namespace Globals
     Public Module GlobalZip
 
         <MethodImpl(MethodImplOptions.Synchronized)>
-        Public Function Compress(ByVal b As Byte(), ByVal offset As Integer, ByVal len As Integer) As Byte()
+        Public Function Compress(b As Byte(), offset As Integer, len As Integer) As Byte()
             Dim buffer2() As Byte
 
             Try
@@ -42,7 +42,7 @@ Namespace Globals
         End Function
 
         <MethodImpl(MethodImplOptions.Synchronized)>
-        Public Function DeCompress(ByVal b As Byte()) As Byte()
+        Public Function DeCompress(b As Byte()) As Byte()
             Dim buffer2() As Byte = Nothing
             Dim writeBuffer(Short.MaxValue) As Byte
 

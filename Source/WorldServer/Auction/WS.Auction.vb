@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports mangosVB.Common.Globals
 
 Module WS_Auction
 
@@ -412,7 +413,7 @@ Module WS_Auction
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_ITEMS [{2} ({3}-{4})]", client.IP, client.Port, Name, LevelMIN, LevelMAX)
 
         Dim response As New PacketClass(OPCODES.SMSG_AUCTION_LIST_RESULT)
-        Dim QueryString As String = "SELECT auctionhouse.* FROM " & CharacterDatabase.SQLDBName & ".auctionhouse, " & WorldDatabase.SQLDBName & ".item_template WHERE item_template.entry = auctionhouse.auction_itemId"
+        Dim QueryString As String = "SELECT auctionhouse.* FROM " & CharacterDatabase.SqldbName & ".auctionhouse, " & WorldDatabase.SqldbName & ".item_template WHERE item_template.entry = auctionhouse.auction_itemId"
         If Name <> "" Then QueryString += " AND item_template.name LIKE '%" & Name & "%'"
         If LevelMIN <> 0 Then QueryString += " AND item_template.itemlevel > " & (LevelMIN - 1)
         If LevelMAX <> 0 Then QueryString += " AND item_template.itemlevel < " & (LevelMAX + 1)

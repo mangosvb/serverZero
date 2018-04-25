@@ -38,7 +38,7 @@ Public Class Sql
         IdMessage = 1
     End Enum
 
-    Public Event SqlMessage(ByVal messageId As EMessages, ByVal outBuf As String)
+    Public Event SqlMessage(messageId As EMessages, outBuf As String)
 #End Region
 
 #Region "COM GUIDs"
@@ -95,67 +95,67 @@ Public Class Sql
 #Region "Main propertys"
 #Region "Server type selection      MySQL|MSSQL|Oracle Supported"
     <Description("SQL Server selection.")>
-    Public Property SqlTypeServer() As DbType
+    Public Property SqlTypeServer As DbType
         Get
             SqlTypeServer = _vSqlType
         End Get
-        Set(ByVal value As DbType)
-            _vSqlType = value
+        Set
+            _vSqlType = Value
         End Set
     End Property
 #End Region
 #Region "Server host ip"
     <Description("SQL Host name.")>
-    Public Property SqlHost() As String
+    Public Property SqlHost As String
         Get
             SqlHost = _vSqlHost
         End Get
-        Set(ByVal value As String)
-            _vSqlHost = value
+        Set
+            _vSqlHost = Value
         End Set
     End Property
 #End Region
 #Region "Server host port"
     <Description("SQL Host port.")>
-    Public Property SqlPort() As String
+    Public Property SqlPort As String
         Get
             SqlPort = _vSqlPort
         End Get
-        Set(ByVal value As String)
-            _vSqlPort = value
+        Set
+            _vSqlPort = Value
         End Set
     End Property
 #End Region
 #Region "Server username"
     <Description("SQL User name.")>
-    Public Property SqlUser() As String
+    Public Property SqlUser As String
         Get
             SqlUser = _vSqlUser
         End Get
-        Set(ByVal value As String)
-            _vSqlUser = value
+        Set
+            _vSqlUser = Value
         End Set
     End Property
 #End Region
 #Region "Server Password"
     <Description("SQL Password.")>
-    Public Property SqlPass() As String
+    Public Property SqlPass As String
         Get
             SqlPass = _vSqlPass
         End Get
-        Set(ByVal value As String)
-            _vSqlPass = value
+        Set
+            _vSqlPass = Value
         End Set
     End Property
 #End Region
 #Region "Database Name"
     <Description("SQL Database name.")>
-    Public Property SqldbName() As String
+    Public Property SqldbName As String
         Get
             SqldbName = _vSqldbName
         End Get
-        Set(ByVal value As String)
-            _vSqldbName = value
+        Set
+            _vSqldbName = Value
         End Set
     End Property
 #End Region
@@ -273,7 +273,7 @@ Public Class Sql
 
     ' IDisposable
     <Description("Close file and dispose the wdb reader.")>
-    Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+    Protected Overridable Sub Dispose(disposing As Boolean)
         If Not _disposedValue Then
             ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
             ' TODO: set large fields to null.
@@ -309,7 +309,7 @@ Public Class Sql
 
 #Region "Query Wraper"
     <Description("SQLQuery. EG.: (SELECT * FROM db_accounts WHERE account = 'name';')")>
-    Public Function QuerySql(ByVal sqlQuery As String) As Boolean
+    Public Function QuerySql(sqlQuery As String) As Boolean
         _mQuery = sqlQuery
         Query(_mQuery, _mResult)
         If _mResult.Rows.Count > 0 Then
@@ -332,7 +332,7 @@ Public Class Sql
     '#End Region
 #Region "Insert Wraper"
     <Description("SQLInsert. EG.: (INSERT INTO db_textpage (pageid, text, nextpageid, wdbversion, checksum) VALUES ('pageid DWORD', 'pagetext STRING', 'nextpage DWORD', 'version DWORD', 'checksum DWORD')")>
-    Public Sub InsertSql(ByVal sqlInsertionQuery As String)
+    Public Sub InsertSql(sqlInsertionQuery As String)
         Insert(sqlInsertionQuery)
     End Sub
 #End Region
@@ -346,7 +346,7 @@ Public Class Sql
 
 #Region "Main SQL Functions Used."
 #Region "Query      MySQL|MSSQL|Oracle Supported       [SELECT * FROM db_accounts WHERE account = 'name';']"
-    Public Function Query(ByVal sqlquery As String, ByRef result As DataTable) As Integer
+    Public Function Query(sqlquery As String, ByRef result As DataTable) As Integer
         If result Is Nothing Then
             Throw New ArgumentNullException(NameOf(result))
         End If
@@ -443,7 +443,7 @@ Public Class Sql
     End Function
 #End Region
 #Region "Insert     MySQL|MSSQL|Oracle Supported       [INSERT INTO db_textpage (pageid, text, nextpageid, wdbversion, checksum) VALUES ('pageid DWORD', 'pagetext STRING', 'nextpage DWORD', 'version DWORD', 'checksum DWORD']"
-    Public Sub Insert(ByVal sqlquery As String)
+    Public Sub Insert(sqlquery As String)
         Select Case _vSqlType
             Case DbType.MySql
                 If _mySqlConn.State <> ConnectionState.Open Then
@@ -523,7 +523,7 @@ Public Class Sql
     End Sub
 #End Region
 #Region "Update     MySQL|MSSQL|Oracle Supported       [UPDATE db_textpage SET pagetext='pagetextstring' WHERE pageid = 'pageiddword';]"
-    Public Sub Update(ByVal sqlquery As String)
+    Public Sub Update(sqlquery As String)
         Select Case _vSqlType
             Case DbType.MySql
                 If _mySqlConn.State <> ConnectionState.Open Then

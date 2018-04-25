@@ -17,6 +17,8 @@
 '
 
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
+
 Public Module WC_Guild
 
 #Region "WC.Guild.Guild"
@@ -136,13 +138,13 @@ Public Module WC_Guild
     Public Sub BroadcastChatMessageGuild(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal GuildID As Integer)
         'DONE: Check for guild member
         If Not Sender.IsInGuild Then
-            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         End If
 
         'DONE: Check for rights to speak
         If Not Sender.IsGuildRightSet(GuildRankRights.GR_RIGHT_GCHATSPEAK) Then
-            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -154,7 +156,7 @@ Public Module WC_Guild
         For Each Member As ULong In tmpArray
             If CHARACTERs.ContainsKey(Member) Then
                 If CHARACTERs(Member).IsGuildRightSet(GuildRankRights.GR_RIGHT_GCHATLISTEN) Then
-                    CHARACTERs(Member).Client.SendMultiplyPackets(packet)
+                    CHARACTERs(Member).client.SendMultiplyPackets(packet)
                 End If
             End If
         Next
@@ -165,13 +167,13 @@ Public Module WC_Guild
     Public Sub BroadcastChatMessageOfficer(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal GuildID As Integer)
         'DONE: Check for guild member
         If Not Sender.IsInGuild Then
-            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         End If
 
         'DONE: Check for rights to speak
         If Not Sender.IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATSPEAK) Then
-            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+            SendGuildResult(Sender.client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
@@ -183,7 +185,7 @@ Public Module WC_Guild
         For Each Member As ULong In tmpArray
             If CHARACTERs.ContainsKey(Member) Then
                 If CHARACTERs(Member).IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATLISTEN) Then
-                    CHARACTERs(Member).Client.SendMultiplyPackets(packet)
+                    CHARACTERs(Member).client.SendMultiplyPackets(packet)
                 End If
             End If
         Next
@@ -277,7 +279,7 @@ Public Module WC_Guild
             End If
         Next
 
-        objCharacter.Client.Send(response)
+        objCharacter.client.Send(response)
         response.Dispose()
     End Sub
 
@@ -309,7 +311,7 @@ Public Module WC_Guild
         For Each Member As ULong In tmpArray
             If Member = NotTo Then Continue For
             If CHARACTERs.ContainsKey(Member) Then
-                CHARACTERs(Member).Client.SendMultiplyPackets(Packet)
+                CHARACTERs(Member).client.SendMultiplyPackets(Packet)
             End If
         Next
     End Sub
@@ -322,7 +324,7 @@ Public Module WC_Guild
                 response.AddInt8(GuildEvent.MOTD)
                 response.AddInt8(1)
                 response.AddString(objCharacter.Guild.Motd)
-                objCharacter.Client.Send(response)
+                objCharacter.client.Send(response)
                 response.Dispose()
             End If
         End If

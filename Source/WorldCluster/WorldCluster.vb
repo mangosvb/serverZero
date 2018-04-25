@@ -22,6 +22,7 @@ Imports System.IO
 Imports System.Reflection
 Imports mangosVB.Common.Logging
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Logging.BaseWriter
 Imports mangosVB.Common.Global_Enums
 

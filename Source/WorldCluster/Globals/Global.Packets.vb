@@ -17,6 +17,7 @@
 '
 Imports System.IO
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 
 Public Module Packets
 

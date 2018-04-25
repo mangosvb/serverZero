@@ -17,6 +17,7 @@
 '
 Imports System.Reflection
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 
 Public Module WC_Handler_Character
 
@@ -278,8 +279,9 @@ Public Module WC_Handler_Character
                         tmpGroup.Value.Members(i) = Me
                         tmpGroup.Value.SendGroupList()
 
-                        Dim response As New PacketClass(0)
-                        response.Data = GetWorld.GroupMemberStats(GUID, 0)
+                        Dim response As New PacketClass(0) With {
+                            .Data = GetWorld.GroupMemberStats(GUID, 0)
+                        }
                         tmpGroup.Value.BroadcastToOther(response, Me)
                         response.Dispose()
                         Exit Sub

@@ -37,7 +37,7 @@ Namespace Logging
             WriteLine(LogType.INFORMATION, "Log started successfully.")
         End Sub
 
-        Public Sub New(ByVal createfilename As String)
+        Public Sub New(createfilename As String)
             Filename = createfilename
             CreateNewFile()
         End Sub
@@ -45,7 +45,7 @@ Namespace Logging
         Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+        Protected Overrides Sub Dispose(disposing As Boolean)
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -54,13 +54,13 @@ Namespace Logging
             _disposedValue = True
         End Sub
 
-        Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub Write(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
             If LastDate <> Now.Date Then CreateNewFile()
 
             Output.Write(formatStr, arg)
         End Sub
-        Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub WriteLine(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
             If LastDate <> Now.Date Then CreateNewFile()
 

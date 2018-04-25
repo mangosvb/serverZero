@@ -1593,8 +1593,9 @@ Public Class WS_Quests
 
                 'DONE: Adding reward choice
                 If client.Character.TalkCurrentQuest.RewardItems(rewardIndex) <> 0 Then
-                    Dim tmpItem As New ItemObject(client.Character.TalkCurrentQuest.RewardItems(rewardIndex), client.Character.GUID)
-                    tmpItem.StackCount = client.Character.TalkCurrentQuest.RewardItems_Count(rewardIndex)
+                    Dim tmpItem As New ItemObject(client.Character.TalkCurrentQuest.RewardItems(rewardIndex), client.Character.GUID) With {
+                        .StackCount = client.Character.TalkCurrentQuest.RewardItems_Count(rewardIndex)
+                    }
                     If Not client.Character.ItemADD(tmpItem) Then
                         tmpItem.Delete()
                         'DONE: Inventory full sent form SetItemSlot
@@ -1752,8 +1753,9 @@ Public Class WS_Quests
 
                 'DONE: Adding reward choice
                 If client.Character.TalkCurrentQuest.RewardItems(rewardIndex) <> 0 Then
-                    Dim tmpItem As New ItemObject(client.Character.TalkCurrentQuest.RewardItems(rewardIndex), client.Character.GUID)
-                    tmpItem.StackCount = client.Character.TalkCurrentQuest.RewardItems_Count(rewardIndex)
+                    Dim tmpItem As New ItemObject(client.Character.TalkCurrentQuest.RewardItems(rewardIndex), client.Character.GUID) With {
+                        .StackCount = client.Character.TalkCurrentQuest.RewardItems_Count(rewardIndex)
+                    }
                     If Not client.Character.ItemADD(tmpItem) Then
                         tmpItem.Delete()
                         'DONE: Inventory full sent form SetItemSlot

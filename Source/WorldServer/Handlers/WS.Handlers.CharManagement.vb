@@ -18,6 +18,8 @@
 
 
 #Region "WS.CharMangment.Handlers"
+Imports mangosVB.Common.Globals
+
 Public Module CharManagementHandler
 
     Public Sub On_CMSG_SET_ACTION_BUTTON(ByRef packet As PacketClass, ByRef client As ClientClass)

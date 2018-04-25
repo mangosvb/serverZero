@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports mangosVB.Common.Globals
 
 Public Module WS_NPCs
     Private Const DbcBankBagSlotsMax As Integer = 12
@@ -454,8 +455,9 @@ Public Module WS_NPCs
 
         client.Character.SendCharacterUpdate(False)
 
-        Dim tmpItem As New ItemObject(itemID, client.Character.GUID)
-        tmpItem.StackCount = count * ITEMDatabase(itemID).BuyCount
+        Dim tmpItem As New ItemObject(itemID, client.Character.GUID) With {
+            .StackCount = count * ITEMDatabase(itemID).BuyCount
+        }
 
         'TODO: Remove one count of the item from the vendor if it's not unlimited
 
@@ -565,8 +567,9 @@ Public Module WS_NPCs
             End If
         End If
 
-        Dim tmpItem As New ItemObject(itemID, client.Character.GUID)
-        tmpItem.StackCount = count
+        Dim tmpItem As New ItemObject(itemID, client.Character.GUID) With {
+            .StackCount = count
+        }
 
         errCode = client.Character.ItemCANEQUIP(tmpItem, bag, slot)
         If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then

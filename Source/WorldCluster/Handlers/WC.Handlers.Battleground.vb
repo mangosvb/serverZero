@@ -18,6 +18,7 @@
 
 Imports System.Threading
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 
 Public Module WC_Handlers_Battleground
 

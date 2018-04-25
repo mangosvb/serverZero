@@ -18,6 +18,7 @@
 
 Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 
 Public Module WC_Handlers_Tickets
 

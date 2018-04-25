@@ -19,6 +19,7 @@
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
+Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Logging
 Imports mangosVB.Common.Logging.BaseWriter
 Imports mangosVB.Common.Global_Enums
@@ -398,8 +399,9 @@ Public Module WorldServer
                                 Log.WriteLine(LogType.WARNING, "Server shutting down...")
                                 ClsWorldServer._flagStopListen = True
                             Case "debug", "/debug"
-                                Dim conn As New ClientClass
-                                conn.DEBUG_CONNECTION = True
+                                Dim conn As New ClientClass With {
+                                    .DEBUG_CONNECTION = True
+                                }
                                 Dim test As New CharacterObject(conn, CType(cmds(1), Long))
                                 CHARACTERs(CType(cmds(1), Long)) = test
                                 AddToWorld(test)

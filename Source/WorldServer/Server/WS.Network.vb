@@ -18,6 +18,7 @@
 
 Imports System.Runtime.Remoting
 Imports System.Security.Permissions
+Imports mangosVB.Common.Globals
 
 Public Module WS_Network
 
@@ -26,9 +27,9 @@ Public Module WS_Network
     Private LastPing As Integer = 0
     Public WC_MsTime As Integer = 0
 
-    Public Function msTime() As Integer
+    Public Function MsTime() As Integer
         'DONE: Calculate the clusters timeGetTime("")
-        Return WC_MsTime + (timeGetTime("") - LastPing)
+        Return WC_MsTime + (TimeGetTime("") - LastPing)
     End Function
 
     Public Class WorldServerClass

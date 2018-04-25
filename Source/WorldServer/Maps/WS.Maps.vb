@@ -17,6 +17,7 @@
 '
 
 Imports System.IO
+Imports mangosVB.Common.Globals
 
 Public Module WS_Maps
 #Region "Zones"
@@ -1041,8 +1042,9 @@ Public Module WS_Maps
         For Each InfoRow As DataRow In MysqlQuery.Rows
             If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + GUID_CORPSE) Then
                 Try
-                    Dim tmpCorpse As CorpseObject = New CorpseObject(InfoRow.Item("guid"), InfoRow)
-                    tmpCorpse.instance = TileInstance
+                    Dim tmpCorpse As CorpseObject = New CorpseObject(InfoRow.Item("guid"), InfoRow) With {
+                        .instance = TileInstance
+                    }
                     tmpCorpse.AddToWorld()
                 Catch ex As Exception
                     Log.WriteLine(LogType.CRITICAL, "Error when creating corpse [{0}].{1}{2}", InfoRow.Item("guid"), vbNewLine, ex.ToString)

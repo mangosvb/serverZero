@@ -20,6 +20,7 @@ Imports System.Text.RegularExpressions
 Imports mangosVB.Common.Races
 Imports mangosVB.Common.Classes
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 
 Public Module Functions
 

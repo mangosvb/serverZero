@@ -19,6 +19,7 @@
 Imports System.Threading
 Imports System.Net.Sockets
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Globals.GlobalZip
 
 Public Module WC_Handlers_Auth

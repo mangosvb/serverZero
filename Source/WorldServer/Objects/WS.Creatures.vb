@@ -119,7 +119,7 @@ Public Module WS_Creatures
             End Get
         End Property
 
-        Public Overrides ReadOnly Property isDead() As Boolean
+        Public Overrides ReadOnly Property IsDead() As Boolean
             Get
                 If aiScript IsNot Nothing Then
                     Return (Life.Current = 0 OrElse aiScript.State = AIState.AI_DEAD OrElse aiScript.State = AIState.AI_RESPAWN)
@@ -383,7 +383,7 @@ Public Module WS_Creatures
                 SMSG_MONSTER_MOVE.AddSingle(positionX)
                 SMSG_MONSTER_MOVE.AddSingle(positionY)
                 SMSG_MONSTER_MOVE.AddSingle(positionZ)
-                SMSG_MONSTER_MOVE.AddInt32(msTime)         'Sequence/MSTime?
+                SMSG_MONSTER_MOVE.AddInt32(MsTime)         'Sequence/MSTime?
 
                 If o = 0.0F Then
                     SMSG_MONSTER_MOVE.AddInt8(0)                    'Type [If type is 1 then the packet ends here]

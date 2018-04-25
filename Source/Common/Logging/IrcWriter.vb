@@ -25,7 +25,7 @@ Namespace Logging
         Protected Conn As IrcClient
         Dim _message As String = Nothing
 
-        Public Sub New(ByVal server As String, ByVal port As Integer, ByVal nick As String, ByVal channel As String)
+        Public Sub New(server As String, port As Integer, nick As String, channel As String)
             Conn = New IrcClient With {
                 .AutoReconnect = True,
                 .AutoRejoin = True,
@@ -53,7 +53,7 @@ Namespace Logging
         Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+        Protected Overrides Sub Dispose(disposing As Boolean)
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.

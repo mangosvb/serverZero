@@ -17,6 +17,7 @@
 '
 
 Imports System.Security.Cryptography
+Imports mangosVB.Common.Globals
 
 Public Module WS_Handlers_Warden
 

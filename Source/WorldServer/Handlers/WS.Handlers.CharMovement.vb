@@ -180,7 +180,7 @@ Module WS_CharMovement
 
         'DONE: Movement time calculation
         'TODO: PROPERLY MOVE THIS OVER TO THE CMSG_MOVE_TIME_SKIPPED OPCODE, Reference @ LN 406
-        Dim MsTime As Integer = WS_Network.msTime()
+        Dim MsTime As Integer = WS_Network.MsTime()
         Dim ClientTimeDelay As Integer = MsTime - Time
         Dim MoveTime As Integer = (Time - (MsTime - ClientTimeDelay)) + 500 + MsTime
         packet.AddInt32(MoveTime, 10)
@@ -231,7 +231,7 @@ Module WS_CharMovement
         End If
 
         'DONE: Movement time calculation
-        Dim MsTime As Integer = WS_Network.msTime
+        Dim MsTime As Integer = WS_Network.MsTime
         Dim ClientTimeDelay As Integer = MsTime - Time
         Dim MoveTime As Integer = (Time - (MsTime - ClientTimeDelay)) + 500 + MsTime
         packet.AddInt32(MoveTime, 10)
@@ -574,7 +574,7 @@ Module WS_CharMovement
         'DONE: Aggro range
         For Each cGUID As ULong In client.Character.creaturesNear.ToArray
             If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso ((TypeOf WORLD_CREATUREs(cGUID).aiScript Is DefaultAI) OrElse (TypeOf WORLD_CREATUREs(cGUID).aiScript Is GuardAI)) Then
-                If WORLD_CREATUREs(cGUID).isDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
+                If WORLD_CREATUREs(cGUID).IsDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
                     If client.Character.inCombatWith.Contains(cGUID) Then Continue For
                     If client.Character.GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(WORLD_CREATUREs(cGUID), client.Character) <= WORLD_CREATUREs(cGUID).AggroRange(client.Character) Then
                         WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(client.Character, 1)

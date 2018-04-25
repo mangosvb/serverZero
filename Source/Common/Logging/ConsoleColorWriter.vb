@@ -25,7 +25,7 @@ Namespace Logging
         Inherits BaseWriter
 
         <MethodImpl(MethodImplOptions.Synchronized)>
-        Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub Write(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             Select Case type
@@ -58,7 +58,7 @@ Namespace Logging
         End Sub
 
         <MethodImpl(MethodImplOptions.Synchronized)>
-        Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub WriteLine(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             Select Case type

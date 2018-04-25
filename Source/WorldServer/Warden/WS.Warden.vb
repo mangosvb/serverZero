@@ -19,6 +19,7 @@
 Imports System.IO
 Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
+Imports mangosVB.Common.Globals
 Imports mangosVB.Common.NativeMethods
 Imports mangosVB.Common.Globals.GlobalZip
 

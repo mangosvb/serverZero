@@ -15,7 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
+Imports mangosVB.Common.Globals
 
 Public Module WS_Transports
     Private Function GetNewGUID() As ULong
@@ -354,7 +354,7 @@ Public Module WS_Transports
         Public Sub Update()
             If Waypoints.Count <= 1 Then Exit Sub
 
-            Dim Timer As Integer = msTime() Mod Period
+            Dim Timer As Integer = MsTime() Mod Period
             While (Math.Abs(Timer - Waypoints(CurrentWaypoint).Time) Mod PathTime) > (Math.Abs(Waypoints(NextWaypoint).Time - Waypoints(CurrentWaypoint).Time) Mod PathTime)
                 CurrentWaypoint = GetNextWaypoint()
                 NextWaypoint = GetNextWaypoint()
@@ -539,7 +539,7 @@ Public Module WS_Transports
                         Continue For
                     End If
 
-                    If tmpUnit.isDead Then
+                    If tmpUnit.IsDead Then
                         If TypeOf tmpUnit Is CharacterObject Then
                             CharacterResurrect(CType(tmpUnit, CharacterObject))
                         ElseIf TypeOf tmpUnit Is CreatureObject Then

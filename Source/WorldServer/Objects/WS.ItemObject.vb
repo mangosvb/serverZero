@@ -18,6 +18,7 @@
 
 'WARNING: Use only with ITEMs()
 Imports System.Runtime.CompilerServices
+Imports mangosVB.Common.Globals
 
 Public NotInheritable Class ItemObject
     Implements IDisposable

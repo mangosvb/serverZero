@@ -171,7 +171,7 @@ Public Module Packets
 
                 packet.AddInt8(&H70)
                 packet.AddInt32(&H800000)  'movementflags
-                packet.AddInt32(msTime)
+                packet.AddInt32(MsTime)
                 packet.AddSingle(updateObject.positionX)
                 packet.AddSingle(updateObject.positionY)
                 packet.AddSingle(updateObject.positionZ)
@@ -237,7 +237,7 @@ Public Module Packets
 
                 packet.AddInt8(&H70)        'flags
                 packet.AddInt32(flags2)     'flags 2
-                packet.AddInt32(msTime)
+                packet.AddInt32(MsTime)
                 packet.AddSingle(updateObject.positionX)
                 packet.AddSingle(updateObject.positionY)
                 packet.AddSingle(updateObject.positionZ)
@@ -378,7 +378,7 @@ Public Module Packets
                 packet.AddUInt32(GuidHigh(updateObject.GUID))
 
                 If updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_TRANSPORT OrElse updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_MO_TRANSPORT Then
-                    packet.AddInt32(msTime)
+                    packet.AddInt32(MsTime)
                 End If
             End If
 

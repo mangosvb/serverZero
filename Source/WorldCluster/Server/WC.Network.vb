@@ -23,6 +23,7 @@ Imports System.Runtime.Remoting
 Imports System.Runtime.CompilerServices
 Imports System.Security.Permissions
 Imports mangosVB.Common
+Imports mangosVB.Common.Globals
 
 Public Module WC_Network
 
@@ -32,9 +33,9 @@ Public Module WC_Network
     Public Authenticator As Authenticator
 
     Private LastPing As Integer = 0
-    Public Function msTime() As Integer
+    Public Function MsTime() As Integer
         'DONE: Calculate the clusters timeGetTime("")
-        Return msTime + (timeGetTime("") - LastPing)
+        Return MsTime + (TimeGetTime("") - LastPing)
     End Function
 
     Class WorldServerClass
@@ -95,8 +96,9 @@ Public Module WC_Network
         Protected Sub AcceptConnection(ByVal ar As IAsyncResult)
             If m_flagStopListen Then Return
 
-            Dim m_Client As New ClientClass
-            m_Client.Socket = m_Socket.EndAccept(ar)
+            Dim m_Client As New ClientClass With {
+                .Socket = m_Socket.EndAccept(ar)
+            }
             m_Client.Socket.NoDelay = True
             m_Client.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1)
 
@@ -543,13 +545,13 @@ Public Module WC_Network
         Private HandingPackets As Boolean = False
 
         Public Function GetClientInfo() As ClientInfo
-            Dim ci As New ClientInfo
-
-            ci.Access = Access
-            ci.Account = Account
-            ci.Index = Index
-            ci.IP = IP
-            ci.Port = Port
+            Dim ci As New ClientInfo With {
+                .Access = Access,
+                .Account = Account,
+                .Index = Index,
+                .IP = IP,
+                .Port = Port
+            }
 
             Return ci
         End Function

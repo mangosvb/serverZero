@@ -15,7 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
+Imports mangosVB.Common.Globals
 
 Public Module WS_Base
     Public Class BaseObject
@@ -235,7 +235,7 @@ Public Module WS_Base
             Log.WriteLine(LogType.WARNING, "No mana increase done.")
         End Sub
 
-        Public Overridable ReadOnly Property isDead() As Boolean
+        Public Overridable ReadOnly Property IsDead() As Boolean
             Get
                 Return (Life.Current = 0)
             End Get
@@ -252,13 +252,13 @@ Public Module WS_Base
             End Get
         End Property
 
-        Public Overridable ReadOnly Property isRooted() As Boolean
+        Public Overridable ReadOnly Property IsRooted() As Boolean
             Get
                 Return (cUnitFlags And UnitFlags.UNIT_FLAG_ROOTED)
             End Get
         End Property
 
-        Public Overridable ReadOnly Property isStunned() As Boolean
+        Public Overridable ReadOnly Property IsStunned() As Boolean
             Get
                 Return (cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED)
             End Get
@@ -549,8 +549,9 @@ Public Module WS_Base
             For slot As Integer = AuraStart To AuraEnd
                 If ActiveSpells(slot) Is Nothing Then
                     'DONE: Adding New SpellAura
-                    ActiveSpells(slot) = New BaseActiveSpell(SpellID, Duration)
-                    ActiveSpells(slot).SpellCaster = Caster
+                    ActiveSpells(slot) = New BaseActiveSpell(SpellID, Duration) With {
+                        .SpellCaster = Caster
+                    }
 
                     If slot < MAX_AURA_EFFECTs_VISIBLE Then SetAura(SpellID, slot, Duration)
                     Exit For
@@ -711,7 +712,7 @@ Public Module WS_Base
         End Sub
 
         Public Function GetMagicSpellHitResult(ByRef Caster As BaseUnit, ByVal Spell As SpellInfo) As SpellMissInfo
-            If isDead Then Return SpellMissInfo.SPELL_MISS_NONE 'Can't miss dead target
+            If IsDead Then Return SpellMissInfo.SPELL_MISS_NONE 'Can't miss dead target
 
             Dim lchance As Integer = If((TypeOf Me Is CharacterObject), 7, 11)
             Dim leveldiff As Integer = Level - CInt(Caster.Level)

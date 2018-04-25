@@ -31,7 +31,7 @@ Namespace Logging
         Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+        Protected Overridable Sub Dispose(disposing As Boolean)
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -54,7 +54,7 @@ Namespace Logging
         ''' <param name="format">The format.</param>
         ''' <param name="arg">The arg.</param>
         ''' <returns></returns>
-        Public Overridable Sub Write(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)
+        Public Overridable Sub Write(type As LogType, format As String, ByVal ParamArray arg() As Object)
         End Sub
 
         ''' <summary>
@@ -64,7 +64,7 @@ Namespace Logging
         ''' <param name="format">The format.</param>
         ''' <param name="arg">The arg.</param>
         ''' <returns></returns>
-        Public Overridable Sub WriteLine(ByVal type As LogType, ByVal format As String, ByVal ParamArray arg() As Object)
+        Public Overridable Sub WriteLine(type As LogType, format As String, ByVal ParamArray arg() As Object)
         End Sub
 
         ''' <summary>
@@ -98,7 +98,7 @@ Namespace Logging
         ''' <param name="logConfig">The log config.</param>
         ''' <param name="log">The log.</param>
         ''' <returns></returns>
-        Public Shared Sub CreateLog(ByVal logType As String, ByVal logConfig As String, ByRef log As BaseWriter)
+        Public Shared Sub CreateLog(logType As String, logConfig As String, ByRef log As BaseWriter)
             Try
                 Select Case UCase(logType)
                     Case "COLORCONSOLE"

@@ -161,7 +161,7 @@ Public Module WS_Creatures_AI
             aiTimer = Time
         End Sub
         Public Overrides Sub OnEnterCombat()
-            If aiCreature.isDead Then Exit Sub 'Prevents the creature from doing this below if it's dead already
+            If aiCreature.IsDead Then Exit Sub 'Prevents the creature from doing this below if it's dead already
             'DONE: Decide it's real position if it hasn't stopped
             aiCreature.SetToRealPosition()
 
@@ -263,7 +263,7 @@ Public Module WS_Creatures_AI
 
                 'DONE: Select max hate
                 For Each Victim As KeyValuePair(Of BaseUnit, Integer) In aiHateTable
-                    If Victim.Key.isDead Then
+                    If Victim.Key.IsDead Then
                         aiHateTableRemove.Add(Victim.Key)
                         If TypeOf Victim.Key Is CharacterObject Then
                             CType(Victim.Key, CharacterObject).RemoveFromCombat(aiCreature)
@@ -331,7 +331,7 @@ Public Module WS_Creatures_AI
             End If
 
             'DONE: If stunned
-            If aiCreature.isStunned Then
+            If aiCreature.IsStunned Then
                 aiTimer = 1000
                 Exit Sub
             End If
@@ -411,7 +411,7 @@ Public Module WS_Creatures_AI
             Else
                 'DONE: Do real melee attacks
                 Try
-                    If aiTarget IsNot Nothing AndAlso aiTarget.isDead Then
+                    If aiTarget IsNot Nothing AndAlso aiTarget.IsDead Then
                         aiHateTable.Remove(aiTarget)
                         aiTarget = Nothing
                         SelectTarget()
@@ -471,7 +471,7 @@ Public Module WS_Creatures_AI
             End If
 
             'DONE: If rooted don't move
-            If aiCreature.isRooted Then
+            If aiCreature.IsRooted Then
                 aiTimer = 1000
                 Exit Sub
             End If
@@ -686,7 +686,7 @@ Public Module WS_Creatures_AI
             End If
 
             'DONE: If stunned
-            If aiCreature.isStunned Then
+            If aiCreature.IsStunned Then
                 aiTimer = 1000
                 Exit Sub
             End If
@@ -738,7 +738,7 @@ Public Module WS_Creatures_AI
 
         Public Overrides Sub DoMove()
             'DONE: If rooted don't move
-            If aiCreature.isRooted Then
+            If aiCreature.IsRooted Then
                 aiTimer = 1000
                 Exit Sub
             End If

@@ -758,7 +758,7 @@ Public Module WS_Combat
                     Exit Sub
                 End If
 
-                If Victim.isDead Then
+                If Victim.IsDead Then
                     Dim SMSG_ATTACKSWING_DEADTARGET As New PacketClass(OPCODES.SMSG_ATTACKSWING_DEADTARGET)
                     Character.client.Send(SMSG_ATTACKSWING_DEADTARGET)
                     SMSG_ATTACKSWING_DEADTARGET.Dispose()
@@ -768,7 +768,7 @@ Public Module WS_Combat
                     Exit Sub
                 End If
 
-                If Character.isDead Then
+                If Character.IsDead Then
                     Dim SMSG_ATTACKSWING_DEADTARGET As New PacketClass(OPCODES.SMSG_ATTACKSWING_DEADTARGET)
                     Character.client.Send(SMSG_ATTACKSWING_DEADTARGET)
                     SMSG_ATTACKSWING_DEADTARGET.Dispose()
@@ -982,7 +982,7 @@ Public Module WS_Combat
             End If
 
             Victim.DealDamage(damageInfo.GetDamage, Character)
-            If Victim Is Nothing OrElse Victim.isDead Then AttackStop()
+            If Victim Is Nothing OrElse Victim.IsDead Then AttackStop()
         End Sub
 
         Public Sub DoRangedDamage()
@@ -1016,7 +1016,7 @@ Public Module WS_Combat
 
             If TypeOf Victim2 Is CreatureObject Then
                 CType(Victim2, CreatureObject).DealDamage(damageInfo.GetDamage, Character)
-                If Victim2 Is Victim AndAlso CType(Victim, CreatureObject).isDead Then
+                If Victim2 Is Victim AndAlso CType(Victim, CreatureObject).IsDead Then
                     AttackStop()
                 End If
             ElseIf TypeOf Victim2 Is CharacterObject Then
@@ -1113,7 +1113,7 @@ Public Module WS_Combat
         Dim AmmoID As Integer = packet.GetInt32
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_AMMO [{2}]", client.IP, client.Port, AmmoID)
 
-        If client.Character.isDead Then
+        If client.Character.IsDead Then
             SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, 0, 0)
             Exit Sub
         End If

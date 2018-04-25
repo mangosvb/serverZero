@@ -22,12 +22,12 @@ Namespace Logging
     Public Class ConsoleWriter
         Inherits BaseWriter
 
-        Public Overrides Sub Write(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub Write(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             Console.Write(formatStr, arg)
         End Sub
-        Public Overrides Sub WriteLine(ByVal type As LogType, ByVal formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub WriteLine(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             Console.WriteLine(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)

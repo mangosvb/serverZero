@@ -1,4 +1,6 @@
-﻿Public Class WS_GraveYards
+﻿Imports mangosVB.Common.Globals
+
+Public Class WS_GraveYards
     Implements IDisposable
 #Region "Graveyards"
     Public Graveyards As New Dictionary(Of Integer, TGraveyard)

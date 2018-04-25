@@ -16,6 +16,8 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+Imports mangosVB.Common.Globals
+
 Public Module Global_Constants
 
     Public Const GROUP_SUBGROUPSIZE As Integer = 5  '(MAX_RAID_SIZE / MAX_GROUP_SIZE)

@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports mangosVB.Common.Globals
 
 Public Module WS_Mail
 
@@ -333,8 +334,9 @@ Public Module WS_Mail
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_CREATE_TEXT_ITEM [MailID={2}]", client.IP, client.Port, MailID)
 
         'DONE: Create Item with ITEM_FIELD_ITEM_TEXT_ID = MailID
-        Dim tmpItem As New ItemObject(ITEM_MAILTEXT_ITEMID, client.Character.GUID)
-        tmpItem.ItemText = MailID
+        Dim tmpItem As New ItemObject(ITEM_MAILTEXT_ITEMID, client.Character.GUID) With {
+            .ItemText = MailID
+        }
         If Not client.Character.ItemADD(tmpItem) Then
             Dim response As New PacketClass(OPCODES.SMSG_ITEM_TEXT_QUERY_RESPONSE)
             response.AddInt32(MailID)

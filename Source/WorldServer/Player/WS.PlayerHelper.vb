@@ -15,7 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
+Imports mangosVB.Common.Globals
 
 Public Module WS_PlayerHelper
 
@@ -311,7 +311,7 @@ Public Module WS_PlayerHelper
     Public Sub Send_SMSG_SET_REST_START(ByRef client As ClientClass, ByRef Character As CharacterObject)
         Dim SMSG_SET_REST_START As New PacketClass(OPCODES.SMSG_SET_REST_START)
         Try
-            SMSG_SET_REST_START.AddInt32(msTime)
+            SMSG_SET_REST_START.AddInt32(MsTime)
             client.Send(SMSG_SET_REST_START)
         Finally
             SMSG_SET_REST_START.Dispose()
