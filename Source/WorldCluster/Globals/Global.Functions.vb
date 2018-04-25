@@ -28,15 +28,15 @@ Namespace Globals
 
 #Region "System"
 
-        Public Function ToInteger(ByVal Value As Boolean) As Integer
-            If Value Then
+        Public Function ToInteger(value As Boolean) As Integer
+            If value Then
                 Return 1
             Else
                 Return 0
             End If
         End Function
 
-        Public Function ToHex(ByVal bBytes() As Byte, Optional ByVal start As Integer = 0) As String
+        Public Function ToHex(bBytes() As Byte, Optional ByVal start As Integer = 0) As String
             If bBytes.Length = 0 Then Return "''"
             Dim tmpStr As String = "0x"
             For i As Integer = start To bBytes.Length - 1
@@ -49,7 +49,7 @@ Namespace Globals
             Return tmpStr
         End Function
 
-        Public Function ByteToCharArray(ByVal bBytes() As Byte) As Char()
+        Public Function ByteToCharArray(bBytes() As Byte) As Char()
             If bBytes.Length = 0 Then Return New Char() {}
             Dim bChar(bBytes.Length - 1) As Char
             For i As Integer = 0 To bBytes.Length - 1
@@ -58,7 +58,7 @@ Namespace Globals
             Return bChar
         End Function
 
-        Public Function ByteToIntArray(ByVal bBytes() As Byte) As Integer()
+        Public Function ByteToIntArray(bBytes() As Byte) As Integer()
             If bBytes.Length = 0 Then Return New Integer() {}
             Dim bInt(((bBytes.Length - 1) \ 4)) As Integer
             For i As Integer = 0 To bBytes.Length - 1 Step 4
@@ -67,7 +67,7 @@ Namespace Globals
             Return bInt
         End Function
 
-        Public Function IntToByteArray(ByVal bInt() As Integer) As Byte()
+        Public Function IntToByteArray(bInt() As Integer) As Byte()
             If bInt.Length = 0 Then Return New Byte() {}
             Dim bBytes((bInt.Length * 4) - 1) As Byte
             For i As Integer = 0 To bInt.Length - 1
@@ -77,7 +77,7 @@ Namespace Globals
             Return bBytes
         End Function
 
-        Public Function Concat(ByVal a As Byte(), ByVal b As Byte()) As Byte()
+        Public Function Concat(a As Byte(), b As Byte()) As Byte()
             Dim buffer1 As Byte() = New Byte((a.Length + b.Length) - 1) {}
             Dim num1 As Integer
             For num1 = 0 To a.Length - 1
@@ -90,7 +90,7 @@ Namespace Globals
             Return buffer1
         End Function
 
-        Public Function HaveFlag(ByVal value As UInteger, ByVal flagPos As Byte) As Boolean
+        Public Function HaveFlag(value As UInteger, flagPos As Byte) As Boolean
             value = value >> CUInt(flagPos)
             value = value Mod 2
 
@@ -101,11 +101,11 @@ Namespace Globals
             End If
         End Function
 
-        Public Function HaveFlags(ByVal value As Integer, ByVal flags As Integer) As Boolean
+        Public Function HaveFlags(value As Integer, flags As Integer) As Boolean
             Return ((value And flags) = flags)
         End Function
 
-        Public Sub SetFlag(ByRef value As UInteger, ByVal flagPos As Byte, ByVal flagValue As Boolean)
+        Public Sub SetFlag(ByRef value As UInteger, flagPos As Byte, flagValue As Boolean)
             If flagValue Then
                 value = (value Or (&H1UI << CUInt(flagPos)))
             Else
@@ -113,21 +113,21 @@ Namespace Globals
             End If
         End Sub
 
-        Public Function GetNextDay(ByVal iDay As DayOfWeek, Optional ByVal Hour As Integer = 0) As Date
+        Public Function GetNextDay(iDay As DayOfWeek, Optional ByVal hour As Integer = 0) As Date
             Dim iDiff As Integer = iDay - Today.DayOfWeek
             If iDiff <= 0 Then iDiff += 7
             Dim nextFriday As Date = Today.AddDays(iDiff)
-            nextFriday = nextFriday.AddHours(Hour)
+            nextFriday = nextFriday.AddHours(hour)
             Return nextFriday
         End Function
 
-        Public Function GetNextDate(ByVal Days As Integer, Optional ByVal Hours As Integer = 0) As Date
-            Dim nextDate As Date = Today.AddDays(Days)
-            nextDate = nextDate.AddHours(Hours)
+        Public Function GetNextDate(days As Integer, Optional ByVal hours As Integer = 0) As Date
+            Dim nextDate As Date = Today.AddDays(days)
+            nextDate = nextDate.AddHours(hours)
             Return nextDate
         End Function
 
-        Public Function GetTimestamp(ByVal fromDateTime As Date) As UInteger
+        Public Function GetTimestamp(fromDateTime As Date) As UInteger
             Dim startDate As Date = #1/1/1970#
             Dim timeSpan As TimeSpan
 
@@ -135,7 +135,7 @@ Namespace Globals
             Return Math.Abs(timeSpan.TotalSeconds())
         End Function
 
-        Public Function GetDateFromTimestamp(ByVal unixTimestamp As UInteger) As Date
+        Public Function GetDateFromTimestamp(unixTimestamp As UInteger) As Date
             Dim timeSpan As TimeSpan
             Dim startDate As Date = #1/1/1970#
 
@@ -145,7 +145,7 @@ Namespace Globals
             Return startDate.Add(timeSpan)
         End Function
 
-        Public Function GetTimeLeftString(ByVal seconds As UInteger) As String
+        Public Function GetTimeLeftString(seconds As UInteger) As String
             If seconds < 60 Then
                 Return seconds & "s"
             ElseIf seconds < 3600 Then
@@ -157,35 +157,35 @@ Namespace Globals
             End If
         End Function
 
-        Public Function EscapeString(ByVal s As String) As String
+        Public Function EscapeString(s As String) As String
             Return s.Replace("""", "").Replace("'", "")
         End Function
 
-        Public Function CapitalizeName(ByRef Name As String) As String
-            If Name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
-                Return UCase(Left(Name, 1)) & LCase(Right(Name, Name.Length - 1))
+        Public Function CapitalizeName(ByRef name As String) As String
+            If name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
+                Return UCase(Left(name, 1)) & LCase(Right(name, name.Length - 1))
             Else
-                Return UCase(Name)
+                Return UCase(name)
             End If
         End Function
 
         Private Regex_AZ As Regex = New Regex("^[a-zA-Z]+$")
-        Public Function ValidateName(ByVal strName As String) As Boolean
+        Public Function ValidateName(strName As String) As Boolean
             If strName.Length < 2 OrElse strName.Length > 16 Then Return False
             Return Regex_AZ.IsMatch(strName)
         End Function
 
         Private Regex_Guild As Regex = New Regex("^[a-z A-Z]+$")
-        Public Function ValidateGuildName(ByVal strName As String) As Boolean
+        Public Function ValidateGuildName(strName As String) As Boolean
             If strName.Length < 2 OrElse strName.Length > 16 Then Return False
             Return Regex_Guild.IsMatch(strName)
         End Function
 
-        Public Function FixName(ByVal strName As String) As String
+        Public Function FixName(strName As String) As String
             Return strName.Replace("""", "'").Replace("<", "").Replace(">", "").Replace("*", "").Replace("/", "").Replace("\", "").Replace(":", "").Replace("|", "").Replace("?", "")
         End Function
 
-        Public Sub RAND_bytes(ByRef bBytes() As Byte, ByVal length As Integer)
+        Public Sub RAND_bytes(ByRef bBytes() As Byte, length As Integer)
             If length = 0 Then Exit Sub
             bBytes = New Byte(length - 1) {}
 
@@ -196,7 +196,7 @@ Namespace Globals
             Next
         End Sub
 
-        Public Function MathLerp(ByVal value1 As Single, ByVal value2 As Single, ByVal amount As Single) As Single
+        Public Function MathLerp(value1 As Single, value2 As Single, amount As Single) As Single
             Return value1 + (value2 - value1) * amount
         End Function
 
@@ -204,23 +204,23 @@ Namespace Globals
 
 #Region "Database"
 
-        Public Sub Ban_Account(ByVal Name As String, ByVal Reason As String)
+        Public Sub Ban_Account(name As String, reason As String)
             Dim account As New DataTable
             Dim bannedAccount As New DataTable
-            AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", Name), account)
+            AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", name), account)
             If (account.Rows.Count > 0) Then
-                Dim accID As Integer = account.Rows(0).Item("id")
-                AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accID), bannedAccount)
+                Dim accId As Integer = account.Rows(0).Item("id")
+                AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accId), bannedAccount)
 
                 If (bannedAccount.Rows.Count > 0) Then
-                    AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accID & "';")
+                    AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accId & "';")
                 Else
                     Dim tempBanDate As String = FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
-                    AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, tempBanDate, "0000-00-00 00:00:00", Name, Reason))
+                    AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accId, tempBanDate, "0000-00-00 00:00:00", name, reason))
                 End If
-                Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
+                Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", name, reason)
             Else
-                Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", Name)
+                Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", name)
             End If
         End Sub
 
@@ -228,8 +228,8 @@ Namespace Globals
 
 #Region "Game"
 
-        Public Function GetClassName(ByRef Classe As Integer) As String
-            Select Case Classe
+        Public Function GetClassName(ByRef classe As Integer) As String
+            Select Case classe
                 Case Classes.CLASS_DRUID
                     GetClassName = "Druid"
                 Case Classes.CLASS_HUNTER
@@ -253,8 +253,8 @@ Namespace Globals
             End Select
         End Function
 
-        Public Function GetRaceName(ByRef Race As Integer) As String
-            Select Case Race
+        Public Function GetRaceName(ByRef race As Integer) As String
+            Select Case race
                 Case Races.RACE_DWARF
                     GetRaceName = "Dwarf"
                 Case Races.RACE_GNOME
@@ -276,31 +276,31 @@ Namespace Globals
             End Select
         End Function
 
-        Public Function GetRaceModel(ByVal Race As Races, ByVal Gender As Integer) As Integer
-            Select Case Race
+        Public Function GetRaceModel(race As Races, gender As Integer) As Integer
+            Select Case race
                 Case Races.RACE_HUMAN
-                    Return 49 + Gender
+                    Return 49 + gender
                 Case Races.RACE_ORC
-                    Return 51 + Gender
+                    Return 51 + gender
                 Case Races.RACE_DWARF
-                    Return 53 + Gender
+                    Return 53 + gender
                 Case Races.RACE_NIGHT_ELF
-                    Return 55 + Gender
+                    Return 55 + gender
                 Case Races.RACE_UNDEAD
-                    Return 57 + Gender
+                    Return 57 + gender
                 Case Races.RACE_TAUREN
-                    Return 59 + Gender
+                    Return 59 + gender
                 Case Races.RACE_GNOME
-                    Return 1563 + Gender
+                    Return 1563 + gender
                 Case Races.RACE_TROLL
-                    Return 1478 + Gender
+                    Return 1478 + gender
                 Case Else
                     Return 16358                    'PinkPig? Lol
             End Select
         End Function
 
-        Public Function GetCharacterSide(ByVal Race As Byte) As Boolean
-            Select Case Race
+        Public Function GetCharacterSide(race As Byte) As Boolean
+            Select Case race
                 Case Races.RACE_DWARF, Races.RACE_GNOME, Races.RACE_HUMAN, Races.RACE_NIGHT_ELF
                     Return False
                 Case Else
@@ -308,8 +308,8 @@ Namespace Globals
             End Select
         End Function
 
-        Public Function IsContinentMap(ByVal Map As Integer) As Boolean
-            Select Case Map
+        Public Function IsContinentMap(map As Integer) As Boolean
+            Select Case map
                 Case 0, 1
                     Return True
                 Case Else
@@ -317,30 +317,30 @@ Namespace Globals
             End Select
         End Function
 
-        Public Function SetColor(ByVal Message As String, ByVal Red As Byte, ByVal Green As Byte, ByVal Blue As Byte) As String
+        Public Function SetColor(message As String, red As Byte, green As Byte, blue As Byte) As String
             SetColor = "|cFF"
-            If Red < 16 Then
-                SetColor = SetColor & "0" & Hex(Red)
+            If red < 16 Then
+                SetColor = SetColor & "0" & Hex(red)
             Else
-                SetColor = SetColor & Hex(Red)
+                SetColor = SetColor & Hex(red)
             End If
-            If Green < 16 Then
-                SetColor = SetColor & "0" & Hex(Green)
+            If green < 16 Then
+                SetColor = SetColor & "0" & Hex(green)
             Else
-                SetColor = SetColor & Hex(Green)
+                SetColor = SetColor & Hex(green)
             End If
-            If Blue < 16 Then
-                SetColor = SetColor & "0" & Hex(Blue)
+            If blue < 16 Then
+                SetColor = SetColor & "0" & Hex(blue)
             Else
-                SetColor = SetColor & Hex(Blue)
+                SetColor = SetColor & Hex(blue)
             End If
-            SetColor = SetColor & Message & "|r"
+            SetColor = SetColor & message & "|r"
 
             'SetColor = String.Format("|cff{0:x}{1:x}{2:x}{3}|r", Red, Green, Blue, Message)
         End Function
 
-        Public Function RollChance(ByVal Chance As Single) As Boolean
-            Dim nChance As Integer = Chance * 100
+        Public Function RollChance(chance As Single) As Boolean
+            Dim nChance As Integer = chance * 100
             If Rnd.Next(1, 10001) <= nChance Then Return True
             Return False
         End Function
@@ -364,8 +364,8 @@ Namespace Globals
             End Try
         End Sub
 
-        Public Sub SendMessageSystem(ByVal objCharacter As ClientClass, ByVal Message As String)
-            Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
+        Public Sub SendMessageSystem(objCharacter As ClientClass, message As String)
+            Dim packet As PacketClass = BuildChatMessage(0, message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
             Try
                 objCharacter.Send(packet)
             Finally
@@ -381,7 +381,7 @@ Namespace Globals
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
 
-        Public Sub SendAccountMD5(ByRef client As ClientClass, ByRef Character As CharacterObject)
+        Public Sub SendAccountMD5(ByRef client As ClientClass, ByRef character As CharacterObject)
             Dim FoundData As Boolean = False
 
             'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
@@ -399,7 +399,7 @@ Namespace Globals
             '    End If
             'End If
 
-            Dim SMSG_ACCOUNT_DATA_TIMES As New PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
+            Dim smsgAccountDataTimes As New PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
             Try
                 'Dim md5hash As MD5 = MD5.Create()
                 For i As Integer = 0 To 7
@@ -412,27 +412,27 @@ Namespace Globals
                         'SMSG_ACCOUNT_DATA_TIMES.AddByteArray(md5hash.ComputeHash(tmpBytes))
                         'End If
                     Else
-                        SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
-                        SMSG_ACCOUNT_DATA_TIMES.AddInt64(0)
+                        smsgAccountDataTimes.AddInt64(0)
+                        smsgAccountDataTimes.AddInt64(0)
                     End If
                 Next
                 'md5hash.Clear()
                 'md5hash = Nothing
 
-                client.Send(SMSG_ACCOUNT_DATA_TIMES)
+                client.Send(smsgAccountDataTimes)
             Finally
-                SMSG_ACCOUNT_DATA_TIMES.Dispose()
+                smsgAccountDataTimes.Dispose()
             End Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
         End Sub
 
-        Public Sub SendTriggerCinematic(ByRef client As ClientClass, ByRef Character As CharacterObject)
+        Public Sub SendTriggerCinematic(ByRef client As ClientClass, ByRef character As CharacterObject)
             Dim packet As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
             Try
-                If CharRaces.ContainsKey(Character.Race) Then
-                    packet.AddInt32(CharRaces(Character.Race).CinematicID)
+                If CharRaces.ContainsKey(character.Race) Then
+                    packet.AddInt32(CharRaces(character.Race).CinematicID)
                 Else
-                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, Character.Race, Character.Classe)
+                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, character.Race, character.Classe)
                     Exit Sub
                 End If
 
@@ -449,33 +449,33 @@ Namespace Globals
             'Client.Send(packet)
         End Sub
 
-        Public Sub SendGameTime(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim SMSG_LOGIN_SETTIMESPEED As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
+        Public Sub SendGameTime(ByRef client As ClientClass, ByRef character As CharacterObject)
+            Dim smsgLoginSettimespeed As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
             Try
                 Dim time As Date = Date.Now
-                Dim Year As Integer = time.Year - 2000
-                Dim Month As Integer = time.Month - 1
-                Dim Day As Integer = time.Day - 1
-                Dim DayOfWeek As Integer = time.DayOfWeek
-                Dim Hour As Integer = time.Hour
-                Dim Minute As Integer = time.Minute
+                Dim year As Integer = time.Year - 2000
+                Dim month As Integer = time.Month - 1
+                Dim day As Integer = time.Day - 1
+                Dim dayOfWeek As Integer = time.DayOfWeek
+                Dim hour As Integer = time.Hour
+                Dim minute As Integer = time.Minute
 
                 'SMSG_LOGIN_SETTIMESPEED.AddInt32(CType((((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Year << 18)) + (Month << 20)), Integer))
-                SMSG_LOGIN_SETTIMESPEED.AddInt32(((((Minute + (Hour << 6)) + (DayOfWeek << 11)) + (Day << 14)) + (Month << 20)) + (Year << 24))
-                SMSG_LOGIN_SETTIMESPEED.AddSingle(0.01666667F)
+                smsgLoginSettimespeed.AddInt32(((((minute + (hour << 6)) + (dayOfWeek << 11)) + (day << 14)) + (month << 20)) + (year << 24))
+                smsgLoginSettimespeed.AddSingle(0.01666667F)
 
-                client.Send(SMSG_LOGIN_SETTIMESPEED)
+                client.Send(smsgLoginSettimespeed)
             Finally
-                SMSG_LOGIN_SETTIMESPEED.Dispose()
+                smsgLoginSettimespeed.Dispose()
             End Try
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
         End Sub
 
-        Public Sub SendProficiency(ByRef client As ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
+        Public Sub SendProficiency(ByRef client As ClientClass, proficiencyType As Byte, proficiencyFlags As Integer)
             Dim packet As New PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
             Try
-                packet.AddInt8(ProficiencyType)
-                packet.AddInt32(ProficiencyFlags)
+                packet.AddInt8(proficiencyType)
+                packet.AddInt32(proficiencyFlags)
 
                 client.Send(packet)
             Finally
@@ -484,18 +484,18 @@ Namespace Globals
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
         End Sub
 
-        Public Sub SendCorpseReclaimDelay(ByRef client As ClientClass, ByRef Character As CharacterObject, Optional ByVal Seconds As Integer = 30)
+        Public Sub SendCorpseReclaimDelay(ByRef client As ClientClass, ByRef character As CharacterObject, Optional ByVal seconds As Integer = 30)
             Dim packet As New PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
             Try
-                packet.AddInt32(Seconds * 1000)
+                packet.AddInt32(seconds * 1000)
                 client.Send(packet)
             Finally
                 packet.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, Seconds)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, seconds)
         End Sub
 
-        Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
+        Public Function BuildChatMessage(senderGuid As ULong, message As String, msgType As ChatMsg, msgLanguage As LANGUAGES, Optional ByVal flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
             Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
             Try
                 packet.AddInt8(msgType)
@@ -505,22 +505,22 @@ Namespace Globals
                     Case ChatMsg.CHAT_MSG_CHANNEL
                         packet.AddString(msgChannel)
                         packet.AddUInt32(0)
-                        packet.AddUInt64(SenderGUID)
+                        packet.AddUInt64(senderGuid)
                     Case ChatMsg.CHAT_MSG_YELL, ChatMsg.CHAT_MSG_SAY, ChatMsg.CHAT_MSG_PARTY
-                        packet.AddUInt64(SenderGUID)
-                        packet.AddUInt64(SenderGUID)
+                        packet.AddUInt64(senderGuid)
+                        packet.AddUInt64(senderGuid)
                     Case ChatMsg.CHAT_MSG_SYSTEM, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_IGNORED, ChatMsg.CHAT_MSG_SKILL, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_OFFICER, ChatMsg.CHAT_MSG_RAID, ChatMsg.CHAT_MSG_WHISPER_INFORM, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_WHISPER, ChatMsg.CHAT_MSG_AFK, ChatMsg.CHAT_MSG_DND, ChatMsg.CHAT_MSG_RAID_LEADER, ChatMsg.CHAT_MSG_RAID_WARNING
-                        packet.AddUInt64(SenderGUID)
+                        packet.AddUInt64(senderGuid)
                     Case ChatMsg.CHAT_MSG_MONSTER_SAY, ChatMsg.CHAT_MSG_MONSTER_EMOTE, ChatMsg.CHAT_MSG_MONSTER_YELL
                         Log.WriteLine(LogType.WARNING, "Use Creature.SendChatMessage() for this message type - {0}!", msgType)
                     Case Else
                         Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
                 End Select
 
-                packet.AddUInt32(Text.Encoding.UTF8.GetByteCount(Message) + 1)
-                packet.AddString(Message)
+                packet.AddUInt32(Text.Encoding.UTF8.GetByteCount(message) + 1)
+                packet.AddString(message)
 
-                packet.AddInt8(Flag)
+                packet.AddInt8(flag)
             Catch ex As Exception
                 Log.WriteLine(LogType.FAILED, "failed chat message type - {0}!", msgType)
             End Try
@@ -581,9 +581,9 @@ Namespace Globals
             GROUP_UPDATE_FULL_REQUEST_REPLY = &H7FFC0BFF
         End Enum
 
-        Function BuildPartyMemberStatsOffline(ByVal GUID As ULong) As PacketClass
+        Function BuildPartyMemberStatsOffline(guid As ULong) As PacketClass
             Dim packet As New PacketClass(OPCODES.SMSG_PARTY_MEMBER_STATS_FULL)
-            packet.AddPackGUID(GUID)
+            packet.AddPackGUID(guid)
             packet.AddUInt32(PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS)
             packet.AddInt8(PartyMemberStatsStatus.STATUS_OFFLINE)
             Return packet

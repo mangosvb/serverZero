@@ -47,36 +47,36 @@ Public Module WC_Guild
         Public cMonth As Byte
         Public cDay As Byte
 
-        Public Sub New(ByVal GuildID As UInteger)
-            ID = GuildID
+        Public Sub New(guildId As UInteger)
+            ID = guildId
 
-            Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query("SELECT * FROM guilds WHERE guild_id = " & ID & ";", MySQLQuery)
-            If MySQLQuery.Rows.Count = 0 Then Throw New ApplicationException("GuildID " & ID & " not found in database.")
-            Dim GuildInfo As DataRow = MySQLQuery.Rows(0)
+            Dim mySqlQuery As New DataTable
+            CharacterDatabase.Query("SELECT * FROM guilds WHERE guild_id = " & ID & ";", mySqlQuery)
+            If mySqlQuery.Rows.Count = 0 Then Throw New ApplicationException("GuildID " & ID & " not found in database.")
+            Dim guildInfo As DataRow = mySqlQuery.Rows(0)
 
-            Name = GuildInfo.Item("guild_name")
-            Leader = GuildInfo.Item("guild_leader")
-            Motd = GuildInfo.Item("guild_MOTD")
-            EmblemStyle = GuildInfo.Item("guild_tEmblemStyle")
-            EmblemColor = GuildInfo.Item("guild_tEmblemColor")
-            BorderStyle = GuildInfo.Item("guild_tBorderStyle")
-            BorderColor = GuildInfo.Item("guild_tBorderColor")
-            BackgroundColor = GuildInfo.Item("guild_tBackgroundColor")
+            Name = guildInfo.Item("guild_name")
+            Leader = guildInfo.Item("guild_leader")
+            Motd = guildInfo.Item("guild_MOTD")
+            EmblemStyle = guildInfo.Item("guild_tEmblemStyle")
+            EmblemColor = guildInfo.Item("guild_tEmblemColor")
+            BorderStyle = guildInfo.Item("guild_tBorderStyle")
+            BorderColor = guildInfo.Item("guild_tBorderColor")
+            BackgroundColor = guildInfo.Item("guild_tBackgroundColor")
 
-            cYear = GuildInfo.Item("guild_cYear")
-            cMonth = GuildInfo.Item("guild_cMonth")
-            cDay = GuildInfo.Item("guild_cDay")
+            cYear = guildInfo.Item("guild_cYear")
+            cMonth = guildInfo.Item("guild_cMonth")
+            cDay = guildInfo.Item("guild_cDay")
 
             For i As Integer = 0 To 9
-                Ranks(i) = GuildInfo.Item("guild_rank" & i)
-                RankRights(i) = GuildInfo.Item("guild_rank" & i & "_Rights")
+                Ranks(i) = guildInfo.Item("guild_rank" & i)
+                RankRights(i) = guildInfo.Item("guild_rank" & i & "_Rights")
             Next
 
-            MySQLQuery.Clear()
-            CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_guildId = " & ID & ";", MySQLQuery)
-            For Each MemberInfo As DataRow In MySQLQuery.Rows
-                Members.Add(MemberInfo.Item("char_guid"))
+            mySqlQuery.Clear()
+            CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_guildId = " & ID & ";", mySqlQuery)
+            For Each memberInfo As DataRow In mySqlQuery.Rows
+                Members.Add(memberInfo.Item("char_guid"))
             Next
 
             GUILDs.Add(ID, Me)
@@ -86,7 +86,7 @@ Public Module WC_Guild
         Private _disposedValue As Boolean ' To detect redundant calls
 
         ' IDisposable
-        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+        Protected Overridable Sub Dispose(disposing As Boolean)
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
@@ -122,8 +122,8 @@ Public Module WC_Guild
         objCharacter.SendGuildUpdate()
     End Sub
 
-    Public Sub AddCharacterToGuild(ByVal GUID As ULong, ByVal GuildID As Integer, Optional ByVal GuildRank As Integer = 4)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", GuildID, GUID, GuildRank))
+    Public Sub AddCharacterToGuild(guid As ULong, guildId As Integer, Optional ByVal guildRank As Integer = 4)
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, guid, guildRank))
     End Sub
 
     Public Sub RemoveCharacterFromGuild(ByRef objCharacter As CharacterObject)
@@ -135,8 +135,8 @@ Public Module WC_Guild
         objCharacter.SendGuildUpdate()
     End Sub
 
-    Public Sub RemoveCharacterFromGuild(ByVal GUID As ULong)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, GUID))
+    Public Sub RemoveCharacterFromGuild(guid As ULong)
+        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, guid))
     End Sub
 
     Public Sub BroadcastChatMessageGuild(ByRef sender As CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
@@ -168,28 +168,28 @@ Public Module WC_Guild
         packet.Dispose()
     End Sub
 
-    Public Sub BroadcastChatMessageOfficer(ByRef Sender As CharacterObject, ByVal Message As String, ByVal Language As LANGUAGES, ByVal GuildID As Integer)
+    Public Sub BroadcastChatMessageOfficer(ByRef sender As CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
         'DONE: Check for guild member
-        If Not Sender.IsInGuild Then
-            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
+        If Not sender.IsInGuild Then
+            SendGuildResult(sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
             Exit Sub
         End If
 
         'DONE: Check for rights to speak
-        If Not Sender.IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATSPEAK) Then
-            SendGuildResult(Sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
+        If Not sender.IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATSPEAK) Then
+            SendGuildResult(sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PERMISSIONS)
             Exit Sub
         End If
 
         'DONE: Build packet
-        Dim packet As PacketClass = BuildChatMessage(Sender.Guid, Message, ChatMsg.CHAT_MSG_OFFICER, Language, Sender.ChatFlag)
+        Dim packet As PacketClass = BuildChatMessage(sender.Guid, message, ChatMsg.CHAT_MSG_OFFICER, language, sender.ChatFlag)
 
         'DONE: Send message to everyone
-        Dim tmpArray() As ULong = Sender.Guild.Members.ToArray
-        For Each Member As ULong In tmpArray
-            If CHARACTERs.ContainsKey(Member) Then
-                If CHARACTERs(Member).IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATLISTEN) Then
-                    CHARACTERs(Member).Client.SendMultiplyPackets(packet)
+        Dim tmpArray() As ULong = sender.Guild.Members.ToArray
+        For Each member As ULong In tmpArray
+            If CHARACTERs.ContainsKey(member) Then
+                If CHARACTERs(member).IsGuildRightSet(GuildRankRights.GR_RIGHT_OFFCHATLISTEN) Then
+                    CHARACTERs(member).Client.SendMultiplyPackets(packet)
                 End If
             End If
         Next
@@ -197,7 +197,7 @@ Public Module WC_Guild
         packet.Dispose()
     End Sub
 
-    Public Sub SendGuildQuery(ByRef client As WC_Network.ClientClass, ByVal guildId As UInteger)
+    Public Sub SendGuildQuery(ByRef client As ClientClass, guildId As UInteger)
         If guildId = 0 Then Exit Sub
         'WARNING: This opcode is used also in character enum, so there must not be used any references to CharacterObject, only ClientClass
 
@@ -288,20 +288,20 @@ Public Module WC_Guild
         response.Dispose()
     End Sub
 
-    Public Sub SendGuildResult(ByRef client As ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
+    Public Sub SendGuildResult(ByRef client As ClientClass, command As GuildCommand, result As GuildError, Optional ByVal text As String = "")
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_COMMAND_RESULT)
-        response.AddInt32(Command)
-        response.AddString(Text)
-        response.AddInt32(Result)
+        response.AddInt32(command)
+        response.AddString(text)
+        response.AddInt32(result)
         client.Send(response)
         response.Dispose()
     End Sub
 
-    Public Sub NotifyGuildStatus(ByRef objCharacter As CharacterObject, ByVal Status As GuildEvent)
+    Public Sub NotifyGuildStatus(ByRef objCharacter As CharacterObject, status As GuildEvent)
         If objCharacter.Guild Is Nothing Then Exit Sub
 
         Dim statuspacket As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
-        statuspacket.AddInt8(Status)
+        statuspacket.AddInt8(status)
         statuspacket.AddInt8(1)
         statuspacket.AddString(objCharacter.Name)
         statuspacket.AddInt8(0)
@@ -311,12 +311,12 @@ Public Module WC_Guild
         statuspacket.Dispose()
     End Sub
 
-    Public Sub BroadcastToGuild(ByRef Packet As PacketClass, ByRef Guild As Guild, Optional ByRef NotTo As ULong = 0)
-        Dim tmpArray() As ULong = Guild.Members.ToArray()
-        For Each Member As ULong In tmpArray
-            If Member = NotTo Then Continue For
-            If CHARACTERs.ContainsKey(Member) Then
-                CHARACTERs(Member).Client.SendMultiplyPackets(Packet)
+    Public Sub BroadcastToGuild(ByRef packet As PacketClass, ByRef guild As Guild, Optional ByRef notTo As ULong = 0)
+        Dim tmpArray() As ULong = guild.Members.ToArray()
+        For Each member As ULong In tmpArray
+            If member = notTo Then Continue For
+            If CHARACTERs.ContainsKey(member) Then
+                CHARACTERs(member).Client.SendMultiplyPackets(packet)
             End If
         Next
     End Sub

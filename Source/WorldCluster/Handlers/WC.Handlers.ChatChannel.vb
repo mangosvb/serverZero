@@ -74,7 +74,7 @@ Namespace Handlers
             End Sub
 #End Region
 
-            Public Sub New(ByVal name As String)
+            Public Sub New(name As String)
                 ID = GetNexyChatChannelID()
                 ChannelIndex = 0
                 ChannelName = name
@@ -82,7 +82,7 @@ Namespace Handlers
 
                 CHAT_CHANNELs.Add(ChannelName, Me)
 
-                Dim sZone As String = name.Substring(name.IndexOf(" - ") + 3)
+                Dim sZone As String = name.Substring(name.IndexOf(" - ", StringComparison.Ordinal) + 3)
                 For Each chatChannel As KeyValuePair(Of Integer, ChatChannelInfo) In ChatChannelsInfo
                     If chatChannel.Value.Name.Replace("%s", sZone).ToUpper() = name.ToUpper() Then
                         ChannelIndex = chatChannel.Key
@@ -117,7 +117,7 @@ Namespace Handlers
 
             Public Sub Say(message As String, msgLang As Integer, ByRef character As CharacterObject)
                 If Muted.Contains(character.Guid) Then
-                    Dim p As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOUCANTSPEAK, character.Guid, Nothing, Nothing)
+                    Dim p As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOUCANTSPEAK, character.Guid, Nothing, Nothing)
                     character.Client.Send(p)
                     p.Dispose()
                     Exit Sub

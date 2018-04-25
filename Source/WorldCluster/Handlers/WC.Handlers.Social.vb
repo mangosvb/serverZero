@@ -98,7 +98,7 @@ Namespace Handlers
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_IGNORE_LIST", client.IP, client.Port)
         End Sub
 
-        Public Sub NotifyFriendStatus(ByRef objCharacter As CharacterObject, ByVal s As FriendStatus)
+        Public Sub NotifyFriendStatus(ByRef objCharacter As CharacterObject, s As FriendStatus)
             Dim q As New DataTable
             CharacterDatabase.Query(String.Format("SELECT guid FROM character_social WHERE friend = {0} AND (flags & {1}) > 0;", objCharacter.Guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
 
@@ -107,9 +107,9 @@ Namespace Handlers
             friendpacket.AddInt8(s)
             friendpacket.AddUInt64(objCharacter.Guid)
             For Each r As DataRow In q.Rows
-                Dim GUID As ULong = r.Item("guid")
-                If CHARACTERs.ContainsKey(GUID) AndAlso CHARACTERs(GUID).Client IsNot Nothing Then
-                    CHARACTERs(GUID).Client.SendMultiplyPackets(friendpacket)
+                Dim guid As ULong = r.Item("guid")
+                If CHARACTERs.ContainsKey(guid) AndAlso CHARACTERs(guid).Client IsNot Nothing Then
+                    CHARACTERs(guid).Client.SendMultiplyPackets(friendpacket)
                 End If
             Next
             friendpacket.Dispose()
@@ -121,26 +121,26 @@ Namespace Handlers
 
         Public Sub On_CMSG_WHO(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
-            Dim LevelMinimum As UInteger = packet.GetUInt32()       '0
-            Dim LevelMaximum As UInteger = packet.GetUInt32()       '100
-            Dim NamePlayer As String = EscapeString(packet.GetString())
-            Dim NameGuild As String = EscapeString(packet.GetString())
-            Dim MaskRace As UInteger = packet.GetUInt32()
-            Dim MaskClass As UInteger = packet.GetUInt32()
-            Dim ZonesCount As UInteger = packet.GetUInt32()         'Limited to 10
-            If ZonesCount > 10 Then Exit Sub
-            Dim Zones As New List(Of UInteger)
-            For i As Integer = 1 To ZonesCount
-                Zones.Add(packet.GetUInt32)
+            Dim levelMinimum As UInteger = packet.GetUInt32()       '0
+            Dim levelMaximum As UInteger = packet.GetUInt32()       '100
+            Dim namePlayer As String = EscapeString(packet.GetString())
+            Dim nameGuild As String = EscapeString(packet.GetString())
+            Dim maskRace As UInteger = packet.GetUInt32()
+            Dim maskClass As UInteger = packet.GetUInt32()
+            Dim zonesCount As UInteger = packet.GetUInt32()         'Limited to 10
+            If zonesCount > 10 Then Exit Sub
+            Dim zones As New List(Of UInteger)
+            For i As Integer = 1 To zonesCount
+                zones.Add(packet.GetUInt32)
             Next
-            Dim StringsCount As UInteger = packet.GetUInt32         'Limited to 4
-            If StringsCount > 4 Then Exit Sub
-            Dim Strings As New List(Of String)
-            For i As Integer = 1 To StringsCount
-                Strings.Add(UCase(EscapeString(packet.GetString())))
+            Dim stringsCount As UInteger = packet.GetUInt32         'Limited to 4
+            If stringsCount > 4 Then Exit Sub
+            Dim strings As New List(Of String)
+            For i As Integer = 1 To stringsCount
+                strings.Add(UCase(EscapeString(packet.GetString())))
             Next
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WHO [P:'{2}' G:'{3}' L:{4}-{5} C:{6:X} R:{7:X}]", client.IP, client.Port, NamePlayer, NameGuild, LevelMinimum, LevelMaximum, MaskClass, MaskRace)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WHO [P:'{2}' G:'{3}' L:{4}-{5} C:{6:X} R:{7:X}]", client.IP, client.Port, namePlayer, nameGuild, levelMinimum, levelMaximum, maskClass, maskRace)
 
             'TODO: Don't show GMs?
             Dim results As New List(Of ULong)
@@ -148,23 +148,23 @@ Namespace Handlers
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                 If Not objCharacter.Value.IsInWorld Then Continue For
                 If (GetCharacterSide(objCharacter.Value.Race) <> GetCharacterSide(client.Character.Race)) AndAlso client.Character.Access < AccessLevel.GameMaster Then Continue For
-                If NamePlayer <> "" AndAlso UCase(objCharacter.Value.Name).IndexOf(UCase(NamePlayer)) = -1 Then Continue For
-                If NameGuild <> "" AndAlso (objCharacter.Value.Guild Is Nothing OrElse UCase(objCharacter.Value.Guild.Name).IndexOf(UCase(NameGuild)) = -1) Then Continue For
-                If objCharacter.Value.Level < LevelMinimum Then Continue For
-                If objCharacter.Value.Level > LevelMaximum Then Continue For
-                If ZonesCount > 0 AndAlso Zones.Contains(objCharacter.Value.Zone) = False Then Continue For
-                If StringsCount > 0 Then
-                    Dim PassedStrings As Boolean = True
-                    For Each StringValue As String In Strings
-                        If UCase(objCharacter.Value.Name).IndexOf(StringValue) <> -1 Then Continue For
-                        If UCase(GetRaceName(objCharacter.Value.Race)) = StringValue Then Continue For
-                        If UCase(GetClassName(objCharacter.Value.Classe)) = StringValue Then Continue For
-                        If objCharacter.Value.Guild IsNot Nothing AndAlso UCase(objCharacter.Value.Guild.Name).IndexOf(StringValue) <> -1 Then Continue For
+                If namePlayer <> "" AndAlso UCase(objCharacter.Value.Name).IndexOf(UCase(namePlayer), StringComparison.Ordinal) = -1 Then Continue For
+                If nameGuild <> "" AndAlso (objCharacter.Value.Guild Is Nothing OrElse UCase(objCharacter.Value.Guild.Name).IndexOf(UCase(nameGuild), StringComparison.Ordinal) = -1) Then Continue For
+                If objCharacter.Value.Level < levelMinimum Then Continue For
+                If objCharacter.Value.Level > levelMaximum Then Continue For
+                If zonesCount > 0 AndAlso zones.Contains(objCharacter.Value.Zone) = False Then Continue For
+                If stringsCount > 0 Then
+                    Dim passedStrings As Boolean = True
+                    For Each stringValue As String In strings
+                        If UCase(objCharacter.Value.Name).IndexOf(stringValue, StringComparison.Ordinal) <> -1 Then Continue For
+                        If UCase(GetRaceName(objCharacter.Value.Race)) = stringValue Then Continue For
+                        If UCase(GetClassName(objCharacter.Value.Classe)) = stringValue Then Continue For
+                        If objCharacter.Value.Guild IsNot Nothing AndAlso UCase(objCharacter.Value.Guild.Name).IndexOf(stringValue, StringComparison.Ordinal) <> -1 Then Continue For
                         'TODO: Look for zone name
-                        PassedStrings = False
+                        passedStrings = False
                         Exit For
                     Next
-                    If PassedStrings = False Then Continue For
+                    If passedStrings = False Then Continue For
                 End If
 
                 'DONE: List first 49 characters (like original)
@@ -177,17 +177,17 @@ Namespace Handlers
             response.AddInt32(results.Count)
             response.AddInt32(results.Count)
 
-            For Each GUID As ULong In results
-                response.AddString(CHARACTERs(GUID).Name)           'Name
-                If CHARACTERs(GUID).Guild IsNot Nothing Then
-                    response.AddString(CHARACTERs(GUID).Guild.Name) 'Guild Name
+            For Each guid As ULong In results
+                response.AddString(CHARACTERs(guid).Name)           'Name
+                If CHARACTERs(guid).Guild IsNot Nothing Then
+                    response.AddString(CHARACTERs(guid).Guild.Name) 'Guild Name
                 Else
                     response.AddString("")                          'Guild Name
                 End If
-                response.AddInt32(CHARACTERs(GUID).Level)           'Level
-                response.AddInt32(CHARACTERs(GUID).Classe)          'Class
-                response.AddInt32(CHARACTERs(GUID).Race)            'Race
-                response.AddInt32(CHARACTERs(GUID).Zone)            'Zone ID
+                response.AddInt32(CHARACTERs(guid).Level)           'Level
+                response.AddInt32(CHARACTERs(guid).Classe)          'Class
+                response.AddInt32(CHARACTERs(guid).Race)            'Race
+                response.AddInt32(CHARACTERs(guid).Zone)            'Zone ID
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
 
@@ -201,7 +201,7 @@ Namespace Handlers
 
             Dim response As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
             Dim name As String = packet.GetString()
-            Dim GUID As ULong = 0
+            Dim guid As ULong = 0
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ADD_FRIEND [{2}]", client.IP, client.Port, name)
 
             'DONE: Get GUID from DB
@@ -209,51 +209,51 @@ Namespace Handlers
             CharacterDatabase.Query(String.Format("SELECT char_guid, char_race FROM characters WHERE char_name = ""{0}"";", name), q)
 
             If q.Rows.Count > 0 Then
-                GUID = CType(q.Rows(0).Item("char_guid"), Long)
+                guid = CType(q.Rows(0).Item("char_guid"), Long)
                 Dim FriendSide As Boolean = GetCharacterSide(q.Rows(0).Item("char_race"))
 
                 q.Clear()
                 CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE flags = {0}", CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
                 Dim NumberOfFriends As Integer = q.Rows.Count
                 q.Clear()
-                CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE guid = {0} AND friend = {1} AND flags = {2};", client.Character.Guid, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
+                CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE guid = {0} AND friend = {1} AND flags = {2};", client.Character.Guid, guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
 
-                If GUID = client.Character.Guid Then
+                If guid = client.Character.Guid Then
                     response.AddInt8(FriendResult.FRIEND_SELF)
-                    response.AddUInt64(GUID)
+                    response.AddUInt64(guid)
                 ElseIf q.Rows.Count > 0 Then
                     response.AddInt8(FriendResult.FRIEND_ALREADY)
-                    response.AddUInt64(GUID)
+                    response.AddUInt64(guid)
                 ElseIf NumberOfFriends >= SocialList.MAX_FRIENDS_ON_LIST Then
                     response.AddInt8(FriendResult.FRIEND_LIST_FULL)
-                    response.AddUInt64(GUID)
+                    response.AddUInt64(guid)
                 ElseIf GetCharacterSide(client.Character.Race) <> FriendSide Then
                     response.AddInt8(FriendResult.FRIEND_ENEMY)
-                    response.AddUInt64(GUID)
-                ElseIf CHARACTERs.ContainsKey(GUID) Then
+                    response.AddUInt64(guid)
+                ElseIf CHARACTERs.ContainsKey(guid) Then
                     response.AddInt8(FriendResult.FRIEND_ADDED_ONLINE)
-                    response.AddUInt64(GUID)
+                    response.AddUInt64(guid)
                     response.AddString(name)
-                    If CHARACTERs(GUID).DND Then
+                    If CHARACTERs(guid).DND Then
                         response.AddInt8(FriendStatus.FRIEND_STATUS_DND)
-                    ElseIf CHARACTERs(GUID).AFK Then
+                    ElseIf CHARACTERs(guid).AFK Then
                         response.AddInt8(FriendStatus.FRIEND_STATUS_AFK)
                     Else
                         response.AddInt8(FriendStatus.FRIEND_STATUS_ONLINE)
                     End If
-                    response.AddInt32(CHARACTERs(GUID).Zone)
-                    response.AddInt32(CHARACTERs(GUID).Level)
-                    response.AddInt32(CHARACTERs(GUID).Classe)
-                    CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.Guid, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
+                    response.AddInt32(CHARACTERs(guid).Zone)
+                    response.AddInt32(CHARACTERs(guid).Level)
+                    response.AddInt32(CHARACTERs(guid).Classe)
+                    CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.Guid, guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
                 Else
                     response.AddInt8(FriendResult.FRIEND_ADDED_OFFLINE)
-                    response.AddUInt64(GUID)
+                    response.AddUInt64(guid)
                     response.AddString(name)
-                    CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.Guid, GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
+                    CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.Guid, guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
                 End If
             Else
                 response.AddInt8(FriendResult.FRIEND_NOT_FOUND)
-                response.AddUInt64(GUID)
+                response.AddUInt64(guid)
             End If
 
             client.Send(response)

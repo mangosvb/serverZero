@@ -60,13 +60,13 @@ Namespace Server
 
         Private w As New Dictionary(Of WorldInfo, List(Of String))
 
-        Private Function FormatUptime(ByVal Time As TimeSpan) As String
-            Return String.Format("{0}d {1}h {2}m {3}s {4}ms", Time.Days, Time.Hours, Time.Minutes, Time.Seconds, Time.Milliseconds)
+        Private Function FormatUptime(time As TimeSpan) As String
+            Return String.Format("{0}d {1}h {2}m {3}s {4}ms", time.Days, time.Hours, time.Minutes, time.Seconds, time.Milliseconds)
         End Function
 
-        Public Sub CheckCPU(ByVal State As Object)
-            Dim TimeSinceLastCheck As TimeSpan = Now.Subtract(LastCheck)
-            UsageCPU = ((Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds - LastCPUTime) / TimeSinceLastCheck.TotalMilliseconds) * 100
+        Public Sub CheckCpu(state As Object)
+            Dim timeSinceLastCheck As TimeSpan = Now.Subtract(LastCheck)
+            UsageCPU = ((Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds - LastCPUTime) / timeSinceLastCheck.TotalMilliseconds) * 100
             LastCheck = Now
             LastCPUTime = Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds
         End Sub

@@ -262,12 +262,12 @@ Namespace DataStores
             Public TeamID As Byte
             Public CinematicID As Integer
 
-            Public Sub New(ByVal Faction As Short, ByVal ModelM As Integer, ByVal ModelF As Integer, ByVal Team As Byte, ByVal Cinematic As Integer)
-                FactionID = Faction
-                ModelMale = ModelM
-                ModelFemale = ModelF
-                TeamID = Team
-                CinematicID = Cinematic
+            Public Sub New(faction As Short, modelM As Integer, modelF As Integer, team As Byte, cinematic As Integer)
+                FactionID = faction
+                ModelMale = modelM
+                ModelFemale = modelF
+                TeamID = team
+                CinematicID = cinematic
             End Sub
         End Class
 
@@ -275,8 +275,8 @@ Namespace DataStores
         Public Class TCharClass
             Public CinematicID As Integer
 
-            Public Sub New(ByVal Cinematic As Integer)
-                CinematicID = Cinematic
+            Public Sub New(cinematic As Integer)
+                CinematicID = cinematic
             End Sub
         End Class
 #End Region

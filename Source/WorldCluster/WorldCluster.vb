@@ -165,31 +165,31 @@ Public Module WorldCluster
 #Region "WS.DataAccess"
     Public AccountDatabase As New SQL
     Public CharacterDatabase As New SQL
-    Public WorldDatabase As New SQL
-    Public Sub AccountSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
-        Select Case MessageID
+    Public WorldDatabase As New Sql
+    Public Sub AccountSQLEventHandler(messageId As Sql.EMessages, outBuf As String)
+        Select Case messageId
             Case Sql.EMessages.IdError
-                Log.WriteLine(LogType.FAILED, "[ACCOUNT] " & OutBuf)
+                Log.WriteLine(LogType.FAILED, "[ACCOUNT] " & outBuf)
             Case Sql.EMessages.IdMessage
-                Log.WriteLine(LogType.SUCCESS, "[ACCOUNT] " & OutBuf)
+                Log.WriteLine(LogType.SUCCESS, "[ACCOUNT] " & outBuf)
         End Select
     End Sub
 
-    Public Sub CharacterSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
-        Select Case MessageID
+    Public Sub CharacterSQLEventHandler(messageId As Sql.EMessages, outBuf As String)
+        Select Case messageId
             Case Sql.EMessages.IdError
-                Log.WriteLine(LogType.FAILED, "[CHARACTER] " & OutBuf)
+                Log.WriteLine(LogType.FAILED, "[CHARACTER] " & outBuf)
             Case Sql.EMessages.IdMessage
-                Log.WriteLine(LogType.SUCCESS, "[CHARACTER] " & OutBuf)
+                Log.WriteLine(LogType.SUCCESS, "[CHARACTER] " & outBuf)
         End Select
     End Sub
 
-    Public Sub WorldSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
-        Select Case MessageID
+    Public Sub WorldSQLEventHandler(messageId As Sql.EMessages, outBuf As String)
+        Select Case messageId
             Case Sql.EMessages.IdError
-                Log.WriteLine(LogType.FAILED, "[WORLD] " & OutBuf)
+                Log.WriteLine(LogType.FAILED, "[WORLD] " & outBuf)
             Case Sql.EMessages.IdMessage
-                Log.WriteLine(LogType.SUCCESS, "[WORLD] " & OutBuf)
+                Log.WriteLine(LogType.SUCCESS, "[WORLD] " & outBuf)
         End Select
     End Sub
 #End Region
@@ -353,16 +353,15 @@ Public Module WorldCluster
         End While
     End Sub
 
-    Private Sub GenericExceptionHandler(ByVal sender As Object, ByVal e As UnhandledExceptionEventArgs)
-        Dim EX As Exception
-        EX = e.ExceptionObject
+    Private Sub GenericExceptionHandler(sender As Object, e As UnhandledExceptionEventArgs)
+        Dim ex As Exception = e.ExceptionObject
 
-        Log.WriteLine(LogType.CRITICAL, EX.ToString & vbNewLine)
+        Log.WriteLine(LogType.CRITICAL, ex.ToString & vbNewLine)
         Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'WorldCluster-Error-yyyy-mmm-d-h-mm.log' file has been created. Check your log folder for more information.")
 
         Dim tw As TextWriter
         tw = New StreamWriter(New FileStream(String.Format("WorldCluster-Error-{0}.log", Format(Now, "yyyy-MMM-d-H-mm")), FileMode.Create))
-        tw.Write(EX.ToString)
+        tw.Write(ex.ToString)
         tw.Close()
     End Sub
 
