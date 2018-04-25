@@ -28,6 +28,7 @@ Imports mangosVB.Common.Global_Enums
 Imports WorldCluster.Globals
 Imports WorldCluster.Handlers
 Imports WorldCluster.DataStores
+Imports WorldCluster.Server
 
 Public Module WorldCluster
 
@@ -35,7 +36,7 @@ Public Module WorldCluster
     'Players' containers
     Public CLIETNIDs As Long = 0
 
-    Public CLIENTs As New Dictionary(Of UInteger, ClientClass)
+    Public CLIENTs As New Dictionary(Of UInteger, WC_Network.ClientClass)
 
     Public CHARACTERs_Lock As New ReaderWriterLock
     Public CHARACTERs As New Dictionary(Of ULong, WcHandlerCharacter.CharacterObject)

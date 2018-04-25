@@ -19,6 +19,7 @@ Imports System.Reflection
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
@@ -28,7 +29,7 @@ Namespace Handlers
             Implements IDisposable
 
             Public GUID As ULong
-            Public client As ClientClass
+            Public client As WC_Network.ClientClass
 
             Public IsInWorld As Boolean = False
             Public Map As UInteger
@@ -222,9 +223,9 @@ Namespace Handlers
             End Sub
 #End Region
 
-            Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
+            Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal thisMap As Integer)
                 Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
-                p.AddInt32(map)
+                p.AddInt32(thisMap)
                 client.Send(p)
                 p.Dispose()
 
@@ -233,12 +234,28 @@ Namespace Handlers
                 GetWorld.ClientDisconnect(client.Index)
 
                 CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};",
-                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), map, GUID))
+                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), thisMap, GUID))
 
                 'Do global transfer
-                WorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, map)
+                WorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, thisMap)
             End Sub
 
+            Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single)
+                Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
+                p.AddInt32(Map)
+                client.Send(p)
+                p.Dispose()
+
+                'Actions Here
+                IsInWorld = False
+                GetWorld.ClientDisconnect(client.Index)
+
+                CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};",
+                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), Map, GUID))
+
+                'Do global transfer
+                WorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, Map)
+            End Sub
             'Login
             Public Sub OnLogin()
                 'DONE: Update character status in database
@@ -317,10 +334,11 @@ Namespace Handlers
 
             'Chat
             Public ChatFlag As ChatFlag = ChatFlag.FLAGS_NONE
-            Public Sub SendChatMessage(ByRef GUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As Integer, Optional ByVal ChannelName As String = "Global")
+
+            Public Sub SendChatMessage(ByVal message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As Integer, Optional ByVal channelName As String = "Global")
                 Dim msgChatFlag As ChatFlag = ChatFlag
                 If msgType = ChatMsg.CHAT_MSG_WHISPER_INFORM OrElse msgType = ChatMsg.CHAT_MSG_WHISPER Then msgChatFlag = CHARACTERs(GUID).ChatFlag
-                Dim packet As PacketClass = BuildChatMessage(GUID, Message, msgType, msgLanguage, msgChatFlag, ChannelName)
+                Dim packet As PacketClass = BuildChatMessage(GUID, message, msgType, msgLanguage, msgChatFlag, channelName)
                 client.Send(packet)
                 packet.Dispose()
             End Sub

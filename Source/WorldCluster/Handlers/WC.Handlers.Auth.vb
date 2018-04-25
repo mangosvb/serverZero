@@ -20,6 +20,7 @@ Imports System.Threading
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
@@ -28,7 +29,7 @@ Namespace Handlers
         Const REQUIRED_BUILD_LOW As Integer = 5875 ' 1.12.1
         Const REQUIRED_BUILD_HIGH As Integer = 6141
 
-        Public Sub SendLoginOK(ByRef client As ClientClass)
+        Public Sub SendLoginOK(ByRef client As WC_Network.ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
 
             Thread.Sleep(500)

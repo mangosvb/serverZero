@@ -18,12 +18,13 @@
 Imports System.IO
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports WorldCluster.Server
 
 Namespace Globals
 
     Public Module Packets
 
-        Public Sub DumpPacket(ByVal data() As Byte, Optional ByRef client As ClientClass = Nothing)
+        Public Sub DumpPacket(ByVal data() As Byte, Optional ByRef client As WC_Network.ClientClass = Nothing)
             '#If DEBUG Then
             Dim j As Integer
             Dim buffer As String = ""
@@ -111,7 +112,6 @@ Namespace Globals
 
         Private Function FormatPacketStr(ByVal str As String) As String
             Dim tmpChar() As Char = str.ToCharArray
-            Dim tmpStr As String = ""
             For i As Integer = 0 To tmpChar.Length - 1
                 If tmpChar(i) < "A"c OrElse tmpChar(i) > "z"c Then
                     tmpChar(i) = "."c

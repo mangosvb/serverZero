@@ -20,6 +20,7 @@ Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Handlers
 Imports WorldCluster.DataStores
+Imports WorldCluster.Server
 
 Namespace Globals
 
@@ -348,7 +349,7 @@ Namespace Globals
 
 #Region "Packets"
 
-        Public Sub SendMessageMOTD(ByRef client As ClientClass, ByVal Message As String)
+        Public Sub SendMessageMOTD(ByRef client As WC_Network.ClientClass, ByVal Message As String)
             Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
             client.Send(packet)
         End Sub

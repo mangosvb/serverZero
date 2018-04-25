@@ -18,6 +18,7 @@
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
@@ -36,7 +37,7 @@ Namespace Handlers
             Next
         End Sub
 
-        Public Sub SendFriendList(ByRef client As ClientClass, ByRef Character As CharacterObject)
+        Public Sub SendFriendList(ByRef client As WC_Network.ClientClass, ByRef Character As CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
             CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND (flags & {1}) > 0;", Character.GUID, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)

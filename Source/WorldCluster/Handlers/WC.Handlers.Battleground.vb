@@ -20,12 +20,13 @@ Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.DataStores
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
     Public Module WC_Handlers_Battleground
 
-        Public Sub On_CMSG_BATTLEFIELD_PORT(ByRef packet As Packets.PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BATTLEFIELD_PORT(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
 
             'Dim Unk1 As Byte = packet.GetInt8
@@ -61,14 +62,14 @@ Namespace Handlers
         Public Sub On_CMSG_BATTLEMASTER_JOIN(ByRef packet As PacketClass, ByRef client As ClientClass)
             If (packet.Data.Length - 1) < 16 Then Exit Sub
             packet.GetInt16()
-            Dim GUID As ULong = packet.GetUInt64
-            Dim MapType As UInteger = packet.GetInt32
-            Dim Intance As UInteger = packet.GetInt32
-            Dim AsGroup As Byte = packet.GetInt8
+            Dim guid As ULong = packet.GetUInt64
+            Dim mapType As UInteger = packet.GetInt32
+            Dim instance As UInteger = packet.GetInt32
+            Dim asGroup As Byte = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_JOIN [MapType: {2}, Instance: {3}, Group: {4}]", client.IP, client.Port, MapType, Intance, AsGroup)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_JOIN [MapType: {2}, Instance: {3}, Group: {4}, GUID: {5}]", client.IP, client.Port, mapType, instance, asGroup, guid)
 
-            GetBattlefield(MapType, client.Character.Level).Enqueue(client.Character)
+            GetBattlefield(mapType, client.Character.Level).Enqueue(client.Character)
         End Sub
 
         Public BATTLEFIELDs As New Dictionary(Of Integer, Battlefield)

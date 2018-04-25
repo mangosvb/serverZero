@@ -18,12 +18,13 @@
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
     Public Module WC_Handlers_Misc
 
-        Public Sub On_CMSG_QUERY_TIME(ByRef packet As Packets.PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUERY_TIME(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUERY_TIME", client.IP, client.Port)
             Dim response As New PacketClass(OPCODES.SMSG_QUERY_TIME_RESPONSE)
             response.AddInt32(TimeGetTime("")) 'GetTimestamp(Now))

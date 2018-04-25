@@ -18,12 +18,13 @@
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
     Public Module WC_Handlers_Chat
 
-        Public Sub On_CMSG_CHAT_IGNORED(ByRef packet As Packets.PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHAT_IGNORED(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
 
             Dim GUID As ULong = packet.GetUInt64
@@ -194,8 +195,11 @@ Namespace Handlers
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_JOIN_CHANNEL [{2}]", client.IP, client.Port, channelName)
 
             If Not CHAT_CHANNELs.ContainsKey(channelName) Then
-                Dim newChannel As New ChatChannelClass(channelName)
                 'The New does a an add to the .Containskey collection above
+                Dim newChannel As New ChatChannelClass(channelName)
+
+                'Then add it to the main list of channels
+                CHAT_CHANNELs.Add(channelName, newChannel)
             End If
             CHAT_CHANNELs(channelName).Join(client.Character, password)
         End Sub

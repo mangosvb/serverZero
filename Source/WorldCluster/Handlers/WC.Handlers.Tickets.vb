@@ -18,12 +18,13 @@
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports WorldCluster.Globals
+Imports WorldCluster.Server
 
 Namespace Handlers
 
     Public Module WC_Handlers_Tickets
 
-        Public Sub On_CMSG_BUG(ByRef packet As Packets.PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BUG(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
             Dim Suggestion As SuggestionType = packet.GetInt32
@@ -34,7 +35,7 @@ Namespace Handlers
             Dim tString As String = EscapeString(packet.GetString)
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUG [2]", client.IP, client.Port, Suggestion)
-            Log.WriteLine(LogType.INFORMATION, "Bug report [{0}:{1}] " & cString & vbNewLine & tString)
+            Log.WriteLine(LogType.INFORMATION, "Bug report [{0}:{1} Lengths:{2}, {3}] " & cString & vbNewLine & tString, cLength.ToString(), tLength.ToString())
         End Sub
 
         'ERR_TICKET_ALREADY_EXISTS
