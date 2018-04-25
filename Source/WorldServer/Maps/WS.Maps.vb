@@ -524,25 +524,43 @@ Public Module WS_Maps
         Log.WriteLine(LogType.INFORMATION, "Initalizing: {0} Maps initialized.", Maps.Count)
     End Sub
 
+    ''' <summary>
+    ''' Ensures that the Coordinate is within valid boundaries and if not, brings is back into boundary
+    ''' </summary>
+    ''' <param name="coord"></param>
+    ''' <returns></returns>
+    Public Function ValidateMapCoord(coord As Single) As Single
+        If coord > 32 * SIZE Then
+            'Invalid Value for X provided, so clamp it to x
+            coord = 32 * SIZE
+        ElseIf coord < -32 * SIZE Then
+            'Invalid Value for X provided, so clamp it to -x
+            coord = -32 * SIZE
+        End If
+        Return coord
+    End Function
+
     Public Sub GetMapTile(ByVal x As Single, ByVal y As Single, ByRef MapTileX As Byte, ByRef MapTileY As Byte)
         'How to calculate where is X,Y:
-        MapTileX = Fix(32 - (x / SIZE))
-        MapTileY = Fix(32 - (y / SIZE))
+        MapTileX = Fix(32 - (ValidateMapCoord(x) / SIZE))
+        MapTileY = Fix(32 - (ValidateMapCoord(y) / SIZE))
     End Sub
     Public Function GetMapTileX(ByVal x As Single) As Byte
-        Return Fix(32 - (x / SIZE))
+        Return Fix(32 - (ValidateMapCoord(x) / SIZE))
     End Function
     Public Function GetMapTileY(ByVal y As Single) As Byte
-        Return Fix(32 - (y / SIZE))
+        Return Fix(32 - (ValidateMapCoord(y) / SIZE))
     End Function
     Public Function GetSubMapTileX(ByVal x As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (x / SIZE) - Fix(32 - (x / SIZE))))
+        Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(x) / SIZE) - Fix(32 - (ValidateMapCoord(x) / SIZE))))
     End Function
     Public Function GetSubMapTileY(ByVal y As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (y / SIZE) - Fix(32 - (y / SIZE))))
+        Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(y) / SIZE) - Fix(32 - (ValidateMapCoord(y) / SIZE))))
     End Function
     Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
         Try
+            x = ValidateMapCoord(x)
+            y = ValidateMapCoord(y)
             Dim MapTileX As Byte = Fix(32 - (x / SIZE))
             Dim MapTileY As Byte = Fix(32 - (y / SIZE))
             Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
@@ -572,6 +590,8 @@ Public Module WS_Maps
         End Try
     End Function
     Public Function GetWaterLevel(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Single
+        x = ValidateMapCoord(x)
+        y = ValidateMapCoord(y)
         Dim MapTileX As Byte = Fix(32 - (x / SIZE))
         Dim MapTileY As Byte = Fix(32 - (y / SIZE))
         Dim MapTile_LocalX As Byte = RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX)
@@ -581,6 +601,8 @@ Public Module WS_Maps
         Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
     End Function
     Public Function GetTerrainType(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Byte
+        x = ValidateMapCoord(x)
+        y = ValidateMapCoord(y)
         Dim MapTileX As Byte = Fix(32 - (x / SIZE))
         Dim MapTileY As Byte = Fix(32 - (y / SIZE))
         Dim MapTile_LocalX As Byte = RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX)
@@ -590,6 +612,8 @@ Public Module WS_Maps
         Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
     End Function
     Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
+        x = ValidateMapCoord(x)
+        y = ValidateMapCoord(y)
         Dim MapTileX As Byte = Fix(32 - (x / SIZE))
         Dim MapTileY As Byte = Fix(32 - (y / SIZE))
         Dim MapTile_LocalX As Byte = RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX)
@@ -771,6 +795,9 @@ Public Module WS_Maps
 #Else
     Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal Map As UInteger) As Single
         Try
+            x = ValidateMapCoord(x)
+            y = ValidateMapCoord(y)
+            z = ValidateMapCoord(z)
             Dim MapTileX As Byte = Fix(32 - (x / SIZE))
             Dim MapTileY As Byte = Fix(32 - (y / SIZE))
             Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
@@ -842,10 +869,19 @@ Public Module WS_Maps
     End Function
 
     Public Function IsInLineOfSight(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
+        x2 = ValidateMapCoord(x2)
+        y2 = ValidateMapCoord(y2)
+        z2 = ValidateMapCoord(z2)
         Return IsInLineOfSight(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, x2, y2, z2)
     End Function
 
     Public Function IsInLineOfSight(ByVal MapID As UInteger, ByVal x1 As Single, ByVal y1 As Single, ByVal z1 As Single, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
+        x1 = ValidateMapCoord(x1)
+        y1 = ValidateMapCoord(y1)
+        z1 = ValidateMapCoord(z1)
+        x2 = ValidateMapCoord(x2)
+        y2 = ValidateMapCoord(y2)
+        z2 = ValidateMapCoord(z2)
         Dim result As Boolean = True
 #If VMAPS Then
         If Config.LineOfSightEnabled AndAlso Maps.ContainsKey(MapID) Then
@@ -865,6 +901,9 @@ Public Module WS_Maps
     End Function
 
     Public Function GetVMapHeight(ByVal MapID As UInteger, ByVal x As Single, ByVal y As Single, ByVal z As Single) As Single
+        x = ValidateMapCoord(x)
+        y = ValidateMapCoord(y)
+        z = ValidateMapCoord(z)
         Dim height As Single = VMAP_INVALID_HEIGHT_VALUE
 #If VMAPS Then
         If Config.HeightCalcEnabled AndAlso Maps.ContainsKey(MapID) Then
@@ -890,14 +929,29 @@ Public Module WS_Maps
     End Function
 
     Public Function GetObjectHitPos(ByRef obj As BaseObject, ByRef obj2 As BaseObject, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+        rx = ValidateMapCoord(rx)
+        ry = ValidateMapCoord(ry)
+        rz = ValidateMapCoord(rz)
         Return GetObjectHitPos(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, obj2.positionX, obj2.positionY, obj2.positionZ + 2.0F, rx, ry, rz, pModifyDist)
     End Function
 
     Public Function GetObjectHitPos(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+        rx = ValidateMapCoord(rx)
+        ry = ValidateMapCoord(ry)
+        rz = ValidateMapCoord(rz)
+        x2 = ValidateMapCoord(x2)
+        y2 = ValidateMapCoord(y2)
+        z2 = ValidateMapCoord(z2)
         Return GetObjectHitPos(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, x2, y2, z2, rx, ry, rz, pModifyDist)
     End Function
 
     Public Function GetObjectHitPos(ByVal MapID As UInteger, ByVal x1 As Single, ByVal y1 As Single, ByVal z1 As Single, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+        x1 = ValidateMapCoord(x1)
+        y1 = ValidateMapCoord(y1)
+        z1 = ValidateMapCoord(z1)
+        x2 = ValidateMapCoord(x2)
+        y2 = ValidateMapCoord(y2)
+        z2 = ValidateMapCoord(z2)
         Dim result As Boolean = False
 #If VMAPS Then
         If Config.LineOfSightEnabled AndAlso Maps.ContainsKey(MapID) Then
