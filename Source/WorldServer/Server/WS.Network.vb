@@ -381,22 +381,27 @@ Public Module WS_Network
         ''' <returns></returns>
         Public Sub OnPacket(state As Object)
             While Packets.Count > 0
-                Try ' Trap a Packets.Dequeue issue when no packets are queued... possibly an error with the Packets.Count above'            
+                Try ' Trap a Packets.Dequeue issue when no packets are queued... possibly an error with the Packets.Count above'
                     Dim p As PacketClass = Packets.Dequeue
-                    Dim start As Integer = timeGetTime("")
+                    Dim start As Integer = TimeGetTime("")
                     Try
-                        If PacketHandlers.ContainsKey(p.OpCode) = True Then
-                            Try
-                                PacketHandlers(p.OpCode).Invoke(p, Me)
-                                If timeGetTime("") - start > 100 Then
-                                    Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
-                                End If
-                            Catch e As Exception 'TargetInvocationException
-                                Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, p.OpCode)
+                        If Not IsNothing(p) Then
+                            If PacketHandlers.ContainsKey(p.OpCode) = True Then
+                                Try
+                                    PacketHandlers(p.OpCode).Invoke(p, Me)
+                                    If TimeGetTime("") - start > 100 Then
+                                        Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, TimeGetTime("") - start)
+                                    End If
+                                Catch e As Exception 'TargetInvocationException
+                                    Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, p.OpCode)
+                                    DumpPacket(p.Data, Me)
+                                End Try
+                            Else
+                                Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
                                 DumpPacket(p.Data, Me)
-                            End Try
+                            End If
                         Else
-                            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
+                            Log.WriteLine(LogType.WARNING, "[{0}:{1}] No Packet Information in Queue", IP, Port)
                             DumpPacket(p.Data, Me)
                         End If
                     Catch err As Exception
