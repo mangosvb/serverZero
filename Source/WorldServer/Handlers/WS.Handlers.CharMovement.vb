@@ -17,6 +17,7 @@
 '
 
 Imports System.Runtime.CompilerServices
+Imports mangosVB.Common.Globals
 
 Module WS_CharMovement
 

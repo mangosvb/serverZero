@@ -17,6 +17,7 @@
 '
 
 Imports mangosVB.Common.NativeMethods
+Imports mangosVB.Common.Globals
 
 Public Module WS_Spells
 
@@ -3824,15 +3825,15 @@ SkipShapeShift:
         Return result
     End Function
 
-    Public Function GetPartyMembersAroundMe(ByRef objCharacter As CharacterObject, ByVal Distance As Single) As List(Of BaseUnit)
-        Dim result As New List(Of BaseUnit)
-
-        result.Add(objCharacter)
+    Public Function GetPartyMembersAroundMe(ByRef objCharacter As CharacterObject, ByVal distance As Single) As List(Of BaseUnit)
+        Dim result As New List(Of BaseUnit) From {
+            objCharacter
+        }
         If Not objCharacter.IsInGroup Then Return result
 
         For Each GUID As ULong In objCharacter.Group.LocalMembers.ToArray
             If objCharacter.playersNear.Contains(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
-                If GetDistance(objCharacter, CHARACTERs(GUID)) < Distance Then result.Add(CHARACTERs(GUID))
+                If GetDistance(objCharacter, CHARACTERs(GUID)) < distance Then result.Add(CHARACTERs(GUID))
             End If
         Next
 

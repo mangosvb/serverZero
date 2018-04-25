@@ -18,6 +18,7 @@
 
 Imports System.Reflection
 Imports mangosVB.Common.NativeMethods
+Imports mangosVB.Common.Globals
 
 #Region "WS.Commands.Attributes"
 
