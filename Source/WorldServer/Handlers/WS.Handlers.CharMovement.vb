@@ -17,6 +17,7 @@
 '
 
 Imports System.Runtime.CompilerServices
+Imports System.Runtime.Serialization.Formatters
 Imports mangosVB.Common.Globals
 
 Module WS_CharMovement
@@ -409,10 +410,12 @@ Module WS_CharMovement
             End If
 
             'DONE: Handling all other scripted triggers
-            If AreaTriggers.ContainsMethod("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID)) Then
-                AreaTriggers.InvokeFunction("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID), New Object() {client.Character.GUID})
-            Else
-                Log.WriteLine(LogType.WARNING, "[{0}:{1}] AreaTrigger [{2}] not found!", client.IP, client.Port, triggerID)
+            If Not IsNothing(AreaTriggers) Then
+                If AreaTriggers.ContainsMethod("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID)) Then
+                    AreaTriggers.InvokeFunction("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID), New Object() {client.Character.GUID})
+                Else
+                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] AreaTrigger [{2}] not found!", client.IP, client.Port, triggerID)
+                End If
             End If
         Catch e As Exception
             Log.WriteLine(LogType.CRITICAL, "Error when entering areatrigger.{0}", vbNewLine & e.ToString)
