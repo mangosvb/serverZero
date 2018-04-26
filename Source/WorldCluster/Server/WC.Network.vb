@@ -751,22 +751,22 @@ Namespace Server
             End Sub
 
             Public Sub Send(ByRef packet As PacketClass)
-                If packet Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
-                If Socket Is Nothing OrElse Socket.Connected = False Then Exit Sub
+                If IsNothing(packet) Then Throw New ApplicationException("Packet doesn't contain data!")
+                If IsNothing(Socket) Or Socket.Connected = False Then Exit Sub
 
                 Try
                     Dim data As Byte() = packet.Data
                     If Config.PacketLogging Then LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
-                Catch Err As Exception
+                Catch err As Exception
                     'NOTE: If it's a error here it means the connection is closed?
                     Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
                     Delete()
                 End Try
 
-                'Cleaning, no memory leak :)
-                packet.Dispose()
+                'Only attempt to dispose of the packet if it actually exists
+                If Not IsNothing(packet) Then packet.Dispose()
             End Sub
 
             Public Sub SendMultiplyPackets(ByRef packet As PacketClass)
