@@ -470,7 +470,7 @@ Public Class WS_Quests
                 If quest.ObjectivesItem(i) <> 0 Then SendItemInfo(client, quest.ObjectivesItem(i))
             Next
 
-            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT
+            For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT - 1
                 packet.AddString(quest.ObjectivesText(i))
             Next
 
