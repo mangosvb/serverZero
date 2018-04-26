@@ -342,6 +342,7 @@ Public Module WS_PlayerData
         Public Sub UpdateManaRegen()
             If FullyLoggedIn = False Then Exit Sub
             Dim PowerRegen As Single = Math.Sqrt(Intellect.Base) * 1 'GetOCTRegenMP()
+            If Single.IsNaN(PowerRegen) Then PowerRegen = 1 'Clear an invalid PowerRegen
             PowerRegen *= ManaRegenPercent
             Dim PowerRegenMP5 As Single = (ManaRegenBonus / 5)
             Dim PowerRegenInterrupt As Integer = 0
@@ -365,6 +366,7 @@ Public Module WS_PlayerData
             Next
 
             If PowerRegenInterrupt > 100 Then PowerRegenInterrupt = 100
+
             PowerRegenInterrupt = (PowerRegenMP5 + PowerRegen * PowerRegenInterrupt / 100.0F)
             PowerRegen = CInt(PowerRegenMP5 + PowerRegen)
             ManaRegen = PowerRegen
@@ -4318,7 +4320,7 @@ CheckXPAgain:
                 ' TODO: set large fields to null.
                 'WARNING: Do not save character here!!!
 
-                'DONE: Remove buyback items when logged out                                                                                                     
+                'DONE: Remove buyback items when logged out
                 CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = {0} AND item_slot >= {1} AND item_slot <= {2}", GUID, 69, 80 - 1))
 
                 If Not underWaterTimer Is Nothing Then underWaterTimer.Dispose()
