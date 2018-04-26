@@ -231,10 +231,11 @@ Public Module WS_TimerBasedEvents
                         UpdateSpells(WORLD_CREATUREs(WORLD_CREATUREsKeys(i)))
                     End If
                 Next
-                WORLD_CREATUREs_Lock.ReleaseReaderLock()
 
             Catch ex As Exception
                 Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
+            Finally
+                WORLD_CREATUREs_Lock.ReleaseReaderLock()
             End Try
 
             Try
