@@ -148,7 +148,7 @@ Public Module WS_PlayerHelper
 
     Public Class THonor
         Public CharGUID As ULong = 0
-        Public HonorPounts As Short = 0                 '! MAX=1000 ?
+        Public HonorPoints As Short = 0                 '! MAX=1000 ?
         Public HonorRank As Byte = 0
         Public HonorHightestRank As Byte = 0
         Public Standing As Integer = 0
@@ -166,32 +166,36 @@ Public Module WS_PlayerHelper
         Public KillsHonorableLifetime As Integer = 0
         Public KillsDisHonorableLifetime As Integer = 0
 
+        '??? not sure why there is two save points.
+        'here and back on PlayerDataType Line: 401
         Public Sub Save()
             Dim tmp As String = "UPDATE characters_honor SET"
 
-            tmp = tmp & " honor_points=""" & HonorPounts & """"
-            tmp = tmp & ", honor_rank=" & HonorRank
-            tmp = tmp & ", honor_hightestRank=" & HonorHightestRank
-            tmp = tmp & ", honor_standing=" & Standing
-            tmp = tmp & ", honor_lastWeek=" & HonorLastWeek
-            tmp = tmp & ", honor_thisWeek=" & HonorThisWeek
-            tmp = tmp & ", honor_yesterday=" & HonorYesterday
-            tmp = tmp & ", kills_lastWeek=" & KillsLastWeek
-            tmp = tmp & ", kills_thisWeek=" & KillsThisWeek
-            tmp = tmp & ", kills_yesterday=" & KillsYesterday
-            tmp = tmp & ", kills_dishonorableToday=" & KillsDisHonorableToday
-            tmp = tmp & ", kills_honorableToday=" & KillsHonorableToday
-            tmp = tmp & ", kills_dishonorableLifetime=" & KillsDisHonorableLifetime
-            tmp = tmp & ", kills_honorableLifetime=" & KillsHonorableLifetime
+            tmp = tmp & " honor_points =""" & HonorPoints & """"
+            tmp = tmp & ", honor_rank =" & HonorRank
+            tmp = tmp & ", honor_hightestRank =" & HonorHightestRank
+            tmp = tmp & ", honor_standing =" & Standing
+            tmp = tmp & ", honor_lastWeek =" & HonorLastWeek
+            tmp = tmp & ", honor_thisWeek =" & HonorThisWeek
+            tmp = tmp & ", honor_yesterday =" & HonorYesterday
+            tmp = tmp & ", kills_lastWeek =" & KillsLastWeek
+            tmp = tmp & ", kills_thisWeek =" & KillsThisWeek
+            tmp = tmp & ", kills_yesterday =" & KillsYesterday
+            tmp = tmp & ", kills_dishonorableToday =" & KillsDisHonorableToday
+            tmp = tmp & ", kills_honorableToday =" & KillsHonorableToday
+            tmp = tmp & ", kills_dishonorableLifetime =" & KillsDisHonorableLifetime
+            tmp = tmp & ", kills_honorableLifetime =" & KillsHonorableLifetime
 
             tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", CharGUID)
             CharacterDatabase.Update(tmp)
         End Sub
 
+        '???
         Public Sub Load(ByVal GUID As ULong)
 
         End Sub
 
+        '???
         Public Sub SaveAsNew(ByVal GUID As ULong)
 
         End Sub

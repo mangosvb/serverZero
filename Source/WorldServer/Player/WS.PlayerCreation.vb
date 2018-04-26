@@ -102,7 +102,7 @@ Public Module WS_Player_Creation
 
             'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Character.Name)
         Catch err As Exception
-            Log.WriteLine(LogType.FAILED, "Error initializing character!{0}{1}", vbNewLine, err.ToString)
+            Log.WriteLine(LogType.FAILED, "Error initializing character! {0} {1}", vbNewLine, err.ToString)
             Return CharResponse.CHAR_CREATE_FAILED
         Finally
             Character.Dispose()
@@ -122,27 +122,27 @@ Public Module WS_Player_Creation
 
         WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfo)
         If CreateInfo.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
         End If
 
         WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_action WHERE race = {0} AND class = {1} ORDER BY button;", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoBars)
         If CreateInfoBars.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_action table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_action table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
         End If
 
         WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_skill WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSkills)
         If CreateInfoSkills.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_skill table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_skill table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
         End If
 
         WorldDatabase.Query(String.Format("SELECT * FROM player_levelstats WHERE race = {0} AND class = {1} AND level = {2};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), LevelStats)
         If LevelStats.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for race={0}, class={1}, level={2}", objCharacter.Race, objCharacter.Classe, objCharacter.Level)
+            Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for Race: {0}, Class: {1}, Level: {2}", objCharacter.Race, objCharacter.Classe, objCharacter.Level)
         End If
 
         WorldDatabase.Query(String.Format("SELECT * FROM player_classlevelstats WHERE class = {0} AND level = {1};", CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), ClassLevelStats)
         If ClassLevelStats.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for class={0}, level={1}", objCharacter.Classe, objCharacter.Level)
+            Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for Class: {0}, Level: {1}", objCharacter.Classe, objCharacter.Level)
         End If
 
         ' Initialize Character Variables
@@ -225,7 +225,7 @@ Public Module WS_Player_Creation
 
         WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_spell WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSpells)
         If CreateInfoSpells.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_spell table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_spell table Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
         End If
 
         ' Set Player Create Spells
@@ -239,7 +239,7 @@ Public Module WS_Player_Creation
         Dim CreateInfoItems As New DataTable
         WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_item WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoItems)
         If CreateInfoItems.Rows.Count <= 0 Then
-            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_item table for race={0}, class={1}", objCharacter.Race, objCharacter.Classe)
+            Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_item table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
         End If
 
         ' Set Player Create Items

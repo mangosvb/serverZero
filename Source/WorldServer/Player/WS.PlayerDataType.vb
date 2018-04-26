@@ -382,36 +382,39 @@ Public Module WS_PlayerData
         'Honor And Arena
         Public HonorPoints As Integer = 0
         Public StandingLastWeek As Integer = 0
-        Public HonorKillsToday As Short = 0
-        Public DishonorKillsToday As Short = 0
-        Public HonorKillsYesterday As Short = 0
-        Public HonorKillsThisWeek As Integer = 0
-        Public HonorKillsLastWeek As Integer = 0
         Public HonorKillsLifeTime As Integer = 0
         Public DishonorKillsLifeTime As Integer = 0
-        Public HonorPointsYesterday As Integer = 0
-        Public HonorPointsThisWeek As Integer = 0
         Public HonorPointsLastWeek As Integer = 0
+        Public HonorPointsThisWeek As Integer = 0
+        Public HonorPointsYesterday As Integer = 0
+        Public HonorKillsLastWeek As Integer = 0
+        Public HonorKillsThisWeek As Integer = 0
+        Public HonorKillsYesterday As Short = 0
+        Public HonorKillsToday As Short = 0
+        Public DishonorKillsToday As Short = 0
+
         Public Sub HonorSaveAsNew()
             CharacterDatabase.Update("INSERT INTO characters_honor (char_guid)  VALUES (" & GUID & ");")
         End Sub
 
+        'Done: Player Honor Save
         Public Sub HonorSave()
-            Dim tmp As String = "UPDATE characters_honor SET"
+            Dim honor As String = "UPDATE characters_honor SET"
 
-            tmp = tmp & ", honor_points=" & HonorPoints
-            tmp = tmp & ", kills_honor=" & HonorKillsLifeTime
-            tmp = tmp & ", kills_dishonor=" & DishonorKillsLifeTime
-            tmp = tmp & ", honor_pointsYesterday=" & HonorPointsYesterday
-            tmp = tmp & ", honor_thisWeek=" & HonorPointsThisWeek
-            tmp = tmp & ", kills_thisWeek=" & HonorKillsThisWeek
-            tmp = tmp & ", kills_today=" & HonorKillsToday
-            tmp = tmp & ", kills_dishonortoday=" & DishonorKillsToday
+            honor = honor & ", honor_points =" & HonorPoints
+            honor = honor & ", kills_honor =" & HonorKillsLifeTime
+            honor = honor & ", kills_dishonor =" & DishonorKillsLifeTime
+            honor = honor & ", honor_yesterday =" & HonorPointsYesterday
+            honor = honor & ", honor_thisWeek =" & HonorPointsThisWeek
+            honor = honor & ", kills_thisWeek =" & HonorKillsThisWeek
+            honor = honor & ", kills_today =" & HonorKillsToday
+            honor = honor & ", kills_dishonortoday =" & DishonorKillsToday
 
-            tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
-            CharacterDatabase.Update(tmp)
+            honor = honor + String.Format(" WHERE char_guid = ""{0}"";", GUID)
+            CharacterDatabase.Update(honor)
         End Sub
 
+        'Done: Player Honor Load
         Public Sub HonorLoad()
             Dim MySQLQuery As New DataTable
             CharacterDatabase.Query(String.Format("SELECT * FROM characters_honor WHERE char_guid = {0};", GUID), MySQLQuery)
@@ -420,9 +423,9 @@ Public Module WS_PlayerData
                 Exit Sub
             End If
 
+            HonorPoints = MySQLQuery.Rows(0).Item("honor_points")
             HonorRank = MySQLQuery.Rows(0).Item("honor_rank")
             HonorHighestRank = MySQLQuery.Rows(0).Item("honor_hightestRank")
-            HonorPoints = MySQLQuery.Rows(0).Item("honor_points")
             StandingLastWeek = MySQLQuery.Rows(0).Item("standing_lastweek")
             HonorKillsLifeTime = MySQLQuery.Rows(0).Item("kills_honor")
             DishonorKillsLifeTime = MySQLQuery.Rows(0).Item("kills_dishonor")
@@ -904,6 +907,7 @@ Public Module WS_PlayerData
                 packet.Dispose()
                 tmpUpdate.Dispose()
             End Try
+
             'DONE: Send to others
             For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                 If Items.ContainsKey(i) Then
@@ -1389,6 +1393,7 @@ Public Module WS_PlayerData
                 End If
             End Set
         End Property
+
         Public Property DND() As Boolean
             Get
                 Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_DND)
@@ -1403,6 +1408,7 @@ Public Module WS_PlayerData
                 End If
             End Set
         End Property
+
         Public Property GM() As Boolean
             Get
                 Return (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_GM)
@@ -1425,6 +1431,7 @@ Public Module WS_PlayerData
             SendToNearPlayers(packet, , SendToMe)
             packet.Dispose()
         End Sub
+
         Public Sub CommandResponse(ByVal Message As String)
             Dim Messages() As String = Message.Split(New String() {vbNewLine}, StringSplitOptions.RemoveEmptyEntries)
             If Messages.Length = 0 Then
@@ -1438,6 +1445,7 @@ Public Module WS_PlayerData
             Next
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_MESSAGECHAT", client.IP, client.Port)
         End Sub
+
         Public Sub SystemMessage(ByVal Message As String)
             SendMessageSystem(client, Message)
         End Sub
@@ -1462,6 +1470,7 @@ Public Module WS_PlayerData
             Dim castParams As New CastSpellParameters(Targets, Me, SpellID)
             castParams.Cast(Nothing)
         End Sub
+
         Public Sub ApplySpell(ByVal SpellID As Integer)
             If WS_Spells.SPELLs.ContainsKey(SpellID) = False Then Exit Sub
             Dim t As New SpellTargets
@@ -1470,6 +1479,7 @@ Public Module WS_PlayerData
                 WS_Spells.SPELLs(SpellID).Apply(Me, t)
             End If
         End Sub
+
         Public Sub ProhibitSpellSchool(ByVal School As Integer, ByVal Time As Integer)
             Dim packet As New PacketClass(OPCODES.SMSG_SPELL_COOLDOWN)
             Try
@@ -1493,6 +1503,7 @@ Public Module WS_PlayerData
                 packet.Dispose()
             End Try
         End Sub
+
         Public Function FinishAllSpells(Optional ByVal OK As Boolean = False) As Boolean
             Dim result1 As Boolean = FinishSpell(CurrentSpellTypes.CURRENT_AUTOREPEAT_SPELL, OK)
             Dim result2 As Boolean = FinishSpell(CurrentSpellTypes.CURRENT_CHANNELED_SPELL, OK)
@@ -1500,6 +1511,7 @@ Public Module WS_PlayerData
 
             Return (result1 OrElse result2 OrElse result3)
         End Function
+
         Public Function FinishSpell(ByVal SpellType As CurrentSpellTypes, Optional ByVal OK As Boolean = False) As Boolean
             If SpellType = CurrentSpellTypes.CURRENT_CHANNELED_SPELL Then
                 SendChannelUpdate(Me, 0)
@@ -1546,13 +1558,14 @@ Public Module WS_PlayerData
 
             Return True
         End Function
+
         Public Sub LearnSpell(ByVal SpellID As Integer)
             If Spells.ContainsKey(SpellID) Then Exit Sub
             If Not WS_Spells.SPELLs.ContainsKey(SpellID) Then Exit Sub
             Spells.Add(SpellID, New CharacterSpell(SpellID, 1, 0, 0))
 
             'DONE: Save it to the database
-            CharacterDatabase.Update(String.Format("INSERT INTO characters_spells (guid,spellid,active,cooldown,cooldownitem) VALUES ({0},{1},{2},0,0);", GUID, SpellID, 1))
+            CharacterDatabase.Update(String.Format("INSERT INTO characters_spells (guid, spellid, active, cooldown, cooldownitem) VALUES ({0},{1},{2},{3},{4});", GUID, SpellID, 1, 0, 0))
 
             If client Is Nothing Then Exit Sub
             Dim SMSG_LEARNED_SPELL As New PacketClass(OPCODES.SMSG_LEARNED_SPELL)
@@ -1580,7 +1593,7 @@ Public Module WS_PlayerData
                         Spells(SpellChains(SpellID)).Active = 0 'NOTE: Deactivate spell, don't remove it
 
                         'DONE: Save it to the database
-                        CharacterDatabase.Update(String.Format("UPDATE characters_spells SET active=0 WHERE guid={0} AND spellid={1};", GUID, SpellID))
+                        CharacterDatabase.Update(String.Format("UPDATE characters_spells SET active = 0 WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
 
                         Dim packet As New PacketClass(OPCODES.SMSG_SUPERCEDED_SPELL)
                         Try
@@ -1716,12 +1729,13 @@ Public Module WS_PlayerData
                     LearnSkill(SKILL_IDs.SKILL_LANGUAGE_GUTTERSPEAK, 300, 300)
             End Select
         End Sub
+
         Public Sub UnLearnSpell(ByVal SpellID As Integer)
             If Not Spells.ContainsKey(SpellID) Then Exit Sub
             Spells.Remove(SpellID)
 
             'DONE: Save it to the database
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid={0} AND spellid={1};", GUID, SpellID))
+            CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
 
             Dim SMSG_REMOVED_SPELL As New PacketClass(OPCODES.SMSG_REMOVED_SPELL)
             Try
@@ -1734,9 +1748,11 @@ Public Module WS_PlayerData
             'DONE: Remove Aura by this spell
             client.Character.RemoveAuraBySpell(SpellID)
         End Sub
+
         Public Function HaveSpell(ByVal SpellID As Integer) As Boolean
             Return Spells.ContainsKey(SpellID)
         End Function
+
         Public Sub LearnSkill(ByVal SkillID As Integer, Optional ByVal Current As Short = 1, Optional ByVal Maximum As Short = 1)
             If Skills.ContainsKey(SkillID) Then
 
@@ -1768,6 +1784,7 @@ Public Module WS_PlayerData
             SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + SkillsPositions(SkillID) * 3 + 1, Skills(SkillID).GetSkill)       'CType((skill1.CurrentVal(Me) + (skill1.Cap(Me) << 16)), Integer)
             SendCharacterUpdate()
         End Sub
+
         Public Function HaveSkill(ByVal SkillID As Integer, Optional ByVal SkillValue As Integer = 0) As Boolean
             If Skills.ContainsKey(SkillID) Then
                 Return Skills(SkillID).Current >= SkillValue
@@ -1775,6 +1792,7 @@ Public Module WS_PlayerData
                 Return False
             End If
         End Function
+
         Public Sub UpdateSkill(ByVal SkillID As Integer, Optional ByVal SpeedMod As Single = 0)
             If SkillID = 0 Then Exit Sub
             If Skills(SkillID).Current >= Skills(SkillID).Maximum Then Exit Sub
@@ -1800,6 +1818,7 @@ Public Module WS_PlayerData
 
             AddXP(TotalXp, 0, 0, False)
         End Sub
+
         Public Sub AddXP(ByVal Ammount As Integer, ByVal RestedBonus As Integer, Optional ByVal VictimGUID As ULong = 0, Optional ByVal LogIt As Boolean = True)
             If Ammount <= 0 Then Exit Sub
 
@@ -1925,6 +1944,7 @@ CheckXPAgain:
             End If
             If dstBag = 0 And dstSlot < InventorySlots.INVENTORY_SLOT_BAG_END AndAlso client IsNot Nothing Then UpdateAddItemStats(tmpItem, dstSlot)
         End Sub
+
         Public Sub ItemREMOVE(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal Destroy As Boolean, ByVal Update As Boolean)
             If srcBag = 0 Then
                 If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then
@@ -1944,6 +1964,7 @@ CheckXPAgain:
                 If Update Then SendItemUpdate(Items(srcBag))
             End If
         End Sub
+
         Public Sub ItemREMOVE(ByVal itemGuid As ULong, ByVal Destroy As Boolean, ByVal Update As Boolean)
             'DONE: Search in inventory
             For slot As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
@@ -1988,8 +2009,9 @@ CheckXPAgain:
                 End If
             Next
 
-            Throw New ApplicationException("Unable to remove item becouse character doesn't have it in inventory or bags.")
+            Throw New ApplicationException("Unable to remove item because character doesn't have it in inventory or bags.")
         End Sub
+
         Public Function ItemADD(ByRef Item As ItemObject) As Boolean
             Dim tmpEntry As Integer = Item.ItemEntry
             Dim tmpCount As Byte = Item.StackCount
@@ -2038,6 +2060,7 @@ CheckXPAgain:
             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BUYBACK_PRICE_1 + eSlot, Item.ItemInfo.SellPrice * Item.StackCount)
             ItemSETSLOT(Item, 0, Slot)
         End Sub
+
         Public Function ItemADD_AutoSlot(ByRef Item As ItemObject) As Boolean
 
             If Item.ItemInfo.Stackable > 1 Then
@@ -2199,6 +2222,7 @@ CheckXPAgain:
             SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL, 0, 0)
             Return False
         End Function
+
         Public Function ItemADD_AutoBag(ByRef Item As ItemObject, ByVal dstBag As Byte) As Boolean
             If dstBag = 0 Then
                 If Item.ItemInfo.Stackable > 1 Then
@@ -2290,6 +2314,7 @@ CheckXPAgain:
             SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_BAG_FULL, Item.GUID, 0)
             Return False
         End Function
+
         Public Function ItemSETSLOT(ByRef Item As ItemObject, ByVal dstBag As Byte, ByVal dstSlot As Byte) As Boolean
             If Item.ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_WHEN_PICKED_UP AndAlso Item.IsSoulBound = False Then Item.SoulbindItem()
             If (Item.ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_UNK_QUESTITEM1 OrElse Item.ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_UNK_QUESTITEM2) AndAlso Item.IsSoulBound = False Then Item.SoulbindItem()
@@ -2322,6 +2347,7 @@ CheckXPAgain:
             End If
             Return True
         End Function
+
         Public Function ItemCOUNT(ByVal ItemEntry As Integer, Optional ByVal Equipped As Boolean = False) As Integer
             Dim count As Integer = 0
 
@@ -2358,6 +2384,7 @@ CheckXPAgain:
 
             Return count
         End Function
+
         Public Function ItemCONSUME(ByVal ItemEntry As Integer, ByVal Count As Integer) As Boolean
             'DONE: Search in inventory
             For slot As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
@@ -2428,6 +2455,7 @@ CheckXPAgain:
 
             Return False
         End Function
+
         Public Function ItemFREESLOTS() As Integer
             Dim foundFreeSlots As Integer = 0
 
@@ -2451,6 +2479,7 @@ CheckXPAgain:
 
             Return foundFreeSlots
         End Function
+
         Public Function ItemCANEQUIP(ByVal Item As ItemObject, ByVal dstBag As Byte, ByVal dstSlot As Byte) As InventoryChangeFailure
             'DONE: if dead then EQUIP_ERR_YOU_ARE_DEAD
             If DEAD Then Return InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD
@@ -2586,10 +2615,11 @@ CheckXPAgain:
 
                 End If
             Catch err As Exception
-                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", client.IP, client.Port, vbNewLine, err.ToString)
+                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2} {3}", client.IP, client.Port, vbNewLine, err.ToString)
                 Return InventoryChangeFailure.EQUIP_ERR_CANT_DO_RIGHT_NOW
             End Try
         End Function
+
         Public Function ItemSTACK(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal dstBag As Byte, ByVal dstSlot As Byte) As Boolean
             Dim srcItem As ItemObject = Nothing
             Dim dstItem As ItemObject = Nothing
@@ -2632,6 +2662,7 @@ CheckXPAgain:
             End If
             Return False
         End Function
+
         Public Sub ItemSPLIT(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal dstBag As Byte, ByVal dstSlot As Byte, ByVal Count As Integer)
             Dim srcItem As ItemObject = Nothing
             Dim dstItem As ItemObject = Nothing
@@ -2788,6 +2819,7 @@ CheckXPAgain:
                 response.Dispose()
             End Try
         End Sub
+
         Public Sub ItemSWAP(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal dstBag As Byte, ByVal dstSlot As Byte)
             'DONE: Disable when dead, attackTarget<>0
             If DEAD Then
@@ -2842,6 +2874,7 @@ CheckXPAgain:
                             If dstBag <> srcBag Then
                                 SendItemUpdate(Items(dstBag))
                             End If
+
                             CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - GUID_ITEM))
                             If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - GUID_ITEM))
                         End If
@@ -3001,6 +3034,7 @@ CheckXPAgain:
                 End If
             End Try
         End Sub
+
         Public Function ItemGET(ByVal srcBag As Byte, ByVal srcSlot As Byte) As ItemObject
             If srcBag = 0 Then
                 If Items.ContainsKey(srcSlot) Then Return Items(srcSlot)
@@ -3010,6 +3044,7 @@ CheckXPAgain:
 
             Return Nothing
         End Function
+
         Public Function ItemGETByGUID(ByVal GUID As ULong) As ItemObject
             Dim srcBag As Byte, srcSlot As Byte
             srcSlot = client.Character.ItemGetSLOTBAG(GUID, srcBag)
@@ -3025,6 +3060,7 @@ CheckXPAgain:
 
             Return 0
         End Function
+
         Public Function ItemGetSLOTBAG(ByVal GUID As ULong, ByRef bag As Byte) As Byte
 
             For slot As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
@@ -3050,6 +3086,7 @@ CheckXPAgain:
             bag = ITEM_SLOT_NULL
             Return ITEM_SLOT_NULL
         End Function
+
         Public Sub UpdateAddItemStats(ByRef Item As ItemObject, ByVal slot As Byte)
             'TODO: Fill in the other item stat types also
             For i As Byte = 0 To 9
@@ -3134,6 +3171,7 @@ CheckXPAgain:
             If ManaType = ManaTypes.TYPE_MANA OrElse Classe = Classes.CLASS_DRUID Then UpdateManaRegen()
             FillStatsUpdateFlags()
         End Sub
+
         Public Sub UpdateRemoveItemStats(ByRef Item As ItemObject, ByVal slot As Byte)
             'TODO: Add the other item stat types here also
             For i As Byte = 0 To 9
@@ -3242,6 +3280,7 @@ CheckXPAgain:
                 SMSG_GOSSIP_MESSAGE.Dispose()
             End Try
         End Sub
+
         Public Sub SendGossipComplete()
             Dim SMSG_GOSSIP_COMPLETE As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_COMPLETE)
             Try
@@ -3250,6 +3289,7 @@ CheckXPAgain:
                 SMSG_GOSSIP_COMPLETE.Dispose()
             End Try
         End Sub
+
         Public Sub SendPointOfInterest(ByVal x As Single, ByVal y As Single, ByVal icon As Integer, ByVal flags As Integer, ByVal data As Integer, ByVal name As String)
             Dim SMSG_GOSSIP_POI As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_POI)
             Try
@@ -3264,6 +3304,7 @@ CheckXPAgain:
                 SMSG_GOSSIP_POI.Dispose()
             End Try
         End Sub
+
         Public Sub SendTalking(ByVal TextID As Integer)
 
             If NPCTexts.ContainsKey(TextID) = False Then
@@ -3304,6 +3345,7 @@ CheckXPAgain:
                 response.Dispose()
             End Try
         End Sub
+
         Public Sub BindPlayer(ByVal cGUID As ULong)
             bindpoint_positionX = positionX
             bindpoint_positionY = positionY
@@ -3379,8 +3421,8 @@ CheckXPAgain:
             Try
                 p.AddInt32(map)
                 If OnTransport IsNot Nothing Then
-                    p.AddInt32(OnTransport.ID)     'Only if on transport
-                    p.AddInt32(OnTransport.MapID)       'Only if on transport
+                    p.AddInt32(OnTransport.ID)      'Only if on transport
+                    p.AddInt32(OnTransport.MapID)   'Only if on transport
                 End If
                 client.Send(p)
             Finally
@@ -4536,15 +4578,18 @@ DoneAmmo:
             Dim tmp() As String
 
             Dim SpellQuery As New DataTable
-            CharacterDatabase.Query(String.Format("UPDATE characters_spells SET cooldown=0, cooldownitem=0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1}; SELECT * FROM characters_spells WHERE guid = {0}; UPDATE characters_spells SET cooldown=0, cooldownitem=0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1};", GUID, GetTimestamp(Now)), SpellQuery)
+            'ToDo: Need better string to query the data correctly. An ugly method.
+            CharacterDatabase.Query(String.Format("UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1}; 
+                SELECT * FROM characters_spells WHERE guid = {0}; 
+                UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1};", GUID, GetTimestamp(Now)), SpellQuery)
 
             'DONE: Get SpellList
             For Each Spell As DataRow In SpellQuery.Rows
                 Spells.Add(Spell.Item("spellid"),
-                           New CharacterSpell(Spell.Item("spellid"),
-                                              Spell.Item("active"),
-                                              Spell.Item("cooldown"),
-                                              Spell.Item("cooldownitem")))
+                    New CharacterSpell(Spell.Item("spellid"),
+                                       Spell.Item("active"),
+                                       Spell.Item("cooldown"),
+                                       Spell.Item("cooldownitem")))
             Next
             SpellQuery.Clear()
 
@@ -4723,6 +4768,7 @@ DoneAmmo:
             End If
 
         End Sub
+
         Public Sub SaveAsNewCharacter(ByVal Account_ID As Integer)
             'Only for creating New Character
             Dim tmpCMD As String = "INSERT INTO characters (account_id"
@@ -5128,6 +5174,7 @@ DoneAmmo:
                 Return True
             End If
         End Function
+
         Public Function TalkCompleteQuest(ByVal QuestSlot As Byte) As Boolean
             If TalkQuests(QuestSlot) Is Nothing Then
                 Return False
