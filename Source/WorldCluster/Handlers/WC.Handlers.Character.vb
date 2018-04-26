@@ -335,11 +335,13 @@ Namespace Handlers
             'Chat
             Public ChatFlag As ChatFlag = ChatFlag.FLAGS_NONE
 
-            Public Sub SendChatMessage(ByVal message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As Integer, Optional ByVal channelName As String = "Global")
+            Public Sub SendChatMessage(thisguid As ULong, message As String, msgType As ChatMsg, msgLanguage As Integer, channelName As String)
+                If thisguid = 0 Then thisguid = Guid
+                If channelName = "" Then channelName = "Global"
                 Dim msgChatFlag As ChatFlag = ChatFlag
-                If msgType = ChatMsg.CHAT_MSG_WHISPER_INFORM OrElse msgType = ChatMsg.CHAT_MSG_WHISPER Then msgChatFlag = CHARACTERs(GUID).ChatFlag
-                Dim packet As PacketClass = BuildChatMessage(GUID, message, msgType, msgLanguage, msgChatFlag, channelName)
-                client.Send(packet)
+                If msgType = ChatMsg.CHAT_MSG_WHISPER_INFORM OrElse msgType = ChatMsg.CHAT_MSG_WHISPER Then msgChatFlag = CHARACTERs(thisguid).ChatFlag
+                Dim packet As PacketClass = BuildChatMessage(thisguid, message, msgType, msgLanguage, msgChatFlag, channelName)
+                Client.Send(packet)
                 packet.Dispose()
             End Sub
         End Class

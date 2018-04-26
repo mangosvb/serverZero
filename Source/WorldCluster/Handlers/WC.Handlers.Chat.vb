@@ -84,20 +84,20 @@ Namespace Handlers
                         'DONE: Check if ignoring
                         If CHARACTERs(guid).IgnoreList.Contains(client.Character.Guid) AndAlso client.Character.Access < AccessLevel.GameMaster Then
                             'Client.Character.SystemMessage(String.Format("{0} is ignoring you.", ToUser))
-                            client.Character.SendChatMessage(guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL)
+                            client.Character.SendChatMessage(guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, "")
                         Else
                             'To message
-                            client.Character.SendChatMessage(guid, message, ChatMsg.CHAT_MSG_WHISPER_INFORM, msgLanguage)
+                            client.Character.SendChatMessage(guid, message, ChatMsg.CHAT_MSG_WHISPER_INFORM, msgLanguage, "")
                             If CHARACTERs(guid).DND = False OrElse client.Character.Access >= AccessLevel.GameMaster Then
                                 'From message
-                                CHARACTERs(guid).SendChatMessage(client.Character.Guid, message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage)
+                                CHARACTERs(guid).SendChatMessage(client.Character.Guid, message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage, "")
                             Else
                                 'DONE: Send the DND message
-                                client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_DND, msgLanguage)
+                                client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_DND, msgLanguage, "")
                             End If
 
                             'DONE: Send the AFK message
-                            If CHARACTERs(guid).AFK Then client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_AFK, msgLanguage)
+                            If CHARACTERs(guid).AFK Then client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_AFK, msgLanguage, "")
                         End If
                     Else
                         Dim smsgChatPlayerNotFound As New PacketClass(OPCODES.SMSG_CHAT_PLAYER_NOT_FOUND)
