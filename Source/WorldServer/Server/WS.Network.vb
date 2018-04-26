@@ -396,15 +396,15 @@ Public Module WS_Network
                                     End If
                                 Catch e As Exception 'TargetInvocationException
                                     Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, p.OpCode)
-                                    DumpPacket(p.Data, Me)
+                                    If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                                 End Try
                             Else
                                 Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
-                                DumpPacket(p.Data, Me)
+                                If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                             End If
                         Else
                             Log.WriteLine(LogType.WARNING, "[{0}:{1}] No Packet Information in Queue", IP, Port)
-                            DumpPacket(p.Data, Me)
+                            If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                         End If
                     Catch err As Exception
                         Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, vbNewLine)
@@ -414,7 +414,7 @@ Public Module WS_Network
                         Catch ex As Exception
                             If Packets.Count = 0 Then p.Dispose()
                             Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
-                            DumpPacket(p.Data, Me)
+                            If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                         End Try
                     End Try
                 Catch err As Exception
