@@ -442,36 +442,37 @@ Public Module WS_Maps
 #End If
 
         Public Sub New(ByVal Map As Integer)
-            Maps.Add(Map, Me)
-
-            For x As Integer = 0 To 63
-                For y As Integer = 0 To 63
-                    TileUsed(x, y) = False
+            If Not Maps.ContainsKey(Map) Then
+                Maps.Add(Map, Me)
+                For x As Integer = 0 To 63
+                    For y As Integer = 0 To 63
+                        TileUsed(x, y) = False
+                    Next
                 Next
-            Next
 
-            Try
-                Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
-                Dim tmpMap As Integer
+                Try
+                    Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
+                    Dim tmpMap As Integer
 
-                For i As Integer = 0 To tmpDBC.Rows - 1
-                    tmpMap = tmpDBC.Item(i, 0)
+                    For i As Integer = 0 To tmpDBC.Rows - 1
+                        tmpMap = tmpDBC.Item(i, 0)
 
-                    If tmpMap = Map Then
-                        ID = Map
-                        Type = tmpDBC.Item(i, 2, DBCValueType.DBC_INTEGER)
-                        Name = tmpDBC.Item(i, 4, DBCValueType.DBC_STRING)
-                        Exit For
-                    End If
-                Next i
+                        If tmpMap = Map Then
+                            ID = Map
+                            Type = tmpDBC.Item(i, 2, DBCValueType.DBC_INTEGER)
+                            Name = tmpDBC.Item(i, 4, DBCValueType.DBC_STRING)
+                            Exit For
+                        End If
+                    Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
-                tmpDBC.Dispose()
-            Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
-                Console.WriteLine("DBC File : Map missing.")
-                Console.ForegroundColor = ConsoleColor.Gray
-            End Try
+                    Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
+                    tmpDBC.Dispose()
+                Catch e As DirectoryNotFoundException
+                    Console.ForegroundColor = ConsoleColor.DarkRed
+                    Console.WriteLine("DBC File : Map missing.")
+                    Console.ForegroundColor = ConsoleColor.Gray
+                End Try
+            End If
         End Sub
 
 #Region "IDisposable Support"
