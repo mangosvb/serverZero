@@ -375,5 +375,16 @@ Namespace Handlers
                 p.Dispose()
             End Try
         End Sub
+
+        Public Sub On_MSG_BATTLEGROUND_PLAYER_POSITIONS()
+            Dim p As New PacketClass(OPCODES.MSG_BATTLEGROUND_PLAYER_POSITIONS)
+            Try
+                p.AddUInt32(0)
+                p.AddUInt32(0) 'flagCarrierCount
+            Finally
+                p.Dispose()
+            End Try
+        End Sub
+
     End Module
 End Namespace
