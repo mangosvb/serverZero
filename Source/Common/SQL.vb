@@ -544,7 +544,7 @@ Public Class SQL
         cmd.Connection.Open()
         cmd.CommandText = "select " & returnfields & " FROM `" & tablename & "` WHERE `" & dbField1 & "` = '@dbField1value';"
 
-        cmd.Parameters.AddWithValue("@field1value", dbField1Value)
+        cmd.Parameters.AddWithValue("@dbfield1value", dbField1Value)
 
         Try
             Dim adapter As New MySqlDataAdapter()
