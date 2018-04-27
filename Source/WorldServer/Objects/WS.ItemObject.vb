@@ -19,6 +19,7 @@
 'WARNING: Use only with ITEMs()
 Imports System.Runtime.CompilerServices
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 
 Public NotInheritable Class ItemObject
     Implements IDisposable

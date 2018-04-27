@@ -31,98 +31,6 @@ Public Module Global_Enums
         Admin = 4
     End Enum
 
-    Public Enum SocialList As Byte
-        MAX_FRIENDS_ON_LIST = 50
-        MAX_IGNORES_ON_LIST = 25
-    End Enum
-
-    Public Enum FriendStatus As Byte
-        FRIEND_STATUS_OFFLINE = 0
-        FRIEND_STATUS_ONLINE = 1
-        FRIEND_STATUS_AFK = 2
-        FRIEND_STATUS_UNK3 = 3
-        FRIEND_STATUS_DND = 4
-    End Enum
-
-    Public Enum FriendResult As Byte
-        FRIEND_DB_ERROR = &H0
-        FRIEND_LIST_FULL = &H1
-        FRIEND_ONLINE = &H2
-        FRIEND_OFFLINE = &H3
-        FRIEND_NOT_FOUND = &H4
-        FRIEND_REMOVED = &H5
-        FRIEND_ADDED_ONLINE = &H6
-        FRIEND_ADDED_OFFLINE = &H7
-        FRIEND_ALREADY = &H8
-        FRIEND_SELF = &H9
-        FRIEND_ENEMY = &HA
-        FRIEND_IGNORE_FULL = &HB
-        FRIEND_IGNORE_SELF = &HC
-        FRIEND_IGNORE_NOT_FOUND = &HD
-        FRIEND_IGNORE_ALREADY = &HE
-        FRIEND_IGNORE_ADDED = &HF
-        FRIEND_IGNORE_REMOVED = &H10
-    End Enum
-
-    Public Enum SocialFlag As Byte
-        SOCIAL_FLAG_FRIEND = &H1
-        SOCIAL_FLAG_IGNORED = &H2
-    End Enum
-
-    Public Enum EquipmentSlots As Byte '19 slots total
-        EQUIPMENT_SLOT_START = 0
-        EQUIPMENT_SLOT_HEAD = 0
-        EQUIPMENT_SLOT_NECK = 1
-        EQUIPMENT_SLOT_SHOULDERS = 2
-        EQUIPMENT_SLOT_BODY = 3
-        EQUIPMENT_SLOT_CHEST = 4
-        EQUIPMENT_SLOT_WAIST = 5
-        EQUIPMENT_SLOT_LEGS = 6
-        EQUIPMENT_SLOT_FEET = 7
-        EQUIPMENT_SLOT_WRISTS = 8
-        EQUIPMENT_SLOT_HANDS = 9
-        EQUIPMENT_SLOT_FINGER1 = 10
-        EQUIPMENT_SLOT_FINGER2 = 11
-        EQUIPMENT_SLOT_TRINKET1 = 12
-        EQUIPMENT_SLOT_TRINKET2 = 13
-        EQUIPMENT_SLOT_BACK = 14
-        EQUIPMENT_SLOT_MAINHAND = 15
-        EQUIPMENT_SLOT_OFFHAND = 16
-        EQUIPMENT_SLOT_RANGED = 17
-        EQUIPMENT_SLOT_TABARD = 18
-        EQUIPMENT_SLOT_END = 19
-    End Enum
-
-    Public Enum InventorySlots As Byte '4 Slots
-        INVENTORY_SLOT_BAG_START = 19
-        INVENTORY_SLOT_BAG_1 = 19
-        INVENTORY_SLOT_BAG_2 = 20
-        INVENTORY_SLOT_BAG_3 = 21
-        INVENTORY_SLOT_BAG_4 = 22
-        INVENTORY_SLOT_BAG_END = 23
-    End Enum
-
-    Public Enum InventoryPackSlots As Byte  '16 Slots
-        INVENTORY_SLOT_ITEM_START = 23
-        INVENTORY_SLOT_ITEM_1 = 23
-        INVENTORY_SLOT_ITEM_2 = 24
-        INVENTORY_SLOT_ITEM_3 = 25
-        INVENTORY_SLOT_ITEM_4 = 26
-        INVENTORY_SLOT_ITEM_5 = 27
-        INVENTORY_SLOT_ITEM_6 = 28
-        INVENTORY_SLOT_ITEM_7 = 29
-        INVENTORY_SLOT_ITEM_8 = 30
-        INVENTORY_SLOT_ITEM_9 = 31
-        INVENTORY_SLOT_ITEM_10 = 32
-        INVENTORY_SLOT_ITEM_11 = 33
-        INVENTORY_SLOT_ITEM_12 = 34
-        INVENTORY_SLOT_ITEM_13 = 35
-        INVENTORY_SLOT_ITEM_14 = 36
-        INVENTORY_SLOT_ITEM_15 = 37
-        INVENTORY_SLOT_ITEM_16 = 38
-        INVENTORY_SLOT_ITEM_END = 39
-    End Enum
-
     Public Enum BankItemSlots As Byte  '29 Slots
         BANK_SLOT_ITEM_START = 39
         BANK_SLOT_ITEM_1 = 39
@@ -178,15 +86,6 @@ Public Module Global_Enums
         BUYBACK_SLOT_11 = 79
         BUYBACK_SLOT_12 = 80
         BUYBACK_SLOT_END = 81
-    End Enum
-
-    Public Enum KeyRingSlots As Byte  '32 Slots?
-        KEYRING_SLOT_START = 81
-        KEYRING_SLOT_1 = 81
-        KEYRING_SLOT_2 = 82
-        KEYRING_SLOT_31 = 112
-        KEYRING_SLOT_32 = 113
-        KEYRING_SLOT_END = 113
     End Enum
 
     Public Enum QuestInfo As Byte
@@ -551,68 +450,6 @@ Public Module Global_Enums
         ICON_POI_BLUEHORSE = 38                                ' Blue Horse
         ICON_POI_RWHORSE = 39                                  ' Red and White Horse
         ICON_POI_REDHORSE = 40                                 ' Red Horse
-    End Enum
-
-    <Flags()> _
-    Public Enum GroupType As Byte
-        PARTY = 0
-        RAID = 1
-    End Enum
-
-    <Flags()> _
-    Public Enum GroupMemberOnlineStatus
-        MEMBER_STATUS_OFFLINE = &H0
-        MEMBER_STATUS_ONLINE = &H1
-        MEMBER_STATUS_PVP = &H2
-        MEMBER_STATUS_DEAD = &H4            ' dead (health=0)
-        MEMBER_STATUS_GHOST = &H8           ' ghost (health=1)
-        MEMBER_STATUS_PVP_FFA = &H10        ' pvp ffa
-        MEMBER_STATUS_UNK3 = &H20           ' unknown
-        MEMBER_STATUS_AFK = &H40            ' afk flag
-        MEMBER_STATUS_DND = &H80            ' dnd flag
-    End Enum
-
-    Public Enum GroupDungeonDifficulty As Byte
-        DIFFICULTY_NORMAL = 0
-        DIFFICULTY_HEROIC = 1
-    End Enum
-
-    Public Enum GroupLootMethod As Byte
-        LOOT_FREE_FOR_ALL = 0
-        LOOT_ROUND_ROBIN = 1
-        LOOT_MASTER = 2
-        LOOT_GROUP = 3
-        LOOT_NEED_BEFORE_GREED = 4
-    End Enum
-
-    Public Enum GroupLootThreshold As Byte
-        Uncommon = 2
-        Rare = 3
-        Epic = 4
-    End Enum
-
-    Public Enum PartyCommand As Byte
-        PARTY_OP_INVITE = 0
-        PARTY_OP_LEAVE = 2
-    End Enum
-
-    Public Enum PartyCommandResult As Byte
-        INVITE_OK = 0                   'You have invited [name] to join your group.
-        INVITE_NOT_FOUND = 1            'Cannot find [name].
-        INVITE_NOT_IN_YOUR_PARTY = 2    '[name] is not in your party.
-        INVITE_NOT_IN_YOUR_INSTANCE = 3 '[name] is not in your instance.
-        INVITE_PARTY_FULL = 4           'Your party is full.
-        INVITE_ALREADY_IN_GROUP = 5     '[name] is already in group.
-        INVITE_NOT_IN_PARTY = 6         'You aren't in party.
-        INVITE_NOT_LEADER = 7           'You are not the party leader.
-        INVITE_NOT_SAME_SIDE = 8        'gms - Target is not part of your alliance.
-        INVITE_IGNORED = 9              'Test is ignoring you.
-        INVITE_RESTRICTED = 13
-    End Enum
-
-    Private Enum PromoteToMain As Byte
-        MainTank = 0
-        MainAssist = 1
     End Enum
 
     Public Enum LANGUAGES As Integer

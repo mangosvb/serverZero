@@ -258,6 +258,10 @@
       <Project>{0697622C-938D-4486-A3A4-D438D0B7503F}</Project>
       <Name>Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Shared\Shared.vbproj">
+      <Project>{d374bd81-7e5b-4d16-917e-a2671db1e640}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />

@@ -17,6 +17,8 @@
 '
 
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
+
 Public Module WS_Combat
 
 #Region "WS.Combat.Calculations"

@@ -23,6 +23,7 @@ Imports System.Security.Permissions
 Imports System.Threading
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 Imports WorldCluster.DataStores
 Imports WorldCluster.Globals
 Imports WorldCluster.Handlers

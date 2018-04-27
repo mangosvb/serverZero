@@ -18,6 +18,7 @@
 
 Imports mangosVB.Common.Global_Constants
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 
 Public Module WS_PlayerData
 

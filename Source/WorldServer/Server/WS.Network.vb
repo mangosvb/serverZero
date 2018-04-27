@@ -19,6 +19,7 @@
 Imports System.Runtime.Remoting
 Imports System.Security.Permissions
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 
 Public Module WS_Network
 

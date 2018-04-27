@@ -17,6 +17,8 @@
 '
 
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
+
 Public Module WS_Loot
 
     Public LootTemplates_Creature As LootStore 'DONE!

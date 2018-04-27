@@ -19,6 +19,7 @@
 
 #Region "WS.CharMangment.Handlers"
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 
 Public Module CharManagementHandler
 
@@ -73,6 +74,7 @@ Public Module CharManagementHandler
                 'DONE: Disable Turn
                 client.Character.cUnitFlags = client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, client.Character.cUnitFlags)
+
                 'DONE: StandState -> Sit
                 client.Character.StandState = StandStates.STANDSTATE_SIT
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, client.Character.cBytes1)

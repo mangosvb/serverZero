@@ -18,6 +18,7 @@
 Imports System.Reflection
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 Imports WorldCluster.Globals
 Imports WorldCluster.Server
 
