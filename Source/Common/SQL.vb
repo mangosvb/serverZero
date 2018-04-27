@@ -517,6 +517,50 @@ Public Class SQL
             End Select
         End Try
     End Sub
+
+    'TODO: Apply proper implementation as needed
+    Public Function TableInsert(tablename As String, dbField1 As String, dbField1Value As String, dbField2 As String, dbField2Value As Integer) As Integer
+        Dim cmd As New MySqlCommand("", MySQLConn)
+        cmd.Connection.Open()
+        cmd.CommandText = "insert into `" & tablename & "`(`" & dbField1 & "`,`" & dbField2 & "`) " &
+                                          "VALUES (@field1value, @field2value)"
+
+        cmd.Parameters.AddWithValue("@field1value", dbField1Value)
+        cmd.Parameters.AddWithValue("@field2value", dbField2Value)
+
+        Try
+            cmd.ExecuteScalar()
+            cmd.Connection.Close()
+            Return 0
+        Catch ex As Exception
+            cmd.Connection.Close()
+            Return -1
+        End Try
+    End Function
+
+    'TODO: Apply proper implementation as needed
+    Public Function TableSelect(tablename As String, returnfields As String, dbField1 As String, dbField1Value As String) As DataSet
+        Dim cmd As New MySqlCommand("", MySQLConn)
+        cmd.Connection.Open()
+        cmd.CommandText = "select " & returnfields & " FROM `" & tablename & "` WHERE `" & dbField1 & "` = '@dbField1value';"
+
+        cmd.Parameters.AddWithValue("@field1value", dbField1Value)
+
+        Try
+            Dim adapter As New MySqlDataAdapter()
+            Dim myDataset As New DataSet()
+            adapter.SelectCommand = cmd
+
+            adapter.Fill(myDataset)
+            cmd.ExecuteScalar()
+            cmd.Connection.Close()
+            Return myDataset
+        Catch ex As Exception
+            cmd.Connection.Close()
+            Return Nothing
+        End Try
+    End Function
+
 #End Region
 #Region "Update     MySQL|MSSQL|Oracle Supported       [UPDATE db_textpage SET pagetext='pagetextstring' WHERE pageid = 'pageiddword';]"
     Public Sub Update(ByVal sqlquery As String)
