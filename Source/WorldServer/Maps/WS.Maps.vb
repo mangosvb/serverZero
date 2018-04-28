@@ -18,6 +18,7 @@
 
 Imports System.IO
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 
 Public Module WS_Maps
 #Region "Zones"

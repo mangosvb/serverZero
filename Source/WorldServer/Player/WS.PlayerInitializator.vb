@@ -16,6 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+Imports mangosVB.Shared
 
 Public Module WS_Player_Initializator
     Public DEFAULT_MAX_LEVEL As Integer = 60 'Max Player Level

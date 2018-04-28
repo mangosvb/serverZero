@@ -56,4 +56,36 @@ Public Module SocialEnum
         SOCIAL_FLAG_IGNORED = &H2
     End Enum
 
+    Public Enum MailResult
+        MAIL_SENT = 0
+        MAIL_MONEY_REMOVED = 1
+        MAIL_ITEM_REMOVED = 2
+        MAIL_RETURNED = 3
+        MAIL_DELETED = 4
+        MAIL_MADE_PERMANENT = 5
+    End Enum
+
+    Public Enum MailSentError
+        NO_ERROR = 0
+        BAG_FULL = 1
+        CANNOT_SEND_TO_SELF = 2
+        NOT_ENOUGHT_MONEY = 3
+        CHARACTER_NOT_FOUND = 4
+        NOT_YOUR_ALLIANCE = 5
+        INTERNAL_ERROR = 6
+    End Enum
+
+    Public Enum MailReadInfo As Byte
+        Unread = 0
+        Read = 1
+        Auction = 4
+        COD = 8
+    End Enum
+
+    Public Enum MailTypeInfo As Byte
+        NORMAL = 0
+        GMMAIL = 1
+        AUCTION = 2
+    End Enum
+
 End Module

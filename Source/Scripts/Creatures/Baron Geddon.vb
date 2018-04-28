@@ -1,4 +1,5 @@
 Imports mangosVB.Common
+Imports mangosVB.Shared
 Imports mangosVB.WorldServer
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.

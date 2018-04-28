@@ -148,10 +148,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\AuctionHouse.Enum.vb" />
     <Compile Include="Enums\Auth.Enum.vb" />
+    <Compile Include="Enums\Channel.Enum.vb" />
+    <Compile Include="Enums\Character.Enum.vb" />
+    <Compile Include="Enums\Chat.Enum.vb" />
+    <Compile Include="Enums\Faction.Enum.vb" />
+    <Compile Include="Enums\GameObject.Enum.vb" />
+    <Compile Include="Enums\Gossip.Enum.vb" />
     <Compile Include="Enums\Group.Enum.vb" />
+    <Compile Include="Enums\Guild.Enum.vb" />
+    <Compile Include="Enums\Item.Enum.vb" />
+    <Compile Include="Enums\Map.Enum.vb" />
+    <Compile Include="Enums\Misc.Enum.vb" />
+    <Compile Include="Enums\Pet.Enum.vb" />
     <Compile Include="Enums\Player.Enum.vb" />
+    <Compile Include="Enums\Quest.Enum.vb" />
     <Compile Include="Enums\Social.Enum.vb" />
+    <Compile Include="Enums\Spells.Enum.vb" />
+    <Compile Include="Enums\Unit.Enum.vb" />
+    <Compile Include="Enums\Warden.Enum.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

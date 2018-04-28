@@ -18,6 +18,7 @@
 
 Imports System.ComponentModel
 Imports System.Collections.Generic
+Imports mangosVB.Shared
 
 Public Class Authenticator
     Inherits MarshalByRefObject

@@ -1,4 +1,5 @@
 Imports mangosVB.Common
+Imports mangosVB.Shared
 Imports mangosVB.WorldServer
 
 'Example AI for combat. 

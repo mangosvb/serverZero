@@ -17,6 +17,8 @@
 '
 
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
+
 Public Class WS_Quests
 
 #Region "Quests.HelpingSubs"

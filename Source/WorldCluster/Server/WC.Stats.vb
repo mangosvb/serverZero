@@ -19,6 +19,7 @@ Imports System.Reflection
 Imports System.Threading
 Imports System.Xml
 Imports mangosVB.Common
+Imports mangosVB.Shared
 Imports WorldCluster.Handlers
 
 Namespace Server

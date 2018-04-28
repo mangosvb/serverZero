@@ -17,6 +17,7 @@
 '
 Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Globals.GlobalZip
+Imports mangosVB.Shared
 
 Public Module Packets
     ''' <summary>

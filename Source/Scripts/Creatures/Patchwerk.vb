@@ -1,4 +1,4 @@
-Imports mangosVB.Common
+Imports mangosVB.Shared
 Imports mangosVB.WorldServer
 
 Namespace Creatures

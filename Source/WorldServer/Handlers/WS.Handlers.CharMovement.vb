@@ -17,8 +17,8 @@
 '
 
 Imports System.Runtime.CompilerServices
-Imports System.Runtime.Serialization.Formatters
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 
 Module WS_CharMovement
 

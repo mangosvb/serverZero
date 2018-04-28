@@ -16,6 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+'Note: Temp place holder
+Imports mangosVB.Shared
+
 Namespace Globals
     Public Module Functions
         Public Function GuidIsCreature(ByVal guid As ULong) As Boolean

@@ -17,6 +17,7 @@
 '
 Imports mangosVB.Common.Globals
 Imports mangosVB.Common.NativeMethods
+Imports mangosVB.Shared
 
 Public Module WS_Handlers_Taxi
     ''' <summary>

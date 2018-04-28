@@ -18,6 +18,7 @@
 Imports System.Text.RegularExpressions
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 Imports WorldCluster.Handlers
 Imports WorldCluster.DataStores
 Imports WorldCluster.Server

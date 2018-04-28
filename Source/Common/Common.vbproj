@@ -239,6 +239,12 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.vbproj">
+      <Project>{d374bd81-7e5b-4d16-917e-a2671db1e640}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PreBuildEvent>

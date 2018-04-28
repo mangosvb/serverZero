@@ -27,6 +27,7 @@ Imports System.Reflection
 Imports mangosVB.Common.Global_Enums
 Imports mangosVB.Common
 Imports mangosVB.Common.Logging
+Imports mangosVB.Shared
 
 Public Module RealmServer
 #Region "Global.Variables"
