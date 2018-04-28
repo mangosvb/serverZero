@@ -216,6 +216,13 @@ Public Module WorldCluster
         Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/          ")
         Console.WriteLine("")
 
+        If System.IO.File.Exists("shared.dll") = False Then
+            Console.ForegroundColor = ConsoleColor.Red
+            Console.WriteLine("[{0}] Failed to find shared.dll, server startup aborted", Format(TimeOfDay, "hh:mm:ss"))
+            Console.ReadKey()
+            End
+        End If
+
         Console.ForegroundColor = ConsoleColor.Magenta
 
         Console.ForegroundColor = ConsoleColor.White

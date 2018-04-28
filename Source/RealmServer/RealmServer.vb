@@ -930,6 +930,14 @@ Public Module RealmServer
         Console.ForegroundColor = ConsoleColor.Gray
 
         Console.WriteLine("[{0}] Realm Server Starting...", Format(TimeOfDay, "hh:mm:ss"))
+
+        If System.IO.File.Exists("shared.dll") = False Then
+            log.WriteLine(LogType.CRITICAL, "Failed to find shared.dll, server startup aborted")
+            Console.ForegroundColor = ConsoleColor.Red
+            Console.WriteLine("[{0}] Failed to find shared.dll, server startup aborted", Format(TimeOfDay, "hh:mm:ss"))
+            Console.ReadKey()
+            End
+        End If
         LoadConfig()
 
         Console.ForegroundColor = ConsoleColor.Yellow
