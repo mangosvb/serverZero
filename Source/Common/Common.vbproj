@@ -200,7 +200,6 @@
     <Compile Include="Logging\TelnetWriter.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="NativeMethods.vb" />
-    <Compile Include="Revisions.vb" />
     <Compile Include="SQL.vb" />
   </ItemGroup>
   <ItemGroup>

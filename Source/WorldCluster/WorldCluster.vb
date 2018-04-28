@@ -280,6 +280,20 @@ Public Module WorldCluster
 #End If
         InitializeInternalDatabase()
         IntializePacketHandlers()
+
+        Dim areDbVersionsOk As Boolean = True
+        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
+        If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
+        If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
+
+        If areDbVersionsOk = False Then
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
+
         WorldServer = New WorldServerClass
         GC.Collect()
 

@@ -23,6 +23,7 @@ Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Logging
 Imports mangosVB.Common.Logging.BaseWriter
 Imports mangosVB.Common.Global_Enums
+Imports mangosVB.Common.Global_Constants
 
 Public Module WorldServer
 
@@ -333,8 +334,18 @@ Public Module WorldServer
         WorldDatabase.Update("SET NAMES 'utf8';")
 
         'Check the Database version, exit if its wrong
-        'If Revisions.CheckRequiredDbVersion(CharacterDatabase, "CHARACTERS") = False Then End
-        'If Revisions.CheckRequiredDbVersion(WorldDatabase, "WORLD") = False Then End
+        Dim areDbVersionsOk As Boolean = True
+        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
+        If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
+        If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
+
+        If areDbVersionsOk = False Then
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
 
 #If DEBUG Then
         Console.ForegroundColor = ConsoleColor.White

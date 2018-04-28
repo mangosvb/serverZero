@@ -19,6 +19,17 @@
 Imports mangosVB.Common.Globals
 
 Public Module Global_Constants
+    Public Const RevisionDbCharactersVersion As Integer = 1
+    Public Const RevisionDbCharactersStructure As Integer = 0
+    Public Const RevisionDbCharactersContent As Integer = 0
+
+    Public Const RevisionDbMangosVersion As Integer = 1
+    Public Const RevisionDbMangosStructure As Integer = 0
+    Public Const RevisionDbMangosContent As Integer = 0
+
+    Public Const RevisionDbRealmVersion As Integer = 1
+    Public Const RevisionDbRealmStructure As Integer = 0
+    Public Const RevisionDbRealmContent As Integer = 0
 
     Public Const GROUP_SUBGROUPSIZE As Integer = 5  '(MAX_RAID_SIZE / MAX_GROUP_SIZE)
     Public Const GROUP_SIZE As Integer = 5          'Normal Group Size/More then 5, it's a raid group

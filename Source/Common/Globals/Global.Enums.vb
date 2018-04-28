@@ -19,6 +19,12 @@
 'TODO: Reorganize this file.
 
 Public Module Global_Enums
+    Public Enum ServerDb As Byte
+        None = 0
+        Realm = 1
+        Character = 2
+        World = 3
+    End Enum
 
     Public Enum CorpseType
         CORPSE_BONES = 0

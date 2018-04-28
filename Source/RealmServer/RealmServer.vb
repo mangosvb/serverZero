@@ -942,8 +942,18 @@ Public Module RealmServer
         _realmServer = New RealmServerClass
 
         'Check the Database version, exit if its wrong
-        If Revisions.CheckRequiredDbVersion(_accountDatabase, "REALM") = False Then End
+        Dim areDbVersionsOk As Boolean = True
+        If Globals.CheckRequiredDbVersion(_accountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
+        'If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
+        'If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
 
+        If areDbVersionsOk = False Then
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
         WorldServer_Status_Report()
     End Sub
 

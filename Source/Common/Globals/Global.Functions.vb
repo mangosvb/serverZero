@@ -128,5 +128,89 @@ Namespace Globals
                     Return manaType
             End Select
         End Function
+
+        Public Function CheckRequiredDbVersion(ByRef thisDatabase As SQL, thisServerDb As ServerDb) As Boolean
+            Dim mySqlQuery As New DataTable
+            'thisDatabase.Query(String.Format("SELECT column_name FROM information_schema.columns WHERE table_name='" & thisTableName & "'  AND TABLE_SCHEMA='" & thisDatabase.SQLDBName & "'"), mySqlQuery)
+            thisDatabase.Query(String.Format("SELECT `version`,`structure`,`content` FROM {0}.db_version", thisDatabase.SQLDBName), mySqlQuery)
+            'Check database version against code version
+
+            Dim coreDbVersion As Integer = 0
+            Dim coreDbStructure As Integer = 0
+            Dim coreDbContent As Integer = 0
+            Select Case thisServerDb
+                Case ServerDb.Realm
+                    coreDbVersion = RevisionDbRealmVersion
+                    coreDbStructure = RevisionDbRealmStructure
+                    coreDbContent = RevisionDbRealmContent
+                Case ServerDb.Character
+                    coreDbVersion = RevisionDbCharactersVersion
+                    coreDbStructure = RevisionDbCharactersStructure
+                    coreDbContent = RevisionDbCharactersContent
+                Case ServerDb.World
+                    coreDbVersion = RevisionDbMangosVersion
+                    coreDbStructure = RevisionDbMangosStructure
+                    coreDbContent = RevisionDbMangosContent
+            End Select
+
+            If mySqlQuery.Rows.Count > 0 Then
+                'For Each row As DataRow In mySqlQuery.Rows
+                '    dtVersion = row.Item("column_name").ToString
+                'Next
+                Dim dbVersion As Integer = Convert.ToInt32(mySqlQuery.Rows(0).Item("version").ToString())
+                Dim dbStructure As Integer = Convert.ToInt32(mySqlQuery.Rows(0).Item("structure").ToString())
+                Dim dbContent As Integer = Convert.ToInt32(mySqlQuery.Rows(0).Item("content").ToString())
+
+                'NOTES: Version or Structure mismatch is a hard error, Content mismatch as a warning
+
+                If dbVersion = coreDbVersion And dbStructure = coreDbStructure And dbContent = coreDbContent Then 'Full Match
+                    Console.WriteLine("[{0}] Db Version Matched", Format(TimeOfDay, "hh:mm:ss"))
+                    Return True
+                ElseIf dbVersion = coreDbVersion And dbStructure = coreDbStructure And dbContent <> coreDbContent Then 'Content MisMatch, only a warning
+                    Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] -- WARNING: CONTENT VERSION MISMATCH                        --", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}]  Your Database " & thisDatabase.SQLDBName & " requires updating.", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}]  You have: Rev{1}.{2}.{3}, however the core expects Rev{4}.{5}.{6}", Format(TimeOfDay, "hh:mm:ss"), dbVersion, dbStructure, dbContent, coreDbVersion, coreDbStructure, coreDbContent)
+                    Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}]  The server will run, but you may be missing some database fixes", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
+                    Return True
+                Else 'Oh no they do not match
+                    Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] -- FATAL ERROR: VERSION MISMATCH                            --", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}]  Your Database " & thisDatabase.SQLDBName & " requires updating.", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}]  You have: Rev{1}.{2}.{3}, however the core expects Rev{4}.{5}.{6}", Format(TimeOfDay, "hh:mm:ss"), dbVersion, dbStructure, dbContent, coreDbVersion, coreDbStructure, coreDbContent)
+                    Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}]  The server is unable to run until the required updates are run", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] ", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] You must apply all updates after Rev{1}.{2}.{3} ", Format(TimeOfDay, "hh:mm:ss"), coreDbVersion, coreDbStructure, coreDbContent)
+                    Console.WriteLine("[{0}] These updates are included in the sql/updates folder.", Format(TimeOfDay, "hh:mm:ss"))
+                    Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                    'Console.WriteLine("*************************")
+                    'Console.WriteLine("* Press any key to exit *")
+                    'Console.WriteLine("*************************")
+                    'Console.ReadKey()
+                    Return False
+                End If
+            Else
+                Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}] The table `db_version` in database " & thisDatabase.SQLDBName & " is missing", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}] --------------------------------------------------------------", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}] MaNGOSVB cannot find the version info required, please update", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}] your database to check that the db is up to date.", Format(TimeOfDay, "hh:mm:ss"))
+                Console.WriteLine("[{0}] your database to Rev{1}.{2}.{3} ", Format(TimeOfDay, "hh:mm:ss"), coreDbVersion, coreDbStructure, coreDbContent)
+                'Console.WriteLine("*************************")
+                'Console.WriteLine("* Press any key to exit *")
+                'Console.WriteLine("*************************")
+                '                Console.ReadKey()
+                Return False
+            End If
+        End Function
+
     End Module
 End Namespace
