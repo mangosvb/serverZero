@@ -236,7 +236,9 @@ Public Module WS_TimerBasedEvents
             Catch ex As Exception
                 Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
             Finally
-                WORLD_CREATUREs_Lock.ReleaseReaderLock()
+                If WORLD_CREATUREs_Lock.IsReaderLockHeld = True Then
+                    WORLD_CREATUREs_Lock.ReleaseReaderLock()
+                End If
             End Try
 
             Try
