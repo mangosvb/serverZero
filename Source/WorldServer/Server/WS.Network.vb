@@ -383,7 +383,7 @@ Public Module WS_Network
         ''' <param name="state">The state.</param>
         ''' <returns></returns>
         Public Sub OnPacket(state As Object)
-            While Packets.Count > 0
+            While Packets.Count >= 1
                 Try ' Trap a Packets.Dequeue issue when no packets are queued... possibly an error with the Packets.Count above'
                     Dim p As PacketClass = Packets.Dequeue
                     Dim start As Integer = TimeGetTime("")
