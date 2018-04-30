@@ -588,21 +588,21 @@ Public Module WS_Combat
                 Select Case .attackSheathState
                     Case SHEATHE_SLOT.SHEATHE_NONE
                         result.HitInfo = AttackHitState.HITINFO_NORMALSWING
-                        result.DamageType = DamageMasks.DMG_PHYSICAL
+                        result.DamageType = DamageTypes.DMG_PHYSICAL
                         result.Damage = Rnd.Next(.BaseUnarmedDamage, .BaseUnarmedDamage + 1)
                     Case SHEATHE_SLOT.SHEATHE_WEAPON
                         If DualWield Then
                             result.HitInfo = AttackHitState.HITINFO_HITANIMATION + AttackHitState.HITINFO_LEFTSWING
-                            result.DamageType = DamageMasks.DMG_PHYSICAL
+                            result.DamageType = DamageTypes.DMG_PHYSICAL
                             result.Damage = Rnd.Next(.OffHandDamage.Minimum / 2, .OffHandDamage.Maximum / 2 + 1) + .BaseUnarmedDamage
                         Else
                             result.HitInfo = AttackHitState.HITINFO_HITANIMATION
-                            result.DamageType = DamageMasks.DMG_PHYSICAL
+                            result.DamageType = DamageTypes.DMG_PHYSICAL
                             result.Damage = Rnd.Next(.Damage.Minimum, .Damage.Maximum + 1) + .BaseUnarmedDamage
                         End If
                     Case SHEATHE_SLOT.SHEATHE_RANGED
                         result.HitInfo = AttackHitState.HITINFO_HITANIMATION + AttackHitState.HITINFO_RANGED
-                        result.DamageType = DamageMasks.DMG_PHYSICAL
+                        result.DamageType = DamageTypes.DMG_PHYSICAL
                         result.Damage = Rnd.Next(.RangedDamage.Minimum, .RangedDamage.Maximum + 1) + .BaseRangedDamage
                 End Select
             End With
