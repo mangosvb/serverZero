@@ -200,7 +200,6 @@ Namespace Globals
         Public Function MathLerp(value1 As Single, value2 As Single, amount As Single) As Single
             Return value1 + (value2 - value1) * amount
         End Function
-
 #End Region
 
 #Region "Database"

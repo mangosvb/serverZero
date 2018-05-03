@@ -133,7 +133,12 @@ Namespace Globals
             End Property
             Public ReadOnly Property OpCode() As OPCODES
                 Get
-                    Return (Data(2) + (Data(3) * 256))
+                    If UBound(Data) > 2 Then
+                        Return (Data(2) + (Data(3) * 256))
+                    Else
+                        'If it's a dodgy packet, change it to a null packet
+                        Return 0
+                    End If
                 End Get
             End Property
 

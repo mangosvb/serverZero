@@ -100,7 +100,7 @@
     <OutputPath>..\..\Bin\</OutputPath>
     <DefineConstants>ENABLE_PPOINTS=false,VMAPS=true,VMAPS_DEBUG=false,LINUX=false,WARDEN=false</DefineConstants>
     <BaseAddress>285212672</BaseAddress>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <WarningLevel>1</WarningLevel>
     <NoWarn>41999,42016,42017,42018,42019,42032,42036,42353,42354,42355</NoWarn>
     <DebugType>full</DebugType>

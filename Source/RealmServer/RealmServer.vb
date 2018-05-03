@@ -25,6 +25,7 @@ Imports System.Threading
 Imports System.Text
 Imports System.Reflection
 Imports mangosVB.Common.Global_Enums
+Imports mangosVB.Common.Globals.Functions
 Imports mangosVB.Common
 Imports mangosVB.Common.Logging
 Imports mangosVB.Shared
@@ -931,11 +932,7 @@ Public Module RealmServer
 
         Console.WriteLine("[{0}] Realm Server Starting...", Format(TimeOfDay, "hh:mm:ss"))
 
-        If System.IO.File.Exists("Shared.dll") = False Then
-            log.WriteLine(LogType.CRITICAL, "Failed to find Shared.dll, server startup aborted")
-            Console.ForegroundColor = ConsoleColor.Red
-            Console.WriteLine("[{0}] Failed to find Shared.dll, server startup aborted", Format(TimeOfDay, "hh:mm:ss"))
-            Console.ReadKey()
+        If DoesSharedDllExist() = False Then
             End
         End If
         LoadConfig()

@@ -203,9 +203,6 @@
     <Compile Include="SQL.vb" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ICSharpCode.SharpZipLib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="libeay32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
