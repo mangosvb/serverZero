@@ -216,9 +216,10 @@ Public Module WorldCluster
         Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/          ")
         Console.WriteLine("")
 
-        If System.IO.File.Exists("shared.dll") = False Then
+        If System.IO.File.Exists("Shared.dll") = False Then
+            log.WriteLine(LogType.CRITICAL, "Failed to find Shared.dll, server startup aborted")
             Console.ForegroundColor = ConsoleColor.Red
-            Console.WriteLine("[{0}] Failed to find shared.dll, server startup aborted", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("[{0}] Failed to find Shared.dll, server startup aborted", Format(TimeOfDay, "hh:mm:ss"))
             Console.ReadKey()
             End
         End If
