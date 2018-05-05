@@ -1,6 +1,10 @@
 # Build and Object Folders
 
 
+# Visual Studio and Rider folder
+.vs/
+.idea/
+
 #User Specific Files
 *.user
 *.suo
