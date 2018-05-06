@@ -1563,12 +1563,20 @@ SkipShapeShift:
         End Property
 
         Public Sub Cast(ByVal status As Object)
-            Stopped = False
-            SPELLs(SpellID).Cast(Me)
+            Try
+                Stopped = False
+                SPELLs(SpellID).Cast(Me)
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "Cast Exception {0} : Interrupted {1}", SpellID, Stopped)
+            End Try
         End Sub
 
         Public Sub StopCast()
-            Stopped = True
+            Try
+                Stopped = True
+            Catch ex As Exception
+                Log.WriteLine(LogType.WARNING, "StopCast Exception {0} : Interrupted {1}", SpellID, Stopped)
+            End Try
         End Sub
 
         Public Sub Delay()
