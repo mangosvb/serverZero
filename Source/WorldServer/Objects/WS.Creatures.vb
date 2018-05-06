@@ -1339,10 +1339,15 @@ Public Module WS_Creatures
                         Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Add(GUID)
                     End If
                 End If
-            Catch ex As Exception
+            Catch e As Exception
                 'Creature ran outside of mapbounds, reset it
-                Log.WriteLine(LogType.WARNING, "WS_Creatures:MoveCell - Creature outside of map bounds  {0}", ex.Message)
-                aiScript.Reset()
+                Log.WriteLine(LogType.WARNING, "WS_Creatures:MoveCell - Creature outside of map bounds, Resetting  {0}", e.Message)
+                Try
+                    aiScript.Reset()
+                Catch ex As Exception
+                    Log.WriteLine(LogType.FAILED, "WS_Creatures:MoveCell - Couldn't reset creature outside of map bounds, Disposing  {0}", ex.Message)
+                    aiScript.Dispose()
+                End Try
             End Try
         End Sub
     End Class

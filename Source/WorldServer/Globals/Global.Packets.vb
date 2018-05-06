@@ -534,14 +534,20 @@ Public Module Packets
         Public Data() As Byte
         Public Offset As Integer = 4
 
-        'Public ReadOnly Property Length() As Integer
-        '    Get
-        '        Return (Data(1) + (Data(0) * 256))
-        '    End Get
-        'End Property
+        Public ReadOnly Property Length() As Integer
+            Get
+                Return (Data(1) + (Data(0) * 256))
+            End Get
+        End Property
+
         Public ReadOnly Property OpCode() As OPCODES
             Get
-                Return (Data(2) + (Data(3) * 256))
+                If UBound(Data) > 2 Then
+                    Return (Data(2) + (Data(3) * 256))
+                Else
+                    'If it's a dodgy packet, change it to a null packet
+                    Return 0
+                End If
             End Get
         End Property
 
