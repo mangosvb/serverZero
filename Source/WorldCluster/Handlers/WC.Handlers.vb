@@ -141,6 +141,23 @@ Namespace Handlers
             PacketHandlers(OPCODES.CMSG_CHANNEL_ANNOUNCEMENTS) = AddressOf On_CMSG_CHANNEL_ANNOUNCEMENTS
             PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATE) = AddressOf On_CMSG_CHANNEL_MODERATE
 
+            'Opcodes redirected from the WorldServer
+            'Commonly occurs while trying to peform actions while loading/transfering
+            PacketHandlers(OPCODES.MSG_MOVE_START_BACKWARD) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_FORWARD) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_PITCH_DOWN) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_PITCH_UP) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_STRAFE_LEFT) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_STRAFE_RIGHT) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_SWIM) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_TURN_LEFT) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_START_TURN_RIGHT) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_STOP) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_STOP_PITCH) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_STOP_STRAFE) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_STOP_SWIM) = AddressOf OnClusterPacket
+            PacketHandlers(OPCODES.MSG_MOVE_STOP_TURN) = AddressOf OnClusterPacket
+
             'NOTE: TODO Opcodes
             '   none
 
