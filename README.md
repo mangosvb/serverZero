@@ -19,37 +19,26 @@ version supporting clients from the [patch 1.12][50] branch, specifically patche
 World of Warcraft, and all World of Warcraft or Warcraft art, images, and lore are
 copyrighted by [Blizzard Entertainment, Inc.][1].
 
-System Requirements
-------------
-Windows OS 7/8/8.1
-Visual Basic 2015 or later
+## Requirements & Support
+    Supports Windows 7, 8, 8.1 & 10
+    Visual Studio 2015 or later
+    Visual Basic Compiler Enabled
+    MySQL Community Server 5.6 or later
 
-Minium Requirements without Clustering - 
-RAM 2GB, 
-CPU 1.90GHz
+## Documentation
 
-Required Requirements with Clustering - 
-RAM 4GB or higher, 
-CPU 2.30GHz or better
-
-Documentation
--------------
 All Information about Authors and other things are in the Documentation Folder.
 In addition, throughly read through our [Issue Tracker Guide](ISSUE_TEMPLATE.md), to ensure your report contains the required information need to help us.
 Incorrectly or poorly formed reports will be rejected on the spot.
 
 
-Compilation Guides
-------------------
+## Compilation Guides
+
 Please see our compilation and installation guides at our [Wiki][20]
 
-License
--------
+## License
+
 *MaNGOSVB* is open source, and licensed under the terms of the GNU GPL version 2.
- 
-## Requirements
-    Visual Studio 2015 (Windows)
-    Visual Basic Compiler Enabled
 
   Copyright (C) 2005-2018  MaNGOS <https://getmangos.eu>
 
