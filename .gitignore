@@ -5,6 +5,10 @@
 .vs/
 .idea/
 
+
+# Tools folder
+Bin/tools/*
+
 #User Specific Files
 *.user
 *.suo
