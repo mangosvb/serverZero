@@ -18,6 +18,8 @@
 Imports System.IO
 Imports System.ComponentModel
 
+Imports mangosVB.Shared
+
 Namespace WDB
     Public Class BaseWdb
         Implements IDisposable

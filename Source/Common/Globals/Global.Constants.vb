@@ -17,6 +17,7 @@
 '
 
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 
 Public Module Global_Constants
     Public Const RevisionDbCharactersVersion As Integer = 1

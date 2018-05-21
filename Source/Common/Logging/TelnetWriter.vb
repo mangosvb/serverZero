@@ -15,8 +15,11 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+
 Imports System.Threading
 Imports System.Net.Sockets
+
+Imports mangosVB.Shared
 
 'Using this logging type, you can watch logs with ordinary telnet client.
 'Writing commands requires client, which don't send every key typed.

@@ -16,8 +16,8 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 Imports System.IO
-Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports mangosVB.Shared
 Imports WorldCluster.Server
 
 Namespace Globals

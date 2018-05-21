@@ -15,7 +15,9 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+
 Imports System.Runtime.CompilerServices
+Imports mangosVB.Shared
 
 'Using this logging type, all logs are displayed in console.
 'Writting commands is done trought console.

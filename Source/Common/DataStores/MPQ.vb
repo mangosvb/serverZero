@@ -20,17 +20,19 @@
 '       MpqWavCompression
 '       PKDecompress
 '
+
 Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.ComponentModel
 Imports ICSharpCode.SharpZipLib.BZip2
 Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
+Imports mangosVB.Shared
+
 Namespace MPQ
 
     Public Class MPQArchive
         Implements IDisposable
-
 
         Shared Sub New()
             sStormBuffer = BuildStormBuffer()

@@ -155,6 +155,7 @@
     <Compile Include="Enums\Chat.Enum.vb" />
     <Compile Include="Enums\Faction.Enum.vb" />
     <Compile Include="Enums\GameObject.Enum.vb" />
+    <Compile Include="Enums\Global.Enums.vb" />
     <Compile Include="Enums\Gossip.Enum.vb" />
     <Compile Include="Enums\Group.Enum.vb" />
     <Compile Include="Enums\Guild.Enum.vb" />

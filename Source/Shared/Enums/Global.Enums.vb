@@ -16,9 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-'TODO: Reorganize this file.
-
-Public Module Global_Enums
+Public Module GlobalEnum
     Public Enum ServerDb As Byte
         None = 0
         Realm = 1

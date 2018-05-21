@@ -18,6 +18,8 @@
 'Using this logging type, all logs are displayed in console.
 'Writting commands is done trought console.
 
+Imports mangosVB.Shared
+
 Namespace Logging
     Public Class ConsoleWriter
         Inherits BaseWriter

@@ -15,9 +15,12 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+
 Imports System.IO
 Imports System.Reflection
 Imports System.CodeDom.Compiler
+
+Imports mangosVB.Shared
 
 'NOTE: How to use ScriptedObject as Function
 '   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")
