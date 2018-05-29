@@ -989,7 +989,7 @@ Public Module WS_Creatures
 
             If Info Is Nothing Then
                 Dim MySQLQuery As New DataTable
-                WorldDatabase.Query(String.Format("SELECT * FROM spawns_creatures LEFT OUTER JOIN game_event_creature ON spawns_creatures.spawn_id = game_event_creature.guid WHERE spawn_id = {0};", GUID_), MySQLQuery)
+                WorldDatabase.Query(SQLQueries.GetCreatureSpawnsBySpawnId.FormatWith(New With { Key.SpawnId = GUID_ }), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     Info = MySQLQuery.Rows(0)
                 Else
@@ -1000,7 +1000,7 @@ Public Module WS_Creatures
 
             Dim AddonInfo As DataRow = Nothing
             Dim AddonInfoQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM spawns_creatures_addon WHERE spawn_id = {0};", GUID_), AddonInfoQuery)
+            WorldDatabase.Query(SQLQueries.GetCreatureSpawnsAddonBySpawnId.FormatWith(New With { Key.SpawnId = GUID_ }), AddonInfoQuery)
             If AddonInfoQuery.Rows.Count > 0 Then
                 AddonInfo = AddonInfoQuery.Rows(0)
             End If
@@ -1516,7 +1516,7 @@ Public Module WS_Creatures
             TextID = _TextID
 
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM npc_text WHERE ID = {0};", TextID), MySQLQuery)
+            WorldDatabase.Query(SQLQueries.GetNpcTextById.FormatWith(New With { Key.Id = TextID }), MySQLQuery)
 
             If MySQLQuery.Rows.Count > 0 Then
                 For i As Integer = 0 To 7

@@ -58,7 +58,7 @@ Public Module WS_NPCs
         If WORLD_CREATUREs.ContainsKey(cGuid) = False OrElse (WORLD_CREATUREs(cGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TRAINER) = 0 Then Exit Sub
 
         Dim mySqlQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM npc_trainer WHERE entry = {0} AND spell = {1};", WORLD_CREATUREs(cGuid).ID, spellID), mySqlQuery)
+        WorldDatabase.Query(SQLQueries.TrainerBuySpell.FormatWith(New With { Key.Entry =  WORLD_CREATUREs(cGuid).ID, Key.Spell = spellID }), mySqlQuery)
         If mySqlQuery.Rows.Count = 0 Then Exit Sub
 
         Dim spellInfo As SpellInfo
@@ -148,7 +148,7 @@ Public Module WS_NPCs
         spellsList = New List(Of DataRow)
 
         If (creatureInfo.Classe = 0 OrElse creatureInfo.Classe = objCharacter.Classe) AndAlso (creatureInfo.Race = 0 OrElse (creatureInfo.Race = objCharacter.Race OrElse objCharacter.GetReputation(creatureInfo.Faction) = ReputationRank.Exalted)) Then
-            WorldDatabase.Query(String.Format("SELECT * FROM npc_trainer WHERE entry = {0};", WORLD_CREATUREs(cGuid).ID), spellSqlQuery)
+            WorldDatabase.Query(SQLQueries.GetTrainerByEntry.FormatWith(New With { Key.Entry = WORLD_CREATUREs(cGuid).ID }), spellSqlQuery)
 
             For Each sellRow As DataRow In spellSqlQuery.Rows
                 spellsList.Add(sellRow)
@@ -721,7 +721,7 @@ Public Module WS_NPCs
             packet.AddUInt64(guid)
 
             Dim mySqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM npc_vendor WHERE entry = {0};", WORLD_CREATUREs(guid).ID), mySqlQuery)
+            WorldDatabase.Query(SQLQueries.GetVendorByEntry.FormatWith(New With { Key.Entry =  WORLD_CREATUREs(guid).ID }), mySqlQuery)
             Dim dataPos As Integer = packet.Data.Length
             packet.AddInt8(0) 'Will be updated later
 
@@ -858,7 +858,7 @@ Public Module WS_NPCs
             client.Character.Copper -= DbcBankBagSlotPrices(client.Character.Items_AvailableBankSlots)
             client.Character.Items_AvailableBankSlots += 1
 
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_bankSlots = {0}, char_copper = {1};", client.Character.Items_AvailableBankSlots, client.Character.Copper))
+            CharacterDatabase.Update(SQLQueries.BuyBankSlot.FormatWith(New With { Key.BankSlots = client.Character.Items_AvailableBankSlots , Key.Copper = client.Character.Copper }))
 
             client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
             client.Character.SetUpdateFlag(EPlayerFields.PLAYER_BYTES_2, client.Character.cPlayerBytes2)

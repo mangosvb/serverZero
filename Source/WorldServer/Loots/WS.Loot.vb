@@ -439,7 +439,7 @@ Public Module WS_Loot
             Templates.Add(Entry, newTemplate)
 
             Dim MysqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM {0} WHERE entry = {1};", Name, Entry), MysqlQuery)
+            WorldDatabase.Query(SQLQueries.CreateLootTemplate.FormatWith(New With { Key.Name = Name, Key.Entry = Entry }), MysqlQuery)
             If MysqlQuery.Rows.Count = 0 Then
                 Templates(Entry) = Nothing
                 Return Nothing ' No results found

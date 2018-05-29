@@ -395,30 +395,24 @@ Public Module WS_PlayerData
         Public DishonorKillsToday As Short = 0
 
         Public Sub HonorSaveAsNew()
-            CharacterDatabase.Update("INSERT INTO characters_honor (char_guid)  VALUES (" & GUID & ");")
+            CharacterDatabase.Update(SQLQueries.HonorSave.FormatWith(New With { Key.CharGuid = GUID }))
         End Sub
 
         'Done: Player Honor Save
         Public Sub HonorSave()
-            Dim honor As String = "UPDATE characters_honor SET"
+            Dim honor As String = SQLQueries.HonorUpdate.FormatWith(New With { Key.HonorPoints =  HonorPoints, Key.HonorKills = HonorKillsLifeTime, 
+                                                                    Key.DisHonorKills =  DishonorKillsLifeTime, Key.HonorYesterday = HonorPointsYesterday, 
+                                                                    Key.HonorThisWeek = HonorPointsThisWeek, Key.KillsThisWeek = HonorKillsThisWeek,
+                                                                    Key.KillsToday = HonorKillsToday, Key.DisHonorKillsToday = DishonorKillsToday,
+                                                                    Key.CharGuid = GUID })
 
-            honor = honor & ", honor_points =" & HonorPoints
-            honor = honor & ", kills_honor =" & HonorKillsLifeTime
-            honor = honor & ", kills_dishonor =" & DishonorKillsLifeTime
-            honor = honor & ", honor_yesterday =" & HonorPointsYesterday
-            honor = honor & ", honor_thisWeek =" & HonorPointsThisWeek
-            honor = honor & ", kills_thisWeek =" & HonorKillsThisWeek
-            honor = honor & ", kills_today =" & HonorKillsToday
-            honor = honor & ", kills_dishonortoday =" & DishonorKillsToday
-
-            honor = honor + String.Format(" WHERE char_guid = ""{0}"";", GUID)
             CharacterDatabase.Update(honor)
         End Sub
 
         'Done: Player Honor Load
         Public Sub HonorLoad()
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_honor WHERE char_guid = {0};", GUID), MySQLQuery)
+            CharacterDatabase.Query(SQLQueries.GetCharacterHonorByGuid.FormatWith(New With { Key.CharGuid = GUID }), MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then
                 Log.WriteLine(LogType.FAILED, "Unable to get SQLDataBase honor info for character [GUID={0:X}]", GUID)
                 Exit Sub
@@ -1566,7 +1560,7 @@ Public Module WS_PlayerData
             Spells.Add(SpellID, New CharacterSpell(SpellID, 1, 0, 0))
 
             'DONE: Save it to the database
-            CharacterDatabase.Update(String.Format("INSERT INTO characters_spells (guid, spellid, active, cooldown, cooldownitem) VALUES ({0},{1},{2},{3},{4});", GUID, SpellID, 1, 0, 0))
+            CharacterDatabase.Update(SQLQueries.LearnCharacterSpells.FormatWith(New With { Key.Guid = GUID, Key.SpellId = SpellID, Key.Active = 1, Key.CoolDown = 0, Key.CoolDownItem = 0 }))
 
             If client Is Nothing Then Exit Sub
             Dim SMSG_LEARNED_SPELL As New PacketClass(OPCODES.SMSG_LEARNED_SPELL)
@@ -1594,7 +1588,7 @@ Public Module WS_PlayerData
                         Spells(SpellChains(SpellID)).Active = 0 'NOTE: Deactivate spell, don't remove it
 
                         'DONE: Save it to the database
-                        CharacterDatabase.Update(String.Format("UPDATE characters_spells SET active = 0 WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
+                        CharacterDatabase.Update(SQLQueries.DeactivateCharacterSpells.FormatWith(New With { Key.Guid = GUID, Key.SpellId = SpellID }))
 
                         Dim packet As New PacketClass(OPCODES.SMSG_SUPERCEDED_SPELL)
                         Try
@@ -1736,7 +1730,7 @@ Public Module WS_PlayerData
             Spells.Remove(SpellID)
 
             'DONE: Save it to the database
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
+            CharacterDatabase.Update(SQLQueries.UnLearnCharacterSpells.FormatWith(New With { Key.Guid = GUID, Key.SpellId = SpellID }))
 
             Dim SMSG_REMOVED_SPELL As New PacketClass(OPCODES.SMSG_REMOVED_SPELL)
             Try
@@ -1954,12 +1948,12 @@ CheckXPAgain:
                 End If
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + srcSlot * 2, 0)
 
-                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(srcSlot).GUID - GUID_ITEM))
+                CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = ITEM_SLOT_NULL, Key.ItemBag = ITEM_BAG_NULL, Key.ItemGuid = Items(srcSlot).GUID - GUID_ITEM }))
                 If Destroy Then Items(srcSlot).Delete()
                 Items.Remove(srcSlot)
                 If Update Then SendCharacterUpdate()
             Else
-                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(srcBag).Items(srcSlot).GUID - GUID_ITEM))
+                CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = ITEM_SLOT_NULL, Key.ItemBag = ITEM_BAG_NULL, Key.ItemGuid = Items(srcBag).Items(srcSlot).GUID - GUID_ITEM }))
                 If Destroy Then Items(srcBag).Items(srcSlot).Delete()
                 Items(srcBag).Items.Remove(srcSlot)
                 If Update Then SendItemUpdate(Items(srcBag))
@@ -1972,7 +1966,7 @@ CheckXPAgain:
                 If Items.ContainsKey(slot) Then
                     If Items(slot).GUID = itemGuid Then
 
-                        CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(slot).GUID - GUID_ITEM))
+                        CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = ITEM_SLOT_NULL, Key.ItemBag = ITEM_BAG_NULL, Key.ItemGuid = Items(slot).GUID - GUID_ITEM }))
                         If slot < InventorySlots.INVENTORY_SLOT_BAG_END Then
                             If slot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + slot * PLAYER_VISIBLE_ITEM_SIZE, 0)
                             UpdateRemoveItemStats(Items(slot), slot)
@@ -1998,7 +1992,7 @@ CheckXPAgain:
                         If Items(bag).Items.ContainsKey(slot) Then
 
                             If Items(bag).Items(slot).GUID = itemGuid Then
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(bag).Items(slot).GUID - GUID_ITEM))
+                                CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = ITEM_SLOT_NULL, Key.ItemBag = ITEM_BAG_NULL, Key.ItemGuid = Items(bag).Items(slot).GUID - GUID_ITEM }))
 
                                 If Destroy Then Items(bag).Items(slot).Delete()
                                 Items(bag).Items.Remove(slot)
@@ -2323,7 +2317,7 @@ CheckXPAgain:
                 'DONE: Bind a nonbinded BIND WHEN PICKED UP item or a nonbinded quest item
                 'DONE: Put in inventory
                 Items(dstSlot) = Item
-                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, GUID, Item.StackCount, Item.GUID - GUID_ITEM))
+                CharacterDatabase.Update(SQLQueries.SetItemSlotItemBagStackCountByGuid.FormatWith(New With { Key.ItemSlot = dstSlot, Key.ItemBag = GUID, Key.ItemStackCount = Item.StackCount, Key.ItemGuid = Item.GUID - GUID_ITEM }))
 
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + dstSlot * 2, Item.GUID)
                 If dstSlot < EquipmentSlots.EQUIPMENT_SLOT_END Then
@@ -2338,7 +2332,7 @@ CheckXPAgain:
             Else
                 'DONE: Put in bag
                 Items(dstBag).Items(dstSlot) = Item
-                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, Items(dstBag).GUID, Item.StackCount, Item.GUID - GUID_ITEM))
+                CharacterDatabase.Update(SQLQueries.SetItemSlotItemBagStackCountByGuid.FormatWith(New With { Key.ItemSlot = dstSlot, Key.ItemBag = Items(dstBag).GUID, Key.ItemStackCount = Item.StackCount, Key.ItemGuid = Item.GUID - GUID_ITEM }))
             End If
 
             'DONE: Send updates
@@ -2876,8 +2870,8 @@ CheckXPAgain:
                                 SendItemUpdate(Items(dstBag))
                             End If
 
-                            CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - GUID_ITEM))
-                            If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - GUID_ITEM))
+                            CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = dstSlot, Key.ItemBag = Items(dstBag).GUID, Key.ItemGuid = Items(dstBag).Items(dstSlot).GUID - GUID_ITEM }))
+                            If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = srcSlot, Key.ItemBag = Items(srcBag).GUID, Key.ItemGuid = Items(srcBag).Items(srcSlot).GUID - GUID_ITEM}))
                         End If
                     End If
 
@@ -2922,8 +2916,8 @@ CheckXPAgain:
                             End If
 
                             SendItemAndCharacterUpdate(Items(srcBag))
-                            CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - GUID_ITEM))
-                            If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - GUID_ITEM))
+                            CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = dstSlot, Key.ItemBag = GUID, Key.ItemGuid = Items(dstSlot).GUID - GUID_ITEM }))
+                            If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = srcSlot, Key.ItemBag = Items(srcBag).GUID, Key.ItemGuid = Items(srcBag).Items(srcSlot).GUID - GUID_ITEM }))
                         End If
                     End If
 
@@ -2968,8 +2962,8 @@ CheckXPAgain:
                             End If
 
                             SendItemAndCharacterUpdate(Items(dstBag))
-                            CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - GUID_ITEM))
-                            If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - GUID_ITEM))
+                            CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = dstSlot, Key.ItemBag = Items(dstBag).GUID, Key.ItemGuid = Items(dstBag).Items(dstSlot).GUID - GUID_ITEM }))
+                            If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = srcSlot, Key.ItemBag = GUID, Key.ItemGuid = Items(srcSlot).GUID - GUID_ITEM }))
                         End If
                     End If
 
@@ -3020,8 +3014,8 @@ CheckXPAgain:
                             End If
 
                             SendItemAndCharacterUpdate(Items(dstSlot))
-                            CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - GUID_ITEM))
-                            If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - GUID_ITEM))
+                            CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = dstSlot, Key.ItemBag = GUID, Key.ItemGuid = Items(dstSlot).GUID - GUID_ITEM }))
+                            If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(SQLQueries.UpdateItemSlotItemBagByGuid.FormatWith(New With { Key.ItemSlot = srcSlot, Key.ItemBag = GUID, Key.ItemGuid = Items(srcSlot).GUID - GUID_ITEM }))
                         End If
                     End If
                 End If
@@ -4501,7 +4495,7 @@ DoneAmmo:
 
             'DONE: Get character info from DB
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE char_guid = {0}; UPDATE characters SET char_online = 1 WHERE char_guid = {0};", GUID), MySQLQuery)
+            CharacterDatabase.Query(SQLQueries.SetCharacterOnline.FormatWith(New With { Key.CharaterGuid = GUID, Key.CharGuid = GUID }), MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then
                 Log.WriteLine(LogType.DEBUG, "[{0}:{1}] Unable to get SQLDataBase info for character [GUID={2:X}]", client.IP, client.Port, GUID)
                 Dispose()
@@ -4580,9 +4574,7 @@ DoneAmmo:
 
             Dim SpellQuery As New DataTable
             'ToDo: Need better string to query the data correctly. An ugly method.
-            CharacterDatabase.Query(String.Format("UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1}; 
-                SELECT * FROM characters_spells WHERE guid = {0}; 
-                UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1};", GUID, GetTimestamp(Now)), SpellQuery)
+            CharacterDatabase.Query(SQLQueries.ResetSpellCoolDown.FormatWith(New With { Key.CharGuid = GUID, Key.CoolDown = GetTimestamp(Now), Key.CharSpellGuid = GUID, Key.CharSpellsGuid = GUID, Key.SpellCoolDown = GetTimestamp(Now) }), SpellQuery)
 
             'DONE: Get SpellList
             For Each Spell As DataRow In SpellQuery.Rows
@@ -4701,7 +4693,7 @@ DoneAmmo:
 
             'DONE: Get Items
             MySQLQuery.Clear()
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID), MySQLQuery)
+            CharacterDatabase.Query(SQLQueries.GetCharacterInventoryByItemBag.FormatWith(New With { Key.ItemBag = GUID }), MySQLQuery)
             For Each row As DataRow In MySQLQuery.Rows
                 If row.Item("item_slot") <> ITEM_SLOT_NULL Then
                     Dim tmpItem As ItemObject = LoadItemByGUID(CType(row.Item("item_guid"), Long), Me, (CType(row.Item("item_slot"), Byte) < EquipmentSlots.EQUIPMENT_SLOT_END))
@@ -4724,7 +4716,7 @@ DoneAmmo:
 
             'DONE: Load corpse if present
             MySQLQuery.Clear()
-            CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE player = {0};", GUID), MySQLQuery)
+            CharacterDatabase.Query(SQLQueries.GetAllCorpseByPlayer.FormatWith(New With { Key.Player = GUID }), MySQLQuery)
             If MySQLQuery.Rows.Count > 0 Then
                 corpseGUID = MySQLQuery.Rows(0).Item("guid") + GUID_CORPSE
                 corpseMapID = MySQLQuery.Rows(0).Item("map")
@@ -4772,137 +4764,67 @@ DoneAmmo:
 
         Public Sub SaveAsNewCharacter(ByVal Account_ID As Integer)
             'Only for creating New Character
-            Dim tmpCMD As String = "INSERT INTO characters (account_id"
-            Dim tmpValues As String = " VALUES (" & Account_ID
-            Dim temp As New ArrayList
-
-            tmpCMD = tmpCMD & ", char_name"
-            tmpValues = tmpValues & ", """ & Name & """"
-            tmpCMD = tmpCMD & ", char_race"
-            tmpValues = tmpValues & ", " & Race
-            tmpCMD = tmpCMD & ", char_class"
-            tmpValues = tmpValues & ", " & Classe
-            tmpCMD = tmpCMD & ", char_gender"
-            tmpValues = tmpValues & ", " & Gender
-            tmpCMD = tmpCMD & ", char_skin"
-            tmpValues = tmpValues & ", " & Skin
-            tmpCMD = tmpCMD & ", char_face"
-            tmpValues = tmpValues & ", " & Face
-            tmpCMD = tmpCMD & ", char_hairStyle"
-            tmpValues = tmpValues & ", " & HairStyle
-            tmpCMD = tmpCMD & ", char_hairColor"
-            tmpValues = tmpValues & ", " & HairColor
-            tmpCMD = tmpCMD & ", char_facialHair"
-            tmpValues = tmpValues & ", " & FacialHair
-            tmpCMD = tmpCMD & ", char_level"
-            tmpValues = tmpValues & ", " & Level
-            tmpCMD = tmpCMD & ", char_manaType"
-            tmpValues = tmpValues & ", " & ManaType
-
-            tmpCMD = tmpCMD & ", char_mana"
-            tmpValues = tmpValues & ", " & Mana.Base
-            tmpCMD = tmpCMD & ", char_rage"
-            tmpValues = tmpValues & ", " & Rage.Base
-            tmpCMD = tmpCMD & ", char_energy"
-            tmpValues = tmpValues & ", " & Energy.Base
-            tmpCMD = tmpCMD & ", char_life"
-            tmpValues = tmpValues & ", " & Life.Base
-
-            tmpCMD = tmpCMD & ", char_positionX"
-            tmpValues = tmpValues & ", " & Trim(Str(positionX))
-            tmpCMD = tmpCMD & ", char_positionY"
-            tmpValues = tmpValues & ", " & Trim(Str(positionY))
-            tmpCMD = tmpCMD & ", char_positionZ"
-            tmpValues = tmpValues & ", " & Trim(Str(positionZ))
-            tmpCMD = tmpCMD & ", char_map_id"
-            tmpValues = tmpValues & ", " & MapID
-            tmpCMD = tmpCMD & ", char_zone_id"
-            tmpValues = tmpValues & ", " & ZoneID
-            tmpCMD = tmpCMD & ", char_orientation"
-            tmpValues = tmpValues & ", " & Trim(Str(orientation))
-            tmpCMD = tmpCMD & ", bindpoint_positionX"
-            tmpValues = tmpValues & ", " & Trim(Str(bindpoint_positionX))
-            tmpCMD = tmpCMD & ", bindpoint_positionY"
-            tmpValues = tmpValues & ", " & Trim(Str(bindpoint_positionY))
-            tmpCMD = tmpCMD & ", bindpoint_positionZ"
-            tmpValues = tmpValues & ", " & Trim(Str(bindpoint_positionZ))
-            tmpCMD = tmpCMD & ", bindpoint_map_id"
-            tmpValues = tmpValues & ", " & bindpoint_map_id
-            tmpCMD = tmpCMD & ", bindpoint_zone_id"
-            tmpValues = tmpValues & ", " & bindpoint_zone_id
-
-            tmpCMD = tmpCMD & ", char_copper"
-            tmpValues = tmpValues & ", " & Copper
-            tmpCMD = tmpCMD & ", char_xp"
-            tmpValues = tmpValues & ", " & XP
-            tmpCMD = tmpCMD & ", char_xp_rested"
-            tmpValues = tmpValues & ", " & RestBonus
+            Dim tempSkill As New ArrayList
+            Dim tempTutorial As New ArrayList
+            Dim tempMap As New ArrayList
+            Dim tempReputation As New ArrayList
+            Dim tempActionBar As New ArrayList
 
             'char_skillList
-            temp.Clear()
+            tempSkill.Clear()
             For Each Skill As KeyValuePair(Of Integer, TSkill) In Skills
-                temp.Add(String.Format("{0}:{1}:{2}", Skill.Key, Skill.Value.Current, Skill.Value.Maximum))
+                tempSkill.Add(String.Format("{0}:{1}:{2}", Skill.Key, Skill.Value.Current, Skill.Value.Maximum))
             Next
-            tmpCMD = tmpCMD & ", char_skillList"
-            tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
-
-            tmpCMD = tmpCMD & ", char_auraList"
-            tmpValues = tmpValues & ", """""
 
             'char_tutorialFlags
-            temp.Clear()
+            tempTutorial.Clear()
             For Each Flag As Byte In TutorialFlags
-                temp.Add(Flag)
+                tempTutorial.Add(Flag)
             Next
-            tmpCMD = tmpCMD & ", char_tutorialFlags"
-            tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
             'char_mapExplored
-            temp.Clear()
+            tempMap.Clear()
             For Each Flag As Byte In ZonesExplored
-                temp.Add(Flag)
+                tempMap.Add(Flag)
             Next
-            tmpCMD = tmpCMD & ", char_mapExplored"
-            tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
             'char_reputation
-            temp.Clear()
+            tempReputation.Clear()
             For Each Reputation_Point As TReputation In Reputation
-                temp.Add(Reputation_Point.Flags & ":" & Reputation_Point.Value)
+                tempReputation.Add(Reputation_Point.Flags & ":" & Reputation_Point.Value)
             Next
-            tmpCMD = tmpCMD & ", char_reputation"
-            tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
             'char_actionBar
-            temp.Clear()
+            tempActionBar.Clear()
             For Each ActionButton As KeyValuePair(Of Byte, TActionButton) In ActionButtons
-                temp.Add(String.Format("{0}:{1}:{2}:{3}", ActionButton.Key, ActionButton.Value.Action, ActionButton.Value.ActionType, ActionButton.Value.ActionMisc))
+                tempActionBar.Add(String.Format("{0}:{1}:{2}:{3}", ActionButton.Key, ActionButton.Value.Action, ActionButton.Value.ActionType, ActionButton.Value.ActionMisc))
             Next
-            tmpCMD = tmpCMD & ", char_actionBar"
-            tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
-
-            tmpCMD = tmpCMD & ", char_strength"
-            tmpValues = tmpValues & ", " & Strength.RealBase
-            tmpCMD = tmpCMD & ", char_agility"
-            tmpValues = tmpValues & ", " & Agility.RealBase
-            tmpCMD = tmpCMD & ", char_stamina"
-            tmpValues = tmpValues & ", " & Stamina.RealBase
-            tmpCMD = tmpCMD & ", char_intellect"
-            tmpValues = tmpValues & ", " & Intellect.RealBase
-            tmpCMD = tmpCMD & ", char_spirit"
-            tmpValues = tmpValues & ", " & Spirit.RealBase
 
             Dim ForceRestrictions As UInteger = 0
             If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDECLOAK
             If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
-            tmpCMD = tmpCMD & ", force_restrictions"
-            tmpValues = tmpValues & ", " & ForceRestrictions
 
-            tmpCMD = tmpCMD & ") " & tmpValues & ");"
+            Dim tmpCMD As String = SQLQueries.SaveAsNewCharacter.FormatWith(New With { Key.AccountId = Account_ID, Key.CharName = Name, Key.CharRace = CByte(Race),
+                                                                            Key.CharClass = CByte(Classe), Key.CharGender = CByte(Gender), Key.CharSkin = Skin,
+                                                                            Key.CharFace = Face, Key.CharHairStyle = HairStyle, Key.CharHairColor = HairColor,
+                                                                            Key.CharFacialHair = FacialHair, Key.CharLevel = Level, Key.CharManaType = CByte(ManaType),
+                                                                            Key.CharMana = Mana.Base, Key.CharRage = Rage.Base, Key.CharEnergy = Energy.Base,
+                                                                            Key.CharLife = Life.Base, Key.CharPositionX = Trim(Str(positionX)), Key.CharPositionY = Trim(Str(positionY)),
+                                                                            Key.CharPositionZ = Trim(Str(positionZ)), Key.CharMapId = MapID, Key.CharZoneId = ZoneID,
+                                                                            Key.CharOrientation = Trim(Str(orientation)), Key.BindpointPositionX = Trim(Str(bindpoint_positionX)),
+                                                                            Key.BindpointPositionY = Trim(Str(bindpoint_positionY)), Key.BindpointPositionZ = Trim(Str(bindpoint_positionZ)),
+                                                                            Key.BindpointMapId = bindpoint_map_id, Key.BindpointZoneId = bindpoint_zone_id,
+                                                                            Key.CharCopper = Copper, Key.CharXp = XP, Key.CharXpRested = RestBonus, Key.CharSkillList = Join(tempSkill.ToArray, " "),
+                                                                            Key.CharAuraList = "", Key.CharTutorialFlags = Join(tempTutorial.ToArray, " "),
+                                                                            Key.CharMapExplored = Join(tempMap.ToArray, " "), Key.CharReputation = Join(tempReputation.ToArray, " "),
+                                                                            Key.CharActionBar = Join(tempActionBar.ToArray, " "), Key.CharStrength = Strength.RealBase,
+                                                                            Key.CharAgility = Agility.RealBase, Key.CharStamina = Stamina.RealBase, Key.CharIntellect = Intellect.RealBase,
+                                                                            Key.CharSpirit = Spirit.RealBase, Key.ForceRestrictions = ForceRestrictions })
+
             CharacterDatabase.Update(tmpCMD)
 
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = '{0}';", Name), MySQLQuery)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = Name }), MySQLQuery)
             GUID = CType(MySQLQuery.Rows(0).Item("char_guid"), Long)
 
             HonorSaveAsNew()
@@ -4917,137 +4839,113 @@ DoneAmmo:
         End Sub
 
         Public Sub SaveCharacter()
-            Dim tmp As String = "UPDATE characters SET"
+            Dim pPositionX As String
+            Dim pPositionY As String
+            Dim pPositionZ As String
+            Dim pOrientation As String
+            Dim transportGuid As String = "0"
 
-            tmp = tmp & " char_name=""" & Name & """"
-            tmp = tmp & ", char_race=" & Race
-            tmp = tmp & ", char_class=" & Classe
-            tmp = tmp & ", char_gender=" & Gender
-            tmp = tmp & ", char_skin=" & Skin
-            tmp = tmp & ", char_face=" & Face
-            tmp = tmp & ", char_hairStyle=" & HairStyle
-            tmp = tmp & ", char_hairColor=" & HairColor
-            tmp = tmp & ", char_facialHair=" & FacialHair
-            tmp = tmp & ", char_level=" & Level
-            tmp = tmp & ", char_manaType=" & ManaType
-
-            tmp = tmp & ", char_life=" & Life.Base
-            tmp = tmp & ", char_rage=" & Rage.Base
-            tmp = tmp & ", char_mana=" & Mana.Base
-            tmp = tmp & ", char_energy=" & Energy.Base
-
-            tmp = tmp & ", char_strength=" & Strength.RealBase
-            tmp = tmp & ", char_agility=" & Agility.RealBase
-            tmp = tmp & ", char_stamina=" & Stamina.RealBase
-            tmp = tmp & ", char_intellect=" & Intellect.RealBase
-            tmp = tmp & ", char_spirit=" & Spirit.RealBase
-
-            tmp = tmp & ", char_map_id=" & MapID
-            tmp = tmp & ", char_zone_id=" & ZoneID
             If OnTransport IsNot Nothing Then
-                tmp = tmp & ", char_positionX=" & Trim(Str(transportX))
-                tmp = tmp & ", char_positionY=" & Trim(Str(transportY))
-                tmp = tmp & ", char_positionZ=" & Trim(Str(transportZ))
-                tmp = tmp & ", char_orientation=" & Trim(Str(transportO))
-                tmp = tmp & ", char_transportGuid=" & Trim(Str(OnTransport.GUID))
+                pPositionX = Trim(Str(transportX))
+                pPositionY = Trim(Str(transportY))
+                pPositionZ = Trim(Str(transportZ))
+                pOrientation = Trim(Str(transportO))
+                transportGuid = Trim(Str(OnTransport.GUID))
             Else
-                tmp = tmp & ", char_positionX=" & Trim(Str(positionX))
-                tmp = tmp & ", char_positionY=" & Trim(Str(positionY))
-                tmp = tmp & ", char_positionZ=" & Trim(Str(positionZ))
-                tmp = tmp & ", char_orientation=" & Trim(Str(orientation))
-                tmp = tmp & ", char_transportGuid=0"
+                pPositionX = Trim(Str(positionX))
+                pPositionY = Trim(Str(positionY))
+                pPositionZ = Trim(Str(positionZ))
+                pOrientation = Trim(Str(orientation))
             End If
-            tmp = tmp & ", bindpoint_positionX=" & Trim(Str(bindpoint_positionX))
-            tmp = tmp & ", bindpoint_positionY=" & Trim(Str(bindpoint_positionY))
-            tmp = tmp & ", bindpoint_positionZ=" & Trim(Str(bindpoint_positionZ))
-            tmp = tmp & ", bindpoint_map_id=" & bindpoint_map_id
-            tmp = tmp & ", bindpoint_zone_id=" & bindpoint_zone_id
 
-            tmp = tmp & ", char_copper=" & Copper
-            tmp = tmp & ", char_xp=" & XP
-            tmp = tmp & ", char_xp_rested=" & RestBonus
-
-            tmp = tmp & ", char_guildId=" & GuildID
-            tmp = tmp & ", char_guildRank=" & GuildRank
-
-            Dim temp As New ArrayList
-
+            Dim tempSkill As New ArrayList
+            Dim tempAura As New ArrayList
+            Dim tempTutorial As New ArrayList
+            Dim tempTaxi As New ArrayList
+            Dim tempMap As New ArrayList
+            Dim tempReputation As New ArrayList
+            Dim tempActionBar As New ArrayList
+            
             'char_skillList
-            temp.Clear()
+            tempSkill.Clear()
             For Each Skill As KeyValuePair(Of Integer, TSkill) In Skills
-                temp.Add(String.Format("{0}:{1}:{2}", Skill.Key, Skill.Value.Current, Skill.Value.Maximum))
+                tempSkill.Add(String.Format("{0}:{1}:{2}", Skill.Key, Skill.Value.Current, Skill.Value.Maximum))
             Next
-            tmp = tmp & ", char_skillList=""" & Join(temp.ToArray, " ") & """"
 
             'char_auraList
-            temp.Clear()
+            tempAura.Clear()
             For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
                 If ActiveSpells(i) IsNot Nothing AndAlso (ActiveSpells(i).SpellDuration = SPELL_DURATION_INFINITE OrElse ActiveSpells(i).SpellDuration > 10000) Then 'If the aura exists and if it's worth saving
                     Dim expire As Long = 0L
                     If ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then expire = GetTimestamp(Now) + (ActiveSpells(i).SpellDuration \ 1000)
                     'TODO: If Not_Tick_While_Offline Then expire = -ActiveSpells(i).SpellDuration
-                    temp.Add(String.Format("{0}:{1}:{2}", i, ActiveSpells(i).SpellID, expire))
+                    tempAura.Add(String.Format("{0}:{1}:{2}", i, ActiveSpells(i).SpellID, expire))
                 End If
             Next
-            tmp = tmp & ", char_auraList=""" & Join(temp.ToArray, " ") & """"
 
             'char_tutorialFlags
-            temp.Clear()
+            tempTutorial.Clear()
             For Each Flag As Byte In TutorialFlags
-                temp.Add(Flag)
+                tempTutorial.Add(Flag)
             Next
-            tmp = tmp & ", char_tutorialFlags=""" & Join(temp.ToArray, " ") & """"
 
             'char_taxiFlags
-            temp.Clear()
+            tempTaxi.Clear()
             Dim TmpArray(31) As Byte
             TaxiZones.CopyTo(TmpArray, 0)
             For Each Flag As Byte In TmpArray
-                temp.Add(Flag)
+                tempTaxi.Add(Flag)
             Next
-            tmp = tmp & ", char_taxiFlags=""" & Join(temp.ToArray, " ") & """"
 
             'char_mapExplored
-            temp.Clear()
+            tempMap.Clear()
             For Each Flag As UInteger In ZonesExplored
-                temp.Add(Flag)
+                tempMap.Add(Flag)
             Next
-            tmp = tmp & ", char_mapExplored=""" & Join(temp.ToArray, " ") & """"
 
             'char_reputation
-            temp.Clear()
+            tempReputation.Clear()
             For Each Reputation_Point As TReputation In Reputation
-                temp.Add(Reputation_Point.Flags & ":" & Reputation_Point.Value)
+                tempReputation.Add(Reputation_Point.Flags & ":" & Reputation_Point.Value)
             Next
-            tmp = tmp & ", char_reputation=""" & Join(temp.ToArray, " ") & """"
 
             'char_actionBar
-            temp.Clear()
+            tempActionBar.Clear()
             For Each ActionButton As KeyValuePair(Of Byte, TActionButton) In ActionButtons
-                temp.Add(String.Format("{0}:{1}:{2}:{3}", ActionButton.Key, ActionButton.Value.Action, ActionButton.Value.ActionType, ActionButton.Value.ActionMisc))
+                tempActionBar.Add(String.Format("{0}:{1}:{2}:{3}", ActionButton.Key, ActionButton.Value.Action, ActionButton.Value.ActionType, ActionButton.Value.ActionMisc))
             Next
-            tmp = tmp & ", char_actionBar=""" & Join(temp.ToArray, " ") & """"
-
-            tmp = tmp & ", char_talentpoints=" & TalentPoints
 
             Dim ForceRestrictions As UInteger = 0
             If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDECLOAK
             If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
-            tmp = tmp & ", force_restrictions=" & ForceRestrictions
 
-            tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
+            Dim tmp As String = SQLQueries.UpdateCharacterByGuid.FormatWith(New With { Key.CharName = Name, Key.CharRace = CByte(Race), Key.CharClass = CByte(Classe), 
+                                                                         Key.CharGender = CByte(Gender), Key.CharSkin = Skin, Key.CharFace = Face, Key.CharHairStyle = HairStyle, 
+                                                                         Key.CharHairColor = HairColor, Key.CharFacialHair = FacialHair, Key.CharLevel = Level, 
+                                                                         Key.CharManaType = CByte(ManaType), Key.CharLife = Life.Base, Key.CharRage = Rage.Base,
+                                                                         Key.CharMana = Mana.Base,  Key.CharEnergy = Energy.Base, Key.CharStrength = Strength.RealBase,
+                                                                         Key.CharAgility = Agility.RealBase, Key.CharStamina = Stamina.RealBase, Key.CharIntellect = Intellect.RealBase,
+                                                                         Key.CharSpirit = Spirit.RealBase, Key.CharMapId = MapID, Key.CharZoneId = ZoneID,
+                                                                         Key.CharPositionX = pPositionX, Key.CharPositionY = pPositionY, Key.CharPositionZ = pPositionZ,
+                                                                         Key.CharOrientation = pOrientation, Key.CharTransportGuid = transportGuid,
+                                                                         Key.BindpointPositionX = Trim(Str(bindpoint_positionX)), Key.BindpointPositionY = Trim(Str(bindpoint_positionY)),
+                                                                         Key.BindpointPositionZ = Trim(Str(bindpoint_positionZ)), Key.BindpointMapId = bindpoint_map_id,
+                                                                         Key.BindpointZoneId = bindpoint_zone_id, Key.CharCopper = Copper, Key.CharXp = XP,
+                                                                         Key.CharXpRested = RestBonus, Key.CharGuildId = GuildID, Key.CharGuildRank = GuildRank,
+                                                                         Key.CharSkillList = Join(tempSkill.ToArray, " "), Key.CharAuraList = Join(tempAura.ToArray, " "),
+                                                                         Key.CharTutorialFlags = Join(tempTutorial.ToArray, " "), Key.CharTaxiFlags = Join(tempTaxi.ToArray, " "),
+                                                                         Key.CharMapExplored = Join(tempMap.ToArray, " "), Key.CharReputation = Join(tempReputation.ToArray, " "),
+                                                                         Key.CharActionBar = Join(tempActionBar.ToArray, " "), Key.CharTalentpoints = TalentPoints,
+                                                                         Key.ForceRestrictions = ForceRestrictions, Key.CharGuid = GUID })
+
             CharacterDatabase.Update(tmp)
         End Sub
 
         Public Sub SavePosition()
-            Dim tmp As String = "UPDATE characters SET"
+            Dim tmp As String = SQLQueries.SavePosition.FormatWith(New With { Key.CharPositionX = Trim(Str(positionX)), Key.CharPositionY = Trim(Str(positionY)), 
+                                                                            Key.CharPositionZ = Trim(Str(positionZ)), Key.CharOrientation = Trim(Str(orientation)), 
+                                                                            Key.CharMapId = MapID, Key.CharGuid = GUID })
 
-            tmp = tmp & ", char_positionX=" & Trim(Str(positionX))
-            tmp = tmp & ", char_positionY=" & Trim(Str(positionY))
-            tmp = tmp & ", char_positionZ=" & Trim(Str(positionZ))
-            tmp = tmp & ", char_map_id=" & MapID
-
-            tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
             CharacterDatabase.Update(tmp)
         End Sub
 
@@ -5146,7 +5044,7 @@ DoneAmmo:
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + i * 3, questState)
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + i * 3 + 1, 0) 'Timer
 
-                    CharacterDatabase.Update(String.Format("INSERT INTO characters_quests (char_guid, quest_id, quest_status) VALUES ({0}, {1}, {2});", GUID, TalkQuests(i).ID, questState))
+                    CharacterDatabase.Update(SQLQueries.AddQuest.FormatWith(New With { Key.CharGuid = GUID, Key.QuestId = TalkQuests(i).ID, Key.QuestStatus = questState }))
 
                     SendCharacterUpdate(updateDataCount <> 0)
                     Return True
@@ -5168,7 +5066,7 @@ DoneAmmo:
                 SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3, 0)
                 SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3 + 1, 0)
 
-                CharacterDatabase.Update(String.Format("DELETE  FROM characters_quests WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID))
+                CharacterDatabase.Update(SQLQueries.DeleteQuest.FormatWith(New With { Key.CharGuid = GUID, Key.QuestId = TalkQuests(QuestSlot).ID }))
                 TalkQuests(QuestSlot) = Nothing
 
                 SendCharacterUpdate(updateDataCount <> 0)
@@ -5188,7 +5086,7 @@ DoneAmmo:
                 SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3 + 1, 0)
 
                 QuestsCompleted.Add(TalkQuests(QuestSlot).ID)
-                CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = -1 WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID))
+                CharacterDatabase.Update(SQLQueries.CompleteQuest.FormatWith(New With { Key.CharGuid = GUID, Key.QuestId = TalkQuests(QuestSlot).ID }))
                 TalkQuests(QuestSlot) = Nothing
 
                 'SendCharacterUpdate(updateDataCount <> 0)
@@ -5205,7 +5103,7 @@ DoneAmmo:
                 Dim tmpProgress As Integer = TalkQuests(QuestSlot).GetProgress
                 Dim tmpTimer As Integer = 0
                 If TalkQuests(QuestSlot).TimeEnd > 0 Then tmpTimer = TalkQuests(QuestSlot).TimeEnd - GetTimestamp(Now)
-                CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = {2} WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID, tmpProgress))
+                CharacterDatabase.Update(SQLQueries.UpdateQuest.FormatWith(New With { Key.QuestStatus = tmpProgress, Key.CharGuid = GUID, Key.QuestId = TalkQuests(QuestSlot).ID }))
 
                 SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3, tmpProgress)
                 SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3 + 1, 0) 'Timer
@@ -5218,7 +5116,7 @@ DoneAmmo:
         Public Function TalkCanAccept(ByRef Quest As WS_QuestInfo) As Boolean
 
             Dim DBResult As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT quest_status FROM characters_quests WHERE char_guid = {0} AND quest_id = {1} LIMIT 1;", GUID, Quest.ID), DBResult)
+            CharacterDatabase.Query(SQLQueries.CanAcceptQuest.FormatWith(New With { Key.CharGuid = GUID, Key.QuestId = Quest.ID }), DBResult)
             If DBResult.Rows.Count > 0 Then
                 Dim status As Integer = DBResult.Rows(0).Item("quest_status")
 
@@ -5285,7 +5183,7 @@ DoneAmmo:
 
         Public Function IsQuestCompleted(ByVal QuestID As Integer) As Boolean
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT quest_id FROM characters_quests WHERE char_guid = {0} AND quest_status = -1 AND quest_id = {1};", GUID, QuestID), q)
+            CharacterDatabase.Query(SQLQueries.CheckQuestCompletion.FormatWith(New With { Key.CharGuid = GUID, Key.QuestId = QuestID }), q)
 
             Return q.Rows.Count <> 0
         End Function

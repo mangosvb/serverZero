@@ -16,6 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+Imports mangosVB.Common
 Imports mangosVB.Shared
 
 Namespace DataStores
@@ -27,7 +28,7 @@ Namespace DataStores
 
             Try
                 'Set all characters offline
-                CharacterDatabase.Update("UPDATE characters SET char_online = 0;")
+                CharacterDatabase.Update(SQLQueries.SetAllPlayersOffline)
 
             Catch e As Exception
                 Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)

@@ -205,16 +205,16 @@ Public Module Functions
     Public Sub Ban_Account(ByVal Name As String, ByVal Reason As String)
         Dim account As New DataTable
         Dim bannedAccount As New DataTable
-        AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", Name), account)
+        AccountDatabase.Query(SQLQueries.GetAccountToBanByName.FormatWith(New With { Key.UserName = name }), account)
         If (account.Rows.Count > 0) Then
             Dim accID As Integer = account.Rows(0).Item("id")
-            AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accID), bannedAccount)
+            AccountDatabase.Query(SQLQueries.GetBannedAccountById.FormatWith(New With { Key.Id = accId }), bannedAccount)
 
             If (bannedAccount.Rows.Count > 0) Then
-                AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accID & "';")
+                AccountDatabase.Update(SQLQueries.UpdateAccountBanned.FormatWith(New With { Key.Id = accId }))
             Else
                 Dim tempBanDate As String = FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
-                AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, tempBanDate, "0000-00-00 00:00:00", Name, Reason))
+                AccountDatabase.Update(SQLQueries.InsertBannedAccount.FormatWith(New With { Key.Id = accId, Key.BanDate = tempBanDate, Key.UnBanDate = "0000-00-00 00:00:00", Key.BannedBy = name, Key.BanReason = reason }))
             End If
             Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
         Else

@@ -1237,7 +1237,7 @@ SkipShapeShift:
 
             'DONE: Save the cooldown, but only if it's really worth saving
             If Recovery > 10000 Then
-                CharacterDatabase.Update(String.Format("UPDATE characters_spells SET cooldown={2}, cooldownitem={3} WHERE guid = {0} AND spellid = {1};", objCharacter.GUID, ID, objCharacter.Spells(ID).Cooldown, objCharacter.Spells(ID).CooldownItem))
+                CharacterDatabase.Update(SQLQueries.SaveSpellCooldowns.FormatWith(New With { Key.CoolDown = objCharacter.Spells(ID).Cooldown, Key.CoolDownItem = objCharacter.Spells(ID).CooldownItem, Key.Guid = objCharacter.GUID, Key.SpellId = ID }))
             End If
 
             'DONE: Send the cooldown
@@ -3887,6 +3887,7 @@ SkipShapeShift:
     End Function
 
 #End Region
+
 #Region "WS.Spells.SpellAuraEffects"
 
     Delegate Sub ApplyAuraHandler(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)

@@ -1501,7 +1501,7 @@ Public Module WS_Commands
             Dim cmdList As String = "Listing of available locations:" & vbNewLine
 
             Dim listSqlQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM game_tele order by name", listSqlQuery)
+            WorldDatabase.Query(SQLQueries.GetAllGameTeleportLocations, listSqlQuery)
 
             For Each locationRow As DataRow In listSqlQuery.Rows
                 cmdList += locationRow.Item("name") & ", "
@@ -1516,9 +1516,9 @@ Public Module WS_Commands
         Dim mySqlQuery As New DataTable
         If location.Contains("*") Then
             location = location.Replace("*", "")
-            WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name like '{0}%' order by name;", location), mySqlQuery)
+            WorldDatabase.Query(SQLQueries.GetGameTeleportLocationByNameLike.FormatWith(New With { Key.Name = location }), mySqlQuery)
         Else
-            WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name = '{0}' order by name LIMIT 1;", location), mySqlQuery)
+            WorldDatabase.Query(SQLQueries.GetGameTaleportLocationByName.FormatWith(New With { Key.Name = location }), mySqlQuery)
         End If
         If mySqlQuery.Rows.Count > 0 Then
             If mySqlQuery.Rows.Count = 1 Then
@@ -1651,7 +1651,7 @@ Public Module WS_Commands
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("No target selected.")
         ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            CharacterDatabase.Update(String.Format("UPDATE characters SET force_restrictions = 1 WHERE char_guid = {0};", objCharacter.TargetGUID))
+            CharacterDatabase.Update(SQLQueries.ForceCharacterRename.FormatWith(New With { Key.CharGuid = objCharacter.TargetGUID }))
             objCharacter.CommandResponse("Player will be asked to change his name on next logon.")
         Else
             objCharacter.CommandResponse(String.Format("Character GUID=[{0:X}] not found.", objCharacter.TargetGUID))
@@ -1665,7 +1665,7 @@ Public Module WS_Commands
         If objCharacter.TargetGUID = 0 Then
             objCharacter.CommandResponse("No target selected.")
         ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            CharacterDatabase.Update(String.Format("UPDATE characters SET force_restrictions = 2 WHERE char_guid = {0};", objCharacter.TargetGUID))
+            CharacterDatabase.Update(SQLQueries.BanCharacter.FormatWith(New With { Key.CharGuid = objCharacter.TargetGUID }))
             objCharacter.CommandResponse("Character disabled.")
         Else
             objCharacter.CommandResponse(String.Format("Character GUID=[{0:X}] not found.", objCharacter.TargetGUID))
@@ -1680,19 +1680,19 @@ Public Module WS_Commands
         If Name = "" Then Return False
 
         Dim account As New DataTable
-        AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
+        AccountDatabase.Query(SQLQueries.GetAccountToBanByName.FormatWith(New With { Key.UserName = Name }), account)
         Dim accountID As ULong = account.Rows(0).Item("id")
         Dim IP As Integer = account.Rows(0).Item("last_ip")
 
         Dim result As New DataTable
-        AccountDatabase.Query("SELECT active FROM account_banned WHERE id = " & accountID & ";", result)
+        AccountDatabase.Query(SQLQueries.GetActiveFromAccountBannedById.FormatWith(New With { Key.AccountId = accountID }), result)
         If result.Rows.Count > 0 Then
             If result.Rows(0).Item("active") = 1 Then
                 objCharacter.CommandResponse(String.Format("Account [{0}] already banned.", Name))
             Else
                 'TODO: We May Want To Allow Account and IP to be Banned Separately
-                AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}', active = 1);", accountID, Format(Now, "yyyy-MM-dd hh:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
-                AccountDatabase.Update(String.Format("INSERT INTO `ip_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}');", IP, Format(Now, "yyyy-MM-dd hh:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
+                AccountDatabase.Update(SQLQueries.InsertBannedAccount.FormatWith(New With { Key.Id = accountID, Key.BanDate = Format(Now, "yyyy-MM-dd hh:mm:ss"), Key.UnBanDate = "0000-00-00 00:00:00", Key.BannedBy = objCharacter.Name, Key.BanReason = "No Reason Specified." }))
+                AccountDatabase.Update(SQLQueries.InsertIpBannedAccount.FormatWith(New With { Key.Ip = IP, Key.BanDate = Format(Now, "yyyy-MM-dd hh:mm:ss"), Key.UnBanDate = "0000-00-00 00:00:00", Key.BannedBy = objCharacter.Name, Key.BanReason = "No Reason Specified." }))
                 objCharacter.CommandResponse(String.Format("Account [{0}] banned.", Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] banned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
             End If
@@ -1708,19 +1708,19 @@ Public Module WS_Commands
         If Name = "" Then Return False
 
         Dim account As New DataTable
-        AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
+        AccountDatabase.Query(SQLQueries.GetAccountToBanByName.FormatWith(New With { Key.UserName = Name }), account)
         Dim accountID As ULong = account.Rows(0).Item("id")
         Dim IP As Integer = account.Rows(0).Item("last_ip")
 
         Dim result As New DataTable
-        AccountDatabase.Query("SELECT active FROM account_banned WHERE id = '" & accountID & "';", result)
+        AccountDatabase.Query(SQLQueries.GetActiveFromAccountBannedById.FormatWith(New With { Key.AccountId = accountID }), result)
         If result.Rows.Count > 0 Then
             If result.Rows(0).Item("active") = 0 Then
                 objCharacter.CommandResponse(String.Format("Account [{0}] is not banned.", Name))
             Else
                 'TODO: Do we want to update the account_banned, ip_banned tables or DELETE the records?
-                AccountDatabase.Update("UPDATE account_banned SET active = 0 WHERE id = '" & accountID & "';")
-                AccountDatabase.Update(String.Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
+                AccountDatabase.Update(SQLQueries.UpdateAccountUnBanned.FormatWith(New With { Key.Id = accountID }))
+                AccountDatabase.Update(SQLQueries.DeleteIPBanned.FormatWith(New With { Key.IpAddress = IP }))
                 objCharacter.CommandResponse(String.Format("Account [{0}] unbanned.", Name))
                 Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] unbanned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
             End If
@@ -2049,7 +2049,7 @@ Public Module WS_Commands
         Dim aName As String = acct(0)
         Dim aPassword As String = acct(1)
         Dim aEmail As String = acct(2)
-        AccountDatabase.Query("SELECT username FROM account WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query(SQLQueries.GetUserNameByName.FormatWith(New With { Key.UserName = aName }), result)
         If result.Rows.Count > 0 Then
             objCharacter.CommandResponse(String.Format("Account [{0}] already exists.", aName))
         Else
@@ -2057,7 +2057,7 @@ Public Module WS_Commands
             Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
             Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-            AccountDatabase.Insert(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+            AccountDatabase.Insert(SQLQueries.CreateAccount.FormatWith(New With { Key.UserName = aName, Key.ShaPassHash = hashStr, Key.Email = aEmail, Key.JoinDate = Format(Now, "yyyy-MM-dd"), Key.LastIp = "0.0.0.0" }))
             objCharacter.CommandResponse(String.Format("Account [{0}] has been created.", aName))
         End If
         Return True
@@ -2074,7 +2074,7 @@ Public Module WS_Commands
         Dim aName As String = acct(0)
         Dim aPassword As String = acct(1)
 
-        AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query(SQLQueries.GetIdGMLevelByName.FormatWith(New With { Key.UserName = aName }), result)
         If result.Rows.Count = 0 Then
             objCharacter.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else
@@ -2086,7 +2086,7 @@ Public Module WS_Commands
                 Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                 Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                AccountDatabase.Update(String.Format("UPDATE account SET password='{0}' WHERE id={1}", hashStr, result.Rows(0).Item("id")))
+                AccountDatabase.Update(SQLQueries.ChangePasswordForAccount.FormatWith(New With { Key.ShaPassHash = hashStr, Key.Id = result.Rows(0).Item("id") }))
                 objCharacter.CommandResponse(String.Format("Account [{0}] now has a new password [{1}].", aName, aPassword))
             End If
         End If
@@ -2116,7 +2116,7 @@ Public Module WS_Commands
             Return True
         End If
 
-        AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
+        AccountDatabase.Query(SQLQueries.GetIdGMLevelByName.FormatWith(New With { Key.UserName = aName }), result)
         If result.Rows.Count = 0 Then
             objCharacter.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
         Else
@@ -2124,7 +2124,7 @@ Public Module WS_Commands
             If targetLevel >= objCharacter.Access Then
                 objCharacter.CommandResponse("You cannot set access levels to accounts with the same or a higher access level than yourself.")
             Else
-                AccountDatabase.Update(String.Format("UPDATE account SET gmlevel={0} WHERE id={1}", CByte(newLevel), result.Rows(0).Item("id")))
+                AccountDatabase.Update(SQLQueries.SetGmLevelForAccount.FormatWith(New With { Key.GMLevel = CByte(newLevel), Key.Id = result.Rows(0).Item("id") }))
                 objCharacter.CommandResponse(String.Format("Account [{0}] now has access level [{1}].", aName, newLevel))
             End If
         End If
@@ -2137,7 +2137,7 @@ Public Module WS_Commands
 
     Public Function GetGUID(ByVal Name As String) As ULong
         Dim MySQLQuery As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = ""{0}"";", Name), MySQLQuery)
+        CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = Name }), MySQLQuery)
 
         If MySQLQuery.Rows.Count > 0 Then
             Return MySQLQuery.Rows(0).Item("char_guid")

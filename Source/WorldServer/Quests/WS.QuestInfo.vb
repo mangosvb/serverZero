@@ -144,7 +144,7 @@ Public Class WS_QuestInfo
 
         '        Quests.Add(ID, Me)
 
-        WorldDatabase.Query(String.Format("SELECT * FROM quests WHERE entry = {0};", QuestID), MySQLQuery)
+        WorldDatabase.Query(SQLQueries.GetAllQuestsByEntry.FormatWith(New With { Key.Entry = QuestID }), MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Throw New ApplicationException("Quest " & QuestID & " not found in database.")
 
         If MySQLQuery.Rows(0).Item("PrevQuestId") > 0 Then PreQuests.Add(MySQLQuery.Rows(0).Item("PrevQuestId"))

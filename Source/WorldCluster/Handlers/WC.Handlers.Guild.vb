@@ -57,7 +57,7 @@ Namespace Handlers
 
             'DONE: Create guild data
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES (""{0}"", {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = ""{0}"";", guildName, client.Character.GUID, Now.Year - 2006, Now.Month, Now.Day), MySQLQuery)
+            CharacterDatabase.Query(SQLQueries.CreateGuild.FormatWith(New With { Key.GuildName = guildName, Key.GuildLeader = client.Character.GUID, Key.GuildCreationYear = Now.Year - 2006, Key.GuildCreationMonth = Now.Month, Key.GuildCreationDay = Now.Day }), MySQLQuery)
 
             AddCharacterToGuild(client.Character, MySQLQuery.Rows(0).Item("guild_id"), 0)
         End Sub
@@ -104,7 +104,7 @@ Namespace Handlers
             client.Character.Guild.Ranks(rankID) = rankName
             client.Character.Guild.RankRights(rankID) = rankRights
 
-            CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_rank{1} = ""{2}"", guild_rank{1}_Rights = {3} WHERE guild_id = {0};", client.Character.Guild.ID, rankID, rankName, rankRights))
+            CharacterDatabase.Update(SQLQueries.UpdateGuildRank.FormatWith(New With { Key.GuildRankId = rankID, Key.GuildRank = rankName, Key.GuildRightId = rankID, Key.GuildRights = rankRights, Key.GuildId = client.Character.Guild.ID }))
 
             SendGuildQuery(client, client.Character.Guild.ID)
             SendGuildRoster(client.Character)
@@ -132,7 +132,7 @@ Namespace Handlers
                 If client.Character.Guild.Ranks(i) = "" Then
                     client.Character.Guild.Ranks(i) = NewRankName
                     client.Character.Guild.RankRights(i) = GuildRankRights.GR_RIGHT_GCHATLISTEN Or GuildRankRights.GR_RIGHT_GCHATSPEAK
-                    CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_rank{1} = '{2}', guild_rank{1}_Rights = '{3}' WHERE guild_id = {0};", client.Character.Guild.ID, i, NewRankName, client.Character.Guild.RankRights(i)))
+                    CharacterDatabase.Update(SQLQueries.AddGuildRank.FormatWith(New With { Key.GuildRankId = i, Key.GuildRank = NewRankName, Key.GuildRightId = i, Key.GuildRights = client.Character.Guild.RankRights(i), Key.GuildId = client.Character.Guild.ID }))
 
                     SendGuildQuery(client, client.Character.Guild.ID)
                     SendGuildRoster(client.Character)
@@ -160,7 +160,7 @@ Namespace Handlers
             'TODO: Can we really remove all ranks?
             For i As Integer = 9 To 0 Step -1
                 If client.Character.Guild.Ranks(i) <> "" Then
-                    CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_rank{1} = '{2}', guild_rank{1}_Rights = '{3}' WHERE guild_id = {0};", client.Character.Guild.ID, i, "", 0))
+                    CharacterDatabase.Update(SQLQueries.DeleteGuildRank.FormatWith(New With { Key.GuildRankId = i, Key.GuildRank = "", Key.GuildRightId = i, Key.GuildRights = 0, Key.GuildId = client.Character.Guild.ID }))
 
                     SendGuildQuery(client, client.Character.Guild.ID)
                     SendGuildRoster(client.Character)
@@ -190,7 +190,7 @@ Namespace Handlers
 
             'DONE: Find new leader's GUID
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query("SELECT char_guid, char_guildId, char_guildrank FROM characters WHERE char_name = '" & playerName & "';", MySQLQuery)
+            CharacterDatabase.Query(SQLQueries.FindNewGuildLeadersGuid.FormatWith(New With { Key.CharName = playerName }), MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then
                 SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
                 Exit Sub
@@ -207,9 +207,9 @@ Namespace Handlers
                 CHARACTERs(PlayerGUID).SendGuildUpdate()
             End If
             client.Character.Guild.Leader = PlayerGUID
-            CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_leader = ""{1}"" WHERE guild_id = {0};", client.Character.Guild.ID, PlayerGUID))
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", 0, PlayerGUID))
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", client.Character.GuildRank, client.Character.GUID))
+            CharacterDatabase.Update(SQLQueries.SetGuildLeader.FormatWith(New With { Key.GuildLeader = PlayerGUID, Key.GuildId = client.Character.Guild.ID }))
+            CharacterDatabase.Update(SQLQueries.SetCharacterGuildRank.FormatWith(New With { Key.GuildRank = 0, Key.CharGuid = PlayerGUID }))
+            CharacterDatabase.Update(SQLQueries.SetCharacterGuildRank.FormatWith(New With { Key.GuildRank = client.Character.GuildRank, Key.CharGuid = client.Character.GUID }))
 
             'DONE: Send notify message
             Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
@@ -253,7 +253,7 @@ Namespace Handlers
             client.Character.Guild.BorderColor = tBorderColor
             client.Character.Guild.BackgroundColor = tBackgroundColor
 
-            CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_tEmblemStyle = {1}, guild_tEmblemColor = {2}, guild_tBorderStyle = {3}, guild_tBorderColor = {4}, guild_tBackgroundColor = {5} WHERE guild_id = {0};", client.Character.Guild.ID, tEmblemStyle, tEmblemColor, tBorderStyle, tBorderColor, tBackgroundColor))
+            CharacterDatabase.Update(SQLQueries.SaveGuildEmblem.FormatWith(New With { Key.GuildtEmblemStyle = tEmblemStyle, Key.GuildtEmblemColor = tEmblemColor, Key.GuildtBorderStyle = tBorderStyle, Key.GuildtBorderColor = tBorderColor, Key.GuildtBackgroundColor = tBackgroundColor, Key.GuildId = client.Character.Guild.ID }))
 
             SendGuildQuery(client, client.Character.Guild.ID)
 
@@ -304,7 +304,7 @@ Namespace Handlers
             response.Dispose()
 
             'DONE: Delete guild information
-            CharacterDatabase.Update("DELETE FROM guilds WHERE guild_id = " & GuildID & ";")
+            CharacterDatabase.Update(SQLQueries.DeleteGuildInformationById.FormatWith(New With { Key.GuildId = GuildID }))
         End Sub
 
         Public Sub On_CMSG_GUILD_MOTD(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -325,7 +325,7 @@ Namespace Handlers
             End If
 
             client.Character.Guild.Motd = Motd
-            CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_MOTD = '{1}' WHERE guild_id = '{0}';", client.Character.Guild.ID, Motd))
+            CharacterDatabase.Update(SQLQueries.SetGuildMOTD.FormatWith(New With { Key.GuildMOTD = Motd, Key.GuildId = client.Character.Guild.ID }))
 
             Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
             response.AddInt8(GuildEvent.MOTD)
@@ -355,7 +355,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildOffNote = ""{1}"" WHERE char_name = ""{0}"";", playerName, Note.Replace("""", "_").Replace("'", "_")))
+            CharacterDatabase.Update(SQLQueries.SetGuildOfficerNote.FormatWith(New With { Key.CharGuildOffNote = Note.Replace("""", "_").Replace("'", "_"), Key.CharName = playerName }))
 
             SendGuildRoster(client.Character)
         End Sub
@@ -377,7 +377,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildPNote = ""{1}"" WHERE char_name = ""{0}"";", playerName, Note.Replace("""", "_").Replace("'", "_")))
+            CharacterDatabase.Update(SQLQueries.SetGuildPublicNote.FormatWith(New With { Key.CharGuildPNote = Note.Replace("""", "_").Replace("'", "_"), Key.CharName = playerName }))
 
             SendGuildRoster(client.Character)
         End Sub
@@ -402,7 +402,7 @@ Namespace Handlers
 
             'DONE: Find player2's guid
             Dim q As New DataTable
-            CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_name = '" & playerName & "';", q)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = playerName }), q)
 
             'DONE: Removed checks
             If q.Rows.Count = 0 Then
@@ -449,7 +449,7 @@ Namespace Handlers
 
             'DONE: Find promoted player's guid
             Dim q As New DataTable
-            CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_name = '" & playerName.Replace("'", "_") & "';", q)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = playerName.Replace("'", "_") }), q)
 
             'DONE: Promoted checks
             If q.Rows.Count = 0 Then
@@ -473,7 +473,7 @@ Namespace Handlers
 
             'DONE: Do the real update
             objCharacter.GuildRank -= 1
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.GUID))
+            CharacterDatabase.Update(SQLQueries.SetCharacterGuildRank.FormatWith(New With { Key.GuildRank = objCharacter.GuildRank, Key.CharGuid = objCharacter.GUID }))
             objCharacter.SendGuildUpdate()
 
             'DONE: Send event to guild
@@ -504,7 +504,7 @@ Namespace Handlers
 
             'DONE: Find demoted player's guid
             Dim q As New DataTable
-            CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_name = '" & playerName.Replace("'", "_") & "';", q)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = playerName.Replace("'", "_") }), q)
 
             'DONE: Demoted checks
             If q.Rows.Count = 0 Then
@@ -535,7 +535,7 @@ Namespace Handlers
 
             'DONE: Do the real update
             objCharacter.GuildRank += 1
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.GUID))
+            CharacterDatabase.Update(SQLQueries.SetCharacterGuildRank.FormatWith(New With { Key.GuildRank = objCharacter.GuildRank, Key.CharGuid = objCharacter.GUID }))
             objCharacter.SendGuildUpdate()
 
             'DONE: Send event to guild
@@ -568,7 +568,7 @@ Namespace Handlers
 
             'DONE: Find invited player's guid
             Dim q As New DataTable
-            CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_name = '" & playerName.Replace("'", "_") & "';", q)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = playerName.Replace("'", "_") }), q)
 
             'DONE: Invited checks
             If q.Rows.Count = 0 Then
@@ -663,7 +663,7 @@ Namespace Handlers
 
             'DONE: Get info
             Dim q As New DataTable
-            CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & " LIMIT 1;", q)
+            CharacterDatabase.Query(SQLQueries.GetAllPetitionInfoByGuid.FormatWith(New With { Key.ItemGuid = itemGuid - GUID_ITEM }), q)
             If q.Rows.Count = 0 Then Exit Sub
             Dim Type As Byte = q.Rows(0).Item("petition_type")
             Dim Name As String = q.Rows(0).Item("petition_name")
@@ -690,7 +690,7 @@ Namespace Handlers
             Dim q2 As New DataTable
 
             'DONE: Create guild and add members
-            CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES ('{0}', {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = '{0}';", Name, client.Character.GUID, Now.Year - 2006, Now.Month, Now.Day), q2)
+            CharacterDatabase.Query(SQLQueries.CreateGuild.FormatWith(New With { Key.GuildName = Name, Key.GuildLeader = client.Character.GUID, Key.GuildCreationYear = Now.Year - 2006, Key.GuildCreationMonth = Now.Month, Key.GuildCreationDay = Now.Day }), q2)
 
             AddCharacterToGuild(client.Character, q2.Rows(0).Item("guild_id"), 0)
 

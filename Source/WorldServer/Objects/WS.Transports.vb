@@ -28,7 +28,7 @@ Public Module WS_Transports
     Public Sub LoadTransports()
         Try
             Dim TransportQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM transports", TransportQuery)
+            WorldDatabase.Query(SQLQueries.GetAllTransports, TransportQuery)
 
             For Each Transport As DataRow In TransportQuery.Rows
                 Dim TransportEntry As Integer = Transport.Item("entry")

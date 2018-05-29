@@ -44,7 +44,7 @@ Public Module WS_GameObjects
             GAMEOBJECTSDatabase.Add(ID, Me)
 
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM gameobject_template WHERE entry = {0};", ID_), MySQLQuery)
+            WorldDatabase.Query(SQLQueries.GetGameObjectTemplateByEntry.FormatWith(New With { Key.Entry = ID_ }), MySQLQuery)
 
             If MySQLQuery.Rows.Count = 0 Then
                 Log.WriteLine(LogType.FAILED, "gameobject_template {0} not found in SQL database!", ID_)
@@ -354,7 +354,7 @@ Public Module WS_GameObjects
             'WARNING: Use only for loading from DB
             If Info Is Nothing Then
                 Dim MySQLQuery As New DataTable
-                WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_id = {0};", cGUID), MySQLQuery)
+                WorldDatabase.Query(SQLQueries.GetGameObjectSpawnsBySpawnId.FormatWith(New With { Key.SpawnId = cGUID }), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     Info = MySQLQuery.Rows(0)
                 Else
@@ -947,12 +947,12 @@ Public Module WS_GameObjects
                     Dim AreaID As Integer = AreaTable(AreaFlag).ID
 
                     Dim MySQLQuery As New DataTable
-                    WorldDatabase.Query(String.Format("SELECT * FROM skill_fishing_base_level WHERE entry = {0};", AreaID), MySQLQuery)
+                    WorldDatabase.Query(SQLQueries.GetSkillFishingBaseLevelByEntry.FormatWith(New With { Key.Entry = AreaID }), MySQLQuery)
 
                     If MySQLQuery.Rows.Count = 0 Then
                         AreaID = AreaTable(AreaFlag).Zone
                         MySQLQuery.Clear()
-                        WorldDatabase.Query(String.Format("SELECT * FROM skill_fishing_base_level WHERE entry = {0};", AreaID), MySQLQuery)
+                        WorldDatabase.Query(SQLQueries.GetSkillFishingBaseLevelByEntry.FormatWith(New With { Key.Entry = AreaID }), MySQLQuery)
                     End If
 
                     Dim zoneSkill As Integer = 0

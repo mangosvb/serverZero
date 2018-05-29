@@ -55,7 +55,7 @@ Namespace Handlers
 
             Dim SMSG_GMTICKET_GETTICKET As New PacketClass(OPCODES.SMSG_GMTICKET_GETTICKET)
             Dim MySQLResult As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_tickets WHERE char_guid = {0};", client.Character.GUID), MySQLResult)
+            CharacterDatabase.Query(SQLQueries.GetTicketsByCharacterGuid.FormatWith(New With { Key.CharGuid = client.Character.Guid }), MySQLResult)
             If MySQLResult.Rows.Count > 0 Then
                 SMSG_GMTICKET_GETTICKET.AddInt32(GMTicketGetResult.GMTICKET_AVAILABLE)
                 SMSG_GMTICKET_GETTICKET.AddString(MySQLResult.Rows(0).Item("ticket_text"))
@@ -84,7 +84,7 @@ Namespace Handlers
             Dim ticket_text As String = EscapeString(packet.GetString)
 
             Dim MySQLResult As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_tickets WHERE char_guid = {0};", client.Character.GUID), MySQLResult)
+            CharacterDatabase.Query(SQLQueries.GetTicketsByCharacterGuid.FormatWith(New With { Key.CharGuid = client.Character.GUID }), MySQLResult)
 
             Dim SMSG_GMTICKET_CREATE As New PacketClass(OPCODES.SMSG_GMTICKET_CREATE)
             If MySQLResult.Rows.Count > 0 Then
@@ -92,7 +92,7 @@ Namespace Handlers
                 SMSG_GMTICKET_CREATE.AddInt32(GMTicketCreateResult.GMTICKET_ALREADY_HAVE)
             Else
                 Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GMTICKET_CREATE [{2}]", client.IP, client.Port, ticket_text)
-                CharacterDatabase.Update(String.Format("INSERT INTO characters_tickets (char_guid, ticket_text, ticket_x, ticket_y, ticket_z, ticket_map) VALUES ({0} , ""{1}"", {2}, {3}, {4}, {5});", client.Character.GUID, ticket_text, Trim(Str(ticket_x)), Trim(Str(ticket_y)), Trim(Str(ticket_z)), ticket_map))
+                CharacterDatabase.Update(SQLQueries.CreateTicket.FormatWith(New With { Key.CharGuid = client.Character.GUID, Key.TicketText = ticket_text, Key.TicketX = Trim(Str(ticket_x)), Key.TicketY = Trim(Str(ticket_y)), Key.TicketZ = Trim(Str(ticket_z)), Key.TicketMap = ticket_map }))
                 SMSG_GMTICKET_CREATE.AddInt32(GMTicketCreateResult.GMTICKET_CREATE_OK)
             End If
             client.Send(SMSG_GMTICKET_CREATE)
@@ -118,7 +118,7 @@ Namespace Handlers
         End Enum
         Public Sub On_CMSG_GMTICKET_DELETETICKET(ByRef packet As PacketClass, ByRef client As ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GMTICKET_DELETETICKET", client.IP, client.Port)
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = {0};", client.Character.GUID))
+            CharacterDatabase.Update(SQLQueries.DeleteTicket.FormatWith(New With { Key.CharGuid = client.Character.GUID }))
 
             Dim SMSG_GMTICKET_DELETETICKET As New PacketClass(OPCODES.SMSG_GMTICKET_DELETETICKET)
             SMSG_GMTICKET_DELETETICKET.AddInt32(GMTicketDeleteResult.GMTICKET_DELETE_SUCCESS)
@@ -130,7 +130,7 @@ Namespace Handlers
             packet.GetInt16()
             Dim ticket_text As String = EscapeString(packet.GetString)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GMTICKET_UPDATETEXT [{2}]", client.IP, client.Port, ticket_text)
-            CharacterDatabase.Update(String.Format("UPDATE characters_tickets SET char_guid={0}, ticket_text=""{1}"";", client.Character.GUID, ticket_text))
+            CharacterDatabase.Update(SQLQueries.SetTicketCharacterGuidText.FormatWith(New With { Key.CharGuid = client.Character.GUID, Key.TicketText = ticket_text }))
         End Sub
 
         Public Sub On_CMSG_WHOIS(ByRef packet As PacketClass, ByRef client As ClientClass)

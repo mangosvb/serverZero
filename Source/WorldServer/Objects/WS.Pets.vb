@@ -205,7 +205,7 @@ Public Module WS_Pets
         If objCharacter.Pet IsNot Nothing Then Exit Sub
 
         Dim PetQuery As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT * FROM character_pet WHERE owner = '{0}';", objCharacter.GUID), PetQuery)
+        CharacterDatabase.Query(SQLQueries.GetPetByOwner.FormatWith(New With { Key.Owner = objCharacter.GUID }), PetQuery)
         If PetQuery.Rows.Count = 0 Then Exit Sub
         Dim PetInfo As DataRow = PetQuery.Rows(0)
 

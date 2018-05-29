@@ -129,7 +129,7 @@ Namespace DataStores
             Dim Entry As Byte
 
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), MySQLQuery)
+            WorldDatabase.Query(SQLQueries.GetAllBattleGrounds, MySQLQuery)
 
             For Each row As DataRow In MySQLQuery.Rows
                 Entry = row.Item("id")

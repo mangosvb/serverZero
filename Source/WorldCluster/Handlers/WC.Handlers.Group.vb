@@ -361,7 +361,7 @@ Namespace Handlers
 
             Dim q As New DataTable
             If client.Character IsNot Nothing Then
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", client.Character.Guid), q)
+                CharacterDatabase.Query(SQLQueries.GetCharacterInstancesByGuid.FormatWith(New With { Key.CharGuid = client.Character.Guid }), q)
             End If
 
             Dim response As New PacketClass(OPCODES.SMSG_RAID_INSTANCE_INFO)

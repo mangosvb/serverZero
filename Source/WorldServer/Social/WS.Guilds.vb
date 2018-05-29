@@ -83,7 +83,7 @@ Public Module WS_Guilds
         CharterPrice = PETITION_GUILD_PRICE
 
         Dim q As New DataTable
-        CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_name = '{0}'", Name), q)
+        CharacterDatabase.Query(SQLQueries.GetGuildIdByGuildName.FormatWith(New With { Key.GuildName = Name }), q)
         If q.Rows.Count > 0 Then
             SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_NAME_EXISTS, Name)
         End If
@@ -122,7 +122,7 @@ Public Module WS_Guilds
         tmpItem.AddEnchantment(tmpItem.GUID - GUID_ITEM, 0, 0, 0)
         If client.Character.ItemADD(tmpItem) Then
             'Save petition into database
-            CharacterDatabase.Update(String.Format("INSERT INTO petitions (petition_id, petition_itemGuid, petition_owner, petition_name, petition_type, petition_signedMembers) VALUES ({0}, {0}, {1}, '{2}', {3}, 0);", tmpItem.GUID - GUID_ITEM, client.Character.GUID - GUID_PLAYER, Name, 9))
+            CharacterDatabase.Update(SQLQueries.SaveGuildPetition.FormatWith(New With { Key.PetitionId = tmpItem.GUID - GUID_ITEM, Key.PetitionItemGuid = tmpItem.GUID - GUID_ITEM, Key.PetitionOwner = client.Character.GUID - GUID_PLAYER, Key.PetitionName = Name, Key.PetitionType = 9 }))
         Else
             'No free inventory slot
             tmpItem.Delete()
@@ -131,7 +131,7 @@ Public Module WS_Guilds
 
     Public Sub SendPetitionSignatures(ByRef objCharacter As CharacterObject, ByVal iGUID As ULong)
         Dim MySQLQuery As New DataTable
-        CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & iGUID - GUID_ITEM & ";", MySQLQuery)
+        CharacterDatabase.Query(SQLQueries.GetPetitionInfoByGuid.FormatWith(New With { Key.ItemGuid = iGUID - GUID_ITEM }), MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
         Dim response As New PacketClass(OPCODES.SMSG_PETITION_SHOW_SIGNATURES)
@@ -168,7 +168,7 @@ Public Module WS_Guilds
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_QUERY [pGUID={3} iGUID={2:X}]", client.IP, client.Port, itemGuid, PetitionGUID)
 
         Dim MySQLQuery As New DataTable
-        CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";", MySQLQuery)
+        CharacterDatabase.Query(SQLQueries.GetPetitionInfoByGuid.FormatWith(New With { Key.ItemGuid = itemGuid - GUID_ITEM }), MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
         Dim response As New PacketClass(OPCODES.SMSG_PETITION_QUERY_RESPONSE)
@@ -212,7 +212,7 @@ Public Module WS_Guilds
 
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_PETITION_RENAME [NewName={3} GUID={2:X}]", client.IP, client.Port, itemGuid, NewName)
 
-        CharacterDatabase.Update("UPDATE petitions SET petition_name = '" & NewName & "' WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";")
+        CharacterDatabase.Update(SQLQueries.PetitionRename.FormatWith(New With { Key.PetitionName = NewName, Key.ItemGuid = itemGuid - GUID_ITEM }))
 
         'DONE: Update client-side name information
         Dim response As New PacketClass(OPCODES.MSG_PETITION_RENAME)
@@ -249,10 +249,10 @@ Public Module WS_Guilds
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SIGN [GUID={2:X} Unk={3}]", client.IP, client.Port, itemGuid, Unk)
 
         Dim MySQLQuery As New DataTable
-        CharacterDatabase.Query("SELECT petition_signedMembers, petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";", MySQLQuery)
+        CharacterDatabase.Query(SQLQueries.GetPetitionSignedMembersAndOwnerByGuid.FormatWith(New With { Key.ItemGuid = itemGuid - GUID_ITEM }), MySQLQuery)
         If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-        CharacterDatabase.Update("UPDATE petitions SET petition_signedMembers = petition_signedMembers + 1, petition_signedMember" & (MySQLQuery.Rows(0).Item("petition_signedMembers") + 1) & " = " & client.Character.GUID & " WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";")
+        CharacterDatabase.Update(SQLQueries.UpdatePetitionSignedMembers.FormatWith(New With { Key.PetitionSignedMemberId = (MySQLQuery.Rows(0).Item("petition_signedMembers") + 1), Key.PetitionSignedMember = client.Character.GUID, Key.ItemGuid = itemGuid - GUID_ITEM }))
 
         'DONE: Send result to both players
         Dim response As New PacketClass(OPCODES.SMSG_PETITION_SIGN_RESULTS)
@@ -273,7 +273,7 @@ Public Module WS_Guilds
 
         'DONE: Get petition owner
         Dim q As New DataTable
-        CharacterDatabase.Query("SELECT petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & " LIMIT 1;", q)
+        CharacterDatabase.Query(SQLQueries.GetPetitionOwnerByGuid.FormatWith(New With { Key.ItemGuid = itemGuid - GUID_ITEM }), q)
 
         'DONE: Send message to player
         Dim response As New PacketClass(OPCODES.MSG_PETITION_DECLINE)

@@ -81,7 +81,7 @@ Namespace Handlers
             'DONE: Set client.SS_Hash
             Dim result As New DataTable
             Dim query As String
-            query = "SELECT sessionkey, gmlevel FROM account WHERE username = '" & client.Account & "';"
+            query = SQLQueries.GetSessionKeyGMLevelByName.FormatWith(New With { Key.UserName = client.Account })
             AccountDatabase.Query(query, result)
             If result.Rows.Count > 0 Then
                 tmp = result.Rows(0).Item("sessionkey")
@@ -301,20 +301,21 @@ Namespace Handlers
             Dim Account_ID As Integer
 
             Try
-                AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = '{0}';", client.Account), MySQLQuery)
+                AccountDatabase.Query(SQLQueries.GetAccountIdByName.FormatWith(New With { Key.UserName = client.Account }), MySQLQuery)
                 Account_ID = MySQLQuery.Rows(0).Item("id")
                 MySQLQuery.Clear()
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE account_id = '{0}' ORDER BY char_guid;", Account_ID), MySQLQuery)
+                CharacterDatabase.Query(SQLQueries.GetAllCharactersForAccountId.FormatWith(New With { Key.AccountId = Account_ID }), MySQLQuery)
 
                 'DONE: Make The Packet
                 response.AddInt8(MySQLQuery.Rows.Count)
                 For i As Integer = 0 To MySQLQuery.Rows.Count - 1
                     Dim DEAD As Boolean = False
                     Dim DeadMySQLQuery As New DataTable
-                    CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM corpse WHERE player = {0};", MySQLQuery.Rows(i).Item("char_guid")), DeadMySQLQuery)
+                    'CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM corpse WHERE player = {0};", MySQLQuery.Rows(i).Item("char_guid")), DeadMySQLQuery)
+                    CharacterDatabase.Query(SQLQueries.GetCorpseCountForPlayer.FormatWith(New With { Key.CharGuid = MySQLQuery.Rows(i).Item("char_guid") }), DeadMySQLQuery)
                     If CInt(DeadMySQLQuery.Rows(0).Item(0)) > 0 Then DEAD = True
                     Dim PetQuery As New DataTable
-                    CharacterDatabase.Query(String.Format("SELECT modelid, level, entry FROM character_pet WHERE owner = '{0}';", MySQLQuery.Rows(i).Item("char_guid")), PetQuery)
+                    CharacterDatabase.Query(SQLQueries.GetPetForCharacterEnum.FormatWith(New With { Key.CharGuid = MySQLQuery.Rows(i).Item("char_guid") }), PetQuery)
 
                     response.AddInt64(MySQLQuery.Rows(i).Item("char_guid"))
                     response.AddString(MySQLQuery.Rows(i).Item("char_name"))
@@ -360,7 +361,8 @@ Namespace Handlers
                         PetModel = PetQuery.Rows(0).Item("modelid")
                         PetLevel = PetQuery.Rows(0).Item("level")
                         Dim PetFamilyQuery As New DataTable
-                        WorldDatabase.Query(String.Format("SELECT family FROM creature_template WHERE entry = '{0}'", PetQuery.Rows(0).Item("entry")), PetFamilyQuery)
+                        'WorldDatabase.Query(String.Format("SELECT family FROM creature_template WHERE entry = '{0}'", PetQuery.Rows(0).Item("entry")), PetFamilyQuery)
+                        WorldDatabase.Query(SQLQueries.GetPetFamily.FormatWith(New With { Key.Entry = PetQuery.Rows(0).Item("entry") }), PetFamilyQuery)
                         PetFamily = PetFamilyQuery.Rows(0).Item("family")
                     End If
 
@@ -373,7 +375,7 @@ Namespace Handlers
                     Dim ItemsMySQLQuery As New DataTable
                     Dim characterDB As String = CharacterDatabase.SqldbName
                     Dim worldDB As String = WorldDatabase.SqldbName
-                    CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM " & characterDB & ".characters_inventory, " & worldDB & ".item_template WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
+                    CharacterDatabase.Query(SQLQueries.GetPlayerInventoryForEnum.FormatWith(New With { Key.CharacterDB = characterDB, Key.WorldDB = worldDB, Key.ItemBag = GUID }), ItemsMySQLQuery)
 
                     Dim e As IEnumerator = ItemsMySQLQuery.Rows.GetEnumerator
                     e.Reset()
@@ -437,38 +439,38 @@ Namespace Handlers
                 'End If
                 ' q.Clear()
 
-                CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_bag = {0};", guid), q)
+                CharacterDatabase.Query(SQLQueries.GetItemGuidFromPlayerInventory.FormatWith(New With { Key.ItemBag = guid }), q)
                 For Each row As DataRow In q.Rows
                     'DONE: Delete items
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = ""{0}"";", row.Item("item_guid")))
+                    CharacterDatabase.Update(SQLQueries.DeleteFromPlayerInventoryByItemGuid.FormatWith(New With { Key.ItemGuid = row.Item("item_guid") }))
                     'DONE: Delete items in bags
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = ""{0}"";", CULng(row.Item("item_guid")) + GUID_ITEM))
+                    CharacterDatabase.Update(SQLQueries.DeleteFromPlayerInventoryByItemBag.FormatWith(New With { Key.ItemBag = CULng(row.Item("item_guid")) + GUID_ITEM }))
                 Next
-                CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_owner = {0};", guid), q)
+                CharacterDatabase.Query(SQLQueries.GetItemGuidFromPlayerInventoryByItemOwner.FormatWith(New With { Key.ItemOwner = guid }), q)
                 q.Clear()
-                CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_receiver = ""{0}"";", guid), q)
+                CharacterDatabase.Query(SQLQueries.GetMailIdFromPlayerMailByReceiver.FormatWith(New With { Key.MailReceiver = guid }), q)
                 For Each row As DataRow In q.Rows
                     'TODO: Return mails?
                     'DONE: Delete mails
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_mail WHERE mail_id = ""{0}"";", row.Item("mail_id")))
+                    CharacterDatabase.Update(SQLQueries.DeletePlayerMailByMailId.FormatWith(New With { Key.MailId = row.Item("mail_id") }))
                     'DONE: Delete mail items
-                    CharacterDatabase.Update(String.Format("DELETE FROM mail_items WHERE mail_id = ""{0}"";", row.Item("mail_id")))
+                    CharacterDatabase.Update(SQLQueries.DeletePlayerMailItemByMailId.FormatWith(New With { Key.MailId = row.Item("mail_id") }))
                 Next
-                CharacterDatabase.Update(String.Format("DELETE FROM characters WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_honor WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_quests WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE guid = '{0}' OR friend = '{0}';", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM petitions WHERE petition_owner = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM auctionhouse WHERE auction_owner = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE guid = ""{0}"";", guid))
+                CharacterDatabase.Update(SQLQueries.DeleteCharacterByGuid.FormatWith(New With { Key.CharGuid = guid }))
+                CharacterDatabase.Update(SQLQueries.DeleteCharacterHonorByGuid.FormatWith(New With { Key.CharGuid = guid }))
+                CharacterDatabase.Update(SQLQueries.DeleteCharacterQuestsByGuid.FormatWith(New With { Key.CharGuid = guid }))
+                CharacterDatabase.Update(SQLQueries.DeleteCharacterSocialByGuid.FormatWith(New With { Key.Guid = guid, Key.Friend = guid }))
+                CharacterDatabase.Update(SQLQueries.DeleteCharacterSpellsByGuid.FormatWith(New With { Key.Guid = guid }))
+                CharacterDatabase.Update(SQLQueries.DeletePetitionsByOwner.FormatWith(New With { Key.PetitionOwner = guid }))
+                CharacterDatabase.Update(SQLQueries.DeleteAuctionsByOwner.FormatWith(New With { Key.AuctionOwner = guid }))
+                CharacterDatabase.Update(SQLQueries.DeleteCharacterTicketsByGuid.FormatWith(New With { Key.CharGuid = guid }))
+                CharacterDatabase.Update(SQLQueries.DeleteCorpseByGuid.FormatWith(New With { Key.Guid = guid }))
 
                 q.Clear()
-                CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_leader = ""{0}"";", guid), q)
+                CharacterDatabase.Query(SQLQueries.GetGuildIdByLeader.FormatWith(New With { Key.GuildLeader = guid }), q)
                 If q.Rows.Count > 0 Then
-                    CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildid=0, char_guildrank=0, char_guildpnote='', charguildoffnote='' WHERE char_guildid=""{0}"";", q.Rows(0).Item("guild_id")))
-                    CharacterDatabase.Update(String.Format("DELETE FROM guild WHERE guild_id=""{0}"";", q.Rows(0).Item("guild_id")))
+                    CharacterDatabase.Update(SQLQueries.RemoveGuildFromPlayers.FormatWith(New With { Key.CharGuildId = q.Rows(0).Item("guild_id") }))
+                    CharacterDatabase.Update(SQLQueries.DeleteGuildById.FormatWith(New With { Key.GuildId = q.Rows(0).Item("guild_id") }))
                 End If
                 response.AddInt8(CharResponse.CHAR_DELETE_SUCCESS) ' Changed in 1.12.x client branch?
             Catch e As Exception
@@ -489,13 +491,13 @@ Namespace Handlers
 
             'DONE: Check for existing name
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name LIKE ""{0}"";", Name), q)
+            CharacterDatabase.Query(SQLQueries.GetCharacterNameByLike.FormatWith(New With { Key.CharName = Name }), q)
             If q.Rows.Count > 0 Then
                 ErrCode = CharResponse.CHAR_CREATE_NAME_IN_USE
             End If
 
             'DONE: Do the rename
-            If ErrCode = ATLoginFlags.AT_LOGIN_RENAME Then CharacterDatabase.Update(String.Format("UPDATE characters SET char_name = ""{1}"", force_restrictions = 0 WHERE char_guid = {0};", GUID, Name))
+            If ErrCode = ATLoginFlags.AT_LOGIN_RENAME Then CharacterDatabase.Update(SQLQueries.CharacterRename.FormatWith(New With { Key.CharName = Name, Key.CharGuid = GUID }))
 
             'DONE: Send response
             Dim response As New PacketClass(OPCODES.SMSG_CHAR_RENAME)

@@ -361,7 +361,7 @@ Module WS_CharMovement
 
             'DONE: Handling quest triggers
             q.Clear()
-            WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_involvedrelation WHERE id = {0};", triggerID), q)
+            WorldDatabase.Query(SQLQueries.GetAllAreaTriggerInvolvedRelationById.FormatWith(New With { Key.Id = triggerID }), q)
             If q.Rows.Count > 0 Then
                 ALLQUESTS.OnQuestExplore(client.Character, triggerID)
                 Exit Sub
@@ -369,7 +369,7 @@ Module WS_CharMovement
 
             'TODO: Handling tavern triggers
             q.Clear()
-            WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_tavern WHERE id = {0};", triggerID), q)
+            WorldDatabase.Query(SQLQueries.GetAllAreaTriggerTavernById.FormatWith(New With { Key.Id = triggerID }), q)
             If q.Rows.Count > 0 Then
                 client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_RESTING
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
@@ -379,7 +379,7 @@ Module WS_CharMovement
 
             'DONE: Handling teleport triggers
             q.Clear()
-            WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_teleport WHERE id = {0};", triggerID), q)
+            WorldDatabase.Query(SQLQueries.GetAllAreaTriggerTeleportById.FormatWith(New With { Key.Id = triggerID }), q)
             If q.Rows.Count > 0 Then
                 Dim posX As Single = q.Rows(0).Item("target_position_x")
                 Dim posY As Single = q.Rows(0).Item("target_position_y")

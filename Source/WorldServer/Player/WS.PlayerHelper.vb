@@ -170,24 +170,15 @@ Public Module WS_PlayerHelper
         '??? not sure why there is two save points.
         'here and back on PlayerDataType Line: 401
         Public Sub Save()
-            Dim tmp As String = "UPDATE characters_honor SET"
+            Dim tmp As String = SQLQueries.CharacterHonorSave.FormatWith(New With { Key.HonorPoints = HonorPoints, Key.HonorRank = HonorRank,
+                                                                         Key.HonorHightestRank = HonorHightestRank, Key.HonorStanding = Standing,
+                                                                         Key.HonorLastWeek = HonorLastWeek, Key.HonorThisWeek = HonorThisWeek,
+                                                                         Key.HonorYesterday = HonorYesterday, Key.KillsLastWeek = KillsLastWeek,
+                                                                         Key.KillsThisWeek = KillsThisWeek, Key.KillsYesterday = KillsYesterday,
+                                                                         Key.KillsDishonorableToday = KillsDisHonorableToday, Key.KillsHonorableToday = KillsHonorableToday,
+                                                                         Key.KillsDishonorableLifetime = KillsDisHonorableLifetime, Key.KillsHonorableLifetime = KillsHonorableLifetime,
+                                                                         Key.CharGuid = CharGUID })
 
-            tmp = tmp & " honor_points =""" & HonorPoints & """"
-            tmp = tmp & ", honor_rank =" & HonorRank
-            tmp = tmp & ", honor_hightestRank =" & HonorHightestRank
-            tmp = tmp & ", honor_standing =" & Standing
-            tmp = tmp & ", honor_lastWeek =" & HonorLastWeek
-            tmp = tmp & ", honor_thisWeek =" & HonorThisWeek
-            tmp = tmp & ", honor_yesterday =" & HonorYesterday
-            tmp = tmp & ", kills_lastWeek =" & KillsLastWeek
-            tmp = tmp & ", kills_thisWeek =" & KillsThisWeek
-            tmp = tmp & ", kills_yesterday =" & KillsYesterday
-            tmp = tmp & ", kills_dishonorableToday =" & KillsDisHonorableToday
-            tmp = tmp & ", kills_honorableToday =" & KillsHonorableToday
-            tmp = tmp & ", kills_dishonorableLifetime =" & KillsDisHonorableLifetime
-            tmp = tmp & ", kills_honorableLifetime =" & KillsHonorableLifetime
-
-            tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", CharGUID)
             CharacterDatabase.Update(tmp)
         End Sub
 

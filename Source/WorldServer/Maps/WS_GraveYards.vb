@@ -179,7 +179,7 @@ Public Class WS_GraveYards
         If Maps(Character.MapID).IsDungeon = True Or Maps(Character.MapID).IsBattleGround = True Or Maps(Character.MapID).IsRaid = True Then   'In an instance
             Character.ZoneCheckInstance()
             Ghostzone = AreaTable(GetAreaIDByMapandParent(Character.MapID, AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone)).ID
-            WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0} and (faction = 0 or faction = {1}) ", Ghostzone, Character.Team), GraveQuery)
+            WorldDatabase.Query(SQLQueries.GetIdFactionFromGraveyardZone.FormatWith(New With { Key.GhostZone = Ghostzone, Key.Faction = Character.Team }), GraveQuery)
 
             'AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone()
             If GraveQuery.Rows.Count = 0 Then
@@ -253,7 +253,7 @@ Public Class WS_GraveYards
             Character.ZoneCheck()
 
             '            WorldDatabase.Query(String.Format("SELECT id, faction FROM world_graveyard_zone WHERE ghost_map = {0} AND ghost_zone = {1}", Character.MapID, Character.ZoneID), GraveQuery)
-            WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0}", Character.ZoneID), GraveQuery)
+            WorldDatabase.Query(SQLQueries.GetIdFactionFromGraveyardZoneByGhostZone.FormatWith(New With { Key.GhostZone = Character.ZoneID }), GraveQuery)
 
             If GraveQuery.Rows.Count = 0 Then
                 Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)

@@ -252,7 +252,7 @@ Public Module WorldCluster
             Console.ReadKey()
             End
         End If
-        AccountDatabase.Update("SET NAMES 'utf8';")
+        AccountDatabase.Update(SQLQueries.SetCharacterSet)
 
         ReturnValues = CharacterDatabase.Connect()
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
@@ -263,7 +263,7 @@ Public Module WorldCluster
             Console.ReadKey()
             End
         End If
-        CharacterDatabase.Update("SET NAMES 'utf8';")
+        CharacterDatabase.Update(SQLQueries.SetCharacterSet)
 
         ReturnValues = WorldDatabase.Connect()
         If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
@@ -274,13 +274,13 @@ Public Module WorldCluster
             Console.ReadKey()
             End
         End If
-        WorldDatabase.Update("SET NAMES 'utf8';")
+        WorldDatabase.Update(SQLQueries.SetCharacterSet)
 
 #If DEBUG Then
         Log.WriteLine(LogType.DEBUG, "Setting MySQL into debug mode..[done]")
-        AccountDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        CharacterDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        WorldDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
+        AccountDatabase.Update(SQLQueries.SetSqlMode)
+        CharacterDatabase.Update(SQLQueries.SetSqlMode)
+        WorldDatabase.Update(SQLQueries.SetSqlMode)
 #End If
         InitializeInternalDatabase()
         IntializePacketHandlers()
@@ -337,8 +337,8 @@ Public Module WorldCluster
                                     Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                                     Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                                    AccountDatabase.InsertSQL(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
-                                    If AccountDatabase.QuerySQL("SELECT id FROM account WHERE username = """ & cmd(0) & """;") Then
+                                    AccountDatabase.InsertSQL(SQLQueries.CreateAccount.FormatWith(New With { Key.UserName = cmd(0), Key.ShaPassHash = hashStr, Key.Email = cmd(2), Key.JoinDate = Format(Now, "yyyy-MM-dd"), Key.LastIp = "0.0.0.0" }))
+                                    If AccountDatabase.QuerySQL(SQLQueries.GetAccountIdByName.FormatWith(New With { Key.UserName = cmd(0) })) Then
                                         Console.ForegroundColor = ConsoleColor.Green
                                         Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
                                         Console.ForegroundColor = ConsoleColor.Gray

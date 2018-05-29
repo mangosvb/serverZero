@@ -175,6 +175,7 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\StringExtensions.vb" />
     <Compile Include="Globals\Global.Functions.vb" />
     <Compile Include="Cluster.vb">
     </Compile>
@@ -190,6 +191,7 @@
     <Compile Include="Globals\Global.Constants.vb" />
     <Compile Include="Globals\Global.Converter.vb" />
     <Compile Include="Globals\Global.Opcodes.vb" />
+    <Compile Include="Globals\Global.SQLQueries.vb" />
     <Compile Include="Globals\GlobalZip.Zip.vb" />
     <Compile Include="Logging\IrcWriter.vb" />
     <Compile Include="Logging\BaseWriter.vb" />

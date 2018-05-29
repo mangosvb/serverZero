@@ -91,7 +91,7 @@ Public Module WS_Handlers_Misc
                     Exit Sub
                 Else
                     Dim MySQLQuery As New DataTable
-                    CharacterDatabase.Query(String.Format("SELECT char_name, char_race, char_class, char_gender FROM characters WHERE char_guid = ""{0}"";", GUID), MySQLQuery)
+                    CharacterDatabase.Query(SQLQueries.CharacterNameQueryResponse.FormatWith(New With { Key.CharGuid = GUID }), MySQLQuery)
 
                     If MySQLQuery.Rows.Count > 0 Then
                         Try
@@ -443,7 +443,7 @@ Public Module WS_Handlers_Misc
                 Log.WriteLine(LogType.DEBUG, "Corpse wasn't found [{0}]!", Character.corpseGUID - GUID_CORPSE)
 
                 'DONE: Delete from database
-                CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Character.GUID))
+                CharacterDatabase.Update(SQLQueries.DeleteCorpseByPlayer.FormatWith(New With { Key.Player = Character.GUID }))
 
                 'TODO: Turn the corpse into bones on the server it is located at!
             End If

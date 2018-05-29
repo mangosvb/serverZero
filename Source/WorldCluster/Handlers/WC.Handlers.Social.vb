@@ -30,7 +30,7 @@ Namespace Handlers
         Public Sub LoadIgnoreList(ByRef objCharacter As CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND flags = {1};", objCharacter.Guid, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
+            CharacterDatabase.Query(SQLQueries.GetSocialIgnoreList.FormatWith(New With { Key.CharGuid = objCharacter.Guid, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte) }), q)
 
             'DONE: Add to list
             For Each r As DataRow In q.Rows
@@ -41,7 +41,7 @@ Namespace Handlers
         Public Sub SendFriendList(ByRef client As ClientClass, ByRef character As CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND (flags & {1}) > 0;", character.Guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
+            CharacterDatabase.Query(SQLQueries.GetSocialFriendList.FormatWith(New With { Key.CharGuid = character.Guid, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer) }), q)
 
             'DONE: Make the packet
             Dim smsgFriendList As New PacketClass(OPCODES.SMSG_FRIEND_LIST)
@@ -79,7 +79,7 @@ Namespace Handlers
         Public Sub SendIgnoreList(ByRef client As ClientClass, ByRef character As CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND (flags & {1}) > 0;", character.Guid, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Integer)), q)
+            CharacterDatabase.Query(SQLQueries.GetSocialFriendList.FormatWith(New With { Key.CharGuid = character.Guid, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_IGNORED, Integer) }), q)
 
             'DONE: Make the packet
             Dim smsgIgnoreList As New PacketClass(OPCODES.SMSG_IGNORE_LIST)
@@ -101,7 +101,7 @@ Namespace Handlers
 
         Public Sub NotifyFriendStatus(ByRef objCharacter As CharacterObject, s As FriendStatus)
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT guid FROM character_social WHERE friend = {0} AND (flags & {1}) > 0;", objCharacter.Guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
+            CharacterDatabase.Query(SQLQueries.GetNotifyFriendStatus.FormatWith(New With { Key.FriendGuid =  objCharacter.Guid, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer) }), q)
 
             'DONE: Send "Friend offline/online"
             Dim friendpacket As New PacketClass(OPCODES.SMSG_FRIEND_STATUS)
@@ -207,17 +207,17 @@ Namespace Handlers
 
             'DONE: Get GUID from DB
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT char_guid, char_race FROM characters WHERE char_name = ""{0}"";", name), q)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuidAndRaceByName.FormatWith(New With { Key.CharName = name }), q)
 
             If q.Rows.Count > 0 Then
                 guid = CType(q.Rows(0).Item("char_guid"), Long)
                 Dim FriendSide As Boolean = GetCharacterSide(q.Rows(0).Item("char_race"))
 
                 q.Clear()
-                CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE flags = {0}", CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
+                CharacterDatabase.Query(SQLQueries.GetSocialFlagsByFlags.FormatWith(New With { Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte) }), q)
                 Dim NumberOfFriends As Integer = q.Rows.Count
                 q.Clear()
-                CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE guid = {0} AND friend = {1} AND flags = {2};", client.Character.Guid, guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)), q)
+                CharacterDatabase.Query(SQLQueries.GetSocialFlagsByCharacterGuidFriendGuidFlags.FormatWith(New With { Key.CharGuid = client.Character.Guid, Key.FriendGuid = guid, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte) }), q)
 
                 If guid = client.Character.Guid Then
                     response.AddInt8(FriendResult.FRIEND_SELF)
@@ -245,12 +245,12 @@ Namespace Handlers
                     response.AddInt32(CHARACTERs(guid).Zone)
                     response.AddInt32(CHARACTERs(guid).Level)
                     response.AddInt32(CHARACTERs(guid).Classe)
-                    CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.Guid, guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
+                    CharacterDatabase.Update(SQLQueries.InsertCharacterSocial.FormatWith(New With { Key.CharGuid = client.Character.Guid, Key.FriendGuid = guid, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte) }))
                 Else
                     response.AddInt8(FriendResult.FRIEND_ADDED_OFFLINE)
                     response.AddUInt64(guid)
                     response.AddString(name)
-                    CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.Guid, guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte)))
+                    CharacterDatabase.Update(SQLQueries.InsertCharacterSocial.FormatWith(New With { Key.CharGuid = client.Character.Guid, Key.FriendGuid = guid, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_FRIEND, Byte) }))
                 End If
             Else
                 response.AddInt8(FriendResult.FRIEND_NOT_FOUND)
@@ -273,15 +273,15 @@ Namespace Handlers
 
             'DONE: Get GUID from DB
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = ""{0}"";", name), q)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = name }), q)
 
             If q.Rows.Count > 0 Then
                 GUID = CType(q.Rows(0).Item("char_guid"), Long)
                 q.Clear()
-                CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE flags = {0}", CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
+                CharacterDatabase.Query(SQLQueries.GetSocialFlagsByFlags.FormatWith(New With { Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte) }), q)
                 Dim NumberOfFriends As Integer = q.Rows.Count
                 q.Clear()
-                CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND friend = {1} AND flags = {2};", client.Character.Guid, GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
+                CharacterDatabase.Query(SQLQueries.GetAllByCharacterGuidFriendGuidFlags.FormatWith(New With { Key.CharGuid = client.Character.Guid, Key.FriendGuid = GUID, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte) }), q)
 
                 If GUID = client.Character.Guid Then
                     response.AddInt8(FriendResult.FRIEND_IGNORE_SELF)
@@ -296,7 +296,7 @@ Namespace Handlers
                     response.AddInt8(FriendResult.FRIEND_IGNORE_ADDED)
                     response.AddUInt64(GUID)
 
-                    CharacterDatabase.Update(String.Format("INSERT INTO character_social (guid, friend, flags) VALUES ({0}, {1}, {2});", client.Character.Guid, GUID, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)))
+                    CharacterDatabase.Update(SQLQueries.InsertCharacterSocial.FormatWith(New With { Key.CharGuid = client.Character.Guid, Key.FriendGuid = GUID, Key.SocialFlags = CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte) }))
                     client.Character.IgnoreList.Add(GUID)
                 End If
             Else
@@ -319,15 +319,15 @@ Namespace Handlers
 
             Try
                 Dim q As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE guid = {0} AND friend = {1};", client.Character.Guid, GUID), q)
+                CharacterDatabase.Query(SQLQueries.GetSocialFlagsByCharacterGuidFriendGuid.FormatWith(New With { Key.CharGuid = client.Character.Guid, Key.FriendGuid = GUID }), q)
 
                 If q.Rows.Count > 0 Then
                     Dim flags As Integer = q.Rows(0).Item("flags")
                     Dim newFlags As Integer = (flags And (Not SocialFlag.SOCIAL_FLAG_FRIEND))
                     If (newFlags And (SocialFlag.SOCIAL_FLAG_FRIEND Or SocialFlag.SOCIAL_FLAG_IGNORED)) = 0 Then
-                        CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE friend = {1} AND guid = {0};", client.Character.Guid, GUID))
+                        CharacterDatabase.Update(SQLQueries.DeleteCharacterSocialByFrindGuidCharacterGuid.FormatWith(New With { Key.FriendGuid = GUID, Key.CharGuid = client.Character.Guid }))
                     Else
-                        CharacterDatabase.Update(String.Format("UPDATE character_social SET flags = {2} WHERE friend = {1} AND guid = {0};", client.Character.Guid, GUID, newFlags))
+                        CharacterDatabase.Update(SQLQueries.UpdateSocialFlagsByFriendGuidCharacterGuid.FormatWith(New With { Key.SocialFlags = newFlags, Key.FriendGuid = GUID, Key.CharGuid = client.Character.Guid }))
                     End If
                     response.AddInt8(FriendResult.FRIEND_REMOVED)
                 Else
@@ -353,15 +353,15 @@ Namespace Handlers
 
             Try
                 Dim q As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT flags FROM character_social WHERE guid = {0} AND friend = {1};", client.Character.Guid, GUID), q)
+                CharacterDatabase.Query(SQLQueries.GetSocialFlagsByCharacterGuidFriendGuid.FormatWith(New With { Key.CharGuid = client.Character.Guid, Key.FriendGuid = GUID }), q)
 
                 If q.Rows.Count > 0 Then
                     Dim flags As Integer = q.Rows(0).Item("flags")
                     Dim newFlags As Integer = (flags And (Not SocialFlag.SOCIAL_FLAG_IGNORED))
                     If (newFlags And (SocialFlag.SOCIAL_FLAG_FRIEND Or SocialFlag.SOCIAL_FLAG_IGNORED)) = 0 Then
-                        CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE friend = {1} AND guid = {0};", client.Character.Guid, GUID))
+                        CharacterDatabase.Update(SQLQueries.DeleteCharacterSocialByFrindGuidCharacterGuid.FormatWith(New With { Key.FriendGuid = GUID, Key.CharGuid = client.Character.Guid }))
                     Else
-                        CharacterDatabase.Update(String.Format("UPDATE character_social SET flags = {2} WHERE friend = {1} AND guid = {0};", client.Character.Guid, GUID, newFlags))
+                        CharacterDatabase.Update(SQLQueries.UpdateSocialFlagsByFriendGuidCharacterGuid.FormatWith(New With { Key.SocialFlags = newFlags, Key.FriendGuid = GUID, Key.CharGuid = client.Character.Guid }))
                     End If
                     response.AddInt8(FriendResult.FRIEND_IGNORE_REMOVED)
                 Else

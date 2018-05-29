@@ -315,7 +315,7 @@ Public Module WS_DBCDatabase
         Dim dbLvl As Integer
         Dim dbXp As Long
         Try
-            WorldDatabase.Query(String.Format("SELECT * FROM player_xp_for_level order by lvl;"), result)
+            WorldDatabase.Query(SQLQueries.GetPlayerXPLevel, result)
             If result.Rows.Count > 0 Then
                 For Each row As DataRow In result.Rows
                     dbLvl = row.Item("lvl")
@@ -335,7 +335,7 @@ Public Module WS_DBCDatabase
     Public Battlemasters As New Dictionary(Of Integer, Byte)
     Public Sub InitializeBattlemasters()
         Dim MySQLQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM battlemaster_entry"), MySQLQuery)
+        WorldDatabase.Query(SQLQueries.GetBattleMasters, MySQLQuery)
 
         For Each row As DataRow In MySQLQuery.Rows
             Battlemasters.Add(row.Item("entry"), row.Item("bg_template"))
@@ -353,7 +353,7 @@ Public Module WS_DBCDatabase
         Dim entry As Byte
 
         Dim mySqlQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), mySqlQuery)
+        WorldDatabase.Query(SQLQueries.GetBattleGrounds, mySqlQuery)
 
         For Each row As DataRow In mySqlQuery.Rows
             entry = row.Item("id")
@@ -393,7 +393,7 @@ Public Module WS_DBCDatabase
         Dim SpellID As Integer
 
         Dim MySQLQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM spells_teleport_coords"), MySQLQuery)
+        WorldDatabase.Query(SQLQueries.GetTeleportCoords, MySQLQuery)
 
         For Each row As DataRow In MySQLQuery.Rows
             SpellID = row.Item("id")
@@ -580,7 +580,7 @@ Public Module WS_DBCDatabase
             'DONE: Initializing Counters
             Dim MySQLQuery As New DataTable
             Try
-                CharacterDatabase.Query(String.Format("SELECT MAX(item_guid) FROM characters_inventory;"), MySQLQuery)
+                CharacterDatabase.Query(SQLQueries.GetMaxItemGuidCharacterInventory, MySQLQuery)
                 If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                     itemGuidCounter = MySQLQuery.Rows(0).Item(0) + GUID_ITEM
                 Else
@@ -591,7 +591,7 @@ Public Module WS_DBCDatabase
             End Try
             MySQLQuery = New DataTable
             Try
-                WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_creatures;"), MySQLQuery)
+                WorldDatabase.Query(SQLQueries.GetMaxSpawnIdCreatures, MySQLQuery)
                 If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                     CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_UNIT
                 Else
@@ -603,7 +603,7 @@ Public Module WS_DBCDatabase
 
             MySQLQuery = New DataTable
             Try
-                WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_gameobjects;"), MySQLQuery)
+                WorldDatabase.Query(SQLQueries.GetMaxSpawnIdGameObjects, MySQLQuery)
                 If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                     GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_GAMEOBJECT
                 Else
@@ -615,7 +615,7 @@ Public Module WS_DBCDatabase
 
             MySQLQuery = New DataTable
             Try
-                CharacterDatabase.Query(String.Format("SELECT MAX(guid) FROM corpse"), MySQLQuery)
+                CharacterDatabase.Query(SQLQueries.GetMaxGuidForCorpse, MySQLQuery)
                 If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                     CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_CORPSE
                 Else

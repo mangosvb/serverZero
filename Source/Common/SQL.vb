@@ -190,6 +190,7 @@ Public Class SQL
                 Case DB_Type.MySQL
                     MySQLConn = New MySqlConnection(String.Format("Server={0};Port={4};User ID={1};Password={2};Database={3};Compress=false;Connection Timeout=1;", SQLHost, SQLUser, SQLPass, SQLDBName, SQLPort))
                     MySQLConn.Open()
+
                     RaiseEvent SQLMessage(EMessages.ID_Message, "MySQL Connection Opened Successfully [" & SQLUser & "@" & SQLHost & "]")
 
                 Case DB_Type.MSSQL

@@ -28,7 +28,7 @@ Public Class CreatureInfo
 
         'DONE: Load Item Data from MySQL
         Dim MySQLQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
+        WorldDatabase.Query(SQLQueries.GetCreatureByEntry.FormatWith(New With { Key.Entry = CreatureID }), MySQLQuery)
 
         If MySQLQuery.Rows.Count = 0 Then
             Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)

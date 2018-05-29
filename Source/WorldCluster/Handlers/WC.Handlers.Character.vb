@@ -120,7 +120,7 @@ Namespace Handlers
             Public Sub ReLoad()
                 'DONE: Get character info from DB
                 Dim MySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE char_guid = {0};", GUID), MySQLQuery)
+                CharacterDatabase.Query(SQLQueries.SelectAllFromCharactersByGuid.FormatWith(New With { Key.CharGuid = GUID }), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     Race = CType(MySQLQuery.Rows(0).Item("char_race"), Byte)
                     Classe = CType(MySQLQuery.Rows(0).Item("char_class"), Byte)
@@ -234,8 +234,8 @@ Namespace Handlers
                 IsInWorld = False
                 GetWorld.ClientDisconnect(client.Index)
 
-                CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};",
-                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), thisMap, GUID))
+                CharacterDatabase.Update(SQLQueries.TransferPlayer.FormatWith(New With { Key.CharPositionX = Trim(Str(posX)), Key.CharPositionY = Trim(Str(posY)), Key.CharPositionZ = Trim(Str(posZ)), 
+                                                                                 Key.CharOrientation = Trim(Str(ori)), Key.CharMapId = thisMap, Key.CharGuid = GUID }))
 
                 'Do global transfer
                 WorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, thisMap)
@@ -251,8 +251,8 @@ Namespace Handlers
                 IsInWorld = False
                 GetWorld.ClientDisconnect(client.Index)
 
-                CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};",
-                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), Map, GUID))
+                CharacterDatabase.Update(SQLQueries.TransferPlayer.FormatWith(New With { Key.CharPositionX = Trim(Str(posX)), Key.CharPositionY = Trim(Str(posY)), Key.CharPositionZ = Trim(Str(posZ)), 
+                                                                                 Key.CharOrientation = Trim(Str(ori)), Key.CharMapId = Map, Key.CharGuid = GUID }))
 
                 'Do global transfer
                 WorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, Map)
@@ -260,16 +260,16 @@ Namespace Handlers
             'Login
             Public Sub OnLogin()
                 'DONE: Update character status in database
-                CharacterDatabase.Update("UPDATE characters SET char_online = 1 WHERE char_guid = " & GUID & ";")
+                CharacterDatabase.Update(SQLQueries.SetCharacterOnlineByGuid.FormatWith(New With { Key.CharGuid = GUID }))
 
                 'DONE: SMSG_ACCOUNT_DATA_MD5
                 SendAccountMD5(client, Me)
 
                 'DONE: SMSG_TRIGGER_CINEMATIC
                 Dim q As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT char_moviePlayed FROM characters WHERE char_guid = {0} AND char_moviePlayed = 0;", GUID), q)
+                CharacterDatabase.Query(SQLQueries.TriggerCinematic.FormatWith(New With { Key.CharGuid = GUID }), q)
                 If q.Rows.Count > 0 Then
-                    CharacterDatabase.Update("UPDATE characters SET char_moviePlayed = 1 WHERE char_guid = " & GUID & ";")
+                    CharacterDatabase.Update(SQLQueries.SetCinematicPlayed.FormatWith(New With { Key.CharGuid = GUID }))
                     SendTriggerCinematic(client, Me)
                 End If
 
@@ -361,7 +361,7 @@ Namespace Handlers
 
             If GUID = 0 Then
                 Dim q As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = ""{0}"";", EscapeString(Name)), q)
+                CharacterDatabase.Query(SQLQueries.GetCharacterGuidByName.FormatWith(New With { Key.CharName = EscapeString(Name) }), q)
 
                 If q.Rows.Count > 0 Then
                     Return q.Rows(0).Item("char_guid")
@@ -378,7 +378,7 @@ Namespace Handlers
                 Return CHARACTERs(GUID).Name
             Else
                 Dim q As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_guid = ""{0}"";", GUID), q)
+                CharacterDatabase.Query(SQLQueries.GetCharacterNameByGuid.FormatWith(New With { Key.CharGuid = GUID }), q)
 
                 If q.Rows.Count > 0 Then
                     Return CType(q.Rows(0).Item("char_name"), String)

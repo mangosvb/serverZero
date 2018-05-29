@@ -1005,7 +1005,7 @@ Public Module WS_Maps
 
         'DONE: Creatures
         Dim MysqlQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM spawns_creatures LEFT OUTER JOIN game_event_creature ON spawns_creatures.spawn_id = game_event_creature.guid WHERE spawn_map={0} AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
+        WorldDatabase.Query(SQLQueries.GetCreatureSpawns.FormatWith(New With { Key.SpawnMap = TileMap, Key.PostionX1 = MinX, Key.PositionX2 = MaxX, Key.PositionY1 = MinY, Key.PositionY2 = MaxY }), MysqlQuery)
         For Each InfoRow As DataRow In MysqlQuery.Rows
             If Not WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("spawn_id"), Long) + InstanceGuidAdd + GUID_UNIT) Then
                 Try
@@ -1022,7 +1022,7 @@ Public Module WS_Maps
 
         'DONE: Gameobjects
         MysqlQuery.Clear()
-        WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_map={0} AND spawn_spawntime>=0 AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
+        WorldDatabase.Query(SQLQueries.GetGameObjectSpawns.FormatWith(New With { Key.SpawnMap = TileMap, Key.PostionX1 = MinX, Key.PositionX2 = MaxX, Key.PositionY1 = MinY, Key.PositionY2 = MaxY }), MysqlQuery)
         For Each InfoRow As DataRow In MysqlQuery.Rows
             If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso
               Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_TRANSPORT) Then
@@ -1040,7 +1040,7 @@ Public Module WS_Maps
 
         'DONE: Corpses
         MysqlQuery.Clear()
-        CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE map={0} AND instance={5} AND position_x BETWEEN '{1}' AND '{2}' AND position_y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY, TileInstance), MysqlQuery)
+        CharacterDatabase.Query(SQLQueries.GetCorpseSpawns.FormatWith(New With { Key.Map = TileMap, Key.Instance = TileInstance, Key.PostionX1 = MinX, Key.PositionX2 = MaxX, Key.PositionY1 = MinY, Key.PositionY2 = MaxY }), MysqlQuery)
         For Each InfoRow As DataRow In MysqlQuery.Rows
             If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + GUID_CORPSE) Then
                 Try

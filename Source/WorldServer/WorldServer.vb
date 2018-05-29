@@ -313,7 +313,7 @@ Public Module WorldServer
             Console.ReadKey()
             End
         End If
-        AccountDatabase.Update("SET NAMES 'utf8';")
+        AccountDatabase.Update(SQLQueries.SetCharacterSet)
 
         ReturnValues = CharacterDatabase.Connect()
         If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
@@ -324,7 +324,7 @@ Public Module WorldServer
             Console.ReadKey()
             End
         End If
-        CharacterDatabase.Update("SET NAMES 'utf8';")
+        CharacterDatabase.Update(SQLQueries.SetCharacterSet)
 
         ReturnValues = WorldDatabase.Connect()
         If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
@@ -335,7 +335,7 @@ Public Module WorldServer
             Console.ReadKey()
             End
         End If
-        WorldDatabase.Update("SET NAMES 'utf8';")
+        WorldDatabase.Update(SQLQueries.SetCharacterSet)
 
         'Check the Database version, exit if its wrong
         Dim areDbVersionsOk As Boolean = True
@@ -356,9 +356,9 @@ Public Module WorldServer
         Log.WriteLine(LogType.INFORMATION, "Running from: {0}", AppDomain.CurrentDomain.BaseDirectory)
         Console.ForegroundColor = ConsoleColor.Gray
         Log.WriteLine(LogType.DEBUG, "Setting MySQL into debug mode..[done]")
-        AccountDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        CharacterDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        WorldDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
+        AccountDatabase.Update(SQLQueries.SetSqlMode)
+        CharacterDatabase.Update(SQLQueries.SetSqlMode)
+        WorldDatabase.Update(SQLQueries.SetSqlMode)
 #End If
         InitializeInternalDatabase()
         IntializePacketHandlers()
@@ -422,15 +422,24 @@ Public Module WorldServer
                                 AddToWorld(test)
                                 Log.WriteLine(LogType.DEBUG, "Spawned character " & test.Name)
                             Case "createaccount", "/createaccount"
-                                AccountDatabase.InsertSQL([String].Format("INSERT INTO accounts (account, password, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(1), cmd(2), cmd(3), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
-                                If AccountDatabase.QuerySQL("SELECT * FROM accounts WHERE account = "" & packet_account & "";") Then
-                                    Console.ForegroundColor = System.ConsoleColor.DarkGreen
-                                    Console.WriteLine("[Account: " & cmd(1) & " Password: " & cmd(2) & " Email: " & cmd(3) & "] has been created.")
-                                    Console.ForegroundColor = System.ConsoleColor.Gray
+                                If cmd.Length <> 3 Then
+                                    Console.ForegroundColor = ConsoleColor.Yellow
+                                    Console.WriteLine("[{0}] USAGE: createaccount <account> <password> <email>", Format(TimeOfDay, "hh:mm:ss"))
                                 Else
-                                    Console.ForegroundColor = System.ConsoleColor.DarkRed
-                                    Console.WriteLine("[Account: " & cmd(1) & " Password: " & cmd(2) & " Email: " & cmd(3) & "] could not be created.")
-                                    Console.ForegroundColor = System.ConsoleColor.Gray
+                                    Dim passwordStr() As Byte = Text.Encoding.ASCII.GetBytes(cmd(0).ToUpper & ":" & cmd(1).ToUpper)
+                                    Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
+                                    Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
+
+                                    AccountDatabase.InsertSQL(SQLQueries.CreateAccount.FormatWith(New With { Key.UserName = cmd(0), Key.ShaPassHash = hashStr, Key.Email = cmd(2), Key.JoinDate = Format(Now, "yyyy-MM-dd"), Key.LastIp = "0.0.0.0" }))
+                                    If AccountDatabase.QuerySQL(SQLQueries.GetAccountIdByName.FormatWith(New With { Key.UserName = cmd(0) })) Then
+                                        Console.ForegroundColor = ConsoleColor.Green
+                                        Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
+                                        Console.ForegroundColor = ConsoleColor.Gray
+                                    Else
+                                        Console.ForegroundColor = ConsoleColor.Red
+                                        Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] could not be created.")
+                                        Console.ForegroundColor = ConsoleColor.Gray
+                                    End If
                                 End If
                             Case "exec", "/exec"
                                 Dim tmpScript As New ScriptedObject("scripts\commands\" & cmds(1), "", True)
@@ -439,18 +448,28 @@ Public Module WorldServer
                             Case "gccollect"
                                 GC.Collect()
                             Case "ban", "Ban", "Ban Account", "acct ban"
+                                Dim aName As String
+                                Dim reason As String
+                                Dim result As New DataTable
+                                Dim bannedAccount As New DataTable
+                                Dim result1 As New DataTable
+
                                 Console.ForegroundColor = System.ConsoleColor.DarkYellow
                                 Console.WriteLine("[{0}] Specify the Account Name :", Format(TimeOfDay, "hh:mm:ss"))
-                                Dim aName As String
                                 aName = Console.ReadLine
-                                Dim result As New DataTable
-                                Dim result1 As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & aName & """;", result)
-                                AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result1)
+
+                                Console.WriteLine("[{0}] Specify the Reason :", Format(TimeOfDay, "hh:mm:ss"))
+                                reason = Console.ReadLine
+
+                                AccountDatabase.Query(SQLQueries.GetAccountToBanByName.FormatWith(New With { Key.UserName = aName }), result)
+                                Dim accId As Integer = result.Rows(0).Item("id")
                                 Dim IP As String
-                                IP = result1.Rows(0).Item("last_ip")
+                                IP = result.Rows(0).Item("last_ip")
+                                AccountDatabase.Query(SQLQueries.GetBannedAccountById.FormatWith(New With { Key.Id = accId }), bannedAccount)
+                                AccountDatabase.Query(SQLQueries.IPBanned.FormatWith(New With { Key.IpAddress = IP.ToString() }), result1)
+
                                 If result.Rows.Count > 0 Then
-                                    If result.Rows(0).Item("banned") = 1 Then
+                                    If bannedAccount.Rows.Count > 0 Then
                                         Console.ForegroundColor = System.ConsoleColor.Green
                                         Console.WriteLine(String.Format("[{1}] Account [{0}] is already banned.", aName, Format(TimeOfDay, "hh:mm:ss")))
 
@@ -461,38 +480,44 @@ Public Module WorldServer
                                     ElseIf IP = "0.0.0.0" Then
                                         Console.WriteLine("[{1}] Account [{0}] does not have an IP Address.", aName, Format(TimeOfDay, "hh:mm:ss"))
                                     Else
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result)
+                                        AccountDatabase.Query(SQLQueries.GetAccountToBanByName.FormatWith(New With { Key.UserName = aName }), result)
                                         Dim IP1 As String
                                         IP1 = result.Rows(0).Item("last_ip")
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE account = """ & aName & """;")
+                                        AccountDatabase.Update(SQLQueries.UpdateAccountBanned.FormatWith(New With { Key.Id = accId }))
                                         Console.WriteLine(String.Format("[{1}] IP Address [{0}] is now banned.", IP, Format(TimeOfDay, "hh:mm:ss")))
-                                        AccountDatabase.Update(String.Format("INSERT INTO `bans` VALUES ('{0}', '{1}', '{2}', '{3}');", IP1, Format(Now, "yyyy-MM-dd"), "No Reason Specified.", aName))
-                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is now banned.", aName, Format(TimeOfDay, "hh:mm:ss")))
+                                        Dim tempBanDate As String = FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
+                                        AccountDatabase.Update(SQLQueries.InsertBannedAccount.FormatWith(New With { Key.Id = accId, Key.BanDate = tempBanDate, Key.UnBanDate = "0000-00-00 00:00:00", Key.BannedBy = "Ban Command On WorldServer", Key.BanReason = reason }))
                                     End If
                                 Else
                                     Console.ForegroundColor = System.ConsoleColor.DarkGray
                                     Console.WriteLine(String.Format("[{1}] Account [{0}] is not found.", aName, Format(TimeOfDay, "hh:mm:ss")))
                                 End If
                             Case "unban", "Unban", "UnBan", "acct unban", "Unban Account"
+                                Dim aName As String
+                                Dim result As New DataTable
+                                Dim bannedAccount As New DataTable
+
                                 Console.ForegroundColor = System.ConsoleColor.DarkCyan
                                 Console.WriteLine("[{0}] Account Name?", Format(TimeOfDay, "hh:mm:ss"))
-                                Dim aName As String
+
                                 Console.ForegroundColor = System.ConsoleColor.Magenta
                                 aName = Console.ReadLine
-                                Dim result As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & aName & """;", result)
+
+                                AccountDatabase.Query(SQLQueries.GetAccountToBanByName.FormatWith(New With { Key.UserName = aName }), result)
+                                Dim accId As Integer = result.Rows(0).Item("id")
+                                AccountDatabase.Query(SQLQueries.GetBannedAccountById.FormatWith(New With { Key.Id = accId }), bannedAccount)
 
                                 If result.Rows.Count > 0 Then
-                                    If result.Rows(0).Item("banned") = 0 Then
+                                    If bannedAccount.Rows.Count = 0 Then
                                         Console.ForegroundColor = System.ConsoleColor.Green
                                         Console.WriteLine(String.Format("[{1}] Account [{0}] is not banned.", aName, Format(TimeOfDay, "hh:mm:ss")))
                                     Else
                                         Console.ForegroundColor = System.ConsoleColor.Red
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE account = """ & aName & """;")
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result)
+                                        AccountDatabase.Update(SQLQueries.UpdateAccountUnBanned.FormatWith(New With { Key.Id = accId }))
+                                        AccountDatabase.Query(SQLQueries.GetAccountToBanByName.FormatWith(New With { Key.UserName = aName }), result)
                                         Dim IP As String
                                         IP = result.Rows(0).Item("last_ip")
-                                        AccountDatabase.Update([String].Format("DELETE FROM `bans` WHERE `ip` = '{0}';", IP))
+                                        AccountDatabase.Update(SQLQueries.DeleteIPBanned.FormatWith(New With { Key.IpAddress = IP.ToString() }))
                                         Console.WriteLine(String.Format("[{1}] Account [{0}] has been unbanned.", aName, Format(TimeOfDay, "hh:mm:ss")))
 
                                     End If

@@ -52,7 +52,7 @@ Public Module WC_Guild
             ID = guildId
 
             Dim mySqlQuery As New DataTable
-            CharacterDatabase.Query("SELECT * FROM guilds WHERE guild_id = " & ID & ";", mySqlQuery)
+            CharacterDatabase.Query(SQLQueries.GetGuildByGuildId.FormatWith(New With { Key.GuildId = ID }), mySqlQuery)
             If mySqlQuery.Rows.Count = 0 Then Throw New ApplicationException("GuildID " & ID & " not found in database.")
             Dim guildInfo As DataRow = mySqlQuery.Rows(0)
 
@@ -75,7 +75,7 @@ Public Module WC_Guild
             Next
 
             mySqlQuery.Clear()
-            CharacterDatabase.Query("SELECT char_guid FROM characters WHERE char_guildId = " & ID & ";", mySqlQuery)
+            CharacterDatabase.Query(SQLQueries.GetCharacterGuildByGuildId.FormatWith(New With { Key.GuildId = ID }), mySqlQuery)
             For Each memberInfo As DataRow In mySqlQuery.Rows
                 Members.Add(memberInfo.Item("char_guid"))
             Next
@@ -109,7 +109,7 @@ Public Module WC_Guild
 
     'Basic Guild Framework
     Public Sub AddCharacterToGuild(ByRef objCharacter As CharacterObject, guildId As Integer, Optional ByVal guildRank As Integer = 4)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, objCharacter.Guid, guildRank))
+        CharacterDatabase.Update(SQLQueries.AddCharacterToGuild.FormatWith(New With { Key.GuildId = guildId, Key.GuildRank = guildRank, Key.CharGuid = objCharacter.Guid }))
 
         If GUILDs.ContainsKey(guildId) = False Then
             Dim tmpGuild As New Guild(guildId)
@@ -124,11 +124,11 @@ Public Module WC_Guild
     End Sub
 
     Public Sub AddCharacterToGuild(guid As ULong, guildId As Integer, Optional ByVal guildRank As Integer = 4)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, guid, guildRank))
+        CharacterDatabase.Update(SQLQueries.AddCharacterToGuild.FormatWith(New With { Key.GuildId = guildId, Key.GuildRank = guildRank, Key.CharGuid = guid }))
     End Sub
 
     Public Sub RemoveCharacterFromGuild(ByRef objCharacter As CharacterObject)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, objCharacter.Guid))
+        CharacterDatabase.Update(SQLQueries.AddCharacterToGuild.FormatWith(New With { Key.GuildId = 0, Key.GuildRank = 0, Key.CharGuid = objCharacter.Guid }))
 
         objCharacter.Guild.Members.Remove(objCharacter.Guid)
         objCharacter.Guild = Nothing
@@ -137,7 +137,7 @@ Public Module WC_Guild
     End Sub
 
     Public Sub RemoveCharacterFromGuild(guid As ULong)
-        CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, guid))
+        CharacterDatabase.Update(SQLQueries.AddCharacterToGuild.FormatWith(New With { Key.GuildId = 0, Key.GuildRank = 0, Key.CharGuid = guid }))
     End Sub
 
     Public Sub BroadcastChatMessageGuild(ByRef sender As CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
@@ -235,7 +235,7 @@ Public Module WC_Guild
 
         'DONE: Count the members
         Dim Members As New DataTable
-        CharacterDatabase.Query("SELECT char_online, char_guid, char_name, char_class, char_level, char_zone_id, char_logouttime, char_guildRank, char_guildPNote, char_guildOffNote FROM characters WHERE char_guildId = " & objCharacter.Guild.ID & ";", Members)
+        CharacterDatabase.Query(SQLQueries.CountGuildMembers.FormatWith(New With { Key.GuildId = objCharacter.Guild.ID }), Members)
 
         Dim response As New PacketClass(OPCODES.SMSG_GUILD_ROSTER)
         response.AddInt32(Members.Rows.Count)

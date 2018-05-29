@@ -73,7 +73,7 @@ Public Module WS_Items
 
             'DONE: Load Item Data from MySQL
             Dim mySqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM item_template WHERE entry = {0};", itemId), mySqlQuery)
+            WorldDatabase.Query(SQLQueries.GetAllItemTemplateByEntry.FormatWith(New With { Key.Entry = itemId }), mySqlQuery)
             If mySqlQuery.Rows.Count = 0 Then
                 Log.WriteLine(LogType.FAILED,
                               "ItemID {0} not found in SQL database! Loading default ""Unknown Item"" info.", itemId)
@@ -849,7 +849,7 @@ Public Module WS_Items
                       client.Port, pageID, itemGuid)
 
         Dim mySqlQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM page_text WHERE entry = ""{0}"";", pageID), mySqlQuery)
+        WorldDatabase.Query(SQLQueries.GetAllPageTextByEntry.FormatWith(New With { Key.Entry = pageID }), mySqlQuery)
 
         Dim response As New PacketClass(OPCODES.SMSG_PAGE_TEXT_QUERY_RESPONSE)
         response.AddInt32(pageID)

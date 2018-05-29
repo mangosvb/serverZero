@@ -32,7 +32,7 @@ Public Class WS_Quests
         Dim tmpQuest As WS_QuestInfo
 
         Log.WriteLine(LogType.WARNING, "Loading Quests...")
-        WorldDatabase.Query(String.Format("SELECT entry FROM quests;"), cQuests)
+        WorldDatabase.Query(SQLQueries.GetAllEntryFromQuests, cQuests)
 
         For Each cRow As DataRow In cQuests.Rows
             Dim questID As Integer = cRow.Item("entry")
@@ -783,7 +783,7 @@ Public Class WS_Quests
     Public Sub LoadQuests(ByRef objCharacter As CharacterObject)
         Dim cQuests As New DataTable
         Dim i As Integer = 0
-        CharacterDatabase.Query(String.Format("SELECT quest_id, quest_status FROM characters_quests q WHERE q.char_guid = {0};", objCharacter.GUID), cQuests)
+        CharacterDatabase.Query(SQLQueries.GetAllCharacterQuests.FormatWith(New With { Key.CharGuid = objCharacter.GUID }), cQuests)
 
         For Each cRow As DataRow In cQuests.Rows
             Dim questID As Integer = cRow.Item("quest_id")

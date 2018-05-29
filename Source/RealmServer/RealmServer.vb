@@ -269,8 +269,8 @@ Public Module RealmServer
             Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.ForegroundColor = ConsoleColor.Gray
-            If Not _accountDatabase.QuerySql("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
-
+            If Not _accountDatabase.QuerySql(SQLQueries.IPBanned.FormatWith(New With { Key.IpAddress = ip.ToString() })) Then
+                
                 While Not _realmServer.FlagStopListen
                     Thread.Sleep(ConnectionSleepTime)
                     If Socket.Available > 0 Then
@@ -387,11 +387,11 @@ Public Module RealmServer
             Dim result As DataTable = Nothing
             Try
                 'Get Account info
-                _accountDatabase.Query(String.Format("SELECT id, sha_pass_hash, gmlevel, expansion FROM account WHERE username = ""{0}"";", packetAccount), result)
-
+                _accountDatabase.Query(SQLQueries.LoginAccountInfo.FormatWith(New With { Key.UserName = packetAccount }), result)
+                
                 'Check Account state
                 If result.Rows.Count > 0 Then
-                    If _accountDatabase.QuerySQL("SELECT id FROM account_banned WHERE id = '" & result.Rows(0).Item("id") & "';") Then
+                    If _accountDatabase.QuerySQL(SQLQueries.LoginAccountBanned.FormatWith(New With { Key.Id = result.Rows(0).Item("id") })) Then
                         accState = AccountState.LOGIN_BANNED
                     Else
                         accState = AccountState.LOGIN_OK
@@ -584,7 +584,7 @@ Public Module RealmServer
                     sshash = sshash + Hex(client.AuthEngine.SsHash(i))
                 End If
             Next
-            _accountDatabase.Update(String.Format("UPDATE account SET sessionkey = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';", client.Account, sshash, client.Ip.ToString, Format(Now, "yyyy-MM-dd")))
+            _accountDatabase.Update(SQLQueries.LogonUpdateAccount.FormatWith(New With { Key.SessionKey = sshash, Key.LastIp = client.Ip.ToString, Key.LastLogin = Format(Now, "yyyy-MM-dd"), Key.UserName = client.Account }))
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, client.Account, sshash)
         Else
@@ -606,15 +606,15 @@ Public Module RealmServer
         Dim countresult As DataTable = Nothing
 
         ' Retrieve the Account ID
-        _accountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), result)
+        _accountDatabase.Query(SQLQueries.GetAccountIdByName.FormatWith(New With { Key.UserName = client.Account }), result)
         Dim accountId As Integer = result.Rows(0).Item("id")
 
         If client.Access < AccessLevel.GameMaster Then
             'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
-            _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE allowedSecurityLevel = '0';"), result)
+            _accountDatabase.Query(SQLQueries.GetNonGMOnlyRealms, result)
         Else
             'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
-            _accountDatabase.Query(String.Format("SELECT * FROM realmlist;"), result)
+            _accountDatabase.Query(SQLQueries.GetAllRealms, result)
         End If
 
         For Each row As DataRow In result.Rows
@@ -644,7 +644,7 @@ Public Module RealmServer
             Dim hostRealmId As Integer = host.Item("id")
 
             ' Get Number of Characters for the Realm
-            _accountDatabase.Query(String.Format("SELECT * FROM realmcharacters WHERE realmid = '" & hostRealmId & "' AND acctid = '" & accountId & "';"), countresult)
+            _accountDatabase.Query(SQLQueries.GetNumberCharactersForRealm.FormatWith(New With { Key.HostRealmId = hostRealmId, Key.AccountId = accountId }), countresult)
 
             If (countresult.Rows.Count > 0) Then
                 characterCount = countresult.Rows(0).Item("numchars")
@@ -860,7 +860,7 @@ Public Module RealmServer
     Private Sub WorldServer_Status_Report()
         Dim result1 As DataTable = New DataTable
         Dim returnValues As Integer
-        returnValues = _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE allowedSecurityLevel < '1';"), result1)
+        returnValues = _accountDatabase.Query(SQLQueries.KnownWorldServers, result1)
         If returnValues > SQL.ReturnState.Success Then 'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -871,7 +871,7 @@ Public Module RealmServer
         End If
 
         Dim result2 As DataTable = New DataTable
-        returnValues = _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE realmflags < 2 && allowedSecurityLevel < '1';"), result2)
+        returnValues = _accountDatabase.Query(SQLQueries.OnlineWorldServers, result2)
         If returnValues > SQL.ReturnState.Success Then 'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -882,7 +882,7 @@ Public Module RealmServer
         End If
 
         Dim result3 As DataTable = New DataTable
-        returnValues = _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE realmflags < 2 && allowedSecurityLevel >= '1';"), result3)
+        returnValues = _accountDatabase.Query(SQLQueries.GMOnlyServers, result3)
         If returnValues > SQL.ReturnState.Success Then 'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
@@ -949,8 +949,6 @@ Public Module RealmServer
         'Check the Database version, exit if its wrong
         Dim areDbVersionsOk As Boolean = True
         If Globals.CheckRequiredDbVersion(_accountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
-        'If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
-        'If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
 
         If areDbVersionsOk = False Then
             Console.WriteLine("*************************")

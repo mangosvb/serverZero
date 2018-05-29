@@ -236,7 +236,7 @@ Public NotInheritable Class ItemObject
 
         'DONE: Loot generation
         Dim mySqlQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM item_loot WHERE entry = {0};", ItemEntry), mySqlQuery)
+        WorldDatabase.Query(SQLQueries.GetItemLootByEntry.FormatWith(New With { Key.Entry = ItemEntry }), mySqlQuery)
         If mySqlQuery.Rows.Count = 0 Then Return False
 
         _loot = New LootObject(GUID, LootType.LOOTTYPE_CORPSE)
@@ -254,8 +254,7 @@ Public NotInheritable Class ItemObject
                    Optional ByVal equipped As Boolean = False)
         'DONE: Get from SQLDB
         Dim mySqlQuery As New DataTable
-        CharacterDatabase.Query(
-            String.Format("SELECT * FROM characters_inventory WHERE item_guid = ""{0}"";", guidVal), mySqlQuery)
+        CharacterDatabase.Query(SQLQueries.GetCharacterInventoryByItemGuid.FormatWith(New With { Key.ItemGuid = guidVal }), mySqlQuery)
         If mySqlQuery.Rows.Count = 0 Then _
             Err.Raise(1, "ItemObject.New", String.Format("itemGuid {0} not found in SQL database!", guidVal))
 
@@ -296,8 +295,7 @@ Public NotInheritable Class ItemObject
 
         'DONE: Get Items
         mySqlQuery.Clear()
-        CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID),
-                                mySqlQuery)
+        CharacterDatabase.Query(SQLQueries.GetCharacterInventoryByItemBag.FormatWith(New With { Key.ItemBag = GUID }), mySqlQuery)
         For Each row As DataRow In mySqlQuery.Rows
             If row.Item("item_slot") <> ITEM_SLOT_NULL Then
                 Dim tmpItem As New ItemObject(CType(row.Item("item_guid"), Long))
@@ -343,64 +341,95 @@ Public NotInheritable Class ItemObject
 
     Private Sub SaveAsNew()
         'DONE: Save to SQL
-        Dim tmpCmd As String = "INSERT INTO characters_inventory (item_guid"
-        Dim tmpValues As String = " VALUES (" & GUID - GUID_ITEM
-        tmpCmd = tmpCmd & ", item_owner"
-        tmpValues = tmpValues & ", """ & OwnerGUID & """"
-        tmpCmd = tmpCmd & ", item_creator"
-        tmpValues = tmpValues & ", " & CreatorGUID
-        tmpCmd = tmpCmd & ", item_giftCreator"
-        tmpValues = tmpValues & ", " & GiftCreatorGUID
-        tmpCmd = tmpCmd & ", item_stackCount"
-        tmpValues = tmpValues & ", " & StackCount
-        tmpCmd = tmpCmd & ", item_durability"
-        tmpValues = tmpValues & ", " & Durability
-        tmpCmd = tmpCmd & ", item_chargesLeft"
-        tmpValues = tmpValues & ", " & ChargesLeft
-        tmpCmd = tmpCmd & ", item_random_properties"
-        tmpValues = tmpValues & ", " & RandomProperties
-        tmpCmd = tmpCmd & ", item_id"
-        tmpValues = tmpValues & ", " & ItemEntry
-        tmpCmd = tmpCmd & ", item_flags"
-        tmpValues = tmpValues & ", " & _flags
+        'Dim tmpCmd As String = "INSERT INTO characters_inventory (item_guid"
+        'Dim tmpValues As String = " VALUES (" & GUID - GUID_ITEM
+        'tmpCmd = tmpCmd & ", item_owner"
+        'tmpValues = tmpValues & ", """ & OwnerGUID & """"
+        'tmpCmd = tmpCmd & ", item_creator"
+        'tmpValues = tmpValues & ", " & CreatorGUID
+        'tmpCmd = tmpCmd & ", item_giftCreator"
+        'tmpValues = tmpValues & ", " & GiftCreatorGUID
+        'tmpCmd = tmpCmd & ", item_stackCount"
+        'tmpValues = tmpValues & ", " & StackCount
+        'tmpCmd = tmpCmd & ", item_durability"
+        'tmpValues = tmpValues & ", " & Durability
+        'tmpCmd = tmpCmd & ", item_chargesLeft"
+        'tmpValues = tmpValues & ", " & ChargesLeft
+        'tmpCmd = tmpCmd & ", item_random_properties"
+        'tmpValues = tmpValues & ", " & RandomProperties
+        'tmpCmd = tmpCmd & ", item_id"
+        'tmpValues = tmpValues & ", " & ItemEntry
+        'tmpCmd = tmpCmd & ", item_flags"
+        'tmpValues = tmpValues & ", " & _flags
 
-        'DONE: Saving enchanments
+        ''DONE: Saving enchanments
         Dim temp As New ArrayList
+        temp.Clear()
         For Each enchantment As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
             temp.Add(String.Format("{0}:{1}:{2}:{3}", enchantment.Key, enchantment.Value.ID,
                                    enchantment.Value.Duration, enchantment.Value.Charges))
         Next
-        tmpCmd = tmpCmd & ", item_enchantment"
-        tmpValues = tmpValues & ", '" & Join(temp.ToArray, " ") & "'"
-        tmpCmd = tmpCmd & ", item_textId"
-        tmpValues = tmpValues & ", " & ItemText
 
-        tmpCmd = tmpCmd & ") " & tmpValues & ");"
+        Dim enchantmentArray As String = ""
+        
+        If temp.Count > 0 Then
+            enchantmentArray = Join(temp.ToArray, " ")
+        End If
+
+        'tmpCmd = tmpCmd & ", item_enchantment"
+        'tmpValues = tmpValues & ", '" & Join(temp.ToArray, " ") & "'"
+        'tmpCmd = tmpCmd & ", item_textId"
+        'tmpValues = tmpValues & ", " & ItemText
+
+        'tmpCmd = tmpCmd & ") " & tmpValues & ");"
+
+        Dim tmpCmd As String = SQLQueries.SaveNewCharacterInventory.FormatWith(New With { Key.ItemGuid = GUID - GUID_ITEM, Key.ItemId = ItemEntry,
+                                                                               Key.ItemOwner = OwnerGUID, Key.ItemCreator = CreatorGUID,
+                                                                               Key.ItemGiftCreator = GiftCreatorGUID, Key.ItemStackCount = StackCount,
+                                                                               Key.ItemDurability = Durability, Key.ItemFlags = _flags,
+                                                                               Key.ItemChargesLeft = ChargesLeft, Key.ItemTextId = ItemText,
+                                                                               Key.ItemEnchantment = enchantmentArray, Key.ItemRandomProperties = RandomProperties })
+
         CharacterDatabase.Update(tmpCmd)
     End Sub
 
     Public Sub Save(Optional ByVal saveAll As Boolean = True)
-        Dim tmp As String = "UPDATE characters_inventory SET"
+        'Dim tmp As String = "UPDATE characters_inventory SET"
 
-        tmp = tmp & " item_owner=""" & OwnerGUID & """"
-        tmp = tmp & ", item_creator=" & CreatorGUID
-        tmp = tmp & ", item_giftCreator=" & GiftCreatorGUID
-        tmp = tmp & ", item_stackCount=" & StackCount
-        tmp = tmp & ", item_durability=" & Durability
-        tmp = tmp & ", item_chargesLeft=" & ChargesLeft
-        tmp = tmp & ", item_random_properties=" & RandomProperties
-        tmp = tmp & ", item_flags=" & _flags
+        'tmp = tmp & " item_owner=""" & OwnerGUID & """"
+        'tmp = tmp & ", item_creator=" & CreatorGUID
+        'tmp = tmp & ", item_giftCreator=" & GiftCreatorGUID
+        'tmp = tmp & ", item_stackCount=" & StackCount
+        'tmp = tmp & ", item_durability=" & Durability
+        'tmp = tmp & ", item_chargesLeft=" & ChargesLeft
+        'tmp = tmp & ", item_random_properties=" & RandomProperties
+        'tmp = tmp & ", item_flags=" & _flags
 
-        'DONE: Saving enchanments
+        ''DONE: Saving enchanments
         Dim temp As New ArrayList
+        temp.Clear()
         For Each enchantment As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
             temp.Add(String.Format("{0}:{1}:{2}:{3}", enchantment.Key, enchantment.Value.ID,
                                    enchantment.Value.Duration, enchantment.Value.Charges))
         Next
-        tmp = tmp & ", item_enchantment=""" & Join(temp.ToArray, " ") & """"
-        tmp = tmp & ", item_textId=" & ItemText
 
-        tmp = tmp & " WHERE item_guid = """ & (GUID - GUID_ITEM) & """;"
+        Dim enchantmentArray As String = ""
+        
+        If temp.Count > 0 Then
+            enchantmentArray = Join(temp.ToArray, " ")
+        End If
+
+        'tmp = tmp & ", item_enchantment=""" & Join(temp.ToArray, " ") & """"
+        'tmp = tmp & ", item_textId=" & ItemText
+
+        'tmp = tmp & " WHERE item_guid = """ & (GUID - GUID_ITEM) & """;"
+
+        Dim tmp As String = SQLQueries.UpdateCharacterInventory.FormatWith(New With { Key.ItemOwner = OwnerGUID, Key.ItemCreator = CreatorGUID,
+                                                                           Key.ItemGiftCreator = GiftCreatorGUID, Key.ItemStackCount = StackCount,
+                                                                           Key.ItemDurability = Durability, Key.ItemChargesLeft = ChargesLeft,
+                                                                           Key.ItemRandomProperties = RandomProperties, Key.ItemFlags = _flags,
+                                                                           Key.ItemEnchantment = enchantmentArray, Key.ItemTextId = ItemText, 
+                                                                           Key.ItemGuid = (GUID - GUID_ITEM) })
 
         CharacterDatabase.Update(tmp)
 
@@ -415,8 +444,8 @@ Public NotInheritable Class ItemObject
         'DONE: Check if item is petition
         If _
             ItemEntry = PETITION_GUILD Then _
-            CharacterDatabase.Update("DELETE FROM petitions WHERE petition_itemGuid = " & GUID - GUID_ITEM & ";")
-        CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = {0}", GUID - GUID_ITEM))
+            CharacterDatabase.Update(SQLQueries.DeletePetitionByItemGuid.FormatWith(New With { Key.PetitionItemGuid = GUID - GUID_ITEM }))
+        CharacterDatabase.Update(SQLQueries.DeleteFromPlayerInventoryByItemGuid.FormatWith(New With { Key.ItemGuid = GUID - GUID_ITEM }))
 
         If ITEMDatabase(ItemEntry).IsContainer() Then
             For Each item As KeyValuePair(Of Byte, ItemObject) In Items

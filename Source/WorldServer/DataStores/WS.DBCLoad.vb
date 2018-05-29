@@ -355,7 +355,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeSpellChains()
         Try
             Dim spellChainQuery As New DataTable
-            WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", spellChainQuery)
+            WorldDatabase.Query(SQLQueries.GetSpellChains, spellChainQuery)
 
             For Each spellChain As DataRow In spellChainQuery.Rows
                 SpellChains.Add(spellChain.Item("spell_id"), spellChain.Item("prev_spell"))
@@ -1111,7 +1111,7 @@ Public Module WS_DBCLoad
     Public Sub LoadCreatureGossip()
         Try
             Dim gossipQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM npc_gossip;", gossipQuery)
+            WorldDatabase.Query(SQLQueries.GetAllCreatureGossip, gossipQuery)
 
             Dim guid As ULong
             For Each gossip As DataRow In gossipQuery.Rows
@@ -1158,7 +1158,7 @@ Public Module WS_DBCLoad
     Public Sub LoadCreatureMovements()
         Try
             Dim movementsQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM waypoint_data ORDER BY id, point;", movementsQuery)
+            WorldDatabase.Query(SQLQueries.GetAllWaypointData, movementsQuery)
 
             Dim id As Integer
             For Each movement As DataRow In movementsQuery.Rows
@@ -1179,7 +1179,7 @@ Public Module WS_DBCLoad
     Public Sub LoadCreatureEquipTable()
         Try
             Dim equipQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM creature_equip_template_raw;", equipQuery)
+            WorldDatabase.Query(SQLQueries.GetAllCreatureEquipTemplateRaw, equipQuery)
 
             Dim entry As Integer
             For Each equipInfo As DataRow In equipQuery.Rows
@@ -1198,7 +1198,7 @@ Public Module WS_DBCLoad
     Public Sub LoadCreatureModelInfo()
         Try
             Dim modelQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM creature_model_info;", modelQuery)
+            WorldDatabase.Query(SQLQueries.GetAllCreatureModelInfo, modelQuery)
 
             Dim entry As Integer
             For Each modelInfo As DataRow In modelQuery.Rows
@@ -1219,7 +1219,7 @@ Public Module WS_DBCLoad
 #Region "Quests"
     Public Sub LoadQuestStartersAndFinishers()
         Dim questStarters As New DataTable
-        WorldDatabase.Query("SELECT * FROM creature_questrelation;", questStarters)
+        WorldDatabase.Query(SQLQueries.GetAllCreatureQuestRealtion, questStarters)
 
         For Each starter As DataRow In questStarters.Rows
             Dim entry As Integer = starter.Item("id")
@@ -1230,7 +1230,7 @@ Public Module WS_DBCLoad
 
         Dim questStartersAmount As Integer = questStarters.Rows.Count
         questStarters.Clear()
-        WorldDatabase.Query("SELECT * FROM gameobject_questrelation;", questStarters)
+        WorldDatabase.Query(SQLQueries.GetAllGameObjectQuestRelation, questStarters)
         For Each starter As DataRow In questStarters.Rows
             Dim entry As Integer = starter.Item("id")
             Dim quest As Integer = starter.Item("quest")
@@ -1243,7 +1243,7 @@ Public Module WS_DBCLoad
         questStarters.Clear()
 
         Dim questFinishers As New DataTable
-        WorldDatabase.Query("SELECT * FROM creature_involvedrelation;", questFinishers)
+        WorldDatabase.Query(SQLQueries.GetAllCreatureInvolvedRelation, questFinishers)
 
         For Each starter As DataRow In questFinishers.Rows
             Dim entry As Integer = starter.Item("id")
@@ -1254,7 +1254,7 @@ Public Module WS_DBCLoad
 
         Dim questFinishersAmount As Integer = questFinishers.Rows.Count
         questFinishers.Clear()
-        WorldDatabase.Query("SELECT * FROM gameobject_involvedrelation;", questFinishers)
+        WorldDatabase.Query(SQLQueries.GetAllGameObjectInvolvedRelation, questFinishers)
         For Each starter As DataRow In questFinishers.Rows
             Dim entry As Integer = starter.Item("id")
             Dim quest As Integer = starter.Item("quest")
@@ -1286,7 +1286,7 @@ Public Module WS_DBCLoad
     Public Sub LoadWeather()
         Try
             Dim weatherQuery As New DataTable
-            WorldDatabase.Query("SELECT * FROM game_weather;", weatherQuery)
+            WorldDatabase.Query(SQLQueries.GetAllGameWeather, weatherQuery)
 
             For Each weather As DataRow In weatherQuery.Rows
                 Dim zone As Integer = weather.Item("zone")
