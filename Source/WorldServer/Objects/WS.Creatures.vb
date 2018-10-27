@@ -866,10 +866,12 @@ Public Module WS_Creatures
         End Function
 
         Public Sub SpawnCreature(ByVal Entry As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single)
-            Dim tmpCreature As New CreatureObject(Entry, PosX, PosY, PosZ, 0.0F, MapID)
-            tmpCreature.instance = instance
-            tmpCreature.DestroyAtNoCombat = True
+            Dim tmpCreature As New CreatureObject(Entry, PosX, PosY, PosZ, 0.0F, MapID) With {
+                .instance = instance,
+                .DestroyAtNoCombat = True
+            }
             tmpCreature.AddToWorld()
+
             If tmpCreature.aiScript IsNot Nothing Then tmpCreature.aiScript.Dispose()
             tmpCreature.aiScript = New DefaultAI(tmpCreature)
             tmpCreature.aiScript.aiHateTable = aiScript.aiHateTable

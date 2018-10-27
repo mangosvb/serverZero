@@ -101,8 +101,10 @@ Namespace Handlers
 
             'DONE: Sync your location to other party / raid members
             If client.Character.IsInGroup Then
-                Dim statsPacket As New PacketClass(OPCODES.MSG_NULL_ACTION)
-                statsPacket.Data = client.Character.GetWorld.GroupMemberStats(client.Character.GUID, PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION + PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE)
+                Dim statsPacket As New PacketClass(OPCODES.MSG_NULL_ACTION) With {
+                    .Data = client.Character.GetWorld.GroupMemberStats(client.Character.Guid, PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION + PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE)
+                }
+
                 client.Character.Group.BroadcastToOutOfRange(statsPacket, client.Character)
                 statsPacket.Dispose()
             End If

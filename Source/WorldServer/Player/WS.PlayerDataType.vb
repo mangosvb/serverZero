@@ -926,9 +926,10 @@ Public Module WS_PlayerData
 
             'DONE: Send to near
             If toNear AndAlso SeenBy.Count > 0 Then
-                Dim forOthers As New UpdateClass
-                forOthers.UpdateData = UpdateData.Clone
-                forOthers.UpdateMask = UpdateMask.Clone
+                Dim forOthers As New UpdateClass With {
+                    .UpdateData = UpdateData.Clone,
+                    .UpdateMask = UpdateMask.Clone
+                }
 
                 Dim packetForOthers As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
@@ -2745,8 +2746,10 @@ CheckXPAgain:
             If dstItem Is Nothing Then
                 srcItem.StackCount -= Count
 
-                Dim tmpItem As New ItemObject(srcItem.ItemEntry, GUID)
-                tmpItem.StackCount = Count
+                Dim tmpItem As New ItemObject(srcItem.ItemEntry, GUID) With {
+                    .StackCount = Count
+                }
+
                 dstItem = tmpItem
                 tmpItem.Save()
                 ItemSETSLOT(tmpItem, dstBag, dstSlot)
@@ -4633,8 +4636,10 @@ DoneAmmo:
                                     duration = (AuraExpire - currentTimestamp) * 1000
                                 End If
 
-                                ActiveSpells(AuraSlot) = New BaseActiveSpell(AuraSpellID, duration)
-                                ActiveSpells(AuraSlot).SpellCaster = Nothing
+                                ActiveSpells(AuraSlot) = New BaseActiveSpell(AuraSpellID, duration) With {
+                                    .SpellCaster = Nothing
+                                }
+
                                 SetAura(AuraSpellID, AuraSlot, duration, False)
                             End If
                         End If
@@ -4689,9 +4694,10 @@ DoneAmmo:
             For i As Integer = 0 To 63
                 Dim tmp2() As String
                 tmp2 = Split(tmp(i), ":")
-                Reputation(i) = New TReputation
-                Reputation(i).Flags = Trim(tmp2(0))
-                Reputation(i).Value = Trim(tmp2(1))
+                Reputation(i) = New TReputation With {
+                    .Flags = Trim(tmp2(0)),
+                    .Value = Trim(tmp2(1))
+                }
             Next
 
             'DONE: Get playerflags from force restrictions

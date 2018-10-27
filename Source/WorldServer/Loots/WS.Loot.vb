@@ -286,8 +286,9 @@ Public Module WS_Loot
                     Exit Sub
                 End If
 
-                Dim tmpItem As New ItemObject(Items(Slot).ItemID, client.Character.GUID)
-                tmpItem.StackCount = Items(Slot).ItemCount
+                Dim tmpItem As New ItemObject(Items(Slot).ItemID, client.Character.GUID) With {
+                    .StackCount = Items(Slot).ItemCount
+                }
 
                 If client.Character.ItemADD(tmpItem) Then
                     'DONE: Bind item to player
@@ -521,8 +522,9 @@ Public Module WS_Loot
                     End If
                 Next
 
-                Dim tmpItem As New ItemObject(Item.ItemID, looterCharacter.GUID)
-                tmpItem.StackCount = Item.ItemCount
+                Dim tmpItem As New ItemObject(Item.ItemID, looterCharacter.GUID) With {
+                    .StackCount = Item.ItemCount
+                }
 
                 Dim wonItem As New PacketClass(OPCODES.SMSG_LOOT_ROLL_WON)
                 wonItem.AddUInt64(LootObject.GUID)
@@ -820,9 +822,10 @@ Public Module WS_Loot
     End Sub
 
     Public Sub StartRoll(ByVal LootGUID As ULong, ByVal Slot As Byte, ByRef Character As CharacterObject)
-        Dim rollCharacters As New List(Of CharacterObject)
+        Dim rollCharacters As New List(Of CharacterObject) From {
+            Character
+        }
 
-        rollCharacters.Add(Character)
         For Each GUID As ULong In Character.Group.LocalMembers
             If Character.playersNear.Contains(GUID) Then rollCharacters.Add(CHARACTERs(GUID))
         Next

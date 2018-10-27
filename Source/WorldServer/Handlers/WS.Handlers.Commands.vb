@@ -90,10 +90,11 @@ Public Module WS_Commands
 
                 If infos.Length <> 0 Then
                     For Each info As ChatCommandAttribute In infos
-                        Dim cmd As New ChatCommand
-                        cmd.CommandHelp = info.cmdHelp
-                        cmd.CommandAccess = info.cmdAccess
-                        cmd.CommandDelegate = [Delegate].CreateDelegate(GetType(ChatCommandDelegate), tmpMethod)
+                        Dim cmd As New ChatCommand With {
+                            .CommandHelp = info.cmdHelp,
+                            .CommandAccess = info.cmdAccess,
+                            .CommandDelegate = [Delegate].CreateDelegate(GetType(ChatCommandDelegate), tmpMethod)
+                        }
 
                         ChatCommands.Add(UCase(info.cmdName), cmd)
 #If DEBUG Then
@@ -899,16 +900,20 @@ Public Module WS_Commands
         Dim Count As Integer = 1
         If tmp.Length = 2 Then Count = tmp(1)
         If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-            Dim newItem As New ItemObject(id, objCharacter.TargetGUID)
-            newItem.StackCount = Count
+            Dim newItem As New ItemObject(id, objCharacter.TargetGUID) With {
+                .StackCount = Count
+            }
+
             If CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
                 CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, Count, True, False)
             Else
                 newItem.Delete()
             End If
         Else
-            Dim newItem As New ItemObject(id, objCharacter.GUID)
-            newItem.StackCount = Count
+            Dim newItem As New ItemObject(id, objCharacter.GUID) With {
+                .StackCount = Count
+            }
+
             If objCharacter.ItemADD(newItem) Then
                 objCharacter.LogLootItem(newItem, Count, False, True)
             Else
@@ -929,8 +934,10 @@ Public Module WS_Commands
         If ItemSet.ContainsKey(id) Then
             If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 For Each item As Integer In ItemSet(id).ItemID
-                    Dim newItem As New ItemObject(item, objCharacter.TargetGUID)
-                    newItem.StackCount = 1
+                    Dim newItem As New ItemObject(item, objCharacter.TargetGUID) With {
+                        .StackCount = 1
+                    }
+
                     If CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
                         CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, 1, False, True)
                     Else
@@ -939,8 +946,10 @@ Public Module WS_Commands
                 Next
             Else
                 For Each item As Integer In ItemSet(id).ItemID
-                    Dim newItem As New ItemObject(item, objCharacter.GUID)
-                    newItem.StackCount = 1
+                    Dim newItem As New ItemObject(item, objCharacter.GUID) With {
+                        .StackCount = 1
+                    }
+
                     If objCharacter.ItemADD(newItem) Then
                         objCharacter.LogLootItem(newItem, 1, False, True)
                     Else
@@ -1940,9 +1949,11 @@ Public Module WS_Commands
     Public Function cmdCreatureFlood(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If IsNumeric(Message) = False OrElse CInt(Message) <= 0 Then Return False
         For i As Integer = 1 To Message
-            Dim tmpCreature As New CreatureObject(7385, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
-            tmpCreature.CreatedBy = objCharacter.GUID
-            tmpCreature.CreatedBySpell = 10673
+            Dim tmpCreature As New CreatureObject(7385, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID) With {
+                .CreatedBy = objCharacter.GUID,
+                .CreatedBySpell = 10673
+            }
+
             tmpCreature.aiScript = New DefaultAI(tmpCreature)
             tmpCreature.AddToWorld()
         Next

@@ -115,8 +115,9 @@ Public Module RealmServer
                 _lstConnection = New TcpListener(_lstHost, _config.RealmServerPort)
                 _lstConnection.Start()
                 Dim rsListenThread As Thread
-                rsListenThread = New Thread(AddressOf AcceptConnection)
-                rsListenThread.Name = "Realm Server, Listening"
+                rsListenThread = New Thread(AddressOf AcceptConnection) With {
+                    .Name = "Realm Server, Listening"
+                }
                 rsListenThread.Start()
 
                 Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), _lstHost, _config.RealmServerPort)
@@ -132,8 +133,9 @@ Public Module RealmServer
             Do While Not FlagStopListen
                 Thread.Sleep(ConnectionSleepTime)
                 If _lstConnection.Pending() Then
-                    Dim client As New ClientClass
-                    client.Socket = _lstConnection.AcceptSocket
+                    Dim client As New ClientClass With {
+                        .Socket = _lstConnection.AcceptSocket
+                    }
                     'lstThreadPool.QueueUserWorkItem(New System.Threading.WaitCallback(AddressOf client.Process))
 
                     Dim newThread As New Thread(AddressOf client.Process)

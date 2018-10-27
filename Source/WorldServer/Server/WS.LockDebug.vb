@@ -24,8 +24,10 @@ Public Class ReaderWriterLock_Debug
 
         WriteLine("NewLock " & ID)
 
-        Dim writeThread As New Thread(AddressOf WriteLoop)
-        writeThread.Name = "WriteLoop, ReaderWriterLock_Debug - " & s
+        Dim writeThread As New Thread(AddressOf WriteLoop) With {
+            .Name = "WriteLoop, ReaderWriterLock_Debug - " & s
+        }
+
         writeThread.Start()
     End Sub
 

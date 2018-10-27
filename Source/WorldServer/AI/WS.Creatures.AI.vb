@@ -947,8 +947,10 @@ TryMoveAgain:
             MyBase.DoThink()
 
             'NOTE: Bosses uses a new thread because of their heavy updates sometimes
-            Dim tmpThread As New Thread(AddressOf OnThink)
-            tmpThread.Name = "Boss Thinking"
+            Dim tmpThread As New Thread(AddressOf OnThink) With {
+                .Name = "Boss Thinking"
+            }
+
             tmpThread.Start()
         End Sub
 

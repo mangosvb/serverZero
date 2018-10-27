@@ -567,8 +567,9 @@ Public Module WS_GameObjects
             state = GameObjectLootState.DOOR_OPEN
             Flags = GameObjectFlags.GO_FLAG_NODESPAWN
 
-            Loot = New LootObject(GUID, LootType.LOOTTYPE_FISHING)
-            Loot.LootOwner = Owner
+            Loot = New LootObject(GUID, LootType.LOOTTYPE_FISHING) With {
+                .LootOwner = Owner
+            }
 
             Dim AreaFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
             Dim AreaID As Integer = AreaTable(AreaFlag).ID

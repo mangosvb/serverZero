@@ -30,12 +30,13 @@ Namespace DataStores
                 Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
 
                 For i As Integer = 0 To tmpDbc.Rows - 1
-                    Dim m As New MapInfo
-                    m.ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER)
-                    m.Type = tmpDbc.Item(i, 2, DBCValueType.DBC_INTEGER)
-                    m.Name = tmpDbc.Item(i, 4, DBCValueType.DBC_STRING)
-                    m.ParentMap = tmpDbc.Item(i, 3, DBCValueType.DBC_INTEGER)
-                    m.ResetTime = tmpDbc.Item(i, 38, DBCValueType.DBC_INTEGER)
+                    Dim m As New MapInfo With {
+                        .ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER),
+                        .Type = tmpDbc.Item(i, 2, DBCValueType.DBC_INTEGER),
+                        .Name = tmpDbc.Item(i, 4, DBCValueType.DBC_STRING),
+                        .ParentMap = tmpDbc.Item(i, 3, DBCValueType.DBC_INTEGER),
+                        .ResetTime = tmpDbc.Item(i, 38, DBCValueType.DBC_INTEGER)
+                    }
 
                     Maps.Add(m.ID, m)
                 Next i
@@ -91,13 +92,13 @@ Namespace DataStores
                 Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\WorldSafeLocs.dbc")
 
                 For i As Integer = 0 To tmpDbc.Rows - 1
-                    Dim wsl As New TWorldSafeLoc
-
-                    wsl.ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER)
-                    wsl.map = tmpDbc.Item(i, 1)
-                    wsl.x = tmpDbc.Item(i, 2, DBCValueType.DBC_FLOAT)
-                    wsl.y = tmpDbc.Item(i, 3, DBCValueType.DBC_FLOAT)
-                    wsl.z = tmpDbc.Item(i, 4, DBCValueType.DBC_FLOAT)
+                    Dim wsl As New TWorldSafeLoc With {
+                        .ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER),
+                        .map = tmpDbc.Item(i, 1),
+                        .x = tmpDbc.Item(i, 2, DBCValueType.DBC_FLOAT),
+                        .y = tmpDbc.Item(i, 3, DBCValueType.DBC_FLOAT),
+                        .z = tmpDbc.Item(i, 4, DBCValueType.DBC_FLOAT)
+                    }
 
                     WorldSafeLocs.Add(wsl.ID, wsl)
                 Next i
@@ -173,10 +174,11 @@ Namespace DataStores
                 Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\ChatChannels.dbc")
 
                 For i As Integer = 0 To tmpDbc.Rows - 1
-                    Dim objCharacter As New ChatChannelInfo
-                    objCharacter.Index = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER)
-                    objCharacter.Flags = tmpDbc.Item(i, 1, DBCValueType.DBC_INTEGER)
-                    objCharacter.Name = tmpDbc.Item(i, 3, DBCValueType.DBC_STRING)
+                    Dim objCharacter As New ChatChannelInfo With {
+                        .Index = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER),
+                        .Flags = tmpDbc.Item(i, 1, DBCValueType.DBC_INTEGER),
+                        .Name = tmpDbc.Item(i, 3, DBCValueType.DBC_STRING)
+                    }
 
                     ChatChannelsInfo.Add(objCharacter.Index, objCharacter)
                 Next i

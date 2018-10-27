@@ -289,9 +289,12 @@ Public NotInheritable Class AuthEngineClass
             num2 += 1
             num2 += 1
         Next num4
-        Dim list1 As New ArrayList
-        list1.Add(buffer2)
-        list1.Add(buffer3)
+
+        Dim list1 As New ArrayList From {
+            buffer2,
+            buffer3
+        }
+
         Return list1
     End Function
 

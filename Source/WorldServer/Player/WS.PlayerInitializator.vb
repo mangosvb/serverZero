@@ -223,9 +223,10 @@ Public Module WS_Player_Initializator
 
     Public Sub InitializeReputations(ByRef objCharacter As CharacterObject)
         For i As Byte = 0 To 63
-            objCharacter.Reputation(i) = New TReputation
-            objCharacter.Reputation(i).Value = 0
-            objCharacter.Reputation(i).Flags = 0
+            objCharacter.Reputation(i) = New TReputation With {
+                .Value = 0,
+                .Flags = 0
+            }
 
             For Each tmpFactionInfo As KeyValuePair(Of Integer, TFaction) In FactionInfo
                 If tmpFactionInfo.Value.VisibleID = i Then

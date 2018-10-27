@@ -117,9 +117,11 @@ Public Module WS_Guilds
         client.Character.SendCharacterUpdate(False)
 
         'Client.Character.AddItem(PETITION_GUILD)
-        Dim tmpItem As New ItemObject(CharterID, client.Character.GUID)
-        tmpItem.StackCount = 1
+        Dim tmpItem As New ItemObject(CharterID, client.Character.GUID) With {
+            .StackCount = 1
+        }
         tmpItem.AddEnchantment(tmpItem.GUID - GUID_ITEM, 0, 0, 0)
+
         If client.Character.ItemADD(tmpItem) Then
             'Save petition into database
             CharacterDatabase.Update(String.Format("INSERT INTO petitions (petition_id, petition_itemGuid, petition_owner, petition_name, petition_type, petition_signedMembers) VALUES ({0}, {0}, {1}, '{2}', {3}, 0);", tmpItem.GUID - GUID_ITEM, client.Character.GUID - GUID_PLAYER, Name, 9))

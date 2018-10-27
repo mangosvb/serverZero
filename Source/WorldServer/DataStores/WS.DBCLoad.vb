@@ -178,47 +178,48 @@ Public Module WS_DBCLoad
             For i As Long = 0 To spellDBC.Rows - 1
                 Try
                     id = spellDBC.Item(i, 0)
-                    SPELLs(id) = New SpellInfo
-                    SPELLs(id).ID = id
-                    SPELLs(id).School = spellDBC.Item(i, 1)
-                    SPELLs(id).Category = spellDBC.Item(i, 2)
                     ' 3 = Not Used
-                    SPELLs(id).DispellType = spellDBC.Item(i, 4)
-                    SPELLs(id).Mechanic = spellDBC.Item(i, 5)
-                    SPELLs(id).Attributes = spellDBC.Item(i, 6)
-                    SPELLs(id).AttributesEx = spellDBC.Item(i, 7)
-                    SPELLs(id).AttributesEx2 = spellDBC.Item(i, 8)
                     ' AttributesEx3 = SpellDBC.Item(i, 9)
                     ' AttributesEx4 = SpellDBC.Item(i, 10)
-                    SPELLs(id).RequredCasterStance = spellDBC.Item(i, 11) ' RequiredShapeShift
-                    SPELLs(id).ShapeshiftExclude = spellDBC.Item(i, 12)
-                    SPELLs(id).Target = spellDBC.Item(i, 13)
-                    SPELLs(id).TargetCreatureType = spellDBC.Item(i, 14)
-                    SPELLs(id).FocusObjectIndex = spellDBC.Item(i, 15)
-                    SPELLs(id).CasterAuraState = spellDBC.Item(i, 16)
-                    SPELLs(id).TargetAuraState = spellDBC.Item(i, 17)
-                    SPELLs(id).SpellCastTimeIndex = spellDBC.Item(i, 18)
-                    SPELLs(id).SpellCooldown = spellDBC.Item(i, 19)
-                    SPELLs(id).CategoryCooldown = spellDBC.Item(i, 20)
-                    SPELLs(id).interruptFlags = spellDBC.Item(i, 21)
-                    SPELLs(id).auraInterruptFlags = spellDBC.Item(i, 22)
-                    SPELLs(id).channelInterruptFlags = spellDBC.Item(i, 23)
-                    SPELLs(id).procFlags = spellDBC.Item(i, 24)
-                    SPELLs(id).procChance = spellDBC.Item(i, 25)
-                    SPELLs(id).procCharges = spellDBC.Item(i, 26)
-                    SPELLs(id).maxLevel = spellDBC.Item(i, 27)
-                    SPELLs(id).baseLevel = spellDBC.Item(i, 28)
-                    SPELLs(id).spellLevel = spellDBC.Item(i, 29)
-                    SPELLs(id).DurationIndex = spellDBC.Item(i, 30)
-                    SPELLs(id).powerType = spellDBC.Item(i, 31)
-                    SPELLs(id).manaCost = spellDBC.Item(i, 32)
-                    SPELLs(id).manaCostPerlevel = spellDBC.Item(i, 33)
-                    SPELLs(id).manaPerSecond = spellDBC.Item(i, 34)
-                    SPELLs(id).manaPerSecondPerLevel = spellDBC.Item(i, 35)
-                    SPELLs(id).rangeIndex = spellDBC.Item(i, 36)
-                    SPELLs(id).Speed = spellDBC.Item(i, 37, DBCValueType.DBC_FLOAT)
-                    SPELLs(id).modalNextSpell = spellDBC.Item(i, 38) ' Not Used
-                    SPELLs(id).maxStack = spellDBC.Item(i, 39)
+                    SPELLs(id) = New SpellInfo With {
+                        .ID = id,
+                        .School = spellDBC.Item(i, 1),
+                        .Category = spellDBC.Item(i, 2),
+                        .DispellType = spellDBC.Item(i, 4),
+                        .Mechanic = spellDBC.Item(i, 5),
+                        .Attributes = spellDBC.Item(i, 6),
+                        .AttributesEx = spellDBC.Item(i, 7),
+                        .AttributesEx2 = spellDBC.Item(i, 8),
+                        .RequredCasterStance = spellDBC.Item(i, 11), ' RequiredShapeShift
+                        .ShapeshiftExclude = spellDBC.Item(i, 12),
+                        .Target = spellDBC.Item(i, 13),
+                        .TargetCreatureType = spellDBC.Item(i, 14),
+                        .FocusObjectIndex = spellDBC.Item(i, 15),
+                        .CasterAuraState = spellDBC.Item(i, 16),
+                        .TargetAuraState = spellDBC.Item(i, 17),
+                        .SpellCastTimeIndex = spellDBC.Item(i, 18),
+                        .SpellCooldown = spellDBC.Item(i, 19),
+                        .CategoryCooldown = spellDBC.Item(i, 20),
+                        .interruptFlags = spellDBC.Item(i, 21),
+                        .auraInterruptFlags = spellDBC.Item(i, 22),
+                        .channelInterruptFlags = spellDBC.Item(i, 23),
+                        .procFlags = spellDBC.Item(i, 24),
+                        .procChance = spellDBC.Item(i, 25),
+                        .procCharges = spellDBC.Item(i, 26),
+                        .maxLevel = spellDBC.Item(i, 27),
+                        .baseLevel = spellDBC.Item(i, 28),
+                        .spellLevel = spellDBC.Item(i, 29),
+                        .DurationIndex = spellDBC.Item(i, 30),
+                        .powerType = spellDBC.Item(i, 31),
+                        .manaCost = spellDBC.Item(i, 32),
+                        .manaCostPerlevel = spellDBC.Item(i, 33),
+                        .manaPerSecond = spellDBC.Item(i, 34),
+                        .manaPerSecondPerLevel = spellDBC.Item(i, 35),
+                        .rangeIndex = spellDBC.Item(i, 36),
+                        .Speed = spellDBC.Item(i, 37, DBCValueType.DBC_FLOAT),
+                        .modalNextSpell = spellDBC.Item(i, 38), ' Not Used
+                        .maxStack = spellDBC.Item(i, 39)
+                    }
                     SPELLs(id).Totem(0) = spellDBC.Item(i, 40)
                     SPELLs(id).Totem(1) = spellDBC.Item(i, 41)
 
@@ -248,26 +249,26 @@ Public Module WS_DBCLoad
 
                     For j As Integer = 0 To 2
                         If CInt(spellDBC.Item(i, 61 + j)) <> 0 Then
-                            SPELLs(id).SpellEffects(j) = New SpellEffect(SPELLs(id))
-
-                            SPELLs(id).SpellEffects(j).ID = spellDBC.Item(i, 61 + j)
-                            SPELLs(id).SpellEffects(j).valueDie = spellDBC.Item(i, 64 + j)
-                            SPELLs(id).SpellEffects(j).diceBase = spellDBC.Item(i, 67 + j)
-                            SPELLs(id).SpellEffects(j).dicePerLevel = spellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT)
-                            SPELLs(id).SpellEffects(j).valuePerLevel = spellDBC.Item(i, 73 + j, DBCValueType.DBC_FLOAT)
-                            SPELLs(id).SpellEffects(j).valueBase = spellDBC.Item(i, 76 + j)
-                            SPELLs(id).SpellEffects(j).Mechanic = spellDBC.Item(i, 79 + j)
-                            SPELLs(id).SpellEffects(j).implicitTargetA = spellDBC.Item(i, 82 + j)
-                            SPELLs(id).SpellEffects(j).implicitTargetB = spellDBC.Item(i, 85 + j)
-                            SPELLs(id).SpellEffects(j).RadiusIndex = spellDBC.Item(i, 88 + j) ' spellradius.dbc
-                            SPELLs(id).SpellEffects(j).ApplyAuraIndex = spellDBC.Item(i, 91 + j)
-                            SPELLs(id).SpellEffects(j).Amplitude = spellDBC.Item(i, 94 + j)
-                            SPELLs(id).SpellEffects(j).MultipleValue = spellDBC.Item(i, 97 + j)
-                            SPELLs(id).SpellEffects(j).ChainTarget = spellDBC.Item(i, 100 + j)
-                            SPELLs(id).SpellEffects(j).ItemType = spellDBC.Item(i, 103 + j)
-                            SPELLs(id).SpellEffects(j).MiscValue = spellDBC.Item(i, 106 + j)
-                            SPELLs(id).SpellEffects(j).TriggerSpell = spellDBC.Item(i, 109 + j)
-                            SPELLs(id).SpellEffects(j).valuePerComboPoint = spellDBC.Item(i, 112 + j)
+                            SPELLs(id).SpellEffects(j) = New SpellEffect(SPELLs(id)) With {
+                                .ID = spellDBC.Item(i, 61 + j),
+                                .valueDie = spellDBC.Item(i, 64 + j),
+                                .diceBase = spellDBC.Item(i, 67 + j),
+                                .dicePerLevel = spellDBC.Item(i, 70 + j, DBCValueType.DBC_FLOAT),
+                                .valuePerLevel = spellDBC.Item(i, 73 + j, DBCValueType.DBC_FLOAT),
+                                .valueBase = spellDBC.Item(i, 76 + j),
+                                .Mechanic = spellDBC.Item(i, 79 + j),
+                                .implicitTargetA = spellDBC.Item(i, 82 + j),
+                                .implicitTargetB = spellDBC.Item(i, 85 + j),
+                                .RadiusIndex = spellDBC.Item(i, 88 + j), ' spellradius.dbc
+                                .ApplyAuraIndex = spellDBC.Item(i, 91 + j),
+                                .Amplitude = spellDBC.Item(i, 94 + j),
+                                .MultipleValue = spellDBC.Item(i, 97 + j),
+                                .ChainTarget = spellDBC.Item(i, 100 + j),
+                                .ItemType = spellDBC.Item(i, 103 + j),
+                                .MiscValue = spellDBC.Item(i, 106 + j),
+                                .TriggerSpell = spellDBC.Item(i, 109 + j),
+                                .valuePerComboPoint = spellDBC.Item(i, 112 + j)
+                            }
                         Else
                             SPELLs(id).SpellEffects(j) = Nothing
                         End If
@@ -515,20 +516,20 @@ Public Module WS_DBCLoad
             Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SkillLineAbility.dbc")
 
             For i As Integer = 0 To tmpDBC.Rows - 1
-                Dim tmpSkillLineAbility As New TSkillLineAbility
-
-                tmpSkillLineAbility.ID = tmpDBC.Item(i, 0)
-                tmpSkillLineAbility.SkillID = tmpDBC.Item(i, 1)
-                tmpSkillLineAbility.SpellID = tmpDBC.Item(i, 2)
-                tmpSkillLineAbility.Unknown1 = tmpDBC.Item(i, 3) ' May be needed in the future
-                tmpSkillLineAbility.Unknown2 = tmpDBC.Item(i, 4) ' May be needed in the future
-                tmpSkillLineAbility.Unknown3 = tmpDBC.Item(i, 5) ' May be needed in the future
-                tmpSkillLineAbility.Unknown4 = tmpDBC.Item(i, 6) ' May be needed in the future
-                tmpSkillLineAbility.Required_Skill_Value = tmpDBC.Item(i, 7)
-                tmpSkillLineAbility.Forward_SpellID = tmpDBC.Item(i, 8)
-                tmpSkillLineAbility.Unknown5 = tmpDBC.Item(i, 9) ' May be needed in the future
-                tmpSkillLineAbility.Max_Value = tmpDBC.Item(i, 10)
-                tmpSkillLineAbility.Min_Value = tmpDBC.Item(i, 11)
+                Dim tmpSkillLineAbility As New TSkillLineAbility With {
+                    .ID = tmpDBC.Item(i, 0),
+                    .SkillID = tmpDBC.Item(i, 1),
+                    .SpellID = tmpDBC.Item(i, 2),
+                    .Unknown1 = tmpDBC.Item(i, 3), ' May be needed in the future
+                    .Unknown2 = tmpDBC.Item(i, 4), ' May be needed in the future
+                    .Unknown3 = tmpDBC.Item(i, 5), ' May be needed in the future
+                    .Unknown4 = tmpDBC.Item(i, 6), ' May be needed in the future
+                    .Required_Skill_Value = tmpDBC.Item(i, 7),
+                    .Forward_SpellID = tmpDBC.Item(i, 8),
+                    .Unknown5 = tmpDBC.Item(i, 9), ' May be needed in the future
+                    .Max_Value = tmpDBC.Item(i, 10),
+                    .Min_Value = tmpDBC.Item(i, 11)
+                }
 
                 SkillLineAbility.Add(tmpSkillLineAbility.ID, tmpSkillLineAbility)
             Next i
@@ -618,13 +619,14 @@ Public Module WS_DBCLoad
                 If areaLevel > 255 Then areaLevel = 255
                 If areaLevel < 0 Then areaLevel = 0
 
-                AreaTable(areaExploreFlag) = New TArea
-                AreaTable(areaExploreFlag).ID = areaID
-                AreaTable(areaExploreFlag).mapId = areaMapID
-                AreaTable(areaExploreFlag).Level = areaLevel
                 'AreaTable(areaExploreFlag).Name = areaName
-                AreaTable(areaExploreFlag).Zone = areaZone
-                AreaTable(areaExploreFlag).ZoneType = areaZoneType
+                AreaTable(areaExploreFlag) = New TArea With {
+                    .ID = areaID,
+                    .mapId = areaMapID,
+                    .Level = areaLevel,
+                    .Zone = areaZone,
+                    .ZoneType = areaZoneType
+                }
                 'AreaTable(areaExploreFlag).Team = areaTeam
             Next i
             Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", tmpDbc.Rows - 1)
@@ -868,12 +870,13 @@ Public Module WS_DBCLoad
             Dim tmpInfo As TalentInfo
 
             For i As Integer = 0 To dbc.Rows - 1
-                tmpInfo = New TalentInfo
+                tmpInfo = New TalentInfo With {
+                    .TalentID = dbc.Item(i, 0),
+                    .TalentTab = dbc.Item(i, 1),
+                    .Row = dbc.Item(i, 2),
+                    .Col = dbc.Item(i, 3)
+                }
 
-                tmpInfo.TalentID = dbc.Item(i, 0)
-                tmpInfo.TalentTab = dbc.Item(i, 1)
-                tmpInfo.Row = dbc.Item(i, 2)
-                tmpInfo.Col = dbc.Item(i, 3)
                 tmpInfo.RankID(0) = dbc.Item(i, 4)
                 tmpInfo.RankID(1) = dbc.Item(i, 5)
                 tmpInfo.RankID(2) = dbc.Item(i, 6)
@@ -1061,11 +1064,11 @@ Public Module WS_DBCLoad
             Dim tmpItemDisplayInfo As TItemDisplayInfo
 
             For i As Integer = 0 To dbc.Rows - 1
-                tmpItemDisplayInfo = New TItemDisplayInfo
-
-                tmpItemDisplayInfo.ID = dbc.Item(i, 0)
-                tmpItemDisplayInfo.RandomPropertyChance = dbc.Item(i, 11)
-                tmpItemDisplayInfo.Unknown = dbc.Item(i, 22)
+                tmpItemDisplayInfo = New TItemDisplayInfo With {
+                    .ID = dbc.Item(i, 0),
+                    .RandomPropertyChance = dbc.Item(i, 11),
+                    .Unknown = dbc.Item(i, 22)
+                }
 
                 ItemDisplayInfo.Add(tmpItemDisplayInfo.ID, tmpItemDisplayInfo)
             Next i
@@ -1086,9 +1089,10 @@ Public Module WS_DBCLoad
             Dim tmpInfo As TItemRandomPropertiesInfo
 
             For i As Integer = 0 To dbc.Rows - 1
-                tmpInfo = New TItemRandomPropertiesInfo
+                tmpInfo = New TItemRandomPropertiesInfo With {
+                    .ID = dbc.Item(i, 0)
+                }
 
-                tmpInfo.ID = dbc.Item(i, 0)
                 tmpInfo.Enchant_ID(0) = dbc.Item(i, 2)
                 tmpInfo.Enchant_ID(1) = dbc.Item(i, 3)
                 tmpInfo.Enchant_ID(2) = dbc.Item(i, 4)
@@ -1136,13 +1140,13 @@ Public Module WS_DBCLoad
             Dim tmpInfo As CreatureFamilyInfo
 
             For i As Integer = 0 To dbc.Rows - 1
-                tmpInfo = New CreatureFamilyInfo
-
-                tmpInfo.ID = dbc.Item(i, 0)
-                tmpInfo.Unknown1 = dbc.Item(i, 5)
-                tmpInfo.Unknown2 = dbc.Item(i, 6)
-                tmpInfo.PetFoodID = dbc.Item(i, 7)
-                tmpInfo.Name = dbc.Item(i, 12, DBCValueType.DBC_STRING)
+                tmpInfo = New CreatureFamilyInfo With {
+                    .ID = dbc.Item(i, 0),
+                    .Unknown1 = dbc.Item(i, 5),
+                    .Unknown2 = dbc.Item(i, 6),
+                    .PetFoodID = dbc.Item(i, 7),
+                    .Name = dbc.Item(i, 12, DBCValueType.DBC_STRING)
+                }
 
                 CreaturesFamily.Add(tmpInfo.ID, tmpInfo)
             Next i
@@ -1155,6 +1159,7 @@ Public Module WS_DBCLoad
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
     End Sub
+
     Public Sub LoadCreatureMovements()
         Try
             Dim movementsQuery As New DataTable

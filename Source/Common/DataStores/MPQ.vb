@@ -167,8 +167,10 @@ Namespace MPQ
                 i += 1
             Loop
 
-            Dim nullhash As MpqHash = New MpqHash
-            nullhash.BlockIndex = UINT32_MAX
+            Dim nullhash As MpqHash = New MpqHash With {
+                .BlockIndex = UINT32_MAX
+            }
+
             Return nullhash
         End Function
         Friend Shared Function HashString(ByVal Input As String, ByVal Offset As Integer) As Long
@@ -328,11 +330,12 @@ Namespace MPQ
                             Dim block As MpqBlock = _mBlocks(hash.BlockIndex)
 
                             'initialize and add new FileInfo
-                            Dim fi As New FileInfo
-                            fi.Name = data
-                            fi.Flags = block.Flags
-                            fi.UncompressedSize = block.FileSize
-                            fi.CompressedSize = block.CompressedSize
+                            Dim fi As New FileInfo With {
+                                .Name = data,
+                                .Flags = block.Flags,
+                                .UncompressedSize = block.FileSize,
+                                .CompressedSize = block.CompressedSize
+                            }
 
                             filesList.Add(fi)
                             data = reader.ReadLine

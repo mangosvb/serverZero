@@ -209,14 +209,15 @@ Public Module WS_Pets
         If PetQuery.Rows.Count = 0 Then Exit Sub
         Dim PetInfo As DataRow = PetQuery.Rows(0)
 
-        objCharacter.Pet = New PetObject(CULng(PetInfo.Item("id")) + GUID_PET, PetInfo.Item("entry"))
-        objCharacter.Pet.Owner = objCharacter
-        objCharacter.Pet.SummonedBy = objCharacter.GUID
-        objCharacter.Pet.CreatedBy = objCharacter.GUID
-        objCharacter.Pet.Level = PetInfo.Item("level")
-        objCharacter.Pet.XP = PetInfo.Item("exp")
+        objCharacter.Pet = New PetObject(CULng(PetInfo.Item("id")) + GUID_PET, PetInfo.Item("entry")) With {
+            .Owner = objCharacter,
+            .SummonedBy = objCharacter.GUID,
+            .CreatedBy = objCharacter.GUID,
+            .Level = PetInfo.Item("level"),
+            .XP = PetInfo.Item("exp"),
+            .PetName = PetInfo.Item("name")
+        }
 
-        objCharacter.Pet.PetName = PetInfo.Item("name")
         If CByte(PetInfo.Item("renamed")) = 0 Then
             objCharacter.Pet.Renamed = False
         Else

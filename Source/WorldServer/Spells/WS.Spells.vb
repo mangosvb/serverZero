@@ -2521,8 +2521,9 @@ SkipShapeShift:
                         If chance > Rnd.Next(0, 20) Then
                             'Successful pickpocket
                             If .CreatureInfo.PocketLootID > 0 Then
-                                Dim Loot As New LootObject(.GUID, LootType.LOOTTYPE_PICKPOCKETING)
-                                Loot.LootOwner = Caster.GUID
+                                Dim Loot As New LootObject(.GUID, LootType.LOOTTYPE_PICKPOCKETING) With {
+                                    .LootOwner = Caster.GUID
+                                }
 
                                 Dim Template As LootTemplate = LootTemplates_Pickpocketing.GetLoot(.CreatureInfo.PocketLootID)
                                 If Template IsNot Nothing Then
@@ -2563,8 +2564,9 @@ SkipShapeShift:
                     'TODO: Update skinning skill!
 
                     If .CreatureInfo.SkinLootID > 0 Then
-                        Dim Loot As New LootObject(.GUID, LootType.LOOTTYPE_SKINNING)
-                        Loot.LootOwner = Caster.GUID
+                        Dim Loot As New LootObject(.GUID, LootType.LOOTTYPE_SKINNING) With {
+                            .LootOwner = Caster.GUID
+                        }
 
                         Dim Template As LootTemplate = LootTemplates_Skinning.GetLoot(.CreatureInfo.SkinLootID)
                         If Template IsNot Nothing Then
@@ -2937,8 +2939,10 @@ SkipShapeShift:
         Dim Targets As List(Of BaseUnit) = GetFriendPlayersAroundMe(Caster, SpellInfo.GetRadius)
         For Each Unit As BaseUnit In Infected
             If TypeOf Unit Is CharacterObject Then
-                Dim tmpItem As New ItemObject(SpellInfo.ItemType, Unit.GUID)
-                tmpItem.StackCount = Amount
+                Dim tmpItem As New ItemObject(SpellInfo.ItemType, Unit.GUID) With {
+                    .StackCount = Amount
+                }
+
                 If Not CType(Unit, CharacterObject).ItemADD(tmpItem) Then
                     tmpItem.Delete()
                 Else
@@ -3353,11 +3357,12 @@ SkipShapeShift:
             SelectedZ = Caster.positionZ
         End If
 
-        Dim tmpCreature As New CreatureObject(SpellInfo.MiscValue, SelectedX, SelectedY, SelectedZ, Caster.orientation, Caster.MapID, Duration)
         'TODO: Level by engineering skill level
-        tmpCreature.Level = CType(Caster, BaseUnit).Level
-        tmpCreature.CreatedBy = Caster.GUID
-        tmpCreature.CreatedBySpell = SpellID
+        Dim tmpCreature As New CreatureObject(SpellInfo.MiscValue, SelectedX, SelectedY, SelectedZ, Caster.orientation, Caster.MapID, Duration) With {
+            .Level = CType(Caster, BaseUnit).Level,
+            .CreatedBy = Caster.GUID,
+            .CreatedBySpell = SpellID
+        }
         tmpCreature.AddToWorld()
 
         Return SpellFailedReason.SPELL_NO_ERROR
@@ -3463,10 +3468,11 @@ SkipShapeShift:
             selectedZ = GetZCoord(selectedX, selectedY, Caster.positionZ, Caster.MapID)
         End If
 
-        Dim tmpGO As New GameObjectObject(SpellInfo.MiscValue, Caster.MapID, selectedX, selectedY, selectedZ, Caster.orientation, Caster.GUID)
-        tmpGO.CreatedBySpell = SpellID
-        tmpGO.Level = CType(Caster, BaseUnit).Level
-        tmpGO.instance = Caster.instance
+        Dim tmpGO As New GameObjectObject(SpellInfo.MiscValue, Caster.MapID, selectedX, selectedY, selectedZ, Caster.orientation, Caster.GUID) With {
+            .CreatedBySpell = SpellID,
+            .Level = CType(Caster, BaseUnit).Level,
+            .instance = Caster.instance
+        }
         CType(Caster, BaseUnit).gameObjects.Add(tmpGO)
 
         If GameobjectInfo.Type = GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then
@@ -6513,8 +6519,10 @@ SkipShapeShift:
         c2.client.SendMultiplyPackets(response)
         response.Dispose()
 
-        Dim StartDuel As New Thread(AddressOf c2.StartDuel)
-        StartDuel.Name = "Duel timer"
+        Dim StartDuel As New Thread(AddressOf c2.StartDuel) With {
+            .Name = "Duel timer"
+        }
+
         StartDuel.Start()
     End Sub
 
