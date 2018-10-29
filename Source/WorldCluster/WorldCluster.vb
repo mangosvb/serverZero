@@ -20,19 +20,19 @@ Imports System.Threading
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
-Imports mangosVB.Common.Logging
+
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+Imports mangosVB.Common.Logging
 Imports mangosVB.Common.Logging.BaseWriter
 Imports mangosVB.Shared
+
 Imports WorldCluster.Globals
 Imports WorldCluster.Handlers
 Imports WorldCluster.DataStores
 Imports WorldCluster.Server
 
 Public Module WorldCluster
-
-#Region "Global.Variables"
     'Players' containers
     Public CLIETNIDs As Long = 0
 
@@ -48,11 +48,9 @@ Public Module WorldCluster
     Public Rnd As New Random
     Delegate Sub HandlePacket(ByRef packet As PacketClass, ByRef client As ClientClass)
 
-#End Region
+    Public _config As XMLConfigFile
 
-#Region "Global.Config"
-    Public Config As XMLConfigFile
-    <XmlRoot(ElementName:="WorldCluster")> _
+    <XmlRoot(ElementName:="WorldCluster")>
     Public Class XMLConfigFile
         <XmlElement(ElementName:="WorldClusterPort")> Public WorldClusterPort As Integer = 8085
         <XmlElement(ElementName:="WorldClusterAddress")> Public WorldClusterAddress As String = "127.0.0.1"
@@ -97,21 +95,21 @@ Public Module WorldCluster
 
             Console.Write("[{0}] Loading Configuration...", Format(TimeOfDay, "hh:mm:ss"))
 
-            Config = New XMLConfigFile
+            _config = New XMLConfigFile
             Console.Write("...")
 
             Dim oXS As XmlSerializer = New XmlSerializer(GetType(XMLConfigFile))
-
             Console.Write("...")
-            Dim oStmR As StreamReader
-            oStmR = New StreamReader("configs/WorldCluster.ini")
-            Config = oXS.Deserialize(oStmR)
-            oStmR.Close()
+
+            Dim ostream As StreamReader
+            ostream = New StreamReader("configs/WorldCluster.ini")
+            _config = oXS.Deserialize(ostream)
+            ostream.Close()
 
             Console.WriteLine(".[done]")
 
             'DONE: Setting SQL Connections
-            Dim AccountDBSettings() As String = Split(Config.AccountDatabase, ";")
+            Dim AccountDBSettings() As String = Split(_config.AccountDatabase, ";")
             If AccountDBSettings.Length = 6 Then
                 AccountDatabase.SQLDBName = AccountDBSettings(4)
                 AccountDatabase.SQLHost = AccountDBSettings(2)
@@ -123,7 +121,7 @@ Public Module WorldCluster
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
 
-            Dim CharacterDBSettings() As String = Split(Config.CharacterDatabase, ";")
+            Dim CharacterDBSettings() As String = Split(_config.CharacterDatabase, ";")
             If CharacterDBSettings.Length = 6 Then
                 CharacterDatabase.SQLDBName = CharacterDBSettings(4)
                 CharacterDatabase.SQLHost = CharacterDBSettings(2)
@@ -135,7 +133,7 @@ Public Module WorldCluster
                 Console.WriteLine("Invalid connect string for the character database!")
             End If
 
-            Dim WorldDBSettings() As String = Split(Config.WorldDatabase, ";")
+            Dim WorldDBSettings() As String = Split(_config.WorldDatabase, ";")
             If WorldDBSettings.Length = 6 Then
                 WorldDatabase.SQLDBName = WorldDBSettings(4)
                 WorldDatabase.SQLHost = WorldDBSettings(2)
@@ -148,11 +146,11 @@ Public Module WorldCluster
             End If
 
             'DONE: Creating logger
-            CreateLog(Config.LogType, Config.LogConfig, Log)
-            Log.LogLevel = Config.LogLevel
+            CreateLog(_config.LogType, _config.LogConfig, Log)
+            Log.LogLevel = _config.LogLevel
 
             'DONE: Cleaning up the packet log
-            If Config.PacketLogging Then
+            If _config.PacketLogging Then
                 File.Delete("packets.log")
             End If
 
@@ -160,13 +158,13 @@ Public Module WorldCluster
             Console.WriteLine(e.ToString)
         End Try
     End Sub
-#End Region
 
 #Region "WS.DataAccess"
     Public AccountDatabase As New SQL
     Public CharacterDatabase As New SQL
-    Public WorldDatabase As New Sql
-    Public Sub AccountSQLEventHandler(messageId As Sql.EMessages, outBuf As String)
+    Public WorldDatabase As New SQL
+
+    Public Sub AccountSQLEventHandler(messageId As SQL.EMessages, outBuf As String)
         Select Case messageId
             Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[ACCOUNT] " & outBuf)
@@ -175,7 +173,7 @@ Public Module WorldCluster
         End Select
     End Sub
 
-    Public Sub CharacterSQLEventHandler(messageId As Sql.EMessages, outBuf As String)
+    Public Sub CharacterSQLEventHandler(messageId As SQL.EMessages, outBuf As String)
         Select Case messageId
             Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[CHARACTER] " & outBuf)
@@ -184,7 +182,7 @@ Public Module WorldCluster
         End Select
     End Sub
 
-    Public Sub WorldSQLEventHandler(messageId As Sql.EMessages, outBuf As String)
+    Public Sub WorldSQLEventHandler(messageId As SQL.EMessages, outBuf As String)
         Select Case messageId
             Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[WORLD] " & outBuf)
@@ -194,7 +192,7 @@ Public Module WorldCluster
     End Sub
 #End Region
 
-    <MTAThread()> _
+    <MTAThread()>
     Sub Main()
         timeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
 
@@ -213,7 +211,7 @@ Public Module WorldCluster
         Console.WriteLine(" | |\/| / _` | .` | (_ | (_) \__ \   \ V / | _ \   Vanilla Wow")
         Console.WriteLine(" |_|  |_\__,_|_|\_|\___|\___/|___/    \_/  |___/              ")
         Console.WriteLine("                                                              ")
-        Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/          ")
+        Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/             ")
         Console.WriteLine("")
 
         If DoesSharedDllExist() = False Then
@@ -276,12 +274,6 @@ Public Module WorldCluster
         End If
         WorldDatabase.Update("SET NAMES 'utf8';")
 
-#If DEBUG Then
-        Log.WriteLine(LogType.DEBUG, "Setting MySQL into debug mode..[done]")
-        AccountDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        CharacterDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        WorldDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-#End If
         InitializeInternalDatabase()
         IntializePacketHandlers()
 
@@ -325,48 +317,36 @@ Public Module WorldCluster
                 For varList = LBound(CommandList) To UBound(CommandList)
                     cmds = Split(CommandList(varList), " ", 2)
                     If CommandList(varList).Length > 0 Then
-                        If cmds(1).Trim().Length > 0 Then cmd = Split(cmds(1).Trim, " ")
                         '<<<<<<<<<<<COMMAND STRUCTURE>>>>>>>>>>
                         Select Case cmds(0).ToLower
-                            Case "createaccount", "/createaccount"
-                                If cmd.Length <> 3 Then
-                                    Console.ForegroundColor = ConsoleColor.Yellow
-                                    Console.WriteLine("[{0}] USAGE: createaccount <account> <password> <email>", Format(TimeOfDay, "hh:mm:ss"))
-                                Else
-                                    Dim passwordStr() As Byte = Text.Encoding.ASCII.GetBytes(cmd(0).ToUpper & ":" & cmd(1).ToUpper)
-                                    Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
-                                    Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
+                            Case "shutdown"
+                                Log.WriteLine(LogType.WARNING, "Server shutting down...")
+                                WorldServer.m_flagStopListen = True
 
-                                    AccountDatabase.InsertSQL(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(0), hashStr, cmd(2), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
-                                    If AccountDatabase.QuerySQL("SELECT id FROM account WHERE username = """ & cmd(0) & """;") Then
-                                        Console.ForegroundColor = ConsoleColor.Green
-                                        Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] has been created.")
-                                        Console.ForegroundColor = ConsoleColor.Gray
-                                    Else
-                                        Console.ForegroundColor = ConsoleColor.Red
-                                        Console.WriteLine("[Account: " & cmd(0) & " Password: " & cmd(1) & " Email: " & cmd(2) & "] could not be created.")
-                                        Console.ForegroundColor = ConsoleColor.Gray
-                                    End If
-                                End If
-                            Case "gccollect"
-                                GC.Collect()
+                            Case "info"
+                                Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
+
+                            Case "help"
                                 Console.ForegroundColor = ConsoleColor.Blue
                                 Console.WriteLine("'WorldCluster' Command list:")
                                 Console.ForegroundColor = ConsoleColor.White
                                 Console.WriteLine("---------------------------------")
                                 Console.WriteLine("")
-                                Console.WriteLine("'createaccount <user> <password> <email>' or '/createaccount <user> <password> <email>' - Creates an account with the specified username <user>, password <password>, and email <email>.")
+                                Console.WriteLine("'help' - Brings up the 'WorldCluster' Command list (this).")
+                                Console.WriteLine("")
+                                Console.WriteLine("'info' - Displays used memory.")
+                                Console.WriteLine("")
+                                Console.WriteLine("'shutdown' - Shuts down WorldCluster.")
                             Case Else
-                                Console.ForegroundColor = ConsoleColor.Red
-                                Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'WorldCluster' console commands.")
-                                Console.ForegroundColor = ConsoleColor.White
+                                Console.ForegroundColor = ConsoleColor.DarkRed
+                                Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on console for commands.")
+                                Console.ForegroundColor = ConsoleColor.Gray
                         End Select
                         '<<<<<<<<<<</END COMMAND STRUCTURE>>>>>>>>>>>>
                     End If
                 Next
             Catch e As Exception
-                'Needed to be rewritten do to an unknown call from this line.
-                'Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "hh:mm:ss"), tmp, e.ToString, vbNewLine)
+                Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "hh:mm:ss"), tmp, e.ToString, vbNewLine)
             End Try
         End While
     End Sub

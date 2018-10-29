@@ -16,13 +16,12 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 Imports System.Security.Cryptography
+
 Imports mangosVB.Common
 
 Public NotInheritable Class AuthEngineClass
     Implements IDisposable
-    Private ReadOnly _log As New mangosVB.Common.Logging.BaseWriter
-
-#Region "AuthEngine.Constructive"
+    Private ReadOnly _log As New Logging.BaseWriter
 
     Shared Sub New()
         CrcSalt = New Byte(16 - 1) {}
@@ -43,10 +42,6 @@ Public NotInheritable Class AuthEngineClass
         PublicB = New Byte(32 - 1) {}
         _b = New Byte(20 - 1) {}
     End Sub
-
-#End Region
-
-#Region "AuthEngine.Calculations"
 
     Private Sub CalculateB()
         ' Dim encoding1 As New UTF7Encoding
@@ -79,7 +74,7 @@ Public NotInheritable Class AuthEngineClass
 
     Public Sub CalculateM2(ByVal m1Loc As Byte())
         Dim algorithm1 As New SHA1Managed
-        Dim buffer1 As Byte() = New Byte(((_a.Length + m1Loc.Length) + SsHash.Length) - 1) {}
+        Dim buffer1 As Byte() = New Byte(_a.Length + m1Loc.Length + SsHash.Length - 1) {}
         Buffer.BlockCopy(_a, 0, buffer1, 0, _a.Length)
         Buffer.BlockCopy(m1Loc, 0, buffer1, _a.Length, m1Loc.Length)
         Buffer.BlockCopy(SsHash, 0, buffer1, (_a.Length + m1Loc.Length), SsHash.Length)
@@ -105,7 +100,7 @@ Public NotInheritable Class AuthEngineClass
     Public Sub CalculateU(ByVal a As Byte())
         _a = a
         Dim algorithm1 As New SHA1Managed
-        Dim buffer1 As Byte() = New Byte((a.Length + PublicB.Length) - 1) {}
+        Dim buffer1 As Byte() = New Byte(a.Length + PublicB.Length - 1) {}
         Buffer.BlockCopy(a, 0, buffer1, 0, a.Length)
         Buffer.BlockCopy(PublicB, 0, buffer1, a.Length, PublicB.Length)
         _u = algorithm1.ComputeHash(buffer1)
@@ -229,13 +224,9 @@ Public NotInheritable Class AuthEngineClass
     '    M1 = sha2.ComputeHash(temp)
     'End Sub
 
-#End Region
-
-#Region "AuthEngine.Functions"
-
     Private Function Combine(ByVal b1 As Byte(), ByVal b2 As Byte()) As Byte()
         If (b1.Length = b2.Length) Then
-            Dim buffer1 As Byte() = New Byte((b1.Length + b2.Length) - 1) {}
+            Dim buffer1 As Byte() = New Byte(b1.Length + b2.Length - 1) {}
             Dim num1 As Integer = 0
             Dim num2 As Integer = 1
             Dim num3 As Integer
@@ -256,21 +247,21 @@ Public NotInheritable Class AuthEngineClass
     End Function
 
     Private Function Concat(ByVal a As Byte(), ByVal b As Byte()) As Byte()
-        Dim buffer1 As Byte() = New Byte((a.Length + b.Length) - 1) {}
+        Dim buffer1 As Byte() = New Byte(a.Length + b.Length - 1) {}
         Dim num1 As Integer
         For num1 = 0 To a.Length - 1
             buffer1(num1) = a(num1)
         Next num1
         Dim num2 As Integer
         For num2 = 0 To b.Length - 1
-            buffer1((num2 + a.Length)) = b(num2)
+            buffer1(num2 + a.Length) = b(num2)
         Next num2
         Return buffer1
     End Function
 
     Private Function Split(ByVal bo As Byte()) As ArrayList
-        Dim buffer1 As Byte() = New Byte((bo.Length - 1) - 1) {}
-        If (((bo.Length Mod 2) <> 0) AndAlso (bo.Length > 2)) Then
+        Dim buffer1 As Byte() = New Byte(bo.Length - 1 - 1) {}
+        If ((bo.Length Mod 2) <> 0) AndAlso (bo.Length > 2) Then
             Buffer.BlockCopy(bo, 1, buffer1, 0, bo.Length)
         End If
         Dim buffer2 As Byte() = New Byte((bo.Length / 2) - 1) {}
@@ -298,10 +289,6 @@ Public NotInheritable Class AuthEngineClass
         Return list1
     End Function
 
-#End Region
-
-#Region "AuthEngine.Variables"
-
     Private _a As Byte()
     Private ReadOnly _b As Byte()
     Public ReadOnly PublicB As Byte()
@@ -321,10 +308,6 @@ Public NotInheritable Class AuthEngineClass
     Public M1 As Byte()
     Public SsHash As Byte()
 
-#End Region
-
-#Region "AuthEngine.BigIntegers"
-
     Private _bna As IntPtr
     Private _bNb As IntPtr
     Private _bnPublicB As IntPtr
@@ -335,8 +318,6 @@ Public NotInheritable Class AuthEngineClass
     Private _bnu As IntPtr
     Private _bNv As IntPtr
     Private _bNx As IntPtr
-
-#End Region
 
 #Region "IDisposable Support"
 

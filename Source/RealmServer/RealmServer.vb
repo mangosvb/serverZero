@@ -25,23 +25,19 @@ Imports System.Threading
 Imports System.Text
 Imports System.Reflection
 
-Imports mangosVB.Common.Globals.Functions
 Imports mangosVB.Common
 Imports mangosVB.Common.Logging
+Imports mangosVB.Common.Globals.Functions
 Imports mangosVB.Shared
 
 Public Module RealmServer
-#Region "Global.Variables"
     Dim Log As New BaseWriter
-#End Region
-
-#Region "Global.Config"
     Private _config As XmlConfigFile
 
     <XmlRoot(ElementName:="RealmServer")>
     Public Class XmlConfigFile
         'Server Configurations
-        <XmlElement(ElementName:="RealmServerPort")> Public RealmServerPort As Int32 = 3724
+        <XmlElement(ElementName:="RealmServerPort")> Public RealmServerPort As Integer = 3724
         <XmlElement(ElementName:="RealmServerAddress")> Public RealmServerAddress As String = "127.0.0.1"
         <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
     End Class
@@ -65,16 +61,13 @@ Public Module RealmServer
 
             Dim oXs As XmlSerializer = New XmlSerializer(GetType(XmlConfigFile))
             Console.Write("...")
-            Dim oStmR As StreamReader
-            oStmR = New StreamReader("configs/RealmServer.ini")
-            _config = oXs.Deserialize(oStmR)
-            oStmR.Close()
+
+            Dim ostream As StreamReader
+            ostream = New StreamReader("configs/RealmServer.ini")
+            _config = oXs.Deserialize(ostream)
+            ostream.Close()
 
             Console.WriteLine(".[done]")
-
-            'DONE: Creating logger
-            'Logger.CreateLog(Config.LogType, Config.LogConfig, Log)
-            'Log.LogLevel = Config.LogLevel
 
             'DONE: Setting SQL Connection
             Dim accountDbSettings() As String
@@ -94,10 +87,6 @@ Public Module RealmServer
             Console.WriteLine(e.ToString)
         End Try
     End Sub
-
-#End Region
-
-#Region "RS.Sockets"
 
     Private ReadOnly LastConnections As New Dictionary(Of UInteger, Date)
     Private _realmServer As RealmServerClass
@@ -170,8 +159,6 @@ Public Module RealmServer
 #End Region
     End Class
 
-#End Region
-
 #Region "RS.Data Access"
 
     Private _accountDatabase As New SQL
@@ -204,7 +191,7 @@ Public Module RealmServer
 
         Public Socket As Socket
         Public Ip As IPAddress = IPAddress.Parse("127.0.0.1")
-        Public Port As Int32 = 0
+        Public Port As Integer = 0
         Public AuthEngine As AuthEngineClass
         Public Account As String = ""
         'Public Language As String = "enGB"
@@ -266,23 +253,26 @@ Public Module RealmServer
 
             Dim buffer() As Byte
 
-
             Console.ForegroundColor = ConsoleColor.DarkGray
             Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.ForegroundColor = ConsoleColor.Gray
-            If Not _accountDatabase.QuerySql("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
+            If Not _accountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
 
                 While Not _realmServer.FlagStopListen
                     Thread.Sleep(ConnectionSleepTime)
                     If Socket.Available > 0 Then
-                        If Socket.Available > 500 Then 'DONE: Data flood protection
+                        If Socket.Available > 100 Then 'DONE: Data flood protection
+                            Console.ForegroundColor = ConsoleColor.Red
+                            Console.WriteLine("[{0}] Incoming Connection dropped for flooding", Format(TimeOfDay, "hh:mm:ss"))
+                            Console.ForegroundColor = ConsoleColor.Gray
                             Exit While
                         End If
+
                         ReDim buffer(Socket.Available - 1)
                         Dim dummyBytes As Integer = Socket.Receive(buffer, buffer.Length, 0)
                         Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                        Console.WriteLine("[{0}] Data Packet Flood:", dummyBytes)
+                        Console.WriteLine("[{0}] Data Packet:", dummyBytes)
 
                         OnData(buffer)
                     End If
@@ -469,6 +459,7 @@ Public Module RealmServer
                     dataResponse(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-UNKNOWN_ACCOUNT")
                     Exit Sub
+
                 Case AccountState.LOGIN_BANNED
                     Console.WriteLine("[{0}] [{1}:{2}] Account banned [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
@@ -476,6 +467,7 @@ Public Module RealmServer
                     dataResponse(1) = AccountState.LOGIN_BANNED
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-BANNED")
                     Exit Sub
+
                 Case AccountState.LOGIN_NOTIME
                     Console.WriteLine("[{0}] [{1}:{2}] Account prepaid time used [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
@@ -483,6 +475,7 @@ Public Module RealmServer
                     dataResponse(1) = AccountState.LOGIN_NOTIME
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-NOTIME")
                     Exit Sub
+
                 Case AccountState.LOGIN_ALREADYONLINE
                     Console.WriteLine("[{0}] [{1}:{2}] Account already logged in the game [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
@@ -490,6 +483,7 @@ Public Module RealmServer
                     dataResponse(1) = AccountState.LOGIN_ALREADYONLINE
                     client.Send(dataResponse, "RS_LOGON_CHALLENGE-ALREADYONLINE")
                     Exit Sub
+
                 Case Else
                     Console.WriteLine("[{0}] [{1}:{2}] Account error [{3}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount)
                     Dim dataResponse(1) As Byte
@@ -912,7 +906,13 @@ Public Module RealmServer
     Sub Main()
         Dim log As New BaseWriter
 
-        Console.Title = String.Format("{0} v{1}", [Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0).Title, [Assembly].GetExecutingAssembly().GetName().Version)
+        Console.BackgroundColor = ConsoleColor.Black
+        Console.Title = String.Format("{0} v{1}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title, [Assembly].GetExecutingAssembly().GetName().Version)
+
+        Console.ForegroundColor = ConsoleColor.Yellow
+        Console.WriteLine("{0}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyProductAttribute), False)(0), AssemblyProductAttribute).Product)
+        Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyCopyrightAttribute), False)(0), AssemblyCopyrightAttribute).Copyright)
+        Console.WriteLine()
 
         Console.ForegroundColor = ConsoleColor.Yellow
 
@@ -921,7 +921,7 @@ Public Module RealmServer
         Console.WriteLine(" | |\/| / _` | .` | (_ | (_) \__ \   \ V / | _ \   Vanilla Wow")
         Console.WriteLine(" |_|  |_\__,_|_|\_|\___|\___/|___/    \_/  |___/              ")
         Console.WriteLine("                                                              ")
-        Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/          ")
+        Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/             ")
         Console.WriteLine("")
 
         Console.ForegroundColor = ConsoleColor.Magenta
@@ -937,20 +937,21 @@ Public Module RealmServer
         If DoesSharedDllExist() = False Then
             End
         End If
+
         LoadConfig()
 
         Console.ForegroundColor = ConsoleColor.Yellow
         log.WriteLine(LogType.INFORMATION, "Running from: {0}", AppDomain.CurrentDomain.BaseDirectory)
         Console.ForegroundColor = ConsoleColor.Gray
 
-        AddHandler _accountDatabase.SqlMessage, AddressOf SqlEventHandler
+        AddHandler _accountDatabase.SQLMessage, AddressOf SqlEventHandler
         _accountDatabase.Connect()
 
         _realmServer = New RealmServerClass
 
         'Check the Database version, exit if its wrong
         Dim areDbVersionsOk As Boolean = True
-        If Globals.CheckRequiredDbVersion(_accountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
+        If CheckRequiredDbVersion(_accountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
         'If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
         'If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
 
@@ -961,6 +962,7 @@ Public Module RealmServer
             Console.ReadKey()
             End
         End If
+
         WorldServer_Status_Report()
     End Sub
 

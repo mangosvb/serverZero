@@ -37,12 +37,10 @@ Namespace Server
         Public WorldServer As WorldServerClass
         Public Authenticator As Authenticator
 
-        Private LastPing As Integer = 0
+        Private ReadOnly LastPing As Integer = 0
+
         Public Function MsTime() As Integer
             'DONE: Calculate the clusters timeGetTime("")
-            ' The following code didn't actually make sense as it was self callig recursively
-            ' Return MsTime + (TimeGetTime("") - LastPing)
-            ' Modified to only create a new time
             Return (TimeGetTime("") - LastPing)
         End Function
 
@@ -56,44 +54,45 @@ Namespace Server
             Private m_TimerPing As Timer
             Private m_TimerStats As Timer
             Private m_TimerCPU As Timer
-            Private m_RemoteChannel As Channels.IChannel = Nothing
+            Private ReadOnly m_RemoteChannel As Channels.IChannel = Nothing
 
             Private m_Socket As Socket
 
             Public Sub New()
                 Try
                     m_Socket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                    m_Socket.Bind(New IPEndPoint(IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort))
+                    m_Socket.Bind(New IPEndPoint(IPAddress.Parse(_config.WorldClusterAddress), _config.WorldClusterPort))
                     m_Socket.Listen(5)
                     m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-                    Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
+                    Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(_config.WorldClusterAddress), _config.WorldClusterPort)
 
                     'Create Remoting Channel
-                    Select Case Config.ClusterListenMethod
+                    Select Case _config.ClusterListenMethod
                         Case "ipc"
-                            m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.ClusterListenAddress, Config.ClusterListenPort))
+                            m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", _config.ClusterListenAddress, _config.ClusterListenPort))
                         Case "tcp"
-                            m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.ClusterListenPort)
+                            m_RemoteChannel = New Channels.Tcp.TcpChannel(_config.ClusterListenPort)
                     End Select
+
                     Channels.ChannelServices.RegisterChannel(m_RemoteChannel, False)
 
                     'NOTE: Password protected remoting
-                    Authenticator = New Authenticator(Me, Config.ClusterPassword)
+                    Authenticator = New Authenticator(Me, _config.ClusterPassword)
 
                     RemotingServices.Marshal(Authenticator, "Cluster.rem")
-                    Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", Config.ClusterListenMethod, Config.ClusterListenAddress, Config.ClusterListenPort)
+                    Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", _config.ClusterListenMethod, _config.ClusterListenAddress, _config.ClusterListenPort)
 
                     'Creating ping timer
                     m_TimerPing = New Timer(AddressOf Ping, Nothing, 0, 15000)
 
                     'Creating stats timer
-                    If Config.StatsEnabled Then
-                        m_TimerStats = New Timer(AddressOf GenerateStats, Nothing, Config.StatsTimer, Config.StatsTimer)
+                    If _config.StatsEnabled Then
+                        m_TimerStats = New Timer(AddressOf GenerateStats, Nothing, _config.StatsTimer, _config.StatsTimer)
                     End If
 
                     'Creating CPU check timer
-                    m_TimerCPU = New Timer(AddressOf CheckCPU, Nothing, 1000, 1000)
+                    m_TimerCPU = New Timer(AddressOf CheckCpu, Nothing, 1000, 1000)
 
                 Catch e As Exception
                     Console.WriteLine()
@@ -156,7 +155,7 @@ Namespace Server
 
                     'NOTE: Password protected remoting
                     Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), uri)
-                    Dim WorldServer As IWorld = a.Login(Config.ClusterPassword)
+                    Dim WorldServer As IWorld = a.Login(_config.ClusterPassword)
 
                     Dim WorldServerInfo As New WorldInfo
                     Log.WriteLine(LogType.INFORMATION, "Connected Map Server: {0}", uri)
@@ -231,9 +230,9 @@ Namespace Server
                             If SentPingTo.ContainsKey(WorldsInfo(w.Key)) Then
                                 Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
                             Else
-                                MyTime = TimeGetTime("")
+                                MyTime = timeGetTime("")
                                 ServerTime = w.Value.Ping(MyTime, WorldsInfo(w.Key).Latency)
-                                Latency = Math.Abs(MyTime - TimeGetTime(""))
+                                Latency = Math.Abs(MyTime - timeGetTime(""))
 
                                 WorldsInfo(w.Key).Latency = Latency
                                 SentPingTo(WorldsInfo(w.Key)) = Latency
@@ -418,7 +417,6 @@ Namespace Server
             Public Function BattlefieldCheck(ByVal MapID As UInteger) As Boolean
                 'Create map
                 If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
-
                     Log.WriteLine(LogType.INFORMATION, "[SERVER] Requesting battlefield map [{0}]", MapID)
                     Dim ParentMap As IWorld = Nothing
                     Dim ParentMapInfo As WorldInfo = Nothing
@@ -548,7 +546,7 @@ Namespace Server
             Protected SavedBytes() As Byte = {}
 
             Public DEBUG_CONNECTION As Boolean = False
-            Private Key() As Byte = {0, 0, 0, 0}
+            Private ReadOnly Key() As Byte = {0, 0, 0, 0}
 
             Private HandingPackets As Boolean = False
 
@@ -705,7 +703,7 @@ Namespace Server
                         p = Queue.Dequeue
                     End SyncLock
 
-                    If Config.PacketLogging Then LogPacket(p.Data, False, Me)
+                    If _config.PacketLogging Then LogPacket(p.Data, False, Me)
                     If PacketHandlers.ContainsKey(p.OpCode) = True Then
                         Try
                             PacketHandlers(p.OpCode).Invoke(p, Me)
@@ -741,7 +739,7 @@ Namespace Server
                 If Not Socket.Connected Then Exit Sub
 
                 Try
-                    If Config.PacketLogging Then LogPacket(data, True, Me)
+                    If _config.PacketLogging Then LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
@@ -757,12 +755,12 @@ Namespace Server
 
                 Try
                     Dim data As Byte() = packet.Data
-                    If Config.PacketLogging Then LogPacket(data, True, Me)
+                    If _config.PacketLogging Then LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch err As Exception
                     'NOTE: If it's a error here it means the connection is closed?
-                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, err.ToString, vbNewLine)
                     Delete()
                 End Try
 
@@ -777,7 +775,7 @@ Namespace Server
 
                 Try
                     Dim data As Byte() = packet.Data.Clone
-                    If Config.PacketLogging Then LogPacket(data, True, Me)
+                    If _config.PacketLogging Then LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
@@ -866,7 +864,7 @@ Namespace Server
             End Sub
 
             Public Sub EnQueue(ByVal state As Object)
-                While CHARACTERs.Count > Config.ServerPlayerLimit
+                While CHARACTERs.Count > _config.ServerPlayerLimit
                     If Not Socket.Connected Then Exit Sub
 
                     Dim responseFull As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)

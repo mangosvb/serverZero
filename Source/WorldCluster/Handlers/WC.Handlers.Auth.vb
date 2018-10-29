@@ -126,10 +126,10 @@ Namespace Handlers
             'Next
 
             'DONE: If server full then queue, If GM/Admin let in
-            If CLIENTs.Count > Config.ServerPlayerLimit And client.Access <= AccessLevel.Player Then
+            If CLIENTs.Count > _config.ServerPlayerLimit And client.Access <= AccessLevel.Player Then
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf client.EnQueue))
             Else
-                SendLoginOK(client)
+                SendLoginOk(client)
             End If
 
             'DONE: Addons info reading

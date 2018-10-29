@@ -25,12 +25,12 @@ Public Module VMAP_Module
 
     Public Class ModelContainer
         Inherits BaseModel
-        Implements BaseCollision
+        Implements IBaseCollision
         Implements IDisposable
 
         Private iBox As AABox
         Private numSubModels As Integer
-        Private subModels As List(Of BaseCollision)
+        Private subModels As List(Of IBaseCollision)
 
         Public Sub New()
 
@@ -60,7 +60,7 @@ Public Module VMAP_Module
         End Sub
 #End Region
 
-        Public ReadOnly Property Bounds() As AABox Implements BaseCollision.Bounds
+        Public ReadOnly Property Bounds() As AABox Implements IBaseCollision.Bounds
             Get
                 Return iBox
             End Get
@@ -156,7 +156,7 @@ Public Module VMAP_Module
                 sw.WriteLine("===================")
 #End If
                 Log.WriteLine(LogType.DEBUG, "NumTriangles: {0}", numTriangles)
-                iTriangles = New List(Of BaseCollision)(numTriangles)
+                iTriangles = New List(Of IBaseCollision)(numTriangles)
                 For i As Integer = 0 To numTriangles - 1
                     iTriangles.Add(New TriangleBox(New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()),
                                                    New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()),
@@ -181,7 +181,7 @@ Public Module VMAP_Module
                 sw.WriteLine("===================")
 #End If
                 Log.WriteLine(LogType.DEBUG, "NumSubModels: {0}", numSubModels)
-                subModels = New List(Of BaseCollision)(numSubModels)
+                subModels = New List(Of IBaseCollision)(numSubModels)
                 For i As Integer = 0 To numSubModels - 1
                     Dim newSubModel As New SubModel()
                     subModels.Add(newSubModel)
@@ -217,7 +217,7 @@ Public Module VMAP_Module
             Return False
         End Function
 
-        Public Overloads Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) Implements BaseCollision.Intersect
+        Public Overloads Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) Implements IBaseCollision.Intersect
 #If VMAPS_DEBUG Then
             Log.WriteLine(LogType.DEBUG, "Checking model container hit!")
 #End If
@@ -225,12 +225,12 @@ Public Module VMAP_Module
         End Sub
 
         Public Overloads Function Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single) As Boolean
-            Return MyBase.Intersect(iBox, pRay, pMaxDist)
+            Return Intersect(iBox, pRay, pMaxDist)
         End Function
 
     End Class
 
-    Public Interface BaseCollision
+    Public Interface IBaseCollision
         ReadOnly Property Bounds() As AABox
         Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean)
     End Interface
@@ -258,7 +258,7 @@ Public Module VMAP_Module
         End Sub
 #End Region
 
-        Private Shared Function ComputeBounds(ByRef point As List(Of BaseCollision), ByVal beginIndex As Integer, ByVal endIndex As Integer) As AABox
+        Private Shared Function ComputeBounds(ByRef point As List(Of IBaseCollision), ByVal beginIndex As Integer, ByVal endIndex As Integer) As AABox
             Dim lo As Vector3 = Vector3.MaxInf()
             Dim hi As Vector3 = Vector3.MinInf()
 
@@ -270,14 +270,14 @@ Public Module VMAP_Module
             Return New AABox(lo, hi)
         End Function
 
-        Private Shared Sub Partition(ByRef source As List(Of BaseCollision), ByRef partitionElement As BaseCollision, ByRef ltArray As List(Of BaseCollision), ByRef eqArray As List(Of BaseCollision), ByRef gtArray As List(Of BaseCollision), ByRef comparator As IComparer(Of BaseCollision))
+        Private Shared Sub Partition(ByRef source As List(Of IBaseCollision), ByRef partitionElement As IBaseCollision, ByRef ltArray As List(Of IBaseCollision), ByRef eqArray As List(Of IBaseCollision), ByRef gtArray As List(Of IBaseCollision), ByRef comparator As IComparer(Of IBaseCollision))
             'Clear the arrays
             ltArray.Clear()
             eqArray.Clear()
             gtArray.Clear()
 
             'Form a table of buckets for lt, eq, and gt
-            Dim bucket() As List(Of BaseCollision) = {ltArray, eqArray, gtArray}
+            Dim bucket() As List(Of IBaseCollision) = {ltArray, eqArray, gtArray}
 
             For i As Integer = 0 To source.Count - 1
                 Dim c As Integer = comparator.Compare(partitionElement, source(i))
@@ -287,7 +287,7 @@ Public Module VMAP_Module
             Next
         End Sub
 
-        Private Shared Sub MedianPartition(ByRef src As List(Of BaseCollision), ByRef ltMedian As List(Of BaseCollision), ByRef eqMedian As List(Of BaseCollision), ByRef gtMedian As List(Of BaseCollision), ByRef tempArray As List(Of BaseCollision), ByRef comparator As IComparer(Of BaseCollision))
+        Private Shared Sub MedianPartition(ByRef src As List(Of IBaseCollision), ByRef ltMedian As List(Of IBaseCollision), ByRef eqMedian As List(Of IBaseCollision), ByRef gtMedian As List(Of IBaseCollision), ByRef tempArray As List(Of IBaseCollision), ByRef comparator As IComparer(Of IBaseCollision))
             'Clear the arrays
             ltMedian.Clear()
             eqMedian.Clear()
@@ -339,15 +339,15 @@ Public Module VMAP_Module
             Else 'If odd
                 lowerHalfSize = upperHalfSize = (src.Count + 1) \ 2
             End If
-            Dim xPtr As BaseCollision = Nothing
+            Dim xPtr As IBaseCollision = Nothing
 
             'Maintain pointers to the arrays; we'll switch these around during sorting
             'to avoid copies.
-            Dim source As List(Of BaseCollision) = src
-            Dim lt As List(Of BaseCollision) = ltMedian
-            Dim eq As List(Of BaseCollision) = eqMedian
-            Dim gt As List(Of BaseCollision) = gtMedian
-            Dim extra As List(Of BaseCollision) = tempArray
+            Dim source As List(Of IBaseCollision) = src
+            Dim lt As List(Of IBaseCollision) = ltMedian
+            Dim eq As List(Of IBaseCollision) = eqMedian
+            Dim gt As List(Of IBaseCollision) = gtMedian
+            Dim extra As List(Of IBaseCollision) = tempArray
 
             While True
                 'Choose a random element -- choose the middle element; this is theoretically
@@ -374,7 +374,7 @@ Public Module VMAP_Module
                     'The new gt array will be the old source array, unless
                     'that was the this pointer (i.e., unless we are on the
                     'first iteration)
-                    Dim newGt As List(Of BaseCollision) = If((src Is source), extra, New List(Of BaseCollision)(source))
+                    Dim newGt As List(Of IBaseCollision) = If((src Is source), extra, New List(Of IBaseCollision)(source))
 
                     'Now set up the gt array as the new source
                     source = gt
@@ -386,7 +386,7 @@ Public Module VMAP_Module
                     'The new lt array will be the old source array, unless
                     'that was the this pointer (i.e., unless we are on the
                     'first iteration)
-                    Dim newLt As List(Of BaseCollision) = If((src Is source), extra, New List(Of BaseCollision)(source))
+                    Dim newLt As List(Of IBaseCollision) = If((src Is source), extra, New List(Of IBaseCollision)(source))
 
                     'Now set up the lt array as the new source
                     source = lt
@@ -402,7 +402,7 @@ Public Module VMAP_Module
         End Sub
 
         Private Class CenterComparator
-            Implements IComparer(Of BaseCollision)
+            Implements IComparer(Of IBaseCollision)
 
             Private sortAxis As Axis
 
@@ -410,7 +410,7 @@ Public Module VMAP_Module
                 Me.sortAxis = sortAxis
             End Sub
 
-            Public Function Compare(ByVal x As BaseCollision, ByVal y As BaseCollision) As Integer Implements IComparer(Of BaseCollision).Compare
+            Public Function Compare(ByVal x As IBaseCollision, ByVal y As IBaseCollision) As Integer Implements IComparer(Of IBaseCollision).Compare
                 Dim a As Single = x.Bounds.Center(sortAxis)
                 Dim b As Single = y.Bounds.Center(sortAxis)
 
@@ -426,7 +426,7 @@ Public Module VMAP_Module
         End Class
 
         Private Class Comparator
-            Implements IComparer(Of BaseCollision)
+            Implements IComparer(Of IBaseCollision)
 
             Private sortAxis As Axis
             Private sortLocation As Single
@@ -436,7 +436,7 @@ Public Module VMAP_Module
                 sortLocation = l
             End Sub
 
-            Public Function Compare(ByVal x As BaseCollision, ByVal y As BaseCollision) As Integer Implements IComparer(Of BaseCollision).Compare
+            Public Function Compare(ByVal x As IBaseCollision, ByVal y As IBaseCollision) As Integer Implements IComparer(Of IBaseCollision).Compare
                 Dim box As AABox = y.Bounds
 
                 If box.High(sortAxis) < sortLocation Then
@@ -479,7 +479,7 @@ Public Module VMAP_Module
             'This is an array of pointers because that minimizes
             'data movement during tree building, which accounts
             'for about 15% of the time cost of tree building.
-            Public valueArray As List(Of BaseCollision)
+            Public valueArray As List(Of IBaseCollision)
 
             'For each object in the value array, a copy of its bounds.
             'Packing these into an array at the node level
@@ -495,7 +495,7 @@ Public Module VMAP_Module
                 splitBounds = New AABox(Vector3.MinInf(), Vector3.MaxInf())
                 child(0) = Nothing
                 child(1) = Nothing
-                valueArray = New List(Of BaseCollision)
+                valueArray = New List(Of IBaseCollision)
                 boundsArray = New List(Of AABox)
             End Sub
 
@@ -506,25 +506,25 @@ Public Module VMAP_Module
                 splitBounds = other.splitBounds
                 child(0) = Nothing
                 child(1) = Nothing
-                valueArray = New List(Of BaseCollision)(other.valueArray)
+                valueArray = New List(Of IBaseCollision)(other.valueArray)
                 boundsArray = New List(Of AABox)(other.boundsArray)
             End Sub
 
             'Copies the specified subarray of pt into point, NULLs the children.
             'Assumes a second pass will set splitBounds.
-            Public Sub New(ByRef pt As List(Of BaseCollision))
+            Public Sub New(ByRef pt As List(Of IBaseCollision))
                 splitAxis = Axis.X_AXIS
                 splitLocation = 0.0F
                 child(0) = Nothing
                 child(1) = Nothing
-                valueArray = New List(Of BaseCollision)(pt)
+                valueArray = New List(Of IBaseCollision)(pt)
                 boundsArray = New List(Of AABox)
                 For i As Integer = 0 To valueArray.Count - 1
                     boundsArray.Add(valueArray(i).Bounds)
                 Next
             End Sub
 
-            Public Sub GetValues(ByRef values As List(Of BaseCollision))
+            Public Sub GetValues(ByRef values As List(Of IBaseCollision))
                 values.AddRange(valueArray)
                 For i As Integer = 0 To 1
                     If child(i) IsNot Nothing Then
@@ -744,7 +744,7 @@ Public Module VMAP_Module
 
         Private root As Node
 
-        Public Sub Insert(ByRef valueArray As List(Of BaseCollision))
+        Public Sub Insert(ByRef valueArray As List(Of IBaseCollision))
             If root Is Nothing Then
                 'Optimized case for an empty tree; don't bother
                 'searching or reallocating the root node's valueArray
@@ -765,7 +765,7 @@ Public Module VMAP_Module
             End If
         End Sub
 
-        Public Sub Insert(ByRef value As BaseCollision)
+        Public Sub Insert(ByRef value As IBaseCollision)
             If root Is Nothing Then
                 'This is the first node; create a root node
                 root = New Node()
@@ -793,10 +793,10 @@ Public Module VMAP_Module
                 End If
             Next
 
-            Dim temp As New List(Of BaseCollision)
+            Dim temp As New List(Of IBaseCollision)
             'Make a new root.  Work with a copy of the value array because
             'makeNode clears the source array as it progresses
-            Dim copy As New List(Of BaseCollision)(oldRoot.valueArray)
+            Dim copy As New List(Of IBaseCollision)(oldRoot.valueArray)
             root = MakeNode(copy, valuesPerNode, numMeanSplits, temp)
 
             'Throw away the old root node
@@ -816,7 +816,7 @@ Public Module VMAP_Module
         'Recursively subdivides the subarray.
         'Clears the source array as soon as it is no longer needed.
         'Call assignSplitBounds() on the root node after making a tree.
-        Private Function MakeNode(ByRef source As List(Of BaseCollision), ByVal valuesPerNode As Integer, ByVal numMeanSplits As Integer, ByRef temp As List(Of BaseCollision)) As Node
+        Private Function MakeNode(ByRef source As List(Of IBaseCollision), ByVal valuesPerNode As Integer, ByVal numMeanSplits As Integer, ByRef temp As List(Of IBaseCollision)) As Node
             Dim node As Node = Nothing
 
             If source.Count <= valuesPerNode Then
@@ -835,8 +835,8 @@ Public Module VMAP_Module
                 Dim splitLocation As Single
 
                 'Arrays for holding the children
-                Dim lt As New List(Of BaseCollision)
-                Dim gt As New List(Of BaseCollision)
+                Dim lt As New List(Of IBaseCollision)
+                Dim gt As New List(Of IBaseCollision)
 
                 If numMeanSplits <= 0 Then
                     MedianPartition(source, lt, node.valueArray, gt, temp, New CenterComparator(splitAxis))
@@ -980,7 +980,7 @@ Public Module VMAP_Module
             Return canHitThisNode
         End Function
 
-        Public Sub IntersectRay(ByVal ray As Ray, ByRef distance As Single, ByRef pNodes As List(Of TreeNode), ByVal iNodeStart As Integer, ByRef pSecond As List(Of BaseCollision), ByVal iSecondStart As Integer, ByVal pStopAtFirstHit As Boolean, ByVal intersectCallbackIsFast As Boolean)
+        Public Sub IntersectRay(ByVal ray As Ray, ByRef distance As Single, ByRef pNodes As List(Of TreeNode), ByVal iNodeStart As Integer, ByRef pSecond As List(Of IBaseCollision), ByVal iSecondStart As Integer, ByVal pStopAtFirstHit As Boolean, ByVal intersectCallbackIsFast As Boolean)
             Dim enterDistance As Single = distance
 #If VMAPS_DEBUG Then
             Log.WriteLine(LogType.DEBUG, "TreeNode ID: {0}!", ID)
@@ -1002,7 +1002,7 @@ Public Module VMAP_Module
 
             'Test for intersection against every object at this node.
             For v As Integer = iStartPosition To (iNumberOfValues + iStartPosition) - 1
-                Dim nodeValue As BaseCollision = pSecond(iSecondStart + v)
+                Dim nodeValue As IBaseCollision = pSecond(iSecondStart + v)
                 Dim canHitThisObject As Boolean = True
                 If Not intersectCallbackIsFast Then
                     Dim location As Vector3
@@ -1094,7 +1094,7 @@ Public Module VMAP_Module
     End Class
 
     Public Class TriangleBox
-        Implements BaseCollision
+        Implements IBaseCollision
 
         Private _vertex(2) As ShortVector
 
@@ -1130,14 +1130,14 @@ Public Module VMAP_Module
             End Get
         End Property
 
-        Public ReadOnly Property GetAABoxBounds() As AABox Implements BaseCollision.Bounds
+        Public ReadOnly Property GetAABoxBounds() As AABox Implements IBaseCollision.Bounds
             Get
                 Dim box As ShortBox = GetBounds()
                 Return New AABox(box.Low.GetVector3(), box.High.GetVector3())
             End Get
         End Property
 
-        Public Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) Implements BaseCollision.Intersect
+        Public Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) Implements IBaseCollision.Intersect
             Static epsilon As Double = 0.00001
             Dim testT As New Triangle(Vertex(0).GetVector3, Vertex(1).GetVector3, Vertex(2).GetVector3)
             Dim t As Single = pRay.IntersectionTime(testT)
@@ -1168,7 +1168,7 @@ Public Module VMAP_Module
         Protected numNodes As Integer
         Protected numTriangles As Integer
         Protected iTreeNodes As List(Of TreeNode)
-        Protected iTriangles As List(Of BaseCollision)
+        Protected iTriangles As List(Of IBaseCollision)
         Protected iBasePosition As Vector3
 
         Public Sub New()
@@ -1180,7 +1180,7 @@ Public Module VMAP_Module
             Init(pNNodes, pNTriangles)
         End Sub
 
-        Public Sub New(ByRef pTreeNode As List(Of TreeNode), ByRef pTriangleBox As List(Of BaseCollision))
+        Public Sub New(ByRef pTreeNode As List(Of TreeNode), ByRef pTriangleBox As List(Of IBaseCollision))
             iTreeNodes = pTreeNode
             iTriangles = pTriangleBox
         End Sub
@@ -1200,7 +1200,7 @@ Public Module VMAP_Module
 
         Public Sub Init(ByVal pNNodes As Integer, ByVal pNTriangles As Integer)
             If pNNodes > 0 Then iTreeNodes = New List(Of TreeNode)(pNNodes)
-            If pNTriangles > 0 Then iTriangles = New List(Of BaseCollision)(pNTriangles)
+            If pNTriangles > 0 Then iTriangles = New List(Of IBaseCollision)(pNTriangles)
         End Sub
 
         Public Sub GetMembers(ByRef pMembers As List(Of TriangleBox))
@@ -1236,7 +1236,7 @@ Public Module VMAP_Module
 
     Public Class SubModel
         Inherits BaseModel
-        Implements BaseCollision
+        Implements IBaseCollision
 
         Private iNodesPos As Integer
         Private iTrianglesPos As Integer
@@ -1247,7 +1247,7 @@ Public Module VMAP_Module
             MyBase.New()
         End Sub
 
-        Public ReadOnly Property Bounds() As AABox Implements BaseCollision.Bounds
+        Public ReadOnly Property Bounds() As AABox Implements IBaseCollision.Bounds
             Get
                 Return New AABox(iBox.Low().GetVector3() + iBasePosition, iBox.High().GetVector3() + iBasePosition)
             End Get
@@ -1257,7 +1257,7 @@ Public Module VMAP_Module
             iTreeNodes = nodes
         End Sub
 
-        Public Sub SetTriangles(ByRef triangles As List(Of BaseCollision))
+        Public Sub SetTriangles(ByRef triangles As List(Of IBaseCollision))
             iTriangles = triangles
         End Sub
 
@@ -1275,7 +1275,7 @@ Public Module VMAP_Module
             b.ReadInt16()
         End Sub
 
-        Public Overloads Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) Implements BaseCollision.Intersect
+        Public Overloads Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) Implements IBaseCollision.Intersect
             Dim relativeRay As New Ray(pRay.origin - iBasePosition, pRay.direction)
             iTreeNodes(iNodesPos).IntersectRay(relativeRay, pMaxDist, iTreeNodes, iNodesPos, iTriangles, iTrianglesPos, pStopAtFirstHit, False)
         End Sub
@@ -2090,7 +2090,7 @@ Public Module VMAP_Module
         Return True
     End Function
 
-    Public Sub IntersectionCallBack(ByRef entity As BaseCollision, ByVal ray As Ray, ByVal pStopAtFirstHit As Boolean, ByRef distance As Single)
+    Public Sub IntersectionCallBack(ByRef entity As IBaseCollision, ByVal ray As Ray, ByVal pStopAtFirstHit As Boolean, ByRef distance As Single)
         entity.Intersect(ray, distance, pStopAtFirstHit)
     End Sub
 

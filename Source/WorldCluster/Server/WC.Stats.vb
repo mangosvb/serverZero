@@ -117,7 +117,7 @@ Namespace Server
             Log.WriteLine(LogType.DEBUG, "Generating stats")
             PrepareStats()
 
-            Dim f As XmlWriter = XmlWriter.Create(Config.StatsLocation)
+            Dim f As XmlWriter = XmlWriter.Create(_config.StatsLocation)
             f.WriteStartDocument(True)
             f.WriteComment("generated at " & Date.Now.ToString("hh:mm:ss"))
             '<?xml-stylesheet type="text/xsl" href="stats.xsl"?>

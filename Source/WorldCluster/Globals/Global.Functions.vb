@@ -61,7 +61,7 @@ Namespace Globals
 
         Public Function ByteToIntArray(bBytes() As Byte) As Integer()
             If bBytes.Length = 0 Then Return New Integer() {}
-            Dim bInt(((bBytes.Length - 1) \ 4)) As Integer
+            Dim bInt((bBytes.Length - 1) \ 4) As Integer
             For i As Integer = 0 To bBytes.Length - 1 Step 4
                 bInt(i \ 4) = BitConverter.ToInt32(bBytes, i)
             Next

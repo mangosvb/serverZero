@@ -19,10 +19,12 @@
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
+
 Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Logging
 Imports mangosVB.Common.Logging.BaseWriter
 Imports mangosVB.Common.Global_Constants
+
 Imports mangosVB.Shared
 
 Public Module WorldServer
@@ -82,7 +84,6 @@ Public Module WorldServer
 
 #End Region
 
-#Region "Global.Config"
     Public Config As XMLConfigFile
     <XmlRoot(ElementName:="WorldServer")>
     Public Class XMLConfigFile
@@ -221,7 +222,6 @@ Public Module WorldServer
             Console.WriteLine(e.ToString)
         End Try
     End Sub
-#End Region
 
 #Region "WS.DataAccess"
     Public AccountDatabase As New SQL
@@ -298,6 +298,7 @@ Public Module WorldServer
         AddHandler currentDomain.UnhandledException, AddressOf GenericExceptionHandler
 
         LoadConfig()
+
         Console.ForegroundColor = ConsoleColor.Gray
         AddHandler AccountDatabase.SqlMessage, AddressOf AccountSQLEventHandler
         AddHandler CharacterDatabase.SqlMessage, AddressOf CharacterSQLEventHandler
@@ -340,8 +341,8 @@ Public Module WorldServer
         'Check the Database version, exit if its wrong
         Dim areDbVersionsOk As Boolean = True
         If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
-        If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
         If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
+        If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
 
         If areDbVersionsOk = False Then
             Console.WriteLine("*************************")
@@ -351,15 +352,6 @@ Public Module WorldServer
             End
         End If
 
-#If DEBUG Then
-        Console.ForegroundColor = ConsoleColor.White
-        Log.WriteLine(LogType.INFORMATION, "Running from: {0}", AppDomain.CurrentDomain.BaseDirectory)
-        Console.ForegroundColor = ConsoleColor.Gray
-        Log.WriteLine(LogType.DEBUG, "Setting MySQL into debug mode..[done]")
-        AccountDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        CharacterDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-        WorldDatabase.Update("SET SESSION sql_mode='STRICT_ALL_TABLES';")
-#End If
         InitializeInternalDatabase()
         IntializePacketHandlers()
 
@@ -410,131 +402,129 @@ Public Module WorldServer
                     If CommandList(varList).Length > 0 Then
                         '<<<<<<<<<<<COMMAND STRUCTURE>>>>>>>>>>
                         Select Case cmds(0).ToLower
-                            Case "quit", "shutdown", "off", "kill", "/quit", "/shutdown", "/off", "/kill"
+                            Case "shutdown"
                                 Log.WriteLine(LogType.WARNING, "Server shutting down...")
                                 ClsWorldServer._flagStopListen = True
-                            Case "debug", "/debug"
+
+                            Case "debug"
                                 Dim conn As New ClientClass With {
                                     .DEBUG_CONNECTION = True
                                 }
+
                                 Dim test As New CharacterObject(conn, CType(cmds(1), Long))
                                 CHARACTERs(CType(cmds(1), Long)) = test
                                 AddToWorld(test)
                                 Log.WriteLine(LogType.DEBUG, "Spawned character " & test.Name)
-                            Case "createaccount", "/createaccount"
+
+                            Case "createaccount" 'ToDo: Fix create account command.
                                 AccountDatabase.InsertSQL([String].Format("INSERT INTO accounts (account, password, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", cmd(1), cmd(2), cmd(3), Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
                                 If AccountDatabase.QuerySQL("SELECT * FROM accounts WHERE account = "" & packet_account & "";") Then
-                                    Console.ForegroundColor = System.ConsoleColor.DarkGreen
+                                    Console.ForegroundColor = ConsoleColor.DarkGreen
                                     Console.WriteLine("[Account: " & cmd(1) & " Password: " & cmd(2) & " Email: " & cmd(3) & "] has been created.")
-                                    Console.ForegroundColor = System.ConsoleColor.Gray
+                                    Console.ForegroundColor = ConsoleColor.Gray
                                 Else
-                                    Console.ForegroundColor = System.ConsoleColor.DarkRed
+                                    Console.ForegroundColor = ConsoleColor.DarkRed
                                     Console.WriteLine("[Account: " & cmd(1) & " Password: " & cmd(2) & " Email: " & cmd(3) & "] could not be created.")
-                                    Console.ForegroundColor = System.ConsoleColor.Gray
+                                    Console.ForegroundColor = ConsoleColor.Gray
                                 End If
-                            Case "exec", "/exec"
-                                Dim tmpScript As New ScriptedObject("scripts\commands\" & cmds(1), "", True)
-                                tmpScript.InvokeFunction("CustomCommands", "OnExecute")
-                                tmpScript.Dispose()
+
                             Case "gccollect"
                                 GC.Collect()
-                            Case "ban", "Ban", "Ban Account", "acct ban"
-                                Console.ForegroundColor = System.ConsoleColor.DarkYellow
+
+                            Case "ban account"
+                                Console.ForegroundColor = ConsoleColor.DarkYellow
                                 Console.WriteLine("[{0}] Specify the Account Name :", Format(TimeOfDay, "hh:mm:ss"))
-                                Dim aName As String
-                                aName = Console.ReadLine
+
+                                Dim AccountName As String
+                                AccountName = Console.ReadLine
+
                                 Dim result As New DataTable
                                 Dim result1 As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & aName & """;", result)
-                                AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result1)
+                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & AccountName & """;", result)
+                                AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & AccountName & """;", result1)
+
                                 Dim IP As String
                                 IP = result1.Rows(0).Item("last_ip")
                                 If result.Rows.Count > 0 Then
                                     If result.Rows(0).Item("banned") = 1 Then
-                                        Console.ForegroundColor = System.ConsoleColor.Green
-                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is already banned.", aName, Format(TimeOfDay, "hh:mm:ss")))
+                                        Console.ForegroundColor = ConsoleColor.Green
+                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is already banned.", AccountName, Format(TimeOfDay, "hh:mm:ss")))
 
-                                        Console.ForegroundColor = System.ConsoleColor.Yellow
+                                        Console.ForegroundColor = ConsoleColor.Yellow
 
                                     ElseIf IP = "127.0.0.1" Then
-                                        Console.WriteLine("[{1}] Account [{0}] has the same IP Adress as the host.", aName, Format(TimeOfDay, "hh:mm:ss"))
+                                        Console.WriteLine("[{1}] Account [{0}] has the same IP Adress as the host.", AccountName, Format(TimeOfDay, "hh:mm:ss"))
                                     ElseIf IP = "0.0.0.0" Then
-                                        Console.WriteLine("[{1}] Account [{0}] does not have an IP Address.", aName, Format(TimeOfDay, "hh:mm:ss"))
+                                        Console.WriteLine("[{1}] Account [{0}] does not have an IP Address.", AccountName, Format(TimeOfDay, "hh:mm:ss"))
                                     Else
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result)
-                                        Dim IP1 As String
-                                        IP1 = result.Rows(0).Item("last_ip")
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE account = """ & aName & """;")
+                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & AccountName & """;", result)
+
+                                        Dim IpAddress As String
+                                        IpAddress = result.Rows(0).Item("last_ip")
+                                        AccountDatabase.Update("UPDATE accounts SET banned = 1 WHERE account = """ & AccountName & """;")
                                         Console.WriteLine(String.Format("[{1}] IP Address [{0}] is now banned.", IP, Format(TimeOfDay, "hh:mm:ss")))
-                                        AccountDatabase.Update(String.Format("INSERT INTO `bans` VALUES ('{0}', '{1}', '{2}', '{3}');", IP1, Format(Now, "yyyy-MM-dd"), "No Reason Specified.", aName))
-                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is now banned.", aName, Format(TimeOfDay, "hh:mm:ss")))
+                                        AccountDatabase.Update(String.Format("INSERT INTO `bans` VALUES ('{0}', '{1}', '{2}', '{3}');", IpAddress, Format(Now, "yyyy-MM-dd"), "No Reason Specified.", AccountName))
+                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is now banned.", AccountName, Format(TimeOfDay, "hh:mm:ss")))
                                     End If
                                 Else
-                                    Console.ForegroundColor = System.ConsoleColor.DarkGray
-                                    Console.WriteLine(String.Format("[{1}] Account [{0}] is not found.", aName, Format(TimeOfDay, "hh:mm:ss")))
+                                    Console.ForegroundColor = ConsoleColor.DarkGray
+                                    Console.WriteLine(String.Format("[{1}] Account [{0}] is not found.", AccountName, Format(TimeOfDay, "hh:mm:ss")))
                                 End If
-                            Case "unban", "Unban", "UnBan", "acct unban", "Unban Account"
-                                Console.ForegroundColor = System.ConsoleColor.DarkCyan
+
+                            Case "unban account"
+                                Console.ForegroundColor = ConsoleColor.DarkCyan
                                 Console.WriteLine("[{0}] Account Name?", Format(TimeOfDay, "hh:mm:ss"))
-                                Dim aName As String
-                                Console.ForegroundColor = System.ConsoleColor.Magenta
-                                aName = Console.ReadLine
+                                Dim AccountName As String
+                                Console.ForegroundColor = ConsoleColor.Magenta
+                                AccountName = Console.ReadLine
                                 Dim result As New DataTable
-                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & aName & """;", result)
+                                AccountDatabase.Query("SELECT banned FROM accounts WHERE account = """ & AccountName & """;", result)
 
                                 If result.Rows.Count > 0 Then
                                     If result.Rows(0).Item("banned") = 0 Then
-                                        Console.ForegroundColor = System.ConsoleColor.Green
-                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is not banned.", aName, Format(TimeOfDay, "hh:mm:ss")))
+                                        Console.ForegroundColor = ConsoleColor.Green
+                                        Console.WriteLine(String.Format("[{1}] Account [{0}] is not banned.", AccountName, Format(TimeOfDay, "hh:mm:ss")))
                                     Else
-                                        Console.ForegroundColor = System.ConsoleColor.Red
-                                        AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE account = """ & aName & """;")
-                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & aName & """;", result)
+                                        Console.ForegroundColor = ConsoleColor.Red
+                                        AccountDatabase.Update("UPDATE accounts SET banned = 0 WHERE account = """ & AccountName & """;")
+                                        AccountDatabase.Query("SELECT last_ip FROM accounts WHERE account = """ & AccountName & """;", result)
                                         Dim IP As String
                                         IP = result.Rows(0).Item("last_ip")
                                         AccountDatabase.Update([String].Format("DELETE FROM `bans` WHERE `ip` = '{0}';", IP))
-                                        Console.WriteLine(String.Format("[{1}] Account [{0}] has been unbanned.", aName, Format(TimeOfDay, "hh:mm:ss")))
+                                        Console.WriteLine(String.Format("[{1}] Account [{0}] has been unbanned.", AccountName, Format(TimeOfDay, "hh:mm:ss")))
 
                                     End If
                                 Else
-                                    Console.WriteLine(String.Format("[{1}] Account [{0}] is not found.", aName, Format(TimeOfDay, "hh:mm:ss")))
+                                    Console.WriteLine(String.Format("[{1}] Account [{0}] is not found.", AccountName, Format(TimeOfDay, "hh:mm:ss")))
                                 End If
-                            Case "info", "/info"
+
+                            Case "info"
                                 Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
-                            Case "db.restart", "/db.restart"
-                                AccountDatabase.Restart()
-                            Case "db.run", "/db.run"
-                                AccountDatabase.Update(cmds(1))
-                            Case "help", "/help"
-                                Console.ForegroundColor = System.ConsoleColor.Blue
+
+                            Case "help"
+                                Console.ForegroundColor = ConsoleColor.Blue
                                 Console.WriteLine("'WorldServer' Command list:")
-                                Console.ForegroundColor = System.ConsoleColor.White
+                                Console.ForegroundColor = ConsoleColor.White
                                 Console.WriteLine("---------------------------------")
                                 Console.WriteLine("")
                                 Console.WriteLine("")
-                                Console.WriteLine("'help' or '/help' - Brings up the 'WorldServer' Command list (this).")
+                                Console.WriteLine("'help' - Brings up the 'WorldServer' Command list (this).")
                                 Console.WriteLine("")
-                                Console.WriteLine("'createaccount <user> <password> <email>' or '/createaccount <user> <password> <email>' - Creates an account with the specified username <user>, password <password>, and email <email>.")
+                                Console.WriteLine("'create account <user> <password> <email>' - Creates an account with the specified username <user>, password <password>, and email <email>.")
                                 Console.WriteLine("")
-                                Console.WriteLine("'debug' or '/debug' - Creates a 'test' character.")
+                                Console.WriteLine("'debug' - Creates a 'test' character.")
                                 Console.WriteLine("")
-                                Console.WriteLine("'info' or '/info' - Brings up a context menu showing server information (such as memory used).")
+                                Console.WriteLine("'info' - Brings up a context menu showing server information (such as memory used).")
                                 Console.WriteLine("")
-                                Console.WriteLine("'exec' or '/exec' - Executes script files.")
+                                Console.WriteLine("'shutdown' - Shuts down 'WorldServer'.")
                                 Console.WriteLine("")
-                                Console.WriteLine("'db.restart' or '/db.restart' - Reloads the database.")
+                                Console.WriteLine("'ban account'- Adds a Ban and IP Ban on an account.")
                                 Console.WriteLine("")
-                                Console.WriteLine("'db.run' or '/db.run' - Runs and updates database.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'quit' or 'shutdown' or 'off' or 'kill' or 'exit' - Shutsdown 'WorldServer'.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'ban' or 'Ban'- Adds a Ban and IP Ban on an account.")
-                                Console.WriteLine("")
-                                Console.WriteLine("'unban' or 'Unban'- Removes a Ban and IP Ban on an account.")
+                                Console.WriteLine("'unban account'- Removes a Ban and IP Ban on an account.")
                             Case Else
-                                Console.ForegroundColor = System.ConsoleColor.DarkRed
-                                Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'mangosVB.WorldServer' console commands.")
-                                Console.ForegroundColor = System.ConsoleColor.Gray
+                                Console.ForegroundColor = ConsoleColor.DarkRed
+                                Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'WorldServer' console commands.")
+                                Console.ForegroundColor = ConsoleColor.Gray
                         End Select
                         '<<<<<<<<<<</END COMMAND STRUCTURE>>>>>>>>>>>>
                     End If

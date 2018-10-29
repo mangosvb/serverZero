@@ -27,12 +27,12 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyTitle("RealmServer")> 
 <Assembly: AssemblyDescription("Realm Server part of MaNGOSvb Server Emulator.")> 
 <Assembly: AssemblyCompany("getMaNGOS")> 
-<Assembly: AssemblyProduct("MaNGOSvb Server Pack")> 
-<Assembly: AssemblyCopyright("Copyright (C) 2017, getMaNGOS")> 
+<Assembly: AssemblyProduct("MaNGOSvb Server Pack")>
+<Assembly: AssemblyCopyright("Copyright (C) 2017 - 2018, getMaNGOS")>
 <Assembly: AssemblyTrademark("")> 
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("807DB802-CB12-4E19-99B1-8EC7D01CFA06")> 
+<Assembly: Guid("807DB802-CB12-4E19-99B1-8EC7D01CFA06")>
 
 ' Version information for an assembly consists of the following four values:
 '
@@ -44,4 +44,6 @@ Imports System.Runtime.InteropServices
 ' You can specify all the values or you can default the Build and Revision Numbers
 ' by using the '*' as shown below:
 
-<Assembly: AssemblyVersion("0.3.*")> 
+<Assembly: AssemblyVersion("0.3.*")>
+
+<Assembly: ComVisible(False)>

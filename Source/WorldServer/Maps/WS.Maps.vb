@@ -120,9 +120,9 @@ Public Module WS_Maps
         Public CorpseObjectsHere As New List(Of ULong)
         Public DynamicObjectsHere As New List(Of ULong)
 
-        Private CellX As Byte
-        Private CellY As Byte
-        Private CellMap As UInteger
+        Private ReadOnly CellX As Byte
+        Private ReadOnly CellY As Byte
+        Private ReadOnly CellMap As UInteger
 
         Public Sub New(ByVal tileX As Byte, ByVal tileY As Byte, ByVal tileMap As UInteger)
             'DONE: Don't load maptiles we don't handle
