@@ -423,19 +423,22 @@ Namespace Handlers
 
             Try
                 Dim q As New DataTable
-                'DISABLED : Just bans the account either way, sql query needs fixed?
-                'DONE: Players can now only remove their own characters, not someone elses :)
-                'Database.Query(String.Format("SELECT accounts.account_id FROM accounts, characters WHERE account = ""{0}"" AND char_guid = {1} AND accounts.account_id = characters.account_id;", client.Account, guid), q)
-                'If q.Rows.Count = 0 Then
-                'DONE: Ban and exit, showing nice message to player ;)
-                'response.AddInt8(AuthResponseCodes.AUTH_BANNED)
-                'Client.Send(response)
-                'Ban_Account(Client.Account, "Packet manipulation")
-                'Thread.Sleep(3500)
-                'Client.Delete()
-                'Exit Sub
-                'End If
-                ' q.Clear()
+
+                'Done: Fixed packet manipulation protection
+                AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), q)
+                If q.Rows.Count = 0 Then
+                    Exit Sub
+                End If
+
+                CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE account_id = ""{0}"" AND char_guid = ""{1}"";", q.Rows(0).Item("id"), guid), q)
+                If q.Rows.Count = 0 Then
+                    response.AddInt8(AuthResult.WOW_FAIL_BANNED)
+                    client.Send(response)
+                    Ban_Account(client.Account, "Packet Manipulation/Character Deletion")
+                    client.Delete()
+                    Exit Sub
+                End If
+                q.Clear()
 
                 CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_bag = {0};", guid), q)
                 For Each row As DataRow In q.Rows
@@ -446,6 +449,7 @@ Namespace Handlers
                 Next
                 CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_owner = {0};", guid), q)
                 q.Clear()
+
                 CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_receiver = ""{0}"";", guid), q)
                 For Each row As DataRow In q.Rows
                     'TODO: Return mails?
@@ -463,12 +467,12 @@ Namespace Handlers
                 CharacterDatabase.Update(String.Format("DELETE FROM auctionhouse WHERE auction_owner = ""{0}"";", guid))
                 CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = ""{0}"";", guid))
                 CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE guid = ""{0}"";", guid))
-
                 q.Clear()
+
                 CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_leader = ""{0}"";", guid), q)
                 If q.Rows.Count > 0 Then
-                    CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildid=0, char_guildrank=0, char_guildpnote='', charguildoffnote='' WHERE char_guildid=""{0}"";", q.Rows(0).Item("guild_id")))
-                    CharacterDatabase.Update(String.Format("DELETE FROM guild WHERE guild_id=""{0}"";", q.Rows(0).Item("guild_id")))
+                    CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildid = 0, char_guildrank = 0, char_guildpnote = '', charguildoffnote = '' WHERE char_guildid = ""{0}"";", q.Rows(0).Item("guild_id")))
+                    CharacterDatabase.Update(String.Format("DELETE FROM guild WHERE guild_id = ""{0}"";", q.Rows(0).Item("guild_id")))
                 End If
                 response.AddInt8(CharResponse.CHAR_DELETE_SUCCESS) ' Changed in 1.12.x client branch?
             Catch e As Exception
