@@ -31,6 +31,7 @@ Public Module WS_Handlers_Chat
             Return 0
         End If
     End Function
+
     Public Sub On_CMSG_MESSAGECHAT(ByRef packet As PacketClass, ByRef client As ClientClass)
         Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT", client.IP, client.Port)
         If (packet.Data.Length - 1) < 14 Then Exit Sub

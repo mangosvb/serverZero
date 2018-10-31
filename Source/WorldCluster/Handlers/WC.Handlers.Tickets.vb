@@ -19,6 +19,7 @@
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports mangosVB.Shared
+
 Imports WorldCluster.Globals
 Imports WorldCluster.Server
 
@@ -75,6 +76,7 @@ Namespace Handlers
             GMTICKET_ALREADY_HAVE = 1
             GMTICKET_CREATE_OK = 2
         End Enum
+
         Public Sub On_CMSG_GMTICKET_CREATE(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
             Dim ticket_map As UInteger = packet.GetUInt32()
@@ -104,6 +106,7 @@ Namespace Handlers
             GMTICKET_SYSTEMSTATUS_DISABLED = 2
             GMTICKET_SYSTEMSTATUS_SURVEY = 3
         End Enum
+
         Public Sub On_CMSG_GMTICKET_SYSTEMSTATUS(ByRef packet As PacketClass, ByRef client As ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GMTICKET_SYSTEMSTATUS", client.IP, client.Port)
 
@@ -116,6 +119,7 @@ Namespace Handlers
         Private Enum GMTicketDeleteResult
             GMTICKET_DELETE_SUCCESS = 9
         End Enum
+
         Public Sub On_CMSG_GMTICKET_DELETETICKET(ByRef packet As PacketClass, ByRef client As ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GMTICKET_DELETETICKET", client.IP, client.Port)
             CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = {0};", client.Character.GUID))
@@ -125,6 +129,7 @@ Namespace Handlers
             client.Send(SMSG_GMTICKET_DELETETICKET)
             SMSG_GMTICKET_DELETETICKET.Dispose()
         End Sub
+
         Public Sub On_CMSG_GMTICKET_UPDATETEXT(ByRef packet As PacketClass, ByRef client As ClientClass)
             If (packet.Data.Length - 1) < 7 Then Exit Sub
             packet.GetInt16()

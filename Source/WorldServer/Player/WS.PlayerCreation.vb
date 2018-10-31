@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.Global_Constants
 Imports mangosVB.Shared
 
 Public Module WS_Player_Creation
@@ -55,11 +54,6 @@ Public Module WS_Player_Creation
         Catch
             Return CharResponse.CHAR_CREATE_FAILED
         End Try
-
-        'DONE: Can't create character named as the bot
-        If UCase(Character.Name) = UCase(SystemNAME) Then
-            Return CharResponse.CHAR_CREATE_NAME_IN_USE
-        End If
 
         'DONE: Check for disabled class/race, only for non GM/Admin
         If (SERVER_CONFIG_DISABLED_CLASSES(Character.Classe - 1) = True) OrElse (SERVER_CONFIG_DISABLED_RACES(Character.Race - 1) = True) AndAlso Account_Access < AccessLevel.GameMaster Then

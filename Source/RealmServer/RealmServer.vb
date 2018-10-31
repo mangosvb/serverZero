@@ -27,7 +27,7 @@ Imports System.Reflection
 
 Imports mangosVB.Common
 Imports mangosVB.Common.Logging
-Imports mangosVB.Common.Globals.Functions
+Imports mangosVB.Common.Globals
 Imports mangosVB.Shared
 
 Public Module RealmServer

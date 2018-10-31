@@ -604,6 +604,7 @@ Module WS_CharMovement
     End Sub
 
 #End Region
+
 #Region "WS.CharacterMovement.CellFramework"
 
     Public Sub MAP_Load(ByVal x As Byte, ByVal y As Byte, ByVal Map As UInteger)

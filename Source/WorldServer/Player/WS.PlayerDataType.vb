@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.Global_Constants
 Imports mangosVB.Common.Globals
 Imports mangosVB.Shared
 
@@ -481,6 +480,7 @@ Public Module WS_PlayerData
         Public bindpoint_map_id As Integer = 0
         Public bindpoint_zone_id As Integer = 0
         Public DEAD As Boolean = False
+
         Public ReadOnly Property ClassMask() As UInteger
             Get
                 Return (1 << Classe - 1)

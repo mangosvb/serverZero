@@ -69,6 +69,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000041, 0.00044, 0.512076, -1.000317)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000023, 0.003345, 0.56005, -0.562058)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000059, 0.004044, 1.04, -1.488504)
+
             Case Classes.CLASS_HUNTER
                 If objCharacter.Level <= 13 Then
                     objCharacter.Life.Base += 17
@@ -85,6 +86,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.00004, 0.007416, 1.125108, -1.003045)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000031, 0.00448, 0.78004, -0.800471)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000017, 0.003803, 0.536846, -0.490026)
+
             Case Classes.CLASS_MAGE
                 If objCharacter.Level <= 25 Then
                     objCharacter.Life.Base += 15
@@ -101,6 +103,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000008, 0.001001, 0.16319, -0.06428)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000006, 0.002031, 0.27836, -0.340077)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000039, 0.006981, 1.09009, -1.00607)
+
             Case Classes.CLASS_PALADIN
                 If objCharacter.Level <= 14 Then
                     objCharacter.Life.Base += 18
@@ -117,6 +120,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.00002, 0.003007, 0.505215, -0.500642)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000038, 0.005145, 0.871006, -0.832029)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000032, 0.003025, 0.61589, -0.640307)
+
             Case Classes.CLASS_PRIEST
                 If objCharacter.Level <= 22 Then
                     objCharacter.Life.Base += 15
@@ -134,6 +138,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000022, 0.000022, 0.260756, -0.494)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000024, 0.000981, 0.364935, -0.5709)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.00004, 0.007416, 1.125108, -1.003045)
+
             Case Classes.CLASS_ROGUE
                 If objCharacter.Level <= 15 Then
                     objCharacter.Life.Base += 17
@@ -145,6 +150,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000038, 0.007834, 1.191028, -1.20394)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000032, 0.003025, 0.61589, -0.640307)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000024, 0.000981, 0.364935, -0.5709)
+
             Case Classes.CLASS_SHAMAN
                 If objCharacter.Level <= 16 Then
                     objCharacter.Life.Base += 17
@@ -161,6 +167,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000022, 0.0018, 0.407867, -0.550889)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.00002, 0.00603, 0.80957, -0.80922)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.000038, 0.005145, 0.871006, -0.832029)
+
             Case Classes.CLASS_WARLOCK
                 If objCharacter.Level <= 17 Then
                     objCharacter.Life.Base += 15
@@ -177,6 +184,7 @@ Public Module WS_Player_Initializator
                 objCharacter.Agility.Base += gainStat(objCharacter.Level, 0.000024, 0.000981, 0.364935, -0.5709)
                 objCharacter.Stamina.Base += gainStat(objCharacter.Level, 0.000021, 0.003009, 0.486493, -0.400003)
                 objCharacter.Spirit.Base += gainStat(objCharacter.Level, 0.00004, 0.006404, 1.038791, -1.039076)
+
             Case Classes.CLASS_WARRIOR
                 If objCharacter.Level <= 14 Then
                     objCharacter.Life.Base += 19
