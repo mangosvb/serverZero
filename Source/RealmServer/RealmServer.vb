@@ -103,6 +103,7 @@ Public Module RealmServer
             Try
                 _lstConnection = New TcpListener(_lstHost, _config.RealmServerPort)
                 _lstConnection.Start()
+
                 Dim rsListenThread As Thread
                 rsListenThread = New Thread(AddressOf AcceptConnection) With {
                     .Name = "Realm Server, Listening"
@@ -201,26 +202,31 @@ Public Module RealmServer
 
         Private Sub OnData(ByVal data() As Byte)
             Select Case data(0)
-                Case AuthCMD.CMD_AUTH_LOGON_CHALLENGE
-                    'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_CHALLENGE", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+                Case AuthCMD.CMD_AUTH_LOGON_CHALLENGE, AuthCMD.CMD_AUTH_RECONNECT_CHALLENGE
+                    Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_CHALLENGE", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
                     On_RS_LOGON_CHALLENGE(data, Me)
-                Case AuthCMD.CMD_AUTH_LOGON_PROOF
-                    'Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+
+                Case AuthCMD.CMD_AUTH_LOGON_PROOF, AuthCMD.CMD_AUTH_RECONNECT_PROOF
+                    Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
                     On_RS_LOGON_PROOF(data, Me)
+
                 Case AuthCMD.CMD_AUTH_REALMLIST
-                    'Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
+                    Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
                     On_RS_REALMLIST(data, Me)
 
                 'TODO: No Value listed for AuthCMD
                 'Case CMD_AUTH_UPDATESRV
                 '    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
 
+                'ToDo: Check if these packets exist in supported version
                 Case AuthCMD.CMD_XFER_ACCEPT
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_CMD_XFER_ACCEPT(data, Me)
+
                 Case AuthCMD.CMD_XFER_RESUME
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_CMD_XFER_RESUME(data, Me)
+
                 Case AuthCMD.CMD_XFER_CANCEL
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
                     On_CMD_XFER_CANCEL(data, Me)
@@ -338,7 +344,7 @@ Public Module RealmServer
 
     Private Sub On_RS_LOGON_CHALLENGE(ByRef data() As Byte, ByRef client As ClientClass)
         Dim iUpper As Integer = (data(33) - 1)
-        'Dim packetSize As Integer = BitConverter.ToInt16(New Byte() {data(3), data(2)}, 0)
+        Dim packetSize As Integer = BitConverter.ToInt16(New Byte() {data(3), data(2)}, 0)
         Dim packetAccount As String
         Dim packetIp As String
         Dim accState As AccountState '= AccountState.LOGIN_DBBUSY
@@ -435,7 +441,7 @@ Public Module RealmServer
                             Array.Copy(client.AuthEngine.Salt, 0, dataResponse, 70, 32)
                             Array.Copy(AuthEngineClass.CrcSalt, 0, dataResponse, 102, 16)
                             dataResponse(118) = 0 ' Added in 1.12.x client branch? Security Flags (&H0...&H4)?
-                            client.Send(dataResponse, "RS_LOGON_CHALLENGE")
+                            client.Send(dataResponse, "RS_LOGON_CHALLENGE OK")
                         Catch ex As Exception
                             Console.ForegroundColor = ConsoleColor.Red
                             Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, vbNewLine, ex)
@@ -569,9 +575,11 @@ Public Module RealmServer
             dataResponse(24) = 0
             dataResponse(25) = 0
 
-            client.Send(dataResponse, "RS_LOGON_PROOF-OK")
+            client.Send(dataResponse, "RS_LOGON_PROOF OK")
+
             'Set SSHash in DB
             Dim sshash As String = ""
+
             'For i as Integer = 0 To client.AuthEngine.SS_Hash.Length - 1
             For i As Integer = 0 To 40 - 1
                 If client.AuthEngine.SsHash(i) < 16 Then
@@ -580,16 +588,16 @@ Public Module RealmServer
                     sshash = sshash + Hex(client.AuthEngine.SsHash(i))
                 End If
             Next
-            _accountDatabase.Update(String.Format("UPDATE account SET sessionkey = '{1}', last_ip='{2}', last_login='{3}' WHERE username = '{0}';", client.Account, sshash, client.Ip.ToString, Format(Now, "yyyy-MM-dd")))
+            _accountDatabase.Update(String.Format("UPDATE account SET sessionkey = '{1}', last_ip = '{2}', last_login = '{3}' WHERE username = '{0}';", client.Account, sshash, client.Ip.ToString, Format(Now, "yyyy-MM-dd")))
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, client.Account, sshash)
         Else
             'Wrong pass
             Console.WriteLine("[{0}] [{1}:{2}] Wrong password for user {3}.", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, client.Account)
-            Dim dataResponse(1) As Byte
+                Dim dataResponse(1) As Byte
             dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
-            dataResponse(1) = AccountState.LOGIN_UNKNOWN_ACCOUNT
-            client.Send(dataResponse, "RS_LOGON_PROOF-WRONGPASS")
+            dataResponse(1) = AccountState.LOGIN_BAD_PASS
+            client.Send(dataResponse, "RS_LOGON_PROOF WRONGPASS")
         End If
     End Sub
 
@@ -605,13 +613,8 @@ Public Module RealmServer
         _accountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), result)
         Dim accountId As Integer = result.Rows(0).Item("id")
 
-        If client.Access < AccessLevel.GameMaster Then
-            'Console.WriteLine("[{0}] [{1}:{2}] Player is not a Gamemaster, only listing non-GMonly realms", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
-            _accountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE allowedSecurityLevel = '0';"), result)
-        Else
-            'Console.WriteLine("[{0}] [{1}:{2}] Player is a Gamemaster, listing all realms", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
-            _accountDatabase.Query(String.Format("SELECT * FROM realmlist;"), result)
-        End If
+        'Fetch RealmList Data
+        _accountDatabase.Query(String.Format("SELECT * FROM realmlist;"), result)
 
         For Each row As DataRow In result.Rows
             packetLen = packetLen + Len(row.Item("address")) + Len(row.Item("name")) + 1 + Len(Format(row.Item("port"), "0")) + 14
@@ -635,6 +638,7 @@ Public Module RealmServer
 
         '(uint16) Realms Count
         dataResponse(7) = result.Rows.Count
+        dataResponse(8) = 0
 
         For Each host As DataRow In result.Rows
             Dim hostRealmId As Integer = host.Item("id")
@@ -889,16 +893,11 @@ Public Module RealmServer
         End If
 
         Console.WriteLine()
-        Console.WriteLine("[{0}] Known World Servers are {1}, Online World Servers are {2}", Format(TimeOfDay, "hh:mm:ss"), result1.Rows.Count, result2.Rows.Count)
-        Console.WriteLine("[{0}] GM Only World Servers are {1}", Format(TimeOfDay, "hh:mm:ss"), result3.Rows.Count)
+        Console.WriteLine("[{0}] Known World Servers count {1}, Online World Servers count {2}", Format(TimeOfDay, "hh:mm:ss"), result1.Rows.Count, result2.Rows.Count)
 
         Console.ForegroundColor = ConsoleColor.DarkGreen
         For Each row As DataRow In result1.Rows
             Console.WriteLine("     [{1}] at {0}:{2} - {3}", row.Item("address").PadRight(6), row.Item("name").PadRight(6), Format(row.Item("port")).PadRight(6), WorldServerStatus(Int(row.Item("realmflags"))).PadRight(6))
-        Next
-        Console.ForegroundColor = ConsoleColor.Yellow
-        For Each row As DataRow In result3.Rows
-            Console.WriteLine("     [{1}] at {0}:{2} - {3}", row.Item("address").PadRight(6), row.Item("name").PadRight(20), Format(row.Item("port")), WorldServerStatus(Int(row.Item("realmflags"))).PadRight(10))
         Next
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
