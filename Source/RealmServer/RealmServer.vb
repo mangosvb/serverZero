@@ -976,7 +976,7 @@ Public Module RealmServer
         If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then         'Check the Database version, exit if its wrong
             Dim areDbVersionsOk As Boolean = False
 
-            If True = False Then
+            If True Then
                 Console.WriteLine("*************************")
                 Console.WriteLine("* Press any key to exit *")
                 Console.WriteLine("*************************")
