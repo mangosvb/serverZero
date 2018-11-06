@@ -52,13 +52,13 @@ Namespace Handlers
                     Dim guid As ULong = r.Item("friend")
                     smsgFriendList.AddUInt64(guid)                    'Player GUID
                     If CHARACTERs.ContainsKey(guid) AndAlso CHARACTERs(guid).IsInWorld Then
-                        'If CType(CHARACTERs(guid), CharacterObject).DND Then
-                        '    SMSG_FRIEND_LIST.AddInt8(FriendStatus.FRIEND_STATUS_DND)
-                        'ElseIf CType(CHARACTERs(guid), CharacterObject).AFK Then
-                        '    SMSG_FRIEND_LIST.AddInt8(FriendStatus.FRIEND_STATUS_AFK)
-                        'Else
-                        smsgFriendList.AddInt8(FriendStatus.FRIEND_STATUS_ONLINE)
-                        'End If
+                        If CHARACTERs(guid).DND Then
+                            smsgFriendList.AddInt8(FriendStatus.FRIEND_STATUS_DND)
+                        ElseIf CHARACTERs(guid).AFK Then
+                            smsgFriendList.AddInt8(FriendStatus.FRIEND_STATUS_AFK)
+                        Else
+                            smsgFriendList.AddInt8(FriendStatus.FRIEND_STATUS_ONLINE)
+                        End If
                         smsgFriendList.AddInt32(CHARACTERs(guid).Zone)    'Area
                         smsgFriendList.AddInt32(CHARACTERs(guid).Level)   'Level
                         smsgFriendList.AddInt32(CHARACTERs(guid).Classe)  'Class
