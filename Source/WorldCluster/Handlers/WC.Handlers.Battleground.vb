@@ -260,13 +260,13 @@ Namespace Handlers
 
                     'p.AddInt8(0)                    'ArenaType
                     p.AddUInt32(MapType)              'MapType
-                    p.AddInt8(&HD)                  'Unk1 (0xD?)
+                    'p.AddInt8(&HD)                  'Unk1 (0xD?)
                     'p.AddInt8(0)                    'Unk2
-                    'p.AddInt16(0)                   'Unk3 (String?)
+                    'p.AddInt16()                   'Unk3 (String?)
                     p.AddUInt32(ID)                  'ID
 
                     'p.AddInt32(0)                   'Unk5
-                    'p.AddInt8(0)                    'alliance/horde for BG and skirmish/rated for Arenas
+                    p.AddInt8(0)                    'alliance/horde for BG and skirmish/rated for Arenas
                     p.AddUInt32(status)
 
                     Select Case status

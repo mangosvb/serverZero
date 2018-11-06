@@ -215,15 +215,22 @@ Public Module WS_Network
             CLIENTs(id).Character.Logout(Nothing)
         End Sub
         Public Sub ClientPacket(ByVal id As UInteger, ByVal data() As Byte) Implements IWorld.ClientPacket
+            If data Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
             Dim p As New PacketClass(data)
             Try
+                If CLIENTs.ContainsKey(id) = False Then Log.WriteLine(LogType.FAILED, "Client ID doesn't contain a key!: {0}", ToString)
                 CLIENTs(id).Packets.Enqueue(p)
                 ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(id).OnPacket)
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, "Error on Client OnPacket: {0}", ex.ToString)
             Finally
                 p.Dispose()
+                'CLIENTs(id).Dispose()
             End Try
         End Sub
+
         Public Function ClientCreateCharacter(ByVal account As String, ByVal name As String, ByVal race As Byte, ByVal classe As Byte, ByVal gender As Byte, ByVal skin As Byte, ByVal face As Byte, ByVal hairStyle As Byte, ByVal hairColor As Byte, ByVal facialHair As Byte, ByVal outfitId As Byte) As Integer Implements IWorld.ClientCreateCharacter
+            Log.WriteLine(LogType.INFORMATION, "Account {0} Created a character with Name {1}, Race {2}, Class {3}, Gender {4}, Skin {5}, Face {6}, HairStyle {7}, HairColor {8}, FacialHair {9}, outfitID {10}", account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
             Return CreateCharacter(account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
         End Function
 
