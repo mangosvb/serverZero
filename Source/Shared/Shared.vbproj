@@ -149,6 +149,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Functions.Shared.vb" />
     <Compile Include="Enums\AuctionHouse.Enum.vb" />
     <Compile Include="Enums\Auth.Enum.vb" />
     <Compile Include="Enums\Channel.Enum.vb" />

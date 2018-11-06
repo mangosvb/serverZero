@@ -164,9 +164,9 @@ Namespace Globals
 
         Public Function CapitalizeName(ByRef name As String) As String
             If name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
-                Return UCase(Left(name, 1)) & LCase(Right(name, name.Length - 1))
+                Return UppercaseFirstLetter(Left(name, 1)) & LowercaseFirstLetter(Right(name, name.Length - 1))
             Else
-                Return UCase(name)
+                Return UppercaseFirstLetter(name)
             End If
         End Function
 

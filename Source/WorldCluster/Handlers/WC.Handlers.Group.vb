@@ -399,8 +399,8 @@ Namespace Handlers
             Dim GUID As ULong = 0
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UCase(Character.Value.Name) = UCase(Name) Then
-                    GUID = Character.Value.GUID
+                If UppercaseFirstLetter(Character.Value.Name) = UppercaseFirstLetter(Name) Then
+                    GUID = Character.Value.Guid
                     Exit For
                 End If
             Next
@@ -419,9 +419,9 @@ Namespace Handlers
                 Dim denied As New PacketClass(OPCODES.SMSG_GROUP_INVITE)
                 denied.AddInt8(0)
                 denied.AddString(client.Character.Name)
-                CHARACTERs(GUID).client.Send(denied)
+                CHARACTERs(GUID).Client.Send(denied)
                 denied.Dispose()
-            ElseIf CHARACTERs(GUID).IgnoreList.Contains(client.Character.GUID) Then
+            ElseIf CHARACTERs(GUID).IgnoreList.Contains(client.Character.Guid) Then
                 errCode = PartyCommandResult.INVITE_IGNORED
             Else
                 If Not client.Character.IsInGroup Then
@@ -448,7 +448,7 @@ Namespace Handlers
                 Dim invited As New PacketClass(OPCODES.SMSG_GROUP_INVITE)
                 invited.AddInt8(1)
                 invited.AddString(client.Character.Name)
-                CHARACTERs(GUID).client.Send(invited)
+                CHARACTERs(GUID).Client.Send(invited)
                 invited.Dispose()
             End If
         End Sub
@@ -474,7 +474,7 @@ Namespace Handlers
             If client.Character.GroupInvitedFlag Then
                 Dim response As New PacketClass(OPCODES.SMSG_GROUP_DECLINE)
                 response.AddString(client.Character.Name)
-                client.Character.Group.GetLeader.client.Send(response)
+                client.Character.Group.GetLeader.Client.Send(response)
                 response.Dispose()
 
                 client.Character.Group.CheckMembers()
@@ -506,8 +506,8 @@ Namespace Handlers
             Dim GUID As ULong = 0
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UCase(Character.Value.Name) = UCase(Name) Then
-                    GUID = Character.Value.GUID
+                If UppercaseFirstLetter(Character.Value.Name) = UppercaseFirstLetter(Name) Then
+                    GUID = Character.Value.Guid
                     Exit For
                 End If
             Next

@@ -161,9 +161,9 @@ Public Module Functions
 
     Public Function CapitalizeName(ByRef Name As String) As String
         If Name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
-            Return UCase(Left(Name, 1)) & LCase(Right(Name, Name.Length - 1))
+            Return UppercaseFirstLetter(Left(Name, 1)) & LowercaseFirstLetter(Right(Name, Name.Length - 1))
         Else
-            Return UCase(Name)
+            Return UppercaseFirstLetter(Name)
         End If
     End Function
 

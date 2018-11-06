@@ -138,7 +138,7 @@ Namespace Handlers
             If stringsCount > 4 Then Exit Sub
             Dim strings As New List(Of String)
             For i As Integer = 1 To stringsCount
-                strings.Add(UCase(EscapeString(packet.GetString())))
+                strings.Add(UppercaseFirstLetter(EscapeString(packet.GetString())))
             Next
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WHO [P:'{2}' G:'{3}' L:{4}-{5} C:{6:X} R:{7:X}]", client.IP, client.Port, namePlayer, nameGuild, levelMinimum, levelMaximum, maskClass, maskRace)
@@ -149,18 +149,18 @@ Namespace Handlers
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                 If Not objCharacter.Value.IsInWorld Then Continue For
                 If (GetCharacterSide(objCharacter.Value.Race) <> GetCharacterSide(client.Character.Race)) AndAlso client.Character.Access < AccessLevel.GameMaster Then Continue For
-                If namePlayer <> "" AndAlso UCase(objCharacter.Value.Name).IndexOf(UCase(namePlayer), StringComparison.Ordinal) = -1 Then Continue For
-                If nameGuild <> "" AndAlso (objCharacter.Value.Guild Is Nothing OrElse UCase(objCharacter.Value.Guild.Name).IndexOf(UCase(nameGuild), StringComparison.Ordinal) = -1) Then Continue For
+                If namePlayer <> "" AndAlso UppercaseFirstLetter(objCharacter.Value.Name).IndexOf(UppercaseFirstLetter(namePlayer), StringComparison.Ordinal) = -1 Then Continue For
+                If nameGuild <> "" AndAlso (objCharacter.Value.Guild Is Nothing OrElse UppercaseFirstLetter(objCharacter.Value.Guild.Name).IndexOf(UppercaseFirstLetter(nameGuild), StringComparison.Ordinal) = -1) Then Continue For
                 If objCharacter.Value.Level < levelMinimum Then Continue For
                 If objCharacter.Value.Level > levelMaximum Then Continue For
                 If zonesCount > 0 AndAlso zones.Contains(objCharacter.Value.Zone) = False Then Continue For
                 If stringsCount > 0 Then
                     Dim passedStrings As Boolean = True
                     For Each stringValue As String In strings
-                        If UCase(objCharacter.Value.Name).IndexOf(stringValue, StringComparison.Ordinal) <> -1 Then Continue For
-                        If UCase(GetRaceName(objCharacter.Value.Race)) = stringValue Then Continue For
-                        If UCase(GetClassName(objCharacter.Value.Classe)) = stringValue Then Continue For
-                        If objCharacter.Value.Guild IsNot Nothing AndAlso UCase(objCharacter.Value.Guild.Name).IndexOf(stringValue, StringComparison.Ordinal) <> -1 Then Continue For
+                        If UppercaseFirstLetter(objCharacter.Value.Name).IndexOf(stringValue, StringComparison.Ordinal) <> -1 Then Continue For
+                        If UppercaseFirstLetter(GetRaceName(objCharacter.Value.Race)) = stringValue Then Continue For
+                        If UppercaseFirstLetter(GetClassName(objCharacter.Value.Classe)) = stringValue Then Continue For
+                        If objCharacter.Value.Guild IsNot Nothing AndAlso UppercaseFirstLetter(objCharacter.Value.Guild.Name).IndexOf(stringValue, StringComparison.Ordinal) <> -1 Then Continue For
                         'TODO: Look for zone name
                         passedStrings = False
                         Exit For

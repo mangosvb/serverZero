@@ -352,8 +352,8 @@ Namespace Handlers
 
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UCase(objCharacter.Value.Name) = UCase(Name) Then
-                    GUID = objCharacter.Value.GUID
+                If UppercaseFirstLetter(objCharacter.Value.Name) = UppercaseFirstLetter(Name) Then
+                    GUID = objCharacter.Value.Guid
                     Exit For
                 End If
             Next

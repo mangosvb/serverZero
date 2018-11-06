@@ -103,7 +103,7 @@ Namespace Logging
         ''' <returns></returns>
         Public Shared Sub CreateLog(logType As String, logConfig As String, ByRef log As BaseWriter)
             Try
-                Select Case UCase(logType)
+                Select Case UppercaseFirstLetter(logType)
                     Case "COLORCONSOLE"
                         log = New ColoredConsoleWriter
                     Case "CONSOLE"
