@@ -134,6 +134,7 @@ Namespace Handlers
 
                     PositionX = MySQLQuery.Rows(0).Item("char_positionX")
                     PositionY = MySQLQuery.Rows(0).Item("char_positionY")
+                    PositionZ = MySQLQuery.Rows(0).Item("char_positionZ")
 
                     'DONE: Get guild info
                     Dim GuildID As UInteger = MySQLQuery.Rows(0).Item("char_guildId")
