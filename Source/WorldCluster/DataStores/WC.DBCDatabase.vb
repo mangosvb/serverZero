@@ -16,36 +16,37 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 Imports System.IO
+
 Imports mangosVB.Common
+
 Imports mangosVB.Shared
 
 Namespace DataStores
     Public Module WS_DBCDatabase
 
-#Region "Maps"
-
+        Private Const MapDBC As String = "dbc\Map.dbc"
         Public Maps As New Dictionary(Of Integer, MapInfo)
         Public Sub InitializeMaps()
             Try
-                Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
 
-                For i As Integer = 0 To tmpDbc.Rows - 1
+                Dim data As DBC.BufferedDbc = New DBC.BufferedDbc(MapDBC)
+                For i As Integer = 0 To New DBC.BufferedDbc(MapDBC).Rows - 1
                     Dim m As New MapInfo With {
-                        .ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER),
-                        .Type = tmpDbc.Item(i, 2, DBCValueType.DBC_INTEGER),
-                        .Name = tmpDbc.Item(i, 4, DBCValueType.DBC_STRING),
-                        .ParentMap = tmpDbc.Item(i, 3, DBCValueType.DBC_INTEGER),
-                        .ResetTime = tmpDbc.Item(i, 38, DBCValueType.DBC_INTEGER)
+                        .ID = data.Item(i, 0, DBCValueType.DBC_INTEGER),
+                        .Type = data.Item(i, 2, DBCValueType.DBC_INTEGER),
+                        .Name = data.Item(i, 4, DBCValueType.DBC_STRING),
+                        .ParentMap = data.Item(i, 3, DBCValueType.DBC_INTEGER),
+                        .ResetTime = data.Item(i, 38, DBCValueType.DBC_INTEGER)
                     }
 
                     Maps.Add(m.ID, m)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps initialized.", tmpDbc.Rows - 1)
-                tmpDbc.Dispose()
+                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps Initialized.", New DBC.BufferedDbc(MapDBC).Rows - 1)
+                Call New DBC.BufferedDbc(MapDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
-                Console.WriteLine("DBC File : Maps missing.")
+                Console.WriteLine("DBC File : Maps.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
         End Sub
@@ -74,6 +75,7 @@ Namespace DataStores
                     Return Type = MapTypes.MAP_BATTLEGROUND
                 End Get
             End Property
+
             Public ReadOnly Property HasResetTime() As Boolean
                 Get
                     Return (ResetTime <> 0)
@@ -82,32 +84,29 @@ Namespace DataStores
 
         End Class
 
-#End Region
-
-#Region "WorldMapArea"
-
+        Private Const WorldSafeLocsDBC As String = "dbc\WorldSafeLocs.dbc"
         Public WorldSafeLocs As New Dictionary(Of Integer, TWorldSafeLoc)
         Public Sub InitializeWorldSafeLocs()
             Try
-                Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\WorldSafeLocs.dbc")
 
-                For i As Integer = 0 To tmpDbc.Rows - 1
-                    Dim wsl As New TWorldSafeLoc With {
-                        .ID = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER),
-                        .map = tmpDbc.Item(i, 1),
-                        .x = tmpDbc.Item(i, 2, DBCValueType.DBC_FLOAT),
-                        .y = tmpDbc.Item(i, 3, DBCValueType.DBC_FLOAT),
-                        .z = tmpDbc.Item(i, 4, DBCValueType.DBC_FLOAT)
+                Dim data As DBC.BufferedDbc = New DBC.BufferedDbc(WorldSafeLocsDBC)
+                For i As Integer = 0 To New DBC.BufferedDbc(WorldSafeLocsDBC).Rows - 1
+                    Dim WorldSafeLoc As New TWorldSafeLoc With {
+                        .ID = data.Item(i, 0, DBCValueType.DBC_INTEGER),
+                        .map = data.Item(i, 1),
+                        .x = data.Item(i, 2, DBCValueType.DBC_FLOAT),
+                        .y = data.Item(i, 3, DBCValueType.DBC_FLOAT),
+                        .z = data.Item(i, 4, DBCValueType.DBC_FLOAT)
                     }
 
-                    WorldSafeLocs.Add(wsl.ID, wsl)
+                    WorldSafeLocs.Add(WorldSafeLoc.ID, WorldSafeLoc)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs initialized.", tmpDbc.Rows - 1)
-                tmpDbc.Dispose()
+                Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs Initialized.", New DBC.BufferedDbc(WorldSafeLocsDBC).Rows - 1)
+                Call New DBC.BufferedDbc(WorldSafeLocsDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
-                Console.WriteLine("DBC File : WorldSafeLocs missing.")
+                Console.WriteLine("DBC File : WorldSafeLocs.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
         End Sub
@@ -120,10 +119,6 @@ Namespace DataStores
             Public y As Single
             Public z As Single
         End Class
-
-#End Region
-
-#Region "Battlegrounds"
 
         Public Battlegrounds As New Dictionary(Of Byte, TBattleground)
         Public Sub InitializeBattlegrounds()
@@ -149,7 +144,7 @@ Namespace DataStores
                 Battlegrounds(Entry).HordeStartO = row.Item("HordeStartO")
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Loaded.", MySQLQuery.Rows.Count)
+            Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Initialized.", MySQLQuery.Rows.Count)
         End Sub
 
         Public Class TBattleground
@@ -164,30 +159,27 @@ Namespace DataStores
             Public HordeStartO As Single
         End Class
 
-#End Region
-
-#Region "Chat Channels"
-
+        Private Const ChatChannelsDBC As String = "dbc\ChatChannels.dbc"
         Public ChatChannelsInfo As New Dictionary(Of Integer, ChatChannelInfo)
         Public Sub InitializeChatChannels()
             Try
-                Dim tmpDbc As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\ChatChannels.dbc")
 
-                For i As Integer = 0 To tmpDbc.Rows - 1
-                    Dim objCharacter As New ChatChannelInfo With {
-                        .Index = tmpDbc.Item(i, 0, DBCValueType.DBC_INTEGER),
-                        .Flags = tmpDbc.Item(i, 1, DBCValueType.DBC_INTEGER),
-                        .Name = tmpDbc.Item(i, 3, DBCValueType.DBC_STRING)
+                Dim data As DBC.BufferedDbc = New DBC.BufferedDbc(ChatChannelsDBC)
+                For i As Integer = 0 To New DBC.BufferedDbc(ChatChannelsDBC).Rows - 1
+                    Dim ChatChannels As New ChatChannelInfo With {
+                        .Index = data.Item(i, 0, DBCValueType.DBC_INTEGER),
+                        .Flags = data.Item(i, 1, DBCValueType.DBC_INTEGER),
+                        .Name = data.Item(i, 3, DBCValueType.DBC_STRING)
                     }
 
-                    ChatChannelsInfo.Add(objCharacter.Index, objCharacter)
+                    ChatChannelsInfo.Add(ChatChannels.Index, ChatChannels)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels initialized.", tmpDbc.Rows - 1)
-                tmpDbc.Dispose()
+                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels Initialized.", New DBC.BufferedDbc(ChatChannelsDBC).Rows - 1)
+                Call New DBC.BufferedDbc(ChatChannelsDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
-                Console.WriteLine("DBC File : ChatChannels missing.")
+                Console.WriteLine("DBC File : ChatChannels.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
         End Sub
@@ -198,14 +190,10 @@ Namespace DataStores
             Public Name As String
         End Class
 
-#End Region
-
-#Region "Character"
+        Private Const ChrRacesDBC As String = "dbc\ChrRaces.dbc"
         Public Sub InitializeCharRaces()
             Try
                 'Loading from DBC
-                Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\ChrRaces.dbc")
-
                 Dim raceID As Integer
                 Dim factionID As Integer
                 Dim modelM As Integer
@@ -213,46 +201,47 @@ Namespace DataStores
                 Dim teamID As Integer '1 = Horde / 7 = Alliance
                 Dim cinematicID As Integer
 
-                For i As Integer = 0 To tmpDBC.Rows - 1
-                    raceID = tmpDBC.Item(i, 0)
-                    factionID = tmpDBC.Item(i, 2)
-                    modelM = tmpDBC.Item(i, 4)
-                    modelF = tmpDBC.Item(i, 5)
-                    teamID = tmpDBC.Item(i, 8)
-                    cinematicID = tmpDBC.Item(i, 16)
+                Dim data As DBC.BufferedDbc = New DBC.BufferedDbc(ChrRacesDBC)
+                For i As Integer = 0 To New DBC.BufferedDbc(ChrRacesDBC).Rows - 1
+                    raceID = data.Item(i, 0)
+                    factionID = data.Item(i, 2)
+                    modelM = data.Item(i, 4)
+                    modelF = data.Item(i, 5)
+                    teamID = data.Item(i, 8)
+                    cinematicID = data.Item(i, 16)
 
                     CharRaces(CByte(raceID)) = New TCharRace(factionID, modelM, modelF, teamID, cinematicID)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
-                tmpDBC.Dispose()
+                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrRace Loaded.", New DBC.BufferedDbc(ChrRacesDBC).Rows - 1)
+                Call New DBC.BufferedDbc(ChrRacesDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
-                Console.WriteLine("DBC File : CharRaces missing.")
+                Console.WriteLine("DBC File : ChrRaces.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
         End Sub
 
+        Private Const ChrClassesDBC As String = "dbc\ChrClasses.dbc"
         Public Sub InitializeCharClasses()
             Try
                 'Loading from DBC
-                Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\ChrClasses.dbc")
-
                 Dim classID As Integer
                 Dim cinematicID As Integer
 
-                For i As Integer = 0 To tmpDBC.Rows - 1
-                    classID = tmpDBC.Item(i, 0)
-                    cinematicID = tmpDBC.Item(i, 5) ' or 14 or 15?
+                For i As Integer = 0 To New DBC.BufferedDbc(ChrClassesDBC).Rows - 1
+                    Dim data As DBC.BufferedDbc = New DBC.BufferedDbc(ChrClassesDBC)
+                    classID = data.Item(i, 0)
+                    cinematicID = data.Item(i, 5) ' or 14 or 15?
 
                     CharClasses(CByte(classID)) = New TCharClass(cinematicID)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
-                tmpDBC.Dispose()
+                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrClasses Loaded.", New DBC.BufferedDbc(ChrClassesDBC).Rows - 1)
+                Call New DBC.BufferedDbc(ChrClassesDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
-                Console.WriteLine("DBC File : CharRaces missing.")
+                Console.WriteLine("DBC File : ChrClasses.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
         End Sub
@@ -282,7 +271,6 @@ Namespace DataStores
                 CinematicID = cinematic
             End Sub
         End Class
-#End Region
 
     End Module
 End Namespace

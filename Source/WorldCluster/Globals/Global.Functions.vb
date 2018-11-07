@@ -15,20 +15,20 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+
 Imports System.Text.RegularExpressions
+
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
+
 Imports mangosVB.Shared
+
 Imports WorldCluster.Handlers
 Imports WorldCluster.DataStores
 Imports WorldCluster.Server
 
 Namespace Globals
-
     Public Module Functions
-
-#Region "System"
-
         Public Function ToInteger(value As Boolean) As Integer
             If value Then
                 Return 1
@@ -163,11 +163,7 @@ Namespace Globals
         End Function
 
         Public Function CapitalizeName(ByRef name As String) As String
-            If name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
-                Return UppercaseFirstLetter(Left(name, 1)) & LowercaseFirstLetter(Right(name, name.Length - 1))
-            Else
-                Return UppercaseFirstLetter(name)
-            End If
+            Return If(name.Length > 1, UCase(Left(name, 1)) & LCase(Right(name, name.Length - 1)), UCase(name))
         End Function
 
         Private Regex_AZ As Regex = New Regex("^[a-zA-Z]+$")
@@ -188,21 +184,17 @@ Namespace Globals
 
         Public Sub RAND_bytes(ByRef bBytes() As Byte, length As Integer)
             If length = 0 Then Exit Sub
-            bBytes = New Byte(length - 1) {}
+            bBytes = (New Byte(length - 1) {})
 
-            Dim rnd As New Random()
             For i As Integer = 0 To length - 1
                 If i = bBytes.Length Then Exit For
-                bBytes(i) = rnd.Next(0, 256)
+                bBytes(i) = New Random().Next(0, 256)
             Next
         End Sub
 
         Public Function MathLerp(value1 As Single, value2 As Single, amount As Single) As Single
             Return value1 + (value2 - value1) * amount
         End Function
-#End Region
-
-#Region "Database"
 
         Public Sub Ban_Account(name As String, reason As String)
             Dim account As New DataTable
@@ -224,28 +216,32 @@ Namespace Globals
             End If
         End Sub
 
-#End Region
-
-#Region "Game"
-
         Public Function GetClassName(ByRef classe As Integer) As String
             Select Case classe
                 Case Classes.CLASS_DRUID
                     GetClassName = "Druid"
+
                 Case Classes.CLASS_HUNTER
                     GetClassName = "Hunter"
+
                 Case Classes.CLASS_MAGE
                     GetClassName = "Mage"
+
                 Case Classes.CLASS_PALADIN
                     GetClassName = "Paladin"
+
                 Case Classes.CLASS_PRIEST
                     GetClassName = "Priest"
+
                 Case Classes.CLASS_ROGUE
                     GetClassName = "Rogue"
+
                 Case Classes.CLASS_SHAMAN
                     GetClassName = "Shaman"
+
                 Case Classes.CLASS_WARLOCK
                     GetClassName = "Warlock"
+
                 Case Classes.CLASS_WARRIOR
                     GetClassName = "Warrior"
                 Case Else
@@ -257,18 +253,25 @@ Namespace Globals
             Select Case race
                 Case Races.RACE_DWARF
                     GetRaceName = "Dwarf"
+
                 Case Races.RACE_GNOME
                     GetRaceName = "Gnome"
+
                 Case Races.RACE_HUMAN
                     GetRaceName = "Human"
+
                 Case Races.RACE_NIGHT_ELF
                     GetRaceName = "Night Elf"
+
                 Case Races.RACE_ORC
                     GetRaceName = "Orc"
+
                 Case Races.RACE_TAUREN
                     GetRaceName = "Tauren"
+
                 Case Races.RACE_TROLL
                     GetRaceName = "Troll"
+
                 Case Races.RACE_UNDEAD
                     GetRaceName = "Undead"
                 Case Else
@@ -280,18 +283,25 @@ Namespace Globals
             Select Case race
                 Case Races.RACE_HUMAN
                     Return 49 + gender
+
                 Case Races.RACE_ORC
                     Return 51 + gender
+
                 Case Races.RACE_DWARF
                     Return 53 + gender
+
                 Case Races.RACE_NIGHT_ELF
                     Return 55 + gender
+
                 Case Races.RACE_UNDEAD
                     Return 57 + gender
+
                 Case Races.RACE_TAUREN
                     Return 59 + gender
+
                 Case Races.RACE_GNOME
                     Return 1563 + gender
+
                 Case Races.RACE_TROLL
                     Return 1478 + gender
                 Case Else
@@ -319,21 +329,9 @@ Namespace Globals
 
         Public Function SetColor(message As String, red As Byte, green As Byte, blue As Byte) As String
             SetColor = "|cFF"
-            If red < 16 Then
-                SetColor = SetColor & "0" & Hex(red)
-            Else
-                SetColor = SetColor & Hex(red)
-            End If
-            If green < 16 Then
-                SetColor = SetColor & "0" & Hex(green)
-            Else
-                SetColor = SetColor & Hex(green)
-            End If
-            If blue < 16 Then
-                SetColor = SetColor & "0" & Hex(blue)
-            Else
-                SetColor = SetColor & Hex(blue)
-            End If
+            SetColor = If(red < 16, SetColor & "0" & Hex(red), SetColor & Hex(red))
+            SetColor = If(green < 16, SetColor & "0" & Hex(green), SetColor & Hex(green))
+            SetColor = If(blue < 16, SetColor & "0" & Hex(blue), SetColor & Hex(blue))
             SetColor = SetColor & message & "|r"
 
             'SetColor = String.Format("|cff{0:x}{1:x}{2:x}{3}|r", Red, Green, Blue, Message)
@@ -344,10 +342,6 @@ Namespace Globals
             If Rnd.Next(1, 10001) <= nChance Then Return True
             Return False
         End Function
-
-#End Region
-
-#Region "Packets"
 
         Public Sub SendMessageMOTD(ByRef client As ClientClass, message As String)
             Dim packet As PacketClass = BuildChatMessage(0, message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
@@ -376,7 +370,7 @@ Namespace Globals
         Public Sub Broadcast(message As String)
             CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
             For Each character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If character.Value.client IsNot Nothing Then SendMessageSystem(character.Value.client, "System Message: " & SetColor(message, 255, 0, 0))
+                If character.Value.Client IsNot Nothing Then SendMessageSystem(character.Value.Client, "System Message: " & SetColor(message, 255, 0, 0))
             Next
             CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
@@ -588,8 +582,5 @@ Namespace Globals
             packet.AddInt8(PartyMemberStatsStatus.STATUS_OFFLINE)
             Return packet
         End Function
-
-#End Region
-
     End Module
 End Namespace

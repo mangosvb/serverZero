@@ -15,25 +15,24 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+
 Imports System.Net
 Imports System.Net.Sockets
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.Remoting
 Imports System.Security.Permissions
 Imports System.Threading
+
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports mangosVB.Shared
+
 Imports WorldCluster.DataStores
 Imports WorldCluster.Globals
 Imports WorldCluster.Handlers
 
 Namespace Server
-
     Public Module WC_Network
-
-#Region "WS.Sockets"
-
         Public WorldServer As WorldServerClass
         Public Authenticator As Authenticator
 
@@ -41,7 +40,7 @@ Namespace Server
 
         Public Function MsTime() As Integer
             'DONE: Calculate the clusters timeGetTime("")
-            Return (TimeGetTime("") - LastPing)
+            Return (timeGetTime("") - LastPing)
         End Function
 
         Class WorldServerClass
@@ -61,34 +60,34 @@ Namespace Server
             Public Sub New()
                 Try
                     m_Socket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                    m_Socket.Bind(New IPEndPoint(IPAddress.Parse(_config.WorldClusterAddress), _config.WorldClusterPort))
+                    m_Socket.Bind(New IPEndPoint(IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort))
                     m_Socket.Listen(5)
                     m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-                    Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(_config.WorldClusterAddress), _config.WorldClusterPort)
+                    Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
 
                     'Create Remoting Channel
-                    Select Case _config.ClusterListenMethod
+                    Select Case Config.ClusterListenMethod
                         Case "ipc"
-                            m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", _config.ClusterListenAddress, _config.ClusterListenPort))
+                            m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.ClusterListenAddress, Config.ClusterListenPort))
                         Case "tcp"
-                            m_RemoteChannel = New Channels.Tcp.TcpChannel(_config.ClusterListenPort)
+                            m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.ClusterListenPort)
                     End Select
 
                     Channels.ChannelServices.RegisterChannel(m_RemoteChannel, False)
 
                     'NOTE: Password protected remoting
-                    Authenticator = New Authenticator(Me, _config.ClusterPassword)
+                    Authenticator = New Authenticator(Me, Config.ClusterPassword)
 
                     RemotingServices.Marshal(Authenticator, "Cluster.rem")
-                    Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", _config.ClusterListenMethod, _config.ClusterListenAddress, _config.ClusterListenPort)
+                    Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", Config.ClusterListenMethod, Config.ClusterListenAddress, Config.ClusterListenPort)
 
                     'Creating ping timer
                     m_TimerPing = New Timer(AddressOf Ping, Nothing, 0, 15000)
 
                     'Creating stats timer
-                    If _config.StatsEnabled Then
-                        m_TimerStats = New Timer(AddressOf GenerateStats, Nothing, _config.StatsTimer, _config.StatsTimer)
+                    If Config.StatsEnabled Then
+                        m_TimerStats = New Timer(AddressOf GenerateStats, Nothing, Config.StatsTimer, Config.StatsTimer)
                     End If
 
                     'Creating CPU check timer
@@ -104,8 +103,9 @@ Namespace Server
                 If m_flagStopListen Then Return
 
                 Dim m_Client As New ClientClass With {
-                        .Socket = m_Socket.EndAccept(ar)
-                        }
+                    .Socket = m_Socket.EndAccept(ar)
+                }
+
                 m_Client.Socket.NoDelay = True
                 m_Client.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1)
 
@@ -153,16 +153,15 @@ Namespace Server
                 Try
                     Disconnect(uri, maps)
 
-                    'NOTE: Password protected remoting
-                    Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), uri)
-                    Dim WorldServer As IWorld = a.Login(_config.ClusterPassword)
-
                     Dim WorldServerInfo As New WorldInfo
                     Log.WriteLine(LogType.INFORMATION, "Connected Map Server: {0}", uri)
 
                     SyncLock CType(Worlds, ICollection).SyncRoot
                         For Each Map As UInteger In maps
-                            Worlds(Map) = WorldServer
+
+                            'NOTE: Password protected remoting
+                            Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), uri)
+                            Worlds(Map) = CType(a.Login(Config.ClusterPassword), IWorld)
                             WorldsInfo(Map) = WorldServerInfo
                         Next
                     End SyncLock
@@ -187,9 +186,8 @@ Namespace Server
                             If Not objCharacter.Value.Character Is Nothing AndAlso
                                objCharacter.Value.Character.IsInWorld AndAlso
                                objCharacter.Value.Character.Map = map Then
-                                Dim smsgLogoutComplete As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-                                objCharacter.Value.Send(smsgLogoutComplete)
-                                smsgLogoutComplete.Dispose()
+                                objCharacter.Value.Send(New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE))
+                                Call New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE).Dispose()
 
                                 objCharacter.Value.Character.Dispose()
                                 objCharacter.Value.Character = Nothing
@@ -216,7 +214,6 @@ Namespace Server
             End Sub
 
             Public Sub Ping(ByVal State As Object)
-                Dim DeadServers As New List(Of UInteger)
                 Dim SentPingTo As New Dictionary(Of WorldInfo, Integer)
 
                 Dim MyTime As Integer
@@ -227,9 +224,7 @@ Namespace Server
                 SyncLock CType(Worlds, ICollection).SyncRoot
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
-                            If SentPingTo.ContainsKey(WorldsInfo(w.Key)) Then
-                                Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
-                            Else
+                            If Not SentPingTo.ContainsKey(WorldsInfo(w.Key)) Then
                                 MyTime = timeGetTime("")
                                 ServerTime = w.Value.Ping(MyTime, WorldsInfo(w.Key).Latency)
                                 Latency = Math.Abs(MyTime - timeGetTime(""))
@@ -241,11 +236,13 @@ Namespace Server
 
                                 'Query CPU and Memory usage
                                 w.Value.ServerInfo(WorldsInfo(w.Key).CPUUsage, WorldsInfo(w.Key).MemoryUsage)
+                            Else
+                                Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
                             End If
 
                         Catch ex As Exception
                             Log.WriteLine(LogType.WARNING, "Map {0:000} is currently down!", w.Key)
-                            DeadServers.Add(w.Key)
+                            Call New List(Of UInteger)().Add(w.Key)
                         End Try
                     Next
                 End SyncLock
@@ -254,7 +251,7 @@ Namespace Server
                 If Worlds.Count = 0 Then Log.WriteLine(LogType.WARNING, "No maps are currently available!")
 
                 'Drop WorldServers
-                Disconnect("NULL", DeadServers)
+                Disconnect("NULL", New List(Of UInteger))
             End Sub
 
             Public Sub ClientSend(ByVal id As UInteger, ByVal data() As Byte) Implements ICluster.ClientSend
@@ -335,8 +332,7 @@ Namespace Server
                 With GROUPs(groupId)
                     For i As Byte = 0 To .Members.Length - 1
                         If .Members(i) IsNot Nothing Then
-                            Dim buffer() As Byte = Data.Clone
-                            .Members(i).Client.Send(buffer)
+                            Call .Members(i).Client.Send(CType(Data.Clone, Byte()))
                         End If
 
                     Next
@@ -347,8 +343,7 @@ Namespace Server
                 With GROUPs(GroupID)
                     For i As Byte = 0 To .Members.Length - 1
                         If .Members(i) IsNot Nothing AndAlso .Members(i).Client IsNot Nothing Then
-                            Dim buffer() As Byte = Data.Clone
-                            .Members(i).Client.Send(buffer)
+                            Call .Members(i).Client.Send(CType(Data.Clone, Byte()))
                         End If
 
                     Next
@@ -364,14 +359,13 @@ Namespace Server
             End Sub
 
             Public Function InstanceCheck(ByVal client As ClientClass, ByVal MapID As UInteger) As Boolean
-                If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
+                If Not WorldServer.Worlds.ContainsKey(MapID) Then
                     'We don't create new continents
                     If IsContinentMap(MapID) Then
                         Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] is a continent", client.Index, MapID)
 
-                        Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-                        client.Send(SMSG_LOGOUT_COMPLETE)
-                        SMSG_LOGOUT_COMPLETE.Dispose()
+                        client.Send(New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE))
+                        Call New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE).Dispose()
 
                         client.Character.IsInWorld = False
                         Return False
@@ -396,9 +390,8 @@ Namespace Server
                     If ParentMap Is Nothing Then
                         Log.WriteLine(LogType.WARNING, "[{0:000000}] Requested Instance Map [{1}] can't be loaded", client.Index, MapID)
 
-                        Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
-                        client.Send(SMSG_LOGOUT_COMPLETE)
-                        SMSG_LOGOUT_COMPLETE.Dispose()
+                        client.Send(New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE))
+                        Call New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE).Dispose()
 
                         client.Character.IsInWorld = False
                         Return False
@@ -416,7 +409,7 @@ Namespace Server
 
             Public Function BattlefieldCheck(ByVal MapID As UInteger) As Boolean
                 'Create map
-                If (Not WorldServer.Worlds.ContainsKey(MapID)) Then
+                If Not WorldServer.Worlds.ContainsKey(MapID) Then
                     Log.WriteLine(LogType.INFORMATION, "[SERVER] Requesting battlefield map [{0}]", MapID)
                     Dim ParentMap As IWorld = Nothing
                     Dim ParentMapInfo As WorldInfo = Nothing
@@ -448,17 +441,16 @@ Namespace Server
             End Function
 
             Public Function BattlefieldList(ByVal MapType As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
-                Dim tmpList As New List(Of Integer)
 
                 BATTLEFIELDs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
                 For Each BG As KeyValuePair(Of Integer, Battlefield) In BATTLEFIELDs
                     If BG.Value.MapType = MapType Then
-                        tmpList.Add(BG.Value.ID)
+                        Call New List(Of Integer)().Add(BG.Value.ID)
                     End If
                 Next
 
                 BATTLEFIELDs_Lock.ReleaseReaderLock()
-                Return tmpList
+                Return New List(Of Integer)
             End Function
 
             Public Sub BattlefieldFinish(ByVal battlefieldId As Integer) Implements ICluster.BattlefieldFinish
@@ -483,12 +475,9 @@ Namespace Server
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update", GroupID)
 
                 SyncLock CType(Worlds, ICollection).SyncRoot
-                    Dim Type As Byte = GROUPs(GroupID).Type
-                    Dim Leader As ULong = GROUPs(GroupID).GetLeader.Guid
-                    Dim Members() As ULong = GROUPs(GroupID).GetMembers
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
-                            w.Value.GroupUpdate(GroupID, Type, Leader, Members)
+                            w.Value.GroupUpdate(GroupID, GROUPs(GroupID).Type, GROUPs(GroupID).GetLeader.Guid, GROUPs(GroupID).GetMembers)
                         Catch ex As Exception
                             Log.WriteLine(LogType.FAILED, "[G{0:00000}] Group update failed for [M{1:000}]", GroupID, w.Key)
                         End Try
@@ -500,14 +489,10 @@ Namespace Server
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
                 SyncLock CType(Worlds, ICollection).SyncRoot
-                    Dim Difficulty As GroupDungeonDifficulty = GROUPs(GroupID).DungeonDifficulty
-                    Dim Method As GroupLootMethod = GROUPs(GroupID).LootMethod
-                    Dim Threshold As GroupLootThreshold = GROUPs(GroupID).LootThreshold
-                    Dim Master As ULong = GROUPs(GroupID).GetLootMaster.Guid
 
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
-                            w.Value.GroupUpdateLoot(GroupID, Difficulty, Method, Threshold, Master)
+                            w.Value.GroupUpdateLoot(GroupID, GROUPs(GroupID).DungeonDifficulty, GROUPs(GroupID).LootMethod, GROUPs(GroupID).LootThreshold, GROUPs(GroupID).GetLootMaster.Guid)
                         Catch ex As Exception
                             Log.WriteLine(LogType.FAILED, "[G{0:00000}] Group update loot failed for [M{1:000}]", GroupID, w.Key)
                         End Try
@@ -523,10 +508,6 @@ Namespace Server
             Public CPUUsage As Single
             Public MemoryUsage As ULong
         End Class
-
-#End Region
-
-#Region "WS.Analyzer"
 
         Public LastConnections As New Dictionary(Of UInteger, Date)
         Class ClientClass
@@ -552,12 +533,12 @@ Namespace Server
 
             Public Function GetClientInfo() As ClientInfo
                 Dim ci As New ClientInfo With {
-                        .Access = Access,
-                        .Account = Account,
-                        .Index = Index,
-                        .IP = IP,
-                        .Port = Port
-                        }
+                    .Access = Access,
+                    .Account = Account,
+                    .Index = Index,
+                    .IP = IP,
+                    .Port = Port
+                }
 
                 Return ci
             End Function
@@ -565,22 +546,22 @@ Namespace Server
             Public Sub OnConnect(ByVal state As Object)
                 If Socket Is Nothing Then Throw New ApplicationException("socket doesn't exist!")
                 If CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
-                IP = CType(Socket.RemoteEndPoint, IPEndPoint).Address
-                Port = CType(Socket.RemoteEndPoint, IPEndPoint).Port
+
+                Dim remoteEndPoint As IPEndPoint = CType(Socket.RemoteEndPoint, IPEndPoint)
+                IP = remoteEndPoint.Address
+                Port = remoteEndPoint.Port
 
                 'DONE: Connection spam protection
-                'TODO: Connection spamming still increases a lot of CPU. How do we protect against this?
-                Dim IpInt As UInteger = IP2Int(IP.ToString)
-                If LastConnections.ContainsKey(IpInt) Then
-                    If Now > LastConnections(IpInt) Then
-                        LastConnections(IpInt) = Now.AddSeconds(5)
+                If LastConnections.ContainsKey(Ip2Int(IP.ToString)) Then
+                    If Now > LastConnections(Ip2Int(IP.ToString)) Then
+                        LastConnections(Ip2Int(IP.ToString)) = Now.AddSeconds(5)
                     Else
                         Socket.Close()
                         Dispose()
                         Exit Sub
                     End If
                 Else
-                    LastConnections.Add(IpInt, Now.AddSeconds(5))
+                    LastConnections.Add(Ip2Int(IP.ToString), Now.AddSeconds(5))
                 End If
 
                 Log.WriteLine(LogType.DEBUG, "Incoming connection from [{0}:{1}]", IP, Port)
@@ -619,11 +600,11 @@ Namespace Server
                         Interlocked.Add(DataTransferIn, SocketBytes)
 
                         While SocketBytes > 0
-                            If SavedBytes.Length > 0 Then
-                                SocketBuffer = Concat(SavedBytes, SocketBuffer)
-                                SavedBytes = New Byte() {}
-                            Else
+                            If SavedBytes.Length = 0 Then
                                 If Encryption Then Decode(SocketBuffer)
+                            Else
+                                SocketBuffer = Concat(SavedBytes, SocketBuffer)
+                                SavedBytes = (New Byte() {})
                             End If
 
                             'Calculate Length from packet
@@ -673,10 +654,9 @@ Namespace Server
                         End If
                     End If
                 Catch Err As Exception
-#If DEBUG Then
                     'NOTE: If it's a error here it means the connection is closed?
                     Log.WriteLine(LogType.WARNING, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
-#End If
+
                     Dispose(SocketBuffer.Length)
                     Dispose(HandingPackets)
                 End Try
@@ -703,14 +683,8 @@ Namespace Server
                         p = Queue.Dequeue
                     End SyncLock
 
-                    If _config.PacketLogging Then LogPacket(p.Data, False, Me)
-                    If PacketHandlers.ContainsKey(p.OpCode) = True Then
-                        Try
-                            PacketHandlers(p.OpCode).Invoke(p, Me)
-                        Catch e As Exception
-                            Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error: {1}{0}", e.ToString, vbNewLine, p.OpCode)
-                        End Try
-                    Else
+                    If Config.PacketLogging Then LogPacket(p.Data, False, Me)
+                    If PacketHandlers.ContainsKey(p.OpCode) <> True Then
                         If Character Is Nothing OrElse Character.IsInWorld = False Then
                             Socket.Dispose()
                             Socket.Close()
@@ -720,10 +694,16 @@ Namespace Server
                             Try
                                 Character.GetWorld.ClientPacket(Index, p.Data)
                             Catch
-                                WorldServer.Disconnect("NULL", New Integer() {Character.Map})
+                                WorldServer.Disconnect("NULL", (New Integer() {Character.Map}))
                             End Try
                         End If
 
+                    Else
+                        Try
+                            PacketHandlers(p.OpCode).Invoke(p, Me)
+                        Catch e As Exception
+                            Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error: {1}{0}", e.ToString, vbNewLine, p.OpCode)
+                        End Try
                     End If
                     Try
                     Catch ex As Exception
@@ -739,7 +719,7 @@ Namespace Server
                 If Not Socket.Connected Then Exit Sub
 
                 Try
-                    If _config.PacketLogging Then LogPacket(data, True, Me)
+                    If Config.PacketLogging Then LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
@@ -755,7 +735,7 @@ Namespace Server
 
                 Try
                     Dim data As Byte() = packet.Data
-                    If _config.PacketLogging Then LogPacket(data, True, Me)
+                    If Config.PacketLogging Then LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch err As Exception
@@ -775,7 +755,7 @@ Namespace Server
 
                 Try
                     Dim data As Byte() = packet.Data.Clone
-                    If _config.PacketLogging Then LogPacket(data, True, Me)
+                    If Config.PacketLogging Then LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
@@ -864,13 +844,12 @@ Namespace Server
             End Sub
 
             Public Sub EnQueue(ByVal state As Object)
-                While CHARACTERs.Count > _config.ServerPlayerLimit
+                While CHARACTERs.Count > Config.ServerPlayerLimit
                     If Not Socket.Connected Then Exit Sub
 
-                    Dim responseFull As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
-                    responseFull.AddInt8(LoginResponse.LOGIN_WAIT_QUEUE)
-                    responseFull.AddInt32(CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
-                    Send(responseFull)
+                    Call New PacketClass(OPCODES.SMSG_AUTH_RESPONSE).AddInt8(LoginResponse.LOGIN_WAIT_QUEUE)
+                    Call New PacketClass(OPCODES.SMSG_AUTH_RESPONSE).AddInt32(CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
+                    Send(New PacketClass(OPCODES.SMSG_AUTH_RESPONSE))
 
                     Log.WriteLine(LogType.INFORMATION, "[{1}:{2}] AUTH_WAIT_QUEUE: Server player limit reached!", IP, Port)
                     Thread.Sleep(6000)
@@ -879,18 +858,16 @@ Namespace Server
             End Sub
         End Class
 
-#End Region
+        Private Function Ip2Int(ByVal ip As String) As UInteger
+            If ip.Split(".").Length <> 4 Then Return 0
 
-        Function IP2Int(ByVal IP As String) As UInteger
-            Dim IpSplit() As String = IP.Split(".")
-            If IpSplit.Length <> 4 Then Return 0
-            Dim IpBytes(3) As Byte
             Try
-                IpBytes(0) = IpSplit(3)
-                IpBytes(1) = IpSplit(2)
-                IpBytes(2) = IpSplit(1)
-                IpBytes(3) = IpSplit(0)
-                Return BitConverter.ToUInt32(IpBytes, 0)
+                Dim ipBytes(3) As Byte
+                ipBytes(0) = ip.Split(".")(3)
+                ipBytes(1) = ip.Split(".")(2)
+                ipBytes(2) = ip.Split(".")(1)
+                ipBytes(3) = ip.Split(".")(0)
+                Return BitConverter.ToUInt32(ipBytes, 0)
             Catch
                 Return 0
             End Try

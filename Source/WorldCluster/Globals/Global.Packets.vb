@@ -16,24 +16,23 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 Imports System.IO
+
 Imports mangosVB.Common.Globals
+
 Imports mangosVB.Shared
+
 Imports WorldCluster.Server
 
 Namespace Globals
-
     Public Module Packets
-
         Public Sub DumpPacket(data() As Byte, Optional ByRef client As ClientClass = Nothing)
             '#If DEBUG Then
             Dim j As Integer
             Dim buffer As String = ""
             Try
-                If client Is Nothing Then
-                    buffer = buffer + String.Format("DEBUG: Packet Dump{0}", vbNewLine)
-                Else
-                    buffer = buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length, vbNewLine)
-                End If
+                buffer = If(client Is Nothing,
+                    buffer + String.Format("DEBUG: Packet Dump{0}", vbNewLine),
+                    buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length, vbNewLine))
 
                 If data.Length Mod 16 = 0 Then
                     For j = 0 To data.Length - 1 Step 16
@@ -100,8 +99,7 @@ Namespace Globals
         End Sub
 
         Private Function IgnorePacket(ByVal opcode As OPCODES) As Boolean
-            Dim OpcodeName As String = String.Format("{0}", opcode)
-            If OpcodeName.StartsWith("MSG_MOVE") Then Return True
+            If String.Format("{0}", opcode).StartsWith("MSG_MOVE") Then Return True
             Select Case opcode
                 Case OPCODES.SMSG_MONSTER_MOVE, OPCODES.SMSG_UPDATE_OBJECT
                     Return True
@@ -111,13 +109,12 @@ Namespace Globals
         End Function
 
         Private Function FormatPacketStr(ByVal str As String) As String
-            Dim tmpChar() As Char = str.ToCharArray
-            For i As Integer = 0 To tmpChar.Length - 1
-                If tmpChar(i) < "A"c OrElse tmpChar(i) > "z"c Then
-                    tmpChar(i) = "."c
+            For i As Integer = 0 To str.ToCharArray.Length - 1
+                If str.ToCharArray()(i) < "A"c OrElse str.ToCharArray()(i) > "z"c Then
+                    CType(str.ToCharArray, Char())(i) = "."c
                 End If
             Next i
-            Return tmpChar
+            Return str.ToCharArray
         End Function
 
         Public Class PacketClass
@@ -128,13 +125,14 @@ Namespace Globals
 
             Public ReadOnly Property Length() As Integer
                 Get
-                    Return (Data(1) + (Data(0) * 256))
+                    Return Data(1) + (Data(0) * 256)
                 End Get
             End Property
+
             Public ReadOnly Property OpCode() As OPCODES
                 Get
                     If UBound(Data) > 2 Then
-                        Return (Data(2) + (Data(3) * 256))
+                        Return Data(2) + (Data(3) * 256)
                     Else
                         'If it's a dodgy packet, change it to a null packet
                         Return 0
@@ -149,6 +147,7 @@ Namespace Globals
                 Data(2) = CType(opcode, Short) Mod 256
                 Data(3) = CType(opcode, Short) \ 256
             End Sub
+
             Public Sub New(ByRef rawdata() As Byte)
                 Data = rawdata
             End Sub
@@ -163,12 +162,14 @@ Namespace Globals
             '    buffer.CopyTo(bufferarray, 0)
             '    Array.Copy(bufferarray, 0, Data, Data.Length - Len, Len)
             'End Sub
+
             Public Sub AddInt8(ByVal buffer As Byte)
                 ReDim Preserve Data(Data.Length)
                 Data(0) = (Data.Length - 2) \ 256
                 Data(1) = (Data.Length - 2) Mod 256
                 Data(Data.Length - 1) = buffer
             End Sub
+
             Public Sub AddInt16(ByVal buffer As Short)
                 ReDim Preserve Data(Data.Length + 1)
                 Data(0) = (Data.Length - 2) \ 256
@@ -177,6 +178,7 @@ Namespace Globals
                 Data(Data.Length - 2) = buffer And 255
                 Data(Data.Length - 1) = (buffer >> 8) And 255
             End Sub
+
             Public Sub AddInt32(ByVal buffer As Integer, Optional ByVal position As Integer = 0)
                 If position <= 0 OrElse position > (Data.Length - 3) Then
                     position = Data.Length
@@ -190,6 +192,7 @@ Namespace Globals
                 Data(position + 2) = (buffer >> 16) And 255
                 Data(position + 3) = (buffer >> 24) And 255
             End Sub
+
             Public Sub AddInt64(ByVal buffer As Long)
                 ReDim Preserve Data(Data.Length + 7)
                 Data(0) = (Data.Length - 2) \ 256
@@ -204,6 +207,7 @@ Namespace Globals
                 Data(Data.Length - 2) = (buffer >> 48) And 255
                 Data(Data.Length - 1) = (buffer >> 56) And 255
             End Sub
+
             Public Sub AddString(ByVal buffer As String)
                 If IsDBNull(buffer) Or buffer = "" Then
                     AddInt8(0)
@@ -221,6 +225,7 @@ Namespace Globals
                     Data(Data.Length - 1) = 0
                 End If
             End Sub
+
             Public Sub AddDouble(ByVal buffer2 As Double)
                 Dim buffer1 As Byte() = BitConverter.GetBytes(buffer2)
                 ReDim Preserve Data(Data.Length + buffer1.Length - 1)
@@ -229,6 +234,7 @@ Namespace Globals
                 Data(0) = (Data.Length - 2) \ 256
                 Data(1) = (Data.Length - 2) Mod 256
             End Sub
+
             Public Sub AddSingle(ByVal buffer2 As Single)
                 Dim buffer1 As Byte() = BitConverter.GetBytes(buffer2)
                 ReDim Preserve Data(Data.Length + buffer1.Length - 1)
@@ -237,6 +243,7 @@ Namespace Globals
                 Data(0) = (Data.Length - 2) \ 256
                 Data(1) = (Data.Length - 2) Mod 256
             End Sub
+
             Public Sub AddByteArray(ByVal buffer() As Byte)
                 Dim tmp As Integer = Data.Length
                 ReDim Preserve Data(Data.Length + buffer.Length - 1)
@@ -245,6 +252,7 @@ Namespace Globals
                 Data(0) = (Data.Length - 2) \ 256
                 Data(1) = (Data.Length - 2) Mod 256
             End Sub
+
             Public Sub AddPackGUID(ByVal buffer As ULong)
                 Dim GUID() As Byte = BitConverter.GetBytes(buffer)
                 Dim flags As New BitArray(8)
@@ -252,7 +260,7 @@ Namespace Globals
                 Dim offsetNewSize As Integer = offsetStart
 
                 For i As Byte = 0 To 7
-                    flags(i) = (GUID(i) <> 0)
+                    flags(i) = GUID(i) <> 0
                     If flags(i) Then offsetNewSize += 1
                 Next
 
@@ -320,60 +328,72 @@ Namespace Globals
                 Offset = Offset + 1
                 Return Data(Offset - 1)
             End Function
+
             'Public Function GetInt8(ByVal Offset As Integer) As Byte
             '    Offset = Offset + 1
             '    Return Data(Offset - 1)
             'End Function
+
             Public Function GetInt16() As Short
                 Dim num1 As Short = BitConverter.ToInt16(Data, Offset)
                 Offset = (Offset + 2)
                 Return num1
             End Function
+
             'Public Function GetInt16(ByVal Offset As Integer) As Short
             '    Dim num1 As Short = BitConverter.ToInt16(Data, Offset)
             '    Offset = (Offset + 2)
             '    Return num1
             'End Function
+
             Public Function GetInt32() As Integer
                 Dim num1 As Integer = BitConverter.ToInt32(Data, Offset)
                 Offset = (Offset + 4)
                 Return num1
             End Function
+
             'Public Function GetInt32(ByVal Offset As Integer) As Integer
             '    Dim num1 As Integer = BitConverter.ToInt32(Data, Offset)
             '    Offset = (Offset + 4)
             '    Return num1
             'End Function
+
             Public Function GetInt64() As Long
                 Dim num1 As Long = BitConverter.ToInt64(Data, Offset)
                 Offset = (Offset + 8)
                 Return num1
             End Function
+
             'Public Function GetInt64(ByVal Offset As Integer) As Long
             '    Dim num1 As Long = BitConverter.ToInt64(Data, Offset)
             '    Offset = (Offset + 8)
             '    Return num1
             'End Function
+
             Public Function GetFloat() As Single
                 Dim single1 As Single = BitConverter.ToSingle(Data, Offset)
                 Offset = (Offset + 4)
                 Return single1
             End Function
+
             'Public Function GetFloat(ByVal Offset_ As Integer) As Single
             '    Dim single1 As Single = BitConverter.ToSingle(Data, Offset)
             '    Offset = (Offset_ + 4)
             '    Return single1
             'End Function
+
             Public Function GetDouble() As Double
                 Dim num1 As Double = BitConverter.ToDouble(Data, Offset)
                 Offset = (Offset + 8)
                 Return num1
             End Function
+
             'Public Function GetDouble(ByVal Offset As Integer) As Double
             '    Dim num1 As Double = BitConverter.ToDouble(Data, Offset)
             '    Offset = (Offset + 8)
             '    Return num1
             'End Function
+
             Public Function GetString() As String
                 Dim start As Integer = Offset
                 Dim i As Integer = 0
@@ -386,6 +406,7 @@ Namespace Globals
 
                 Return Text.Encoding.UTF8.GetString(Data, start, i)
             End Function
+
             'Public Function GetString(ByVal Offset As Integer) As String
             '    Dim i As Integer = Offset
             '    Dim tmpString As String = ""
@@ -403,26 +424,31 @@ Namespace Globals
                 Offset = (Offset + 2)
                 Return num1
             End Function
+
             'Public Function GetUInt16(ByVal Offset As Integer) As UShort
             '    Dim num1 As UShort = BitConverter.ToUInt16(Data, Offset)
             '    Offset = (Offset + 2)
             '    Return num1
             'End Function
+
             Public Function GetUInt32() As UInteger
                 Dim num1 As UInteger = BitConverter.ToUInt32(Data, Offset)
                 Offset = (Offset + 4)
                 Return num1
             End Function
+
             'Public Function GetUInt32(ByVal Offset As Integer) As UInteger
             '    Dim num1 As UInteger = BitConverter.ToUInt32(Data, Offset)
             '    Offset = (Offset + 4)
             '    Return num1
             'End Function
+
             Public Function GetUInt64() As ULong
                 Dim num1 As ULong = BitConverter.ToUInt64(Data, Offset)
                 Offset = (Offset + 8)
                 Return num1
             End Function
+
             'Public Function GetUInt64(ByVal Offset As Integer) As ULong
             '    Dim num1 As ULong = BitConverter.ToUInt64(Data, Offset)
             '    Offset = (Offset + 8)
@@ -469,6 +495,7 @@ Namespace Globals
 
             '    Return CType(BitConverter.ToUInt64(GUID, 0), ULong)
             'End Function
+
             'Public Function GetPackGUID(ByVal Offset As Integer) As ULong
             '    Dim flags As Byte = Data(Offset)
             '    Dim GUID() As Byte = {0, 0, 0, 0, 0, 0, 0, 0}

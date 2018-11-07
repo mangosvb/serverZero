@@ -32,7 +32,9 @@ Imports mangosVB.Common.Logging
 Imports mangosVB.Shared
 
 Public Module RealmServer
-    Private Log As New BaseWriter
+    Private Const RealmPath As String = "configs/RealmServer.ini"
+
+    Public Log As New BaseWriter
 
     <XmlRoot(ElementName:="RealmServer")>
     Public Class XmlConfigFile
@@ -87,10 +89,10 @@ Public Module RealmServer
     Private Sub LoadConfig()
         Try
             'Make sure RealmServer.ini exists
-            If File.Exists("configs/RealmServer.ini") = False Then
+            If File.Exists(RealmPath) = False Then
                 Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "hh:mm:ss"), "configs/RealmServer.ini")
-                Console.WriteLine("Please copy the ini files into the same directory as the MangosVB exe files.")
+                Console.WriteLine("[{0}] Cannot Continue. {1} does not exist.", Format(TimeOfDay, "hh:mm:ss"), RealmPath)
+                Console.WriteLine("Please make sure your ini files are inside config folder where the mangosvb executables are located.")
                 Console.WriteLine("Press any key to exit server: ")
                 Console.ReadKey()
                 End
@@ -103,15 +105,14 @@ Public Module RealmServer
             Console.Write("...")
 
             Dim ostream As StreamReader
-            ostream = New StreamReader("configs/RealmServer.ini")
+            ostream = New StreamReader(RealmPath)
             Config = New XmlSerializer(GetType(XmlConfigFile)).Deserialize(ostream)
             ostream.Close()
 
             Console.WriteLine(".[done]")
 
             'DONE: Setting SQL Connection
-            Dim accountDbSettings() As String
-            accountDbSettings = Split(Config.AccountDatabase, ";")
+            Dim accountDbSettings() As String = Split(Config.AccountDatabase, ";")
             If accountDbSettings.Length <> 6 Then
                 Console.WriteLine("Invalid connect string for the account database!")
             Else
@@ -294,8 +295,6 @@ Public Module RealmServer
                 End If
             End If
 
-            Dim buffer() As Byte
-
             Console.ForegroundColor = ConsoleColor.DarkGray
             Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
@@ -312,15 +311,17 @@ Public Module RealmServer
                             Exit While
                         End If
 
+
+                        Dim buffer() As Byte
                         ReDim buffer(Socket.Available - 1)
                         Dim dummyBytes As Integer = Socket.Receive(buffer, buffer.Length, 0)
                         Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                        Console.WriteLine("[{0}] Data Packet:", dummyBytes)
+                        Console.WriteLine("Data Packet: [{0}] ", dummyBytes)
 
                         OnData(buffer)
                     End If
                     If Not Socket.Connected Then Exit While
-                    If (Socket.Poll(100, SelectMode.SelectRead)) And (Socket.Available = 0) Then Exit While
+                    If Socket.Poll(100, SelectMode.SelectRead) And (Socket.Available = 0) Then Exit While
                 End While
 
             Else
@@ -341,7 +342,7 @@ Public Module RealmServer
         Public Sub Send(ByVal data() As Byte, ByVal packetName As String)
             Try
                 Console.ForegroundColor = ConsoleColor.DarkGray
-                Console.WriteLine("[{0}] [{1}:{2}] ({4}) Data sent, result code={3}", Format(TimeOfDay, "hh:mm:ss"), Ip, Port, Socket.Send(data, 0, data.Length, SocketFlags.None), packetName)
+                Console.WriteLine("[{0}] [{1}:{2}] ({4}) Data sent, result code {3}", Format(TimeOfDay, "hh:mm:ss"), Ip, Port, Socket.Send(data, 0, data.Length, SocketFlags.None), packetName)
                 Console.ForegroundColor = ConsoleColor.Gray
 
             Catch err As Exception
@@ -442,6 +443,7 @@ Public Module RealmServer
                         Console.ForegroundColor = ConsoleColor.Red
                         Console.WriteLine("[{0}] [{1}:{2}] Not a valid SHA1 password for account: '{3}' SHA1 Hash: '{4}'", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, packetAccount, result.Rows(0).Item("sha_pass_hash"))
                         Console.ForegroundColor = ConsoleColor.White
+
                         Dim dataResponse(1) As Byte
                         dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                         dataResponse(1) = AccountState.LOGIN_BAD_PASS
@@ -579,7 +581,7 @@ Public Module RealmServer
                 client.Send(dataResponse, "RS_LOGON_CHALLENGE-CMD-XFER-INITIATE")
             Else
                 'Send BAD_VERSION
-                Console.WriteLine("[{0}] [{1}:{2}] WRONG_VERSION [" & Chr(data(6)) & Chr(data(5)) & Chr(data(4)) & " " & data(8) & "." & data(9) & "." & data(10) & "." & (Val("&H" & Hex(data(12)) & Hex(data(11)))) & " " & Chr(data(15)) & Chr(data(14)) & Chr(data(13)) & " " & Chr(data(19)) & Chr(data(18)) & Chr(data(17)) & " " & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & "]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
+                Console.WriteLine("[{0}] [{1}:{2}] WRONG_VERSION [" & Chr(data(6)) & Chr(data(5)) & Chr(data(4)) & " " & data(8) & "." & data(9) & "." & data(10) & "." & Val("&H" & Hex(data(12)) & Hex(data(11))) & " " & Chr(data(15)) & Chr(data(14)) & Chr(data(13)) & " " & Chr(data(19)) & Chr(data(18)) & Chr(data(17)) & " " & Chr(data(24)) & Chr(data(23)) & Chr(data(22)) & Chr(data(21)) & "]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
                 Dim dataResponse(1) As Byte
                 dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
                 dataResponse(1) = AccountState.LOGIN_BADVERSION
@@ -908,19 +910,8 @@ Public Module RealmServer
             End
         End If
 
-        Dim result2 As DataTable = New DataTable
-        returnValues = AccountDatabase.Query(String.Format("SELECT * FROM realmlist WHERE realmflags < 2 && allowedSecurityLevel < '1';"), result2)
-        If returnValues > SQL.ReturnState.Success Then 'Ok, An error occurred
-            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
-            Console.WriteLine("*************************")
-            Console.WriteLine("* Press any key to exit *")
-            Console.WriteLine("*************************")
-            Console.ReadKey()
-            End
-        End If
-
         Console.WriteLine()
-        Console.WriteLine("[{0}] Known World Servers count {1}, Online World Servers count {2}", Format(TimeOfDay, "hh:mm:ss"), result1.Rows.Count, result2.Rows.Count)
+        Console.WriteLine("[{0}] Loading known game servers...", Format(TimeOfDay, "hh:mm:ss"))
 
         Console.ForegroundColor = ConsoleColor.DarkGreen
         For Each row As DataRow In result1.Rows
@@ -932,11 +923,16 @@ Public Module RealmServer
     Public Sub Main()
 
         Console.BackgroundColor = ConsoleColor.Black
-        Console.Title = $"{CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title } v{[Assembly].GetExecutingAssembly().GetName().Version }"
+        Dim assemblyTitleAttribute As AssemblyTitleAttribute = CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute)
+        Console.Title = $"{assemblyTitleAttribute.Title } v{[Assembly].GetExecutingAssembly().GetName().Version }"
 
         Console.ForegroundColor = ConsoleColor.Yellow
-        Console.WriteLine("{0}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyProductAttribute), False)(0), AssemblyProductAttribute).Product)
-        Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyCopyrightAttribute), False)(0), AssemblyCopyrightAttribute).Copyright)
+        Dim assemblyProductAttribute As AssemblyProductAttribute = CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyProductAttribute), False)(0), AssemblyProductAttribute)
+        Console.WriteLine("{0}", assemblyProductAttribute.Product)
+
+        Dim assemblyCopyrightAttribute As AssemblyCopyrightAttribute = CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyCopyrightAttribute), False)(0), AssemblyCopyrightAttribute)
+        Console.WriteLine(assemblyCopyrightAttribute.Copyright)
+
         Console.WriteLine()
 
         Console.ForegroundColor = ConsoleColor.Yellow
@@ -949,19 +945,21 @@ Public Module RealmServer
         Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/             ")
         Console.WriteLine("")
 
+        If DoesSharedDllExist() = False Then
+            End
+        End If
+
         Console.ForegroundColor = ConsoleColor.Magenta
 
         Console.ForegroundColor = ConsoleColor.White
-        Console.Write([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0).Title)
+        Dim attributeType As Type = GetType(AssemblyTitleAttribute)
+        Console.Write([Assembly].GetExecutingAssembly().GetCustomAttributes(attributeType, False)(0).Title)
+
         Console.WriteLine(" version {0}", [Assembly].GetExecutingAssembly().GetName().Version)
         Console.WriteLine()
         Console.ForegroundColor = ConsoleColor.Gray
 
         Console.WriteLine("[{0}] Realm Server Starting...", Format(TimeOfDay, "hh:mm:ss"))
-
-        If DoesSharedDllExist() = False Then
-            End
-        End If
 
         LoadConfig()
 
@@ -970,11 +968,19 @@ Public Module RealmServer
         Console.ForegroundColor = ConsoleColor.Gray
 
         AddHandler AccountDatabase.SQLMessage, AddressOf SqlEventHandler
-        AccountDatabase.Connect()
 
-        RealmServer = New RealmServerClass
-        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then         'Check the Database version, exit if its wrong
-            Dim areDbVersionsOk As Boolean = False
+        Dim ReturnValues As Integer
+        ReturnValues = AccountDatabase.Connect()
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
+            Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
+            Console.WriteLine("*************************")
+            Console.WriteLine("* Press any key to exit *")
+            Console.WriteLine("*************************")
+            Console.ReadKey()
+            End
+        End If
+
+        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then 'Check the Database version, exit if its wrong
 
             If True Then
                 Console.WriteLine("*************************")
@@ -984,6 +990,9 @@ Public Module RealmServer
                 End
             End If
         End If
+
+        RealmServer = New RealmServerClass
+        GC.Collect()
 
         WorldServer_Status_Report()
     End Sub
