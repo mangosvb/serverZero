@@ -214,6 +214,7 @@ Namespace Server
             End Sub
 
             Public Sub Ping(ByVal State As Object)
+                Dim DownedServers As New List(Of UInteger)
                 Dim SentPingTo As New Dictionary(Of WorldInfo, Integer)
 
                 Dim MyTime As Integer
@@ -242,7 +243,7 @@ Namespace Server
 
                         Catch ex As Exception
                             Log.WriteLine(LogType.WARNING, "Map {0:000} is currently down!", w.Key)
-                            Call New List(Of UInteger)().Add(w.Key)
+                            DownedServers.Add(w.Key)
                         End Try
                     Next
                 End SyncLock
@@ -251,7 +252,7 @@ Namespace Server
                 If Worlds.Count = 0 Then Log.WriteLine(LogType.WARNING, "No maps are currently available!")
 
                 'Drop WorldServers
-                Disconnect("NULL", New List(Of UInteger))
+                Disconnect("NULL", DownedServers)
             End Sub
 
             Public Sub ClientSend(ByVal id As UInteger, ByVal data() As Byte) Implements ICluster.ClientSend
@@ -441,16 +442,17 @@ Namespace Server
             End Function
 
             Public Function BattlefieldList(ByVal MapType As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
+                Dim BattlefieldMap As New List(Of Integer)
 
                 BATTLEFIELDs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
                 For Each BG As KeyValuePair(Of Integer, Battlefield) In BATTLEFIELDs
                     If BG.Value.MapType = MapType Then
-                        Call New List(Of Integer)().Add(BG.Value.ID)
+                        BattlefieldMap.Add(BG.Value.ID)
                     End If
                 Next
 
                 BATTLEFIELDs_Lock.ReleaseReaderLock()
-                Return New List(Of Integer)
+                Return BattlefieldMap
             End Function
 
             Public Sub BattlefieldFinish(ByVal battlefieldId As Integer) Implements ICluster.BattlefieldFinish
