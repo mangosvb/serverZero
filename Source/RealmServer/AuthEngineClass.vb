@@ -224,69 +224,53 @@ Public NotInheritable Class AuthEngineClass
     '    M1 = sha2.ComputeHash(temp)
     'End Sub
 
-    Private Function Combine(ByVal b1 As Byte(), ByVal b2 As Byte()) As Byte()
-        If (b1.Length = b2.Length) Then
-            Dim buffer1 As Byte() = New Byte(b1.Length + b2.Length - 1) {}
-            Dim num1 As Integer = 0
-            Dim num2 As Integer = 1
-            Dim num3 As Integer
-            For num3 = 0 To b1.Length - 1
-                buffer1(num1) = b1(num3)
-                num1 += 1
-                num1 += 1
-            Next num3
-            Dim num4 As Integer
-            For num4 = 0 To b2.Length - 1
-                buffer1(num2) = b2(num4)
-                num2 += 1
-                num2 += 1
-            Next num4
-            Return buffer1
-        End If
-        Return Nothing
+    Private Function Combine(ByVal Bytes1 As Byte(), ByVal Bytes2 As Byte()) As Byte()
+        If (Bytes1.Length <> Bytes2.Length) Then Return Nothing
+
+        Dim CombineBuffer As Byte() = New Byte(Bytes1.Length + Bytes2.Length - 1) {}
+        Dim Counter As Integer = 0
+        For i As Integer = 0 To CombineBuffer.Length - 1 Step 2
+            CombineBuffer(i) = Bytes1(Counter)
+            Counter += 1
+        Next
+        Counter = 0
+
+        For i As Integer = 1 To CombineBuffer.Length - 1 Step 2
+            CombineBuffer(i) = Bytes2(Counter)
+            Counter += 1
+        Next
+
+        Return CombineBuffer
     End Function
 
-    Private Function Concat(ByVal a As Byte(), ByVal b As Byte()) As Byte()
-        Dim buffer1 As Byte() = New Byte(a.Length + b.Length - 1) {}
-        Dim num1 As Integer
-        For num1 = 0 To a.Length - 1
-            buffer1(num1) = a(num1)
-        Next num1
-        Dim num2 As Integer
-        For num2 = 0 To b.Length - 1
-            buffer1(num2 + a.Length) = b(num2)
-        Next num2
-        Return buffer1
+    Public Function Concat(ByVal Buffer1 As Byte(), ByVal Buffer2 As Byte()) As Byte()
+        Dim ConcatBuffer As Byte() = New Byte(Buffer1.Length + Buffer2.Length - 1) {}
+        Array.Copy(Buffer1, ConcatBuffer, Buffer1.Length)
+        Array.Copy(Buffer2, 0, ConcatBuffer, Buffer1.Length, Buffer2.Length)
+
+        Return ConcatBuffer
     End Function
 
-    Private Function Split(ByVal bo As Byte()) As ArrayList
-        Dim buffer1 As Byte() = New Byte(bo.Length - 1 - 1) {}
-        If ((bo.Length Mod 2) <> 0) AndAlso (bo.Length > 2) Then
-            Buffer.BlockCopy(bo, 1, buffer1, 0, bo.Length)
-        End If
-        Dim buffer2 As Byte() = New Byte((bo.Length / 2) - 1) {}
-        Dim buffer3 As Byte() = New Byte((bo.Length / 2) - 1) {}
-        Dim num1 As Integer = 0
-        Dim num2 As Integer = 1
-        Dim num3 As Integer
-        For num3 = 0 To buffer2.Length - 1
-            buffer2(num3) = bo(num1)
-            num1 += 1
-            num1 += 1
-        Next num3
-        Dim num4 As Integer
-        For num4 = 0 To buffer3.Length - 1
-            buffer3(num4) = bo(num2)
-            num2 += 1
-            num2 += 1
-        Next num4
+    Private Function Split(ByVal ByteBuffer As Byte()) As ArrayList
+        Dim SplitBuffer1 As Byte() = New Byte(ByteBuffer.Length / 2 - 1) {}
+        Dim SplitBuffer2 As Byte() = New Byte(ByteBuffer.Length / 2 - 1) {}
+        Dim ReturnList As New ArrayList
+        Dim Counter As Integer = 0
 
-        Dim list1 As New ArrayList From {
-            buffer2,
-            buffer3
-        }
+        For i As Integer = 0 To SplitBuffer1.Length - 1
+            SplitBuffer1(i) = ByteBuffer(Counter)
+            Counter += 2
+        Next
+        Counter = 1
+        For i As Integer = 0 To SplitBuffer2.Length - 1
+            SplitBuffer2(i) = ByteBuffer(Counter)
+            Counter += 2
+        Next
 
-        Return list1
+        ReturnList.Add(SplitBuffer1)
+        ReturnList.Add(SplitBuffer2)
+
+        Return ReturnList
     End Function
 
     Private _a As Byte()
