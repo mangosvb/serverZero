@@ -1,5 +1,4 @@
-﻿Imports System
-Imports System.Reflection
+﻿Imports System.Reflection
 Imports System.Runtime.InteropServices
 
 ' General Information about an assembly is controlled through the following 
@@ -8,17 +7,17 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("DB Patcher")> 
-<Assembly: AssemblyDescription("A tool that creates database patches.")> 
-<Assembly: AssemblyCompany("The vWoW Team")> 
-<Assembly: AssemblyProduct("DB Patcher by UniX")> 
-<Assembly: AssemblyCopyright("Copyright © vWoW 2009")> 
-<Assembly: AssemblyTrademark("")> 
+<Assembly: AssemblyTitle("DB Patcher")>
+<Assembly: AssemblyDescription("A tool that creates database patches.")>
+<Assembly: AssemblyCompany("The vWoW Team")>
+<Assembly: AssemblyProduct("DB Patcher by UniX")>
+<Assembly: AssemblyCopyright("Copyright © vWoW 2009")>
+<Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("68fd2d6f-fdf0-48d0-a9f1-47580880a402")> 
+<Assembly: Guid("68fd2d6f-fdf0-48d0-a9f1-47580880a402")>
 
 ' Version information for an assembly consists of the following four values:
 '
@@ -31,5 +30,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.0")> 
-<Assembly: AssemblyFileVersion("1.0.0.0")> 
+<Assembly: AssemblyVersion("1.0.0.0")>
+<Assembly: AssemblyFileVersion("1.0.0.0")>

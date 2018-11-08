@@ -176,6 +176,10 @@
       <Project>{0697622c-938d-4486-a3a4-d438d0b7503f}</Project>
       <Name>Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Shared\Shared.vbproj">
+      <Project>{D374BD81-7E5B-4D16-917E-A2671DB1E640}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

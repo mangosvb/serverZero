@@ -17,7 +17,7 @@
 '
 
 Imports mangosVB.Common
-Imports mangosVB.Common.DBC
+Imports mangosVB.Shared.GlobalEnum
 
 Public Module DBC_Stuff
     Public Sub LoadDBCs()
@@ -253,7 +253,7 @@ Public Module DBC_Stuff
             Next i
 
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
+        Catch e As IO.DirectoryNotFoundException
             MsgBox("DBC File : SpellRanges missing.")
         End Try
     End Sub
@@ -279,7 +279,7 @@ Public Module DBC_Stuff
             Next i
 
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
+        Catch e As IO.DirectoryNotFoundException
             MsgBox("DBC File : SpellCastTimes missing.")
         End Try
     End Sub
@@ -305,7 +305,7 @@ Public Module DBC_Stuff
             Next i
 
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
+        Catch e As IO.DirectoryNotFoundException
             MsgBox("DBC File : SpellDurations missing.")
         End Try
     End Sub
@@ -331,7 +331,7 @@ Public Module DBC_Stuff
             Next i
 
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
+        Catch e As IO.DirectoryNotFoundException
             MsgBox("DBC File : SpellRadius missing.")
         End Try
     End Sub
@@ -357,7 +357,7 @@ Public Module DBC_Stuff
             Next i
 
             tmpDBC.Dispose()
-        Catch e As System.IO.DirectoryNotFoundException
+        Catch e As IO.DirectoryNotFoundException
             MsgBox("DBC File : SpellIcon missing.")
         End Try
     End Sub
@@ -365,15 +365,15 @@ Public Module DBC_Stuff
     Public Sub DownloadIcons()
         Dim FailedIcons As New List(Of String)
 
-        If System.IO.Directory.Exists("icons") = False Then
-            System.IO.Directory.CreateDirectory("icons")
+        If IO.Directory.Exists("icons") = False Then
+            IO.Directory.CreateDirectory("icons")
         Else
             If MsgBox("Do you wish to download icons you might miss?", MsgBoxStyle.YesNo, "Download Icons") = MsgBoxResult.No Then Exit Sub
         End If
 
         Dim Downloaded As Integer = 0
         For Each Icon As KeyValuePair(Of Integer, String) In SpellIcon
-            If System.IO.File.Exists("icons\" & Icon.Value & ".jpg") = False Then
+            If IO.File.Exists("icons\" & Icon.Value & ".jpg") = False Then
                 frmLoad.lblAction.Text = "Downloading icon: " & Icon.Value
 
                 Try

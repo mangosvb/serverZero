@@ -1,5 +1,4 @@
-﻿Imports System
-Imports System.Reflection
+﻿Imports System.Reflection
 Imports System.Runtime.InteropServices
 
 ' General Information about an assembly is controlled through the following 
@@ -8,17 +7,17 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("Spell Browser")> 
-<Assembly: AssemblyDescription("Browse through WoW spells.")> 
-<Assembly: AssemblyCompany("UniX")> 
-<Assembly: AssemblyProduct("Spell Browser")> 
-<Assembly: AssemblyCopyright("Copyright © SpuriousZero 2011")> 
-<Assembly: AssemblyTrademark("")> 
+<Assembly: AssemblyTitle("Spell Browser")>
+<Assembly: AssemblyDescription("Browse through WoW spells.")>
+<Assembly: AssemblyCompany("UniX")>
+<Assembly: AssemblyProduct("Spell Browser")>
+<Assembly: AssemblyCopyright("Copyright © SpuriousZero 2011")>
+<Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("e2a72d80-0cfa-4a43-9c8c-16781983f776")> 
+<Assembly: Guid("e2a72d80-0cfa-4a43-9c8c-16781983f776")>
 
 ' Version information for an assembly consists of the following four values:
 '
@@ -31,5 +30,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("0.1.0.0")> 
-<Assembly: AssemblyFileVersion("0.1.0.0")> 
+<Assembly: AssemblyVersion("0.1.0.0")>
+<Assembly: AssemblyFileVersion("0.1.0.0")>

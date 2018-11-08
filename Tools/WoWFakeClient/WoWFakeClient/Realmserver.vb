@@ -18,15 +18,12 @@
 
 Imports System.Runtime.InteropServices
 Imports System.Threading
-Imports System.Text
 Imports System.Net.Sockets
 Imports System.Net
 Imports System.Security.Cryptography
-Imports System.IO
-Imports Emil.GMP
 
 Module Realmserver
-    Public ConsoleColor As New Global_System.ConsoleColorClass
+    Public ConsoleColor As New ConsoleColorClass
     Private Connection As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
     Private ConnIP As IPAddress
     Private ConnPort As Integer
@@ -62,12 +59,12 @@ Module Realmserver
 
     Sub Main()
         Console.Title = "WoW Fake Client"
-        ConsoleColor.SetConsoleColor(Global_System.ConsoleColorClass.ForegroundColors.LightGreen)
+        ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.LightGreen)
         Console.WriteLine("WoW Fake Client made by UniX")
         Console.WriteLine()
         ConsoleColor.SetConsoleColor()
 
-        Worldserver.InitializePackets()
+        InitializePackets()
         timeBeginPeriod(1)
 
         ConnectToRealm()
@@ -100,7 +97,7 @@ Module Realmserver
 
     Sub ConnectToRealm()
         Try
-            ConsoleColor.SetConsoleColor(Global_System.ConsoleColorClass.ForegroundColors.Gray)
+            ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.Gray)
             Console.WriteLine("Connecting to {0}:{1}", RealmIP, RealmPort)
             Console.ForegroundColor = System.ConsoleColor.White
 
@@ -110,7 +107,7 @@ Module Realmserver
             NewThread.Name = "Realm Server, Connected"
             NewThread.Start()
         Catch e As Exception
-            ConsoleColor.SetConsoleColor(Global_System.ConsoleColorClass.ForegroundColors.Red)
+            ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.Red)
             Console.WriteLine("Could not connect to the server.")
             ConsoleColor.SetConsoleColor()
         End Try
@@ -263,7 +260,7 @@ Module Realmserver
                             Dim SplitIP() As String = Split(RealmIP, ":")
                             If SplitIP.Length = 2 Then
                                 If IsNumeric(SplitIP(1)) Then
-                                    Worldserver.ConnectToServer(SplitIP(0), CInt(SplitIP(1)))
+                                    ConnectToServer(SplitIP(0), CInt(SplitIP(1)))
                                 Else
                                     Console.WriteLine("[{0}][Realm] Invalid IP in realmlist [{1}].", Format(TimeOfDay, "HH:mm:ss"), RealmIP)
                                 End If
@@ -292,7 +289,7 @@ Module Realmserver
         Array.Reverse(A)
 
         Dim tempStr As String = Account.ToUpper & ":" & Password.ToUpper
-        Dim temp() As Byte = System.Text.Encoding.ASCII.GetBytes(tempStr.ToCharArray)
+        Dim temp() As Byte = Text.Encoding.ASCII.GetBytes(tempStr.ToCharArray)
         Dim algorithm1 As New SHA1Managed
         temp = algorithm1.ComputeHash(temp)
         Dim X() As Byte = algorithm1.ComputeHash(Concat(Salt, temp))
@@ -350,7 +347,7 @@ Module Realmserver
         SS_Hash = Combine(CType(list1.Item(0), Byte()), CType(list1.Item(1), Byte()))
 
         tempStr = UCase(Account.ToUpper)
-        Dim User_Hash() As Byte = algorithm1.ComputeHash(UTF8Encoding.UTF8.GetBytes(tempStr.ToCharArray))
+        Dim User_Hash() As Byte = algorithm1.ComputeHash(Text.Encoding.UTF8.GetBytes(tempStr.ToCharArray))
         Array.Reverse(N)
         Array.Reverse(ServerB)
         Dim N_Hash() As Byte = algorithm1.ComputeHash(N)
@@ -375,7 +372,7 @@ Module Realmserver
         Array.Reverse(A)
 
         Dim tempStr As String = Account.ToUpper & ":" & Password.ToUpper
-        Dim temp() As Byte = System.Text.Encoding.ASCII.GetBytes(tempStr.ToCharArray)
+        Dim temp() As Byte = Text.Encoding.ASCII.GetBytes(tempStr.ToCharArray)
         Dim algorithm1 As New SHA1Managed
         temp = algorithm1.ComputeHash(temp)
         Dim X() As Byte = algorithm1.ComputeHash(Concat(Salt, temp))
@@ -436,7 +433,7 @@ Module Realmserver
         SS_Hash = Combine(CType(list1.Item(0), Byte()), CType(list1.Item(1), Byte()))
 
         tempStr = UCase(Account.ToUpper)
-        Dim User_Hash() As Byte = algorithm1.ComputeHash(UTF8Encoding.UTF8.GetBytes(tempStr.ToCharArray))
+        Dim User_Hash() As Byte = algorithm1.ComputeHash(Text.Encoding.UTF8.GetBytes(tempStr.ToCharArray))
         Array.Reverse(N)
         Array.Reverse(ServerB)
         Dim N_Hash() As Byte = algorithm1.ComputeHash(N)
@@ -529,7 +526,7 @@ Module Realmserver
     Public Declare Function BN_mul Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
     Public Declare Function BN_new Lib "LIBEAY32" () As IntPtr
 
-    <DllImport("LIBEAY32.DLL")> _
+    <DllImport("LIBEAY32.DLL")>
     Public Function RAND_bytes(ByVal buf As Byte(), ByVal num As Integer) As Integer
 
     End Function

@@ -1,7 +1,27 @@
-﻿Imports System.IO
+﻿'
+' Copyright (C) 2013 - 2018 getMaNGOS <https://getmangos.eu>
+'
+' This program is free software; you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation; either version 2 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program; if not, write to the Free Software
+' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+'
+
+Imports System.IO
 Imports MpqLib.Mpq
-Imports mangosVB.Common
+
 Imports mangosVB.Common.DBC
+
+Imports mangosVB.Shared.GlobalEnum
 
 Module MainModule
 
@@ -156,7 +176,7 @@ ExitNow:
         Console.ForegroundColor = ConsoleColor.White
         Console.Write("Reading Map.dbc... ")
 
-        Dim mapDBC As New BufferedDBC("dbc\Map.dbc")
+        Dim mapDBC As New BufferedDbc("dbc\Map.dbc")
 
         For i As Integer = 0 To mapDBC.Rows - 1
             MapIDs.Add(CType(mapDBC.Item(i, 0), Integer))
@@ -173,7 +193,7 @@ ExitNow:
         Console.ForegroundColor = ConsoleColor.White
         Console.Write("Reading AreaTable.dbc... ")
 
-        Dim areaDBC As New BufferedDBC("dbc\AreaTable.dbc")
+        Dim areaDBC As New BufferedDbc("dbc\AreaTable.dbc")
 
         Dim maxID As Integer = -1
         For i As Integer = 0 To areaDBC.Rows - 1
@@ -192,7 +212,7 @@ ExitNow:
         Console.ForegroundColor = ConsoleColor.White
         Console.Write("Reading LiquidType.dbc... ")
 
-        Dim liquidDBC As New BufferedDBC("dbc\LiquidType.dbc")
+        Dim liquidDBC As New BufferedDbc("dbc\LiquidType.dbc")
 
         For i As Integer = 0 To liquidDBC.Rows - 1
             MapLiqTypes.Add(liquidDBC.Item(i, 0), liquidDBC.Item(i, 3))

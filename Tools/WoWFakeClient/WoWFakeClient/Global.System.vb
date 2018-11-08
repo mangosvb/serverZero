@@ -85,13 +85,13 @@ Public Module Global_System
         Public Sub SetConsoleColor(ByVal foreground As ForegroundColors, ByVal background As BackgroundColors, ByVal attribute As Attributes)
             Dim handle As IntPtr = GetStdHandle(STD_OUTPUT_HANDLE)
             If handle.Equals(InvalidHandleValue) Then
-                Throw New System.ComponentModel.Win32Exception
+                Throw New ComponentModel.Win32Exception
             End If
             ' We have to convert the integer flag values into a Unsigned Short (UInt16) to pass to the 
             ' SetConsoleTextAttribute API call.
-            Dim value As UInt16 = System.Convert.ToUInt16(foreground Or background Or attribute)
+            Dim value As UInt16 = Convert.ToUInt16(foreground Or background Or attribute)
             If Not SetConsoleTextAttribute(handle, value) Then
-                Throw New System.ComponentModel.Win32Exception
+                Throw New ComponentModel.Win32Exception
             End If
         End Sub
 

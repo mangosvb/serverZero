@@ -20,11 +20,11 @@ Imports System.Runtime.InteropServices
 
 Public Module Functions
 
-    Public Function SearchInFile(ByVal f As System.IO.Stream, ByVal s As String, Optional ByVal o As Integer = 0) As Integer
+    Public Function SearchInFile(ByVal f As IO.Stream, ByVal s As String, Optional ByVal o As Integer = 0) As Integer
         f.Seek(0, IO.SeekOrigin.Begin)
-        Dim r As New System.IO.BinaryReader(f)
+        Dim r As New IO.BinaryReader(f)
         Dim b1() As Byte = r.ReadBytes(f.Length)
-        Dim b2() As Byte = System.Text.ASCIIEncoding.ASCII.GetBytes(s)
+        Dim b2() As Byte = Text.Encoding.ASCII.GetBytes(s)
 
         For i As Integer = o To b1.Length - 1
             For j As Integer = 0 To b2.Length - 1
@@ -38,26 +38,26 @@ Public Module Functions
 
         Return -1
     End Function
-    Public Function SearchInFile(ByVal f As System.IO.Stream, ByVal v As Integer) As Integer
+    Public Function SearchInFile(ByVal f As IO.Stream, ByVal v As Integer) As Integer
         f.Seek(0, IO.SeekOrigin.Begin)
-        Dim r As New System.IO.BinaryReader(f)
+        Dim r As New IO.BinaryReader(f)
         Dim b1() As Byte = r.ReadBytes(f.Length)
         Dim b2() As Byte = BitConverter.GetBytes(v)
         'Array.Reverse(b2)
 
         For i As Integer = 0 To b1.Length - 1
             If i + 3 >= b1.Length Then Exit For
-            If b1(i) = b2(0) AndAlso _
-               b1(i + 1) = b2(1) AndAlso _
-               b1(i + 2) = b2(2) AndAlso _
+            If b1(i) = b2(0) AndAlso
+               b1(i + 1) = b2(1) AndAlso
+               b1(i + 2) = b2(2) AndAlso
                b1(i + 3) = b2(3) Then
                 Return i
             End If
         Next
 
-            Return -1
+        Return -1
     End Function
-    Public Function ReadString(ByVal f As System.IO.FileStream) As String
+    Public Function ReadString(ByVal f As IO.FileStream) As String
         Dim r As String = ""
         Dim t As Byte
 
@@ -76,7 +76,7 @@ Public Module Functions
         Return r
     End Function
 
-    Public Function ReadString(ByVal f As System.IO.FileStream, ByVal pos As Long) As String
+    Public Function ReadString(ByVal f As IO.FileStream, ByVal pos As Long) As String
         Dim r As String = ""
         Dim t As Byte
         If pos = -1 Then Return "*Nothing*"
@@ -154,7 +154,7 @@ Public Module Functions
         Return tmp
     End Function
 
-    <StructLayout(LayoutKind.Sequential)> _
+    <StructLayout(LayoutKind.Sequential)>
     Structure TypeEntry
         Public Name As Integer
         Public Offset As Integer
@@ -174,12 +174,12 @@ Public Module Functions
 
 
     Public Sub ExtractUpdateFields()
-        Dim f As New System.IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
-        Dim r1 As New System.IO.BinaryReader(f)
-        Dim r2 As New System.IO.StreamReader(f)
+        Dim f As New IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
+        Dim r1 As New IO.BinaryReader(f)
+        Dim r2 As New IO.StreamReader(f)
 
-        Dim o As New System.IO.FileStream("Global.UpdateFields.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
-        Dim w As New System.IO.StreamWriter(o)
+        Dim o As New IO.FileStream("Global.UpdateFields.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
+        Dim w As New IO.StreamWriter(o)
 
         Dim FIELD_NAME_OFFSET As Integer = SearchInFile(f, "CORPSE_FIELD_PAD")
         Dim OBJECT_FIELD_GUID As Integer = SearchInFile(f, "OBJECT_FIELD_GUID") + &H400000
@@ -297,12 +297,12 @@ Public Module Functions
         f.Close()
     End Sub
     Public Sub ExtractOpcodes()
-        Dim f As New System.IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
-        Dim r1 As New System.IO.BinaryReader(f)
-        Dim r2 As New System.IO.StreamReader(f)
+        Dim f As New IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
+        Dim r1 As New IO.BinaryReader(f)
+        Dim r2 As New IO.StreamReader(f)
 
-        Dim o As New System.IO.FileStream("Global.Opcodes.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
-        Dim w As New System.IO.StreamWriter(o)
+        Dim o As New IO.FileStream("Global.Opcodes.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
+        Dim w As New IO.StreamWriter(o)
 
         MsgBox(ReadString(f, SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")))
 
@@ -343,12 +343,12 @@ Public Module Functions
 
 
     Public Sub ExtractSpellFailedReason()
-        Dim f As New System.IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
-        Dim r1 As New System.IO.BinaryReader(f)
-        Dim r2 As New System.IO.StreamReader(f)
+        Dim f As New IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
+        Dim r1 As New IO.BinaryReader(f)
+        Dim r2 As New IO.StreamReader(f)
 
-        Dim o As New System.IO.FileStream("Global.SpellFailedReasons.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
-        Dim w As New System.IO.StreamWriter(o)
+        Dim o As New IO.FileStream("Global.SpellFailedReasons.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
+        Dim w As New IO.StreamWriter(o)
 
         Dim REASON_NAME_OFFSET As Integer = SearchInFile(f, "SPELL_FAILED_UNKNOWN")
 
@@ -373,7 +373,7 @@ Public Module Functions
             w.WriteLine()
             w.WriteLine("Public Enum SpellFailedReason As Byte")
 
-            I = 0
+            i = 0
             While Names.Count > 0
                 w.WriteLine("    {0,-64}' 0x{1:X3}", Names.Pop & " = &H" & Hex(i), i)
                 i += 1
@@ -389,12 +389,12 @@ Public Module Functions
 
 
     Public Sub ExtractChatTypes()
-        Dim f As New System.IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
-        Dim r1 As New System.IO.BinaryReader(f)
-        Dim r2 As New System.IO.StreamReader(f)
+        Dim f As New IO.FileStream("wow.exe", IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read, 10000000)
+        Dim r1 As New IO.BinaryReader(f)
+        Dim r2 As New IO.StreamReader(f)
 
-        Dim o As New System.IO.FileStream("Global.ChatTypes.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
-        Dim w As New System.IO.StreamWriter(o)
+        Dim o As New IO.FileStream("Global.ChatTypes.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
+        Dim w As New IO.StreamWriter(o)
 
         Dim START As Integer = SearchInFile(f, "CHAT_MSG_RAID_WARNING")
 

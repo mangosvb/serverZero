@@ -1,5 +1,4 @@
-﻿Imports System
-Imports System.Reflection
+﻿Imports System.Reflection
 Imports System.Runtime.InteropServices
 
 ' General Information about an assembly is controlled through the following 
@@ -8,17 +7,17 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("DBC Reader")> 
-<Assembly: AssemblyDescription("Used to read DBC files.")> 
-<Assembly: AssemblyCompany("UniX")> 
-<Assembly: AssemblyProduct("DBC Reader")> 
-<Assembly: AssemblyCopyright("Copyright © vWoW 2009")> 
-<Assembly: AssemblyTrademark("")> 
+<Assembly: AssemblyTitle("DBC Reader")>
+<Assembly: AssemblyDescription("Used to read DBC files.")>
+<Assembly: AssemblyCompany("UniX")>
+<Assembly: AssemblyProduct("DBC Reader")>
+<Assembly: AssemblyCopyright("Copyright © vWoW 2009")>
+<Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("8a7df65f-0b79-444c-9aa8-0e547855f16a")> 
+<Assembly: Guid("8a7df65f-0b79-444c-9aa8-0e547855f16a")>
 
 ' Version information for an assembly consists of the following four values:
 '
@@ -31,5 +30,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.0")> 
-<Assembly: AssemblyFileVersion("1.0.0.0")> 
+<Assembly: AssemblyVersion("1.0.0.0")>
+<Assembly: AssemblyFileVersion("1.0.0.0")>

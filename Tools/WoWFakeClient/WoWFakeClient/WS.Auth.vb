@@ -34,7 +34,7 @@ Public Module WS_Auth
 
         ServerSeed = Packet.GetUInt32
 
-        Dim temp() As Byte = System.Text.Encoding.ASCII.GetBytes(Account.ToCharArray)
+        Dim temp() As Byte = Text.Encoding.ASCII.GetBytes(Account.ToCharArray)
         temp = Concat(temp, BitConverter.GetBytes(0))
         temp = Concat(temp, BitConverter.GetBytes(ClientSeed))
         temp = Concat(temp, BitConverter.GetBytes(ServerSeed))

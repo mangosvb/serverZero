@@ -119,11 +119,11 @@
         Next
     End Sub
 
-    Private Sub frmDbcCompare_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+    Private Sub frmDbcCompare_Load(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Load
         UpdateCompare()
     End Sub
 
-    Private Sub lbSpells_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles lbSpells.SelectedIndexChanged
+    Private Sub lbSpells_SelectedIndexChanged(ByVal sender As Object, ByVal e As EventArgs) Handles lbSpells.SelectedIndexChanged
         If IndexChanged Then IndexChanged = False : Exit Sub
         If lbSpells.SelectedIndex < 0 Then Exit Sub
         IndexChanged = True
@@ -132,7 +132,7 @@
         lvDBC.Items(lbSpells.SelectedIndex).Selected = True
     End Sub
 
-    Private Sub lvDBC_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles lvDBC.SelectedIndexChanged
+    Private Sub lvDBC_SelectedIndexChanged(ByVal sender As Object, ByVal e As EventArgs) Handles lvDBC.SelectedIndexChanged
         If IndexChanged Then IndexChanged = False : Exit Sub
         If lvDBC.SelectedIndices.Count = 0 Then Exit Sub
         IndexChanged = True

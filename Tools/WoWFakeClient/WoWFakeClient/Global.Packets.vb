@@ -16,7 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.IO
 
 Public Module Packets
 
@@ -30,17 +29,17 @@ Public Module Packets
             If data.Length Mod 16 = 0 Then
                 For j = 0 To data.Length - 1 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & System.Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
                 Next
             Else
                 For j = 0 To data.Length - 1 - 16 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & System.Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
                 Next
 
                 buffer += "|  " & BitConverter.ToString(data, j, data.Length Mod 16).Replace("-", " ")
                 buffer += New String(" ", (16 - data.Length Mod 16) * 3)
-                buffer += " |  " & System.Text.Encoding.ASCII.GetString(data, j, data.Length Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
+                buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, data.Length Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
                 buffer += New String(" ", 16 - data.Length Mod 16)
                 buffer += " |" & vbNewLine
             End If
@@ -48,7 +47,7 @@ Public Module Packets
             Console.WriteLine(buffer)
             '#End If
         Catch e As Exception
-            ConsoleColor.SetConsoleColor(Global_System.ConsoleColorClass.ForegroundColors.Red)
+            ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.Red)
             Console.WriteLine("Error dumping packet: {0}{1}", vbNewLine, e.ToString)
             ConsoleColor.SetConsoleColor()
         End Try
@@ -164,7 +163,7 @@ Public Module Packets
             If IsDBNull(buffer) Or buffer = "" Then
                 Me.AddInt8(0)
             Else
-                Dim Bytes As Byte() = System.Text.Encoding.UTF8.GetBytes(buffer.ToCharArray)
+                Dim Bytes As Byte() = Text.Encoding.UTF8.GetBytes(buffer.ToCharArray)
 
                 Dim Position As Integer = Data.Length
                 If EndZero Then
@@ -191,7 +190,7 @@ Public Module Packets
                 End If
 
                 If EndZero Then Data(Position) = 0
-                End If
+            End If
         End Sub
         Public Sub AddDouble(ByVal buffer2 As Double)
             Dim buffer1 As Byte() = BitConverter.GetBytes(buffer2)
@@ -366,7 +365,7 @@ Public Module Packets
             End While
             Offset = Offset + 1
 
-            Return System.Text.Encoding.UTF8.GetString(Data, start, i)
+            Return Text.Encoding.UTF8.GetString(Data, start, i)
         End Function
         Public Function GetString(ByVal Offset As Integer) As String
             Dim i As Integer = Offset
@@ -501,7 +500,7 @@ Public Module Packets
         End Function
 
 
-        Public Sub Dispose() Implements System.IDisposable.Dispose
+        Public Sub Dispose() Implements IDisposable.Dispose
         End Sub
     End Class
 

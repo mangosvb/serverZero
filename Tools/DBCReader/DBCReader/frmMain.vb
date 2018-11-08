@@ -16,9 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System
 Imports System.IO
-Imports System.Object
 
 Public Class frmMain
 
@@ -27,7 +25,7 @@ Public Class frmMain
 
     Private StringData() As Byte = {}
 
-    Private Sub cmdBrowse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdBrowse.Click
+    Private Sub cmdBrowse_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdBrowse.Click
         Dim fdlg As OpenFileDialog = New OpenFileDialog()
         fdlg.Title = "Which DBC You Want to View"
         fdlg.Filter = "DBC File (*.dbc)|*.dbc"
@@ -64,7 +62,7 @@ Public Class frmMain
         Dim tmpStr(Columns - 1) As String, AmtZero(Columns - 1) As Integer, foundStrings(Columns - 1) As List(Of Integer)
 
         For i = 0 To Columns - 1
-            Dim tmpColumn As New System.Windows.Forms.ColumnHeader
+            Dim tmpColumn As New ColumnHeader
             tmpColumn.Text = CStr(i)
             tmpColumn.Width = 90
             DBCData.Columns.Add(tmpColumn)
@@ -195,7 +193,7 @@ Public Class frmMain
         Return True
     End Function
 
-    Private Sub DBCData_ColumnClick(ByVal sender As Object, ByVal e As System.Windows.Forms.ColumnClickEventArgs) Handles DBCData.ColumnClick
+    Private Sub DBCData_ColumnClick(ByVal sender As Object, ByVal e As ColumnClickEventArgs) Handles DBCData.ColumnClick
         Dim i As Integer, tmpInt As Integer, tmpSng As Single, Buffer(3) As Byte, A_Float As Boolean, A_String As Boolean
         Dim FailString As Boolean = False, DoneChange As Boolean = False, tmpInt2 As Integer
         If DBCData.Items.Count = 0 Then Exit Sub
@@ -260,10 +258,10 @@ Public Class frmMain
             If Data(i) = 0 Then Exit For
         Next
         If i = Index Then Return ""
-        Return System.Text.ASCIIEncoding.ASCII.GetString(Data, Index, i - Index)
+        Return System.Text.Encoding.ASCII.GetString(Data, Index, i - Index)
     End Function
 
-    Private Sub cmdSearch_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdSearch.Click
+    Private Sub cmdSearch_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdSearch.Click
         If cmbColumn.Items.Count = 0 Then MsgBox("To be able to search you must first open up a DBC File!", MsgBoxStyle.Exclamation, "Unable to search") : Exit Sub
         If cmbColumn.SelectedItem Is Nothing Then MsgBox("You must select a column to search in first!", MsgBoxStyle.Exclamation, "Unable to search") : Exit Sub
 
@@ -298,7 +296,7 @@ Public Class frmMain
         MsgBox("No result for that search was found!" & vbNewLine & vbNewLine & "Do note that the search starts from your current selection.", MsgBoxStyle.Information, "No result found")
     End Sub
 
-    Private Sub txtQuery_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtQuery.KeyDown
+    Private Sub txtQuery_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles txtQuery.KeyDown
         If e.KeyCode = Keys.Enter Then
             cmdSearch.PerformClick()
         End If

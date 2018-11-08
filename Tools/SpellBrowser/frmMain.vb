@@ -27,7 +27,7 @@ Public Class frmMain
     Private FilterAttributesEx2 As UInteger = 0
     Private LastSelected As Integer = 0
 
-    Private Sub frmMain_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+    Private Sub frmMain_Load(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Load
         frmLoad.Show()
 
         LoadDBCs()
@@ -35,7 +35,7 @@ Public Class frmMain
         frmLoad.Close()
     End Sub
 
-    Private Sub cmdFilter_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdFilter.Click
+    Private Sub cmdFilter_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdFilter.Click
         FilterText = txtName.Text.ToUpper()
         If Integer.TryParse(txtID.Text, FilterID) = False Then
             FilterID = 0
@@ -65,7 +65,7 @@ Public Class frmMain
         ListSpells()
     End Sub
 
-    Private Sub cmdReset_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdReset.Click
+    Private Sub cmdReset_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdReset.Click
         FilterText = ""
         FilterID = 0
         txtID.Text = ""
@@ -139,7 +139,7 @@ Public Class frmMain
         frmLoad.Close()
     End Sub
 
-    Private Sub lvSpells_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles lvSpells.DoubleClick
+    Private Sub lvSpells_DoubleClick(ByVal sender As Object, ByVal e As EventArgs) Handles lvSpells.DoubleClick
         If lvSpells.SelectedItems.Count = 0 Then Exit Sub
 
         Dim SpellID As Integer = CInt(lvSpells.SelectedItems(0).Text)
@@ -151,7 +151,7 @@ Public Class frmMain
         End If
     End Sub
 
-    Private Sub lvSpells_MouseMove(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles lvSpells.MouseMove
+    Private Sub lvSpells_MouseMove(ByVal sender As Object, ByVal e As MouseEventArgs) Handles lvSpells.MouseMove
         Dim hoverItem As ListViewItem = lvSpells.GetItemAt(e.X, e.Y)
         If hoverItem IsNot Nothing Then
             Dim SpellID As Integer = CInt(hoverItem.Text)
@@ -204,22 +204,22 @@ Public Class frmMain
         End If
     End Sub
 
-    Private Sub frmMain_MouseMove(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Me.MouseMove
+    Private Sub frmMain_MouseMove(ByVal sender As Object, ByVal e As MouseEventArgs) Handles Me.MouseMove
         LastSelected = 0
         pSpellInfo.Visible = False
     End Sub
 
-    Private Sub pSpellInfo_MouseMove(ByVal sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles pSpellInfo.MouseMove
+    Private Sub pSpellInfo_MouseMove(ByVal sender As Object, ByVal e As MouseEventArgs) Handles pSpellInfo.MouseMove
         pSpellInfo.Location = New Point(pSpellInfo.Location.X + e.X + 10, pSpellInfo.Location.Y + e.Y + 10)
     End Sub
 
-    Private Sub txtName_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtName.KeyDown
+    Private Sub txtName_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles txtName.KeyDown
         If e.KeyCode = Keys.Enter Then
             cmdFilter_Click(txtName, New EventArgs())
         End If
     End Sub
 
-    Private Sub cmdOpenCompare_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdOpenCompare.Click
+    Private Sub cmdOpenCompare_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdOpenCompare.Click
         frmDbcCompare.Show()
     End Sub
 End Class

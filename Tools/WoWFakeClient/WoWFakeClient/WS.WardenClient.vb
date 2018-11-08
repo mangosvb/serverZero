@@ -496,16 +496,16 @@ Public Module WS_WardenClient
         Public Delegate Function SetRC4DataDelegate(ByVal lpKeys As Integer, ByVal dwSize As Integer) As Integer
         Public Delegate Function GetRC4DataDelegate(ByVal lpBuffer As Integer, ByRef dwSize As Integer) As Integer
 
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Function InitializeModule(ByVal lpPtr2Table As Integer) As Integer
 
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub GenerateRC4KeysDelegate(ByVal ppFncList As Integer, ByVal lpData As Integer, ByVal dwSize As Integer)
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub UnloadModuleDelegate(ByVal ppFncList As Integer)
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub PacketHandlerDelegate(ByVal ppFncList As Integer, ByVal pPacket As Integer, ByVal dwSize As Integer, ByVal dwBuffer As Integer)
-        <UnmanagedFunctionPointer(CallingConvention.ThisCall)> _
+        <UnmanagedFunctionPointer(CallingConvention.ThisCall)>
         Public Delegate Sub TickDelegate(ByVal ppFncList As Integer, ByVal dwTick As Integer)
 
         Private SendPacketD As SendPacketDelegate = Nothing
@@ -632,33 +632,33 @@ Public Module WS_WardenClient
 
 #Region "Module Handlers"
 
-        <StructLayout(LayoutKind.Explicit, Size:=&H1C)> _
+        <StructLayout(LayoutKind.Explicit, Size:=&H1C)>
         Private Structure FuncList
-            <FieldOffset(&H0)> _
+            <FieldOffset(&H0)>
             Public fpSendPacket As Integer
-            <FieldOffset(&H4)> _
-           Public fpCheckModule As Integer
-            <FieldOffset(&H8)> _
-           Public fpLoadModule As Integer
-            <FieldOffset(&HC)> _
-           Public fpAllocateMemory As Integer
-            <FieldOffset(&H10)> _
-           Public fpReleaseMemory As Integer
-            <FieldOffset(&H14)> _
-           Public fpSetRC4Data As Integer
-            <FieldOffset(&H18)> _
-           Public fpGetRC4Data As Integer
+            <FieldOffset(&H4)>
+            Public fpCheckModule As Integer
+            <FieldOffset(&H8)>
+            Public fpLoadModule As Integer
+            <FieldOffset(&HC)>
+            Public fpAllocateMemory As Integer
+            <FieldOffset(&H10)>
+            Public fpReleaseMemory As Integer
+            <FieldOffset(&H14)>
+            Public fpSetRC4Data As Integer
+            <FieldOffset(&H18)>
+            Public fpGetRC4Data As Integer
         End Structure
 
-        <StructLayout(LayoutKind.Explicit, Size:=&H10)> _
+        <StructLayout(LayoutKind.Explicit, Size:=&H10)>
         Private Structure WardenFuncList
-            <FieldOffset(&H0)> _
+            <FieldOffset(&H0)>
             Public fpGenerateRC4Keys As Integer
-            <FieldOffset(&H4)> _
+            <FieldOffset(&H4)>
             Public fpUnload As Integer
-            <FieldOffset(&H8)> _
+            <FieldOffset(&H8)>
             Public fpPacketHandler As Integer
-            <FieldOffset(&HC)> _
+            <FieldOffset(&HC)>
             Public fpTick As Integer
         End Structure
 

@@ -20,7 +20,7 @@ Public Class frmSpellInfo
 
     Private SpellID As Integer = 0
 
-    Private Sub frmSpellInfo_Disposed(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Disposed
+    Private Sub frmSpellInfo_Disposed(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Disposed
         If OpenSpells.ContainsKey(SpellID) Then OpenSpells.Remove(SpellID)
     End Sub
 
@@ -33,7 +33,7 @@ Public Class frmSpellInfo
 
         If SPELLs(SpellID).SpellIconID > 0 AndAlso SpellIcon.ContainsKey(SPELLs(SpellID).SpellIconID) Then
             Dim IconPath As String = "icons\" & SpellIcon(SPELLs(SpellID).SpellIconID) & ".jpg"
-            If System.IO.File.Exists(IconPath) Then
+            If IO.File.Exists(IconPath) Then
                 picIcon.Image = Image.FromFile(IconPath)
             End If
         End If
@@ -226,7 +226,7 @@ Public Class frmSpellInfo
         If (Attributes And SpellAttributesEx2.SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) Then SpellDetails.Add("Doesn't Need Shapeshift")
     End Sub
 
-    Private Sub frmSpellInfo_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles Me.KeyDown
+    Private Sub frmSpellInfo_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles Me.KeyDown
         If e.Shift AndAlso e.KeyCode = Keys.C Then
             If CompareSpells.Contains(SpellID) = False Then
                 CompareSpells.Add(SpellID)

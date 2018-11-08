@@ -40,15 +40,15 @@ Module Main
         Dim fs2 As FileStream = Nothing
 
         Try
-            Console.BackgroundColor = System.ConsoleColor.Black
+            Console.BackgroundColor = ConsoleColor.Black
             Console.Title = String.Format("{0} v{1}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 
-            Console.ForegroundColor = System.ConsoleColor.Yellow
+            Console.ForegroundColor = ConsoleColor.Yellow
             Console.WriteLine("{0}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyProductAttribute), False)(0), AssemblyProductAttribute).Product)
             Console.WriteLine(CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyCopyrightAttribute), False)(0), AssemblyCopyrightAttribute).Copyright)
             Console.WriteLine()
 
-            Console.ForegroundColor = System.ConsoleColor.Magenta
+            Console.ForegroundColor = ConsoleColor.Magenta
             Console.WriteLine("http://www.getMangos.co.uk")
             Console.WriteLine()
 
@@ -129,14 +129,14 @@ Module Main
                 GoTo ExitNow
             End If
             fs = New FileStream(DBFile, FileMode.Open, FileAccess.Read, FileShare.Read)
-            Dim br As New IO.StreamReader(fs)
+            Dim br As New StreamReader(fs)
             fs.Seek(0, SeekOrigin.Begin)
             Console.ForegroundColor = ConsoleColor.Yellow
             Console.WriteLine("Done.")
 
             Console.Write("Creating file... ")
             fs2 = New FileStream("patch.sql", FileMode.Create, FileAccess.Write, FileShare.Read)
-            Dim bw As New IO.StreamWriter(fs2)
+            Dim bw As New StreamWriter(fs2)
             bw.AutoFlush = True
             Console.ForegroundColor = ConsoleColor.Yellow
             Console.WriteLine("Done.")
@@ -835,7 +835,7 @@ ExitNow:
 #Region "Control Table"
     Public Sub ControlTable(ByVal DBFile As String, ByRef bw As StreamWriter, ByVal table As String, ByVal start As Long)
         Dim fs As New FileStream(DBFile, FileMode.Open, FileAccess.Read, FileShare.Read)
-        Dim br As New IO.StreamReader(fs)
+        Dim br As New StreamReader(fs)
 
         br.BaseStream.Seek(0, SeekOrigin.Begin)
 
