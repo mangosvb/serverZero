@@ -171,6 +171,10 @@
     <Compile Include="Enums\Spells.Enum.vb" />
     <Compile Include="Enums\Unit.Enum.vb" />
     <Compile Include="Enums\Warden.Enum.vb" />
+    <Compile Include="Logging\LogFile.vb" />
+    <Compile Include="Logging\Logger.vb" />
+    <Compile Include="Logging\Logs.vb" />
+    <Compile Include="Logging\LogTypes.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
