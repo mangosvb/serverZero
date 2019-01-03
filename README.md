@@ -40,7 +40,7 @@ Please see our compilation and installation guides at our [Wiki][20]
 
 *MaNGOSVB* is open source, and licensed under the terms of the GNU GPL version 2.
 
-  Copyright (C) 2005-2018  MaNGOS <https://getmangos.eu>
+  Copyright (C) 2005-2019  MaNGOS <https://getmangos.eu>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

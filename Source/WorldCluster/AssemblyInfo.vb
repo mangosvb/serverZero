@@ -1,5 +1,5 @@
 '
-' Copyright (C) 2013 - 2018 getMaNGOS <https://getmangos.eu>
+' Copyright (C) 2013-2019 getMaNGOS <https://getmangos.eu>
 '
 ' This program is free software; you can redistribute it and/or modify
 ' it under the terms of the GNU General Public License as published by
@@ -25,16 +25,16 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("WorldCluster")> 
-<Assembly: AssemblyDescription("World Cluster part of MaNGOSvb Server Emulator.")> 
-<Assembly: AssemblyCompany("getMaNGOS")> 
+<Assembly: AssemblyTitle("WorldCluster")>
+<Assembly: AssemblyDescription("World Cluster part of MaNGOSvb Server Emulator.")>
+<Assembly: AssemblyCompany("getMaNGOS")>
 <Assembly: AssemblyProduct("MaNGOSvb Server Pack")>
-<Assembly: AssemblyCopyright("Copyright (C) 2017 - 2018, getMaNGOS")>
-<Assembly: AssemblyTrademark("")> 
-<Assembly: CLSCompliant(False)> 
+<Assembly: AssemblyCopyright("Copyright (C) 2017-2019, getMaNGOS.eu")>
+<Assembly: AssemblyTrademark("")>
+<Assembly: CLSCompliant(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("186B6D35-EDED-46C8-BC5E-292D4FCCDBE8")> 
+<Assembly: Guid("186B6D35-EDED-46C8-BC5E-292D4FCCDBE8")>
 
 ' Version information for an assembly consists of the following four values:
 '
