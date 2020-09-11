@@ -457,8 +457,6 @@ Public Module WorldCluster
 
     <MTAThread()>
     Public Sub Main()
-        timeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
-
         Console.BackgroundColor = ConsoleColor.Black
         Dim assemblyTitleAttribute As AssemblyTitleAttribute = CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute)
         Console.Title = $"{assemblyTitleAttribute.Title } v{[Assembly].GetExecutingAssembly().GetName().Version }"

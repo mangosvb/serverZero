@@ -100,24 +100,9 @@ Public Module NativeMethods
         Return RAND_bytes(buf, num)
     End Function
 
-#If LINUX Then
-    Public Function timeGetTime("")() As Integer
-        Return System.Environment.TickCount()
-    End Function
-    Public Function timeBeginPeriod(ByVal uPeriod As Integer) As Integer
-        Return 0
-    End Function
-#Else
-    Private Declare Function timeGetTime Lib "winmm.dll" () As Integer
-    Private Declare Function timeBeginPeriod Lib "winmm.dll" (ByVal uPeriod As Integer) As Integer
-
     Public Function timeGetTime(ByVal dummy As String) As Integer
-        Return timeGetTime()
+        Return Environment.TickCount()
     End Function
-    Public Function timeBeginPeriod(ByVal uPeriod As Integer, ByVal dummy As String) As Integer
-        Return timeBeginPeriod(uPeriod)
-    End Function
-#End If
 
     Private Declare Function BN_div Lib "LIBEAY32" (ByVal dv As IntPtr, ByVal remainder As IntPtr, ByVal a As IntPtr, ByVal d As IntPtr, ByVal ctx As IntPtr) As Integer
 
