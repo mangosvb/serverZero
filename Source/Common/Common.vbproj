@@ -19,11 +19,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Meebey.SmartIrc4net, Version=0.4.0.34161, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\Meebey.SmartIrc4net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.vbproj" />
@@ -35,11 +30,9 @@
     <Content Include="libeay32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Meebey.SmartIrc4net.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MySql.Data" Version="8.0.21" />
+    <PackageReference Include="SmartIrc4net" Version="1.1.0" />
   </ItemGroup>
 </Project>

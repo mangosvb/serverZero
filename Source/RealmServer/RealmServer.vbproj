@@ -20,11 +20,6 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\Common\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Meebey.SmartIrc4net, Version=0.4.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common\Meebey.SmartIrc4net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="ICSharpCode.SharpZipLib" />
