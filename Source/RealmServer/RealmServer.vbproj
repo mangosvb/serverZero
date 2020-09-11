@@ -17,18 +17,8 @@
     <Version>2.0.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <Import Include="ICSharpCode.SharpZipLib" />
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vbproj">
-      <Project>{0697622c-938d-4486-a3a4-d438d0b7503f}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Shared\Shared.vbproj">
-      <Project>{d374bd81-7e5b-4d16-917e-a2671db1e640}</Project>
-      <Name>Shared</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.vbproj" />
+    <ProjectReference Include="..\Shared\Shared.vbproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
