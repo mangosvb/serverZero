@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.2037
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Common", "..\Source\Common\Common.vbproj", "{0697622C-938D-4486-A3A4-D438D0B7503F}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Common", "..\Source\Common\Common.vbproj", "{0697622C-938D-4486-A3A4-D438D0B7503F}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SpellBrowser", "SpellBrowser\SpellBrowser.vbproj", "{F1BB35A3-3B80-4A21-949E-BF40437A7344}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Shared", "..\Source\Shared\Shared.vbproj", "{D374BD81-7E5B-4D16-917E-A2671DB1E640}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Shared", "..\Source\Shared\Shared.vbproj", "{D374BD81-7E5B-4D16-917E-A2671DB1E640}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "DBCExtractor", "DBCExtractor\DBCExtractor.vbproj", "{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}"
 EndProject
@@ -31,8 +31,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0697622C-938D-4486-A3A4-D438D0B7503F}.Debug|x64.ActiveCfg = Debug|x64
 		{0697622C-938D-4486-A3A4-D438D0B7503F}.Debug|x64.Build.0 = Debug|x64
-		{0697622C-938D-4486-A3A4-D438D0B7503F}.Debug|x86.ActiveCfg = Debug|x86
-		{0697622C-938D-4486-A3A4-D438D0B7503F}.Debug|x86.Build.0 = Debug|x86
+		{0697622C-938D-4486-A3A4-D438D0B7503F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0697622C-938D-4486-A3A4-D438D0B7503F}.Debug|x86.Build.0 = Debug|Any CPU
 		{0697622C-938D-4486-A3A4-D438D0B7503F}.Release|x64.ActiveCfg = Release|x64
 		{0697622C-938D-4486-A3A4-D438D0B7503F}.Release|x64.Build.0 = Release|x64
 		{0697622C-938D-4486-A3A4-D438D0B7503F}.Release|x86.ActiveCfg = Release|x86
@@ -47,16 +47,16 @@ Global
 		{F1BB35A3-3B80-4A21-949E-BF40437A7344}.Release|x86.Build.0 = Release|x86
 		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Debug|x64.ActiveCfg = Debug|x64
 		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Debug|x64.Build.0 = Debug|x64
-		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Debug|x86.ActiveCfg = Debug|x86
-		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Debug|x86.Build.0 = Debug|x86
+		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Debug|x86.Build.0 = Debug|Any CPU
 		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Release|x64.ActiveCfg = Release|x64
 		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Release|x64.Build.0 = Release|x64
 		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Release|x86.ActiveCfg = Release|x86
 		{D374BD81-7E5B-4D16-917E-A2671DB1E640}.Release|x86.Build.0 = Release|x86
 		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Debug|x64.Build.0 = Debug|Any CPU
-		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Debug|x86.ActiveCfg = Debug|x86
-		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Debug|x86.Build.0 = Debug|x86
+		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Debug|x86.Build.0 = Debug|Any CPU
 		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Release|x64.ActiveCfg = Release|Any CPU
 		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Release|x64.Build.0 = Release|Any CPU
 		{DF00F39B-E62B-4090-A18A-4C5A91CFC63E}.Release|x86.ActiveCfg = Release|x86
