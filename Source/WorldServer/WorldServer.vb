@@ -257,8 +257,6 @@ Public Module WorldServer
 
     <MTAThread()>
     Sub Main()
-        TimeBeginPeriod(1, "")  'Set timeGetTime("") to a accuracy of 1ms
-
         Console.BackgroundColor = ConsoleColor.Black
         Console.Title = String.Format("{0} v{1}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 
@@ -300,13 +298,13 @@ Public Module WorldServer
         LoadConfig()
 
         Console.ForegroundColor = ConsoleColor.Gray
-        AddHandler AccountDatabase.SqlMessage, AddressOf AccountSQLEventHandler
-        AddHandler CharacterDatabase.SqlMessage, AddressOf CharacterSQLEventHandler
-        AddHandler WorldDatabase.SqlMessage, AddressOf WorldSQLEventHandler
+        AddHandler AccountDatabase.SQLMessage, AddressOf AccountSQLEventHandler
+        AddHandler CharacterDatabase.SQLMessage, AddressOf CharacterSQLEventHandler
+        AddHandler WorldDatabase.SQLMessage, AddressOf WorldSQLEventHandler
 
         Dim ReturnValues As Integer
         ReturnValues = AccountDatabase.Connect()
-        If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
             Console.WriteLine("* Press any key to exit *")
@@ -317,7 +315,7 @@ Public Module WorldServer
         AccountDatabase.Update("SET NAMES 'utf8';")
 
         ReturnValues = CharacterDatabase.Connect()
-        If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
             Console.WriteLine("* Press any key to exit *")
@@ -328,7 +326,7 @@ Public Module WorldServer
         CharacterDatabase.Update("SET NAMES 'utf8';")
 
         ReturnValues = WorldDatabase.Connect()
-        If ReturnValues > Sql.ReturnState.Success Then   'Ok, An error occurred
+        If ReturnValues > SQL.ReturnState.Success Then   'Ok, An error occurred
             Console.WriteLine("[{0}] An SQL Error has occurred", Format(TimeOfDay, "hh:mm:ss"))
             Console.WriteLine("*************************")
             Console.WriteLine("* Press any key to exit *")
