@@ -33,7 +33,4 @@
     <ProjectReference Include="..\Common\Common.vbproj" />
     <ProjectReference Include="..\Shared\Shared.vbproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
 </Project>
