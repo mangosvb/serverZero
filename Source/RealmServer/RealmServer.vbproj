@@ -21,9 +21,6 @@
     <ProjectReference Include="..\Shared\Shared.vbproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="realmd.ico" />
   </ItemGroup>
 </Project>
