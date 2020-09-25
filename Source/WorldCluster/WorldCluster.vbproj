@@ -8,7 +8,6 @@
     <StartupObject>Sub Main</StartupObject>
     <OutputPath>..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <PlatformTarget>x86</PlatformTarget>
     <AssemblyTitle>WorldCluster</AssemblyTitle>
     <Description>Common Library part of MaNGOSvb Server Emulator</Description>
     <Company>getMaNGOS</Company>
@@ -18,9 +17,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Runtime.Remoting" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="mvb0___vanilla_256x256.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vbproj" />

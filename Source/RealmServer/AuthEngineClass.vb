@@ -21,11 +21,12 @@ Imports mangosVB.Common
 
 Public NotInheritable Class AuthEngineClass
     Implements IDisposable
+    Private Shared ReadOnly _random As New Random
     Private ReadOnly _log As New Logging.BaseWriter
 
     Shared Sub New()
         CrcSalt = New Byte(16 - 1) {}
-        RAND_bytes(CrcSalt, 16, "")
+        _random.NextBytes(CrcSalt)
     End Sub
 
     Public Sub New()
@@ -45,21 +46,19 @@ Public NotInheritable Class AuthEngineClass
 
     Private Sub CalculateB()
         ' Dim encoding1 As New UTF7Encoding
-        RAND_bytes(_b, 20, "")
-        Dim ptr1 As IntPtr = BN_new("")
-        Dim ptr2 As IntPtr = BN_new("")
-        Dim ptr3 As IntPtr = BN_new("")
+        _random.NextBytes(_b)
+        Dim ptr1 As New BigInteger
+        Dim ptr2 As New BigInteger
+        Dim ptr3 As New BigInteger
         ' Dim ptr4 As IntPtr = BN_new("")
-        _bnPublicB = BN_new("")
-        Dim ptr5 As IntPtr = BN_CTX_new("")
         Array.Reverse(_b)
-        _bNb = BN_bin2bn(_b, _b.Length, IntPtr.Zero, "")
+        _bNb = New BigInteger(_b)
         Array.Reverse(_b)
-        BN_mod_exp(ptr1, _bNg, _bNb, _bNn, ptr5, "")
-        BN_mul(ptr2, _bNk, _bNv, ptr5, "")
-        BN_add(ptr3, ptr1, ptr2, "")
-        BN_mod(_bnPublicB, ptr3, _bNn, ptr5, "")
-        BN_bn2bin(_bnPublicB, PublicB, "")
+        ptr1 = _bNg.modPow(_bNb, _bNn)
+        ptr2 = _bNk * _bNv
+        ptr3 = ptr1 + ptr2
+        _bnPublicB = ptr3 Mod _bNn
+        PublicB = _bnPublicB.getBytes()
         Array.Reverse(PublicB)
     End Sub
 
@@ -82,17 +81,17 @@ Public NotInheritable Class AuthEngineClass
     End Sub
 
     Private Sub CalculateS()
-        Dim ptr1 As IntPtr = BN_new("")
-        Dim ptr2 As IntPtr = BN_new("")
+        Dim ptr1 As New BigInteger
+        Dim ptr2 As New BigInteger
         'Dim ptr3 As IntPtr = BN_new("")
         'Dim ptr4 As IntPtr = BN_new("")
-        _bns = BN_new("")
-        Dim ptr5 As IntPtr = BN_CTX_new("")
+        _bns = New BigInteger
         _s = New Byte(32 - 1) {}
-        BN_mod_exp(ptr1, _bNv, _bnu, _bNn, ptr5, "")
-        BN_mul(ptr2, _bna, ptr1, ptr5, "")
-        BN_mod_exp(_bns, ptr2, _bNb, _bNn, ptr5, "")
-        BN_bn2bin(_bns, _s, "")
+
+        ptr1 = _bNv.modPow(_bnu, _bNn)
+        ptr2 = _bna * ptr1
+        _bns = ptr2.modPow(_bNb, _bNn)
+        _s = _bns.getBytes()
         Array.Reverse(_s)
         CalculateK()
     End Sub
@@ -105,18 +104,16 @@ Public NotInheritable Class AuthEngineClass
         Buffer.BlockCopy(PublicB, 0, buffer1, a.Length, PublicB.Length)
         _u = algorithm1.ComputeHash(buffer1)
         Array.Reverse(_u)
-        _bnu = BN_bin2bn(_u, _u.Length, IntPtr.Zero, "")
+        _bnu = New BigInteger(_u)
         Array.Reverse(_u)
         Array.Reverse(a)
-        _bna = BN_bin2bn(a, a.Length, IntPtr.Zero, "")
+        _bna = New BigInteger(a)
         Array.Reverse(a)
         CalculateS()
     End Sub
 
     Private Sub CalculateV()
-        _bNv = BN_new("")
-        Dim ptr1 As IntPtr = BN_CTX_new("")
-        BN_mod_exp(_bNv, _bNg, _bNx, _bNn, ptr1, "")
+        _bNv = _bNg.modPow(_bNx, _bNn)
         CalculateB()
     End Sub
 
@@ -133,15 +130,15 @@ Public NotInheritable Class AuthEngineClass
         Buffer.BlockCopy(Salt, 0, buffer5, 0, Salt.Length)
         buffer3 = algorithm1.ComputeHash(buffer5)
         Array.Reverse(buffer3)
-        _bNx = BN_bin2bn(buffer3, buffer3.Length, IntPtr.Zero, "")
+        _bNx = New BigInteger(buffer3)
         Array.Reverse(g)
-        _bNg = BN_bin2bn(g, g.Length, IntPtr.Zero, "")
+        _bNg = New BigInteger(g)
         Array.Reverse(g)
         Array.Reverse(_k)
-        _bNk = BN_bin2bn(_k, _k.Length, IntPtr.Zero, "")
+        _bNk = New BigInteger(_k)
         Array.Reverse(_k)
         Array.Reverse(N)
-        _bNn = BN_bin2bn(N, N.Length, IntPtr.Zero, "")
+        _bNn = New BigInteger(N)
         Array.Reverse(N)
         CalculateV()
     End Sub
@@ -275,7 +272,7 @@ Public NotInheritable Class AuthEngineClass
 
     Private _a As Byte()
     Private ReadOnly _b As Byte()
-    Public ReadOnly PublicB As Byte()
+    Public PublicB As Byte()
     Public g As Byte()
     Private ReadOnly _k As Byte()
     'Private PublicK As Byte() = SS_Hash
@@ -292,16 +289,16 @@ Public NotInheritable Class AuthEngineClass
     Public M1 As Byte()
     Public SsHash As Byte()
 
-    Private _bna As IntPtr
-    Private _bNb As IntPtr
-    Private _bnPublicB As IntPtr
-    Private _bNg As IntPtr
-    Private _bNk As IntPtr
-    Private _bNn As IntPtr
-    Private _bns As IntPtr
-    Private _bnu As IntPtr
-    Private _bNv As IntPtr
-    Private _bNx As IntPtr
+    Private _bna As BigInteger
+    Private _bNb As BigInteger
+    Private _bnPublicB As BigInteger
+    Private _bNg As BigInteger
+    Private _bNk As BigInteger
+    Private _bNn As BigInteger
+    Private _bns As BigInteger
+    Private _bnu As BigInteger
+    Private _bNv As BigInteger
+    Private _bNx As BigInteger
 
 #Region "IDisposable Support"
 
