@@ -8,7 +8,6 @@
     <StartupObject>mangosVB.WorldServer.WorldServer</StartupObject>
     <OutputPath>..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <PlatformTarget>x86</PlatformTarget>
     <AssemblyTitle>WorldServer</AssemblyTitle>
     <Description>Common Library part of MaNGOSvb Server Emulator</Description>
     <Company>getMaNGOS</Company>
