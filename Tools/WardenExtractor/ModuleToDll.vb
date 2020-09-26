@@ -17,8 +17,8 @@
 '
 
 Imports System.IO
+Imports System.Numerics
 Imports System.Security.Cryptography
-Imports Emil.GMP
 
 Public Module Module_ModuleToDll
     Public Sub ModulesToDlls()
@@ -182,11 +182,11 @@ Public Module Module_ModuleToDll
     End Sub
 
     Public Function CheckSignature(ByVal Signature() As Byte, ByVal Data() As Byte, ByVal DataLen As Integer) As Boolean
-        Dim power As New BigInt(New Byte() {&H1, &H0, &H1, &H0})
-        Dim pmod As New BigInt(New Byte() {&H6B, &HCE, &HF5, &H2D, &H2A, &H7D, &H7A, &H67, &H21, &H21, &H84, &HC9, &HBC, &H25, &HC7, &HBC, &HDF, &H3D, &H8F, &HD9, &H47, &HBC, &H45, &H48, &H8B, &H22, &H85, &H3B, &HC5, &HC1, &HF4, &HF5, &H3C, &HC, &H49, &HBB, &H56, &HE0, &H3D, &HBC, &HA2, &HD2, &H35, &HC1, &HF0, &H74, &H2E, &H15, &H5A, &H6, &H8A, &H68, &H1, &H9E, &H60, &H17, &H70, &H8B, &HBD, &HF8, &HD5, &HF9, &H3A, &HD3, &H25, &HB2, &H66, &H92, &HBA, &H43, &H8A, &H81, &H52, &HF, &H64, &H98, &HFF, &H60, &H37, &HAF, &HB4, &H11, &H8C, &HF9, &H2E, &HC5, &HEE, &HCA, &HB4, &H41, &H60, &H3C, &H7D, &H2, &HAF, &HA1, &H2B, &H9B, &H22, &H4B, &H3B, &HFC, &HD2, &H5D, &H73, &HE9, &H29, &H34, &H91, &H85, &H93, &H4C, &HBE, &HBE, &H73, &HA9, &HD2, &H3B, &H27, &H7A, &H47, &H76, &HEC, &HB0, &H28, &HC9, &HC1, &HDA, &HEE, &HAA, &HB3, &H96, &H9C, &H1E, &HF5, &H6B, &HF6, &H64, &HD8, &H94, &H2E, &HF1, &HF7, &H14, &H5F, &HA0, &HF1, &HA3, &HB9, &HB1, &HAA, &H58, &H97, &HDC, &H9, &H17, &HC, &H4, &HD3, &H8E, &H2, &H2C, &H83, &H8A, &HD6, &HAF, &H7C, &HFE, &H83, &H33, &HC6, &HA8, &HC3, &H84, &HEF, &H29, &H6, &HA9, &HB7, &H2D, &H6, &HB, &HD, &H6F, &H70, &H9E, &H34, &HA6, &HC7, &H31, &HBE, &H56, &HDE, &HDD, &H2, &H92, &HF8, &HA0, &H58, &HB, &HFC, &HFA, &HBA, &H49, &HB4, &H48, &HDB, &HEC, &H25, &HF3, &H18, &H8F, &H2D, &HB3, &HC0, &HB8, &HDD, &HBC, &HD6, &HAA, &HA6, &HDB, &H6F, &H7D, &H7D, &H25, &HA6, &HCD, &H39, &H6D, &HDA, &H76, &HC, &H79, &HBF, &H48, &H25, &HFC, &H2D, &HC5, &HFA, &H53, &H9B, &H4D, &H60, &HF4, &HEF, &HC7, &HEA, &HAC, &HA1, &H7B, &H3, &HF4, &HAF, &HC7})
-        Dim sig As New BigInt(Signature)
-        Dim res As BigInt = sig.PowerMod(power, pmod)
-        Dim result() As Byte = res.ToByteArray()
+        Dim power As New BigInteger(New Byte() {&H1, &H0, &H1, &H0}, True)
+        Dim pmod As New BigInteger(New Byte() {&H6B, &HCE, &HF5, &H2D, &H2A, &H7D, &H7A, &H67, &H21, &H21, &H84, &HC9, &HBC, &H25, &HC7, &HBC, &HDF, &H3D, &H8F, &HD9, &H47, &HBC, &H45, &H48, &H8B, &H22, &H85, &H3B, &HC5, &HC1, &HF4, &HF5, &H3C, &HC, &H49, &HBB, &H56, &HE0, &H3D, &HBC, &HA2, &HD2, &H35, &HC1, &HF0, &H74, &H2E, &H15, &H5A, &H6, &H8A, &H68, &H1, &H9E, &H60, &H17, &H70, &H8B, &HBD, &HF8, &HD5, &HF9, &H3A, &HD3, &H25, &HB2, &H66, &H92, &HBA, &H43, &H8A, &H81, &H52, &HF, &H64, &H98, &HFF, &H60, &H37, &HAF, &HB4, &H11, &H8C, &HF9, &H2E, &HC5, &HEE, &HCA, &HB4, &H41, &H60, &H3C, &H7D, &H2, &HAF, &HA1, &H2B, &H9B, &H22, &H4B, &H3B, &HFC, &HD2, &H5D, &H73, &HE9, &H29, &H34, &H91, &H85, &H93, &H4C, &HBE, &HBE, &H73, &HA9, &HD2, &H3B, &H27, &H7A, &H47, &H76, &HEC, &HB0, &H28, &HC9, &HC1, &HDA, &HEE, &HAA, &HB3, &H96, &H9C, &H1E, &HF5, &H6B, &HF6, &H64, &HD8, &H94, &H2E, &HF1, &HF7, &H14, &H5F, &HA0, &HF1, &HA3, &HB9, &HB1, &HAA, &H58, &H97, &HDC, &H9, &H17, &HC, &H4, &HD3, &H8E, &H2, &H2C, &H83, &H8A, &HD6, &HAF, &H7C, &HFE, &H83, &H33, &HC6, &HA8, &HC3, &H84, &HEF, &H29, &H6, &HA9, &HB7, &H2D, &H6, &HB, &HD, &H6F, &H70, &H9E, &H34, &HA6, &HC7, &H31, &HBE, &H56, &HDE, &HDD, &H2, &H92, &HF8, &HA0, &H58, &HB, &HFC, &HFA, &HBA, &H49, &HB4, &H48, &HDB, &HEC, &H25, &HF3, &H18, &H8F, &H2D, &HB3, &HC0, &HB8, &HDD, &HBC, &HD6, &HAA, &HA6, &HDB, &H6F, &H7D, &H7D, &H25, &HA6, &HCD, &H39, &H6D, &HDA, &H76, &HC, &H79, &HBF, &H48, &H25, &HFC, &H2D, &HC5, &HFA, &H53, &H9B, &H4D, &H60, &HF4, &HEF, &HC7, &HEA, &HAC, &HA1, &H7B, &H3, &HF4, &HAF, &HC7}, True)
+        Dim sig As New BigInteger(Signature, True)
+        Dim res As BigInteger = BigInteger.ModPow(sig, power, pmod)
+        Dim result() As Byte = res.ToByteArray(True)
 
         Dim digest() As Byte
         Dim properResult() As Byte = New Byte(&H100 - 1) {}
@@ -240,11 +240,11 @@ Public Module Module_ModuleToDll
         digest = sha1.ComputeHash(newData)
         Array.Copy(digest, 0, properResult, 0, digest.Length)
 
-        Dim power As New BigInt(New Byte() {&H1, &H3, &H3, &H7, &H0, &HD, &HE, &HA, &HD, &HF, &H0, &H0, &HD}) 'Notice our own little private key (original wow clients won't accept this)
-        Dim pmod As New BigInt(New Byte() {&H6B, &HCE, &HF5, &H2D, &H2A, &H7D, &H7A, &H67, &H21, &H21, &H84, &HC9, &HBC, &H25, &HC7, &HBC, &HDF, &H3D, &H8F, &HD9, &H47, &HBC, &H45, &H48, &H8B, &H22, &H85, &H3B, &HC5, &HC1, &HF4, &HF5, &H3C, &HC, &H49, &HBB, &H56, &HE0, &H3D, &HBC, &HA2, &HD2, &H35, &HC1, &HF0, &H74, &H2E, &H15, &H5A, &H6, &H8A, &H68, &H1, &H9E, &H60, &H17, &H70, &H8B, &HBD, &HF8, &HD5, &HF9, &H3A, &HD3, &H25, &HB2, &H66, &H92, &HBA, &H43, &H8A, &H81, &H52, &HF, &H64, &H98, &HFF, &H60, &H37, &HAF, &HB4, &H11, &H8C, &HF9, &H2E, &HC5, &HEE, &HCA, &HB4, &H41, &H60, &H3C, &H7D, &H2, &HAF, &HA1, &H2B, &H9B, &H22, &H4B, &H3B, &HFC, &HD2, &H5D, &H73, &HE9, &H29, &H34, &H91, &H85, &H93, &H4C, &HBE, &HBE, &H73, &HA9, &HD2, &H3B, &H27, &H7A, &H47, &H76, &HEC, &HB0, &H28, &HC9, &HC1, &HDA, &HEE, &HAA, &HB3, &H96, &H9C, &H1E, &HF5, &H6B, &HF6, &H64, &HD8, &H94, &H2E, &HF1, &HF7, &H14, &H5F, &HA0, &HF1, &HA3, &HB9, &HB1, &HAA, &H58, &H97, &HDC, &H9, &H17, &HC, &H4, &HD3, &H8E, &H2, &H2C, &H83, &H8A, &HD6, &HAF, &H7C, &HFE, &H83, &H33, &HC6, &HA8, &HC3, &H84, &HEF, &H29, &H6, &HA9, &HB7, &H2D, &H6, &HB, &HD, &H6F, &H70, &H9E, &H34, &HA6, &HC7, &H31, &HBE, &H56, &HDE, &HDD, &H2, &H92, &HF8, &HA0, &H58, &HB, &HFC, &HFA, &HBA, &H49, &HB4, &H48, &HDB, &HEC, &H25, &HF3, &H18, &H8F, &H2D, &HB3, &HC0, &HB8, &HDD, &HBC, &HD6, &HAA, &HA6, &HDB, &H6F, &H7D, &H7D, &H25, &HA6, &HCD, &H39, &H6D, &HDA, &H76, &HC, &H79, &HBF, &H48, &H25, &HFC, &H2D, &HC5, &HFA, &H53, &H9B, &H4D, &H60, &HF4, &HEF, &HC7, &HEA, &HAC, &HA1, &H7B, &H3, &HF4, &HAF, &HC7})
-        Dim prop As New BigInt(properResult)
-        Dim sig As BigInt = prop.PowerMod(power, pmod)
-        Dim result() As Byte = sig.ToByteArray()
+        Dim power As New BigInteger(New Byte() {&H1, &H3, &H3, &H7, &H0, &HD, &HE, &HA, &HD, &HF, &H0, &H0, &HD}, True) 'Notice our own little private key (original wow clients won't accept this)
+        Dim pmod As New BigInteger(New Byte() {&H6B, &HCE, &HF5, &H2D, &H2A, &H7D, &H7A, &H67, &H21, &H21, &H84, &HC9, &HBC, &H25, &HC7, &HBC, &HDF, &H3D, &H8F, &HD9, &H47, &HBC, &H45, &H48, &H8B, &H22, &H85, &H3B, &HC5, &HC1, &HF4, &HF5, &H3C, &HC, &H49, &HBB, &H56, &HE0, &H3D, &HBC, &HA2, &HD2, &H35, &HC1, &HF0, &H74, &H2E, &H15, &H5A, &H6, &H8A, &H68, &H1, &H9E, &H60, &H17, &H70, &H8B, &HBD, &HF8, &HD5, &HF9, &H3A, &HD3, &H25, &HB2, &H66, &H92, &HBA, &H43, &H8A, &H81, &H52, &HF, &H64, &H98, &HFF, &H60, &H37, &HAF, &HB4, &H11, &H8C, &HF9, &H2E, &HC5, &HEE, &HCA, &HB4, &H41, &H60, &H3C, &H7D, &H2, &HAF, &HA1, &H2B, &H9B, &H22, &H4B, &H3B, &HFC, &HD2, &H5D, &H73, &HE9, &H29, &H34, &H91, &H85, &H93, &H4C, &HBE, &HBE, &H73, &HA9, &HD2, &H3B, &H27, &H7A, &H47, &H76, &HEC, &HB0, &H28, &HC9, &HC1, &HDA, &HEE, &HAA, &HB3, &H96, &H9C, &H1E, &HF5, &H6B, &HF6, &H64, &HD8, &H94, &H2E, &HF1, &HF7, &H14, &H5F, &HA0, &HF1, &HA3, &HB9, &HB1, &HAA, &H58, &H97, &HDC, &H9, &H17, &HC, &H4, &HD3, &H8E, &H2, &H2C, &H83, &H8A, &HD6, &HAF, &H7C, &HFE, &H83, &H33, &HC6, &HA8, &HC3, &H84, &HEF, &H29, &H6, &HA9, &HB7, &H2D, &H6, &HB, &HD, &H6F, &H70, &H9E, &H34, &HA6, &HC7, &H31, &HBE, &H56, &HDE, &HDD, &H2, &H92, &HF8, &HA0, &H58, &HB, &HFC, &HFA, &HBA, &H49, &HB4, &H48, &HDB, &HEC, &H25, &HF3, &H18, &H8F, &H2D, &HB3, &HC0, &HB8, &HDD, &HBC, &HD6, &HAA, &HA6, &HDB, &H6F, &H7D, &H7D, &H25, &HA6, &HCD, &H39, &H6D, &HDA, &H76, &HC, &H79, &HBF, &H48, &H25, &HFC, &H2D, &HC5, &HFA, &H53, &H9B, &H4D, &H60, &HF4, &HEF, &HC7, &HEA, &HAC, &HA1, &H7B, &H3, &HF4, &HAF, &HC7}, True)
+        Dim prop As New BigInteger(properResult, True)
+        Dim sig As BigInteger = BigInteger.ModPow(prop, power, pmod)
+        Dim result() As Byte = sig.ToByteArray(True)
 
         Return result
     End Function

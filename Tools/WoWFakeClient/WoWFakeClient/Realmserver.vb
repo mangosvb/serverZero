@@ -21,6 +21,7 @@ Imports System.Threading
 Imports System.Net.Sockets
 Imports System.Net
 Imports System.Security.Cryptography
+Imports System.Numerics
 
 Module Realmserver
     Private Random As New Random
@@ -29,8 +30,8 @@ Module Realmserver
     Private ConnIP As IPAddress
     Private ConnPort As Integer
 
-    Public Account As String = "test"
-    Public Password As String = "test"
+    Public Account As String = "Administrator"
+    Public Password As String = "Administrator"
     Public VersionA As Byte = 1
     Public VersionB As Byte = 12
     Public VersionC As Byte = 1
@@ -121,8 +122,6 @@ Module Realmserver
 
         Dim Buffer() As Byte
         Dim bytes As Integer
-        Dim oThread As Thread
-        oThread = Thread.CurrentThread()
 
         OnConnect()
 
@@ -148,8 +147,6 @@ Module Realmserver
 
         Connection.Close()
         Console.WriteLine("[{0}][Realm] Disconnected.", Format(TimeOfDay, "HH:mm:ss"))
-
-        oThread.Abort()
     End Sub
 
     Sub Disconnect()
@@ -299,20 +296,20 @@ Module Realmserver
         Dim K() As Byte = {3}
         Dim S() As Byte = New Byte(31) {}
 
-        Dim BNg As New BigInteger(G)
-        Dim BNa As New BigInteger(A)
-        Dim BNn As New BigInteger(N)
-        Dim BNx As New BigInteger(X)
-        Dim BNk As New BigInteger(K)
-        Dim BNpublicA As BigInteger = BNg.modPow(BNa, BNn)
-        PublicA = BNpublicA.getBytes
+        Dim BNg As New BigInteger(G, isUnsigned:=True, isBigEndian:=True)
+        Dim BNa As New BigInteger(A, isUnsigned:=True, isBigEndian:=True)
+        Dim BNn As New BigInteger(N, isUnsigned:=True, isBigEndian:=True)
+        Dim BNx As New BigInteger(X, isUnsigned:=True, isBigEndian:=True)
+        Dim BNk As New BigInteger(K, isUnsigned:=True, isBigEndian:=True)
+        Dim BNpublicA As BigInteger = BigInteger.ModPow(BNg, BNa, BNn)
+        PublicA = BNpublicA.ToByteArray(isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(PublicA)
 
         Dim U() As Byte = algorithm1.ComputeHash(Concat(PublicA, ServerB))
         Array.Reverse(ServerB)
         Array.Reverse(U)
-        Dim BNu As New BigInteger(U)
-        Dim BNb As New BigInteger(ServerB)
+        Dim BNu As New BigInteger(U, isUnsigned:=True, isBigEndian:=True)
+        Dim BNb As New BigInteger(ServerB, isUnsigned:=True, isBigEndian:=True)
 
         'S= (B - kg^x) ^ (a + ux)   (mod N)
         Dim temp1 As New BigInteger
@@ -322,7 +319,7 @@ Module Realmserver
         Dim temp5 As New BigInteger
 
         'Temp1 = g ^ x mod n
-        temp1 = BNg.modPow(BNx, BNn)
+        temp1 = BigInteger.ModPow(BNg, BNx, BNn)
 
         'Temp2 = k * Temp1
         temp2 = BNk * temp1
@@ -337,8 +334,8 @@ Module Realmserver
         temp5 = BNa + temp4
 
         'S = Temp3 ^ Temp5 mod n
-        Dim BNs As BigInteger = temp3.modPow(temp5, BNn)
-        S = BNs.getBytes
+        Dim BNs As BigInteger = BigInteger.ModPow(temp3, temp5, BNn)
+        S = BNs.ToByteArray(isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(S)
 
         Dim list1 As New ArrayList
