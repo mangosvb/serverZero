@@ -4,8 +4,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Scripts</RootNamespace>
     <AssemblyName>Scripts</AssemblyName>
-    <OutputPath>..\..\Bin\</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyTitle>Scripts</AssemblyTitle>
     <Description>Common Library part of MaNGOSvb Server Emulator</Description>
     <Company>getMaNGOS</Company>

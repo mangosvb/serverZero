@@ -4,8 +4,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>mangosVB.Common</RootNamespace>
     <AssemblyName>Common</AssemblyName>
-    <OutputPath>..\..\Bin\</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyTitle>mangosVB.Common</AssemblyTitle>
     <Description>Common Library part of MaNGOSvb Server Emulator</Description>
     <Company>getMaNGOS</Company>
@@ -17,7 +15,6 @@
     <ProjectReference Include="..\Shared\Shared.vbproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BigInteger" Version="1.0.7" />
     <PackageReference Include="MySql.Data" Version="8.0.21" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
     <PackageReference Include="SmartIrc4net" Version="1.1.0" />
