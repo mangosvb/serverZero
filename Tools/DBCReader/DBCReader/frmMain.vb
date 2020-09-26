@@ -55,8 +55,8 @@ Public Class frmMain
         Dim RowLength As Integer = BitConverter.ToInt32(Data, 12)
         Dim StringPartLength As Integer = BitConverter.ToInt32(Data, 16)
 
-        If DBCType <> "WDBC" Then MsgBox("This file is not a DBC file.", MsgBoxStyle.Critical, "Error") : Exit Sub
-        If Rows <= 0 Or Columns <= 0 Or RowLength <= 0 Then MsgBox("This file is not a DBC file.", MsgBoxStyle.Critical, "Error") : Exit Sub
+        If DBCType <> "WDBC" Then MessageBox.Show("This file is not a DBC file.", "Error") : Exit Sub
+        If Rows <= 0 Or Columns <= 0 Or RowLength <= 0 Then MessageBox.Show("This file is not a DBC file.", "Error") : Exit Sub
 
         Dim i As Integer, j As Integer, tmpOffset As Integer
         Dim tmpStr(Columns - 1) As String, AmtZero(Columns - 1) As Integer, foundStrings(Columns - 1) As List(Of Integer)
@@ -262,8 +262,8 @@ Public Class frmMain
     End Function
 
     Private Sub cmdSearch_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdSearch.Click
-        If cmbColumn.Items.Count = 0 Then MsgBox("To be able to search you must first open up a DBC File!", MsgBoxStyle.Exclamation, "Unable to search") : Exit Sub
-        If cmbColumn.SelectedItem Is Nothing Then MsgBox("You must select a column to search in first!", MsgBoxStyle.Exclamation, "Unable to search") : Exit Sub
+        If cmbColumn.Items.Count = 0 Then MessageBox.Show("To be able to search you must first open up a DBC File!", "Unable to search") : Exit Sub
+        If cmbColumn.SelectedItem Is Nothing Then MessageBox.Show("You must select a column to search in first!", "Unable to search") : Exit Sub
 
         Dim sQuery As String = txtQuery.Text
         Dim column As Integer = cmbColumn.SelectedItem
@@ -293,7 +293,7 @@ Public Class frmMain
             End If
         Next
 
-        MsgBox("No result for that search was found!" & vbNewLine & vbNewLine & "Do note that the search starts from your current selection.", MsgBoxStyle.Information, "No result found")
+        MessageBox.Show("No result for that search was found!" & vbNewLine & vbNewLine & "Do note that the search starts from your current selection.", "No result found")
     End Sub
 
     Private Sub txtQuery_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles txtQuery.KeyDown
