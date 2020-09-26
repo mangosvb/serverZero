@@ -16,41 +16,42 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+Imports System.Net
 Imports mangosVB.Common
 Imports mangosVB.Shared.GlobalEnum
 
 Public Module DBC_Stuff
     Public Sub LoadDBCs()
-        frmLoad.lblAction.Text = "Loading spells..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Loading spells..."
+        Program.frmLoad.pbAction.Value = 0
         LoadSpells()
 
-        frmLoad.lblAction.Text = "Loading spell ranges..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Loading spell ranges..."
+        Program.frmLoad.pbAction.Value = 0
         LoadSpellRanges()
 
-        frmLoad.lblAction.Text = "Loading spell casttimes..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Loading spell casttimes..."
+        Program.frmLoad.pbAction.Value = 0
         LoadSpellCasttimes()
 
-        frmLoad.lblAction.Text = "Loading spell durations..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Loading spell durations..."
+        Program.frmLoad.pbAction.Value = 0
         LoadSpellDurations()
 
-        frmLoad.lblAction.Text = "Loading spell radius's..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Loading spell radius's..."
+        Program.frmLoad.pbAction.Value = 0
         LoadSpellRadius()
 
-        frmLoad.lblAction.Text = "Loading spell icons..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Loading spell icons..."
+        Program.frmLoad.pbAction.Value = 0
         LoadSpellIcons()
 
-        frmLoad.lblAction.Text = "Downloading spell icons..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Downloading spell icons..."
+        Program.frmLoad.pbAction.Value = 0
         DownloadIcons()
 
-        frmLoad.lblAction.Text = "Fixing spell descriptions..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.lblAction.Text = "Fixing spell descriptions..."
+        Program.frmLoad.pbAction.Value = 0
         FixUpDescs()
     End Sub
 
@@ -220,12 +221,12 @@ Public Module DBC_Stuff
                 '170 = Always zero?
 
                 If (i Mod 50) = 0 Then
-                    frmLoad.pbAction.Value = Fix(((i + 1) / SpellDBC.Rows) * 100)
+                    Program.frmLoad.pbAction.Value = Fix(((i + 1) / SpellDBC.Rows) * 100)
                     Application.DoEvents()
                 End If
 
             Catch e As Exception
-                MsgBox(String.Format("Line {0} caused error: {1}", i, e.ToString))
+                MessageBox.Show(String.Format("Line {0} caused error: {1}", i, e.ToString))
             End Try
         Next
     End Sub
@@ -247,14 +248,14 @@ Public Module DBC_Stuff
                 SpellRange(spellRangeIndex) = spellRangeMax
 
                 If (i Mod 50) = 0 Then
-                    frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
+                    Program.frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
                     Application.DoEvents()
                 End If
             Next i
 
             tmpDBC.Dispose()
         Catch e As IO.DirectoryNotFoundException
-            MsgBox("DBC File : SpellRanges missing.")
+            MessageBox.Show("DBC File : SpellRanges missing.")
         End Try
     End Sub
 
@@ -273,14 +274,14 @@ Public Module DBC_Stuff
                 SpellCastTime(spellCastID) = spellCastTimeS
 
                 If (i Mod 50) = 0 Then
-                    frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
+                    Program.frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
                     Application.DoEvents()
                 End If
             Next i
 
             tmpDBC.Dispose()
         Catch e As IO.DirectoryNotFoundException
-            MsgBox("DBC File : SpellCastTimes missing.")
+            MessageBox.Show("DBC File : SpellCastTimes missing.")
         End Try
     End Sub
 
@@ -299,14 +300,14 @@ Public Module DBC_Stuff
                 SpellDuration(SpellDurationIndex) = SpellDurationValue
 
                 If (i Mod 50) = 0 Then
-                    frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
+                    Program.frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
                     Application.DoEvents()
                 End If
             Next i
 
             tmpDBC.Dispose()
         Catch e As IO.DirectoryNotFoundException
-            MsgBox("DBC File : SpellDurations missing.")
+            MessageBox.Show("DBC File : SpellDurations missing.")
         End Try
     End Sub
 
@@ -325,14 +326,14 @@ Public Module DBC_Stuff
                 SpellRadius(radiusID) = radiusValue
 
                 If (i Mod 50) = 0 Then
-                    frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
+                    Program.frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
                     Application.DoEvents()
                 End If
             Next i
 
             tmpDBC.Dispose()
         Catch e As IO.DirectoryNotFoundException
-            MsgBox("DBC File : SpellRadius missing.")
+            MessageBox.Show("DBC File : SpellRadius missing.")
         End Try
     End Sub
 
@@ -351,14 +352,14 @@ Public Module DBC_Stuff
                 SpellIcon(iconID) = iconStr
 
                 If (i Mod 50) = 0 Then
-                    frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
+                    Program.frmLoad.pbAction.Value = Fix(((i + 1) / tmpDBC.Rows) * 100)
                     Application.DoEvents()
                 End If
             Next i
 
             tmpDBC.Dispose()
         Catch e As IO.DirectoryNotFoundException
-            MsgBox("DBC File : SpellIcon missing.")
+            MessageBox.Show("DBC File : SpellIcon missing.")
         End Try
     End Sub
 
@@ -368,37 +369,39 @@ Public Module DBC_Stuff
         If IO.Directory.Exists("icons") = False Then
             IO.Directory.CreateDirectory("icons")
         Else
-            If MsgBox("Do you wish to download icons you might miss?", MsgBoxStyle.YesNo, "Download Icons") = MsgBoxResult.No Then Exit Sub
+            If MessageBox.Show("Do you wish to download icons you might miss?", "Download Icons") = MsgBoxResult.No Then Exit Sub
         End If
 
         Dim Downloaded As Integer = 0
         For Each Icon As KeyValuePair(Of Integer, String) In SpellIcon
             If IO.File.Exists("icons\" & Icon.Value & ".jpg") = False Then
-                frmLoad.lblAction.Text = "Downloading icon: " & Icon.Value
+                Program.frmLoad.lblAction.Text = "Downloading icon: " & Icon.Value
 
                 Try
-                    My.Computer.Network.DownloadFile("http://static.wowhead.com/images/icons/large/" & Icon.Value.ToLower & ".jpg", "icons\" & Icon.Value & ".jpg")
+                    Using webClient As New WebClient
+                        webClient.DownloadFile("http://static.wowhead.com/images/icons/large/" & Icon.Value.ToLower & ".jpg", "icons\" & Icon.Value & ".jpg")
+                    End Using
                 Catch ex As Net.WebException
                     FailedIcons.Add(Icon.Value)
                 Catch ex As Exception
-                    MsgBox(ex.ToString)
+                    MessageBox.Show(ex.ToString)
                 End Try
             End If
             Downloaded += 1
 
             If (Downloaded Mod 20) = 0 Then
-                frmLoad.pbAction.Value = Fix((Downloaded / SpellIcon.Count) * 100)
+                Program.frmLoad.pbAction.Value = Fix((Downloaded / SpellIcon.Count) * 100)
                 Application.DoEvents()
             End If
         Next
 
-        frmLoad.pbAction.Value = 100
+        Program.frmLoad.pbAction.Value = 100
         If FailedIcons.Count > 0 Then
             Dim tmpStr As String = FailedIcons.Count & " icons could not be downloaded."
             For Each Icon As String In FailedIcons
                 tmpStr &= vbNewLine & "- " & Icon
             Next
-            MsgBox(tmpStr)
+            MessageBox.Show(tmpStr)
         End If
     End Sub
 
@@ -410,7 +413,7 @@ Public Module DBC_Stuff
 
             Fixed += 1
             If (Fixed Mod 20) = 0 Then
-                frmLoad.pbAction.Value = Fix((Fixed / SPELLs.Count) * 100)
+                Program.frmLoad.pbAction.Value = Fix((Fixed / SPELLs.Count) * 100)
                 Application.DoEvents()
             End If
         Next
