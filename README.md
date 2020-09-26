@@ -24,6 +24,7 @@ copyrighted by [Blizzard Entertainment, Inc.][1].
     Visual Studio 2019 or later
     Visual Basic Compiler Enabled
     MySQL Community Server 5.6 or later
+    .NET Framework 4.8 And .NET Core 3.1
 
 ## Documentation
 

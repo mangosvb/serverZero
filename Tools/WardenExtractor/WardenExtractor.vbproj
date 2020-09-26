@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
     <StartupObject>WardenExtractor.Main</StartupObject>
     <RootNamespace>WardenExtractor</RootNamespace>
     <AssemblyName>WardenExtractor</AssemblyName>
-    <PlatformTarget>x86</PlatformTarget>
     <Description>Common Library part of MaNGOSvb Server Emulator</Description>
     <Company>getMaNGOS</Company>
     <Product>MaNGOSvb Server Pack</Product>
@@ -14,15 +13,5 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Emil.GMP">
-      <HintPath>Emil.GMP.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="libgmp-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>
