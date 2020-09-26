@@ -5,6 +5,7 @@
     <StartupObject>DBCExtractor.MainModule</StartupObject>
     <RootNamespace>DBCExtractor</RootNamespace>
     <AssemblyName>DBCExtractor</AssemblyName>
+    <PlatformTarget>x86</PlatformTarget>
     <Description>Common Library part of MaNGOSvb Server Emulator</Description>
     <Company>getMaNGOS</Company>
     <Product>MaNGOSvb Server Pack</Product>
