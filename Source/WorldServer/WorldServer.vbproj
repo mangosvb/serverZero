@@ -32,4 +32,7 @@
     <ProjectReference Include="..\Common\Common.vbproj" />
     <ProjectReference Include="..\Shared\Shared.vbproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BigInteger" Version="1.0.7" />
+  </ItemGroup>
 </Project>

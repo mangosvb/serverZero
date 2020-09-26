@@ -4,8 +4,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>mangosVB.Shared</RootNamespace>
     <AssemblyName>Shared</AssemblyName>
-    <OutputPath>..\..\Bin\</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AssemblyTitle>mangosVB.Shared</AssemblyTitle>
     <Description>Common Library part of MaNGOSvb Server Emulator</Description>
     <Company>getMaNGOS</Company>
