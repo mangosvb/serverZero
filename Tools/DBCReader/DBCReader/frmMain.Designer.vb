@@ -37,19 +37,21 @@ Partial Class frmMain
         'txtFile
         '
         Me.txtFile.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtFile.Enabled = False
-        Me.txtFile.Location = New System.Drawing.Point(2, 7)
+        Me.txtFile.Location = New System.Drawing.Point(2, 8)
+        Me.txtFile.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.txtFile.Name = "txtFile"
-        Me.txtFile.Size = New System.Drawing.Size(670, 20)
+        Me.txtFile.Size = New System.Drawing.Size(781, 23)
         Me.txtFile.TabIndex = 1
         '
         'cmdBrowse
         '
         Me.cmdBrowse.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmdBrowse.Location = New System.Drawing.Point(678, 6)
+        Me.cmdBrowse.Location = New System.Drawing.Point(791, 7)
+        Me.cmdBrowse.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.cmdBrowse.Name = "cmdBrowse"
-        Me.cmdBrowse.Size = New System.Drawing.Size(89, 20)
+        Me.cmdBrowse.Size = New System.Drawing.Size(104, 23)
         Me.cmdBrowse.TabIndex = 2
         Me.cmdBrowse.Text = "Browse"
         Me.cmdBrowse.UseVisualStyleBackColor = True
@@ -57,16 +59,17 @@ Partial Class frmMain
         'DBCData
         '
         Me.DBCData.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-                    Or System.Windows.Forms.AnchorStyles.Left) _
-                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.DBCData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.DBCData.Font = New System.Drawing.Font("Tahoma", 8.25!)
+        Me.DBCData.Font = New System.Drawing.Font("Tahoma", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.DBCData.FullRowSelect = True
         Me.DBCData.GridLines = True
         Me.DBCData.HideSelection = False
-        Me.DBCData.Location = New System.Drawing.Point(2, 59)
+        Me.DBCData.Location = New System.Drawing.Point(2, 68)
+        Me.DBCData.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.DBCData.Name = "DBCData"
-        Me.DBCData.Size = New System.Drawing.Size(765, 379)
+        Me.DBCData.Size = New System.Drawing.Size(892, 437)
         Me.DBCData.TabIndex = 3
         Me.DBCData.UseCompatibleStateImageBehavior = False
         Me.DBCData.View = System.Windows.Forms.View.Details
@@ -74,10 +77,11 @@ Partial Class frmMain
         'ProgressBar
         '
         Me.ProgressBar.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
-                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ProgressBar.Location = New System.Drawing.Point(2, 441)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.ProgressBar.Location = New System.Drawing.Point(2, 509)
+        Me.ProgressBar.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ProgressBar.Name = "ProgressBar"
-        Me.ProgressBar.Size = New System.Drawing.Size(764, 20)
+        Me.ProgressBar.Size = New System.Drawing.Size(891, 23)
         Me.ProgressBar.Step = 2
         Me.ProgressBar.TabIndex = 4
         '
@@ -85,35 +89,38 @@ Partial Class frmMain
         '
         Me.cmbColumn.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbColumn.FormattingEnabled = True
-        Me.cmbColumn.Location = New System.Drawing.Point(2, 32)
+        Me.cmbColumn.Location = New System.Drawing.Point(2, 37)
+        Me.cmbColumn.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.cmbColumn.Name = "cmbColumn"
-        Me.cmbColumn.Size = New System.Drawing.Size(152, 21)
+        Me.cmbColumn.Size = New System.Drawing.Size(177, 23)
         Me.cmbColumn.TabIndex = 5
         '
         'txtQuery
         '
         Me.txtQuery.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtQuery.Location = New System.Drawing.Point(160, 33)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.txtQuery.Location = New System.Drawing.Point(187, 38)
+        Me.txtQuery.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.txtQuery.Name = "txtQuery"
-        Me.txtQuery.Size = New System.Drawing.Size(512, 20)
+        Me.txtQuery.Size = New System.Drawing.Size(597, 23)
         Me.txtQuery.TabIndex = 6
         '
         'cmdSearch
         '
         Me.cmdSearch.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmdSearch.Location = New System.Drawing.Point(678, 33)
+        Me.cmdSearch.Location = New System.Drawing.Point(791, 38)
+        Me.cmdSearch.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.cmdSearch.Name = "cmdSearch"
-        Me.cmdSearch.Size = New System.Drawing.Size(89, 20)
+        Me.cmdSearch.Size = New System.Drawing.Size(104, 23)
         Me.cmdSearch.TabIndex = 7
         Me.cmdSearch.Text = "Search"
         Me.cmdSearch.UseVisualStyleBackColor = True
         '
         'frmMain
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(770, 462)
+        Me.ClientSize = New System.Drawing.Size(898, 533)
         Me.Controls.Add(Me.cmdSearch)
         Me.Controls.Add(Me.txtQuery)
         Me.Controls.Add(Me.cmbColumn)
@@ -121,6 +128,7 @@ Partial Class frmMain
         Me.Controls.Add(Me.DBCData)
         Me.Controls.Add(Me.cmdBrowse)
         Me.Controls.Add(Me.txtFile)
+        Me.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.Name = "frmMain"
         Me.Text = "DBC (Database Code) Reader"
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
