@@ -186,7 +186,7 @@ Public Module Functions
         Dim FIELD_TYPE_OFFSET As Integer = SearchInFile(f, OBJECT_FIELD_GUID)
 
         If FIELD_NAME_OFFSET = -1 Or FIELD_TYPE_OFFSET = -1 Then
-            MsgBox("Wrong offsets! " & FIELD_NAME_OFFSET & "  " & FIELD_TYPE_OFFSET, MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly)
+            MessageBox.Show("Wrong offsets! " & FIELD_NAME_OFFSET & "  " & FIELD_TYPE_OFFSET)
         Else
             Dim Names As New List(Of String)
             Dim Last As String = ""
@@ -236,7 +236,7 @@ Public Module Functions
                 Info.Add(tmp)
             Next
 
-            MsgBox(String.Format("{0} fields extracted.", Names.Count))
+            MessageBox.Show(String.Format("{0} fields extracted.", Names.Count))
 
             w.WriteLine("' Auto generated file")
             w.WriteLine("' {0}", Now)
@@ -304,12 +304,12 @@ Public Module Functions
         Dim o As New IO.FileStream("Global.Opcodes.vb", IO.FileMode.Create, IO.FileAccess.Write, IO.FileShare.None, 1024)
         Dim w As New IO.StreamWriter(o)
 
-        MsgBox(ReadString(f, SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")))
+        MessageBox.Show(ReadString(f, SearchInFile(f, "CMSG_REQUEST_PARTY_MEMBER_STATS")))
 
         Dim START As Integer = SearchInFile(f, "NUM_MSG_TYPES")
 
         If START = -1 Then
-            MsgBox("Wrong offsets!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly)
+            MessageBox.Show("Wrong offsets!")
         Else
             Dim Names As New Stack(Of String)
             Dim Last As String = ""
@@ -320,7 +320,7 @@ Public Module Functions
                 Names.Push(Last)
             End While
 
-            MsgBox(String.Format("{0} opcodes extracted.", Names.Count))
+            MessageBox.Show(String.Format("{0} opcodes extracted.", Names.Count))
 
 
             w.WriteLine("' Auto generated file")
@@ -353,7 +353,7 @@ Public Module Functions
         Dim REASON_NAME_OFFSET As Integer = SearchInFile(f, "SPELL_FAILED_UNKNOWN")
 
         If REASON_NAME_OFFSET = -1 Then
-            MsgBox("Wrong offsets!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly)
+            MessageBox.Show("Wrong offsets!")
         Else
             Dim Names As New Stack(Of String)
             Dim Last As String = ""
@@ -365,7 +365,7 @@ Public Module Functions
                 If Last.Length > 13 AndAlso Last.Substring(0, 13) = "SPELL_FAILED_" Then Names.Push(Last)
             End While
 
-            MsgBox(String.Format("{0} spell failed reasons extracted.", Names.Count))
+            MessageBox.Show(String.Format("{0} spell failed reasons extracted.", Names.Count))
 
 
             w.WriteLine("' Auto generated file")
@@ -399,7 +399,7 @@ Public Module Functions
         Dim START As Integer = SearchInFile(f, "CHAT_MSG_RAID_WARNING")
 
         If START = -1 Then
-            MsgBox("Wrong offsets!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly)
+            MessageBox.Show("Wrong offsets!")
         Else
             Dim Names As New Stack(Of String)
             Dim Last As String = ""
@@ -411,7 +411,7 @@ Public Module Functions
                 If Last.Length > 10 AndAlso Last.Substring(0, 9) = "CHAT_MSG_" Then Names.Push(Last)
             End While
 
-            MsgBox(String.Format("{0} chat types extracted.", Names.Count))
+            MessageBox.Show(String.Format("{0} chat types extracted.", Names.Count))
 
 
             w.WriteLine("' Auto generated file")
