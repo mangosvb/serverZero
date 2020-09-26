@@ -17,6 +17,7 @@
 '
 
 'Note: Temp place holder
+Imports System.Data
 Imports mangosVB.Shared
 
 Namespace Globals
@@ -42,7 +43,7 @@ Namespace Globals
         End Function
 
         Public Function GuidIsDnyamicObject(ByVal guid As ULong) As Boolean
-            If GuidHigh2(GUID) = GUID_DYNAMICOBJECT Then Return True
+            If GuidHigh2(guid) = GUID_DYNAMICOBJECT Then Return True
             Return False
         End Function
 

@@ -19,6 +19,7 @@ Imports System.ComponentModel
 Imports System.Threading
 Imports System.Data.SqlClient
 Imports MySql.Data.MySqlClient
+Imports System.Data
 'Imports System.Data.OracleClient
 
 <CLSCompliant(True), ComClass(SQL.ClassId, SQL.InterfaceId, SQL.EventsId)> _
