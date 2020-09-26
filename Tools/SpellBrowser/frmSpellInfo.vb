@@ -230,7 +230,7 @@ Public Class frmSpellInfo
         If e.Shift AndAlso e.KeyCode = Keys.C Then
             If CompareSpells.Contains(SpellID) = False Then
                 CompareSpells.Add(SpellID)
-                frmDbcCompare.UpdateCompare()
+                Program.frmDbcCompare.UpdateCompare()
             End If
         End If
     End Sub
