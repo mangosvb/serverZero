@@ -1,15 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../MangosVB.props" />
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>Scripts</RootNamespace>
     <AssemblyName>Scripts</AssemblyName>
     <AssemblyTitle>Scripts</AssemblyTitle>
-    <Description>Common Library part of MaNGOSvb Server Emulator</Description>
-    <Company>getMaNGOS</Company>
-    <Product>MaNGOSvb Server Pack</Product>
-    <Copyright>Copyright (C) 2020, getMaNGOS</Copyright>
-    <Version>2.1.0.0</Version>
   </PropertyGroup> 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vbproj" />
