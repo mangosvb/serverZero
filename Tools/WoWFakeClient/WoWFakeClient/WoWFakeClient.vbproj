@@ -22,9 +22,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Update="libeay32.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="libgmp-3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -23,6 +23,7 @@ Imports System.Net
 Imports System.Security.Cryptography
 
 Module Realmserver
+    Private Random As New Random
     Public ConsoleColor As New ConsoleColorClass
     Private Connection As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
     Private ConnIP As IPAddress
@@ -285,7 +286,7 @@ Module Realmserver
     End Sub
 
     Sub CalculateProof()
-        RAND_bytes(A, 32)
+        Random.NextBytes(A)
         Array.Reverse(A)
 
         Dim tempStr As String = Account.ToUpper & ":" & Password.ToUpper
@@ -338,92 +339,6 @@ Module Realmserver
         'S = Temp3 ^ Temp5 mod n
         Dim BNs As BigInteger = temp3.modPow(temp5, BNn)
         S = BNs.getBytes
-        Array.Reverse(S)
-
-        Dim list1 As New ArrayList
-        list1 = SplitArray(S)
-        list1.Item(0) = algorithm1.ComputeHash(CType(list1.Item(0), Byte()))
-        list1.Item(1) = algorithm1.ComputeHash(CType(list1.Item(1), Byte()))
-        SS_Hash = Combine(CType(list1.Item(0), Byte()), CType(list1.Item(1), Byte()))
-
-        tempStr = UCase(Account.ToUpper)
-        Dim User_Hash() As Byte = algorithm1.ComputeHash(Text.Encoding.UTF8.GetBytes(tempStr.ToCharArray))
-        Array.Reverse(N)
-        Array.Reverse(ServerB)
-        Dim N_Hash() As Byte = algorithm1.ComputeHash(N)
-        Dim G_Hash() As Byte = algorithm1.ComputeHash(G)
-        Dim NG_Hash(19) As Byte
-        For i As Integer = 0 To 19
-            NG_Hash(i) = N_Hash(i) Xor G_Hash(i)
-        Next
-
-        temp = Concat(NG_Hash, User_Hash)
-        temp = Concat(temp, Salt)
-        temp = Concat(temp, PublicA)
-        temp = Concat(temp, ServerB)
-        temp = Concat(temp, SS_Hash)
-        M1 = algorithm1.ComputeHash(temp)
-
-        CrcHash = New Byte(16) {}
-    End Sub
-
-    Sub CalculateProof2()
-        RAND_bytes(A, 32)
-        Array.Reverse(A)
-
-        Dim tempStr As String = Account.ToUpper & ":" & Password.ToUpper
-        Dim temp() As Byte = Text.Encoding.ASCII.GetBytes(tempStr.ToCharArray)
-        Dim algorithm1 As New SHA1Managed
-        temp = algorithm1.ComputeHash(temp)
-        Dim X() As Byte = algorithm1.ComputeHash(Concat(Salt, temp))
-        Array.Reverse(X)
-        Array.Reverse(N)
-        Dim K() As Byte = {3}
-        Dim S() As Byte = New Byte(31) {}
-
-        Dim BNpublicA As IntPtr = BN_new
-        Dim ptr1 As IntPtr = BN_CTX_new
-        Dim BNg As IntPtr = BN_bin2bn(G, G.Length, IntPtr.Zero)
-        Dim BNa As IntPtr = BN_bin2bn(A, A.Length, IntPtr.Zero)
-        Dim BNn As IntPtr = BN_bin2bn(N, N.Length, IntPtr.Zero)
-        Dim BNx As IntPtr = BN_bin2bn(X, X.Length, IntPtr.Zero)
-        Dim BNk As IntPtr = BN_bin2bn(K, K.Length, IntPtr.Zero)
-        BN_mod_exp(BNpublicA, BNg, BNa, BNn, ptr1)
-        BN_bn2bin(BNpublicA, PublicA)
-        Array.Reverse(PublicA)
-
-        Dim U() As Byte = algorithm1.ComputeHash(Concat(PublicA, ServerB))
-        Array.Reverse(ServerB)
-        Array.Reverse(U)
-        Dim BNu As IntPtr = BN_bin2bn(U, U.Length, IntPtr.Zero)
-        Dim BNb As IntPtr = BN_bin2bn(ServerB, ServerB.Length, IntPtr.Zero)
-
-        'S= (B - kg^x) ^ (a + ux)   (mod N)
-        Dim temp1 As IntPtr = BN_new
-        Dim temp2 As IntPtr = BN_new
-        Dim temp3 As IntPtr = BN_new
-        Dim temp4 As IntPtr = BN_new
-        Dim temp5 As IntPtr = BN_new
-        Dim BNs As IntPtr = BN_new
-
-        'Temp1 = g ^ x mod n
-        BN_mod_exp(temp1, BNg, BNx, BNn, ptr1)
-
-        'Temp2 = k * Temp1
-        BN_mul(temp2, BNk, temp1, ptr1)
-
-        'Temp3 = B - Temp2
-        BN_sub(temp3, BNb, temp2)
-
-        'Temp4 = u * x
-        BN_mul(temp4, BNu, BNx, ptr1)
-
-        'Temp5 = a + Temp4
-        BN_add(temp5, BNa, temp4)
-
-        'S = Temp3 ^ Temp5 mod n
-        BN_mod_exp(BNs, temp3, temp5, BNn, ptr1)
-        BN_bn2bin(BNs, S)
         Array.Reverse(S)
 
         Dim list1 As New ArrayList
@@ -513,22 +428,6 @@ Module Realmserver
             buffer1((num2 + a.Length)) = b(num2)
         Next num2
         Return buffer1
-    End Function
-
-    Public Declare Function BN_add Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
-    Public Declare Function BN_sub Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr) As Integer
-    Public Declare Function BN_bin2bn Lib "LIBEAY32" (ByVal ByteArrayIn As Byte(), ByVal length As Integer, ByVal [to] As IntPtr) As IntPtr
-    Public Declare Function BN_bn2bin Lib "LIBEAY32" (ByVal a As IntPtr, ByVal [to] As Byte()) As Integer
-    Public Declare Function BN_CTX_free Lib "LIBEAY32" (ByVal a As IntPtr) As Integer
-    Public Declare Function BN_CTX_new Lib "LIBEAY32" () As IntPtr
-    Public Declare Function BN_mod Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    Public Declare Function BN_mod_exp Lib "LIBEAY32" (ByVal res As IntPtr, ByVal a As IntPtr, ByVal p As IntPtr, ByVal m As IntPtr, ByVal ctx As IntPtr) As IntPtr
-    Public Declare Function BN_mul Lib "LIBEAY32" (ByVal r As IntPtr, ByVal a As IntPtr, ByVal b As IntPtr, ByVal ctx As IntPtr) As Integer
-    Public Declare Function BN_new Lib "LIBEAY32" () As IntPtr
-
-    <DllImport("LIBEAY32.DLL")>
-    Public Function RAND_bytes(ByVal buf As Byte(), ByVal num As Integer) As Integer
-
     End Function
 
 End Module
