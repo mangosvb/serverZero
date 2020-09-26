@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "DBCExtractor", "DBCExtractor\DBCExtractor.vbproj", "{25BAA144-2E9A-46A8-A29A-38087427DA74}"
 EndProject
-Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "DBC Reader", "DBCReader\DBCReader\DBC Reader.vbproj", "{5A96D382-B9CA-4EA4-88C5-4A16A06993C2}"
-EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "DBPatcher", "DBPatcher\DBPatcher.vbproj", "{D0F57DBC-6709-4880-A43F-4921F919E92A}"
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "SpellBrowser", "SpellBrowser\SpellBrowser.vbproj", "{F1BB35A3-3B80-4A21-949E-BF40437A7344}"
@@ -15,13 +13,15 @@ Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "WardenExtractor", "WardenEx
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Extractor", "WoW.EXE Extractor\Extractor.vbproj", "{358B4840-29AE-4A4C-BFF1-8E92141C227C}"
 EndProject
-Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "WoWFakeClient", "WoWFakeClient\WoWFakeClient\WoWFakeClient.vbproj", "{4EC0C208-D2CD-4A52-AFD2-F1CF24F79C95}"
-EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Common", "..\Source\Common\Common.vbproj", "{DA7583A9-66FE-46F8-A5E0-1E28095F166B}"
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Shared", "..\Source\Shared\Shared.vbproj", "{0598780D-F31A-440D-81D9-E195B681B44E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MangosVB", "MangosVB", "{2FEA6DD8-3B53-471A-BCB5-DD052A75E589}"
+EndProject
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "DBC Reader", "DBCReader\DBC Reader.vbproj", "{6D87F59B-16A3-469A-A812-C93C28872CEB}"
+EndProject
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "WoWFakeClient", "WoWFakeClient\WoWFakeClient.vbproj", "{2EAFD2C5-66BB-4422-BEFD-DA935ACA6D42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,6 @@ Global
 		{25BAA144-2E9A-46A8-A29A-38087427DA74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25BAA144-2E9A-46A8-A29A-38087427DA74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25BAA144-2E9A-46A8-A29A-38087427DA74}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A96D382-B9CA-4EA4-88C5-4A16A06993C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A96D382-B9CA-4EA4-88C5-4A16A06993C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A96D382-B9CA-4EA4-88C5-4A16A06993C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A96D382-B9CA-4EA4-88C5-4A16A06993C2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D0F57DBC-6709-4880-A43F-4921F919E92A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D0F57DBC-6709-4880-A43F-4921F919E92A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0F57DBC-6709-4880-A43F-4921F919E92A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -53,10 +49,6 @@ Global
 		{358B4840-29AE-4A4C-BFF1-8E92141C227C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{358B4840-29AE-4A4C-BFF1-8E92141C227C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{358B4840-29AE-4A4C-BFF1-8E92141C227C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4EC0C208-D2CD-4A52-AFD2-F1CF24F79C95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4EC0C208-D2CD-4A52-AFD2-F1CF24F79C95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4EC0C208-D2CD-4A52-AFD2-F1CF24F79C95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4EC0C208-D2CD-4A52-AFD2-F1CF24F79C95}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DA7583A9-66FE-46F8-A5E0-1E28095F166B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA7583A9-66FE-46F8-A5E0-1E28095F166B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA7583A9-66FE-46F8-A5E0-1E28095F166B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -65,6 +57,14 @@ Global
 		{0598780D-F31A-440D-81D9-E195B681B44E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0598780D-F31A-440D-81D9-E195B681B44E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0598780D-F31A-440D-81D9-E195B681B44E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D87F59B-16A3-469A-A812-C93C28872CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D87F59B-16A3-469A-A812-C93C28872CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D87F59B-16A3-469A-A812-C93C28872CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D87F59B-16A3-469A-A812-C93C28872CEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EAFD2C5-66BB-4422-BEFD-DA935ACA6D42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EAFD2C5-66BB-4422-BEFD-DA935ACA6D42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EAFD2C5-66BB-4422-BEFD-DA935ACA6D42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EAFD2C5-66BB-4422-BEFD-DA935ACA6D42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
