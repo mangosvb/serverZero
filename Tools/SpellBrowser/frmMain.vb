@@ -28,11 +28,11 @@ Public Class frmMain
     Private LastSelected As Integer = 0
 
     Private Sub frmMain_Load(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Load
-        frmLoad.Show()
+        Program.frmLoad.Show()
 
         LoadDBCs()
 
-        frmLoad.Close()
+        Program.frmLoad.Close()
     End Sub
 
     Private Sub cmdFilter_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdFilter.Click
@@ -107,9 +107,9 @@ Public Class frmMain
             Exit Sub
         End If
 
-        frmLoad.Show()
-        frmLoad.lblAction.Text = "Filtering..."
-        frmLoad.pbAction.Value = 0
+        Program.frmLoad.Show()
+        Program.frmLoad.lblAction.Text = "Filtering..."
+        Program.frmLoad.pbAction.Value = 0
         Application.DoEvents()
 
         Dim i As Integer = 0, j As Integer = 0
@@ -129,14 +129,14 @@ Public Class frmMain
             j += 1
 
             If (i Mod 100) Then
-                frmLoad.pbAction.Value = Fix((i / SPELLs.Count) * 100)
+                Program.frmLoad.pbAction.Value = Fix((i / SPELLs.Count) * 100)
             End If
         Next
 
         lblStatus.Text = "Listing spells: " & j
 
         Application.DoEvents()
-        frmLoad.Close()
+        Program.frmLoad.Close()
     End Sub
 
     Private Sub lvSpells_DoubleClick(ByVal sender As Object, ByVal e As EventArgs) Handles lvSpells.DoubleClick
@@ -220,6 +220,6 @@ Public Class frmMain
     End Sub
 
     Private Sub cmdOpenCompare_Click(ByVal sender As System.Object, ByVal e As EventArgs) Handles cmdOpenCompare.Click
-        frmDbcCompare.Show()
+        Program.frmDbcCompare.Show()
     End Sub
 End Class

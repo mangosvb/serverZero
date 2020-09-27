@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../MangosVB.props" />
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
@@ -8,25 +9,10 @@
     <StartupObject>mangosVB.WorldServer.WorldServer</StartupObject>
     <OutputPath>..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <PlatformTarget>x86</PlatformTarget>
     <AssemblyTitle>WorldServer</AssemblyTitle>
-    <Description>Common Library part of MaNGOSvb Server Emulator</Description>
-    <Company>getMaNGOS</Company>
-    <Product>MaNGOSvb Server Pack</Product>
-    <Copyright>Copyright (C) 2020, getMaNGOS</Copyright>
-    <Version>2.0.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System">
-      <Name>System</Name>
-    </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
-    </Reference>
     <Reference Include="System.Runtime.Remoting" />
-    <Reference Include="System.Xml">
-      <Name>System.XML</Name>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
@@ -43,6 +29,6 @@
     <ProjectReference Include="..\Shared\Shared.vbproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <PackageReference Include="BigInteger" Version="1.0.7" />
   </ItemGroup>
 </Project>

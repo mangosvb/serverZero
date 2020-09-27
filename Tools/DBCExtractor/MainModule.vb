@@ -17,15 +17,14 @@
 '
 
 Imports System.IO
-Imports MpqLib.Mpq
-
+Imports Foole.Mpq
 Imports mangosVB.Common.DBC
 
 Imports mangosVB.Shared.GlobalEnum
 
 Module MainModule
 
-    Public MPQArchives As New List(Of CArchive)
+    Public MPQArchives As New List(Of MpqArchive)
     Public MapIDs As New List(Of Integer)
     Public MapNames As New List(Of String)
     Public MapAreas As New Dictionary(Of Integer, Integer)
@@ -60,7 +59,8 @@ Module MainModule
 
         Console.ForegroundColor = ConsoleColor.Yellow
         For Each mpq As String In MPQFilesToOpen
-            Dim newArchive As New CArchive(Path.GetFullPath("Data\" & mpq), False)
+            Dim stream = File.Open(Path.GetFullPath("Data\" & mpq), FileMode.Open)
+            Dim newArchive = New MpqArchive(stream, True)
             MPQArchives.Add(newArchive)
             Console.WriteLine("Loaded archive [{0}].", mpq)
         Next
@@ -111,15 +111,19 @@ ExitNow:
         Dim dbcFolder As String = Path.GetFullPath("dbc")
 
         Dim numDBCs As Integer = 0
-        For Each mpqArchive As CArchive In MPQArchives
-            numDBCs += mpqArchive.FindFiles("*.dbc").Count()
+        For Each mpqArchive In MPQArchives
+            numDBCs += mpqArchive.Where(Function(x) x.Filename IsNot Nothing).Where(Function(x) x.Filename.EndsWith(".dbc")).Count()
         Next
 
         Dim i As Integer = 0
         Dim numDiv30 As Integer = numDBCs \ 30
-        For Each mpqArchive As CArchive In MPQArchives
-            For Each mpqFile As CFileInfo In mpqArchive.FindFiles("*.dbc")
-                mpqArchive.ExportFile(mpqFile.FileName, Path.Combine(dbcFolder, Path.GetFileName(mpqFile.FileName)))
+        For Each mpqArchive In MPQArchives
+            For Each mpqFile In mpqArchive.Where(Function(x) x.Filename IsNot Nothing).Where(Function(x) x.Filename.EndsWith(".dbc"))
+                Using mpqStream = mpqArchive.OpenFile(mpqFile)
+                    Using fileStream = File.Create(Path.Combine(dbcFolder, Path.GetFileName(mpqFile.Filename)))
+                        mpqStream.CopyTo(fileStream)
+                    End Using
+                End Using
                 i += 1
 
                 If (i Mod numDiv30) = 0 Then

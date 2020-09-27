@@ -1,50 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../MangosVB.props" />
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>mangosVB.Common</RootNamespace>
     <AssemblyName>Common</AssemblyName>
-    <OutputPath>..\..\Bin\</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <PlatformTarget>x86</PlatformTarget>
     <AssemblyTitle>mangosVB.Common</AssemblyTitle>
-    <Description>Common Library part of MaNGOSvb Server Emulator</Description>
-    <Company>getMaNGOS</Company>
-    <Product>MaNGOSvb Server Pack</Product>
-    <Copyright>Copyright (C) 2020, getMaNGOS</Copyright>
-    <Version>2.0.0.0</Version>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Meebey.SmartIrc4net, Version=0.4.0.34161, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\Meebey.SmartIrc4net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MySql.Data, Version=5.2.2.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Bin\MySql.Data.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.vbproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ICSharpCode.SharpZipLib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="libeay32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Meebey.SmartIrc4net.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MySql.Data.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <PackageReference Include="MySql.Data" Version="8.0.21" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
+    <PackageReference Include="SmartIrc4net" Version="1.1.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 </Project>

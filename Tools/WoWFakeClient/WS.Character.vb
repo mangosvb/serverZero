@@ -16,8 +16,6 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Public Module NativeMethods
-    Public Function timeGetTime(ByVal dummy As String) As Integer
-        Return Environment.TickCount()
-    End Function
+Public Module WS_Character
+
 End Module
