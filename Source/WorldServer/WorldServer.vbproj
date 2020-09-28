@@ -2,14 +2,13 @@
   <Import Project="../../MangosVB.props" />
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
-    <AssemblyName>WorldServer</AssemblyName>
     <OutputType>Exe</OutputType>
+    <AssemblyTitle>WorldServer</AssemblyTitle>
+    <AssemblyName>WorldServer</AssemblyName>
     <RootNamespace>mangosVB.WorldServer</RootNamespace>
-    <StartupObject>mangosVB.WorldServer.WorldServer</StartupObject>
+    <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
     <OutputPath>..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyTitle>WorldServer</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Runtime.Remoting" />
