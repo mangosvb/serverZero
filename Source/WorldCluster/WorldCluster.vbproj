@@ -2,14 +2,13 @@
   <Import Project="../../MangosVB.props" />
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
-    <AssemblyName>WorldCluster</AssemblyName>
     <OutputType>Exe</OutputType>
+    <AssemblyTitle>WorldCluster</AssemblyTitle>
+    <AssemblyName>WorldCluster</AssemblyName>
     <RootNamespace>WorldCluster</RootNamespace>
-    <StartupObject>Sub Main</StartupObject>
+    <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
     <OutputPath>..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyTitle>WorldCluster</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Runtime.Remoting" />

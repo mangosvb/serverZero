@@ -2,14 +2,13 @@
   <Import Project="../../MangosVB.props" />
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <ApplicationIcon>realmd.ico</ApplicationIcon>
-    <AssemblyName>RealmServer</AssemblyName>
     <OutputType>Exe</OutputType>
+    <AssemblyTitle>RealmServer</AssemblyTitle>
+    <AssemblyName>RealmServer</AssemblyName>
     <RootNamespace>RealmServer</RootNamespace>
-    <StartupObject>RealmServer.RealmServer</StartupObject>
+    <ApplicationIcon>realmd.ico</ApplicationIcon>
     <OutputPath>..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyTitle>RealmServer</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vbproj" />
