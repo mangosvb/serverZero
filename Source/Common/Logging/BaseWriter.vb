@@ -110,16 +110,6 @@ Namespace Logging
                         log = New ConsoleWriter
                     Case "FILE"
                         log = New FileWriter(logConfig)
-                    Case "TELNET"
-                        Dim info As String() = Split(logConfig, ":")
-                        log = New TelnetWriter(Net.IPAddress.Parse(info(0)), info(1))
-                    Case "IRC"
-                        Dim info As String() = Split(logConfig, ":")
-                        Dim server As String = info(0)
-                        Dim port As String = info(1)
-                        Dim nick As String = info(2)
-                        Dim channel As String = info(3)
-                        log = New IrcWriter(server, port, nick, channel)
                 End Select
             Catch e As Exception
                 Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "hh:mm:ss"))
