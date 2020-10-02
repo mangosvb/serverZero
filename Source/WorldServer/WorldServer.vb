@@ -19,6 +19,8 @@
 Imports System.Xml.Serialization
 Imports System.IO
 Imports System.Reflection
+Imports SignalR
+Imports System.Net
 
 Imports mangosVB.Common.Globals
 Imports mangosVB.Common.Logging
@@ -123,8 +125,6 @@ Public Module WorldServer
         <XmlElement(ElementName:="CreateOther")> Public CreateOther As Boolean = False
 
         'Cluster Settings
-        <XmlElement(ElementName:="ClusterPassword")> Public ClusterPassword As String = ""
-        <XmlElement(ElementName:="ClusterConnectMethod")> Public ClusterConnectMethod As String = "tcp"
         <XmlElement(ElementName:="ClusterConnectHost")> Public ClusterConnectHost As String = "127.0.0.1"
         <XmlElement(ElementName:="ClusterConnectPort")> Public ClusterConnectPort As Integer = 50001
         <XmlElement(ElementName:="LocalConnectHost")> Public LocalConnectHost As String = "127.0.0.1"
@@ -180,7 +180,7 @@ Public Module WorldServer
                 AccountDatabase.SQLHost = AccountDBSettings(2)
                 AccountDatabase.SQLPort = AccountDBSettings(3)
                 AccountDatabase.SQLUser = AccountDBSettings(0)
-                AccountDatabase.SqlPass = AccountDBSettings(1)
+                AccountDatabase.SQLPass = AccountDBSettings(1)
                 AccountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5))
             Else
                 Console.WriteLine("Invalid connect string for the account database!")
@@ -236,7 +236,7 @@ Public Module WorldServer
         End Select
     End Sub
 
-    Public Sub CharacterSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
+    Public Sub CharacterSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[CHARACTER] " & OutBuf)
@@ -245,7 +245,7 @@ Public Module WorldServer
         End Select
     End Sub
 
-    Public Sub WorldSQLEventHandler(ByVal MessageID As Sql.EMessages, ByVal OutBuf As String)
+    Public Sub WorldSQLEventHandler(ByVal MessageID As SQL.EMessages, ByVal OutBuf As String)
         Select Case MessageID
             Case SQL.EMessages.ID_Error
                 Log.WriteLine(LogType.FAILED, "[WORLD] " & OutBuf)
@@ -364,6 +364,9 @@ Public Module WorldServer
         LoadTransports()
 
         ClsWorldServer = New WorldServerClass
+        Dim server = New ProxyServer(Of WorldServerClass)(IPAddress.Parse(Config.LocalConnectHost), Config.LocalConnectPort, ClsWorldServer)
+        ClsWorldServer.ClusterConnect()
+        Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}", ClsWorldServer.LocalURI)
         GC.Collect()
 
         If Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High Then

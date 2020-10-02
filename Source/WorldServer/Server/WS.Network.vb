@@ -16,34 +16,32 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports System.Runtime.Remoting
-Imports System.Security.Permissions
+Imports SignalR
 
 Imports mangosVB.Common.Globals
 Imports mangosVB.Shared
+Imports Microsoft.AspNetCore.SignalR
 
 Public Module WS_Network
-
-    Public Authenticator As Authenticator
 
     Private LastPing As Integer = 0
     Public WC_MsTime As Integer = 0
 
     Public Function MsTime() As Integer
         'DONE: Calculate the clusters timeGetTime("")
-        Return WC_MsTime + (TimeGetTime("") - LastPing)
+        Return WC_MsTime + (timeGetTime("") - LastPing)
     End Function
 
     Public Class WorldServerClass
-        Inherits MarshalByRefObject
+        Inherits Hub
         Implements IWorld
         Implements IDisposable
 
         <CLSCompliant(False)>
         Public _flagStopListen As Boolean = False
-        Private m_RemoteChannel As Channels.IChannel = Nothing
-        Private m_RemoteURI As String = ""
-        Private m_LocalURI As String = ""
+        Public LocalURI As String
+
+        Private m_RemoteURI As String
         Private m_Connection As Timer
         Private m_TimerCPU As Timer
         Private LastInfo As Date
@@ -52,43 +50,16 @@ Public Module WS_Network
         Public Cluster As ICluster = Nothing
 
         Public Sub New()
-            Try
-                m_RemoteURI = String.Format("{0}://{1}:{2}/Cluster.rem", Config.ClusterConnectMethod, Config.ClusterConnectHost, Config.ClusterConnectPort)
-                m_LocalURI = String.Format("{0}://{1}:{2}/WorldServer.rem", Config.ClusterConnectMethod, Config.LocalConnectHost, Config.LocalConnectPort)
-                Cluster = Nothing
+            m_RemoteURI = String.Format("http://{0}:{1}", Config.ClusterConnectHost, Config.ClusterConnectPort)
+            LocalURI = String.Format("http://{0}:{1}", Config.LocalConnectHost, Config.LocalConnectPort)
+            Cluster = Nothing
 
-                'Create Remoting Channel
-                Select Case Config.ClusterConnectMethod
-                    Case "ipc"
-                        m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.LocalConnectHost, Config.LocalConnectPort))
-                    Case "tcp"
-                        m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.LocalConnectPort)
-                End Select
+            'Creating connection timer
+            LastPing = timeGetTime("")
+            m_Connection = New Timer(AddressOf CheckConnection, Nothing, 10000, 10000)
 
-                Channels.ChannelServices.RegisterChannel(m_RemoteChannel, False)
-
-                'NOTE: Not protected remoting
-                'RemotingServices.Marshal(CType(Me, IWorld), "WorldServer.rem")
-
-                'NOTE: Password protected remoting
-                Authenticator = New Authenticator(Me, Config.ClusterPassword)
-
-                RemotingServices.Marshal(Authenticator, "WorldServer.rem")
-                Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}", m_LocalURI)
-
-                'Notify Cluster About Us
-                ClusterConnect()
-
-                'Creating connection timer
-                LastPing = timeGetTime("")
-                m_Connection = New Timer(AddressOf CheckConnection, Nothing, 10000, 10000)
-
-                'Creating CPU check timer
-                m_TimerCPU = New Timer(AddressOf CheckCPU, Nothing, 1000, 1000)
-
-            Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error in {1}: {0}.", e.Message, e.Source)
-            End Try
+            'Creating CPU check timer
+            m_TimerCPU = New Timer(AddressOf CheckCPU, Nothing, 1000, 1000)
         End Sub
 
 #Region "IDisposable Support"
@@ -101,7 +72,6 @@ Public Module WS_Network
                 ' TODO: set large fields to null.
                 ClusterDisconnect()
 
-                Channels.ChannelServices.UnregisterChannel(m_RemoteChannel)
                 _flagStopListen = True
                 m_TimerCPU.Dispose()
                 m_Connection.Dispose()
@@ -117,23 +87,17 @@ Public Module WS_Network
         End Sub
 #End Region
 
-        <SecurityPermission(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)>
-        Public Overrides Function InitializeLifetimeService() As Object
-            Return Nothing
-        End Function
-
         Public Sub ClusterConnect()
             While Cluster Is Nothing
                 Try
                     'NOTE: Password protected remoting
-                    Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), m_RemoteURI)
-                    Cluster = a.Login(Config.ClusterPassword)
+                    Cluster = ProxyClient.Create(Of ICluster)(m_RemoteURI)
 
                     'NOTE: Not protected remoting
                     'Cluster = RemotingServices.Connect(GetType(ICluster), m_RemoteURI)
                     If Not IsNothing(Cluster) Then
-                        If Cluster.Connect(m_LocalURI, Config.Maps) Then Exit While
-                        Cluster.Disconnect(m_LocalURI, Config.Maps)
+                        If Cluster.Connect(LocalURI, Config.Maps) Then Exit While
+                        Cluster.Disconnect(LocalURI, Config.Maps)
                     End If
                 Catch e As Exception
                     Log.WriteLine(LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
@@ -146,7 +110,7 @@ Public Module WS_Network
         End Sub
         Public Sub ClusterDisconnect()
             Try
-                Cluster.Disconnect(m_LocalURI, Config.Maps)
+                Cluster.Disconnect(LocalURI, Config.Maps)
             Catch
             Finally
                 Cluster = Nothing
@@ -155,8 +119,8 @@ Public Module WS_Network
 
         Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
             If Not Maps.ContainsKey(map) Then
-                CLIENTs(ID).Character.Dispose()
-                CLIENTs(ID).Delete()
+                WorldServer.CLIENTs(ID).Character.Dispose()
+                WorldServer.CLIENTs(ID).Delete()
             End If
 
             Cluster.ClientTransfer(ID, posX, posY, posZ, ori, map)
@@ -169,27 +133,27 @@ Public Module WS_Network
 
             Dim objCharacter As New ClientClass(client)
 
-            If CLIENTs.ContainsKey(id) = True Then  'Ooops, the character is already loaded, remove it
-                CLIENTs.Remove(id)
+            If WorldServer.CLIENTs.ContainsKey(id) = True Then  'Ooops, the character is already loaded, remove it
+                WorldServer.CLIENTs.Remove(id)
             End If
-            CLIENTs.Add(id, objCharacter)
+            WorldServer.CLIENTs.Add(id, objCharacter)
         End Sub
 
         Public Sub ClientDisconnect(ByVal id As UInteger) Implements IWorld.ClientDisconnect
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", id)
 
-            If CLIENTs(id).Character IsNot Nothing Then
-                CLIENTs(id).Character.Save()
+            If WorldServer.CLIENTs(id).Character IsNot Nothing Then
+                WorldServer.CLIENTs(id).Character.Save()
             End If
 
-            CLIENTs(id).Delete()
-            CLIENTs.Remove(id)
+            WorldServer.CLIENTs(id).Delete()
+            WorldServer.CLIENTs.Remove(id)
         End Sub
         Public Sub ClientLogin(ByVal id As UInteger, ByVal guid As ULong) Implements IWorld.ClientLogin
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", id, guid)
 
             Try
-                Dim client As ClientClass = CLIENTs(id)
+                Dim client As ClientClass = WorldServer.CLIENTs(id)
                 Dim Character As New CharacterObject(client, guid)
 
                 CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
@@ -212,20 +176,20 @@ Public Module WS_Network
         Public Sub ClientLogout(ByVal id As UInteger) Implements IWorld.ClientLogout
             Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client logout", id)
 
-            CLIENTs(id).Character.Logout(Nothing)
+            WorldServer.CLIENTs(id).Character.Logout(Nothing)
         End Sub
         Public Sub ClientPacket(ByVal id As UInteger, ByVal data() As Byte) Implements IWorld.ClientPacket
             If data Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
             Dim p As New PacketClass(data)
             Try
-                If CLIENTs.ContainsKey(id) = False Then Log.WriteLine(LogType.FAILED, "Client ID doesn't contain a key!: {0}", ToString)
-                CLIENTs(id).Packets.Enqueue(p)
-                ThreadPool.QueueUserWorkItem(AddressOf CLIENTs(id).OnPacket)
+                If WorldServer.CLIENTs.ContainsKey(id) = False Then Log.WriteLine(LogType.FAILED, "Client ID doesn't contain a key!: {0}", ToString)
+                WorldServer.CLIENTs(id).Packets.Enqueue(p)
+                ThreadPool.QueueUserWorkItem(AddressOf WorldServer.CLIENTs(id).OnPacket)
             Catch ex As Exception
                 Log.WriteLine(LogType.FAILED, "Error on Client OnPacket: {0}", ex.ToString)
             Finally
                 p.Dispose()
-                'CLIENTs(id).Dispose()
+                'WorldServer.CLIENTs(id).Dispose()
             End Try
         End Sub
 
@@ -260,10 +224,12 @@ Public Module WS_Network
             LastCPUTime = Process.GetCurrentProcess().TotalProcessorTime.TotalMilliseconds
         End Sub
 
-        Public Sub ServerInfo(ByRef cpuUsage As Single, ByRef memoryUsage As ULong) Implements IWorld.ServerInfo
-            memoryUsage = Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024)
-            cpuUsage = UsageCPU
-        End Sub
+        Public Function GetServerInfo() As ServerInfo Implements IWorld.GetServerInfo
+            Dim serverInfo As New ServerInfo
+            serverInfo.cpuUsage = UsageCPU
+            serverInfo.memoryUsage = Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024)
+            Return serverInfo
+        End Function
 
         Public Sub InstanceCreate(ByVal MapID As UInteger) Implements IWorld.InstanceCreate
             If Maps.ContainsKey(MapID) = False Then
@@ -288,29 +254,29 @@ Public Module WS_Network
         End Function
 
         Public Sub ClientSetGroup(ByVal ID As UInteger, ByVal GroupID As Long) Implements IWorld.ClientSetGroup
-            If Not CLIENTs.ContainsKey(ID) Then Return
+            If Not WorldServer.CLIENTs.ContainsKey(ID) Then Return
 
             If GroupID = -1 Then
                 Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G NULL]", ID)
 
-                CLIENTs(ID).Character.Group = Nothing
-                InstanceMapLeave(CLIENTs(ID).Character)
+                WorldServer.CLIENTs(ID).Character.Group = Nothing
+                InstanceMapLeave(WorldServer.CLIENTs(ID).Character)
             Else
                 Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G{1:00000}]", ID, GroupID)
 
-                If Not Groups.ContainsKey(GroupID) Then
+                If Not WS_Group.Groups.ContainsKey(GroupID) Then
                     Dim Group As New Group(GroupID)
                     'The New does a an add to the .Containskey collection above
                     'Groups.Add(GroupID, Group)
                     Cluster.GroupRequestUpdate(ID)
                 End If
 
-                CLIENTs(ID).Character.Group = Groups(GroupID)
-                InstanceMapEnter(CLIENTs(ID).Character)
+                WorldServer.CLIENTs(ID).Character.Group = WS_Group.Groups(GroupID)
+                InstanceMapEnter(WorldServer.CLIENTs(ID).Character)
             End If
         End Sub
         Public Sub GroupUpdate(ByVal GroupID As Long, ByVal GroupType As Byte, ByVal GroupLeader As ULong, ByVal Members() As ULong) Implements IWorld.GroupUpdate
-            If Groups.ContainsKey(GroupID) Then
+            If WS_Group.Groups.ContainsKey(GroupID) Then
 
                 Dim list As New List(Of ULong)
                 For Each GUID As ULong In Members
@@ -320,27 +286,27 @@ Public Module WS_Network
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update [{2}, {1} local members]", GroupID, list.Count, CType(GroupType, GroupType))
 
                 If list.Count = 0 Then
-                    Groups(GroupID).Dispose()
+                    WS_Group.Groups(GroupID).Dispose()
                 Else
-                    Groups(GroupID).Type = GroupType
-                    Groups(GroupID).Leader = GroupLeader
-                    Groups(GroupID).LocalMembers = list
+                    WS_Group.Groups(GroupID).Type = GroupType
+                    WS_Group.Groups(GroupID).Leader = GroupLeader
+                    WS_Group.Groups(GroupID).LocalMembers = list
                 End If
             End If
         End Sub
         Public Sub GroupUpdateLoot(ByVal GroupID As Long, ByVal Difficulty As Byte, ByVal Method As Byte, ByVal Threshold As Byte, ByVal Master As ULong) Implements IWorld.GroupUpdateLoot
-            If Groups.ContainsKey(GroupID) Then
+            If WS_Group.Groups.ContainsKey(GroupID) Then
 
                 Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
-                Groups(GroupID).DungeonDifficulty = Difficulty
-                Groups(GroupID).LootMethod = Method
-                Groups(GroupID).LootThreshold = Threshold
+                WS_Group.Groups(GroupID).DungeonDifficulty = Difficulty
+                WS_Group.Groups(GroupID).LootMethod = Method
+                WS_Group.Groups(GroupID).LootThreshold = Threshold
 
                 If CHARACTERs.ContainsKey(Master) Then
-                    Groups(GroupID).LocalLootMaster = CHARACTERs(Master)
+                    WS_Group.Groups(GroupID).LocalLootMaster = CHARACTERs(Master)
                 Else
-                    Groups(GroupID).LocalLootMaster = Nothing
+                    WS_Group.Groups(GroupID).LocalLootMaster = Nothing
                 End If
             End If
         End Sub
@@ -394,14 +360,14 @@ Public Module WS_Network
             While Packets.Count >= 1
                 Try ' Trap a Packets.Dequeue issue when no packets are queued... possibly an error with the Packets.Count above'
                     Dim p As PacketClass = Packets.Dequeue
-                    Dim start As Integer = TimeGetTime("")
+                    Dim start As Integer = timeGetTime("")
                     Try
                         If Not IsNothing(p) Then
                             If PacketHandlers.ContainsKey(p.OpCode) = True Then
                                 Try
                                     PacketHandlers(p.OpCode).Invoke(p, Me)
-                                    If TimeGetTime("") - start > 100 Then
-                                        Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, TimeGetTime("") - start)
+                                    If timeGetTime("") - start > 100 Then
+                                        Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
                                     End If
                                 Catch e As Exception 'TargetInvocationException
                                     Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, p.OpCode)
@@ -499,7 +465,7 @@ Public Module WS_Network
                 Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
 
                 ClsWorldServer.Cluster.ClientDrop(Index)
-                CLIENTs.Remove(Index)
+                WorldServer.CLIENTs.Remove(Index)
                 If Not Character Is Nothing Then
                     Character.client = Nothing
                     Character.Dispose()
@@ -519,7 +485,7 @@ Public Module WS_Network
         Public Sub Delete()
             On Error Resume Next
 
-            CLIENTs.Remove(Index)
+            WorldServer.CLIENTs.Remove(Index)
             If Not Character Is Nothing Then
                 Character.client = Nothing
                 Character.Dispose()

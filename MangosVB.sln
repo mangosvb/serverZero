@@ -14,6 +14,8 @@ Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "WorldCluster", "Source\Worl
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "WorldServer", "Source\WorldServer\WorldServer.vbproj", "{936C7A31-3911-47B8-9B5A-AAAAB34AB522}"
 EndProject
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "SignalR", "Source\SignalR\SignalR.vbproj", "{8A1A2F45-0422-448B-A29B-2197357799AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{936C7A31-3911-47B8-9B5A-AAAAB34AB522}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{936C7A31-3911-47B8-9B5A-AAAAB34AB522}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{936C7A31-3911-47B8-9B5A-AAAAB34AB522}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A1A2F45-0422-448B-A29B-2197357799AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A1A2F45-0422-448B-A29B-2197357799AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A1A2F45-0422-448B-A29B-2197357799AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A1A2F45-0422-448B-A29B-2197357799AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

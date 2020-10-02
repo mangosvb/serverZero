@@ -20,8 +20,9 @@ Imports System.Net
 Imports System.Net.Sockets
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.Remoting
-Imports System.Security.Permissions
 Imports System.Threading
+Imports Microsoft.AspNetCore.SignalR
+Imports SignalR
 
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
@@ -34,7 +35,6 @@ Imports WorldCluster.Handlers
 Namespace Server
     Public Module WC_Network
         Public WorldServer As WorldServerClass
-        Public Authenticator As Authenticator
 
         Private ReadOnly LastPing As Integer = 0
 
@@ -44,7 +44,7 @@ Namespace Server
         End Function
 
         Class WorldServerClass
-            Inherits MarshalByRefObject
+            Inherits Hub
             Implements ICluster
             Implements IDisposable
 
@@ -53,7 +53,6 @@ Namespace Server
             Private m_TimerPing As Timer
             Private m_TimerStats As Timer
             Private m_TimerCPU As Timer
-            Private ReadOnly m_RemoteChannel As Channels.IChannel = Nothing
 
             Private m_Socket As Socket
 
@@ -65,22 +64,6 @@ Namespace Server
                     m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
                     Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
-
-                    'Create Remoting Channel
-                    Select Case Config.ClusterListenMethod
-                        Case "ipc"
-                            m_RemoteChannel = New Channels.Ipc.IpcChannel(String.Format("{0}:{1}", Config.ClusterListenAddress, Config.ClusterListenPort))
-                        Case "tcp"
-                            m_RemoteChannel = New Channels.Tcp.TcpChannel(Config.ClusterListenPort)
-                    End Select
-
-                    Channels.ChannelServices.RegisterChannel(m_RemoteChannel, False)
-
-                    'NOTE: Password protected remoting
-                    Authenticator = New Authenticator(Me, Config.ClusterPassword)
-
-                    RemotingServices.Marshal(Authenticator, "Cluster.rem")
-                    Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}://{1}:{2}/Cluster.rem", Config.ClusterListenMethod, Config.ClusterListenAddress, Config.ClusterListenPort)
 
                     'Creating ping timer
                     m_TimerPing = New Timer(AddressOf Ping, Nothing, 0, 15000)
@@ -117,39 +100,20 @@ Namespace Server
 #Region "IDisposable Support"
             Private _disposedValue As Boolean ' To detect redundant calls
 
-            ' IDisposable
-            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
-                If Not _disposedValue Then
-                    ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                    ' TODO: set large fields to null.
-                    Channels.ChannelServices.UnregisterChannel(m_RemoteChannel)
-
-                    m_flagStopListen = True
-                    m_Socket.Close()
-                    m_TimerPing.Dispose()
-                    m_TimerStats.Dispose()
-                    m_TimerCPU.Dispose()
-                End If
-                _disposedValue = True
-            End Sub
-
             ' This code added by Visual Basic to correctly implement the disposable pattern.
             Public Sub Dispose() Implements IDisposable.Dispose
-                ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
-                Dispose(True)
+                m_flagStopListen = True
+                m_Socket.Close()
+                m_TimerPing.Dispose()
+                m_TimerStats.Dispose()
+                m_TimerCPU.Dispose()
                 GC.SuppressFinalize(Me)
             End Sub
 #End Region
-
-            <SecurityPermission(SecurityAction.Demand, Flags:=SecurityPermissionFlag.Infrastructure)>
-            Public Overrides Function InitializeLifetimeService() As Object
-                Return Nothing
-            End Function
-
             Public Worlds As New Dictionary(Of UInteger, IWorld)
             Public WorldsInfo As New Dictionary(Of UInteger, WorldInfo)
 
-            Public Function Connect(ByVal uri As String, ByVal maps As ICollection) As Boolean Implements ICluster.Connect
+            Public Function Connect(ByVal uri As String, ByVal maps As ArrayList) As Boolean Implements ICluster.Connect
                 Try
                     Disconnect(uri, maps)
 
@@ -160,8 +124,7 @@ Namespace Server
                         For Each Map As UInteger In maps
 
                             'NOTE: Password protected remoting
-                            Dim a As Authenticator = Activator.GetObject(GetType(Authenticator), uri)
-                            Worlds(Map) = CType(a.Login(Config.ClusterPassword), IWorld)
+                            Worlds(Map) = ProxyClient.Create(Of IWorld)(uri)
                             WorldsInfo(Map) = WorldServerInfo
                         Next
                     End SyncLock
@@ -174,15 +137,15 @@ Namespace Server
                 Return True
             End Function
 
-            Public Sub Disconnect(uri As String, maps As ICollection) Implements ICluster.Disconnect
+            Public Sub Disconnect(uri As String, maps As ArrayList) Implements ICluster.Disconnect
                 If maps.Count = 0 Then Return
 
                 'TODO: Unload arenas or battlegrounds that is hosted on this server!
                 For Each map As UInteger In maps
 
                     'DONE: Disconnecting clients
-                    SyncLock CType(CLIENTs, ICollection).SyncRoot
-                        For Each objCharacter As KeyValuePair(Of UInteger, ClientClass) In CLIENTs
+                    SyncLock CType(WorldCluster.CLIENTs, ICollection).SyncRoot
+                        For Each objCharacter As KeyValuePair(Of UInteger, ClientClass) In WorldCluster.CLIENTs
                             If Not objCharacter.Value.Character Is Nothing AndAlso
                                objCharacter.Value.Character.IsInWorld AndAlso
                                objCharacter.Value.Character.Map = map Then
@@ -214,7 +177,7 @@ Namespace Server
             End Sub
 
             Public Sub Ping(ByVal State As Object)
-                Dim DownedServers As New List(Of UInteger)
+                Dim DownedServers As New ArrayList
                 Dim SentPingTo As New Dictionary(Of WorldInfo, Integer)
 
                 Dim MyTime As Integer
@@ -236,7 +199,9 @@ Namespace Server
                                 Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, Latency)
 
                                 'Query CPU and Memory usage
-                                w.Value.ServerInfo(WorldsInfo(w.Key).CPUUsage, WorldsInfo(w.Key).MemoryUsage)
+                                Dim serverInfo = w.Value.GetServerInfo()
+                                WorldsInfo(w.Key).CPUUsage = serverInfo.cpuUsage
+                                WorldsInfo(w.Key).MemoryUsage = serverInfo.memoryUsage
                             Else
                                 Log.WriteLine(LogType.NETWORK, "Map {0:000} ping: {1}ms", w.Key, SentPingTo(WorldsInfo(w.Key)))
                             End If
@@ -256,15 +221,15 @@ Namespace Server
             End Sub
 
             Public Sub ClientSend(ByVal id As UInteger, ByVal data() As Byte) Implements ICluster.ClientSend
-                If CLIENTs.ContainsKey(id) Then CLIENTs(id).Send(data)
+                If WorldCluster.CLIENTs.ContainsKey(id) Then WorldCluster.CLIENTs(id).Send(data)
             End Sub
 
             Public Sub ClientDrop(ByVal ID As UInteger) Implements ICluster.ClientDrop
-                If CLIENTs.ContainsKey(ID) Then
+                If WorldCluster.CLIENTs.ContainsKey(ID) Then
                     Try
-                        Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped map {1:000}", ID, CLIENTs(ID).Character.Map)
-                        CLIENTs(ID).Character.IsInWorld = False
-                        CLIENTs(ID).Character.OnLogout()
+                        Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped map {1:000}", ID, WorldCluster.CLIENTs(ID).Character.Map)
+                        WorldCluster.CLIENTs(ID).Character.IsInWorld = False
+                        WorldCluster.CLIENTs(ID).Character.OnLogout()
                     Catch ex As Exception
                         Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has dropped an exception: {1}", ID, ex.ToString)
                     End Try
@@ -274,7 +239,7 @@ Namespace Server
             End Sub
 
             Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger) Implements ICluster.ClientTransfer
-                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has transferred from map {1:000} to map {2:000}", ID, CLIENTs(ID).Character.Map, map)
+                Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has transferred from map {1:000} to map {2:000}", ID, WorldCluster.CLIENTs(ID).Character.Map, map)
 
                 Dim p As New PacketClass(OPCODES.SMSG_NEW_WORLD)
                 p.AddUInt32(map)
@@ -282,38 +247,30 @@ Namespace Server
                 p.AddSingle(posY)
                 p.AddSingle(posZ)
                 p.AddSingle(ori)
-                CLIENTs(ID).Send(p)
+                WorldCluster.CLIENTs(ID).Send(p)
 
-                CLIENTs(ID).Character.Map = map
+                WorldCluster.CLIENTs(ID).Character.Map = map
             End Sub
 
             Public Sub ClientUpdate(ByVal ID As UInteger, ByVal zone As UInteger, ByVal level As Byte) Implements ICluster.ClientUpdate
-                If CLIENTs(ID).Character Is Nothing Then Return
+                If WorldCluster.CLIENTs(ID).Character Is Nothing Then Return
                 Log.WriteLine(LogType.INFORMATION, "[{0:000000}] Client has an updated zone {1:000}", ID, zone)
 
-                CLIENTs(ID).Character.Zone = zone
-                CLIENTs(ID).Character.Level = level
+                WorldCluster.CLIENTs(ID).Character.Zone = zone
+                WorldCluster.CLIENTs(ID).Character.Level = level
             End Sub
 
             Public Sub ClientSetChatFlag(ByVal ID As UInteger, ByVal flag As Byte) Implements ICluster.ClientSetChatFlag
-                If CLIENTs(ID).Character Is Nothing Then Return
+                If WorldCluster.CLIENTs(ID).Character Is Nothing Then Return
                 Log.WriteLine(LogType.DEBUG, "[{0:000000}] Client chat flag update [0x{1:X}]", ID, flag)
 
-                CLIENTs(ID).Character.ChatFlag = flag
+                WorldCluster.CLIENTs(ID).Character.ChatFlag = flag
             End Sub
 
             Public Function ClientGetCryptKey(ByVal ID As UInteger) As Byte() Implements ICluster.ClientGetCryptKey
                 Log.WriteLine(LogType.DEBUG, "[{0:000000}] Requested client crypt key", ID)
-                Return CLIENTs(ID).SS_Hash
+                Return WorldCluster.CLIENTs(ID).SS_Hash
             End Function
-
-            Public Sub Broadcast(p As PacketClass)
-                CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                    If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then objCharacter.Value.Client.SendMultiplyPackets(p)
-                Next
-                CHARACTERs_Lock.ReleaseReaderLock()
-            End Sub
 
             Public Sub Broadcast(ByVal Data() As Byte) Implements ICluster.Broadcast
                 Dim b As Byte()
@@ -330,7 +287,7 @@ Namespace Server
             End Sub
 
             Public Sub BroadcastGroup(ByVal groupId As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGroup
-                With GROUPs(groupId)
+                With WC_Handlers_Group.GROUPs(groupId)
                     For i As Byte = 0 To .Members.Length - 1
                         If .Members(i) IsNot Nothing Then
                             Call .Members(i).Client.Send(CType(Data.Clone, Byte()))
@@ -341,7 +298,7 @@ Namespace Server
             End Sub
 
             Public Sub BroadcastRaid(ByVal GroupID As Long, ByVal Data() As Byte) Implements ICluster.BroadcastGuild
-                With GROUPs(GroupID)
+                With WC_Handlers_Group.GROUPs(GroupID)
                     For i As Byte = 0 To .Members.Length - 1
                         If .Members(i) IsNot Nothing AndAlso .Members(i).Client IsNot Nothing Then
                             Call .Members(i).Client.Send(CType(Data.Clone, Byte()))
@@ -460,15 +417,17 @@ Namespace Server
             End Sub
 
             Public Sub GroupRequestUpdate(ByVal ID As UInteger) Implements ICluster.GroupRequestUpdate
-                If CLIENTs.ContainsKey(ID) AndAlso CLIENTs(ID).Character IsNot Nothing AndAlso CLIENTs(ID).Character.IsInWorld AndAlso CLIENTs(ID).Character.IsInGroup Then
+                If WorldCluster.CLIENTs.ContainsKey(ID) AndAlso WorldCluster.CLIENTs(ID).Character IsNot Nothing AndAlso WorldCluster.CLIENTs(ID).Character.IsInWorld AndAlso WorldCluster.CLIENTs(ID).Character.IsInGroup Then
 
-                    Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update request", CLIENTs(ID).Character.Group.Id)
+                    Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update request", WorldCluster.CLIENTs(ID).Character.Group.Id)
 
                     Try
-                        CLIENTs(ID).Character.GetWorld.GroupUpdate(CLIENTs(ID).Character.Group.Id, CLIENTs(ID).Character.Group.Type, CLIENTs(ID).Character.Group.GetLeader.Guid, CLIENTs(ID).Character.Group.GetMembers)
-                        CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(CLIENTs(ID).Character.Group.Id, CLIENTs(ID).Character.Group.DungeonDifficulty, CLIENTs(ID).Character.Group.LootMethod, CLIENTs(ID).Character.Group.LootThreshold, CLIENTs(ID).Character.Group.GetLootMaster.Guid)
+                        WorldCluster.CLIENTs(ID).Character.GetWorld.GroupUpdate(WorldCluster.CLIENTs(ID).Character.Group.Id, WorldCluster.CLIENTs(ID).Character.Group.Type, WorldCluster.CLIENTs(ID).Character.Group.GetLeader.Guid, WorldCluster.CLIENTs(ID).Character.Group.GetMembers)
+                        WorldCluster.CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(WorldCluster.CLIENTs(ID).Character.Group.Id, WorldCluster.CLIENTs(ID).Character.Group.DungeonDifficulty, WorldCluster.CLIENTs(ID).Character.Group.LootMethod, WorldCluster.CLIENTs(ID).Character.Group.LootThreshold, WorldCluster.CLIENTs(ID).Character.Group.GetLootMaster.Guid)
                     Catch
-                        WorldServer.Disconnect("NULL", New Integer() {CLIENTs(ID).Character.Map})
+                        Dim maps As New ArrayList
+                        maps.Add(WorldCluster.CLIENTs(ID).Character.Map)
+                        WorldServer.Disconnect("NULL", maps)
                     End Try
                 End If
             End Sub
@@ -479,7 +438,7 @@ Namespace Server
                 SyncLock CType(Worlds, ICollection).SyncRoot
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
-                            w.Value.GroupUpdate(GroupID, GROUPs(GroupID).Type, GROUPs(GroupID).GetLeader.Guid, GROUPs(GroupID).GetMembers)
+                            w.Value.GroupUpdate(GroupID, WC_Handlers_Group.GROUPs(GroupID).Type, WC_Handlers_Group.GROUPs(GroupID).GetLeader.Guid, WC_Handlers_Group.GROUPs(GroupID).GetMembers)
                         Catch ex As Exception
                             Log.WriteLine(LogType.FAILED, "[G{0:00000}] Group update failed for [M{1:000}]", GroupID, w.Key)
                         End Try
@@ -494,7 +453,7 @@ Namespace Server
 
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
-                            w.Value.GroupUpdateLoot(GroupID, GROUPs(GroupID).DungeonDifficulty, GROUPs(GroupID).LootMethod, GROUPs(GroupID).LootThreshold, GROUPs(GroupID).GetLootMaster.Guid)
+                            w.Value.GroupUpdateLoot(GroupID, WC_Handlers_Group.GROUPs(GroupID).DungeonDifficulty, WC_Handlers_Group.GROUPs(GroupID).LootMethod, WC_Handlers_Group.GROUPs(GroupID).LootThreshold, WC_Handlers_Group.GROUPs(GroupID).GetLootMaster.Guid)
                         Catch ex As Exception
                             Log.WriteLine(LogType.FAILED, "[G{0:00000}] Group update loot failed for [M{1:000}]", GroupID, w.Key)
                         End Try
@@ -547,10 +506,10 @@ Namespace Server
 
             Public Sub OnConnect(ByVal state As Object)
                 If Socket Is Nothing Then Throw New ApplicationException("socket doesn't exist!")
-                If CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
+                If WorldCluster.CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
 
                 Dim remoteEndPoint As IPEndPoint = CType(Socket.RemoteEndPoint, IPEndPoint)
-                IP = remoteEndPoint.Address
+                IP = remoteEndPoint.Address.ToString
                 Port = remoteEndPoint.Port
 
                 'DONE: Connection spam protection
@@ -577,8 +536,8 @@ Namespace Server
 
                 Index = Interlocked.Increment(CLIETNIDs)
 
-                SyncLock CType(CLIENTs, ICollection).SyncRoot
-                    CLIENTs.Add(Index, Me)
+                SyncLock CType(WorldCluster.CLIENTs, ICollection).SyncRoot
+                    WorldCluster.CLIENTs.Add(Index, Me)
                 End SyncLock
 
                 ConnectionsIncrement()
@@ -590,7 +549,7 @@ Namespace Server
                 If ar Is Nothing Then Throw New ApplicationException("Value ar is empty!")
                 If SocketBuffer Is Nothing Then Throw New ApplicationException("SocketBuffer is empty!")
                 If Socket Is Nothing Then Throw New ApplicationException("Socket is Null!")
-                If CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
+                If WorldCluster.CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
                 If Queue Is Nothing Then Throw New ApplicationException("Queue is Null!")
                 If SavedBytes Is Nothing Then Throw New ApplicationException("SavedBytes is empty!")
 
@@ -668,7 +627,7 @@ Namespace Server
             Public Sub OnPacket(state As Object)
                 If SocketBuffer Is Nothing Then Throw New ApplicationException("SocketBuffer is empty!")
                 If Socket Is Nothing Then Throw New ApplicationException("Socket is Null!")
-                If CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
+                If WorldCluster.CLIENTs Is Nothing Then Throw New ApplicationException("Clients doesn't exist!")
                 If Queue Is Nothing Then Throw New ApplicationException("Queue is Null!")
                 If SavedBytes Is Nothing Then Throw New ApplicationException("SavedBytes is empty!")
                 If PacketHandlers Is Nothing Then Throw New ApplicationException("PacketHandler is empty!")
@@ -696,7 +655,9 @@ Namespace Server
                             Try
                                 Character.GetWorld.ClientPacket(Index, p.Data)
                             Catch
-                                WorldServer.Disconnect("NULL", (New Integer() {Character.Map}))
+                                Dim maps As New ArrayList
+                                maps.Add(Character.Map)
+                                WorldServer.Disconnect("NULL", maps)
                             End Try
                         End If
 
@@ -792,8 +753,8 @@ Namespace Server
                     If Not Socket Is Nothing Then Socket.Close()
                     Socket = Nothing
 
-                    SyncLock CType(CLIENTs, ICollection).SyncRoot
-                        CLIENTs.Remove(Index)
+                    SyncLock CType(WorldCluster.CLIENTs, ICollection).SyncRoot
+                        WorldCluster.CLIENTs.Remove(Index)
                     End SyncLock
 
                     If Not Character Is Nothing Then
@@ -850,7 +811,7 @@ Namespace Server
                     If Not Socket.Connected Then Exit Sub
 
                     Call New PacketClass(OPCODES.SMSG_AUTH_RESPONSE).AddInt8(LoginResponse.LOGIN_WAIT_QUEUE)
-                    Call New PacketClass(OPCODES.SMSG_AUTH_RESPONSE).AddInt32(CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
+                    Call New PacketClass(OPCODES.SMSG_AUTH_RESPONSE).AddInt32(WorldCluster.CLIENTs.Count - CHARACTERs.Count)            'amount of players in queue
                     Send(New PacketClass(OPCODES.SMSG_AUTH_RESPONSE))
 
                     Log.WriteLine(LogType.INFORMATION, "[{1}:{2}] AUTH_WAIT_QUEUE: Server player limit reached!", IP, Port)

@@ -11,9 +11,6 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Runtime.Remoting" />
-  </ItemGroup>
-  <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="mangosVB.Common" />
     <Import Include="System" />
@@ -26,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vbproj" />
     <ProjectReference Include="..\Shared\Shared.vbproj" />
+    <ProjectReference Include="..\SignalR\SignalR.vbproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BigInteger" Version="1.0.7" />
