@@ -26,7 +26,7 @@ Public Class ProxyServer(Of T As Hub)
     End Sub
 
     Private Sub ConfigureServices(serviceCollection As IServiceCollection, hub As T)
-        serviceCollection.AddSignalR(AddressOf ConfigureSignalR).AddNewtonsoftJsonProtocol()
+        serviceCollection.AddSignalR(AddressOf ConfigureSignalR)
         serviceCollection.AddSingleton(hub)
     End Sub
 

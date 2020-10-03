@@ -1,6 +1,5 @@
 ﻿Imports System.Reflection
 Imports Microsoft.AspNetCore.SignalR.Client
-Imports Microsoft.Extensions.DependencyInjection
 
 Public Class ProxyClient
     Inherits DispatchProxy
@@ -19,7 +18,6 @@ Public Class ProxyClient
     Public Shared Function Create(Of T)(url As String) As T
         Dim hubConnectionBuilder = New HubConnectionBuilder()
         hubConnectionBuilder.WithUrl(url)
-        hubConnectionBuilder.AddNewtonsoftJsonProtocol()
         Dim hubConnection = hubConnectionBuilder.Build()
         hubConnection.StartAsync().Wait()
 
