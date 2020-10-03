@@ -90,7 +90,6 @@ Namespace Server
                 }
 
                 m_Client.Socket.NoDelay = True
-                m_Client.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1)
 
                 m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 

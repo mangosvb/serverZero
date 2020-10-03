@@ -452,7 +452,7 @@ Public Module WS_Maps
                 Next
 
                 Try
-                    Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\Map.dbc")
+                    Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Map.dbc")
                     Dim tmpMap As Integer
 
                     For i As Integer = 0 To tmpDBC.Rows - 1

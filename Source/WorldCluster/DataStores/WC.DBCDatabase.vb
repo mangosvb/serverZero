@@ -25,7 +25,7 @@ Imports mangosVB.Shared
 Namespace DataStores
     Public Module WS_DBCDatabase
 
-        Private Const MapDBC As String = "dbc\Map.dbc"
+        Private ReadOnly MapDBC As String = "dbc" & Path.DirectorySeparatorChar & "Map.dbc"
         Public Maps As New Dictionary(Of Integer, MapInfo)
         Public Sub InitializeMaps()
             Try
@@ -85,7 +85,7 @@ Namespace DataStores
 
         End Class
 
-        Private Const WorldSafeLocsDBC As String = "dbc\WorldSafeLocs.dbc"
+        Private ReadOnly WorldSafeLocsDBC As String = "dbc" & Path.DirectorySeparatorChar & "WorldSafeLocs.dbc"
         Public WorldSafeLocs As New Dictionary(Of Integer, TWorldSafeLoc)
         Public Sub InitializeWorldSafeLocs()
             Try
@@ -160,7 +160,7 @@ Namespace DataStores
             Public HordeStartO As Single
         End Class
 
-        Private Const ChatChannelsDBC As String = "dbc\ChatChannels.dbc"
+        Private ReadOnly ChatChannelsDBC As String = "dbc" & Path.DirectorySeparatorChar & "ChatChannels.dbc"
         Public ChatChannelsInfo As New Dictionary(Of Integer, ChatChannelInfo)
         Public Sub InitializeChatChannels()
             Try
@@ -191,7 +191,7 @@ Namespace DataStores
             Public Name As String
         End Class
 
-        Private Const ChrRacesDBC As String = "dbc\ChrRaces.dbc"
+        Private ReadOnly ChrRacesDBC As String = "dbc" & Path.DirectorySeparatorChar & "ChrRaces.dbc"
         Public Sub InitializeCharRaces()
             Try
                 'Loading from DBC
@@ -223,7 +223,7 @@ Namespace DataStores
             End Try
         End Sub
 
-        Private Const ChrClassesDBC As String = "dbc\ChrClasses.dbc"
+        Private ReadOnly ChrClassesDBC As String = "dbc" & Path.DirectorySeparatorChar & "ChrClasses.dbc"
         Public Sub InitializeCharClasses()
             Try
                 'Loading from DBC

@@ -364,7 +364,7 @@ Public Module WorldServer
         LoadTransports()
 
         ClsWorldServer = New WorldServerClass
-        Dim server = New ProxyServer(Of WorldServerClass)(IPAddress.Parse(Config.LocalConnectHost), Config.LocalConnectPort, ClsWorldServer)
+        Dim server = New ProxyServer(Of WorldServerClass)(Dns.GetHostAddresses(Config.LocalConnectHost)(0), Config.LocalConnectPort, ClsWorldServer)
         ClsWorldServer.ClusterConnect()
         Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}", ClsWorldServer.LocalURI)
         GC.Collect()
