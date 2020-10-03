@@ -248,7 +248,7 @@ Public Module WS_Handlers
         Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Redirected Packet]", client.IP, client.Port, packet.OpCode)
 
         If client.Character Is Nothing OrElse client.Character.FullyLoggedIn = False Then
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", client.IP, client.Port, packet.OpCode, vbNewLine, packet.Length)
+            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", client.IP, client.Port, packet.OpCode, Environment.NewLine, packet.Length)
             DumpPacket(packet.Data, client)
         End If
     End Sub

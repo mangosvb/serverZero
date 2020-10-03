@@ -131,7 +131,7 @@ Public Module WS_Handlers_Misc
                 End If
             End If
         Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error at name query.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error at name query.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 

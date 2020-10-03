@@ -895,7 +895,7 @@ Public Module WS_Maps
                     result = Maps(MapID).IsInLineOfSight(pos1, pos2)
                 Catch ex As Exception
                     result = True
-                    Log.WriteLine(LogType.CRITICAL, "Error checking line of sight.{0}{1}", vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error checking line of sight.{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
             End If
         End If
@@ -918,7 +918,7 @@ Public Module WS_Maps
                 height = Maps(MapID).GetHeight(pos)
             Catch ex As Exception
                 height = Single.PositiveInfinity
-                Log.WriteLine(LogType.CRITICAL, "Error checking height of map.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error checking height of map.{0}{1}", Environment.NewLine, ex.ToString)
             End Try
 #If VMAPS_DEBUG Then
             Log.WriteLine(LogType.DEBUG, "GetVMapHeight: {0}", height)
@@ -968,7 +968,7 @@ Public Module WS_Maps
                 Catch ex As Exception
                     result = False
                     resultPos = pos2
-                    Log.WriteLine(LogType.CRITICAL, "Error checking object hit position.{0}{1}", vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error checking object hit position.{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
                 rx = resultPos.x
                 ry = resultPos.y
@@ -1015,7 +1015,7 @@ Public Module WS_Maps
                         tmpCr.AddToWorld()
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating creature [{0}].{1}{2}", InfoRow.Item("spawn_entry"), vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error when creating creature [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
                 End Try
             End If
         Next
@@ -1033,7 +1033,7 @@ Public Module WS_Maps
                         tmpGo.AddToWorld()
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating gameobject [{0}].{1}{2}", InfoRow.Item("spawn_entry"), vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error when creating gameobject [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
                 End Try
             End If
         Next
@@ -1049,7 +1049,7 @@ Public Module WS_Maps
                     }
                     tmpCorpse.AddToWorld()
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating corpse [{0}].{1}{2}", InfoRow.Item("guid"), vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error when creating corpse [{0}].{1}{2}", InfoRow.Item("guid"), Environment.NewLine, ex.ToString)
                 End Try
             End If
         Next
@@ -1066,7 +1066,7 @@ Public Module WS_Maps
                         Transport.Value.NotifyEnter()
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating transport [{0}].{1}{2}", Transport.Key - GUID_MO_TRANSPORT, vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error when creating transport [{0}].{1}{2}", Transport.Key - GUID_MO_TRANSPORT, Environment.NewLine, ex.ToString)
                 End Try
             Next
         Catch

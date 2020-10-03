@@ -736,7 +736,7 @@ Public Module WS_Combat
                     DoMeleeAttack(False)
                 End If
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error doing attack.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error doing attack.{0}{1}", Environment.NewLine, ex.ToString)
             End Try
         End Sub
 
@@ -878,7 +878,7 @@ Public Module WS_Combat
                     SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
                 End If
                 AttackStop()
-                Log.WriteLine(LogType.DEBUG, "Error while doing melee attack.{0}", vbNewLine & e.ToString)
+                Log.WriteLine(LogType.DEBUG, "Error while doing melee attack.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 

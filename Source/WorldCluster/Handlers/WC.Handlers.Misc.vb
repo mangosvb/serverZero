@@ -75,9 +75,7 @@ Namespace Handlers
                 Try
                     client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
                 Catch
-                    Dim maps As New ArrayList
-                    maps.Add(client.Character.Map)
-                    WorldServer.Disconnect("NULL", maps)
+                    WorldServer.Disconnect("NULL", New List(Of UInteger)() From {client.Character.Map})
                 End Try
             End If
         End Sub
@@ -92,9 +90,7 @@ Namespace Handlers
             Try
                 client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
             Catch
-                Dim maps As New ArrayList
-                maps.Add(client.Character.Map)
-                WorldServer.Disconnect("NULL", maps)
+                WorldServer.Disconnect("NULL", New List(Of UInteger)() From {client.Character.Map})
                 Exit Sub
             End Try
 
@@ -119,9 +115,7 @@ Namespace Handlers
                 Try
                     client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
                 Catch
-                    Dim maps As New ArrayList
-                    maps.Add(client.Character.Map)
-                    WorldServer.Disconnect("NULL", maps)
+                    WorldServer.Disconnect("NULL", New List(Of UInteger)() From {client.Character.Map})
                 End Try
             Else
                 Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_TRADE", client.IP, client.Port)

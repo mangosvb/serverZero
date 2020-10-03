@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports System.Data
 Imports System.Reflection
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
@@ -90,7 +91,7 @@ Namespace Handlers
 
             Public ReadOnly Property IsGuildLeader() As Boolean
                 Get
-                    Return ((Guild IsNot Nothing) AndAlso Guild.Leader = GUID)
+                    Return ((Guild IsNot Nothing) AndAlso Guild.Leader = Guid)
                 End Get
             End Property
 
@@ -120,7 +121,7 @@ Namespace Handlers
             Public Sub ReLoad()
                 'DONE: Get character info from DB
                 Dim MySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE char_guid = {0};", GUID), MySQLQuery)
+                CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE char_guid = {0};", Guid), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     Race = CType(MySQLQuery.Rows(0).Item("char_race"), Byte)
                     Classe = CType(MySQLQuery.Rows(0).Item("char_class"), Byte)
@@ -149,22 +150,22 @@ Namespace Handlers
                     End If
                 Else
                     Log.WriteLine(LogType.DATABASE, "Failed to load expected results from:")
-                    Log.WriteLine(LogType.DATABASE, String.Format("SELECT * FROM characters WHERE char_guid = {0};", GUID))
+                    Log.WriteLine(LogType.DATABASE, String.Format("SELECT * FROM characters WHERE char_guid = {0};", Guid))
                 End If
 
             End Sub
 
             Public Sub New(ByVal g As ULong, ByRef objCharacter As ClientClass)
-                GUID = g
-                client = objCharacter
+                Guid = g
+                Client = objCharacter
 
                 ReLoad()
-                Access = client.Access
+                Access = Client.Access
 
                 LoadIgnoreList(Me)
 
                 CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                CHARACTERs.Add(GUID, Me)
+                CHARACTERs.Add(Guid, Me)
                 CHARACTERs_Lock.ReleaseWriterLock()
             End Sub
 
@@ -228,65 +229,65 @@ Namespace Handlers
             Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal thisMap As Integer)
                 Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
                 p.AddInt32(thisMap)
-                client.Send(p)
+                Client.Send(p)
                 p.Dispose()
 
                 'Actions Here
                 IsInWorld = False
-                GetWorld.ClientDisconnect(client.Index)
+                GetWorld.ClientDisconnect(Client.Index)
 
                 CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};",
-                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), thisMap, GUID))
+                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), thisMap, Guid))
 
                 'Do global transfer
-                WorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, thisMap)
+                WorldServer.ClientTransfer(Client.Index, posX, posY, posZ, ori, thisMap)
             End Sub
 
             Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single)
                 Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
                 p.AddInt32(Map)
-                client.Send(p)
+                Client.Send(p)
                 p.Dispose()
 
                 'Actions Here
                 IsInWorld = False
-                GetWorld.ClientDisconnect(client.Index)
+                GetWorld.ClientDisconnect(Client.Index)
 
                 CharacterDatabase.Update(String.Format("UPDATE characters SET char_positionX = {0}, char_positionY = {1}, char_positionZ = {2}, char_orientation = {3}, char_map_id = {4} WHERE char_guid = {5};",
-                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), Map, GUID))
+                                                       Trim(Str(posX)), Trim(Str(posY)), Trim(Str(posZ)), Trim(Str(ori)), Map, Guid))
 
                 'Do global transfer
-                WorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, Map)
+                WorldServer.ClientTransfer(Client.Index, posX, posY, posZ, ori, Map)
             End Sub
             'Login
             Public Sub OnLogin()
                 'DONE: Update character status in database
-                CharacterDatabase.Update("UPDATE characters SET char_online = 1 WHERE char_guid = " & GUID & ";")
+                CharacterDatabase.Update("UPDATE characters SET char_online = 1 WHERE char_guid = " & Guid & ";")
 
                 'DONE: SMSG_ACCOUNT_DATA_MD5
-                SendAccountMD5(client, Me)
+                SendAccountMD5(Client, Me)
 
                 'DONE: SMSG_TRIGGER_CINEMATIC
                 Dim q As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT char_moviePlayed FROM characters WHERE char_guid = {0} AND char_moviePlayed = 0;", GUID), q)
+                CharacterDatabase.Query(String.Format("SELECT char_moviePlayed FROM characters WHERE char_guid = {0} AND char_moviePlayed = 0;", Guid), q)
                 If q.Rows.Count > 0 Then
-                    CharacterDatabase.Update("UPDATE characters SET char_moviePlayed = 1 WHERE char_guid = " & GUID & ";")
-                    SendTriggerCinematic(client, Me)
+                    CharacterDatabase.Update("UPDATE characters SET char_moviePlayed = 1 WHERE char_guid = " & Guid & ";")
+                    SendTriggerCinematic(Client, Me)
                 End If
 
                 'DONE: SMSG_LOGIN_SETTIMESPEED
-                SendGameTime(client, Me)
+                SendGameTime(Client, Me)
 
                 'DONE: Server Message Of The Day
-                SendMessageMOTD(client, "Welcome to World of Warcraft.")
-                SendMessageMOTD(client, String.Format("This server is using {0} v.{1}", SetColor("[mangosVB]", 255, 0, 0), [Assembly].GetExecutingAssembly().GetName().Version))
+                SendMessageMOTD(Client, "Welcome to World of Warcraft.")
+                SendMessageMOTD(Client, String.Format("This server is using {0} v.{1}", SetColor("[mangosVB]", 255, 0, 0), [Assembly].GetExecutingAssembly().GetName().Version))
 
                 'DONE: Guild Message Of The Day
                 SendGuildMOTD(Me)
 
                 'DONE: Social lists
-                SendFriendList(client, Me)
-                SendIgnoreList(client, Me)
+                SendFriendList(Client, Me)
+                SendIgnoreList(Client, Me)
 
                 'DONE: Send "Friend online"
                 NotifyFriendStatus(Me, FriendResult.FRIEND_ONLINE)
@@ -297,12 +298,12 @@ Namespace Handlers
                 'DONE: Put back character in group if disconnected
                 For Each tmpGroup As KeyValuePair(Of Long, Group) In GROUPs
                     For i As Byte = 0 To tmpGroup.Value.Members.Length - 1
-                        If tmpGroup.Value.Members(i) IsNot Nothing AndAlso tmpGroup.Value.Members(i).GUID = GUID Then
+                        If tmpGroup.Value.Members(i) IsNot Nothing AndAlso tmpGroup.Value.Members(i).Guid = Guid Then
                             tmpGroup.Value.Members(i) = Me
                             tmpGroup.Value.SendGroupList()
 
                             Dim response As New PacketClass(0) With {
-                                    .Data = GetWorld.GroupMemberStats(GUID, 0)
+                                    .Data = GetWorld.GroupMemberStats(Guid, 0)
                                     }
                             tmpGroup.Value.BroadcastToOther(response, Me)
                             response.Dispose()
@@ -331,7 +332,7 @@ Namespace Handlers
             Public Sub SendGuildUpdate()
                 Dim GuildID As UInteger = 0
                 If Guild IsNot Nothing Then GuildID = Guild.ID
-                GetWorld.GuildUpdate(GUID, GuildID, GuildRank)
+                GetWorld.GuildUpdate(Guid, GuildID, GuildRank)
             End Sub
 
             'Chat

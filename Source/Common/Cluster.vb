@@ -22,9 +22,9 @@ Imports mangosVB.Shared
 Public Interface ICluster
 
     <Description("Signal realm server for new world server.")>
-    Function Connect(ByVal uri As String, ByVal maps As ArrayList) As Boolean
+    Function Connect(ByVal uri As String, ByVal maps As List(Of UInteger)) As Boolean
     <Description("Signal realm server for disconected world server.")>
-    Sub Disconnect(ByVal uri As String, ByVal maps As ArrayList)
+    Sub Disconnect(ByVal uri As String, ByVal maps As List(Of UInteger))
 
     <Description("Send data packet to client.")>
     Sub ClientSend(ByVal id As UInteger, ByVal data As Byte())

@@ -289,7 +289,7 @@ Public Module WS_Creatures_AI
                     State = AIState.AI_ATTACKING
                 End If
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error selecting target.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error selecting target.{0}{1}", Environment.NewLine, ex.ToString)
                 Reset()
             End Try
 

@@ -565,7 +565,7 @@ Public Module WS_Transports
                         'TODO: What more?
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Failed to transfer player [0x{0:X}].{1}{2}", tmpUnit.GUID, vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Failed to transfer player [0x{0:X}].{1}{2}", tmpUnit.GUID, Environment.NewLine, ex.ToString)
                 End Try
             Next
 

@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports System.Data
 Imports System.Net.Sockets
 Imports System.Threading
 Imports mangosVB.Common
@@ -371,8 +372,8 @@ Namespace Handlers
                     'DONE: Get items
                     Dim GUID As Long = MySQLQuery.Rows(i).Item("char_guid")
                     Dim ItemsMySQLQuery As New DataTable
-                    Dim characterDB As String = CharacterDatabase.SqldbName
-                    Dim worldDB As String = WorldDatabase.SqldbName
+                    Dim characterDB As String = CharacterDatabase.SQLDBName
+                    Dim worldDB As String = WorldDatabase.SQLDBName
                     CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM " & characterDB & ".characters_inventory, " & worldDB & ".item_template WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
 
                     Dim e As IEnumerator = ItemsMySQLQuery.Rows.GetEnumerator
@@ -555,7 +556,7 @@ Namespace Handlers
             If client.Character Is Nothing Then
                 client.Character = New CharacterObject(GUID, client)
             Else
-                If client.Character.GUID <> GUID Then
+                If client.Character.Guid <> GUID Then
                     client.Character.Dispose()
                     client.Character = New CharacterObject(GUID, client)
                 Else
@@ -566,7 +567,7 @@ Namespace Handlers
             If WorldServer.InstanceCheck(client, client.Character.Map) Then
                 client.Character.GetWorld.ClientConnect(client.Index, client.GetClientInfo)
                 client.Character.IsInWorld = True
-                client.Character.GetWorld.ClientLogin(client.Index, client.Character.GUID)
+                client.Character.GetWorld.ClientLogin(client.Index, client.Character.Guid)
 
                 client.Character.OnLogin()
             Else
@@ -614,14 +615,14 @@ Namespace Handlers
 
                 If client.Character.IsInWorld Then
                     'Inside server transfer
-                    client.Character.GetWorld.ClientLogin(client.Index, client.Character.GUID)
+                    client.Character.GetWorld.ClientLogin(client.Index, client.Character.Guid)
                 Else
                     'Inter-server transfer
                     client.Character.ReLoad()
 
                     client.Character.GetWorld.ClientConnect(client.Index, client.GetClientInfo)
                     client.Character.IsInWorld = True
-                    client.Character.GetWorld.ClientLogin(client.Index, client.Character.GUID)
+                    client.Character.GetWorld.ClientLogin(client.Index, client.Character.Guid)
                 End If
             Catch ex As Exception
                 Log.WriteLine(LogType.CRITICAL, "{0}", ex.ToString)

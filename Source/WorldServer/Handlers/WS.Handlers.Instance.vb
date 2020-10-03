@@ -123,7 +123,7 @@ Public Module WS_Handlers_Instance
             End If
 
         Catch ex As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error expiring map instance.{0}{1}", vbNewLine, ex.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error expiring map instance.{0}{1}", Environment.NewLine, ex.ToString)
         End Try
     End Sub
 

@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports System.Numerics
 Imports System.Security.Cryptography
 
 Imports mangosVB.Common
@@ -52,13 +53,13 @@ Public NotInheritable Class AuthEngineClass
         Dim ptr3 As New BigInteger
         ' Dim ptr4 As IntPtr = BN_new("")
         Array.Reverse(_b)
-        _bNb = New BigInteger(_b)
+        _bNb = New BigInteger(_b, isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(_b)
-        ptr1 = _bNg.modPow(_bNb, _bNn)
+        ptr1 = BigInteger.ModPow(_bNg, _bNb, _bNn)
         ptr2 = _bNk * _bNv
         ptr3 = ptr1 + ptr2
         _bnPublicB = ptr3 Mod _bNn
-        PublicB = _bnPublicB.getBytes()
+        PublicB = _bnPublicB.ToByteArray(isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(PublicB)
     End Sub
 
@@ -88,10 +89,10 @@ Public NotInheritable Class AuthEngineClass
         _bns = New BigInteger
         _s = New Byte(32 - 1) {}
 
-        ptr1 = _bNv.modPow(_bnu, _bNn)
+        ptr1 = BigInteger.ModPow(_bNv, _bnu, _bNn)
         ptr2 = _bna * ptr1
-        _bns = ptr2.modPow(_bNb, _bNn)
-        _s = _bns.getBytes()
+        _bns = BigInteger.ModPow(ptr2, _bNb, _bNn)
+        _s = _bns.ToByteArray(isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(_s)
         CalculateK()
     End Sub
@@ -104,16 +105,16 @@ Public NotInheritable Class AuthEngineClass
         Buffer.BlockCopy(PublicB, 0, buffer1, a.Length, PublicB.Length)
         _u = algorithm1.ComputeHash(buffer1)
         Array.Reverse(_u)
-        _bnu = New BigInteger(_u)
+        _bnu = New BigInteger(_u, isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(_u)
         Array.Reverse(a)
-        _bna = New BigInteger(a)
+        _bna = New BigInteger(a, isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(a)
         CalculateS()
     End Sub
 
     Private Sub CalculateV()
-        _bNv = _bNg.modPow(_bNx, _bNn)
+        _bNv = BigInteger.ModPow(_bNg, _bNx, _bNn)
         CalculateB()
     End Sub
 
@@ -130,15 +131,15 @@ Public NotInheritable Class AuthEngineClass
         Buffer.BlockCopy(Salt, 0, buffer5, 0, Salt.Length)
         buffer3 = algorithm1.ComputeHash(buffer5)
         Array.Reverse(buffer3)
-        _bNx = New BigInteger(buffer3)
+        _bNx = New BigInteger(buffer3, isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(g)
-        _bNg = New BigInteger(g)
+        _bNg = New BigInteger(g, isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(g)
         Array.Reverse(_k)
-        _bNk = New BigInteger(_k)
+        _bNk = New BigInteger(_k, isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(_k)
         Array.Reverse(N)
-        _bNn = New BigInteger(N)
+        _bNn = New BigInteger(N, isUnsigned:=True, isBigEndian:=True)
         Array.Reverse(N)
         CalculateV()
     End Sub

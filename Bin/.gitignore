@@ -17,4 +17,7 @@
 *.xml
 *.log
 *.map
+*.deps.json
+*.runtimeconfig.dev.json
+*.runtimeconfig.json
 *map*

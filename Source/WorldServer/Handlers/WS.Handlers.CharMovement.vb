@@ -418,7 +418,7 @@ Module WS_CharMovement
                 End If
             End If
         Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error when entering areatrigger.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error when entering areatrigger.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 
@@ -523,7 +523,7 @@ Module WS_CharMovement
                 End Try
             End If
         Catch e As Exception
-            Log.WriteLine(LogType.DEBUG, "Error when falling.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.DEBUG, "Error when falling.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 

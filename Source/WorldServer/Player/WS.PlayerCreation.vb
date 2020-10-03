@@ -97,7 +97,7 @@ Public Module WS_Player_Creation
 
             'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Character.Name)
         Catch err As Exception
-            Log.WriteLine(LogType.FAILED, "Error initializing character! {0} {1}", vbNewLine, err.ToString)
+            Log.WriteLine(LogType.FAILED, "Error initializing character! {0} {1}", Environment.NewLine, err.ToString)
             Return CharResponse.CHAR_CREATE_FAILED
         Finally
             Character.Dispose()

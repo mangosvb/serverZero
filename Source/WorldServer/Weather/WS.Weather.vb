@@ -192,7 +192,7 @@ Public Module WS_Weather
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", Environment.NewLine, ex.ToString)
                 Finally
                     CHARACTERs_Lock.ReleaseReaderLock()
                 End Try
@@ -200,7 +200,7 @@ Public Module WS_Weather
             Catch ex As ApplicationException
                 Log.WriteLine(LogType.WARNING, "Update: Weather Manager timed out")
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", Environment.NewLine, ex.ToString)
             End Try
 
             SMSG_WEATHER.Dispose()

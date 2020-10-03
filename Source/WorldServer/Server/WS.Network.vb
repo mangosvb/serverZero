@@ -96,8 +96,8 @@ Public Module WS_Network
                     'NOTE: Not protected remoting
                     'Cluster = RemotingServices.Connect(GetType(ICluster), m_RemoteURI)
                     If Not IsNothing(Cluster) Then
-                        If Cluster.Connect(LocalURI, Config.Maps) Then Exit While
-                        Cluster.Disconnect(LocalURI, Config.Maps)
+                        If Cluster.Connect(LocalURI, Config.Maps.Select(Function(x) CType(x, UInteger)).ToList()) Then Exit While
+                        Cluster.Disconnect(LocalURI, Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
                     End If
                 Catch e As Exception
                     Log.WriteLine(LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
@@ -110,7 +110,7 @@ Public Module WS_Network
         End Sub
         Public Sub ClusterDisconnect()
             Try
-                Cluster.Disconnect(LocalURI, Config.Maps)
+                Cluster.Disconnect(LocalURI, Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
             Catch
             Finally
                 Cluster = Nothing
@@ -370,7 +370,7 @@ Public Module WS_Network
                                         Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
                                     End If
                                 Catch e As Exception 'TargetInvocationException
-                                    Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, vbNewLine, p.OpCode, p.OpCode)
+                                    Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, Environment.NewLine, p.OpCode, p.OpCode)
                                     If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                                 End Try
                             Else
@@ -382,7 +382,7 @@ Public Module WS_Network
                             If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                         End If
                     Catch err As Exception
-                        Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, vbNewLine)
+                        Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, Environment.NewLine)
                         Delete()
                     Finally
                         Try
@@ -393,7 +393,7 @@ Public Module WS_Network
                         End Try
                     End Try
                 Catch err As Exception
-                    Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, vbNewLine)
+                    Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, Environment.NewLine)
                     Delete()
                 Finally
                     Try
@@ -412,7 +412,7 @@ Public Module WS_Network
                     ClsWorldServer.Cluster.ClientSend(Index, data)
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
-                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
+                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
                     ClsWorldServer.Cluster = Nothing
                     Delete()
                 End Try
@@ -429,7 +429,7 @@ Public Module WS_Network
                     packet.Dispose()
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
-                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
+                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
                     ClsWorldServer.Cluster = Nothing
                     Delete()
                 End Try
@@ -447,7 +447,7 @@ Public Module WS_Network
 
                 Catch Err As Exception
                     If DEBUG_CONNECTION Then Exit Sub
-                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, vbNewLine)
+                    Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
                     ClsWorldServer.Cluster = Nothing
                     Delete()
                 End Try

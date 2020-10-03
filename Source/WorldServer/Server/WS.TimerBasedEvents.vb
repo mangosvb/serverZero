@@ -176,7 +176,7 @@ Public Module WS_TimerBasedEvents
                 If CHARACTERs_Lock.IsReaderLockHeld = True Then CHARACTERs_Lock.ReleaseReaderLock()
 
             Catch ex As Exception
-                Log.WriteLine(LogType.WARNING, "Error at regenerate.{0}", vbNewLine & ex.ToString)
+                Log.WriteLine(LogType.WARNING, "Error at regenerate.{0}", Environment.NewLine & ex.ToString)
             End Try
             RegenerationWorking = False
         End Sub
@@ -403,7 +403,7 @@ Public Module WS_TimerBasedEvents
                 Next
 
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error updating transports.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error updating transports.{0}{1}", Environment.NewLine, ex.ToString)
             Finally
                 WORLD_TRANSPORTs_Lock.ReleaseReaderLock()
             End Try
@@ -419,7 +419,7 @@ Public Module WS_TimerBasedEvents
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", vbNewLine, ex.ToString)
+                    Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", Environment.NewLine, ex.ToString)
                 Finally
                     WORLD_CREATUREs_Lock.ReleaseReaderLock()
                 End Try
@@ -427,7 +427,7 @@ Public Module WS_TimerBasedEvents
             Catch ex As ApplicationException
                 Log.WriteLine(LogType.WARNING, "Update: AI Manager timed out")
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", Environment.NewLine, ex.ToString)
             End Try
             AIManagerWorking = False
         End Sub

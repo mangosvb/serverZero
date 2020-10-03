@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports System.Data
 Imports System.Threading
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
@@ -45,8 +46,8 @@ Namespace Handlers
             Public TargetIcons(7) As ULong
 
             Public Sub New(ByRef objCharacter As CharacterObject)
-                ID = Interlocked.Increment(GroupCounter)
-                GROUPs.Add(ID, Me)
+                Id = Interlocked.Increment(GroupCounter)
+                GROUPs.Add(Id, Me)
 
                 Members(0) = objCharacter
                 Members(1) = Nothing
@@ -60,7 +61,7 @@ Namespace Handlers
                 objCharacter.Group = Me
                 objCharacter.GroupAssistant = False
 
-                objCharacter.GetWorld.ClientSetGroup(objCharacter.client.Index, ID)
+                objCharacter.GetWorld.ClientSetGroup(objCharacter.Client.Index, Id)
             End Sub
 
 #Region "IDisposable Support"
@@ -117,9 +118,9 @@ Namespace Handlers
                     End If
                 Next
 
-                WorldServer.GroupSendUpdate(ID)
+                WorldServer.GroupSendUpdate(Id)
 
-                objCharacter.GetWorld.ClientSetGroup(objCharacter.client.Index, ID)
+                objCharacter.GetWorld.ClientSetGroup(objCharacter.Client.Index, Id)
 
                 SendGroupList()
             End Sub
@@ -144,9 +145,9 @@ Namespace Handlers
                         'DONE: If current is lootMaster then choose new
                         If i = LootMaster Then LootMaster = Leader
 
-                        If objCharacter.client IsNot Nothing Then
+                        If objCharacter.Client IsNot Nothing Then
                             Dim packet As New PacketClass(OPCODES.SMSG_GROUP_UNINVITE)
-                            objCharacter.client.Send(packet)
+                            objCharacter.Client.Send(packet)
                             packet.Dispose()
                         End If
 
@@ -154,9 +155,9 @@ Namespace Handlers
                     End If
                 Next
 
-                WorldServer.GroupSendUpdate(ID)
+                WorldServer.GroupSendUpdate(Id)
 
-                objCharacter.GetWorld.ClientSetGroup(objCharacter.client.Index, -1)
+                objCharacter.GetWorld.ClientSetGroup(objCharacter.Client.Index, -1)
 
                 CheckMembers()
             End Sub
@@ -169,7 +170,7 @@ Namespace Handlers
                 Dim ChosenMember As Byte = 255
                 Dim NewLootMaster As Boolean = False
                 For i As Byte = 0 To Members.Length - 1
-                    If Members(i) IsNot Nothing AndAlso Members(i).client IsNot Nothing Then
+                    If Members(i) IsNot Nothing AndAlso Members(i).Client IsNot Nothing Then
                         If Leaver IsNot Nothing AndAlso Leaver Is Members(i) Then
                             If i = LootMaster Then NewLootMaster = True
                             If ChosenMember <> 255 Then Exit For
@@ -191,7 +192,7 @@ Namespace Handlers
                     Broadcast(response)
                     response.Dispose()
 
-                    WorldServer.GroupSendUpdate(ID)
+                    WorldServer.GroupSendUpdate(Id)
                 End If
             End Sub
 
@@ -226,7 +227,7 @@ Namespace Handlers
                 Broadcast(packet)
                 packet.Dispose()
 
-                WorldServer.GroupSendUpdate(ID)
+                WorldServer.GroupSendUpdate(Id)
 
                 SendGroupList()
             End Sub
@@ -245,7 +246,7 @@ Namespace Handlers
             Public Sub SetLootMaster(ByRef GUID As ULong)
                 LootMaster = 255
                 For i As Byte = 0 To Members.Length - 1
-                    If (Not Members(i) Is Nothing) AndAlso (Members(i).GUID = GUID) Then
+                    If (Not Members(i) Is Nothing) AndAlso (Members(i).Guid = GUID) Then
                         LootMaster = i
                         Exit For
                     End If
@@ -272,7 +273,7 @@ Namespace Handlers
             Public Function GetMembers() As ULong()
                 Dim list As New List(Of ULong)
                 For i As Byte = 0 To Members.Length - 1
-                    If Not Members(i) Is Nothing Then list.Add(Members(i).GUID)
+                    If Not Members(i) Is Nothing Then list.Add(Members(i).Guid)
                 Next i
 
                 Return list.ToArray
@@ -280,21 +281,21 @@ Namespace Handlers
 
             Public Sub Broadcast(ByRef packet As PacketClass)
                 For i As Byte = 0 To Members.Length - 1
-                    If Members(i) IsNot Nothing AndAlso Members(i).client IsNot Nothing Then Members(i).client.SendMultiplyPackets(packet)
+                    If Members(i) IsNot Nothing AndAlso Members(i).Client IsNot Nothing Then Members(i).Client.SendMultiplyPackets(packet)
                 Next
             End Sub
 
             Public Sub BroadcastToOther(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
                 For i As Byte = 0 To Members.Length - 1
-                    If (Not Members(i) Is Nothing) AndAlso (Members(i) IsNot objCharacter) AndAlso (Members(i).client IsNot Nothing) Then Members(i).client.SendMultiplyPackets(packet)
+                    If (Not Members(i) Is Nothing) AndAlso (Members(i) IsNot objCharacter) AndAlso (Members(i).Client IsNot Nothing) Then Members(i).Client.SendMultiplyPackets(packet)
                 Next
             End Sub
 
             Public Sub BroadcastToOutOfRange(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
                 For i As Byte = 0 To Members.Length - 1
-                    If Members(i) IsNot Nothing AndAlso Members(i) IsNot objCharacter AndAlso Members(i).client IsNot Nothing Then
+                    If Members(i) IsNot Nothing AndAlso Members(i) IsNot objCharacter AndAlso Members(i).Client IsNot Nothing Then
                         If objCharacter.Map <> Members(i).Map OrElse Math.Sqrt((objCharacter.PositionX - Members(i).PositionX) ^ 2 + (objCharacter.PositionY - Members(i).PositionY) ^ 2) > DEFAULT_DISTANCE_VISIBLE Then
-                            Members(i).client.SendMultiplyPackets(packet)
+                            Members(i).Client.SendMultiplyPackets(packet)
                         End If
                     End If
                 Next
@@ -316,7 +317,7 @@ Namespace Handlers
                         For j As Byte = 0 To Members.Length - 1
                             If (Not Members(j) Is Nothing) AndAlso (Not Members(j) Is Members(i)) Then
                                 packet.AddString(Members(j).Name)
-                                packet.AddUInt64(Members(j).GUID)
+                                packet.AddUInt64(Members(j).Guid)
                                 If Members(j).IsInWorld Then
                                     packet.AddInt8(1)                           'CharOnline?
                                 Else
@@ -327,14 +328,14 @@ Namespace Handlers
                                 packet.AddInt8(MemberFlags)
                             End If
                         Next
-                        packet.AddUInt64(Members(Leader).GUID)
+                        packet.AddUInt64(Members(Leader).Guid)
                         packet.AddInt8(LootMethod)
-                        If LootMaster <> 255 Then packet.AddUInt64(Members(LootMaster).GUID) Else packet.AddUInt64(0)
+                        If LootMaster <> 255 Then packet.AddUInt64(Members(LootMaster).Guid) Else packet.AddUInt64(0)
                         packet.AddInt8(LootThreshold)
                         packet.AddInt16(0)
 
-                        If Members(i).client IsNot Nothing Then
-                            Members(i).client.Send(packet)
+                        If Members(i).Client IsNot Nothing Then
+                            Members(i).Client.Send(packet)
                         End If
                         packet.Dispose()
                     End If
@@ -342,14 +343,14 @@ Namespace Handlers
             End Sub
 
             Public Sub SendChatMessage(ByRef sender As CharacterObject, ByVal message As String, ByVal language As LANGUAGES, ByVal thisType As ChatMsg)
-                Dim packet As PacketClass = BuildChatMessage(sender.GUID, message, thisType, language, sender.ChatFlag)
+                Dim packet As PacketClass = BuildChatMessage(sender.Guid, message, thisType, language, sender.ChatFlag)
 
                 Broadcast(packet)
                 packet.Dispose()
             End Sub
 
             Public Sub SendChatMessage(ByRef sender As CharacterObject, ByVal message As String, ByVal language As LANGUAGES)
-                Dim packet As PacketClass = BuildChatMessage(sender.GUID, message, Type, language, sender.ChatFlag)
+                Dim packet As PacketClass = BuildChatMessage(sender.Guid, message, Type, language, sender.ChatFlag)
 
                 Broadcast(packet)
                 packet.Dispose()
@@ -571,7 +572,7 @@ Namespace Handlers
                 client.Character.Group.ConvertToRaid()
                 client.Character.Group.SendGroupList()
 
-                WorldServer.GroupSendUpdate(client.Character.Group.ID)
+                WorldServer.GroupSendUpdate(client.Character.Group.Id)
             End If
         End Sub
 
@@ -661,7 +662,7 @@ Namespace Handlers
             client.Character.Group.LootThreshold = Threshold
             client.Character.Group.SendGroupList()
 
-            WorldServer.GroupSendUpdateLoot(client.Character.Group.ID)
+            WorldServer.GroupSendUpdateLoot(client.Character.Group.Id)
         End Sub
 
         Public Sub On_MSG_MINIMAP_PING(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -673,7 +674,7 @@ Namespace Handlers
 
             If client.Character.IsInGroup Then
                 Dim response As New PacketClass(OPCODES.MSG_MINIMAP_PING)
-                response.AddUInt64(client.Character.GUID)
+                response.AddUInt64(client.Character.Guid)
                 response.AddSingle(x)
                 response.AddSingle(y)
                 client.Character.Group.Broadcast(response)
@@ -694,7 +695,7 @@ Namespace Handlers
             response.AddInt32(minRoll)
             response.AddInt32(maxRoll)
             response.AddInt32(Rnd.Next(minRoll, maxRoll))
-            response.AddUInt64(client.Character.GUID)
+            response.AddUInt64(client.Character.Guid)
             If client.Character.IsInGroup Then
                 client.Character.Group.Broadcast(response)
             Else
@@ -716,12 +717,12 @@ Namespace Handlers
 
                 If result = 0 Then
                     'DONE: Not ready
-                    client.Character.Group.GetLeader.client.Send(packet)
+                    client.Character.Group.GetLeader.Client.Send(packet)
                 Else
                     'DONE: Ready
                     Dim response As New PacketClass(OPCODES.MSG_RAID_READY_CHECK)
-                    response.AddUInt64(client.Character.GUID)
-                    client.Character.Group.GetLeader.client.Send(response)
+                    response.AddUInt64(client.Character.Guid)
+                    client.Character.Group.GetLeader.Client.Send(response)
                     response.Dispose()
                 End If
             End If

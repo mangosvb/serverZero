@@ -188,7 +188,7 @@ Public Module WS_Mail
             response.Dispose()
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error getting mail list: {0}{1}", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error getting mail list: {0}{1}", Environment.NewLine, e.ToString)
         End Try
     End Sub
 
@@ -276,7 +276,7 @@ Public Module WS_Mail
             client.Character.Save()
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error getting item from mail: {0}{1}", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error getting item from mail: {0}{1}", Environment.NewLine, e.ToString)
         End Try
     End Sub
 
@@ -458,7 +458,7 @@ Public Module WS_Mail
             End If
             CHARACTERs_Lock.ReleaseReaderLock()
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error sending mail: {0}{1}", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error sending mail: {0}{1}", Environment.NewLine, e.ToString)
         End Try
     End Sub
 

@@ -626,7 +626,7 @@ Public Module WS_DBCDatabase
             End Try
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, Environment.NewLine, e.ToString)
         End Try
     End Sub
 
