@@ -8,8 +8,7 @@
     <AssemblyTitle>Scripts</AssemblyTitle>
   </PropertyGroup> 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vbproj" />
     <ProjectReference Include="..\Shared\Shared.vbproj" />
-    <ProjectReference Include="..\WorldServer\WorldServer.vbproj" />
+    <ProjectReference Include="..\..\Services\WorldServer\WorldServer.vbproj" />
   </ItemGroup>
 </Project>

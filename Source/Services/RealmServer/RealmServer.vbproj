@@ -7,11 +7,10 @@
     <AssemblyName>RealmServer</AssemblyName>
     <RootNamespace>RealmServer</RootNamespace>
     <ApplicationIcon>realmd.ico</ApplicationIcon>
-    <OutputPath>..\..\Bin\</OutputPath>
+    <OutputPath>..\..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vbproj" />
-    <ProjectReference Include="..\Shared\Shared.vbproj" />
+    <ProjectReference Include="..\..\Common\Common\Common.vbproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../MangosVB.props" />
-  
+  <Import Project="../../MangosVB.props" />  
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>    
     <OutputType>Library</OutputType>
@@ -8,15 +7,9 @@
     <AssemblyName>SignalR</AssemblyName>
     <RootNamespace>SignalR</RootNamespace>
   </PropertyGroup>
-
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vbproj" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
   </ItemGroup>

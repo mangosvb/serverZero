@@ -7,12 +7,11 @@
     <AssemblyName>WorldCluster</AssemblyName>
     <RootNamespace>WorldCluster</RootNamespace>
     <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
-    <OutputPath>..\..\Bin\</OutputPath>
+    <OutputPath>..\..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vbproj" />
-    <ProjectReference Include="..\Shared\Shared.vbproj" />
-    <ProjectReference Include="..\SignalR\SignalR.vbproj" />
+    <ProjectReference Include="..\..\Common\Common\Common.vbproj" />
+    <ProjectReference Include="..\..\Common\SignalR\SignalR.vbproj" />
   </ItemGroup>
 </Project>
