@@ -1,6 +1,6 @@
 
 Imports Mangos.Shared
-Imports Mangos.WorldServer
+Imports Mangos.World
 
 'Summon implementation isn't yet supported.
 'Sand trap not implemented into script, need to make a gameobject I assume.

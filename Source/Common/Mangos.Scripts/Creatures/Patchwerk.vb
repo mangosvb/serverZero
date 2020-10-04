@@ -1,5 +1,5 @@
 Imports Mangos.Shared
-Imports Mangos.WorldServer
+Imports Mangos.World
 
 Namespace Creatures
     Public Class CreatureAI_Patchwerk

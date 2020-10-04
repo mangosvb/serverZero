@@ -1,4 +1,4 @@
-Imports Mangos.WorldServer
+Imports Mangos.World
 
 Namespace Creatures
     Public Class CreatureAI_Searing_Blade_Enforcer

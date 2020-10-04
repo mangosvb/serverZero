@@ -1,5 +1,5 @@
 Imports Mangos.Shared
-Imports Mangos.WorldServer
+Imports Mangos.World
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.
 Namespace Creatures

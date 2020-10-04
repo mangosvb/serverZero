@@ -1,5 +1,5 @@
 Imports Mangos.Shared
-Imports Mangos.WorldServer
+Imports Mangos.World
 
 'Example AI for combat. 
 'TODO: Fix AoE spells on AIs and then insert it as an example into this.
