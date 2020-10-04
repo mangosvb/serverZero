@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../MangosVB.props" />
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup> 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Services\MangosVB.WorldServer\MangosVB.WorldServer.vbproj" />
+  </ItemGroup>
+</Project>
