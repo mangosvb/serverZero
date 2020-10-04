@@ -212,16 +212,5 @@ Namespace Globals
                 Return False
             End If
         End Function
-
-        Public Function DoesSharedDllExist() As Boolean
-            If IO.File.Exists("Shared.dll") = False Then
-                'Log.WriteLine(LogType.CRITICAL, "Failed to find shared.dll, server startup aborted")
-                Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] Failed to find Shared.dll, server startup aborted", Format(TimeOfDay, "hh:mm:ss"))
-                Console.ReadKey()
-                Return False
-            End If
-            Return True
-        End Function
     End Module
 End Namespace

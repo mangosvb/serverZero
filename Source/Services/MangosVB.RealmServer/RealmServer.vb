@@ -946,10 +946,6 @@ Public Module RealmServer
         Console.WriteLine(" Website / Forum / Support: https://getmangos.eu/             ")
         Console.WriteLine("")
 
-        If DoesSharedDllExist() = False Then
-            End
-        End If
-
         Console.ForegroundColor = ConsoleColor.Magenta
 
         Console.ForegroundColor = ConsoleColor.White
