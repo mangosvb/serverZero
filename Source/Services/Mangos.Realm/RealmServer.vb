@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+
 Imports System.Data
 Imports System.IO
 Imports System.Net
@@ -24,11 +25,9 @@ Imports System.Security.Cryptography
 Imports System.Text
 Imports System.Threading
 Imports System.Xml.Serialization
-
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
-
 Imports Mangos.Shared
 
 Public Module RealmServer

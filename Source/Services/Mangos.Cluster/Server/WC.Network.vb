@@ -25,9 +25,9 @@ Imports Mangos.SignalR
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.DataStores
-Imports Mangos.WorldCluster.Globals
-Imports Mangos.WorldCluster.Handlers
+Imports Mangos.Cluster.DataStores
+Imports Mangos.Cluster.Globals
+Imports Mangos.Cluster.Handlers
 
 Namespace Server
     Public Module WC_Network

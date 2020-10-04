@@ -27,10 +27,10 @@ Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Common.Logging.BaseWriter
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.DataStores
-Imports Mangos.WorldCluster.Globals
-Imports Mangos.WorldCluster.Handlers
-Imports Mangos.WorldCluster.Server
+Imports Mangos.Cluster.DataStores
+Imports Mangos.Cluster.Globals
+Imports Mangos.Cluster.Handlers
+Imports Mangos.Cluster.Server
 
 Public Module WorldCluster
     Private Const ClusterPath As String = "configs/WorldCluster.ini"

@@ -21,8 +21,8 @@ Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.Globals
-Imports Mangos.WorldCluster.Server
+Imports Mangos.Cluster.Globals
+Imports Mangos.Cluster.Server
 
 Namespace Handlers
 

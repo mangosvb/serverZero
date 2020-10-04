@@ -17,8 +17,8 @@
 '
 Imports Mangos.Common.Globals
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.DataStores
-Imports Mangos.WorldCluster.Globals
+Imports Mangos.Cluster.DataStores
+Imports Mangos.Cluster.Globals
 
 Namespace Handlers
 

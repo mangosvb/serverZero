@@ -20,9 +20,9 @@ Imports System.Text.RegularExpressions
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.Handlers
-Imports Mangos.WorldCluster.DataStores
-Imports Mangos.WorldCluster.Server
+Imports Mangos.Cluster.Handlers
+Imports Mangos.Cluster.DataStores
+Imports Mangos.Cluster.Server
 Imports System.Data
 
 Namespace Globals

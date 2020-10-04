@@ -20,7 +20,7 @@ Imports System.Threading
 Imports System.Xml
 Imports Mangos.Common
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.Handlers
+Imports Mangos.Cluster.Handlers
 
 Namespace Server
 

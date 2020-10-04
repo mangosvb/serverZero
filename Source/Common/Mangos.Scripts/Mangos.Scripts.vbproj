@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-  </PropertyGroup> 
+  </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Mangos.WorldServer\Mangos.WorldServer.vbproj" />
+    <ProjectReference Include="..\..\Services\Mangos.World\Mangos.World.vbproj" />
   </ItemGroup>
 </Project>

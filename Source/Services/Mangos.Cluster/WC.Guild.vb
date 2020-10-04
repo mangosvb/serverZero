@@ -19,9 +19,9 @@
 Imports System.Data
 Imports Mangos.Common.Globals
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.Globals
-Imports Mangos.WorldCluster.Handlers
-Imports Mangos.WorldCluster.Server
+Imports Mangos.Cluster.Globals
+Imports Mangos.Cluster.Handlers
+Imports Mangos.Cluster.Server
 
 Public Module WC_Guild
 

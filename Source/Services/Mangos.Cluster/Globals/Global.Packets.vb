@@ -18,7 +18,7 @@
 Imports System.IO
 Imports Mangos.Common.Globals
 Imports Mangos.Shared
-Imports Mangos.WorldCluster.Server
+Imports Mangos.Cluster.Server
 
 Namespace Globals
     Public Module Packets
