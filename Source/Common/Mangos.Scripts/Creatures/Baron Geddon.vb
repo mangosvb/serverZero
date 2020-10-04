@@ -1,4 +1,4 @@
-Imports Mangos.Shared
+Imports Mangos.Common
 Imports Mangos.World
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.

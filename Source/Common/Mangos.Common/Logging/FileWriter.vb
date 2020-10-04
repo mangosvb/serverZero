@@ -17,7 +17,6 @@
 '
 
 Imports System.IO
-Imports Mangos.Shared
 
 'Using this logging type, all logs are saved in files numbered by date.
 'Writting commands is done trought console.

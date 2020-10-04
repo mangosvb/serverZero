@@ -18,7 +18,6 @@
 
 Imports System.Data
 Imports Mangos.Common
-Imports Mangos.Shared
 
 'WARNING: Use only with CREATUREsDatabase()
 Public Class CreatureInfo

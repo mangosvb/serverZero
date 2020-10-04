@@ -17,7 +17,6 @@
 '
 
 Imports Mangos.Common
-Imports Mangos.Shared
 
 Public Module WS_GuardGossip
 

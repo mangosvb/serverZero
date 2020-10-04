@@ -17,7 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Shared
+Imports Mangos.Common
 
 Public Class WS_QuestInfo
     Implements IDisposable

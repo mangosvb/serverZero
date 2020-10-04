@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
+Imports Mangos.Common
 Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 

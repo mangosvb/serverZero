@@ -1,4 +1,4 @@
-Imports Mangos.Shared
+Imports Mangos.Common
 Imports Mangos.World
 
 'Example AI for combat. 

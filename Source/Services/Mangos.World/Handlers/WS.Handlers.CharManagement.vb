@@ -18,7 +18,7 @@
 
 Imports System.Threading
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
+Imports Mangos.Common
 
 #Region "WS.CharMangment.Handlers"
 Public Module CharManagementHandler

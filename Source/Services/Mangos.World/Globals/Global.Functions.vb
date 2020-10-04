@@ -20,9 +20,8 @@ Imports System.Text.RegularExpressions
 Imports System.Data
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
-Imports Mangos.Shared.Races
-Imports Mangos.Shared.Classes
+Imports Mangos.Common.Races
+Imports Mangos.Common.Classes
 
 Public Module Functions
 

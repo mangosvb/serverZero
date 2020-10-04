@@ -17,7 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Shared
+Imports Mangos.Common
 
 Public Module WS_Handlers_Instance
 

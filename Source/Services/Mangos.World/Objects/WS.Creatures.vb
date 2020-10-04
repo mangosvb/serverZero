@@ -21,7 +21,6 @@ Imports System.Runtime.CompilerServices
 Imports Mangos.Common
 Imports Mangos.Common.NativeMethods
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
 Imports System.Data
 
 Public Module WS_Creatures

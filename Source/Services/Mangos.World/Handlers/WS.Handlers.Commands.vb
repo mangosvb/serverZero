@@ -21,8 +21,7 @@ Imports System.Threading
 Imports System.Data
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
-Imports Mangos.Shared.Functions
+Imports Mangos.Common.Functions
 
 <AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)>
 Public Class ChatCommandAttribute

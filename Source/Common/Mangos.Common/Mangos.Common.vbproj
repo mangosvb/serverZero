@@ -4,9 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mangos.Shared\Mangos.Shared.vbproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MySql.Data" Version="8.0.21" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
   </ItemGroup>

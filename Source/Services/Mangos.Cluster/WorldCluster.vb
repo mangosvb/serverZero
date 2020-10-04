@@ -26,7 +26,6 @@ Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Common.Logging.BaseWriter
-Imports Mangos.Shared
 Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers

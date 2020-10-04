@@ -22,7 +22,6 @@ Imports System.Data
 Imports Mangos.Common
 Imports System.Runtime.CompilerServices
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
 
 Public NotInheritable Class ItemObject
     Implements IDisposable

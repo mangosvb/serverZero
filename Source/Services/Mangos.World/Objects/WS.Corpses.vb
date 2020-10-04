@@ -20,7 +20,6 @@ Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
 
 Public Module WS_Corpses
     'WARNING: Use only with WORLD_GAMEOBJECTs()

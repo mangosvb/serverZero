@@ -17,7 +17,7 @@
 '
 Imports System.IO
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
+Imports Mangos.Common
 Imports Mangos.Cluster.Server
 
 Namespace Globals

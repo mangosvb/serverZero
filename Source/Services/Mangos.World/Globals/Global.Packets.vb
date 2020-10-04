@@ -19,7 +19,6 @@
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Globals.GlobalZip
-Imports Mangos.Shared
 
 Public Module Packets
     ''' <summary>

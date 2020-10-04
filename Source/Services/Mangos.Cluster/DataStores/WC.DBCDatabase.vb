@@ -18,7 +18,6 @@
 Imports System.Data
 Imports System.IO
 Imports Mangos.Common
-Imports Mangos.Shared
 
 Namespace DataStores
     Public Module WS_DBCDatabase

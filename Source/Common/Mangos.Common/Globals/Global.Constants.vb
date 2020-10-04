@@ -17,7 +17,6 @@
 '
 
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
 
 Public Module Global_Constants
     Public Const RevisionDbCharactersVersion As Integer = 1

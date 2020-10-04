@@ -20,7 +20,6 @@ Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Common.NativeMethods
-Imports Mangos.Shared
 
 Public Module WS_Handlers_Taxi
     ''' <summary>

@@ -20,7 +20,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.CodeDom.Compiler
 
-Imports Mangos.Shared
+Imports Mangos.Common
 
 'NOTE: How to use ScriptedObject as Function
 '   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")

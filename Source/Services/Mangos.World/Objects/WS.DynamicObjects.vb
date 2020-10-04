@@ -19,7 +19,6 @@
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Common.NativeMethods
-Imports Mangos.Shared
 
 Public Module WS_DynamicObjects
     Private Function GetNewGUID() As ULong

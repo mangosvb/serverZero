@@ -21,7 +21,7 @@ Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Globals.GlobalZip
-Imports Mangos.Shared
+Imports Mangos.Common
 Imports System.Numerics
 
 Public Module WS_Warden

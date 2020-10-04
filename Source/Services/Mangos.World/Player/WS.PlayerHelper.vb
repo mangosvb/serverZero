@@ -17,7 +17,7 @@
 '
 Imports System.Threading
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
+Imports Mangos.Common
 
 Public Module WS_PlayerHelper
 

@@ -20,7 +20,7 @@ Imports System.IO
 Imports Foole.Mpq
 Imports Mangos.Common.DBC
 
-Imports Mangos.Shared.GlobalEnum
+Imports Mangos.Common.GlobalEnum
 
 Module MainModule
 

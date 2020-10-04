@@ -19,7 +19,6 @@ Imports System.Reflection
 Imports System.Threading
 Imports System.Xml
 Imports Mangos.Common
-Imports Mangos.Shared
 Imports Mangos.Cluster.Handlers
 
 Namespace Server

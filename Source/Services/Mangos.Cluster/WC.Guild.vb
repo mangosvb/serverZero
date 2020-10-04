@@ -18,7 +18,7 @@
 
 Imports System.Data
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
+Imports Mangos.Common
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server

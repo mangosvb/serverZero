@@ -1,5 +1,5 @@
 
-Imports Mangos.Shared
+Imports Mangos.Common
 Imports Mangos.World
 
 'Summon implementation isn't yet supported.

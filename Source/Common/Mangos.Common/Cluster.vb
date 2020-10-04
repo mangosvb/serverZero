@@ -17,7 +17,6 @@
 '
 
 Imports System.ComponentModel
-Imports Mangos.Shared
 
 Public Interface ICluster
 

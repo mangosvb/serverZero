@@ -26,7 +26,6 @@ Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Common.Logging.BaseWriter
 Imports Mangos.Common.Global_Constants
-Imports Mangos.Shared
 Imports Mangos.SignalR
 
 Public Module WorldServer

@@ -18,7 +18,6 @@
 
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
 
 Public Module WS_Group
     Public ReadOnly Groups As New Dictionary(Of Long, Group)

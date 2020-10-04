@@ -19,7 +19,7 @@
 Imports System.Threading
 Imports System.Data
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
+Imports Mangos.Common
 
 Public Module WS_NPCs
     Private Const DbcBankBagSlotsMax As Integer = 12

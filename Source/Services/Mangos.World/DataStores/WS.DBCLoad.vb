@@ -19,7 +19,7 @@
 Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DBC
-Imports Mangos.Shared
+Imports Mangos.Common
 
 Public Module WS_DBCLoad
 

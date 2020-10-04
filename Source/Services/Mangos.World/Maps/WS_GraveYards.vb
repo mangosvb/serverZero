@@ -20,7 +20,6 @@ Imports System.Data
 Imports System.IO
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
 
 Public Class WS_GraveYards
     Implements IDisposable

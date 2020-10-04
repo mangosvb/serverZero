@@ -28,7 +28,6 @@ Imports System.Xml.Serialization
 Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
-Imports Mangos.Shared
 
 Public Module RealmServer
     Private Const RealmPath As String = "configs/RealmServer.ini"

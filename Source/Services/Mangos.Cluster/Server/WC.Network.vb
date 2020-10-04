@@ -24,7 +24,6 @@ Imports Microsoft.AspNetCore.SignalR
 Imports Mangos.SignalR
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Shared
 Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers

@@ -19,7 +19,6 @@
 'Writting commands is done trought console.
 
 Imports System.Threading
-Imports Mangos.Shared
 
 Namespace Logging
     Public Class ConsoleWriter

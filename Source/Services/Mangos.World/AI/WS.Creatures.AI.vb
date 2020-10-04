@@ -18,7 +18,6 @@
 
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Shared
 
 Public Module WS_Creatures_AI
 
