@@ -18,8 +18,8 @@
 
 
 #Region "WS.CharMangment.Handlers"
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 
 Public Module CharManagementHandler
 

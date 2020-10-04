@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>mangosVB.Shared</RootNamespace>
+    <RootNamespace>MangosVB.Shared</RootNamespace>
     <AssemblyName>Shared</AssemblyName>
-    <AssemblyTitle>mangosVB.Shared</AssemblyTitle>
+    <AssemblyTitle>MangosVB.Shared</AssemblyTitle>
   </PropertyGroup>
 </Project>

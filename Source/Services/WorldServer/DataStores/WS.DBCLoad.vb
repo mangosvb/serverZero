@@ -17,8 +17,8 @@
 '
 
 Imports System.IO
-Imports mangosVB.Common.DBC
-Imports mangosVB.Shared
+Imports MangosVB.Common.DBC
+Imports MangosVB.Shared
 
 Public Module WS_DBCLoad
 

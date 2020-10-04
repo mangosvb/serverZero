@@ -22,12 +22,12 @@ Imports System.Reflection
 Imports SignalR
 Imports System.Net
 
-Imports mangosVB.Common.Globals
-Imports mangosVB.Common.Logging
-Imports mangosVB.Common.Logging.BaseWriter
-Imports mangosVB.Common.Global_Constants
+Imports MangosVB.Common.Globals
+Imports MangosVB.Common.Logging
+Imports MangosVB.Common.Logging.BaseWriter
+Imports MangosVB.Common.Global_Constants
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Public Module WorldServer
 

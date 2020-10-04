@@ -18,9 +18,9 @@
 Imports System.Data
 Imports System.Net.Sockets
 Imports System.Threading
-Imports mangosVB.Common
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 Imports WorldCluster.Globals
 Imports WorldCluster.Server
 

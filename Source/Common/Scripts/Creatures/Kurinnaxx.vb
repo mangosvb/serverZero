@@ -1,6 +1,6 @@
 
-Imports mangosVB.Shared
-Imports mangosVB.WorldServer
+Imports MangosVB.Shared
+Imports MangosVB.WorldServer
 
 'Summon implementation isn't yet supported.
 'Sand trap not implemented into script, need to make a gameobject I assume.

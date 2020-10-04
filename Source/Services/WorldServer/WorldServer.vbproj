@@ -5,14 +5,14 @@
     <OutputType>Exe</OutputType>
     <AssemblyTitle>WorldServer</AssemblyTitle>
     <AssemblyName>WorldServer</AssemblyName>
-    <RootNamespace>mangosVB.WorldServer</RootNamespace>
+    <RootNamespace>MangosVB.WorldServer</RootNamespace>
     <ApplicationIcon>mvb0___vanilla_256x256.ico</ApplicationIcon>
     <OutputPath>..\..\..\Bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
-    <Import Include="mangosVB.Common" />
+    <Import Include="MangosVB.Common" />
     <Import Include="System" />
     <Import Include="System.Collections" />
     <Import Include="System.Collections.Generic" />

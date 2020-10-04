@@ -16,9 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.NativeMethods
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common.NativeMethods
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 
 Public Module WS_Spells
 

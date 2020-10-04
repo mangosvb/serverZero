@@ -18,7 +18,7 @@
 Imports System.Numerics
 Imports System.Security.Cryptography
 
-Imports mangosVB.Common
+Imports MangosVB.Common
 
 Public NotInheritable Class AuthEngineClass
     Implements IDisposable

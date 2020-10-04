@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <RootNamespace>mangosVB.Common</RootNamespace>
+    <RootNamespace>MangosVB.Common</RootNamespace>
     <AssemblyName>Common</AssemblyName>
-    <AssemblyTitle>mangosVB.Common</AssemblyTitle>
+    <AssemblyTitle>MangosVB.Common</AssemblyTitle>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.vbproj" />

@@ -19,7 +19,7 @@
 Imports System.IO
 Imports System.ComponentModel
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Namespace DBC
     <Description("DBC wrapper class using optimizations for reading row by row.")> _

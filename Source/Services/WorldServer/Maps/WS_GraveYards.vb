@@ -17,8 +17,8 @@
 '
 
 Imports System.IO
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 
 Public Class WS_GraveYards
     Implements IDisposable

@@ -1,6 +1,6 @@
-Imports mangosVB.Common
-Imports mangosVB.Shared
-Imports mangosVB.WorldServer
+Imports MangosVB.Common
+Imports MangosVB.Shared
+Imports MangosVB.WorldServer
 
 'Example AI for combat. 
 'TODO: Fix AoE spells on AIs and then insert it as an example into this.

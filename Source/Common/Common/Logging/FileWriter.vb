@@ -17,7 +17,7 @@
 '
 
 Imports System.IO
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 'Using this logging type, all logs are saved in files numbered by date.
 'Writting commands is done trought console.

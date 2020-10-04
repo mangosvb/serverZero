@@ -17,10 +17,10 @@
 '
 
 Imports System.Text.RegularExpressions
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
-Imports mangosVB.Shared.Races
-Imports mangosVB.Shared.Classes
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
+Imports MangosVB.Shared.Races
+Imports MangosVB.Shared.Classes
 
 Public Module Functions
 

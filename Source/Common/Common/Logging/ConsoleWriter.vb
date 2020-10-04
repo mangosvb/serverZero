@@ -19,7 +19,7 @@
 'Writting commands is done trought console.
 
 Imports System.Threading
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Namespace Logging
     Public Class ConsoleWriter

@@ -17,7 +17,7 @@
 '
 
 Imports System.IO
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 #If VMAPS Then
 

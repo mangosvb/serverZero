@@ -1,6 +1,6 @@
-Imports mangosVB.Common
-Imports mangosVB.Shared
-Imports mangosVB.WorldServer
+Imports MangosVB.Common
+Imports MangosVB.Shared
+Imports MangosVB.WorldServer
 
 Namespace Creatures
     Public Class CreatureAI_Arcanist_Doan

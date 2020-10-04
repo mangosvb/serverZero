@@ -17,7 +17,7 @@
 '
 
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 'Using this logging type, all logs are displayed in console.
 'Writting commands is done trought console.

@@ -17,9 +17,9 @@
 '
 Imports System.IO
 
-Imports mangosVB.Common.Globals
+Imports MangosVB.Common.Globals
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Imports WorldCluster.Server
 

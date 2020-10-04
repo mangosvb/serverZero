@@ -18,10 +18,10 @@
 
 Imports System.Reflection
 
-Imports mangosVB.Common.Globals
+Imports MangosVB.Common.Globals
 
-Imports mangosVB.Shared
-Imports mangosVB.Shared.Functions
+Imports MangosVB.Shared
+Imports MangosVB.Shared.Functions
 
 
 <AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)>

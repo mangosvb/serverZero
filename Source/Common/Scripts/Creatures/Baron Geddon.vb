@@ -1,6 +1,6 @@
-Imports mangosVB.Common
-Imports mangosVB.Shared
-Imports mangosVB.WorldServer
+Imports MangosVB.Common
+Imports MangosVB.Shared
+Imports MangosVB.WorldServer
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.
 Namespace Creatures

@@ -17,9 +17,9 @@
 '
 
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.NativeMethods
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common.NativeMethods
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 
 Public Module WS_Creatures
 

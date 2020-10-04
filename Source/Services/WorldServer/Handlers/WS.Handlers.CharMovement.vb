@@ -17,8 +17,8 @@
 '
 
 Imports System.Runtime.CompilerServices
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 
 Module WS_CharMovement
 

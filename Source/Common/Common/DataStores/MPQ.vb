@@ -27,7 +27,7 @@ Imports System.ComponentModel
 Imports ICSharpCode.SharpZipLib.BZip2
 Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Namespace MPQ
 

@@ -18,7 +18,7 @@
 Imports System.IO
 Imports System.ComponentModel
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Namespace WDB
     Public Class BaseWdb

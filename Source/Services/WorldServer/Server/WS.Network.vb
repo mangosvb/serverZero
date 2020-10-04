@@ -18,8 +18,8 @@
 
 Imports SignalR
 
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 Imports Microsoft.AspNetCore.SignalR
 
 Public Module WS_Network

@@ -24,9 +24,9 @@ Imports System.Threading
 Imports Microsoft.AspNetCore.SignalR
 Imports SignalR
 
-Imports mangosVB.Common
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 
 Imports WorldCluster.DataStores
 Imports WorldCluster.Globals

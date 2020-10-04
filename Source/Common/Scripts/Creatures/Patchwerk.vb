@@ -1,5 +1,5 @@
-Imports mangosVB.Shared
-Imports mangosVB.WorldServer
+Imports MangosVB.Shared
+Imports MangosVB.WorldServer
 
 Namespace Creatures
     Public Class CreatureAI_Patchwerk

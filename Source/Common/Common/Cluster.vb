@@ -17,7 +17,7 @@
 '
 
 Imports System.ComponentModel
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Public Interface ICluster
 

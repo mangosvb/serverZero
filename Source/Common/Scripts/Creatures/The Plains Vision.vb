@@ -1,5 +1,5 @@
 Imports System.Collections.Generic
-Imports mangosVB.WorldServer
+Imports MangosVB.WorldServer
 
 Namespace Creatures
     Public Class CreatureAI_The_Plains_Vision

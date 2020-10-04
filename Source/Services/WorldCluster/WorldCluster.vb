@@ -23,12 +23,12 @@ Imports System.Threading
 Imports System.Xml.Serialization
 Imports SignalR
 
-Imports mangosVB.Common
-Imports mangosVB.Common.Globals
-Imports mangosVB.Common.Logging
-Imports mangosVB.Common.Logging.BaseWriter
+Imports MangosVB.Common
+Imports MangosVB.Common.Globals
+Imports MangosVB.Common.Logging
+Imports MangosVB.Common.Logging.BaseWriter
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Imports WorldCluster.DataStores
 Imports WorldCluster.Globals

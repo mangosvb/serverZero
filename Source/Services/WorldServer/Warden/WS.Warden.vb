@@ -19,9 +19,9 @@
 Imports System.IO
 Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
-Imports mangosVB.Common.Globals
-Imports mangosVB.Common.Globals.GlobalZip
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Common.Globals.GlobalZip
+Imports MangosVB.Shared
 Imports System.Numerics
 
 Public Module WS_Warden

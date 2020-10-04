@@ -18,9 +18,9 @@
 Imports System.Data
 Imports System.IO
 
-Imports mangosVB.Common
+Imports MangosVB.Common
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Namespace DataStores
     Public Module WS_DBCDatabase

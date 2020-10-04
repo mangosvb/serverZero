@@ -18,7 +18,7 @@
 
 'Note: Temp place holder
 Imports System.Data
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Namespace Globals
     Public Module Functions

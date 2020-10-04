@@ -16,8 +16,8 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports mangosVB.Common.Globals
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Shared
 
 Public Class WS_Quests
 
@@ -1200,7 +1200,7 @@ Public Class WS_Quests
                         Try
                             If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
                                 'If objCharacter.IsQuestInProgress(creatureQuestId) = False Then
-                                '    Dim Prequest As mangosVB.WorldServer.WS_QuestInfo = ALLQUESTS.ReturnQuestInfoById(creatureQuestId)
+                                '    Dim Prequest As MangosVB.WorldServer.WS_QuestInfo = ALLQUESTS.ReturnQuestInfoById(creatureQuestId)
                                 '    Prequest.PreQuests.Contains()
                                 'ALLQUESTS.DoesPreQuestExist(creatureQuestId,
 

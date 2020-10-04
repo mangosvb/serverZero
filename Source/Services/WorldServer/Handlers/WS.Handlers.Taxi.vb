@@ -15,9 +15,9 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports mangosVB.Common.Globals
-Imports mangosVB.Common.NativeMethods
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Common.NativeMethods
+Imports MangosVB.Shared
 
 Public Module WS_Handlers_Taxi
     ''' <summary>

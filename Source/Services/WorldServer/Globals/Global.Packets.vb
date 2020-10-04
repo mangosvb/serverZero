@@ -15,9 +15,9 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports mangosVB.Common.Globals
-Imports mangosVB.Common.Globals.GlobalZip
-Imports mangosVB.Shared
+Imports MangosVB.Common.Globals
+Imports MangosVB.Common.Globals.GlobalZip
+Imports MangosVB.Shared
 
 Public Module Packets
     ''' <summary>

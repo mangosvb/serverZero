@@ -26,11 +26,11 @@ Imports System.Text
 Imports System.Threading
 Imports System.Xml.Serialization
 
-Imports mangosVB.Common
-Imports mangosVB.Common.Globals
-Imports mangosVB.Common.Logging
+Imports MangosVB.Common
+Imports MangosVB.Common.Globals
+Imports MangosVB.Common.Logging
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 Public Module RealmServer
     Private Const RealmPath As String = "configs/RealmServer.ini"

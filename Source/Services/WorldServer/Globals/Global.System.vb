@@ -20,7 +20,7 @@ Imports System.IO
 Imports System.Reflection
 Imports System.CodeDom.Compiler
 
-Imports mangosVB.Shared
+Imports MangosVB.Shared
 
 'NOTE: How to use ScriptedObject as Function
 '   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")
@@ -37,7 +37,7 @@ Public Class ScriptedObject
 
     Public Sub New()
         Dim LastDate As Date
-        Dim AssemblyFile As String = "mangosVB.Scripts.dll"
+        Dim AssemblyFile As String = "MangosVB.Scripts.dll"
 
         Dim AssemblySources As String() = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory() & "\Scripts\", "*.vb", SearchOption.AllDirectories)
         For Each Source As String In AssemblySources
