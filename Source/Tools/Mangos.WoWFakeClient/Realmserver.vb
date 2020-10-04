@@ -24,7 +24,6 @@ Imports System.Numerics
 
 Module Realmserver
     Private Random As New Random
-    Public ConsoleColor As New ConsoleColorClass
     Private Connection As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
     Private ConnIP As IPAddress
     Private ConnPort As Integer
@@ -60,10 +59,10 @@ Module Realmserver
 
     Sub Main()
         Console.Title = "WoW Fake Client"
-        ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.LightGreen)
+        Console.ForegroundColor = ConsoleColor.Green
         Console.WriteLine("WoW Fake Client made by UniX")
         Console.WriteLine()
-        ConsoleColor.SetConsoleColor()
+        Console.ForegroundColor = ConsoleColor.White
 
         InitializePackets()
         timeBeginPeriod(1)
@@ -98,9 +97,9 @@ Module Realmserver
 
     Sub ConnectToRealm()
         Try
-            ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.Gray)
+            Console.ForegroundColor = ConsoleColor.Gray
             Console.WriteLine("Connecting to {0}:{1}", RealmIP, RealmPort)
-            Console.ForegroundColor = System.ConsoleColor.White
+            Console.ForegroundColor = ConsoleColor.White
 
             Connection.Connect(RealmIP, RealmPort)
             Dim NewThread As Thread
@@ -108,9 +107,9 @@ Module Realmserver
             NewThread.Name = "Realm Server, Connected"
             NewThread.Start()
         Catch e As Exception
-            ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.Red)
+            Console.ForegroundColor = ConsoleColor.Red
             Console.WriteLine("Could not connect to the server.")
-            ConsoleColor.SetConsoleColor()
+            Console.ForegroundColor = ConsoleColor.White
         End Try
     End Sub
 

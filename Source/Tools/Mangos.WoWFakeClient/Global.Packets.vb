@@ -47,9 +47,9 @@ Public Module Packets
             Console.WriteLine(buffer)
             '#End If
         Catch e As Exception
-            ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.Red)
+            Console.ForegroundColor = System.ConsoleColor.Red
             Console.WriteLine("Error dumping packet: {0}{1}", vbNewLine, e.ToString)
-            ConsoleColor.SetConsoleColor()
+            Console.ForegroundColor = System.ConsoleColor.White
         End Try
     End Sub
 

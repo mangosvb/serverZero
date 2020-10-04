@@ -68,9 +68,9 @@ Public Module Worldserver
             NewThread.Name = "World Server, Connected"
             NewThread.Start()
         Catch e As Exception
-            ConsoleColor.SetConsoleColor(ConsoleColorClass.ForegroundColors.Red)
+            Console.ForegroundColor = ConsoleColor.Red
             Console.WriteLine("Could not connect to the world server.")
-            ConsoleColor.SetConsoleColor()
+            Console.ForegroundColor = ConsoleColor.White
         End Try
     End Sub
 
