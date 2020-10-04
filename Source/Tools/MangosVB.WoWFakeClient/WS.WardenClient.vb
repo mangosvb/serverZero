@@ -17,7 +17,6 @@
 '
 
 Imports System.IO
-Imports Emil.GMP
 Imports System.Security.Cryptography
 Imports System.Runtime.InteropServices
 Imports System.Numerics

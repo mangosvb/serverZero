@@ -1,4 +1,3 @@
-Imports System.Collections.Generic
 Imports MangosVB.WorldServer
 
 Namespace Creatures

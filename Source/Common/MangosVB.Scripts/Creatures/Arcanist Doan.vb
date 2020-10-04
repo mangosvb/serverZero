@@ -1,4 +1,3 @@
-Imports MangosVB.Common
 Imports MangosVB.Shared
 Imports MangosVB.WorldServer
 
