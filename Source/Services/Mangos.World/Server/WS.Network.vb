@@ -37,7 +37,6 @@ Public Module WS_Network
         Implements IWorld
         Implements IDisposable
 
-        <CLSCompliant(False)>
         Public _flagStopListen As Boolean = False
         Public LocalURI As String
 

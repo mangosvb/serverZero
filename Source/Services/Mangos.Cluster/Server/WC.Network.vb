@@ -44,7 +44,6 @@ Namespace Server
             Implements ICluster
             Implements IDisposable
 
-            <CLSCompliant(False)>
             Public m_flagStopListen As Boolean = False
             Private m_TimerPing As Timer
             Private m_TimerStats As Timer

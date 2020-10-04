@@ -19,17 +19,11 @@ Imports System.ComponentModel
 Imports System.Threading
 Imports MySql.Data.MySqlClient
 Imports System.Data
-'Imports System.Data.OracleClient
 
-<CLSCompliant(True), ComClass(SQL.ClassId, SQL.InterfaceId, SQL.EventsId)> _
 Public Class SQL
     Implements IDisposable
 
-#Region "Class's used"
-    <CLSCompliant(False)>
     Private MySQLConn As MySqlConnection
-    'Private OracleConn As OracleConnection
-#End Region
 
 #Region "Events and event ID's"
     Public Enum EMessages
@@ -39,24 +33,6 @@ Public Class SQL
 
     Public Event SQLMessage(ByVal MessageID As EMessages, ByVal OutBuf As String)
 #End Region
-
-#Region "COM GUIDs"
-    ' These  GUIDs provide the COM identity for this class
-    ' and its COM interfaces. If you change them, existing
-    ' clients will no longer be able to access the class.
-    Public Const ClassId As String = "ECC3DCA3-E394-4D4F-BCC9-FBC3A999B8D3"
-    Public Const InterfaceId As String = "4A2A2AF5-39A2-44BA-9881-57AA6D867D33"
-    Public Const EventsId As String = "BD50B4A8-D148-4C52-B8FC-469119FBB71D"
-#End Region
-
-    ' A creatable COM class must have a Public Sub New()
-    ' with no parameters, otherwise, the class will not be
-    ' registered in the COM registry and cannot be created
-    ' via CreateObject.
-    Public Sub New()
-        MyBase.New()
-    End Sub
-
     '#Region "Version Info <Update VInfo and rvDate as needed>"
     '    Private VInfo As String = "2.1.0a"
     '    Private rvDate As String = "9:36 PM, Wednesday, September, 25, 2006"

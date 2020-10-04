@@ -631,7 +631,6 @@ Public Module GlobalEnum
         WDB_FLOAT
     End Enum
 
-    <CLSCompliant(False)>
     Public Enum MpqFileFlags As Long
         MPQ_Changed = 1                     '&H00000001
         MPQ_Protected = 2                   '&H00000002
