@@ -102,13 +102,13 @@ Public Module WS_Commands
             End If
 
         Catch err As Exception
-            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Client command caused error! {3}{2}", client.IP, client.Port, err.ToString, vbNewLine)
-            client.Character.CommandResponse(String.Format("Your command caused error:" & vbNewLine & " [{0}]", err.Message))
+            Log.WriteLine(LogType.FAILED, "[{0}:{1}] Client command caused error! {3}{2}", client.IP, client.Port, err.ToString, Environment.NewLine)
+            client.Character.CommandResponse(String.Format("Your command caused error:" & Environment.NewLine & " [{0}]", err.Message))
         End Try
     End Sub
 
     'Help Command
-    <ChatCommand("help", "help #command" & vbNewLine & "Displays usage information about command, if no command specified - displays list of available commands.", AccessLevel.GameMaster)>
+    <ChatCommand("help", "help #command\r\nDisplays usage information about command, if no command specified - displays list of available commands.", AccessLevel.GameMaster)>
     Public Function Help(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         If Trim(Message) <> "" Then
             Dim Command As ChatCommand = ChatCommands(Trim(UppercaseFirstLetter(Message)))
@@ -120,11 +120,11 @@ Public Module WS_Commands
                 objCharacter.CommandResponse(Command.CommandHelp)
             End If
         Else
-            Dim cmdList As String = "Listing available commands:" & vbNewLine
+            Dim cmdList As String = "Listing available commands:" & Environment.NewLine
             For Each Command As KeyValuePair(Of String, ChatCommand) In ChatCommands
-                If Command.Value.CommandAccess <= objCharacter.Access Then cmdList += UppercaseFirstLetter(Command.Key) & vbNewLine '", "
+                If Command.Value.CommandAccess <= objCharacter.Access Then cmdList += UppercaseFirstLetter(Command.Key) & Environment.NewLine '", "
             Next
-            cmdList += vbNewLine + "Use help #command for usage information about particular command."
+            cmdList += Environment.NewLine + "Use help #command for usage information about particular command."
             objCharacter.CommandResponse(cmdList)
         End If
 
@@ -335,7 +335,7 @@ Public Module WS_Commands
             objCharacter.CommandResponse("This creature doesn't have AI")
         Else
             With WORLD_CREATUREs(objCharacter.TargetGUID)
-                objCharacter.CommandResponse(String.Format("Information for creature [{0}]:{1}ai = {2}{1}state = {3}{1}maxdist = {4}", .Name, vbNewLine, .aiScript.ToString, .aiScript.State.ToString, .MaxDistance))
+                objCharacter.CommandResponse(String.Format("Information for creature [{0}]:{1}ai = {2}{1}state = {3}{1}maxdist = {4}", .Name, Environment.NewLine, .aiScript.ToString, .aiScript.State.ToString, .MaxDistance))
                 objCharacter.CommandResponse("Hate table:")
                 For Each u As KeyValuePair(Of BaseUnit, Integer) In .aiScript.aiHateTable
                     objCharacter.CommandResponse(String.Format("{0:X} = {1} hate", u.Key.GUID, u.Value))
@@ -560,7 +560,7 @@ Public Module WS_Commands
                     Dim timeLeft As UInteger = 0
                     If timeNow < Spell.Value.Cooldown Then timeLeft = (Spell.Value.Cooldown - timeNow)
                     If timeLeft > 0 Then
-                        sCooldowns &= "* Spell: " & Spell.Key & " - TimeLeft: " & GetTimeLeftString(timeLeft) & " sec" & " - Item: " & Spell.Value.CooldownItem & vbNewLine
+                        sCooldowns &= "* Spell: " & Spell.Key & " - TimeLeft: " & GetTimeLeftString(timeLeft) & " sec" & " - Item: " & Spell.Value.CooldownItem & Environment.NewLine
                     End If
                 End If
             Next
@@ -1229,7 +1229,7 @@ Public Module WS_Commands
         Dim posMap As Integer '= 0
 
         If UppercaseFirstLetter(location) = "LIST" Then
-            Dim cmdList As String = "Listing of available locations:" & vbNewLine
+            Dim cmdList As String = "Listing of available locations:" & Environment.NewLine
 
             Dim listSqlQuery As New DataTable
             WorldDatabase.Query("SELECT * FROM game_tele order by name", listSqlQuery)
@@ -1261,7 +1261,7 @@ Public Module WS_Commands
                 posMap = mySqlQuery.Rows(0).Item("map")
                 objCharacter.Teleport(posX, posY, posZ, posO, posMap)
             Else
-                Dim cmdList As String = "Listing of matching locations:" & vbNewLine
+                Dim cmdList As String = "Listing of matching locations:" & Environment.NewLine
 
                 For Each locationRow As DataRow In mySqlQuery.Rows
                     cmdList += locationRow.Item("name") & ", "

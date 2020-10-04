@@ -25,7 +25,7 @@ Public Module WS_DBCLoad
 #Region "Spells"
     Public Sub InitializeSpellRadius()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellRadius.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SpellRadius.dbc")
 
             Dim radiusID As Integer
             Dim radiusValue As Single
@@ -49,7 +49,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellCastTime()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellCastTimes.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SpellCastTimes.dbc")
 
             Dim spellCastID As Integer
             Dim spellCastTimeS As Integer
@@ -71,7 +71,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellRange()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellRange.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SpellRange.dbc")
 
             Dim spellRangeIndex As Integer
             'Dim spellRangeMin As Single
@@ -95,7 +95,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellShapeShift()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellShapeshiftForm.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SpellShapeshiftForm.dbc")
 
             Dim id As Integer
             Dim flags1 As Integer
@@ -121,7 +121,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellFocusObject()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellFocusObject.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SpellFocusObject.dbc")
 
             Dim spellFocusIndex As Integer
             Dim spellFocusObjectName As String
@@ -143,7 +143,7 @@ Public Module WS_DBCLoad
     End Sub
     Public Sub InitializeSpellDuration()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SpellDuration.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SpellDuration.dbc")
 
             Dim spellDurationIndex As Integer
             Dim spellDurationValue As Integer
@@ -170,7 +170,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeSpells()
         Try
-            Dim spellDBC As BufferedDbc = New BufferedDbc("dbc\Spell.dbc")
+            Dim spellDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Spell.dbc")
             'Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & SpellDBC.GetFileInformation)
             Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
 
@@ -374,7 +374,7 @@ Public Module WS_DBCLoad
 #Region "Taxi"
     Public Sub InitializeTaxiNodes()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\TaxiNodes.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "TaxiNodes.dbc")
 
             Dim taxiPosX As Single
             Dim taxiPosY As Single
@@ -409,7 +409,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeTaxiPaths()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\TaxiPath.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "TaxiPath.dbc")
 
             Dim taxiNode As Integer
             Dim taxiFrom As Integer
@@ -437,7 +437,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeTaxiPathNodes()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\TaxiPathNode.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "TaxiPathNode.dbc")
 
             'Dim taxiNode As Integer
             Dim taxiPath As Integer
@@ -481,7 +481,7 @@ Public Module WS_DBCLoad
 #Region "Skills"
     Public Sub InitializeSkillLines()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SkillLine.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SkillLine.dbc")
 
             Dim skillID As Integer
             Dim skillLine As Integer
@@ -513,7 +513,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeSkillLineAbility()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\SkillLineAbility.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SkillLineAbility.dbc")
 
             For i As Integer = 0 To tmpDBC.Rows - 1
                 Dim tmpSkillLineAbility As New TSkillLineAbility With {
@@ -548,7 +548,7 @@ Public Module WS_DBCLoad
 #Region "Locks"
     Public Sub InitializeLocks()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\Lock.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Lock.dbc")
 
             Dim lockID As Integer
             Dim keyType(4) As Byte
@@ -587,7 +587,7 @@ Public Module WS_DBCLoad
 #Region "AreaTable"
     Public Sub InitializeAreaTable()
         Try
-            Dim tmpDbc As BufferedDbc = New BufferedDbc("dbc\AreaTable.dbc")
+            Dim tmpDbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "AreaTable.dbc")
 
             Dim areaID As Integer
             Dim areaMapID As Integer
@@ -642,7 +642,7 @@ Public Module WS_DBCLoad
 #Region "Emotes"
     Public Sub InitializeEmotes()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\Emotes.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Emotes.dbc")
             Dim emoteID As Integer
             Dim emoteState As Integer
 
@@ -664,7 +664,7 @@ Public Module WS_DBCLoad
 
     Public Sub InitializeEmotesText()
         Try
-            Dim tmpDbc As BufferedDbc = New BufferedDbc("dbc\EmotesText.dbc")
+            Dim tmpDbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "EmotesText.dbc")
             Dim textEmoteID As Integer
             Dim emoteID As Integer
             'Dim EmoteID2 As Integer
@@ -698,7 +698,7 @@ Public Module WS_DBCLoad
 #Region "Factions"
     Public Sub InitializeFactions()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\Faction.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Faction.dbc")
 
             Dim factionID As Integer
             Dim factionFlag As Integer
@@ -742,7 +742,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeFactionTemplates()
         Try
             'Loading from DBC
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\FactionTemplate.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "FactionTemplate.dbc")
 
             Dim templateID As Integer
 
@@ -775,7 +775,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeCharRaces()
         Try
             'Loading from DBC
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\ChrRaces.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "ChrRaces.dbc")
 
             Dim raceID As Integer
             Dim factionID As Integer
@@ -811,7 +811,7 @@ Public Module WS_DBCLoad
     Public Sub InitializeCharClasses()
         Try
             'Loading from DBC
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\ChrClasses.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "ChrClasses.dbc")
 
             Dim classID As Integer
             Dim cinematicID As Integer
@@ -836,7 +836,7 @@ Public Module WS_DBCLoad
 #Region "DurabilityCosts"
     Public Sub InitializeDurabilityCosts()
         Try
-            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc\DurabilityCosts.dbc")
+            Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "DurabilityCosts.dbc")
 
             Dim itemBroken As Integer
             Dim itemType As Integer
@@ -865,7 +865,7 @@ Public Module WS_DBCLoad
 #Region "Talents"
     Public Sub LoadTalentDbc()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\Talent.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Talent.dbc")
 
             Dim tmpInfo As TalentInfo
 
@@ -904,7 +904,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadTalentTabDbc()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\TalentTab.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "TalentTab.dbc")
 
             Dim talentTab As Integer
             Dim talentMask As Integer
@@ -931,7 +931,7 @@ Public Module WS_DBCLoad
 #Region "AuctionHouse"
     Public Sub LoadAuctionHouseDbc()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\AuctionHouse.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "AuctionHouse.dbc")
 
             Dim ahId As Integer
             Dim fee As Integer
@@ -966,7 +966,7 @@ Public Module WS_DBCLoad
 #Region "Items"
     Public Sub LoadSpellItemEnchantments()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\SpellItemEnchantment.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SpellItemEnchantment.dbc")
 
             Dim id As Integer
             Dim type(2) As Integer
@@ -1005,7 +1005,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadItemSet()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\ItemSet.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "ItemSet.dbc")
 
             Dim id As Integer
             Dim name As String
@@ -1059,7 +1059,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadItemDisplayInfoDbc()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\ItemDisplayInfo.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "ItemDisplayInfo.dbc")
 
             Dim tmpItemDisplayInfo As TItemDisplayInfo
 
@@ -1084,7 +1084,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadItemRandomPropertiesDbc()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\ItemRandomProperties.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "ItemRandomProperties.dbc")
 
             Dim tmpInfo As TItemRandomPropertiesInfo
 
@@ -1135,7 +1135,7 @@ Public Module WS_DBCLoad
 
     Public Sub LoadCreatureFamilyDbc()
         Try
-            Dim dbc As BufferedDbc = New BufferedDbc("dbc\CreatureFamily.dbc")
+            Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "CreatureFamily.dbc")
 
             Dim tmpInfo As CreatureFamilyInfo
 

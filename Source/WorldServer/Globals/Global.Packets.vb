@@ -33,33 +33,33 @@ Public Module Packets
         Dim buffer As String = ""
         Try
             If client Is Nothing Then
-                buffer = buffer + String.Format("DEBUG: Packet Dump{0}", vbNewLine)
+                buffer = buffer + String.Format("DEBUG: Packet Dump{0}", Environment.NewLine)
             Else
-                buffer = buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length - start, vbNewLine)
+                buffer = buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length - start, Environment.NewLine)
             End If
 
             If (data.Length - start) Mod 16 = 0 Then
                 For j = start To data.Length - 1 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & Environment.NewLine
                 Next
             Else
                 For j = start To data.Length - 1 - 16 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & Environment.NewLine
                 Next
 
                 buffer += "|  " & BitConverter.ToString(data, j, (data.Length - start) Mod 16).Replace("-", " ")
                 buffer += New String(" ", (16 - (data.Length - start) Mod 16) * 3)
                 buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, (data.Length - start) Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
                 buffer += New String(" ", 16 - (data.Length - start) Mod 16)
-                buffer += " |" & vbNewLine
+                buffer += " |" & Environment.NewLine
             End If
 
             Log.WriteLine(LogType.DEBUG, buffer, Nothing)
             '#End If
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", Environment.NewLine, e.ToString)
         End Try
     End Sub
 

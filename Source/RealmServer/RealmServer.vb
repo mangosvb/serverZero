@@ -16,6 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 Imports System.Collections.Generic
+Imports System.Data
 Imports System.IO
 Imports System.Net
 Imports System.Net.Sockets

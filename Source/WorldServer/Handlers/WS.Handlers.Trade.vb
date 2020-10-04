@@ -301,7 +301,7 @@ Public Module WS_Handlers_Trade
                 End Try
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error doing trade: {0}{1}", vbNewLine, e.ToString)
+                Log.WriteLine(LogType.FAILED, "Error doing trade: {0}{1}", Environment.NewLine, e.ToString)
             End Try
         End Sub
     End Class

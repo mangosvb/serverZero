@@ -345,7 +345,7 @@ Public Module WS_Handlers_Taxi
             TaxiMove(client.Character, discountMod)
 
         Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error when taking a long taxi.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error when taking a long taxi.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 

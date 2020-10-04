@@ -90,7 +90,6 @@ Namespace Server
                 }
 
                 m_Client.Socket.NoDelay = True
-                m_Client.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1)
 
                 m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
@@ -113,7 +112,7 @@ Namespace Server
             Public Worlds As New Dictionary(Of UInteger, IWorld)
             Public WorldsInfo As New Dictionary(Of UInteger, WorldInfo)
 
-            Public Function Connect(ByVal uri As String, ByVal maps As ArrayList) As Boolean Implements ICluster.Connect
+            Public Function Connect(ByVal uri As String, ByVal maps As List(Of UInteger)) As Boolean Implements ICluster.Connect
                 Try
                     Disconnect(uri, maps)
 
@@ -137,7 +136,7 @@ Namespace Server
                 Return True
             End Function
 
-            Public Sub Disconnect(uri As String, maps As ArrayList) Implements ICluster.Disconnect
+            Public Sub Disconnect(uri As String, maps As List(Of UInteger)) Implements ICluster.Disconnect
                 If maps.Count = 0 Then Return
 
                 'TODO: Unload arenas or battlegrounds that is hosted on this server!
@@ -160,7 +159,6 @@ Namespace Server
 
                     If Worlds.ContainsKey(map) Then
                         Try
-                            RemotingServices.Disconnect(Worlds(map))
                             Worlds(map) = Nothing
                             WorldsInfo(map) = Nothing
                         Catch
@@ -177,7 +175,7 @@ Namespace Server
             End Sub
 
             Public Sub Ping(ByVal State As Object)
-                Dim DownedServers As New ArrayList
+                Dim DownedServers As New List(Of UInteger)
                 Dim SentPingTo As New Dictionary(Of WorldInfo, Integer)
 
                 Dim MyTime As Integer
@@ -425,9 +423,7 @@ Namespace Server
                         WorldCluster.CLIENTs(ID).Character.GetWorld.GroupUpdate(WorldCluster.CLIENTs(ID).Character.Group.Id, WorldCluster.CLIENTs(ID).Character.Group.Type, WorldCluster.CLIENTs(ID).Character.Group.GetLeader.Guid, WorldCluster.CLIENTs(ID).Character.Group.GetMembers)
                         WorldCluster.CLIENTs(ID).Character.GetWorld.GroupUpdateLoot(WorldCluster.CLIENTs(ID).Character.Group.Id, WorldCluster.CLIENTs(ID).Character.Group.DungeonDifficulty, WorldCluster.CLIENTs(ID).Character.Group.LootMethod, WorldCluster.CLIENTs(ID).Character.Group.LootThreshold, WorldCluster.CLIENTs(ID).Character.Group.GetLootMaster.Guid)
                     Catch
-                        Dim maps As New ArrayList
-                        maps.Add(WorldCluster.CLIENTs(ID).Character.Map)
-                        WorldServer.Disconnect("NULL", maps)
+                        WorldServer.Disconnect("NULL", New List(Of UInteger)() From {WorldCluster.CLIENTs(ID).Character.Map})
                     End Try
                 End If
             End Sub
@@ -655,9 +651,7 @@ Namespace Server
                             Try
                                 Character.GetWorld.ClientPacket(Index, p.Data)
                             Catch
-                                Dim maps As New ArrayList
-                                maps.Add(Character.Map)
-                                WorldServer.Disconnect("NULL", maps)
+                                WorldServer.Disconnect("NULL", New List(Of UInteger)() From {Character.Map})
                             End Try
                         End If
 

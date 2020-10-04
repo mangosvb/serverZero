@@ -749,7 +749,7 @@ Public Module WS_Items
             End If
         Catch err As Exception
             Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", client.IP, client.Port,
-                          vbNewLine, err.ToString)
+                          Environment.NewLine, err.ToString)
         End Try
     End Sub
 
@@ -983,7 +983,7 @@ Public Module WS_Items
             End If
 
         Catch e As Exception
-            Log.WriteLine(LogType.DEBUG, "Error destroying item.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.DEBUG, "Error destroying item.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 
@@ -1073,7 +1073,7 @@ Public Module WS_Items
 
                         Catch e As Exception
                             Log.WriteLine(LogType.DEBUG, "Error casting spell {0}.{1}",
-                                          itemInfo.Spells(i).SpellID, vbNewLine & e.ToString)
+                                          itemInfo.Spells(i).SpellID, Environment.NewLine & e.ToString)
                             SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
                         End Try
                         Exit Sub
@@ -1082,7 +1082,7 @@ Public Module WS_Items
             Next
 
         Catch ex As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error while using a item.{0}", vbNewLine & ex.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error while using a item.{0}", Environment.NewLine & ex.ToString)
         End Try
     End Sub
 

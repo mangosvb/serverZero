@@ -26,6 +26,7 @@ Imports mangosVB.Shared
 Imports WorldCluster.Handlers
 Imports WorldCluster.DataStores
 Imports WorldCluster.Server
+Imports System.Data
 
 Namespace Globals
     Public Module Functions

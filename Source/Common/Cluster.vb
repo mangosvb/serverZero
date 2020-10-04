@@ -22,9 +22,9 @@ Imports mangosVB.Shared
 Public Interface ICluster
 
     <Description("Signal realm server for new world server.")>
-    Function Connect(ByVal uri As String, ByVal maps As ArrayList) As Boolean
+    Function Connect(ByVal uri As String, ByVal maps As List(Of UInteger)) As Boolean
     <Description("Signal realm server for disconected world server.")>
-    Sub Disconnect(ByVal uri As String, ByVal maps As ArrayList)
+    Sub Disconnect(ByVal uri As String, ByVal maps As List(Of UInteger))
 
     <Description("Send data packet to client.")>
     Sub ClientSend(ByVal id As UInteger, ByVal data As Byte())
@@ -59,45 +59,45 @@ Public Interface ICluster
 End Interface
 Public Interface IWorld
 
-    <Description("Initialize client object.")> _
+    <Description("Initialize client object.")>
     Sub ClientConnect(ByVal id As UInteger, ByVal client As ClientInfo)
-    <Description("Destroy client object.")> _
+    <Description("Destroy client object.")>
     Sub ClientDisconnect(ByVal id As UInteger)
-    <Description("Assing particular client to this world server (Use client ID).")> _
+    <Description("Assing particular client to this world server (Use client ID).")>
     Sub ClientLogin(ByVal id As UInteger, ByVal guid As ULong)
-    <Description("Remove particular client from this world server (Use client ID).")> _
+    <Description("Remove particular client from this world server (Use client ID).")>
     Sub ClientLogout(ByVal id As UInteger)
-    <Description("Transfer packet from Realm to World using client's ID.")> _
+    <Description("Transfer packet from Realm to World using client's ID.")>
     Sub ClientPacket(ByVal id As UInteger, ByVal data() As Byte)
 
-    <Description("Create CharacterObject.")> _
-    Function ClientCreateCharacter(ByVal account As String, ByVal name As String, ByVal race As Byte, ByVal classe As Byte, ByVal gender As Byte, ByVal skin As Byte, _
+    <Description("Create CharacterObject.")>
+    Function ClientCreateCharacter(ByVal account As String, ByVal name As String, ByVal race As Byte, ByVal classe As Byte, ByVal gender As Byte, ByVal skin As Byte,
                                    ByVal face As Byte, ByVal hairStyle As Byte, ByVal hairColor As Byte, ByVal facialHair As Byte, ByVal outfitId As Byte) As Integer
 
-    <Description("Respond to world server if still alive.")> _
+    <Description("Respond to world server if still alive.")>
     Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer
 
     <Description("Tell the cluster about your CPU & Memory Usage")>
     Function GetServerInfo() As ServerInfo
 
-    <Description("Make world create specific map.")> _
+    <Description("Make world create specific map.")>
     Sub InstanceCreate(ByVal Map As UInteger)
-    <Description("Make world destroy specific map.")> _
+    <Description("Make world destroy specific map.")>
     Sub InstanceDestroy(ByVal Map As UInteger)
-    <Description("Check world configuration.")> _
+    <Description("Check world configuration.")>
     Function InstanceCanCreate(ByVal Type As Integer) As Boolean
 
-    <Description("Set client's group.")> _
+    <Description("Set client's group.")>
     Sub ClientSetGroup(ByVal ID As UInteger, ByVal GroupID As Long)
-    <Description("Update group information.")> _
+    <Description("Update group information.")>
     Sub GroupUpdate(ByVal GroupID As Long, ByVal GroupType As Byte, ByVal GroupLeader As ULong, ByVal Members() As ULong)
-    <Description("Update group information about looting.")> _
+    <Description("Update group information about looting.")>
     Sub GroupUpdateLoot(ByVal GroupID As Long, ByVal Difficulty As Byte, ByVal Method As Byte, ByVal Threshold As Byte, ByVal Master As ULong)
 
-    <Description("Request party member stats.")> _
+    <Description("Request party member stats.")>
     Function GroupMemberStats(ByVal GUID As ULong, ByVal Flag As Integer) As Byte()
 
-    <Description("Update guild information.")> _
+    <Description("Update guild information.")>
     Sub GuildUpdate(ByVal GUID As ULong, ByVal GuildID As UInteger, ByVal GuildRank As Byte)
 
     Sub BattlefieldCreate(ByVal BattlefieldID As Integer, ByVal BattlefieldMapType As Byte, ByVal Map As UInteger)
@@ -107,18 +107,17 @@ Public Interface IWorld
 
 End Interface
 
-<Serializable()>
 Public Class ClientInfo
-    Public Index As UInteger
-    Public IP As String
-    Public Port As UInteger
-    Public Account As String
-    Public Access As AccessLevel = AccessLevel.Player
-    Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
+    Property Index As UInteger
+    Property IP As String
+    Property Port As UInteger
+    Property Account As String
+    Property Access As AccessLevel = AccessLevel.Player
+    Property Expansion As ExpansionLevel = ExpansionLevel.NORMAL
 End Class
 
 Public Class ServerInfo
-    Public cpuUsage As Single
-    Public memoryUsage As ULong
+    Property cpuUsage As Single
+    Property memoryUsage As ULong
 End Class
 

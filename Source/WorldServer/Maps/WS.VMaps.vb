@@ -206,7 +206,7 @@ Public Module VMAP_Module
             Catch ex As FileLoadException
                 Log.WriteLine(LogType.CRITICAL, "Error loading map file [{0}]. Wrong file version [{1}].", fileName, fileVersion)
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error loading map file [{0}].{1}{2}", fileName, vbNewLine, ex.ToString())
+                Log.WriteLine(LogType.CRITICAL, "Error loading map file [{0}].{1}{2}", fileName, Environment.NewLine, ex.ToString())
             End Try
 
             If f IsNot Nothing Then

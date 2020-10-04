@@ -1290,7 +1290,7 @@ Public Class WS_Quests
                 response.Dispose()
             End Try
         Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_STATUS_QUERY - Error in questgiver status query.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_STATUS_QUERY - Error in questgiver status query.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 
@@ -1313,7 +1313,7 @@ Public Class WS_Quests
                 CREATURESDatabase(WORLD_CREATUREs(guid).ID).TalkScript.OnGossipHello(client.Character, guid)
             End If
         Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_HELLO - Error when sending quest menu.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_HELLO - Error when sending quest menu.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 
@@ -1331,14 +1331,14 @@ Public Class WS_Quests
                 client.Character.TalkCurrentQuest = tmpQuest
                 SendQuestDetails(client, client.Character.TalkCurrentQuest, guid, True)
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", Environment.NewLine, ex.ToString)
             End Try
         Else
             Try
                 client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
                 SendQuestDetails(client, client.Character.TalkCurrentQuest, guid, True)
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", Environment.NewLine, ex.ToString)
             End Try
         End If
     End Sub
@@ -1705,7 +1705,7 @@ Public Class WS_Quests
                 End If
 
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", vbNewLine & e.ToString)
+                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", Environment.NewLine & e.ToString)
             End Try
 
         Else
@@ -1866,7 +1866,7 @@ Public Class WS_Quests
                 End If
 
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", vbNewLine & e.ToString)
+                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", Environment.NewLine & e.ToString)
             End Try
 
         End If

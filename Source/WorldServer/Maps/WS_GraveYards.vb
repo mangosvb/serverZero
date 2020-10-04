@@ -16,6 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
+Imports System.IO
 Imports mangosVB.Common.Globals
 Imports mangosVB.Shared
 
@@ -133,7 +134,7 @@ Public Class WS_GraveYards
     Public Sub InitializeGraveyards()
         Try
             Graveyards.Clear()
-            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc\WorldSafeLocs.dbc")
+            Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc" & Path.DirectorySeparatorChar & "WorldSafeLocs.dbc")
 
             Dim locationPosX As Single
             Dim locationPosY As Single

@@ -172,7 +172,7 @@ Public Module CharManagementHandler
             'DONE: Enable moving
             client.Character.SetMoveUnroot()
         Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error while trying to cancel logout.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error while trying to cancel logout.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 

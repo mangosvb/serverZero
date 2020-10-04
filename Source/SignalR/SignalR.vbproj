@@ -2,22 +2,23 @@
   <Import Project="../../MangosVB.props" />
   
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>    
+    <TargetFramework>netcoreapp3.1</TargetFramework>    
+    <OutputType>Library</OutputType>
     <AssemblyTitle>SignalR</AssemblyTitle>
     <AssemblyName>SignalR</AssemblyName>
     <RootNamespace>SignalR</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0" />
-    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.1" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vbproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vbproj" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
   </ItemGroup>
 
 </Project>

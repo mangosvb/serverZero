@@ -787,7 +787,7 @@ Public Module WS_Spells
                     End If
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error when casting spell.{0}", vbNewLine & e.ToString)
+                Log.WriteLine(LogType.FAILED, "Error when casting spell.{0}", Environment.NewLine & e.ToString)
             End Try
             If castParams IsNot Nothing Then
                 Try
@@ -2863,7 +2863,7 @@ SkipShapeShift:
             AURAs(SpellInfo.ApplyAuraIndex).Invoke(auraTarget, Caster, SpellInfo, SpellID, 1, AuraAction.AURA_ADD)
 
         Catch e As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error while applying aura for spell {0}:{1}", SpellID, vbNewLine & e.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error while applying aura for spell {0}:{1}", SpellID, Environment.NewLine & e.ToString)
         End Try
 
         Return SpellFailedReason.SPELL_NO_ERROR
@@ -6631,7 +6631,7 @@ SkipShapeShift:
                         client.Character.attackState.Ranged = True
                         client.Character.attackState.AttackStart(client.Character.GetTarget)
                     Catch e As Exception
-                        Log.WriteLine(LogType.FAILED, "Error casting auto-shoot {0}.{1}", spellID, vbNewLine & e.ToString)
+                        Log.WriteLine(LogType.FAILED, "Error casting auto-shoot {0}.{1}", spellID, Environment.NewLine & e.ToString)
                     End Try
                 End If
             End If
@@ -6657,7 +6657,7 @@ SkipShapeShift:
             End If
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error casting spell {0}.{1}", spellID, vbNewLine & e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error casting spell {0}.{1}", spellID, Environment.NewLine & e.ToString)
             SendCastResult(castResult, client, spellID)
         End Try
     End Sub
@@ -6792,7 +6792,7 @@ SkipShapeShift:
 
             client.Character.SaveCharacter()
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error learning talen: {0}{1}", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error learning talen: {0}{1}", Environment.NewLine, e.ToString)
         End Try
     End Sub
 

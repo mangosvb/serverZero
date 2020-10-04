@@ -322,7 +322,7 @@ Public Module WS_Loot
                     response.Dispose()
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.DEBUG, "Error getting loot.{0}", vbNewLine & e.ToString)
+                Log.WriteLine(LogType.DEBUG, "Error getting loot.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -599,7 +599,7 @@ Public Module WS_Loot
                 response.Dispose()
             End If
         Catch e As Exception
-            Log.WriteLine(LogType.DEBUG, "Error looting item.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.DEBUG, "Error looting item.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
     Public Sub On_CMSG_LOOT_MONEY(ByRef packet As PacketClass, ByRef client As ClientClass)

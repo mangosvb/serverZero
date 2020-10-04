@@ -8,16 +8,4 @@
 # any tracked files which get ignored after the change.
 #
 
-*.dll
-*.map
-*.dbc
-*.exe
-*.pdb
-*.config
-*.xml
-*.log
-*.map
-*.deps.json
-*.runtimeconfig.dev.json
-*.runtimeconfig.json
-*map*
+dbc/*.dbc

@@ -107,7 +107,7 @@ Public Module WS_NPCs
             WORLD_CREATUREs(cGuid).MoveToInstant(WORLD_CREATUREs(cGuid).positionX, WORLD_CREATUREs(cGuid).positionY, WORLD_CREATUREs(cGuid).positionZ, WORLD_CREATUREs(cGuid).SpawnO)
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Training Spell Error: Unable to cast spell. [{0}:{1}]", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Training Spell Error: Unable to cast spell. [{0}:{1}]", Environment.NewLine, e.ToString)
 
             'TODO: Fix this opcode
             'Dim errorPacket As New PacketClass(OPCODES.SMSG_TRAINER_BUY_FAILED)
@@ -391,7 +391,7 @@ Public Module WS_NPCs
             End If
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error selling item: {0}{1}", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error selling item: {0}{1}", Environment.NewLine, e.ToString)
         End Try
     End Sub
 
@@ -760,7 +760,7 @@ Public Module WS_NPCs
             objCharacter.client.Send(packet)
             packet.Dispose()
         Catch e As Exception
-            Log.WriteLine(LogType.DEBUG, "Error while listing inventory.{0}", vbNewLine & e.ToString)
+            Log.WriteLine(LogType.DEBUG, "Error while listing inventory.{0}", Environment.NewLine & e.ToString)
         End Try
     End Sub
 
@@ -1033,7 +1033,7 @@ Public Module WS_NPCs
             End Try
 
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Error unlearning talents: {0}{1}", vbNewLine, e.ToString)
+            Log.WriteLine(LogType.FAILED, "Error unlearning talents: {0}{1}", Environment.NewLine, e.ToString)
         End Try
     End Sub
 

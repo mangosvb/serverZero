@@ -1435,7 +1435,7 @@ Public Module WS_PlayerData
         End Sub
 
         Public Sub CommandResponse(ByVal Message As String)
-            Dim Messages() As String = Message.Split(New String() {vbNewLine}, StringSplitOptions.RemoveEmptyEntries)
+            Dim Messages() As String = Message.Split(New String() {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries)
             If Messages.Length = 0 Then
                 ReDim Messages(0)
                 Messages(0) = Message
@@ -2617,7 +2617,7 @@ CheckXPAgain:
 
                 End If
             Catch err As Exception
-                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2} {3}", client.IP, client.Port, vbNewLine, err.ToString)
+                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2} {3}", client.IP, client.Port, Environment.NewLine, err.ToString)
                 Return InventoryChangeFailure.EQUIP_ERR_CANT_DO_RIGHT_NOW
             End Try
         End Function
@@ -3030,7 +3030,7 @@ CheckXPAgain:
                 End If
 
             Catch err As Exception
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] Unable to swap items. {2}{3}", client.IP, client.Port, vbNewLine, err.ToString)
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] Unable to swap items. {2}{3}", client.IP, client.Port, Environment.NewLine, err.ToString)
             Finally
 
                 If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
@@ -4209,7 +4209,7 @@ CheckXPAgain:
             Try
                 If Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Failed loading maps at character logging in.{0}{1}", vbNewLine, ex.ToString())
+                Log.WriteLine(LogType.CRITICAL, "Failed loading maps at character logging in.{0}{1}", Environment.NewLine, ex.ToString())
             End Try
 
             'DONE: SMSG_BINDPOINTUPDATE

@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports System.Data
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
 Imports mangosVB.Shared
@@ -57,7 +58,7 @@ Namespace Handlers
 
             'DONE: Create guild data
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES (""{0}"", {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = ""{0}"";", guildName, client.Character.GUID, Now.Year - 2006, Now.Month, Now.Day), MySQLQuery)
+            CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES (""{0}"", {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = ""{0}"";", guildName, client.Character.Guid, Now.Year - 2006, Now.Month, Now.Day), MySQLQuery)
 
             AddCharacterToGuild(client.Character, MySQLQuery.Rows(0).Item("guild_id"), 0)
         End Sub
@@ -209,7 +210,7 @@ Namespace Handlers
             client.Character.Guild.Leader = PlayerGUID
             CharacterDatabase.Update(String.Format("UPDATE guilds SET guild_leader = ""{1}"" WHERE guild_id = {0};", client.Character.Guild.ID, PlayerGUID))
             CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", 0, PlayerGUID))
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", client.Character.GuildRank, client.Character.GUID))
+            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", client.Character.GuildRank, client.Character.Guid))
 
             'DONE: Send notify message
             Dim response As New PacketClass(OPCODES.SMSG_GUILD_EVENT)
@@ -293,7 +294,7 @@ Namespace Handlers
             For Each Member As ULong In tmpArray
                 If CHARACTERs.ContainsKey(Member) Then
                     RemoveCharacterFromGuild(CHARACTERs(Member))
-                    CHARACTERs(Member).client.SendMultiplyPackets(response)
+                    CHARACTERs(Member).Client.SendMultiplyPackets(response)
                 Else
                     RemoveCharacterFromGuild(Member)
                 End If
@@ -473,7 +474,7 @@ Namespace Handlers
 
             'DONE: Do the real update
             objCharacter.GuildRank -= 1
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.GUID))
+            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.Guid))
             objCharacter.SendGuildUpdate()
 
             'DONE: Send event to guild
@@ -535,7 +536,7 @@ Namespace Handlers
 
             'DONE: Do the real update
             objCharacter.GuildRank += 1
-            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.GUID))
+            CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildRank = {0} WHERE char_guid = {1};", objCharacter.GuildRank, objCharacter.Guid))
             objCharacter.SendGuildUpdate()
 
             'DONE: Send event to guild
@@ -594,11 +595,11 @@ Namespace Handlers
             Dim response As New PacketClass(OPCODES.SMSG_GUILD_INVITE)
             response.AddString(client.Character.Name)
             response.AddString(client.Character.Guild.Name)
-            objCharacter.client.Send(response)
+            objCharacter.Client.Send(response)
             response.Dispose()
 
             objCharacter.GuildInvited = client.Character.Guild.ID
-            objCharacter.GuildInvitedBy = client.Character.GUID
+            objCharacter.GuildInvitedBy = client.Character.Guid
         End Sub
 
         Public Sub On_CMSG_GUILD_ACCEPT(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -624,7 +625,7 @@ Namespace Handlers
             If CHARACTERs.ContainsKey(CType(client.Character.GuildInvitedBy, Long)) Then
                 Dim response As New PacketClass(OPCODES.SMSG_GUILD_DECLINE)
                 response.AddString(client.Character.Name)
-                CHARACTERs(CType(client.Character.GuildInvitedBy, Long)).client.Send(response)
+                CHARACTERs(CType(client.Character.GuildInvitedBy, Long)).Client.Send(response)
                 response.Dispose()
             End If
         End Sub
@@ -690,7 +691,7 @@ Namespace Handlers
             Dim q2 As New DataTable
 
             'DONE: Create guild and add members
-            CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES ('{0}', {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = '{0}';", Name, client.Character.GUID, Now.Year - 2006, Now.Month, Now.Day), q2)
+            CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES ('{0}', {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = '{0}';", Name, client.Character.Guid, Now.Year - 2006, Now.Month, Now.Day), q2)
 
             AddCharacterToGuild(client.Character, q2.Rows(0).Item("guild_id"), 0)
 

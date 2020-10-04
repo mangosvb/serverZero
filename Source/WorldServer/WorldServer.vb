@@ -104,7 +104,7 @@ Public Module WorldServer
         <XmlElement(ElementName:="SaveTimer")> Public SaveTimer As Integer = 120000
         <XmlElement(ElementName:="WeatherTimer")> Public WeatherTimer As Integer = 600000
         <XmlElement(ElementName:="MapResolution")> Public MapResolution As Integer = 64
-        <XmlArray(ElementName:="HandledMaps"), XmlArrayItem(GetType(String), ElementName:="Map")> Public Maps As New ArrayList
+        <XmlArray(ElementName:="HandledMaps"), XmlArrayItem(GetType(String), ElementName:="Map")> Public Maps As New List(Of String)
 
         'VMap Settings
         <XmlElement(ElementName:="VMaps")> Public VMapsEnabled As Boolean = False
@@ -364,7 +364,7 @@ Public Module WorldServer
         LoadTransports()
 
         ClsWorldServer = New WorldServerClass
-        Dim server = New ProxyServer(Of WorldServerClass)(IPAddress.Parse(Config.LocalConnectHost), Config.LocalConnectPort, ClsWorldServer)
+        Dim server = New ProxyServer(Of WorldServerClass)(Dns.GetHostAddresses(Config.LocalConnectHost)(0), Config.LocalConnectPort, ClsWorldServer)
         ClsWorldServer.ClusterConnect()
         Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}", ClsWorldServer.LocalURI)
         GC.Collect()
@@ -443,7 +443,7 @@ Public Module WorldServer
                     End If
                 Next
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "hh:mm:ss"), tmp, e.ToString, vbNewLine)
+                Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "hh:mm:ss"), tmp, e.ToString, Environment.NewLine)
             End Try
         End While
     End Sub
@@ -452,7 +452,7 @@ Public Module WorldServer
         Dim EX As Exception
         EX = e.ExceptionObject
 
-        Log.WriteLine(LogType.CRITICAL, EX.ToString & vbNewLine)
+        Log.WriteLine(LogType.CRITICAL, EX.ToString & Environment.NewLine)
         Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'WorldServer-Error-yyyy-mmm-d-h-mm.log' file has been created. Check your log folder for more information.")
 
         Dim tw As TextWriter

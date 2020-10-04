@@ -78,13 +78,13 @@ Public Class ScriptedObject
 
             If cResults.Errors.HasErrors = True Then
                 For Each err As CompilerError In cResults.Errors
-                    Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1} in {3}:{0}{2}", vbNewLine, err.Line, err.ErrorText, err.FileName)
+                    Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1} in {3}:{0}{2}", Environment.NewLine, err.Line, err.ErrorText, err.FileName)
                 Next
             Else
                 ass = cResults.CompiledAssembly
             End If
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, Environment.NewLine)
         End Try
     End Sub
 
@@ -129,13 +129,13 @@ Public Class ScriptedObject
 
             If cResults.Errors.HasErrors = True Then
                 For Each err As CodeDom.Compiler.CompilerError In cResults.Errors
-                    Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1}:{0}{2}", vbNewLine, err.Line, err.ErrorText)
+                    Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1}:{0}{2}", Environment.NewLine, err.Line, err.ErrorText)
                 Next
             Else
                 ass = cResults.CompiledAssembly
             End If
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Unable to compile script [{0}]. {2}{1}", AssemblySourceFile, e.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Unable to compile script [{0}]. {2}{1}", AssemblySourceFile, e.ToString, Environment.NewLine)
         End Try
     End Sub
     Public Sub InvokeFunction(ByVal MyModule As String, ByVal MyMethod As String, Optional ByVal Parameters As Object = Nothing)
@@ -144,7 +144,7 @@ Public Class ScriptedObject
             Dim mi As MethodInfo = ty.GetMethod(MyMethod)
             mi.Invoke(Nothing, Parameters)
         Catch e As TargetInvocationException
-            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
         Catch e As Exception
             Log.WriteLine(LogType.FAILED, "Script Method [{0}] not found in [Scripts.{1}]!", MyMethod, MyModule)
         End Try
@@ -158,7 +158,7 @@ Public Class ScriptedObject
         Catch e As NullReferenceException
             Log.WriteLine(LogType.FAILED, "Scripted Class [{0}] not found in [Scripts]!", MyBaseClass)
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
         End Try
         Return Nothing
     End Function
@@ -171,7 +171,7 @@ Public Class ScriptedObject
         Catch e As NullReferenceException
             Log.WriteLine(LogType.FAILED, "Scripted Property [{1}] not found in [Scripts.{1}]!", MyModule, MyProperty)
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
         End Try
         Return Nothing
     End Function
@@ -184,7 +184,7 @@ Public Class ScriptedObject
         Catch e As NullReferenceException
             Log.WriteLine(LogType.FAILED, "Scripted Field [{1}] not found in [Scripts.{0}]!", MyModule, MyField)
         Catch e As Exception
-            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
         End Try
         Return Nothing
     End Function
@@ -199,11 +199,11 @@ Public Class ScriptedObject
         Try
             ass = [Assembly].LoadFrom(dllLocation)
         Catch fnfe As FileNotFoundException
-            Log.WriteLine(LogType.FAILED, "DLL not found error:{1}{0}", fnfe.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "DLL not found error:{1}{0}", fnfe.GetBaseException.ToString, Environment.NewLine)
         Catch ane As ArgumentNullException
-            Log.WriteLine(LogType.FAILED, "DLL NULL error:{1}{0}", ane.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "DLL NULL error:{1}{0}", ane.GetBaseException.ToString, Environment.NewLine)
         Catch bife As BadImageFormatException
-            Log.WriteLine(LogType.FAILED, "DLL not a valid assembly error:{1}{0}", bife.GetBaseException.ToString, vbNewLine)
+            Log.WriteLine(LogType.FAILED, "DLL not a valid assembly error:{1}{0}", bife.GetBaseException.ToString, Environment.NewLine)
         End Try
     End Sub
 

@@ -18,6 +18,7 @@
 'Using this logging type, all logs are displayed in console.
 'Writting commands is done trought console.
 
+Imports System.Threading
 Imports mangosVB.Shared
 
 Namespace Logging
@@ -34,6 +35,11 @@ Namespace Logging
 
             Console.WriteLine(L(type) & ":" & "[" & Format(TimeOfDay, "hh:mm:ss") & "] " & formatStr, arg)
         End Sub
+
+        Public Overrides Function ReadLine() As String
+            Thread.Sleep(TimeSpan.FromMinutes(1))
+            Return "info"
+        End Function
 
     End Class
 End Namespace

@@ -1452,7 +1452,7 @@ Public Module WS_Creatures
                 CREATURESDatabase(WORLD_CREATUREs(GUID).ID).TalkScript.OnGossipHello(Client.Character, GUID)
             End If
         Catch ex As Exception
-            Log.WriteLine(LogType.CRITICAL, "Error in gossip hello.{0}{1}", vbNewLine, ex.ToString)
+            Log.WriteLine(LogType.CRITICAL, "Error in gossip hello.{0}{1}", Environment.NewLine, ex.ToString)
         End Try
     End Sub
 

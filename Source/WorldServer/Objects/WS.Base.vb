@@ -544,7 +544,7 @@ Public Module WS_Base
                     Next
                 End If
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "ERROR ADDING AURA!{0}{1}", vbNewLine, ex.ToString)
+                Log.WriteLine(LogType.CRITICAL, "ERROR ADDING AURA!{0}{1}", Environment.NewLine, ex.ToString)
             End Try
 
             For slot As Integer = AuraStart To AuraEnd
@@ -949,7 +949,7 @@ Public Module WS_Base
                         Exit For
                     End If
                 ElseIf (Schools And (1 << School)) Then
-                    MsgBox("AHA?!")
+                    Throw New Exception("AHA?!")
                 End If
             Next
 

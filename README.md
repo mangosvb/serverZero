@@ -14,17 +14,21 @@ MangosVB (Master)
 ==========
 *MaNGOSVB Zero* is a fully featured server for [World of Warcraft][2], in its vanilla
 version supporting clients from the [patch 1.12][50] branch, specifically patches
-1.12.1, 1.12.2, and 1.12.3. written in VB.Net.
+1.12.1, 1.12.2, and 1.12.3. written in VB.NET.
 
 World of Warcraft, and all World of Warcraft or Warcraft art, images, and lore are
 copyrighted by [Blizzard Entertainment, Inc.][1].
 
-## Requirements & Support
-    Supports Windows 7, 8, 8.1 & 10
-    Visual Studio 2019 or later
-    Visual Basic Compiler Enabled
-    MySQL Community Server 5.6 or later
-    .NET Framework 4.8 And .NET Core 3.1
+## Game server requirements
+    Supported OS: Windows 7-10, Linux, MacOS, Docker
+    .NET Core 3.1
+    MySQL 8.0
+
+## Development Requirements
+    Windows 10
+    Visual Studio 2019 with Visual Basic component
+    MySQL 8.0
+    .NET Core 3.1
 
 ## Documentation
 
