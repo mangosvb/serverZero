@@ -17,9 +17,11 @@
 '
 
 Imports System.IO
+Imports System.Net
 Imports System.Reflection
 Imports System.Threading
 Imports System.Xml.Serialization
+Imports SignalR
 
 Imports mangosVB.Common
 Imports mangosVB.Common.Globals
@@ -72,20 +74,12 @@ Public Module WorldCluster
         Private _worldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
 
         'Cluster Settings
-        <XmlElement(ElementName:="ClusterPassword")>
-        Private _clusterPassword As String = ""
-
-        <XmlElement(ElementName:="ClusterListenMethod")>
-        Private _clusterListenMethod As String = "tcp"
 
         <XmlElement(ElementName:="ClusterListenAddress")>
         Private _clusterListenAddress As String = "127.0.0.1"
 
         <XmlElement(ElementName:="ClusterListenPort")>
         Private _clusterListenPort As Integer = 50001
-
-        <XmlArray(ElementName:="ClusterFirewall"), XmlArrayItem(GetType(String), ElementName:="IP")>
-        Private _firewall As New ArrayList
 
         'Stats Settings
         <XmlElement(ElementName:="StatsEnabled")>
@@ -187,34 +181,6 @@ Public Module WorldCluster
             End Set
         End Property
 
-        Property ClusterPassword As String
-            Get
-                Return _clusterPassword
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _clusterPassword = value
-            End Set
-        End Property
-
-        Property ClusterListenMethod As String
-            Get
-                Return _clusterListenMethod
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _clusterListenMethod = value
-            End Set
-        End Property
-
         Property ClusterListenAddress As String
             Get
                 Return _clusterListenAddress
@@ -235,20 +201,6 @@ Public Module WorldCluster
             End Get
             Set(value As Integer)
                 _clusterListenPort = value
-            End Set
-        End Property
-
-        Property Firewall As ArrayList
-            Get
-                Return _firewall
-            End Get
-            Set(value As ArrayList)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _firewall = value
             End Set
         End Property
 
@@ -578,6 +530,9 @@ Public Module WorldCluster
         End If
 
         WorldServer = New WorldServerClass
+        Dim server = New ProxyServer(Of WorldServerClass)(IPAddress.Parse(Config.ClusterListenAddress), Config.ClusterListenPort, WorldServer)
+        Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}:{1}", Config.ClusterListenAddress, Config.ClusterListenPort)
+
         GC.Collect()
 
         If Process.GetCurrentProcess().PriorityClass <> ProcessPriorityClass.High Then

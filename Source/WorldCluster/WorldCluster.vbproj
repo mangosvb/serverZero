@@ -11,10 +11,8 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Runtime.Remoting" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Common\Common.vbproj" />
     <ProjectReference Include="..\Shared\Shared.vbproj" />
+    <ProjectReference Include="..\SignalR\SignalR.vbproj" />
   </ItemGroup>
 </Project>

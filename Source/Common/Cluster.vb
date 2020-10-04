@@ -17,69 +17,43 @@
 '
 
 Imports System.ComponentModel
-Imports System.Collections.Generic
 Imports mangosVB.Shared
-
-Public Class Authenticator
-    Inherits MarshalByRefObject
-
-    Private ReadOnly _aObject As Object = Nothing
-    Private ReadOnly _aPassword As String = ""
-
-    Public Sub New(ByVal pObject As Object, ByVal pPassword As String)
-        _aPassword = pPassword
-        _aObject = pObject
-    End Sub
-
-    Public Function Login(ByVal password As String) As Object
-        If _aPassword = password Then
-            Return _aObject
-        Else
-            Return Nothing
-        End If
-    End Function
-
-    ' Make object live forever
-    Public Overrides Function InitializeLifetimeService() As Object
-        Return Nothing
-    End Function
-End Class
 
 Public Interface ICluster
 
-    <Description("Signal realm server for new world server.")> _
-    Function Connect(ByVal uri As String, ByVal maps As ICollection) As Boolean
-    <Description("Signal realm server for disconected world server.")> _
-    Sub Disconnect(ByVal uri As String, ByVal maps As ICollection)
+    <Description("Signal realm server for new world server.")>
+    Function Connect(ByVal uri As String, ByVal maps As ArrayList) As Boolean
+    <Description("Signal realm server for disconected world server.")>
+    Sub Disconnect(ByVal uri As String, ByVal maps As ArrayList)
 
-    <Description("Send data packet to client.")> _
+    <Description("Send data packet to client.")>
     Sub ClientSend(ByVal id As UInteger, ByVal data As Byte())
-    <Description("Notify client drop.")> _
+    <Description("Notify client drop.")>
     Sub ClientDrop(ByVal id As UInteger)
-    <Description("Notify client transfer.")> _
+    <Description("Notify client transfer.")>
     Sub ClientTransfer(ByVal id As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As UInteger)
-    <Description("Notify client update.")> _
+    <Description("Notify client update.")>
     Sub ClientUpdate(ByVal id As UInteger, ByVal zone As UInteger, ByVal level As Byte)
-    <Description("Set client chat flag.")> _
+    <Description("Set client chat flag.")>
     Sub ClientSetChatFlag(ByVal id As UInteger, ByVal flag As Byte)
-    <Description("Get client crypt key.")> _
+    <Description("Get client crypt key.")>
     Function ClientGetCryptKey(ByVal id As UInteger) As Byte()
 
     Function BattlefieldList(ByVal type As Byte) As List(Of Integer)
     Sub BattlefieldFinish(ByVal battlefieldId As Integer)
 
-    <Description("Send data packet to all clients online.")> _
+    <Description("Send data packet to all clients online.")>
     Sub Broadcast(ByVal data() As Byte)
-    <Description("Send data packet to all clients in specified client's group.")> _
+    <Description("Send data packet to all clients in specified client's group.")>
     Sub BroadcastGroup(ByVal groupId As Long, ByVal data() As Byte)
-    <Description("Send data packet to all clients in specified client's raid.")> _
+    <Description("Send data packet to all clients in specified client's raid.")>
     Sub BroadcastRaid(ByVal groupId As Long, ByVal data() As Byte)
-    <Description("Send data packet to all clients in specified client's guild.")> _
+    <Description("Send data packet to all clients in specified client's guild.")>
     Sub BroadcastGuild(ByVal guildId As Long, ByVal data() As Byte)
-    <Description("Send data packet to all clients in specified client's guild officers.")> _
+    <Description("Send data packet to all clients in specified client's guild officers.")>
     Sub BroadcastGuildOfficers(ByVal guildId As Long, ByVal data() As Byte)
 
-    <Description("Send update for the requested group.")> _
+    <Description("Send update for the requested group.")>
     Sub GroupRequestUpdate(ByVal id As UInteger)
 
 End Interface
@@ -103,8 +77,8 @@ Public Interface IWorld
     <Description("Respond to world server if still alive.")> _
     Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer
 
-    <Description("Tell the cluster about your CPU & Memory Usage")> _
-    Sub ServerInfo(ByRef cpuUsage As Single, ByRef memoryUsage As ULong)
+    <Description("Tell the cluster about your CPU & Memory Usage")>
+    Function GetServerInfo() As ServerInfo
 
     <Description("Make world create specific map.")> _
     Sub InstanceCreate(ByVal Map As UInteger)
@@ -133,12 +107,18 @@ Public Interface IWorld
 
 End Interface
 
-<Serializable()> _
+<Serializable()>
 Public Class ClientInfo
     Public Index As UInteger
-    Public IP As Net.IPAddress
+    Public IP As String
     Public Port As UInteger
     Public Account As String
     Public Access As AccessLevel = AccessLevel.Player
     Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
 End Class
+
+Public Class ServerInfo
+    Public cpuUsage As Single
+    Public memoryUsage As ULong
+End Class
+
