@@ -28,7 +28,7 @@ copyrighted by [Blizzard Entertainment, Inc.][1].
     Windows 10
     Visual Studio 2019 with Visual Basic component
     MySQL 8.0
-    .NET Core 3.1
+    .NET Core 3.1 SDK
 
 ## Documentation
 
@@ -45,7 +45,7 @@ Please see our compilation and installation guides at our [Wiki][20]
 
 *MaNGOSVB* is open source, and licensed under the terms of the GNU GPL version 2.
 
-  Copyright (C) 2005-2019  MaNGOS <https://getmangos.eu>
+  Copyright (C) 2005-2020  MaNGOS <https://getmangos.eu>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
