@@ -17,6 +17,7 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Misc
 
 Namespace Handlers
 
@@ -24,7 +25,7 @@ Namespace Handlers
     Public Class ChatCommandAttribute
         Inherits Attribute
 
-        Public Sub New(ByVal cmdName As String, Optional ByVal cmdHelp As String = "No information available.", Optional ByVal cmdAccess As MiscEnum.AccessLevel = AccessLevel.GameMaster)
+        Public Sub New(ByVal cmdName As String, Optional ByVal cmdHelp As String = "No information available.", Optional ByVal cmdAccess As AccessLevel = AccessLevel.GameMaster)
             Me.cmdName = cmdName
             Me.cmdHelp = cmdHelp
             Me.cmdAccess = cmdAccess

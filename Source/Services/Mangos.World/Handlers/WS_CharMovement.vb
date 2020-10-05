@@ -19,6 +19,11 @@
 Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Faction
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI
 Imports Mangos.World.Globals
@@ -79,7 +84,7 @@ Namespace Handlers
         End If
 #End If
 
-            If (client.Character.charMovementFlags And GlobalEnum.MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
+            If (client.Character.charMovementFlags And MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
                 Dim transportGUID As ULong = packet.GetUInt64
                 Dim transportX As Single = packet.GetFloat
                 Dim transportY As Single = packet.GetFloat

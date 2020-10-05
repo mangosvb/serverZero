@@ -21,6 +21,9 @@ Imports System.Threading
 Imports System.Xml
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
 
 Namespace Server
 
@@ -90,7 +93,7 @@ Namespace Server
                 If objCharacter.Value.IsInWorld Then
                     CountPlayers += 1
 
-                    If objCharacter.Value.Race = PlayerEnum.Races.RACE_ORC OrElse objCharacter.Value.Race = Races.RACE_TAUREN OrElse objCharacter.Value.Race = Races.RACE_TROLL OrElse objCharacter.Value.Race = Races.RACE_UNDEAD Then
+                    If objCharacter.Value.Race = Races.RACE_ORC OrElse objCharacter.Value.Race = Races.RACE_TAUREN OrElse objCharacter.Value.Race = Races.RACE_TROLL OrElse objCharacter.Value.Race = Races.RACE_UNDEAD Then
                         CountPlayersHorde += 1
                     Else
                         CountPlayersAlliance += 1

@@ -20,6 +20,7 @@ Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.World.Auction
 Imports Mangos.World.Loots
 Imports Mangos.World.Maps
@@ -41,7 +42,7 @@ Namespace DataStores
 
                 For i As Integer = 0 To tmpDBC.Rows - 1
                     radiusID = tmpDBC.Item(i, 0)
-                    radiusValue = tmpDBC.Item(i, 1, GlobalEnum.DBCValueType.DBC_FLOAT)
+                    radiusValue = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT)
                     '   radiusValue2 = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT) ' May be needed in the future
 
                     SpellRadius(radiusID) = radiusValue

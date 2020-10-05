@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
@@ -43,7 +45,7 @@ Namespace Weather
         Public Class WeatherZone
             Public ZoneID As Integer
             Public Seasons(3) As WeatherSeasonChances
-            Public CurrentWeather As MiscEnum.WeatherType = WeatherType.WEATHER_FINE
+            Public CurrentWeather As WeatherType = WeatherType.WEATHER_FINE
             Public Intensity As Single = 0.0F
 
             Public Sub New(ByVal ZoneID As Integer)

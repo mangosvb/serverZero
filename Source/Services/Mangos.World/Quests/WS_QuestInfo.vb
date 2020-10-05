@@ -18,6 +18,8 @@
 
 Imports System.Data
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Quest
 Imports Mangos.World.Player
 
 Namespace Quests
@@ -58,7 +60,7 @@ Namespace Quests
         Public RewMoneyMaxLevel As Integer '= 0
         Public RewardSpell As Integer ' = 0
         Public RewardSpellCast As Integer '= 0
-        Public RewardItems(QuestEnum.QuestInfo.QUEST_REWARD_CHOICES_COUNT) As Integer
+        Public RewardItems(QuestInfo.QUEST_REWARD_CHOICES_COUNT) As Integer
         Public RewardItems_Count(QuestInfo.QUEST_REWARD_CHOICES_COUNT) As Integer
         Public RewardStaticItems(QuestInfo.QUEST_REWARDS_COUNT) As Integer
         Public RewardStaticItems_Count(QuestInfo.QUEST_REWARDS_COUNT) As Integer

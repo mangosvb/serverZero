@@ -19,6 +19,7 @@
 Imports System.Data
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI
 Imports Mangos.World.Globals
@@ -111,7 +112,7 @@ Namespace Objects
             Dim PetNumber As Integer = packet.GetInt32()
             Dim PetGUID As ULong = packet.GetUInt64()
 
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "CMSG_PET_NAME_QUERY [Number={0} GUID={1:X}", PetNumber, PetGUID)
+            Log.WriteLine(LogType.DEBUG, "CMSG_PET_NAME_QUERY [Number={0} GUID={1:X}", PetNumber, PetGUID)
 
             SendPetNameQuery(Client, PetGUID, PetNumber)
         End Sub

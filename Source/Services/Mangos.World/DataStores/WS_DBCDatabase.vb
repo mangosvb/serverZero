@@ -19,6 +19,7 @@
 Imports System.Data
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.World.Handlers
 Imports Mangos.World.Maps
 Imports Mangos.World.Player
@@ -332,7 +333,7 @@ Namespace DataStores
                         XPTable(dbLvl) = dbXp
                     Next
                 End If
-                Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Initalizing: XPTable initialized.")
+                Log.WriteLine(LogType.INFORMATION, "Initalizing: XPTable initialized.")
             Catch ex As Exception
                 Log.WriteLine(LogType.FAILED, "XPTable initialization failed.")
             End Try

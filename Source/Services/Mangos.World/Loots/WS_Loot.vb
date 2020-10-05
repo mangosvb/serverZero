@@ -19,6 +19,12 @@
 Imports System.Data
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.GameObject
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -117,7 +123,7 @@ Namespace Loots
             Public Group As Byte = 0
             Public MinCountOrRef As Integer = 0
             Public MaxCount As Byte = 0
-            Public LootCondition As GlobalEnum.ConditionType = ConditionType.CONDITION_NONE
+            Public LootCondition As ConditionType = ConditionType.CONDITION_NONE
             '        Public ConditionValue1 As Integer = 0
             '       Public ConditionValue2 As Integer = 0
             Public NeedQuest As Boolean = False

@@ -18,6 +18,8 @@
 
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.World.Player
 Imports Mangos.World.Server
 Imports Mangos.World.Spells
@@ -32,7 +34,7 @@ Namespace Objects
             Public Caster As BaseUnit = Nothing
             Public Duration As Integer = 0
 
-            Private Type As GlobalEnum.TotemType = TotemType.TOTEM_PASSIVE
+            Private Type As TotemType = TotemType.TOTEM_PASSIVE
 
             Public Sub New(ByVal Entry As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Orientation As Single, ByVal Map As Integer, Optional ByVal Duration_ As Integer = 0)
                 MyBase.New(Entry, PosX, PosY, PosZ, Orientation, Map, Duration_)

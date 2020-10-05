@@ -22,6 +22,9 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Social
 
 Namespace Handlers
 
@@ -32,7 +35,7 @@ Namespace Handlers
         Public Sub LoadIgnoreList(ByRef objCharacter As CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND flags = {1};", objCharacter.Guid, CType(SocialEnum.SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
+            CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND flags = {1};", objCharacter.Guid, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
 
             'DONE: Add to list
             For Each r As DataRow In q.Rows

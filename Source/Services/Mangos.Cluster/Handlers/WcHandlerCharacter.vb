@@ -23,6 +23,13 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
+Imports Mangos.Common.Enums.Guild
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Social
 
 Namespace Handlers
 
@@ -41,7 +48,7 @@ Namespace Handlers
             Public PositionY As Single
             Public PositionZ As Single
 
-            Public Access As MiscEnum.AccessLevel
+            Public Access As AccessLevel
             Public Name As String
             Public Level As Integer
             Public Race As Races

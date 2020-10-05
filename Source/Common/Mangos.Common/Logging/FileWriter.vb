@@ -18,6 +18,7 @@
 
 Imports System.IO
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 'Using this logging type, all logs are saved in files numbered by date.
 'Writting commands is done trought console.
@@ -36,7 +37,7 @@ Namespace Logging
                 .AutoFlush = True
             }
 
-            WriteLine(GlobalEnum.LogType.INFORMATION, "Log started successfully.")
+            WriteLine(LogType.INFORMATION, "Log started successfully.")
         End Sub
 
         Public Sub New(createfilename As String)

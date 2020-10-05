@@ -19,6 +19,10 @@
 Imports System.Data
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Quest
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Loots
@@ -41,7 +45,7 @@ Namespace Quests
             Dim cQuests As New DataTable
             Dim tmpQuest As WS_QuestInfo
 
-            Log.WriteLine(GlobalEnum.LogType.WARNING, "Loading Quests...")
+            Log.WriteLine(LogType.WARNING, "Loading Quests...")
             WorldDatabase.Query(String.Format("SELECT entry FROM quests;"), cQuests)
 
             For Each cRow As DataRow In cQuests.Rows

@@ -20,6 +20,16 @@ Imports System.Data
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Faction
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Quest
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -41,7 +51,7 @@ Namespace Player
 
             'Connection Information
             Public client As WS_Network.ClientClass
-            Public Access As MiscEnum.AccessLevel = AccessLevel.Player
+            Public Access As AccessLevel = AccessLevel.Player
             Public LogoutTimer As Timer
             Public FullyLoggedIn As Boolean = False
             Public LoginMap As UInteger = 0

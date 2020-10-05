@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -95,7 +97,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(SPELL_POLYMORPH, aiCreature.GetRandomTarget) 'Might not properly work.
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I was unable to cast polymorph. Please report this to a developer!", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                    aiCreature.SendChatMessage("I was unable to cast polymorph. Please report this to a developer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             Next
         End Sub

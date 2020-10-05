@@ -31,6 +31,7 @@ Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Public Module WorldCluster
     Private Const ClusterPath As String = "configs/WorldCluster.ini"
@@ -93,7 +94,7 @@ Public Module WorldCluster
         Private _logType As String = "FILE"
 
         <XmlElement(ElementName:="LogLevel")>
-        Private _logLevel As LogType = GlobalEnum.LogType.NETWORK
+        Private _logLevel As LogType = [Global].LogType.NETWORK
 
         <XmlElement(ElementName:="LogConfig")>
         Private _logConfig As String = ""

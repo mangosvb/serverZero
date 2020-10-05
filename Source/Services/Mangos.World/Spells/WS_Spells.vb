@@ -19,6 +19,13 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Faction
+Imports Mangos.Common.Enums.GameObject
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -117,7 +124,7 @@ Namespace Spells
 
             Public CustomAttributs As UInteger = 0UI
 
-            Public ReadOnly Property SchoolMask() As SpellEnum.SpellSchoolMask
+            Public ReadOnly Property SchoolMask() As SpellSchoolMask
                 Get
                     Return (1 << School)
                 End Get

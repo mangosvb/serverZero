@@ -17,6 +17,9 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
@@ -28,7 +31,7 @@ Namespace Handlers
 
         Public Function GetChatFlag(ByVal objCharacter As WS_PlayerData.CharacterObject) As Byte
             If objCharacter.GM Then
-                Return ChatEnum.ChatFlag.FLAGS_GM
+                Return ChatFlag.FLAGS_GM
             ElseIf objCharacter.AFK Then
                 Return ChatFlag.FLAGS_AFK
             ElseIf objCharacter.DND Then

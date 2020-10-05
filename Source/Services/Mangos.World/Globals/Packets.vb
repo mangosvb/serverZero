@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.GameObject
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
@@ -61,7 +63,7 @@ Namespace Globals
                     buffer += " |" & Environment.NewLine
                 End If
 
-                Log.WriteLine(GlobalEnum.LogType.DEBUG, buffer, Nothing)
+                Log.WriteLine(LogType.DEBUG, buffer, Nothing)
                 '#End If
             Catch e As Exception
                 Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", Environment.NewLine, e.ToString)

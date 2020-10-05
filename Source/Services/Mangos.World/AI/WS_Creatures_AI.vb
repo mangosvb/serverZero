@@ -19,6 +19,9 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.DataStores
 Imports Mangos.World.Handlers
 Imports Mangos.World.Loots
@@ -36,7 +39,7 @@ Namespace AI
         Public Class TBaseAI
             Implements IDisposable
 
-            Public State As GlobalEnum.AIState = AIState.AI_DO_NOTHING
+            Public State As AIState = AIState.AI_DO_NOTHING
             Public aiTarget As WS_Base.BaseUnit = Nothing
             Public aiHateTable As New Dictionary(Of BaseUnit, Integer)
             Public aiHateTableRemove As New List(Of BaseUnit)

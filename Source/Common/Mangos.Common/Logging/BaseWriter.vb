@@ -17,6 +17,7 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace Logging
 
@@ -25,7 +26,7 @@ Namespace Logging
 
         Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
 
-        Public LogLevel As GlobalEnum.LogType = LogType.NETWORK
+        Public LogLevel As LogType = LogType.NETWORK
 
         Public Sub New()
         End Sub

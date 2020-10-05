@@ -18,6 +18,8 @@
 
 Imports System.Security.Cryptography
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Warden
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
@@ -41,7 +43,7 @@ Namespace Handlers
             'END
 
             packet.GetInt16()
-            Dim Response As WardenEnum.MaievResponse = packet.GetInt8
+            Dim Response As MaievResponse = packet.GetInt8
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WARDEN_DATA [{2}]", client.IP, client.Port, Response)
 

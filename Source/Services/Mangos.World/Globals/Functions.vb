@@ -20,6 +20,10 @@ Imports System.Data
 Imports System.Text.RegularExpressions
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Player
@@ -221,7 +225,7 @@ Namespace Globals
                     Dim tempBanDate As String = FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
                     AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, tempBanDate, "0000-00-00 00:00:00", Name, Reason))
                 End If
-                Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
+                Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
             Else
                 Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", Name)
             End If

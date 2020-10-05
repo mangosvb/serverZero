@@ -23,6 +23,11 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Authentication
+Imports Mangos.Common.Enums.Character
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
 
 Namespace Handlers
 
@@ -32,7 +37,7 @@ Namespace Handlers
         Const REQUIRED_BUILD_HIGH As Integer = 6141
 
         Public Sub SendLoginOk(ByRef client As ClientClass)
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
 
             Thread.Sleep(500)
 

@@ -19,6 +19,14 @@
 Imports System.Data
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Gossip
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Quest
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Auction
 Imports Mangos.World.DataStores
@@ -49,7 +57,7 @@ Namespace Objects
             Dim guid As ULong
             guid = packet.GetUInt64
 
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_TRAINER_LIST [GUID={2}]", client.IP, client.Port, guid)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TRAINER_LIST [GUID={2}]", client.IP, client.Port, guid)
 
             SendTrainerList(client.Character, guid)
         End Sub

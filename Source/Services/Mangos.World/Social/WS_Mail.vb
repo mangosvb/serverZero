@@ -18,6 +18,9 @@
 
 Imports System.Data
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Social
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -41,7 +44,7 @@ Namespace Social
             Dim GameObjectGUID As ULong = packet.GetUInt64
             Dim MailID As Integer = packet.GetInt32
 
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_RETURN_TO_SENDER [MailID={2}]", client.IP, client.Port, MailID)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_RETURN_TO_SENDER [MailID={2}]", client.IP, client.Port, MailID)
 
             'A = 1
             'B = 2

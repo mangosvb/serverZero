@@ -20,6 +20,9 @@ Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.GameObject
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -41,7 +44,7 @@ Namespace Objects
 
             Public ID As Integer = 0
             Public Model As Integer = 0
-            Public Type As GameObjectEnum.GameObjectType = 0
+            Public Type As GameObjectType = 0
             Public Name As String = ""
             Public Faction As Short = 0
             Public Flags As Integer = 0

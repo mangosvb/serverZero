@@ -19,6 +19,9 @@
 Imports System.Data
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Faction
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.World.Globals
 Imports Mangos.World.Gossip
 
@@ -37,7 +40,7 @@ Namespace Objects
             WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
 
             If MySQLQuery.Rows.Count = 0 Then
-                Log.WriteLine(GlobalEnum.LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
+                Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
                 found_ = False
                 'Throw New ApplicationException(String.Format("CreatureID {0} not found in SQL database.", CreatureID))
                 Exit Sub

@@ -18,6 +18,7 @@
 
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -106,7 +107,7 @@ Namespace Objects
                 Try
                     WS_Maps.Maps(MapID).Tiles(CellX, CellY).DynamicObjectsHere.Add(GUID)
                 Catch
-                    Log.WriteLine(GlobalEnum.LogType.WARNING, "AddToWorld failed MapId: {0} Tile XY: {1} {2} GUID: {3}", MapID, CellX, CellY, GUID)
+                    Log.WriteLine(LogType.WARNING, "AddToWorld failed MapId: {0} Tile XY: {1} {2} GUID: {3}", MapID, CellX, CellY, GUID)
                     Exit Sub
                 End Try
 

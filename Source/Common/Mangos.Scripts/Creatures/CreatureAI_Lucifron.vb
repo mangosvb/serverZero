@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -109,7 +111,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(Lucifrons_Curse, aiTarget)
                 Catch Ex As Exception
-                    aiCreature.SendChatMessage("Failed to cast Lucifron's Curse. This is bad. Please report to developers.", ChatEnum.ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+                    aiCreature.SendChatMessage("Failed to cast Lucifron's Curse. This is bad. Please report to developers.", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
         End Sub

@@ -18,6 +18,12 @@
 
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Authentication
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Maps
@@ -38,7 +44,7 @@ Namespace Handlers
             Dim actionType As Byte = packet.GetInt8 '(10)
 
             If action = 0 Then
-                Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] MSG_SET_ACTION_BUTTON [Remove action from button {2}]", client.IP, client.Port, button)
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_SET_ACTION_BUTTON [Remove action from button {2}]", client.IP, client.Port, button)
                 client.Character.ActionButtons.Remove(button)
             ElseIf actionType = 64 Then
                 Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTION_BUTTON [Added Macro {2} into button {3}]", client.IP, client.Port, action, button)

@@ -17,6 +17,10 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
@@ -36,7 +40,7 @@ Namespace Objects
             Public orientation As Single = 0
             Public instance As UInteger = 0
             Public MapID As UInteger = 0
-            Public CorpseType As GlobalEnum.CorpseType = CorpseType.CORPSE_BONES
+            Public CorpseType As CorpseType = CorpseType.CORPSE_BONES
             Public SpawnID As Integer = 0
             Public SeenBy As New List(Of ULong)
 

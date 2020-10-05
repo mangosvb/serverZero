@@ -21,6 +21,9 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 
 Namespace Handlers
 
@@ -30,7 +33,7 @@ Namespace Handlers
             packet.GetInt16()
 
             Dim guid As ULong = packet.GetUInt64
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_CHAT_IGNORED [0x{2}]", client.IP, client.Port, guid)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAT_IGNORED [0x{2}]", client.IP, client.Port, guid)
 
             If CHARACTERs.ContainsKey(guid) Then
                 Dim response As PacketClass = BuildChatMessage(client.Character.Guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, 0, "")

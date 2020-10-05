@@ -23,6 +23,7 @@ Imports System.Net
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Common.Logging.BaseWriter
@@ -121,7 +122,7 @@ Public Module WorldServer
 
         'Logging Settings
         <XmlElement(ElementName:="LogType")> Public LogType As String = "FILE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = GlobalEnum.LogType.NETWORK
+        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = [Global].LogType.NETWORK
         <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
 
         'Other Settings

@@ -19,6 +19,8 @@
 Imports System.IO
 Imports Foole.Mpq
 Imports Mangos.Common.DataStores
+Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Imports Mangos.Common.Enums.GlobalEnum
 

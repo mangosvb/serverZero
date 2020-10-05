@@ -18,6 +18,9 @@
 
 Imports System.Data
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.AuctionHouse
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -33,7 +36,7 @@ Namespace Auction
         Public AuctionFee As Integer
         Public AuctionTax As Integer
 
-        Public Function GetAuctionSide(ByVal GUID As ULong) As AuctionHouseEnum.AuctionHouses
+        Public Function GetAuctionSide(ByVal GUID As ULong) As AuctionHouses
             If Config.GlobalAuction Then Return AuctionHouses.AUCTION_UNDEFINED
             Select Case WORLD_CREATUREs(GUID).CreatureInfo.Faction
                 Case 29, 68, 104

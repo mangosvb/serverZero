@@ -21,6 +21,14 @@ Imports System.Runtime.CompilerServices
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Faction
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI
 Imports Mangos.World.DataStores
@@ -117,7 +125,7 @@ Namespace Objects
 
             Public ReadOnly Property isCritter() As Boolean
                 Get
-                    Return (CreatureInfo.CreatureType = UnitEnum.UNIT_TYPE.CRITTER)
+                    Return (CreatureInfo.CreatureType = UNIT_TYPE.CRITTER)
                 End Get
             End Property
 

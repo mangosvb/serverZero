@@ -17,6 +17,7 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Quest
 Imports Mangos.World.Player
 
 Namespace Objects
@@ -29,7 +30,7 @@ Namespace Objects
 
         End Sub
         Public Overridable Function OnQuestStatus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Integer
-            Return QuestEnum.QuestgiverStatusFlag.DIALOG_STATUS_NONE
+            Return QuestgiverStatusFlag.DIALOG_STATUS_NONE
         End Function
 
         Public Overridable Function OnQuestHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Boolean

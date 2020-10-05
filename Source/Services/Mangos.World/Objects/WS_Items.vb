@@ -19,6 +19,11 @@
 Imports System.Data
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Loots
@@ -32,7 +37,7 @@ Namespace Objects
 
 #Region "WS.Items.Constants"
 
-        Private ReadOnly ItemWeaponSkills() As Integer = New Integer() {GlobalEnum.SKILL_IDs.SKILL_AXES,
+        Private ReadOnly ItemWeaponSkills() As Integer = New Integer() {SKILL_IDs.SKILL_AXES,
                                                                         SKILL_IDs.SKILL_TWO_HANDED_AXES,
                                                                         SKILL_IDs.SKILL_BOWS,
                                                                         SKILL_IDs.SKILL_GUNS,

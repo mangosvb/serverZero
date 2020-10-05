@@ -20,6 +20,8 @@ Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Map
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -51,7 +53,7 @@ Namespace Maps
             Public Level As Byte
             Public Zone As Integer
             Public ZoneType As Integer
-            Public Team As GlobalEnum.AreaTeam
+            Public Team As AreaTeam
             Public Name As String
 
 

@@ -21,13 +21,14 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace Handlers
 
     Public Module WC_Handlers_Misc
 
         Public Sub On_CMSG_QUERY_TIME(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_QUERY_TIME", client.IP, client.Port)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUERY_TIME", client.IP, client.Port)
             Dim response As New PacketClass(OPCODES.SMSG_QUERY_TIME_RESPONSE)
             response.AddInt32(timeGetTime("")) 'GetTimestamp(Now))
             client.Send(response)

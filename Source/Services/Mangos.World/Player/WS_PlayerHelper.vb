@@ -18,6 +18,8 @@
 
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -238,7 +240,7 @@ Namespace Player
 
             Public Sub New(ByRef Character As CharacterObject)
                 CharacterGUID = Character.GUID
-                Character.StartMirrorTimer(GlobalEnum.MirrorTimer.DROWNING, 70000)
+                Character.StartMirrorTimer(MirrorTimer.DROWNING, 70000)
                 DrowningTimer = New Timer(AddressOf Character.HandleDrowning, Nothing, 2000, 1000)
             End Sub
 

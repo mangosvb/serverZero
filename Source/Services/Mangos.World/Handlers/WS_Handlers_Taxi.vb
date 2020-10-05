@@ -19,6 +19,8 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -35,7 +37,7 @@ Namespace Handlers
         ''' <param name="client">The client.</param>
         ''' <param name="reply">The reply.</param>
         ''' <returns></returns>
-        Private Sub SendActivateTaxiReply(ByRef client As WS_Network.ClientClass, ByVal reply As GlobalEnum.ActivateTaxiReplies)
+        Private Sub SendActivateTaxiReply(ByRef client As WS_Network.ClientClass, ByVal reply As ActivateTaxiReplies)
             Dim taxiFailed As New Packets.PacketClass(OPCODES.SMSG_ACTIVATETAXIREPLY)
             Try
                 taxiFailed.AddInt32(reply)

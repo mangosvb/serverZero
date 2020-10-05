@@ -19,6 +19,8 @@
 Imports System.Data
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.GameObject
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -49,7 +51,7 @@ Namespace Objects
                     Dim newTransport As New TransportObject(TransportEntry, TransportName, TransportPeriod)
                 Next
 
-                Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Database: {0} Transports initialized.", TransportQuery.Rows.Count)
+                Log.WriteLine(LogType.INFORMATION, "Database: {0} Transports initialized.", TransportQuery.Rows.Count)
             Catch e As IO.DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : TransportQuery missing.")

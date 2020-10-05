@@ -23,6 +23,10 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
+Imports Mangos.Common.Enums.Misc
 
 Namespace Handlers
 
@@ -36,7 +40,7 @@ Namespace Handlers
             Implements IDisposable
 
             Public Id As Long
-            Public Type As GroupEnum.GroupType = GroupType.PARTY
+            Public Type As GroupType = GroupType.PARTY
             Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
             Private LootMaster As Byte
             Public LootMethod As GroupLootMethod = GroupLootMethod.LOOT_GROUP

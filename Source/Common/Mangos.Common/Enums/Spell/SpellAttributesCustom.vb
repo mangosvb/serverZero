@@ -1,0 +1,18 @@
+﻿Namespace Enums.Spell
+    Public Enum SpellAttributesCustom As UInteger
+        SPELL_ATTR_CU_CONE_BACK = &H1
+        SPELL_ATTR_CU_CONE_LINE = &H2
+        SPELL_ATTR_CU_SHARE_DAMAGE = &H4
+        SPELL_ATTR_CU_AURA_HOT = &H8
+        SPELL_ATTR_CU_AURA_DOT = &H10
+        SPELL_ATTR_CU_AURA_CC = &H20
+        SPELL_ATTR_CU_AURA_SPELL = &H40
+        SPELL_ATTR_CU_DIRECT_DAMAGE = &H80
+        SPELL_ATTR_CU_CHARGE = &H100
+        SPELL_ATTR_CU_LINK_CAST = &H200
+        SPELL_ATTR_CU_LINK_HIT = &H400
+        SPELL_ATTR_CU_LINK_AURA = &H800
+        SPELL_ATTR_CU_LINK_REMOVE = &H1000
+        SPELL_ATTR_CU_MOVEMENT_IMPAIR = &H2000
+    End Enum
+End NameSpace

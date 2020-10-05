@@ -19,6 +19,9 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
+Imports Mangos.Common.Enums.Map
 Imports Mangos.Common.Globals
 Imports Mangos.SignalR
 Imports Mangos.World.Globals
@@ -107,7 +110,7 @@ Namespace Server
                             Cluster.Disconnect(LocalURI, Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
                         End If
                     Catch e As Exception
-                        Log.WriteLine(GlobalEnum.LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
+                        Log.WriteLine(LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
                     End Try
                     Cluster = Nothing
                     Thread.Sleep(3000)

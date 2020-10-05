@@ -18,6 +18,10 @@
 
 Imports System.Data
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Guild
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -32,7 +36,7 @@ Namespace Social
         Public Sub SendPetitionActivate(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
             If WORLD_CREATUREs.ContainsKey(cGUID) = False Then Exit Sub
             Dim Count As Byte = 3
-            If WORLD_CREATUREs(cGUID).CreatureInfo.cNpcFlags And UnitEnum.NPCFlags.UNIT_NPC_FLAG_VENDOR Then
+            If WORLD_CREATUREs(cGUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR Then
                 Count = 1
             End If
 

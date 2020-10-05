@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Quest
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -80,7 +82,7 @@ Namespace Quests
             'Load Spell Casts
             For bytLoop As Byte = 0 To 3
                 If Quest.ObjectivesCastSpell(bytLoop) > 0 Then
-                    ObjectiveFlags = ObjectiveFlags Or QuestEnum.QuestObjectiveFlag.QUEST_OBJECTIVE_CAST
+                    ObjectiveFlags = ObjectiveFlags Or QuestObjectiveFlag.QUEST_OBJECTIVE_CAST
                     ObjectivesType(bytLoop) = QuestObjectiveFlag.QUEST_OBJECTIVE_CAST
                     ObjectivesSpell(bytLoop) = Quest.ObjectivesCastSpell(bytLoop)
                     ObjectivesObject(0) = Quest.ObjectivesKill(bytLoop)

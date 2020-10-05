@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -91,7 +93,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(Spell_Decimate, aiTarget)
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I have failed to cast decimate. Whoever made this script is bad. Please report this to the developers.", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                    aiCreature.SendChatMessage("I have failed to cast decimate. Whoever made this script is bad. Please report this to the developers.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             Next
         End Sub

@@ -18,6 +18,8 @@
 
 Imports System.Data
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Map
 Imports Mangos.World.Globals
 Imports Mangos.World.Maps
 Imports Mangos.World.Player
@@ -52,7 +54,7 @@ Namespace Handlers
             For x As Short = 0 To 63
                 For y As Short = 0 To 63
                     If WS_Maps.Maps(Map).TileUsed(x, y) = False AndAlso IO.File.Exists(String.Format("maps\{0}{1}{2}.map", Format(Map, "000"), Format(x, "00"), Format(y, "00"))) Then
-                        Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x, y, Map)
+                        Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x, y, Map)
                         WS_Maps.Maps(Map).TileUsed(x, y) = True
                         WS_Maps.Maps(Map).Tiles(x, y) = New WS_Maps.TMapTile(x, y, Map)
                     End If

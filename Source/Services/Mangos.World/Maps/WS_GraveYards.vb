@@ -20,6 +20,7 @@ Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.Handlers
 Imports Mangos.World.Player
@@ -148,7 +149,7 @@ Namespace Maps
                 Dim locationMapID As Integer
                 Dim locationIndex As Integer
 
-                Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
+                Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
                 For i As Integer = 0 To tmpDBC.Rows - 1
                     locationIndex = tmpDBC.Item(i, 0)
                     locationMapID = tmpDBC.Item(i, 1)

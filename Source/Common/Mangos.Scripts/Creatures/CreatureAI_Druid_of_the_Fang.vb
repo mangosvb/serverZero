@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -73,7 +75,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Serpent_Form)
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I have failed to cast Serpent Form. This is a problem. Please report this to the developers.", ChatEnum.ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+                    aiCreature.SendChatMessage("I have failed to cast Serpent Form. This is a problem. Please report this to the developers.", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             End If
         End Sub

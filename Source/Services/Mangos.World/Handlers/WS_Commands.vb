@@ -21,6 +21,12 @@ Imports System.Reflection
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.GameObject
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -40,7 +46,7 @@ Namespace Handlers
         Public ChatCommands As New Dictionary(Of String, ChatCommand)
         Public Class ChatCommand
             Public CommandHelp As String
-            Public CommandAccess As MiscEnum.AccessLevel = AccessLevel.GameMaster
+            Public CommandAccess As AccessLevel = AccessLevel.GameMaster
             Public CommandDelegate As ChatCommandDelegate
         End Class
 

@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -47,7 +49,7 @@ Namespace Creatures
 
         Public Overrides Sub OnEnterCombat()
             MyBase.OnEnterCombat()
-            aiCreature.SendChatMessage("I am the serpent king, I can do anything!", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
+            aiCreature.SendChatMessage("I am the serpent king, I can do anything!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
         End Sub
 
         Public Overrides Sub OnThink()

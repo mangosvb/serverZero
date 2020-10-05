@@ -20,6 +20,10 @@
 Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -105,7 +109,7 @@ Namespace Objects
                 'Update.SetUpdateFlag(EItemFields.ITEM_FIELD_DURATION, 0)
                 For i As Integer = 0 To 4
                     If _
-                        ItemInfo.Spells(i).SpellTrigger = ItemEnum.ITEM_SPELLTRIGGER_TYPE.USE OrElse
+                        ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
                         ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE Then
                         update.SetUpdateFlag(EItemFields.ITEM_FIELD_SPELL_CHARGES + i, ChargesLeft)
                     Else

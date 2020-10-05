@@ -20,6 +20,7 @@ Imports System.CodeDom.Compiler
 Imports System.IO
 Imports System.Reflection
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace Globals
 
@@ -53,7 +54,7 @@ Namespace Globals
                 Return
             End If
 
-            Log.WriteLine(GlobalEnum.LogType.SUCCESS, "Compiling: \Scripts\*.*")
+            Log.WriteLine(LogType.SUCCESS, "Compiling: \Scripts\*.*")
 
             Try
                 Dim vBcp As New VBCodeProvider

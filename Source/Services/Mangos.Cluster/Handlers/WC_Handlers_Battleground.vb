@@ -22,6 +22,7 @@ Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace Handlers
 
@@ -38,7 +39,7 @@ Namespace Handlers
             Dim action As Byte = packet.GetUInt8                 'enter battle 0x1, leave queue 0x0
 
             'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [MapType: {2}, Action: {3}, Unk1: {4}, Unk2: {5}, ID: {6}]", client.IP, client.Port, MapType, Action, Unk1, Unk2, ID)
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [Action: {1}, ID: {2}]", client.IP, client.Port, action, id)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [Action: {1}, ID: {2}]", client.IP, client.Port, action, id)
 
             If action = 0 Then
                 BATTLEFIELDs(id).Leave(client.Character)

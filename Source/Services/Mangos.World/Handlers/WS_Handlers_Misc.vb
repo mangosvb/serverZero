@@ -18,6 +18,8 @@
 
 Imports System.Data
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI
 Imports Mangos.World.DataStores
@@ -67,7 +69,7 @@ Namespace Handlers
                 If (packet.Data.Length - 1) < 13 Then Exit Sub
                 packet.GetInt16()
                 Dim GUID As ULong = packet.GetUInt64()
-                Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", client.IP, client.Port, GUID)
+                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", client.IP, client.Port, GUID)
                 Dim SMSG_NAME_QUERY_RESPONSE As New PacketClass(OPCODES.SMSG_NAME_QUERY_RESPONSE)
 
                 'RESERVED For Warden Bot

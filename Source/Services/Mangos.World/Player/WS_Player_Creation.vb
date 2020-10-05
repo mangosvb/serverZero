@@ -19,6 +19,9 @@
 Imports System.Data
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Character
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -44,7 +47,7 @@ Namespace Player
             'DONE: Query Access Level and Account ID
             AccountDatabase.Query(String.Format("SELECT id, gmlevel FROM account WHERE username = ""{0}"";", Account), MySQLQuery)
             Dim Account_ID As Integer = MySQLQuery.Rows(0).Item("id")
-            Dim Account_Access As MiscEnum.AccessLevel = MySQLQuery.Rows(0).Item("gmlevel")
+            Dim Account_Access As AccessLevel = MySQLQuery.Rows(0).Item("gmlevel")
             Character.Access = Account_Access
 
             If Not ValidateName(Character.Name) Then

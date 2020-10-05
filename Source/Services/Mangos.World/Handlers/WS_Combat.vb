@@ -19,6 +19,11 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -45,7 +50,7 @@ Namespace Handlers
             packet.Dispose()
         End Sub
 
-        Public Function GetWeaponDmg(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AttackType As GlobalEnum.WeaponAttackType, ByVal MaxDmg As Boolean) As Single
+        Public Function GetWeaponDmg(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AttackType As WeaponAttackType, ByVal MaxDmg As Boolean) As Single
             Dim WepSlot As Byte
             Select Case AttackType
                 Case WeaponAttackType.BASE_ATTACK

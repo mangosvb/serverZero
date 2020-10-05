@@ -20,6 +20,9 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Channel
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
 
 Namespace Handlers
 
@@ -79,7 +82,7 @@ Namespace Handlers
                 ID = GetNexyChatChannelID()
                 ChannelIndex = 0
                 ChannelName = name
-                ChannelFlags = ChannelEnum.CHANNEL_FLAG.CHANNEL_FLAG_NONE
+                ChannelFlags = CHANNEL_FLAG.CHANNEL_FLAG_NONE
 
                 CHAT_CHANNELs.Add(ChannelName, Me)
 

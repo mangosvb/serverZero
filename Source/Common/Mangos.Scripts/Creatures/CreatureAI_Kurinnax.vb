@@ -17,6 +17,7 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.World
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
@@ -90,7 +91,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
                 Catch Ex As Exception
-                    Log.WriteLine(GlobalEnum.LogType.WARNING, "Mortal Wound failed to cast!")
+                    Log.WriteLine(LogType.WARNING, "Mortal Wound failed to cast!")
                 End Try
             End If
             If Next_Thrash <= 1 Then

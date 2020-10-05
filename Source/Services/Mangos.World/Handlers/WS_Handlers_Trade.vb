@@ -17,6 +17,10 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -98,7 +102,7 @@ Namespace Handlers
                             packet.AddInt32(myItem.StackCount)              'ITEM_FIELD_STACK_COUNT
                             packet.AddInt32(0)                              'Unk.. probably gift=1, created_by=0?
                             packet.AddUInt64(myItem.GiftCreatorGUID)        'ITEM_FIELD_GIFTCREATOR
-                            If myItem.Enchantments.ContainsKey(GlobalEnum.EnchantSlots.ENCHANTMENT_PERM) Then
+                            If myItem.Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_PERM) Then
                                 packet.AddInt32(myItem.Enchantments(EnchantSlots.ENCHANTMENT_PERM).ID)
                             Else
                                 packet.AddInt32(0)                          'ITEM_FIELD_ENCHANTMENT

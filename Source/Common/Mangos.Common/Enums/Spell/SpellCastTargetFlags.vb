@@ -1,0 +1,17 @@
+﻿Namespace Enums.Spell
+    Public Enum SpellCastTargetFlags As Integer
+        TARGET_FLAG_SELF = &H0
+        TARGET_FLAG_UNIT = &H2
+        TARGET_FLAG_ITEM = &H10
+        TARGET_FLAG_SOURCE_LOCATION = &H20
+        TARGET_FLAG_DEST_LOCATION = &H40
+        TARGET_FLAG_OBJECT_UNK = &H80
+        TARGET_FLAG_PVP_CORPSE = &H200
+        TARGET_FLAG_OBJECT = &H800
+        TARGET_FLAG_TRADE_ITEM = &H1000
+        TARGET_FLAG_STRING = &H2000
+        TARGET_FLAG_UNK1 = &H4000
+        TARGET_FLAG_CORPSE = &H8000
+        TARGET_FLAG_UNK2 = &H10000
+    End Enum
+End NameSpace

@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
@@ -31,7 +33,7 @@ Namespace Social
             Implements IDisposable
 
             Public ReadOnly ID As Long
-            Public Type As GroupEnum.GroupType = GroupType.PARTY
+            Public Type As GroupType = GroupType.PARTY
             Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
             Public LootMethod As GroupLootMethod = GroupLootMethod.LOOT_GROUP
             Public LootThreshold As GroupLootThreshold = GroupLootThreshold.Uncommon

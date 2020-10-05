@@ -19,6 +19,8 @@
 Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -40,7 +42,7 @@ Namespace Objects
             Public Bytes2 As Integer = 0
             Public Model As Integer = 0
             Public Guild As Integer = 0
-            Public Items(PlayerEnum.EquipmentSlots.EQUIPMENT_SLOT_END - 1) As Integer
+            Public Items(EquipmentSlots.EQUIPMENT_SLOT_END - 1) As Integer
 
             Public Sub FillAllUpdateFlags(ByRef Update As Packets.UpdateClass)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)

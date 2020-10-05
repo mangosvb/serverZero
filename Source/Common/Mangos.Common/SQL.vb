@@ -67,68 +67,68 @@ Public Class SQL
 
 #Region "Main propertys"
 #Region "Server type selection      MySQL Supported"
-    <Description("SQL Server selection.")> _
-    Public Property SQLTypeServer() As DB_Type
+    <Description("SQL Server selection.")>
+    Public Property SQLTypeServer As DB_Type
         Get
             SQLTypeServer = v_SQLType
         End Get
-        Set(ByVal value As DB_Type)
-            v_SQLType = value
+        Set
+            v_SQLType = Value
         End Set
     End Property
 #End Region
 #Region "Server host ip"
-    <Description("SQL Host name.")> _
-    Public Property SQLHost() As String
+    <Description("SQL Host name.")>
+    Public Property SQLHost As String
         Get
             SQLHost = v_SQLHost
         End Get
-        Set(ByVal value As String)
-            v_SQLHost = value
+        Set
+            v_SQLHost = Value
         End Set
     End Property
 #End Region
 #Region "Server host port"
-    <Description("SQL Host port.")> _
-    Public Property SQLPort() As String
+    <Description("SQL Host port.")>
+    Public Property SQLPort As String
         Get
             SQLPort = v_SQLPort
         End Get
-        Set(ByVal value As String)
-            v_SQLPort = value
+        Set
+            v_SQLPort = Value
         End Set
     End Property
 #End Region
 #Region "Server username"
-    <Description("SQL User name.")> _
-    Public Property SQLUser() As String
+    <Description("SQL User name.")>
+    Public Property SQLUser As String
         Get
             SQLUser = v_SQLUser
         End Get
-        Set(ByVal value As String)
-            v_SQLUser = value
+        Set
+            v_SQLUser = Value
         End Set
     End Property
 #End Region
 #Region "Server Password"
-    <Description("SQL Password.")> _
-    Public Property SQLPass() As String
+    <Description("SQL Password.")>
+    Public Property SQLPass As String
         Get
             SQLPass = v_SQLPass
         End Get
-        Set(ByVal value As String)
-            v_SQLPass = value
+        Set
+            v_SQLPass = Value
         End Set
     End Property
 #End Region
 #Region "Database Name"
-    <Description("SQL Database name.")> _
-    Public Property SQLDBName() As String
+    <Description("SQL Database name.")>
+    Public Property SQLDBName As String
         Get
             SQLDBName = v_SQLDBName
         End Get
-        Set(ByVal value As String)
-            v_SQLDBName = value
+        Set
+            v_SQLDBName = Value
         End Set
     End Property
 #End Region

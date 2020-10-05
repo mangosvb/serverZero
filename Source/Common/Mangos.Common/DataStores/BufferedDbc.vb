@@ -19,6 +19,7 @@
 Imports System.ComponentModel
 Imports System.IO
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace DataStores
     <Description("DBC wrapper class using buffered stream for file access.")> _
@@ -59,23 +60,23 @@ Namespace DataStores
             _disposedValue = True
         End Sub
 
-        <Description("Access to item by row and column.")> _
-        Public Overrides ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As GlobalEnum.DBCValueType = DBCValueType.DBC_INTEGER) As Object
+        <Description("Access to item by row and column.")>
+        Public Overrides ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As DBCValueType = DBCValueType.DBC_INTEGER) As Object
             Get
                 If row >= Rows Then Throw New ApplicationException("DBC: Row index outside file definition.")
                 If column >= Columns Then Throw New ApplicationException("DBC: Column index outside file definition.")
 
-                tmpOffset = 20 + row * RowLength + column * 4
-                If bs.Position <> tmpOffset Then bs.Seek(tmpOffset, SeekOrigin.Begin)
-                bs.Read(buffer, 0, 4)
+                TmpOffset = 20 + row * RowLength + column * 4
+                If bs.Position <> TmpOffset Then bs.Seek(TmpOffset, SeekOrigin.Begin)
+                bs.Read(Buffer, 0, 4)
 
                 Select Case valueType
                     Case DBCValueType.DBC_FLOAT
-                        Return BitConverter.ToSingle(buffer, 0)
+                        Return BitConverter.ToSingle(Buffer, 0)
                     Case DBCValueType.DBC_INTEGER
-                        Return BitConverter.ToInt32(buffer, 0)
+                        Return BitConverter.ToInt32(Buffer, 0)
                     Case DBCValueType.DBC_STRING
-                        Dim offset As Integer = BitConverter.ToInt32(buffer, 0)
+                        Dim offset As Integer = BitConverter.ToInt32(Buffer, 0)
                         bs.Seek(20 + Rows * RowLength + offset, SeekOrigin.Begin)
 
                         Dim strByte As Byte = 0

@@ -18,6 +18,9 @@
 
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Gossip
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
 
@@ -30,7 +33,7 @@ Namespace Gossip
 
 #Region "Gossip functions"
             Public Overrides Sub OnGossipHello(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
-                Dim Gossip As GossipEnum.Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
+                Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
 
                 Select Case Gossip
                     Case Gossips.Darnassus

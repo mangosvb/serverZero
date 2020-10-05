@@ -21,6 +21,8 @@ Imports System.Numerics
 Imports System.Runtime.InteropServices
 Imports System.Security.Cryptography
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Warden
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -68,7 +70,7 @@ Namespace Warden
 
                 ModuleData = File.ReadAllBytes("warden\" & ModuleName & ".bin")
                 If LoadModule(ModuleName, ModuleData, ModuleKey) Then
-                    Log.WriteLine(GlobalEnum.LogType.SUCCESS, "[WARDEN] Load of module, success [{0}]", ModuleName)
+                    Log.WriteLine(LogType.SUCCESS, "[WARDEN] Load of module, success [{0}]", ModuleName)
                 Else
                     Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to load module [{0}]", ModuleName)
                 End If

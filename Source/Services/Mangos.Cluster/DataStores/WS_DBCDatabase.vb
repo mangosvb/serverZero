@@ -20,6 +20,8 @@ Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Map
 
 Namespace DataStores
     Public Module WS_DBCDatabase
@@ -32,7 +34,7 @@ Namespace DataStores
                 Dim data As BufferedDbc = New BufferedDbc(MapDBC)
                 For i As Integer = 0 To New BufferedDbc(MapDBC).Rows - 1
                     Dim m As New MapInfo With {
-                        .ID = data.Item(i, 0, GlobalEnum.DBCValueType.DBC_INTEGER),
+                        .ID = data.Item(i, 0, DBCValueType.DBC_INTEGER),
                         .Type = data.Item(i, 2, DBCValueType.DBC_INTEGER),
                         .Name = data.Item(i, 4, DBCValueType.DBC_STRING),
                         .ParentMap = data.Item(i, 3, DBCValueType.DBC_INTEGER),
