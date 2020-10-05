@@ -21,12 +21,12 @@ Imports Mangos.Common.Enums
 Namespace Globals
 
     Public Module Global_Constants
-        Public Const RevisionDbCharactersVersion As Integer = 1
+        Public Const RevisionDbCharactersVersion As Integer = 21
         Public Const RevisionDbCharactersStructure As Integer = 0
         Public Const RevisionDbCharactersContent As Integer = 0
 
-        Public Const RevisionDbMangosVersion As Integer = 1
-        Public Const RevisionDbMangosStructure As Integer = 0
+        Public Const RevisionDbMangosVersion As Integer = 21
+        Public Const RevisionDbMangosStructure As Integer = 1
         Public Const RevisionDbMangosContent As Integer = 0
 
         Public Const RevisionDbRealmVersion As Integer = 21

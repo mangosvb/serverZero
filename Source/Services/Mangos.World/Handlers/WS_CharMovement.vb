@@ -372,7 +372,7 @@ Namespace Handlers
 
                 'DONE: Handling quest triggers
                 q.Clear()
-                WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_involvedrelation WHERE id = {0};", triggerID), q)
+                WorldDatabase.Query(String.Format("SELECT entry, quest FROM quest_relations WHERE actor=2 and role=0 and entry = {0};", triggerID), q)
                 If q.Rows.Count > 0 Then
                     ALLQUESTS.OnQuestExplore(client.Character, triggerID)
                     Exit Sub

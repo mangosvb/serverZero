@@ -133,7 +133,7 @@ Namespace Globals
         Public Function CheckRequiredDbVersion(ByRef thisDatabase As SQL, thisServerDb As ServerDb) As Boolean
             Dim mySqlQuery As New DataTable
             'thisDatabase.Query(String.Format("SELECT column_name FROM information_schema.columns WHERE table_name='" & thisTableName & "'  AND TABLE_SCHEMA='" & thisDatabase.SQLDBName & "'"), mySqlQuery)
-            thisDatabase.Query("SELECT `version`,`structure`,`content` FROM db_version", mySqlQuery)
+            thisDatabase.Query("SELECT `version`,`structure`,`content` FROM db_version ORDER BY VERSION DESC, structure DESC, content DESC LIMIT 0,1", mySqlQuery)
             'Check database version against code version
 
             Dim coreDbVersion As Integer = 0

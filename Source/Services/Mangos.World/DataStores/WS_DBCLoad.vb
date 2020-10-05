@@ -1232,10 +1232,10 @@ Namespace DataStores
 #Region "Quests"
         Public Sub LoadQuestStartersAndFinishers()
             Dim questStarters As New DataTable
-            WorldDatabase.Query("SELECT * FROM creature_questrelation;", questStarters)
+            WorldDatabase.Query("SELECT * FROM quest_relations where actor=0 and role =0;", questStarters)
 
             For Each starter As DataRow In questStarters.Rows
-                Dim entry As Integer = starter.Item("id")
+                Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
                 If CreatureQuestStarters.ContainsKey(entry) = False Then CreatureQuestStarters.Add(entry, New List(Of Integer))
                 CreatureQuestStarters(entry).Add(quest)
@@ -1243,9 +1243,9 @@ Namespace DataStores
 
             Dim questStartersAmount As Integer = questStarters.Rows.Count
             questStarters.Clear()
-            WorldDatabase.Query("SELECT * FROM gameobject_questrelation;", questStarters)
+            WorldDatabase.Query("SELECT * FROM quest_relations where actor=1 and role=0;", questStarters)
             For Each starter As DataRow In questStarters.Rows
-                Dim entry As Integer = starter.Item("id")
+                Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
                 If GameobjectQuestStarters.ContainsKey(entry) = False Then GameobjectQuestStarters.Add(entry, New List(Of Integer))
                 GameobjectQuestStarters(entry).Add(quest)
@@ -1256,10 +1256,10 @@ Namespace DataStores
             questStarters.Clear()
 
             Dim questFinishers As New DataTable
-            WorldDatabase.Query("SELECT * FROM creature_involvedrelation;", questFinishers)
+            WorldDatabase.Query("SELECT * FROM quest_relations where actor=0 and role=1;", questFinishers)
 
             For Each starter As DataRow In questFinishers.Rows
-                Dim entry As Integer = starter.Item("id")
+                Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
                 If CreatureQuestFinishers.ContainsKey(entry) = False Then CreatureQuestFinishers.Add(entry, New List(Of Integer))
                 CreatureQuestFinishers(entry).Add(quest)
@@ -1267,9 +1267,9 @@ Namespace DataStores
 
             Dim questFinishersAmount As Integer = questFinishers.Rows.Count
             questFinishers.Clear()
-            WorldDatabase.Query("SELECT * FROM gameobject_involvedrelation;", questFinishers)
+            WorldDatabase.Query("SELECT * FROM quest_relations where actor=1 and role=1;", questFinishers)
             For Each starter As DataRow In questFinishers.Rows
-                Dim entry As Integer = starter.Item("id")
+                Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
                 If GameobjectQuestFinishers.ContainsKey(entry) = False Then GameobjectQuestFinishers.Add(entry, New List(Of Integer))
                 GameobjectQuestFinishers(entry).Add(quest)
