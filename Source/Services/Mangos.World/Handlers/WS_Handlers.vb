@@ -15,16 +15,11 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-Imports Mangos.Common
+
 Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
-Imports Mangos.World.Auction
 Imports Mangos.World.Globals
-Imports Mangos.World.Loots
-Imports Mangos.World.Objects
 Imports Mangos.World.Server
-Imports Mangos.World.Social
-Imports Mangos.World.Spells
 
 Namespace Handlers
 

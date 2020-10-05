@@ -18,7 +18,6 @@
 Imports System.CodeDom.Compiler
 Imports System.IO
 Imports System.Reflection
-Imports Mangos.Common
 Imports Mangos.Common.Enums
 
 Namespace Globals

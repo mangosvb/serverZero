@@ -17,7 +17,6 @@
 '
 Imports System.IO
 Imports Mangos.Common.Globals
-Imports Mangos.Common
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
 

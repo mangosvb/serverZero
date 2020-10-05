@@ -19,7 +19,6 @@ Imports System.IO
 Imports System.Numerics
 Imports System.Runtime.InteropServices
 Imports System.Security.Cryptography
-Imports Mangos.Common
 Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals

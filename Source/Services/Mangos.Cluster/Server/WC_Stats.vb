@@ -18,7 +18,6 @@
 Imports System.Reflection
 Imports System.Threading
 Imports System.Xml
-Imports Mangos.Common
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Common.Enums
 

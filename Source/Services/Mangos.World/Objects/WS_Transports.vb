@@ -17,7 +17,6 @@
 '
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common
 Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores

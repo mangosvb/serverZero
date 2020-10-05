@@ -18,7 +18,6 @@
 Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports System.Threading
-Imports Mangos.Common
 Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals

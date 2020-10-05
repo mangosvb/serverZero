@@ -17,7 +17,6 @@
 '
 
 Imports System.Text.RegularExpressions
-Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.DataStores
