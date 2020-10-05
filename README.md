@@ -28,7 +28,7 @@ copyrighted by [Blizzard Entertainment, Inc.][1].
     Windows 10
     Visual Studio 2019 with Visual Basic component
     MySQL 8.0
-    .NET Core 3.1
+    .NET Core 3.1 SDK
 
 ## Documentation
 
