@@ -20,6 +20,11 @@ Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Server
+Imports Mangos.World.Objects
+Imports Mangos.World.Social
+Imports Mangos.World.Loots
+Imports Mangos.World.Spells
+Imports Mangos.World.Auction
 
 Namespace Handlers
 
