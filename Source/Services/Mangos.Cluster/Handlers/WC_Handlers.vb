@@ -20,6 +20,7 @@ Imports Mangos.Common.Globals
 Imports Mangos.Common
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
+Imports Mangos.Common.Enums
 
 
 Namespace Handlers
@@ -164,7 +165,7 @@ Namespace Handlers
         End Sub
 
         Public Sub OnUnhandledPacket(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, packet.OpCode)
+            Log.WriteLine(GlobalEnum.LogType.WARNING, "[{0}:{1}] {2} [Unhandled Packet]", client.IP, client.Port, packet.OpCode)
         End Sub
 
         Public Sub OnClusterPacket(ByRef packet As PacketClass, ByRef client As ClientClass)

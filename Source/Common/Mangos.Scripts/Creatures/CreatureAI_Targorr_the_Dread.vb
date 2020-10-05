@@ -1,9 +1,12 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Targorr_the_Dread
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const ThrashCD As Integer = 7000
         Private Const FrenzyCD As Integer = 90000 'This should never be reused.
@@ -16,7 +19,7 @@ Namespace Creatures
         Public NextAcid As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False
@@ -39,7 +42,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Thrash)
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("AI was unable to cast Thrash on himself. Please report this to a developer.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                    aiCreature.SendChatMessage("AI was unable to cast Thrash on himself. Please report this to a developer.", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             Next
         End Sub

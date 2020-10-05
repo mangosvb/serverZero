@@ -30,6 +30,7 @@ Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
+Imports Mangos.Common.Enums
 
 Public Module WorldCluster
     Private Const ClusterPath As String = "configs/WorldCluster.ini"

@@ -22,6 +22,7 @@ Imports Mangos.Common
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
+Imports Mangos.Common.Enums
 
 Public Module WC_Guild
 
@@ -140,7 +141,7 @@ Public Module WC_Guild
         CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, guid))
     End Sub
 
-    Public Sub BroadcastChatMessageGuild(ByRef sender As CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
+    Public Sub BroadcastChatMessageGuild(ByRef sender As CharacterObject, message As String, language As MiscEnum.LANGUAGES, guildId As Integer)
         'DONE: Check for guild member
         If Not sender.IsInGuild Then
             SendGuildResult(sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)

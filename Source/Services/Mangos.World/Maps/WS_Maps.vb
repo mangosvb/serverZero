@@ -15,79 +15,86 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
-Imports System.IO
 Imports System.Data
+Imports System.IO
 Imports Mangos.Common
+Imports Mangos.Common.DataStores
+Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
+Imports Mangos.World.Globals
+Imports Mangos.World.Objects
+Imports Mangos.World.Player
+Imports Mangos.World.Server
 
-Public Module WS_Maps
+Namespace Maps
+
+    Public Module WS_Maps
 #Region "Zones"
-    Public AreaTable As New Dictionary(Of Integer, TArea)
+        Public AreaTable As New Dictionary(Of Integer, TArea)
 
-    Public Function GetAreaIDByMapandParent(ByVal mapId As Integer, ByVal parentID As Integer) As Integer
-        For Each thisArea As KeyValuePair(Of Integer, TArea) In AreaTable
-            Dim thisMap As Integer = thisArea.Value.mapId
-            Dim thisParent As Integer = thisArea.Value.Zone
+        Public Function GetAreaIDByMapandParent(ByVal mapId As Integer, ByVal parentID As Integer) As Integer
+            For Each thisArea As KeyValuePair(Of Integer, TArea) In AreaTable
+                Dim thisMap As Integer = thisArea.Value.mapId
+                Dim thisParent As Integer = thisArea.Value.Zone
 
-            If thisMap = mapId And thisParent = parentID Then
-                Return thisArea.Key
-            End If
-        Next
+                If thisMap = mapId And thisParent = parentID Then
+                    Return thisArea.Key
+                End If
+            Next
 
-        Return -999 'Lol?
-    End Function
-
-    Public Class TArea
-        Public ID As Integer
-        Public mapId As Integer
-        Public Level As Byte
-        Public Zone As Integer
-        Public ZoneType As Integer
-        Public Team As AreaTeam
-        Public Name As String
-
-
-        Public Function IsMyLand(ByRef objCharacter As CharacterObject) As Boolean
-            If Team = AreaTeam.AREATEAM_NONE Then Return False
-            If objCharacter.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
-            If objCharacter.IsHorde = True Then Return Team = AreaTeam.AREATEAM_HORDE
+            Return -999 'Lol?
         End Function
-        Public Function IsCity() As Boolean
-            Return ZoneType = 312
-        End Function
-        'TODO: REMOVE
-        Public Function NeedFlyingMount() As Boolean
-            Return (ZoneType And AreaFlag.AREA_FLAG_NEED_FLY)
-        End Function
-        'TODO: REMOVE
-        Public Function IsSanctuary() As Boolean
-            Return (ZoneType And AreaFlag.AREA_FLAG_SANCTUARY)
-        End Function
-        'TODO: REMOVE
-        Public Function IsArena() As Boolean
-            Return (ZoneType And AreaFlag.AREA_FLAG_ARENA)
-        End Function
-    End Class
+
+        Public Class TArea
+            Public ID As Integer
+            Public mapId As Integer
+            Public Level As Byte
+            Public Zone As Integer
+            Public ZoneType As Integer
+            Public Team As GlobalEnum.AreaTeam
+            Public Name As String
+
+
+            Public Function IsMyLand(ByRef objCharacter As WS_PlayerData.CharacterObject) As Boolean
+                If Team = AreaTeam.AREATEAM_NONE Then Return False
+                If objCharacter.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
+                If objCharacter.IsHorde = True Then Return Team = AreaTeam.AREATEAM_HORDE
+            End Function
+            Public Function IsCity() As Boolean
+                Return ZoneType = 312
+            End Function
+            'TODO: REMOVE
+            Public Function NeedFlyingMount() As Boolean
+                Return (ZoneType And AreaFlag.AREA_FLAG_NEED_FLY)
+            End Function
+            'TODO: REMOVE
+            Public Function IsSanctuary() As Boolean
+                Return (ZoneType And AreaFlag.AREA_FLAG_SANCTUARY)
+            End Function
+            'TODO: REMOVE
+            Public Function IsArena() As Boolean
+                Return (ZoneType And AreaFlag.AREA_FLAG_ARENA)
+            End Function
+        End Class
 #End Region
 
-    Public RESOLUTION_ZMAP As Integer = 0
+        Public RESOLUTION_ZMAP As Integer = 0
 
 
 #Region "Continents"
 
-    'NOTE: Map resolution. The resolution of your map files in your maps folder.
-    'Public Const RESOLUTION_ZMAP As Integer = 256 - 1
+        'NOTE: Map resolution. The resolution of your map files in your maps folder.
+        'Public Const RESOLUTION_ZMAP As Integer = 256 - 1
 
-    Public Class TMapTile
-        Implements IDisposable
+        Public Class TMapTile
+            Implements IDisposable
 
-        'TMap contains 64x64 TMapTile(s)
-        Public AreaFlag(RESOLUTION_FLAGS, RESOLUTION_FLAGS) As UShort
-        Public AreaTerrain(RESOLUTION_TERRAIN, RESOLUTION_TERRAIN) As Byte
-        Public WaterLevel(RESOLUTION_WATER, RESOLUTION_WATER) As Single
-        'Public ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
-        Public ZCoord(,) As Single
+            'TMap contains 64x64 TMapTile(s)
+            Public AreaFlag(RESOLUTION_FLAGS, RESOLUTION_FLAGS) As UShort
+            Public AreaTerrain(RESOLUTION_TERRAIN, RESOLUTION_TERRAIN) As Byte
+            Public WaterLevel(RESOLUTION_WATER, RESOLUTION_WATER) As Single
+            'Public ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
+            Public ZCoord(,) As Single
 
 #If ENABLE_PPOINTS Then
         'Public ZCoord_PP(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
@@ -115,70 +122,70 @@ Public Module WS_Maps
         End Sub
 #End If
 
-        Public PlayersHere As New List(Of ULong)
-        Public CreaturesHere As New List(Of ULong)
-        Public GameObjectsHere As New List(Of ULong)
-        Public CorpseObjectsHere As New List(Of ULong)
-        Public DynamicObjectsHere As New List(Of ULong)
+            Public PlayersHere As New List(Of ULong)
+            Public CreaturesHere As New List(Of ULong)
+            Public GameObjectsHere As New List(Of ULong)
+            Public CorpseObjectsHere As New List(Of ULong)
+            Public DynamicObjectsHere As New List(Of ULong)
 
-        Private ReadOnly CellX As Byte
-        Private ReadOnly CellY As Byte
-        Private ReadOnly CellMap As UInteger
+            Private ReadOnly CellX As Byte
+            Private ReadOnly CellY As Byte
+            Private ReadOnly CellMap As UInteger
 
-        Public Sub New(ByVal tileX As Byte, ByVal tileY As Byte, ByVal tileMap As UInteger)
-            'DONE: Don't load maptiles we don't handle
-            If Not Maps.ContainsKey(tileMap) Then Exit Sub
+            Public Sub New(ByVal tileX As Byte, ByVal tileY As Byte, ByVal tileMap As UInteger)
+                'DONE: Don't load maptiles we don't handle
+                If Not Maps.ContainsKey(tileMap) Then Exit Sub
 
-            ReDim ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP)
+                ReDim ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP)
 #If ENABLE_PPOINTS Then
             ReDim ZCoord_PP(RESOLUTION_ZMAP, RESOLUTION_ZMAP)
 #End If
 
-            CellX = tileX
-            CellY = tileY
-            CellMap = tileMap
+                CellX = tileX
+                CellY = tileY
+                CellMap = tileMap
 
-            Dim fileName As String
-            Dim fileVersion As String
-            Dim f As FileStream
-            Dim b As BinaryReader
-            Dim x, y As Integer
+                Dim fileName As String
+                Dim fileVersion As String
+                Dim f As FileStream
+                Dim b As BinaryReader
+                Dim x, y As Integer
 
-            'DONE: Loading MAP file
-            fileName = String.Format("{0}{1}{2}.map", Format(tileMap, "000"), Format(tileX, "00"), Format(tileY, "00"))
-            If Not File.Exists("maps\" & fileName) Then
-                Log.WriteLine(LogType.WARNING, "Map file [{0}] not found", fileName)
-            Else
-                f = New FileStream("maps\" & fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 82704, FileOptions.SequentialScan)
-                b = New BinaryReader(f)
+                'DONE: Loading MAP file
+                fileName = String.Format("{0}{1}{2}.map", Format(tileMap, "000"), Format(tileX, "00"), Format(tileY, "00"))
+                If Not File.Exists("maps\" & fileName) Then
+                    Log.WriteLine(LogType.WARNING, "Map file [{0}] not found", fileName)
+                Else
+                    f = New FileStream("maps\" & fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 82704, FileOptions.SequentialScan)
+                    b = New BinaryReader(f)
 
-                fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
-                Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
+                    fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
+                    Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
 
-                For x = 0 To RESOLUTION_FLAGS
-                    For y = 0 To RESOLUTION_FLAGS
-                        AreaFlag(x, y) = b.ReadUInt16()
-                    Next y
-                Next x
-                For x = 0 To RESOLUTION_TERRAIN
-                    For y = 0 To RESOLUTION_TERRAIN
-                        AreaTerrain(x, y) = b.ReadByte
-                    Next y
-                Next x
-                For x = 0 To RESOLUTION_WATER
-                    For y = 0 To RESOLUTION_WATER
-                        WaterLevel(x, y) = b.ReadSingle
-                    Next y
-                Next x
-                For x = 0 To RESOLUTION_ZMAP
-                    For y = 0 To RESOLUTION_ZMAP
-                        ZCoord(x, y) = b.ReadSingle
-                    Next y
-                Next x
-                b.Close()
-                '                f.Close()
-                '                f.Dispose()
-            End If
+                    For x = 0 To RESOLUTION_FLAGS
+                        For y = 0 To RESOLUTION_FLAGS
+                            AreaFlag(x, y) = b.ReadUInt16()
+                        Next y
+                    Next x
+                    For x = 0 To RESOLUTION_TERRAIN
+                        For y = 0 To RESOLUTION_TERRAIN
+                            AreaTerrain(x, y) = b.ReadByte
+                        Next y
+                    Next x
+                    For x = 0 To RESOLUTION_WATER
+                        For y = 0 To RESOLUTION_WATER
+                            WaterLevel(x, y) = b.ReadSingle
+                        Next y
+                    Next x
+                    For x = 0 To RESOLUTION_ZMAP
+                        For y = 0 To RESOLUTION_ZMAP
+                            ZCoord(x, y) = b.ReadSingle
+                        Next y
+                    Next x
+                    b.Close()
+                    '                f.Close()
+                    '                f.Dispose()
+                End If
 
 #If ENABLE_PPOINTS Then
             'DONE: Initializing PPoints to unused values
@@ -215,7 +222,7 @@ Public Module WS_Maps
 #If VMAPS Then
             LoadVMAP()
 #End If
-        End Sub
+            End Sub
 
 #If VMAPS Then
         Public Sub LoadVMAP()
@@ -267,86 +274,86 @@ Public Module WS_Maps
 #End If
 
 #Region "IDisposable Support"
-        Private _disposedValue As Boolean ' To detect redundant calls
+            Private _disposedValue As Boolean ' To detect redundant calls
 
-        ' IDisposable
-        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
-            If Not _disposedValue Then
-                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                ' TODO: set large fields to null.
-                UnloadSpawns(CellX, CellY, CellMap)
-            End If
-            _disposedValue = True
-        End Sub
+            ' IDisposable
+            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+                If Not _disposedValue Then
+                    ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                    ' TODO: set large fields to null.
+                    UnloadSpawns(CellX, CellY, CellMap)
+                End If
+                _disposedValue = True
+            End Sub
 
-        ' This code added by Visual Basic to correctly implement the disposable pattern.
-        Public Sub Dispose() Implements IDisposable.Dispose
-            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
-            Dispose(True)
-            GC.SuppressFinalize(Me)
-        End Sub
+            ' This code added by Visual Basic to correctly implement the disposable pattern.
+            Public Sub Dispose() Implements IDisposable.Dispose
+                ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+                Dispose(True)
+                GC.SuppressFinalize(Me)
+            End Sub
 #End Region
 
-    End Class
+        End Class
 
-    Public Class TMap
-        Implements IDisposable
+        Public Class TMap
+            Implements IDisposable
 
-        Public ID As Integer
-        Public Type As MapTypes = MapTypes.MAP_COMMON
-        Public Name As String = ""
+            Public ID As Integer
+            Public Type As MapTypes = MapTypes.MAP_COMMON
+            Public Name As String = ""
 
-        Public TileUsed(63, 63) As Boolean 'The same maptile should no longer be loaded twice
-        Public Tiles(63, 63) As TMapTile
+            Public TileUsed(63, 63) As Boolean 'The same maptile should no longer be loaded twice
+            Public Tiles(63, 63) As TMapTile
 
 #If VMAPS Then
         Private iLoadedModelContainer As New Dictionary(Of String, ModelContainer)
         Private iTree As New AABSPTree(Of ModelContainer)
 #End If
 
-        Public ReadOnly Property IsDungeon() As Boolean
-            Get
-                Return Type = MapTypes.MAP_INSTANCE OrElse Type = MapTypes.MAP_RAID
-            End Get
-        End Property
-        Public ReadOnly Property IsRaid() As Boolean
-            Get
-                Return Type = MapTypes.MAP_RAID
-            End Get
-        End Property
-        Public ReadOnly Property IsBattleGround() As Boolean
-            Get
-                Return Type = MapTypes.MAP_BATTLEGROUND
-            End Get
-        End Property
+            Public ReadOnly Property IsDungeon() As Boolean
+                Get
+                    Return Type = MapTypes.MAP_INSTANCE OrElse Type = MapTypes.MAP_RAID
+                End Get
+            End Property
+            Public ReadOnly Property IsRaid() As Boolean
+                Get
+                    Return Type = MapTypes.MAP_RAID
+                End Get
+            End Property
+            Public ReadOnly Property IsBattleGround() As Boolean
+                Get
+                    Return Type = MapTypes.MAP_BATTLEGROUND
+                End Get
+            End Property
 
-        Public ReadOnly Property ResetTime() As Integer
-            Get
-                Select Case Type
-                    Case MapTypes.MAP_BATTLEGROUND
-                        Return DEFAULT_BATTLEFIELD_EXPIRE_TIME
+            Public ReadOnly Property ResetTime() As Integer
+                Get
+                    Select Case Type
+                        Case MapTypes.MAP_BATTLEGROUND
+                            Return DEFAULT_BATTLEFIELD_EXPIRE_TIME
 
-                    Case MapTypes.MAP_RAID, MapTypes.MAP_INSTANCE
-                        '* Molten Core: Every Tuesday at 3:00AM or during weekly maintenance
-                        '* Blackwing Lair: Every Tuesday at 3:00AM or during weekly maintenance
-                        '* Onyxia's Lair: Every 5 days at 3:00AM
-                        '* Zul'Gurub: Every 3 days at 3:00AM
-                        '* Ruins of Ahn'Qiraj: Every 3 days at 3:00AM
-                        '* Temple of Ahn'Qiraj: Every Tuesday at 3:00AM or during weekly maintenance
-                        '* Naxxramas: Every Tuesday at 3:00AM or during weekly maintenance
-                        Select Case ID
-                            Case 249 'Onyxia's Lair
-                                Return GetNextDate(5, 3).Subtract(Now).TotalSeconds
-                            Case 309, 509 'Zul'Gurub and Ruins of Ahn'Qiraj
-                                Return GetNextDate(3, 3).Subtract(Now).TotalSeconds
-                            Case 409, 469, 531, 533 'Molten Core, Blackwing Lair, Temple of Ahn'Qiraj and Naxxramas
-                                Return GetNextDay(DayOfWeek.Tuesday, 3).Subtract(Now).TotalSeconds
-                        End Select
+                        Case MapTypes.MAP_RAID, MapTypes.MAP_INSTANCE
+                            '* Molten Core: Every Tuesday at 3:00AM or during weekly maintenance
+                            '* Blackwing Lair: Every Tuesday at 3:00AM or during weekly maintenance
+                            '* Onyxia's Lair: Every 5 days at 3:00AM
+                            '* Zul'Gurub: Every 3 days at 3:00AM
+                            '* Ruins of Ahn'Qiraj: Every 3 days at 3:00AM
+                            '* Temple of Ahn'Qiraj: Every Tuesday at 3:00AM or during weekly maintenance
+                            '* Naxxramas: Every Tuesday at 3:00AM or during weekly maintenance
+                            Select Case ID
+                                Case 249 'Onyxia's Lair
+                                    Return GetNextDate(5, 3).Subtract(Now).TotalSeconds
+                                Case 309, 509 'Zul'Gurub and Ruins of Ahn'Qiraj
+                                    Return GetNextDate(3, 3).Subtract(Now).TotalSeconds
+                                Case 409, 469, 531, 533 'Molten Core, Blackwing Lair, Temple of Ahn'Qiraj and Naxxramas
+                                    Return GetNextDay(DayOfWeek.Tuesday, 3).Subtract(Now).TotalSeconds
+                            End Select
 
-                        Return DEFAULT_INSTANCE_EXPIRE_TIME
-                End Select
-            End Get
-        End Property
+                            Return DEFAULT_INSTANCE_EXPIRE_TIME
+                    End Select
+                End Get
+            End Property
 
 #If VMAPS Then
         Public Function ContainsModelContainer(ByVal name As String) As Boolean
@@ -443,232 +450,232 @@ Public Module WS_Maps
         End Function
 #End If
 
-        Public Sub New(ByVal Map As Integer)
-            If Not Maps.ContainsKey(Map) Then
-                Maps.Add(Map, Me)
-                For x As Integer = 0 To 63
-                    For y As Integer = 0 To 63
-                        TileUsed(x, y) = False
+            Public Sub New(ByVal Map As Integer)
+                If Not Maps.ContainsKey(Map) Then
+                    Maps.Add(Map, Me)
+                    For x As Integer = 0 To 63
+                        For y As Integer = 0 To 63
+                            TileUsed(x, y) = False
+                        Next
                     Next
-                Next
 
-                Try
-                    Dim tmpDBC As DBC.BufferedDbc = New DBC.BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Map.dbc")
-                    Dim tmpMap As Integer
+                    Try
+                        Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Map.dbc")
+                        Dim tmpMap As Integer
 
-                    For i As Integer = 0 To tmpDBC.Rows - 1
-                        tmpMap = tmpDBC.Item(i, 0)
+                        For i As Integer = 0 To tmpDBC.Rows - 1
+                            tmpMap = tmpDBC.Item(i, 0)
 
-                        If tmpMap = Map Then
-                            ID = Map
-                            Type = tmpDBC.Item(i, 2, DBCValueType.DBC_INTEGER)
-                            Name = tmpDBC.Item(i, 4, DBCValueType.DBC_STRING)
-                            Exit For
-                        End If
-                    Next i
+                            If tmpMap = Map Then
+                                ID = Map
+                                Type = tmpDBC.Item(i, 2, DBCValueType.DBC_INTEGER)
+                                Name = tmpDBC.Item(i, 4, DBCValueType.DBC_STRING)
+                                Exit For
+                            End If
+                        Next i
 
-                    Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
-                    tmpDBC.Dispose()
-                Catch e As DirectoryNotFoundException
-                    Console.ForegroundColor = ConsoleColor.DarkRed
-                    Console.WriteLine("DBC File : Map missing.")
-                    Console.ForegroundColor = ConsoleColor.Gray
-                End Try
-            End If
-        End Sub
+                        Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
+                        tmpDBC.Dispose()
+                    Catch e As DirectoryNotFoundException
+                        Console.ForegroundColor = ConsoleColor.DarkRed
+                        Console.WriteLine("DBC File : Map missing.")
+                        Console.ForegroundColor = ConsoleColor.Gray
+                    End Try
+                End If
+            End Sub
 
 #Region "IDisposable Support"
-        Private _disposedValue As Boolean ' To detect redundant calls
+            Private _disposedValue As Boolean ' To detect redundant calls
 
-        ' IDisposable
-        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
-            If Not _disposedValue Then
-                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                ' TODO: set large fields to null.
-                For i As Integer = 0 To 63
-                    For j As Integer = 0 To 63
-                        If Not Tiles(i, j) Is Nothing Then Tiles(i, j).Dispose()
+            ' IDisposable
+            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+                If Not _disposedValue Then
+                    ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                    ' TODO: set large fields to null.
+                    For i As Integer = 0 To 63
+                        For j As Integer = 0 To 63
+                            If Not Tiles(i, j) Is Nothing Then Tiles(i, j).Dispose()
+                        Next
                     Next
-                Next
 
-                Maps.Remove(ID)
-                'iTree.Dispose()
-            End If
-            _disposedValue = True
-        End Sub
+                    Maps.Remove(ID)
+                    'iTree.Dispose()
+                End If
+                _disposedValue = True
+            End Sub
 
-        ' This code added by Visual Basic to correctly implement the disposable pattern.
-        Public Sub Dispose() Implements IDisposable.Dispose
-            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
-            Dispose(True)
-            GC.SuppressFinalize(Me)
-        End Sub
+            ' This code added by Visual Basic to correctly implement the disposable pattern.
+            Public Sub Dispose() Implements IDisposable.Dispose
+                ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+                Dispose(True)
+                GC.SuppressFinalize(Me)
+            End Sub
 #End Region
-    End Class
+        End Class
 
-    Public Maps As New Dictionary(Of UInteger, TMap)
-    Public MapList As String
+        Public Maps As New Dictionary(Of UInteger, TMap)
+        Public MapList As String
 
-    Public Sub InitializeMaps()
-        'DONE: Creating map list for queries
-        Dim e As IEnumerator = Config.Maps.GetEnumerator
-        e.Reset()
-        If e.MoveNext() Then
-            MapList = e.Current
-            While e.MoveNext
-                MapList += ", " & e.Current
-            End While
-        End If
+        Public Sub InitializeMaps()
+            'DONE: Creating map list for queries
+            Dim e As IEnumerator = Config.Maps.GetEnumerator
+            e.Reset()
+            If e.MoveNext() Then
+                MapList = e.Current
+                While e.MoveNext
+                    MapList += ", " & e.Current
+                End While
+            End If
 
-        ''DONE: Loading maps
-        For Each id As UInteger In Config.Maps
-            Dim map As New TMap(id)
-        Next
+            ''DONE: Loading maps
+            For Each id As UInteger In Config.Maps
+                Dim map As New TMap(id)
+            Next
 
-        Log.WriteLine(LogType.INFORMATION, "Initalizing: {0} Maps initialized.", Maps.Count)
-    End Sub
+            Log.WriteLine(LogType.INFORMATION, "Initalizing: {0} Maps initialized.", Maps.Count)
+        End Sub
 
-    ''' <summary>
-    ''' Ensures that the Coordinate is within valid boundaries and if not, brings is back into boundary
-    ''' </summary>
-    ''' <param name="coord"></param>
-    ''' <returns></returns>
-    Public Function ValidateMapCoord(coord As Single) As Single
-        If coord > 32 * SIZE Then
-            'Invalid Value for X provided, so clamp it to x
-            coord = 32 * SIZE
-        ElseIf coord < -32 * SIZE Then
-            'Invalid Value for X provided, so clamp it to -x
-            coord = -32 * SIZE
-        End If
-        Return coord
-    End Function
+        ''' <summary>
+        ''' Ensures that the Coordinate is within valid boundaries and if not, brings is back into boundary
+        ''' </summary>
+        ''' <param name="coord"></param>
+        ''' <returns></returns>
+        Public Function ValidateMapCoord(coord As Single) As Single
+            If coord > 32 * SIZE Then
+                'Invalid Value for X provided, so clamp it to x
+                coord = 32 * SIZE
+            ElseIf coord < -32 * SIZE Then
+                'Invalid Value for X provided, so clamp it to -x
+                coord = -32 * SIZE
+            End If
+            Return coord
+        End Function
 
-    Public Sub GetMapTile(ByVal x As Single, ByVal y As Single, ByRef MapTileX As Byte, ByRef MapTileY As Byte)
-        'How to calculate where is X,Y:
-        MapTileX = Fix(32 - (ValidateMapCoord(x) / SIZE))
-        MapTileY = Fix(32 - (ValidateMapCoord(y) / SIZE))
-    End Sub
-    Public Function GetMapTileX(ByVal x As Single) As Byte
-        Return Fix(32 - (ValidateMapCoord(x) / SIZE))
-    End Function
-    Public Function GetMapTileY(ByVal y As Single) As Byte
-        Return Fix(32 - (ValidateMapCoord(y) / SIZE))
-    End Function
-    Public Function GetSubMapTileX(ByVal x As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(x) / SIZE) - Fix(32 - (ValidateMapCoord(x) / SIZE))))
-    End Function
-    Public Function GetSubMapTileY(ByVal y As Single) As Byte
-        Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(y) / SIZE) - Fix(32 - (ValidateMapCoord(y) / SIZE))))
-    End Function
-    Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
-        Try
+        Public Sub GetMapTile(ByVal x As Single, ByVal y As Single, ByRef MapTileX As Byte, ByRef MapTileY As Byte)
+            'How to calculate where is X,Y:
+            MapTileX = Fix(32 - (ValidateMapCoord(x) / SIZE))
+            MapTileY = Fix(32 - (ValidateMapCoord(y) / SIZE))
+        End Sub
+        Public Function GetMapTileX(ByVal x As Single) As Byte
+            Return Fix(32 - (ValidateMapCoord(x) / SIZE))
+        End Function
+        Public Function GetMapTileY(ByVal y As Single) As Byte
+            Return Fix(32 - (ValidateMapCoord(y) / SIZE))
+        End Function
+        Public Function GetSubMapTileX(ByVal x As Single) As Byte
+            Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(x) / SIZE) - Fix(32 - (ValidateMapCoord(x) / SIZE))))
+        End Function
+        Public Function GetSubMapTileY(ByVal y As Single) As Byte
+            Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(y) / SIZE) - Fix(32 - (ValidateMapCoord(y) / SIZE))))
+        End Function
+        Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
+            Try
+                x = ValidateMapCoord(x)
+                y = ValidateMapCoord(y)
+                Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+                Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+                Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
+                Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
+                Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
+                Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
+
+                If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
+
+                Try
+                    Dim topHeight As Single = MathLerp(
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
+                        xNormalized)
+
+                    Dim bottomHeight As Single = MathLerp(
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
+                        xNormalized)
+
+                    Return MathLerp(topHeight, bottomHeight, yNormalized)
+                Catch
+                    Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
+                End Try
+            Catch e As Exception
+                Return 0.0F
+            End Try
+        End Function
+        Public Function GetWaterLevel(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Single
             x = ValidateMapCoord(x)
             y = ValidateMapCoord(y)
             Dim MapTileX As Byte = Fix(32 - (x / SIZE))
             Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
-            Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
-            Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
-            Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
+            Dim MapTile_LocalX As Byte = RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY)
 
-            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
+            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
+            Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
+        End Function
+        Public Function GetTerrainType(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Byte
+            x = ValidateMapCoord(x)
+            y = ValidateMapCoord(y)
+            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+            Dim MapTile_LocalX As Byte = RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY)
 
-            Try
-                Dim topHeight As Single = MathLerp(
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
-                    xNormalized)
+            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
+            Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
+        End Function
+        Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
+            x = ValidateMapCoord(x)
+            y = ValidateMapCoord(y)
+            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+            Dim MapTile_LocalX As Byte = RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY)
 
-                Dim bottomHeight As Single = MathLerp(
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
-                    xNormalized)
+            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
+            Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
+        End Function
 
-                Return MathLerp(topHeight, bottomHeight, yNormalized)
-            Catch
-                Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
-            End Try
-        Catch e As Exception
-            Return 0.0F
-        End Try
-    End Function
-    Public Function GetWaterLevel(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Single
-        x = ValidateMapCoord(x)
-        y = ValidateMapCoord(y)
-        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX)
-        Dim MapTile_LocalY As Byte = RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY)
+        Public Function IsOutsideOfMap(ByRef objCharacter As WS_Base.BaseObject) As Boolean
+            'NOTE: Disabled these checks because DBC data contains too big X/Y coords to be usefull
+            Return False
 
-        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
-        Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
-    End Function
-    Public Function GetTerrainType(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Byte
-        x = ValidateMapCoord(x)
-        y = ValidateMapCoord(y)
-        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX)
-        Dim MapTile_LocalY As Byte = RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY)
+            'Dim x As Single = objCharacter.positionX
+            'Dim y As Single = objCharacter.positionY
+            'Dim m As UInteger = objCharacter.MapID
 
-        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
-        Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
-    End Function
-    Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
-        x = ValidateMapCoord(x)
-        y = ValidateMapCoord(y)
-        Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-        Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-        Dim MapTile_LocalX As Byte = RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX)
-        Dim MapTile_LocalY As Byte = RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY)
+            ''Check transform data
+            'For Each i As WorldMapTransformsDimension In WorldMapTransforms
+            '    If i.Map = m Then
+            '        With i
+            '            If x < .X_Maximum And x > .X_Minimum And _
+            '               y < .Y_Maximum And y > .Y_Minimum Then
 
-        If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
-        Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
-    End Function
+            '                Log.WriteLine(LogType.USER, "Applying map transform {0},{1},{2} -> {3},{4},{5}", x, y, m, .Dest_X, .Dest_Y, .Dest_Map)
+            '                'x += .Dest_X
+            '                'y += .Dest_Y
+            '                'm = .Dest_Map
+            '                'Exit For
+            '                Return False
+            '            End If
+            '        End With
+            '    End If
+            'Next
 
-    Public Function IsOutsideOfMap(ByRef objCharacter As BaseObject) As Boolean
-        'NOTE: Disabled these checks because DBC data contains too big X/Y coords to be usefull
-        Return False
+            ''Check Map data
+            'If WorldMapContinent.ContainsKey(m) Then
+            '    With WorldMapContinent(m)
+            '        If x > .X_Maximum Or x < .X_Minimum Or _
+            '           y > .Y_Maximum Or y < .Y_Minimum Then
+            '            Log.WriteLine(LogType.USER, "Outside map: {0:X}", objCharacter.GUID)
+            '            Return True
+            '        Else
+            '            Return False
+            '        End If
+            '    End With
+            'End If
 
-        'Dim x As Single = objCharacter.positionX
-        'Dim y As Single = objCharacter.positionY
-        'Dim m As UInteger = objCharacter.MapID
-
-        ''Check transform data
-        'For Each i As WorldMapTransformsDimension In WorldMapTransforms
-        '    If i.Map = m Then
-        '        With i
-        '            If x < .X_Maximum And x > .X_Minimum And _
-        '               y < .Y_Maximum And y > .Y_Minimum Then
-
-        '                Log.WriteLine(LogType.USER, "Applying map transform {0},{1},{2} -> {3},{4},{5}", x, y, m, .Dest_X, .Dest_Y, .Dest_Map)
-        '                'x += .Dest_X
-        '                'y += .Dest_Y
-        '                'm = .Dest_Map
-        '                'Exit For
-        '                Return False
-        '            End If
-        '        End With
-        '    End If
-        'Next
-
-        ''Check Map data
-        'If WorldMapContinent.ContainsKey(m) Then
-        '    With WorldMapContinent(m)
-        '        If x > .X_Maximum Or x < .X_Minimum Or _
-        '           y > .Y_Maximum Or y < .Y_Minimum Then
-        '            Log.WriteLine(LogType.USER, "Outside map: {0:X}", objCharacter.GUID)
-        '            Return True
-        '        Else
-        '            Return False
-        '        End If
-        '    End With
-        'End If
-
-        'Log.WriteLine(LogType.USER, "WorldMapContinent not found for map {0}.", objCharacter.MapID)
-        'Return False
-    End Function
+            'Log.WriteLine(LogType.USER, "WorldMapContinent not found for map {0}.", objCharacter.MapID)
+            'Return False
+        End Function
 
 #If ENABLE_PPOINTS Then
     Public Const PPOINT_BAD As Single = Single.MinValue
@@ -797,96 +804,96 @@ Public Module WS_Maps
         End If
     End Function
 #Else
-    Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal Map As UInteger) As Single
-        Try
-            x = ValidateMapCoord(x)
-            y = ValidateMapCoord(y)
-            z = ValidateMapCoord(z)
-            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
-            Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
-            Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
-            Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
-
-            If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then
-                'Return vmap height if one was found
-                Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 5.0F)
-                If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
-                    Return VMapHeight
-                End If
-
-                Return 0.0F
-            End If
-
-            If Math.Abs(Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY) - z) >= 2.0F Then
-                'Return vmap height if one was found
-                Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 5.0F)
-                If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
-                    Return VMapHeight
-                End If
-            End If
-
+        Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal Map As UInteger) As Single
             Try
-                Dim topHeight As Single = MathLerp(
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
-                    xNormalized)
+                x = ValidateMapCoord(x)
+                y = ValidateMapCoord(y)
+                z = ValidateMapCoord(z)
+                Dim MapTileX As Byte = Fix(32 - (x / SIZE))
+                Dim MapTileY As Byte = Fix(32 - (y / SIZE))
+                Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
+                Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
+                Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
+                Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
 
-                Dim bottomHeight As Single = MathLerp(
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
-                    GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
-                    xNormalized)
+                If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then
+                    'Return vmap height if one was found
+                    Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 5.0F)
+                    If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
+                        Return VMapHeight
+                    End If
 
-                Return MathLerp(topHeight, bottomHeight, yNormalized)
-            Catch
-                Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
+                    Return 0.0F
+                End If
+
+                If Math.Abs(Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY) - z) >= 2.0F Then
+                    'Return vmap height if one was found
+                    Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 5.0F)
+                    If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
+                        Return VMapHeight
+                    End If
+                End If
+
+                Try
+                    Dim topHeight As Single = MathLerp(
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
+                        xNormalized)
+
+                    Dim bottomHeight As Single = MathLerp(
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
+                        GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
+                        xNormalized)
+
+                    Return MathLerp(topHeight, bottomHeight, yNormalized)
+                Catch
+                    Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
+                End Try
+            Catch ex As Exception
+                Log.WriteLine(LogType.FAILED, ex.ToString)
+                Return z
             End Try
-        Catch ex As Exception
-            Log.WriteLine(LogType.FAILED, ex.ToString)
-            Return z
-        End Try
-    End Function
+        End Function
 #End If
 
-    Private Function GetHeight(ByVal Map As UInteger, ByVal MapTileX As Byte, ByVal MapTileY As Byte, ByVal MapTileLocalX As Byte, ByVal MapTileLocalY As Byte) As Single
-        If MapTileLocalX > RESOLUTION_ZMAP Then
-            MapTileX += 1
-            MapTileLocalX -= RESOLUTION_ZMAP + 1
-        ElseIf MapTileLocalX < 0 Then
-            MapTileX -= 1
-            MapTileLocalX = (-MapTileLocalX) - 1
-        End If
-        If MapTileLocalY > RESOLUTION_ZMAP Then
-            MapTileY += 1
-            MapTileLocalY -= RESOLUTION_ZMAP + 1
-        ElseIf MapTileLocalY < 0 Then
-            MapTileY -= 1
-            MapTileLocalY = (-MapTileLocalY) - 1
-        End If
+        Private Function GetHeight(ByVal Map As UInteger, ByVal MapTileX As Byte, ByVal MapTileY As Byte, ByVal MapTileLocalX As Byte, ByVal MapTileLocalY As Byte) As Single
+            If MapTileLocalX > RESOLUTION_ZMAP Then
+                MapTileX += 1
+                MapTileLocalX -= RESOLUTION_ZMAP + 1
+            ElseIf MapTileLocalX < 0 Then
+                MapTileX -= 1
+                MapTileLocalX = (-MapTileLocalX) - 1
+            End If
+            If MapTileLocalY > RESOLUTION_ZMAP Then
+                MapTileY += 1
+                MapTileLocalY -= RESOLUTION_ZMAP + 1
+            ElseIf MapTileLocalY < 0 Then
+                MapTileY -= 1
+                MapTileLocalY = (-MapTileLocalY) - 1
+            End If
 
-        Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTileLocalX, MapTileLocalY)
-    End Function
+            Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTileLocalX, MapTileLocalY)
+        End Function
 
-    Public Function IsInLineOfSight(ByRef obj As BaseObject, ByRef obj2 As BaseObject) As Boolean
-        Return IsInLineOfSight(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, obj2.positionX, obj2.positionY, obj2.positionZ + 2.0F)
-    End Function
+        Public Function IsInLineOfSight(ByRef obj As BaseObject, ByRef obj2 As BaseObject) As Boolean
+            Return IsInLineOfSight(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, obj2.positionX, obj2.positionY, obj2.positionZ + 2.0F)
+        End Function
 
-    Public Function IsInLineOfSight(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
-        x2 = ValidateMapCoord(x2)
-        y2 = ValidateMapCoord(y2)
-        z2 = ValidateMapCoord(z2)
-        Return IsInLineOfSight(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, x2, y2, z2)
-    End Function
+        Public Function IsInLineOfSight(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
+            x2 = ValidateMapCoord(x2)
+            y2 = ValidateMapCoord(y2)
+            z2 = ValidateMapCoord(z2)
+            Return IsInLineOfSight(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, x2, y2, z2)
+        End Function
 
-    Public Function IsInLineOfSight(ByVal MapID As UInteger, ByVal x1 As Single, ByVal y1 As Single, ByVal z1 As Single, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
-        x1 = ValidateMapCoord(x1)
-        y1 = ValidateMapCoord(y1)
-        z1 = ValidateMapCoord(z1)
-        x2 = ValidateMapCoord(x2)
-        y2 = ValidateMapCoord(y2)
-        z2 = ValidateMapCoord(z2)
-        Dim result As Boolean = True
+        Public Function IsInLineOfSight(ByVal MapID As UInteger, ByVal x1 As Single, ByVal y1 As Single, ByVal z1 As Single, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
+            x1 = ValidateMapCoord(x1)
+            y1 = ValidateMapCoord(y1)
+            z1 = ValidateMapCoord(z1)
+            x2 = ValidateMapCoord(x2)
+            y2 = ValidateMapCoord(y2)
+            z2 = ValidateMapCoord(z2)
+            Dim result As Boolean = True
 #If VMAPS Then
         If Config.LineOfSightEnabled AndAlso Maps.ContainsKey(MapID) Then
             Dim pos1 As Vector3 = convertPositionToInternalRep(x1, y1, z1)
@@ -901,14 +908,14 @@ Public Module WS_Maps
             End If
         End If
 #End If
-        Return result
-    End Function
+            Return result
+        End Function
 
-    Public Function GetVMapHeight(ByVal MapID As UInteger, ByVal x As Single, ByVal y As Single, ByVal z As Single) As Single
-        x = ValidateMapCoord(x)
-        y = ValidateMapCoord(y)
-        z = ValidateMapCoord(z)
-        Dim height As Single = VMAP_INVALID_HEIGHT_VALUE
+        Public Function GetVMapHeight(ByVal MapID As UInteger, ByVal x As Single, ByVal y As Single, ByVal z As Single) As Single
+            x = ValidateMapCoord(x)
+            y = ValidateMapCoord(y)
+            z = ValidateMapCoord(z)
+            Dim height As Single = VMAP_INVALID_HEIGHT_VALUE
 #If VMAPS Then
         If Config.HeightCalcEnabled AndAlso Maps.ContainsKey(MapID) Then
             Dim pos As Vector3 = convertPositionToInternalRep(x, y, z)
@@ -929,34 +936,34 @@ Public Module WS_Maps
             End If
         End If
 #End If
-        Return height
-    End Function
+            Return height
+        End Function
 
-    Public Function GetObjectHitPos(ByRef obj As BaseObject, ByRef obj2 As BaseObject, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
-        rx = ValidateMapCoord(rx)
-        ry = ValidateMapCoord(ry)
-        rz = ValidateMapCoord(rz)
-        Return GetObjectHitPos(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, obj2.positionX, obj2.positionY, obj2.positionZ + 2.0F, rx, ry, rz, pModifyDist)
-    End Function
+        Public Function GetObjectHitPos(ByRef obj As BaseObject, ByRef obj2 As BaseObject, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+            rx = ValidateMapCoord(rx)
+            ry = ValidateMapCoord(ry)
+            rz = ValidateMapCoord(rz)
+            Return GetObjectHitPos(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, obj2.positionX, obj2.positionY, obj2.positionZ + 2.0F, rx, ry, rz, pModifyDist)
+        End Function
 
-    Public Function GetObjectHitPos(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
-        rx = ValidateMapCoord(rx)
-        ry = ValidateMapCoord(ry)
-        rz = ValidateMapCoord(rz)
-        x2 = ValidateMapCoord(x2)
-        y2 = ValidateMapCoord(y2)
-        z2 = ValidateMapCoord(z2)
-        Return GetObjectHitPos(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, x2, y2, z2, rx, ry, rz, pModifyDist)
-    End Function
+        Public Function GetObjectHitPos(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+            rx = ValidateMapCoord(rx)
+            ry = ValidateMapCoord(ry)
+            rz = ValidateMapCoord(rz)
+            x2 = ValidateMapCoord(x2)
+            y2 = ValidateMapCoord(y2)
+            z2 = ValidateMapCoord(z2)
+            Return GetObjectHitPos(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, x2, y2, z2, rx, ry, rz, pModifyDist)
+        End Function
 
-    Public Function GetObjectHitPos(ByVal MapID As UInteger, ByVal x1 As Single, ByVal y1 As Single, ByVal z1 As Single, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
-        x1 = ValidateMapCoord(x1)
-        y1 = ValidateMapCoord(y1)
-        z1 = ValidateMapCoord(z1)
-        x2 = ValidateMapCoord(x2)
-        y2 = ValidateMapCoord(y2)
-        z2 = ValidateMapCoord(z2)
-        Dim result As Boolean = False
+        Public Function GetObjectHitPos(ByVal MapID As UInteger, ByVal x1 As Single, ByVal y1 As Single, ByVal z1 As Single, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+            x1 = ValidateMapCoord(x1)
+            y1 = ValidateMapCoord(y1)
+            z1 = ValidateMapCoord(z1)
+            x2 = ValidateMapCoord(x2)
+            y2 = ValidateMapCoord(y2)
+            z2 = ValidateMapCoord(z2)
+            Dim result As Boolean = False
 #If VMAPS Then
         If Config.LineOfSightEnabled AndAlso Maps.ContainsKey(MapID) Then
             Dim pos1 As Vector3 = convertPositionToInternalRep(x1, y1, z1)
@@ -977,165 +984,166 @@ Public Module WS_Maps
             End If
         End If
 #End If
-        Return result
-    End Function
+            Return result
+        End Function
 
-    Public Sub LoadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger, ByVal TileInstance As UInteger)
-        'Caluclate (x1, y1) and (x2, y2)
-        Dim MinX As Single = ((32 - TileX) * SIZE)
-        Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
-        Dim MinY As Single = ((32 - TileY) * SIZE)
-        Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
-        'We need the maximum value to be the largest value
-        If MinX > MaxX Then
-            Dim tmpSng As Single = MinX
-            MinX = MaxX
-            MaxX = tmpSng
-        End If
-        If MinY > MaxY Then
-            Dim tmpSng As Single = MinY
-            MinY = MaxY
-            MaxY = tmpSng
-        End If
-
-        'DONE: Instance units get a new specific GUID
-        Dim InstanceGuidAdd As ULong = 0UL
-        If TileInstance > 0 Then
-            InstanceGuidAdd = 1000000UL + ((TileInstance - 1) * 100000UL)
-        End If
-
-        'DONE: Creatures
-        Dim MysqlQuery As New DataTable
-        WorldDatabase.Query(String.Format("SELECT * FROM spawns_creatures LEFT OUTER JOIN game_event_creature ON spawns_creatures.spawn_id = game_event_creature.guid WHERE spawn_map={0} AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
-        For Each InfoRow As DataRow In MysqlQuery.Rows
-            If Not WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("spawn_id"), Long) + InstanceGuidAdd + GUID_UNIT) Then
-                Try
-                    Dim tmpCr As CreatureObject = New CreatureObject(CType(InfoRow.Item("spawn_id"), Long) + InstanceGuidAdd, InfoRow)
-                    If tmpCr.GameEvent = 0 Then
-                        tmpCr.instance = TileInstance
-                        tmpCr.AddToWorld()
-                    End If
-                Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating creature [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
-                End Try
+        Public Sub LoadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger, ByVal TileInstance As UInteger)
+            'Caluclate (x1, y1) and (x2, y2)
+            Dim MinX As Single = ((32 - TileX) * SIZE)
+            Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
+            Dim MinY As Single = ((32 - TileY) * SIZE)
+            Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
+            'We need the maximum value to be the largest value
+            If MinX > MaxX Then
+                Dim tmpSng As Single = MinX
+                MinX = MaxX
+                MaxX = tmpSng
             End If
-        Next
-
-        'DONE: Gameobjects
-        MysqlQuery.Clear()
-        WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_map={0} AND spawn_spawntime>=0 AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
-        For Each InfoRow As DataRow In MysqlQuery.Rows
-            If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso
-              Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_TRANSPORT) Then
-                Try
-                    Dim tmpGo As GameObjectObject = New GameObjectObject(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd, InfoRow)
-                    If tmpGo.GameEvent = 0 Then
-                        tmpGo.instance = TileInstance
-                        tmpGo.AddToWorld()
-                    End If
-                Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating gameobject [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
-                End Try
+            If MinY > MaxY Then
+                Dim tmpSng As Single = MinY
+                MinY = MaxY
+                MaxY = tmpSng
             End If
-        Next
 
-        'DONE: Corpses
-        MysqlQuery.Clear()
-        CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE map={0} AND instance={5} AND position_x BETWEEN '{1}' AND '{2}' AND position_y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY, TileInstance), MysqlQuery)
-        For Each InfoRow As DataRow In MysqlQuery.Rows
-            If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + GUID_CORPSE) Then
-                Try
-                    Dim tmpCorpse As CorpseObject = New CorpseObject(InfoRow.Item("guid"), InfoRow) With {
-                        .instance = TileInstance
-                    }
-                    tmpCorpse.AddToWorld()
-                Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating corpse [{0}].{1}{2}", InfoRow.Item("guid"), Environment.NewLine, ex.ToString)
-                End Try
+            'DONE: Instance units get a new specific GUID
+            Dim InstanceGuidAdd As ULong = 0UL
+            If TileInstance > 0 Then
+                InstanceGuidAdd = 1000000UL + ((TileInstance - 1) * 100000UL)
             End If
-        Next
 
-        'DONE: Transports
-        Try
-            WORLD_TRANSPORTs_Lock.AcquireReaderLock(1000)
-            For Each Transport As KeyValuePair(Of ULong, TransportObject) In WORLD_TRANSPORTs
-                Try
-                    If Transport.Value.MapID = TileMap AndAlso Transport.Value.positionX >= MinX AndAlso Transport.Value.positionX <= MaxX AndAlso Transport.Value.positionY >= MinY AndAlso Transport.Value.positionY <= MaxY Then
-                        If Maps(TileMap).Tiles(TileX, TileY).GameObjectsHere.Contains(Transport.Value.GUID) = False Then
-                            Maps(TileMap).Tiles(TileX, TileY).GameObjectsHere.Add(Transport.Value.GUID)
+            'DONE: Creatures
+            Dim MysqlQuery As New DataTable
+            WorldDatabase.Query(String.Format("SELECT * FROM spawns_creatures LEFT OUTER JOIN game_event_creature ON spawns_creatures.spawn_id = game_event_creature.guid WHERE spawn_map={0} AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
+            For Each InfoRow As DataRow In MysqlQuery.Rows
+                If Not WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("spawn_id"), Long) + InstanceGuidAdd + GUID_UNIT) Then
+                    Try
+                        Dim tmpCr As CreatureObject = New CreatureObject(CType(InfoRow.Item("spawn_id"), Long) + InstanceGuidAdd, InfoRow)
+                        If tmpCr.GameEvent = 0 Then
+                            tmpCr.instance = TileInstance
+                            tmpCr.AddToWorld()
                         End If
-                        Transport.Value.NotifyEnter()
-                    End If
-                Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error when creating transport [{0}].{1}{2}", Transport.Key - GUID_MO_TRANSPORT, Environment.NewLine, ex.ToString)
-                End Try
-            Next
-        Catch
-        Finally
-            WORLD_TRANSPORTs_Lock.ReleaseReaderLock()
-        End Try
-    End Sub
-    Public Sub UnloadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger)
-        'Caluclate (x1, y1) and (x2, y2)
-        Dim MinX As Single = ((32 - TileX) * SIZE)
-        Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
-        Dim MinY As Single = ((32 - TileY) * SIZE)
-        Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
-        'We need the maximum value to be the largest value
-        If MinX > MaxX Then
-            Dim tmpSng As Single = MinX
-            MinX = MaxX
-            MaxX = tmpSng
-        End If
-        If MinY > MaxY Then
-            Dim tmpSng As Single = MinY
-            MinY = MaxY
-            MaxY = tmpSng
-        End If
-
-        Try
-            WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-            For Each Creature As KeyValuePair(Of ULong, CreatureObject) In WORLD_CREATUREs
-                If Creature.Value.MapID = TileMap AndAlso Creature.Value.SpawnX >= MinX AndAlso Creature.Value.SpawnX <= MaxX AndAlso Creature.Value.SpawnY >= MinY AndAlso Creature.Value.SpawnY <= MaxY Then
-                    Creature.Value.Destroy()
+                    Catch ex As Exception
+                        Log.WriteLine(LogType.CRITICAL, "Error when creating creature [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
+                    End Try
                 End If
             Next
-        Catch ex As Exception
-            Log.WriteLine(LogType.CRITICAL, ex.ToString, Nothing)
-        Finally
-            WORLD_CREATUREs_Lock.ReleaseReaderLock()
-        End Try
 
-        For Each Gameobject As KeyValuePair(Of ULong, GameObjectObject) In WORLD_GAMEOBJECTs
-            If Gameobject.Value.MapID = TileMap AndAlso Gameobject.Value.positionX >= MinX AndAlso Gameobject.Value.positionX <= MaxX AndAlso Gameobject.Value.positionY >= MinY AndAlso Gameobject.Value.positionY <= MaxY Then
-                Gameobject.Value.Destroy(Gameobject)
+            'DONE: Gameobjects
+            MysqlQuery.Clear()
+            WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_map={0} AND spawn_spawntime>=0 AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
+            For Each InfoRow As DataRow In MysqlQuery.Rows
+                If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso
+                   Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_TRANSPORT) Then
+                    Try
+                        Dim tmpGo As GameObjectObject = New GameObjectObject(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd, InfoRow)
+                        If tmpGo.GameEvent = 0 Then
+                            tmpGo.instance = TileInstance
+                            tmpGo.AddToWorld()
+                        End If
+                    Catch ex As Exception
+                        Log.WriteLine(LogType.CRITICAL, "Error when creating gameobject [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
+                    End Try
+                End If
+            Next
+
+            'DONE: Corpses
+            MysqlQuery.Clear()
+            CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE map={0} AND instance={5} AND position_x BETWEEN '{1}' AND '{2}' AND position_y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY, TileInstance), MysqlQuery)
+            For Each InfoRow As DataRow In MysqlQuery.Rows
+                If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + GUID_CORPSE) Then
+                    Try
+                        Dim tmpCorpse As CorpseObject = New CorpseObject(InfoRow.Item("guid"), InfoRow) With {
+                                .instance = TileInstance
+                                }
+                        tmpCorpse.AddToWorld()
+                    Catch ex As Exception
+                        Log.WriteLine(LogType.CRITICAL, "Error when creating corpse [{0}].{1}{2}", InfoRow.Item("guid"), Environment.NewLine, ex.ToString)
+                    End Try
+                End If
+            Next
+
+            'DONE: Transports
+            Try
+                WORLD_TRANSPORTs_Lock.AcquireReaderLock(1000)
+                For Each Transport As KeyValuePair(Of ULong, TransportObject) In WORLD_TRANSPORTs
+                    Try
+                        If Transport.Value.MapID = TileMap AndAlso Transport.Value.positionX >= MinX AndAlso Transport.Value.positionX <= MaxX AndAlso Transport.Value.positionY >= MinY AndAlso Transport.Value.positionY <= MaxY Then
+                            If Maps(TileMap).Tiles(TileX, TileY).GameObjectsHere.Contains(Transport.Value.GUID) = False Then
+                                Maps(TileMap).Tiles(TileX, TileY).GameObjectsHere.Add(Transport.Value.GUID)
+                            End If
+                            Transport.Value.NotifyEnter()
+                        End If
+                    Catch ex As Exception
+                        Log.WriteLine(LogType.CRITICAL, "Error when creating transport [{0}].{1}{2}", Transport.Key - GUID_MO_TRANSPORT, Environment.NewLine, ex.ToString)
+                    End Try
+                Next
+            Catch
+            Finally
+                WORLD_TRANSPORTs_Lock.ReleaseReaderLock()
+            End Try
+        End Sub
+        Public Sub UnloadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger)
+            'Caluclate (x1, y1) and (x2, y2)
+            Dim MinX As Single = ((32 - TileX) * SIZE)
+            Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
+            Dim MinY As Single = ((32 - TileY) * SIZE)
+            Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
+            'We need the maximum value to be the largest value
+            If MinX > MaxX Then
+                Dim tmpSng As Single = MinX
+                MinX = MaxX
+                MaxX = tmpSng
             End If
-        Next
-
-        For Each Corpseobject As KeyValuePair(Of ULong, CorpseObject) In WORLD_CORPSEOBJECTs
-            If Corpseobject.Value.MapID = TileMap AndAlso Corpseobject.Value.positionX >= MinX AndAlso Corpseobject.Value.positionX <= MaxX AndAlso Corpseobject.Value.positionY >= MinY AndAlso Corpseobject.Value.positionY <= MaxY Then
-                Corpseobject.Value.Destroy()
+            If MinY > MaxY Then
+                Dim tmpSng As Single = MinY
+                MinY = MaxY
+                MaxY = tmpSng
             End If
-        Next
 
-    End Sub
+            Try
+                WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                For Each Creature As KeyValuePair(Of ULong, CreatureObject) In WORLD_CREATUREs
+                    If Creature.Value.MapID = TileMap AndAlso Creature.Value.SpawnX >= MinX AndAlso Creature.Value.SpawnX <= MaxX AndAlso Creature.Value.SpawnY >= MinY AndAlso Creature.Value.SpawnY <= MaxY Then
+                        Creature.Value.Destroy()
+                    End If
+                Next
+            Catch ex As Exception
+                Log.WriteLine(LogType.CRITICAL, ex.ToString, Nothing)
+            Finally
+                WORLD_CREATUREs_Lock.ReleaseReaderLock()
+            End Try
+
+            For Each Gameobject As KeyValuePair(Of ULong, GameObjectObject) In WORLD_GAMEOBJECTs
+                If Gameobject.Value.MapID = TileMap AndAlso Gameobject.Value.positionX >= MinX AndAlso Gameobject.Value.positionX <= MaxX AndAlso Gameobject.Value.positionY >= MinY AndAlso Gameobject.Value.positionY <= MaxY Then
+                    Gameobject.Value.Destroy(Gameobject)
+                End If
+            Next
+
+            For Each Corpseobject As KeyValuePair(Of ULong, CorpseObject) In WORLD_CORPSEOBJECTs
+                If Corpseobject.Value.MapID = TileMap AndAlso Corpseobject.Value.positionX >= MinX AndAlso Corpseobject.Value.positionX <= MaxX AndAlso Corpseobject.Value.positionY >= MinY AndAlso Corpseobject.Value.positionY <= MaxY Then
+                    Corpseobject.Value.Destroy()
+                End If
+            Next
+
+        End Sub
 
 #End Region
 
 #Region "Instances"
-    Public Sub SendTransferAborted(ByRef client As ClientClass, ByVal Map As Integer, ByVal Reason As TransferAbortReason)
-        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRANSFER_ABORTED [{2}:{3}]", client.IP, client.Port, Map, Reason)
+        Public Sub SendTransferAborted(ByRef client As WS_Network.ClientClass, ByVal Map As Integer, ByVal Reason As TransferAbortReason)
+            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRANSFER_ABORTED [{2}:{3}]", client.IP, client.Port, Map, Reason)
 
-        Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_ABORTED)
-        Try
-            p.AddInt32(Map)
-            p.AddInt16(Reason)
-            client.Send(p)
-        Finally
-            p.Dispose()
-        End Try
-    End Sub
+            Dim p As New Packets.PacketClass(OPCODES.SMSG_TRANSFER_ABORTED)
+            Try
+                p.AddInt32(Map)
+                p.AddInt16(Reason)
+                client.Send(p)
+            Finally
+                p.Dispose()
+            End Try
+        End Sub
 
 #End Region
 
-End Module
+    End Module
+End NameSpace

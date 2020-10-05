@@ -1,7 +1,8 @@
 Imports System.ComponentModel
 Imports System.IO
+Imports Mangos.Common.Enums
 
-Namespace DBC
+Namespace DataStores
     <Description("DBC wrapper class.")> _
     Public Class BaseDbc
         Implements IDisposable
@@ -75,7 +76,7 @@ Namespace DBC
         End Sub
 
         <Description("Access to item by row and column.")> _
-        Public Overridable ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As DBCValueType = DBCValueType.DBC_INTEGER) As Object
+        Public Overridable ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As GlobalEnum.DBCValueType = DBCValueType.DBC_INTEGER) As Object
             Get
                 If row >= Rows Then Throw New ApplicationException("DBC: Row index outside file definition.")
                 If column >= Columns Then Throw New ApplicationException("DBC: Column index outside file definition.")

@@ -17,6 +17,7 @@
 '
 
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 
 Namespace DataStores
     Public Module WS_DBCLoad
@@ -30,7 +31,7 @@ Namespace DataStores
                 CharacterDatabase.Update("UPDATE characters SET char_online = 0;")
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
+                Log.WriteLine(GlobalEnum.LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             End Try
         End Sub
 

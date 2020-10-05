@@ -18,6 +18,7 @@
 
 'Note: Temp place holder
 Imports System.Data
+Imports Mangos.Common.Enums
 
 Namespace Globals
     Public Module Functions
@@ -78,7 +79,7 @@ Namespace Globals
             Return (guid And GUID_MASK_LOW)
         End Function
 
-        Public Function GetShapeshiftModel(ByVal form As ShapeshiftForm, ByVal race As Races, ByVal model As Integer) As Integer
+        Public Function GetShapeshiftModel(ByVal form As GlobalEnum.ShapeshiftForm, ByVal race As Races, ByVal model As Integer) As Integer
             Select Case form
                 Case ShapeshiftForm.FORM_CAT
                     If race = Races.RACE_NIGHT_ELF Then Return 892

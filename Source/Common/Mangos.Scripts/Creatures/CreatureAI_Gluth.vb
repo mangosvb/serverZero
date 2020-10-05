@@ -1,9 +1,12 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Gluth
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         'TODO: Implement proper zombie chow summons. Fix decimate. Fix him going underground. Fix mortal wound a debuff instead of dispellable buff. Fix terrifying roar.
         'Reference: https://github.com/mangoszero/scripts/blob/master/scripts/eastern_kingdoms/naxxramas/boss_gluth.cpp
         Private Const AI_UPDATE As Integer = 1000
@@ -31,7 +34,7 @@ Namespace Creatures
         Public NextWaypoint As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False
@@ -72,7 +75,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(Spell_Decimate, aiTarget)
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I have failed to cast decimate. Whoever made this script is bad. Please report this to the developers.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                    aiCreature.SendChatMessage("I have failed to cast decimate. Whoever made this script is bad. Please report this to the developers.", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             Next
         End Sub

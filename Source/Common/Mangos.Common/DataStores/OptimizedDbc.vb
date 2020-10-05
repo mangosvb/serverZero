@@ -15,11 +15,11 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
-Imports System.IO
 Imports System.ComponentModel
+Imports System.IO
+Imports Mangos.Common.Enums
 
-Namespace DBC
+Namespace DataStores
     <Description("DBC wrapper class using optimizations for reading row by row.")> _
     Public Class OptimizedDbc
         Inherits BaseDBC
@@ -48,7 +48,7 @@ Namespace DBC
         End Sub
 
         <Description("Access to item by row and column.")> _
-        Public Overrides ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As DBCValueType = DBCValueType.DBC_INTEGER) As Object
+        Public Overrides ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As GlobalEnum.DBCValueType = DBCValueType.DBC_INTEGER) As Object
             Get
                 If row >= Rows Then Throw New ApplicationException("DBC: Row index outside file definition.")
                 If column >= Columns Then Throw New ApplicationException("DBC: Column index outside file definition.")

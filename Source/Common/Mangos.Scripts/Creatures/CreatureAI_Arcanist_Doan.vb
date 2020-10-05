@@ -1,9 +1,12 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Arcanist_Doan
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         'AI TODO: Fix arcane explosion. Make the AoE silence an AoE instead of random target.
         Private Const AI_UPDATE As Integer = 1000
         Private Const ARCANE_BUBBLE_CD As Integer = 500000 'This should never be recasted.
@@ -27,7 +30,7 @@ Namespace Creatures
         Public CurrentWaypoint As Integer = 0
         'Public NextExplosion As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False
@@ -76,7 +79,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(SPELL_POLYMORPH, aiCreature.GetRandomTarget) 'Might not properly work.
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I was unable to cast polymorph. Please report this to a developer!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                    aiCreature.SendChatMessage("I was unable to cast polymorph. Please report this to a developer!", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             Next
         End Sub

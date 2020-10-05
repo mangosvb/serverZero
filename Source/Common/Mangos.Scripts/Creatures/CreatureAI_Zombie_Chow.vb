@@ -1,9 +1,11 @@
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 'Basically, this AI is kitable and if the AI hits Gluth, it heals her for 5% of her HP (50,000 in this case.). Since we can't really do it that way, it has a set waypoint.
 Namespace Creatures
     Public Class CreatureAI_Zombie_Chow
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const Infected_Wound_CD As Integer = 15000
 
@@ -15,7 +17,7 @@ Namespace Creatures
         Public NextWaypoint As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False

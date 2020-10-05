@@ -1,9 +1,12 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Lord_Serpentis
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const SLUMBER_CD As Integer = 10000
         Private Const Lightning_Bolt_CD As Integer = 6000
@@ -19,7 +22,7 @@ Namespace Creatures
         ' Public NextSerpentForm As Integer = 0 'This should never be re-casted.
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False
@@ -28,7 +31,7 @@ Namespace Creatures
 
         Public Overrides Sub OnEnterCombat()
             MyBase.OnEnterCombat()
-            aiCreature.SendChatMessage("I am the serpent king, I can do anything!", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
+            aiCreature.SendChatMessage("I am the serpent king, I can do anything!", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'If you can do anything, then go serpent form.
         End Sub
 
         Public Overrides Sub OnThink()

@@ -1,10 +1,13 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 'AI TODO: Implement a workaround (Or fix, fixes work too!) for Armageddon.
 Namespace Creatures
     Public Class CreatureAI_Baron_Geddon
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const Inferno_CD As Integer = 45000
         Private Const Ignite_CD As Integer = 30000
@@ -21,7 +24,7 @@ Namespace Creatures
         Public NextIgnite As Integer = 0
         Public NextLivingBomb As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False
@@ -80,7 +83,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Armageddon) 'I think during this time he's supposed to have a kamakazie of sorts.
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I have failed to become invincible at 2% or less HP. this is a problem.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                    aiCreature.SendChatMessage("I have failed to become invincible at 2% or less HP. this is a problem.", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             End If
         End Sub

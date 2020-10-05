@@ -1,8 +1,10 @@
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Taragaman_the_Hungerer
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const NOVA_COOLDOWN As Integer = 4000
         Private Const UPPER_COOLDOWN As Integer = 12000
@@ -15,7 +17,7 @@ Namespace Creatures
         Public NextUPPER As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False

@@ -20,6 +20,7 @@ Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
+Imports Mangos.Common.Enums
 
 Namespace Handlers
 
@@ -30,7 +31,7 @@ Namespace Handlers
             packet.GetInt16()
             Dim guildId As UInteger = packet.GetUInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_QUERY [{2}]", client.IP, client.Port, guildId)
+            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_GUILD_QUERY [{2}]", client.IP, client.Port, guildId)
 
             SendGuildQuery(client, guildId)
         End Sub

@@ -21,6 +21,7 @@ Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
+Imports Mangos.Common.Enums
 
 Namespace Handlers
 
@@ -29,7 +30,7 @@ Namespace Handlers
         Public Sub On_CMSG_BUG(ByRef packet As PacketClass, ByRef client As ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
-            Dim suggestion As SuggestionType = packet.GetInt32
+            Dim suggestion As GlobalEnum.SuggestionType = packet.GetInt32
             Dim cLength As Integer = packet.GetInt32
             Dim cString As String = EscapeString(packet.GetString)
             If (packet.Data.Length - 1) < (14 + cString.Length + 5) Then Exit Sub

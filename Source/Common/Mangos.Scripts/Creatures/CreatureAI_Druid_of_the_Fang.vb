@@ -1,9 +1,12 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Druid_of_the_Fang
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const SLUMBER_CD As Integer = 10000 '- Unable to implement this as for the time being due to threat issues in the core.
         Private Const Healing_Touch_CD As Integer = 20000
@@ -21,7 +24,7 @@ Namespace Creatures
         Public NextSlumber As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             AllowedMove = False
             Creature.Flying = False
@@ -54,7 +57,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Serpent_Form)
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I have failed to cast Serpent Form. This is a problem. Please report this to the developers.", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+                    aiCreature.SendChatMessage("I have failed to cast Serpent Form. This is a problem. Please report this to the developers.", ChatEnum.ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             End If
         End Sub

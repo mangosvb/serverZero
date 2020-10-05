@@ -1,9 +1,12 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Golemagg_the_Incinerator
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
 
         Private Const AI_UPDATE As Integer = 1000
         Private Const EARTHQUAKE_COOLDOWN As Integer = 10000
@@ -24,7 +27,7 @@ Namespace Creatures
         'Public NextSummon As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             Phase = 0
             AllowedMove = False
@@ -90,7 +93,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(EARTHQUAKE_SPELL, aiTarget)
                 Catch Ex As Exception
-                    aiCreature.SendChatMessage("Earthquake FAILED TO CAST ON MY TARGET! Please report this to the DEV'S!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+                    aiCreature.SendChatMessage("Earthquake FAILED TO CAST ON MY TARGET! Please report this to the DEV'S!", ChatEnum.ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
                 End Try
             Next
         End Sub

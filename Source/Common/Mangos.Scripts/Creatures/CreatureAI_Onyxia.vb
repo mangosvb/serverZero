@@ -1,9 +1,12 @@
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_Onyxia
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
 
         Private Const AI_UPDATE As Integer = 1000
         Private Const BREATH_COOLDOWN As Integer = 11000
@@ -33,7 +36,7 @@ Namespace Creatures
         Public RoarTimer As Integer = 0
         Public CurrentWaypoint As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             Phase = 0
             AllowedMove = False
@@ -48,7 +51,7 @@ Namespace Creatures
             AllowedAttack = True
             Phase = 1
             ReinitSpells()
-            aiCreature.SendChatMessage("How fortuitous, usually I must leave my lair to feed!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+            aiCreature.SendChatMessage("How fortuitous, usually I must leave my lair to feed!", ChatEnum.ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         End Sub
 
         Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)

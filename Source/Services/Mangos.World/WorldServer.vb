@@ -22,18 +22,27 @@ Imports System.Reflection
 Imports System.Net
 Imports System.Threading
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Common.Logging.BaseWriter
-Imports Mangos.Common.Global_Constants
+Imports Mangos.Common.Globals.Global_Constants
 Imports Mangos.SignalR
+Imports Mangos.World.DataStores
+Imports Mangos.World.Globals
+Imports Mangos.World.Handlers
+Imports Mangos.World.Maps
+Imports Mangos.World.Objects
+Imports Mangos.World.Player
+Imports Mangos.World.Quests
+Imports Mangos.World.Server
 
 Public Module WorldServer
 
 #Region "Global.Variables"
     'Players' containers
-    Public CLIENTs As New Dictionary(Of UInteger, ClientClass)
-    Public CHARACTERs As New Dictionary(Of ULong, CharacterObject)
+    Public CLIENTs As New Dictionary(Of UInteger, WS_Network.ClientClass)
+    Public CHARACTERs As New Dictionary(Of ULong, WS_PlayerData.CharacterObject)
     Public CHARACTERs_Lock As New ReaderWriterLock ' ReaderWriterLock_Debug("CHARACTERS")
     Public ALLQUESTS As New WS_Quests
     Public AllGraveYards As New WS_GraveYards

@@ -15,6 +15,7 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
+Imports Mangos.Common.Enums
 
 Namespace Logging
 
@@ -23,7 +24,7 @@ Namespace Logging
 
         Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
 
-        Public LogLevel As LogType = LogType.NETWORK
+        Public LogLevel As GlobalEnum.LogType = LogType.NETWORK
 
         Public Sub New()
         End Sub

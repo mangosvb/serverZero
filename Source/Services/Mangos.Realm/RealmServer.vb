@@ -26,6 +26,7 @@ Imports System.Text
 Imports System.Threading
 Imports System.Xml.Serialization
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 
@@ -232,7 +233,7 @@ Public Module RealmServer
         'Public Language As String = "enGB"
         'Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
         Public UpdateFile As String = ""
-        Public Access As AccessLevel = AccessLevel.Player
+        Public Access As MiscEnum.AccessLevel = AccessLevel.Player
 
         Private Sub OnData(ByVal data() As Byte)
             Select Case data(0)

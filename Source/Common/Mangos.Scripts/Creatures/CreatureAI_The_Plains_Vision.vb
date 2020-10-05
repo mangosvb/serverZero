@@ -1,14 +1,17 @@
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.DataStores
+Imports Mangos.World.Objects
 
 Namespace Creatures
     Public Class CreatureAI_The_Plains_Vision
-        Inherits TBaseAI
-        Protected aiCreature As CreatureObject = Nothing
+        Inherits WS_Creatures_AI.TBaseAI
+        Protected aiCreature As WS_Creatures.CreatureObject = Nothing
 
         Private CurrentWaypoint As Integer = 0
         Private NextWaypoint As Integer = 0
 
-        Private Waypoints As New List(Of CreatureMovePoint)
+        Private Waypoints As New List(Of WS_DBCDatabase.CreatureMovePoint)
 
         Public Sub New(ByRef Creature As CreatureObject)
             aiCreature = Creature

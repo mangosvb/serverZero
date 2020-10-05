@@ -1,12 +1,15 @@
 
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 Imports Mangos.World
+Imports Mangos.World.AI
+Imports Mangos.World.Objects
 
 'Summon implementation isn't yet supported.
 'Sand trap not implemented into script, need to make a gameobject I assume.
 Namespace Creatures
     Public Class CreatureAI_Kurinnax
-        Inherits BossAI
+        Inherits WS_Creatures_AI.BossAI
         Private Const AI_UPDATE As Integer = 1000
         Private Const wound_cooldown As Integer = 8000
         'private const summon_player_cooldown As Integer = 5000 
@@ -30,7 +33,7 @@ Namespace Creatures
         ' Public Next_Summon_1 As Integer = 0
         ' Public Next_Summon_2 As Integer = 0
 
-        Public Sub New(ByRef Creature As CreatureObject)
+        Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             MyBase.New(Creature)
             phase = 0
             AllowedMove = False
@@ -71,7 +74,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
                 Catch Ex As Exception
-                    Log.WriteLine(LogType.WARNING, "Mortal Wound failed to cast!")
+                    Log.WriteLine(GlobalEnum.LogType.WARNING, "Mortal Wound failed to cast!")
                 End Try
             End If
             If Next_Thrash <= 1 Then

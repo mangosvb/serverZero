@@ -19,6 +19,7 @@ Imports System.IO
 Imports Mangos.Common.Globals
 Imports Mangos.Common
 Imports Mangos.Cluster.Server
+Imports Mangos.Common.Enums
 
 Namespace Globals
     Public Module Packets
@@ -49,7 +50,7 @@ Namespace Globals
                     buffer += " |" & vbNewLine
                 End If
 
-                Log.WriteLine(LogType.DEBUG, buffer, Nothing)
+                Log.WriteLine(GlobalEnum.LogType.DEBUG, buffer, Nothing)
                 '#End If
             Catch e As Exception
                 Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", vbNewLine, e.ToString)

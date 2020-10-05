@@ -27,6 +27,7 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
+Imports Mangos.Common.Enums
 
 Namespace Server
     Public Module WC_Network
@@ -58,7 +59,7 @@ Namespace Server
                     m_Socket.Listen(5)
                     m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-                    Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
+                    Log.WriteLine(GlobalEnum.LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(Config.WorldClusterAddress), Config.WorldClusterPort)
 
                     'Creating ping timer
                     m_TimerPing = New Timer(AddressOf Ping, Nothing, 0, 15000)

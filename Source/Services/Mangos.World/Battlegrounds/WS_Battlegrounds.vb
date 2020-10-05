@@ -15,66 +15,71 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports Mangos.Common
+Imports Mangos.Common.Enums
+Imports Mangos.World.Globals
+Imports Mangos.World.Player
 
-Public Module WS_Battlegrounds
+Namespace Battlegrounds
 
-    Public BATTLEFIELDs As New Dictionary(Of Integer, Battlefield)
+    Public Module WS_Battlegrounds
 
-    Public Class Battlefield
-        Implements IDisposable
+        Public BATTLEFIELDs As New Dictionary(Of Integer, Battlefield)
 
-        Public MembersTeam1 As New List(Of CharacterObject)
-        Public MembersTeam2 As New List(Of CharacterObject)
+        Public Class Battlefield
+            Implements IDisposable
 
-        Public ID As Integer
-        Public Map As UInteger
-        Public MapType As BattlefieldMapType
+            Public MembersTeam1 As New List(Of WS_PlayerData.CharacterObject)
+            Public MembersTeam2 As New List(Of CharacterObject)
 
-        Public Sub New(ByVal rMapType As BattlefieldMapType, ByVal rMap As UInteger)
-            BATTLEFIELDs.Add(ID, Me)
-        End Sub
+            Public ID As Integer
+            Public Map As UInteger
+            Public MapType As GlobalEnum.BattlefieldMapType
+
+            Public Sub New(ByVal rMapType As BattlefieldMapType, ByVal rMap As UInteger)
+                BATTLEFIELDs.Add(ID, Me)
+            End Sub
 
 #Region "IDisposable Support"
-        Private _disposedValue As Boolean ' To detect redundant calls
+            Private _disposedValue As Boolean ' To detect redundant calls
 
-        ' IDisposable
-        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
-            If Not _disposedValue Then
-                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                ' TODO: set large fields to null.
-                BATTLEFIELDs.Remove(ID)
-            End If
-            _disposedValue = True
-        End Sub
+            ' IDisposable
+            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+                If Not _disposedValue Then
+                    ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+                    ' TODO: set large fields to null.
+                    BATTLEFIELDs.Remove(ID)
+                End If
+                _disposedValue = True
+            End Sub
 
-        ' This code added by Visual Basic to correctly implement the disposable pattern.
-        Public Sub Dispose() Implements IDisposable.Dispose
-            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
-            Dispose(True)
-            GC.SuppressFinalize(Me)
-        End Sub
+            ' This code added by Visual Basic to correctly implement the disposable pattern.
+            Public Sub Dispose() Implements IDisposable.Dispose
+                ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
+                Dispose(True)
+                GC.SuppressFinalize(Me)
+            End Sub
 #End Region
 
-        Public Sub Update(ByVal State As Object)
-        End Sub
+            Public Sub Update(ByVal State As Object)
+            End Sub
 
-        Public Sub Broadcast(ByVal p As PacketClass)
-            BroadcastTeam1(p)
-            BroadcastTeam2(p)
-        End Sub
-        Public Sub BroadcastTeam1(ByVal p As PacketClass)
-            For Each objCharacter As CharacterObject In MembersTeam1.ToArray
-                objCharacter.client.SendMultiplyPackets(p)
-            Next
-        End Sub
-        Public Sub BroadcastTeam2(ByVal p As PacketClass)
-            For Each objCharacter As CharacterObject In MembersTeam2.ToArray
-                objCharacter.client.SendMultiplyPackets(p)
-            Next
-        End Sub
+            Public Sub Broadcast(ByVal p As Packets.PacketClass)
+                BroadcastTeam1(p)
+                BroadcastTeam2(p)
+            End Sub
+            Public Sub BroadcastTeam1(ByVal p As PacketClass)
+                For Each objCharacter As CharacterObject In MembersTeam1.ToArray
+                    objCharacter.client.SendMultiplyPackets(p)
+                Next
+            End Sub
+            Public Sub BroadcastTeam2(ByVal p As PacketClass)
+                For Each objCharacter As CharacterObject In MembersTeam2.ToArray
+                    objCharacter.client.SendMultiplyPackets(p)
+                Next
+            End Sub
 
-    End Class
+        End Class
 
-End Module
+    End Module
+End NameSpace

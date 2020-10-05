@@ -19,6 +19,7 @@ Imports Mangos.Common.Globals
 Imports Mangos.Common
 Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
+Imports Mangos.Common.Enums
 
 Namespace Handlers
 
@@ -78,7 +79,7 @@ Namespace Handlers
                 ID = GetNexyChatChannelID()
                 ChannelIndex = 0
                 ChannelName = name
-                ChannelFlags = CHANNEL_FLAG.CHANNEL_FLAG_NONE
+                ChannelFlags = ChannelEnum.CHANNEL_FLAG.CHANNEL_FLAG_NONE
 
                 CHAT_CHANNELs.Add(ChannelName, Me)
 
@@ -272,7 +273,7 @@ Namespace Handlers
                 Else
                     'DONE: You Left channel
                     Dim packet1 As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_LEFT, Character.Guid, Nothing, Nothing)
-                    CHARACTERs(VictimGUID).client.Send(packet1)
+                    CHARACTERs(VictimGUID).Client.Send(packet1)
                     packet1.Dispose()
 
                     Joined.Remove(VictimGUID)
@@ -323,7 +324,7 @@ Namespace Handlers
 
                     'DONE: You Left channel
                     Dim packet1 As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOU_LEFT, Character.Guid, Nothing, Nothing)
-                    CHARACTERs(VictimGUID).client.Send(packet1)
+                    CHARACTERs(VictimGUID).Client.Send(packet1)
                     packet1.Dispose()
                 End If
             End Sub
@@ -410,7 +411,7 @@ Namespace Handlers
                         packet1.Dispose()
 
                         Dim packet2 As PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_INVITED, Character.Guid, Nothing, Nothing)
-                        CHARACTERs(GUID).client.Send(packet2)
+                        CHARACTERs(GUID).Client.Send(packet2)
                         packet2.Dispose()
                     End If
                 End If
@@ -660,7 +661,7 @@ Namespace Handlers
 
             Public Sub Broadcast(ByRef p As PacketClass)
                 For Each GUID As ULong In Joined.ToArray
-                    CHARACTERs(GUID).client.SendMultiplyPackets(p)
+                    CHARACTERs(GUID).Client.SendMultiplyPackets(p)
                 Next
             End Sub
 

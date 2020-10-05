@@ -21,6 +21,7 @@ Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
+Imports Mangos.Common.Enums
 
 Namespace Handlers
 
@@ -39,7 +40,7 @@ Namespace Handlers
             Public PositionY As Single
             Public PositionZ As Single
 
-            Public Access As AccessLevel
+            Public Access As MiscEnum.AccessLevel
             Public Name As String
             Public Level As Integer
             Public Race As Races

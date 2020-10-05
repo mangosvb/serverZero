@@ -15,13 +15,13 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
+Imports Mangos.Common.Enums
 
 Public Class ClientInfo
     Property Index As UInteger
     Property IP As String
     Property Port As UInteger
     Property Account As String
-    Property Access As AccessLevel = AccessLevel.Player
+    Property Access As MiscEnum.AccessLevel = AccessLevel.Player
     Property Expansion As ExpansionLevel = ExpansionLevel.NORMAL
 End Class

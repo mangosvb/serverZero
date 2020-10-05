@@ -15,21 +15,24 @@
 ' along with this program; if not, write to the Free Software
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
-
 Imports Mangos.Common
+Imports Mangos.Common.Enums
 
-<AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)>
-Public Class ChatCommandAttribute
-    Inherits Attribute
+Namespace Handlers
 
-    Public Sub New(ByVal cmdName As String, Optional ByVal cmdHelp As String = "No information available.", Optional ByVal cmdAccess As AccessLevel = AccessLevel.GameMaster)
-        Me.cmdName = cmdName
-        Me.cmdHelp = cmdHelp
-        Me.cmdAccess = cmdAccess
-    End Sub
+    <AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)>
+    Public Class ChatCommandAttribute
+        Inherits Attribute
 
-    Public Property cmdName() As String = ""
-    Public Property cmdHelp() As String = "No information available."
-    Public Property cmdAccess() As AccessLevel = AccessLevel.GameMaster
+        Public Sub New(ByVal cmdName As String, Optional ByVal cmdHelp As String = "No information available.", Optional ByVal cmdAccess As MiscEnum.AccessLevel = AccessLevel.GameMaster)
+            Me.cmdName = cmdName
+            Me.cmdHelp = cmdHelp
+            Me.cmdAccess = cmdAccess
+        End Sub
 
-End Class
+        Public Property cmdName() As String = ""
+        Public Property cmdHelp() As String = "No information available."
+        Public Property cmdAccess() As AccessLevel = AccessLevel.GameMaster
+
+    End Class
+End NameSpace

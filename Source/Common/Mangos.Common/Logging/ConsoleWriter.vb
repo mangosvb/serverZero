@@ -19,12 +19,13 @@
 'Writting commands is done trought console.
 
 Imports System.Threading
+Imports Mangos.Common.Enums
 
 Namespace Logging
     Public Class ConsoleWriter
         Inherits BaseWriter
 
-        Public Overrides Sub Write(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub Write(type As GlobalEnum.LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             Console.Write(formatStr, arg)

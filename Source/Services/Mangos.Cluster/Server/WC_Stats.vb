@@ -20,6 +20,7 @@ Imports System.Threading
 Imports System.Xml
 Imports Mangos.Common
 Imports Mangos.Cluster.Handlers
+Imports Mangos.Common.Enums
 
 Namespace Server
 
@@ -84,12 +85,12 @@ Namespace Server
             CountGMs = 0
             Latency = 0
 
-            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(Mangos.Common.Globals.DEFAULT_LOCK_TIMEOUT)
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                 If objCharacter.Value.IsInWorld Then
                     CountPlayers += 1
 
-                    If objCharacter.Value.Race = Races.RACE_ORC OrElse objCharacter.Value.Race = Races.RACE_TAUREN OrElse objCharacter.Value.Race = Races.RACE_TROLL OrElse objCharacter.Value.Race = Races.RACE_UNDEAD Then
+                    If objCharacter.Value.Race = PlayerEnum.Races.RACE_ORC OrElse objCharacter.Value.Race = Races.RACE_TAUREN OrElse objCharacter.Value.Race = Races.RACE_TROLL OrElse objCharacter.Value.Race = Races.RACE_UNDEAD Then
                         CountPlayersHorde += 1
                     Else
                         CountPlayersAlliance += 1
@@ -230,7 +231,7 @@ Namespace Server
             '</world>
             f.WriteEndElement()
 
-            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(Mangos.Common.Globals.DEFAULT_LOCK_TIMEOUT)
 
             f.WriteStartElement("users")
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
