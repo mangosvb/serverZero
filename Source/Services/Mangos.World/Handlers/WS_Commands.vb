@@ -1,43 +1,8 @@
-'
-' Copyright (C) 2013-2020 getMaNGOS <https://getmangos.eu>
-'
-' This program is free software; you can redistribute it and/or modify
-' it under the terms of the GNU General Public License as published by
-' the Free Software Foundation; either version 2 of the License, or
-' (at your option) any later version.
-'
-' This program is distributed in the hope that it will be useful,
-' but WITHOUT ANY WARRANTY; without even the implied warranty of
-' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-' GNU General Public License for more details.
-'
-' You should have received a copy of the GNU General Public License
-' along with this program; if not, write to the Free Software
-' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-'
-
+Imports System.Data
 Imports System.Reflection
 Imports System.Threading
-Imports System.Data
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Common.Functions
-
-<AttributeUsage(AttributeTargets.Method, Inherited:=False, AllowMultiple:=True)>
-Public Class ChatCommandAttribute
-    Inherits Attribute
-
-    Public Sub New(ByVal cmdName As String, Optional ByVal cmdHelp As String = "No information available.", Optional ByVal cmdAccess As AccessLevel = AccessLevel.GameMaster)
-        Me.cmdName = cmdName
-        Me.cmdHelp = cmdHelp
-        Me.cmdAccess = cmdAccess
-    End Sub
-
-    Public Property cmdName() As String = ""
-    Public Property cmdHelp() As String = "No information available."
-    Public Property cmdAccess() As AccessLevel = AccessLevel.GameMaster
-
-End Class
 
 Public Module WS_Commands
 
@@ -47,7 +12,7 @@ Public Module WS_Commands
     Public ChatCommands As New Dictionary(Of String, ChatCommand)
     Public Class ChatCommand
         Public CommandHelp As String
-        Public CommandAccess As AccessLevel = AccessLevel.GameMaster
+        Public CommandAccess As MiscEnum.AccessLevel = AccessLevel.GameMaster
         Public CommandDelegate As ChatCommandDelegate
     End Class
 
@@ -61,10 +26,10 @@ Public Module WS_Commands
                 If infos.Length <> 0 Then
                     For Each info As ChatCommandAttribute In infos
                         Dim cmd As New ChatCommand With {
-                            .CommandHelp = info.cmdHelp,
-                            .CommandAccess = info.cmdAccess,
-                            .CommandDelegate = [Delegate].CreateDelegate(GetType(ChatCommandDelegate), tmpMethod)
-                        }
+                                .CommandHelp = info.cmdHelp,
+                                .CommandAccess = info.cmdAccess,
+                                .CommandDelegate = [Delegate].CreateDelegate(GetType(ChatCommandDelegate), tmpMethod)
+                                }
 
                         ChatCommands.Add(UppercaseFirstLetter(info.cmdName), cmd)
                     Next
@@ -652,8 +617,8 @@ Public Module WS_Commands
         If tmp.Length = 2 Then Count = tmp(1)
         If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
             Dim newItem As New ItemObject(id, objCharacter.TargetGUID) With {
-                .StackCount = Count
-            }
+                    .StackCount = Count
+                    }
 
             If CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
                 CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, Count, True, False)
@@ -662,8 +627,8 @@ Public Module WS_Commands
             End If
         Else
             Dim newItem As New ItemObject(id, objCharacter.GUID) With {
-                .StackCount = Count
-            }
+                    .StackCount = Count
+                    }
 
             If objCharacter.ItemADD(newItem) Then
                 objCharacter.LogLootItem(newItem, Count, False, True)
@@ -687,8 +652,8 @@ Public Module WS_Commands
             If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 For Each item As Integer In ItemSet(id).ItemID
                     Dim newItem As New ItemObject(item, objCharacter.TargetGUID) With {
-                        .StackCount = 1
-                    }
+                            .StackCount = 1
+                            }
 
                     If CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
                         CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, 1, False, True)
@@ -699,8 +664,8 @@ Public Module WS_Commands
             Else
                 For Each item As Integer In ItemSet(id).ItemID
                     Dim newItem As New ItemObject(item, objCharacter.GUID) With {
-                        .StackCount = 1
-                    }
+                            .StackCount = 1
+                            }
 
                     If objCharacter.ItemADD(newItem) Then
                         objCharacter.LogLootItem(newItem, 1, False, True)

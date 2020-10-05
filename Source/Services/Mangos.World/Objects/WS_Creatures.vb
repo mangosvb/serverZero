@@ -1618,47 +1618,5 @@ Public Module WS_Creatures
 End Module
 
 #Region "WS.Creatures.Gossip"
-Public Class GossipMenu
-    Public Sub AddMenu(ByVal menu As String, Optional ByVal icon As Byte = 0, Optional ByVal isCoded As Byte = 0, Optional ByVal cost As Integer = 0, Optional ByVal WarningMessage As String = "")
-        Icons.Add(icon)
-        Menus.Add(menu)
-        Coded.Add(isCoded)
-        Costs.Add(cost)
-        WarningMessages.Add(WarningMessage)
-    End Sub
-    Public Icons As New ArrayList
-    Public Menus As New ArrayList
-    Public Coded As New ArrayList
-    Public Costs As New ArrayList
-    Public WarningMessages As New ArrayList
-End Class
 
-Public Class QuestMenu
-    Public Sub AddMenu(ByVal QuestName As String, ByVal ID As Short, ByVal Level As Short, Optional ByVal Icon As Byte = 0)
-        Names.Add(QuestName)
-        IDs.Add(ID)
-        Icons.Add(Icon)
-        Levels.Add(Level)
-    End Sub
-    Public IDs As ArrayList = New ArrayList
-    Public Names As ArrayList = New ArrayList
-    Public Icons As ArrayList = New ArrayList
-    Public Levels As ArrayList = New ArrayList
-End Class
-
-Public Class TBaseTalk
-    Public Overridable Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
-
-    End Sub
-    Public Overridable Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
-
-    End Sub
-    Public Overridable Function OnQuestStatus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Integer
-        Return QuestgiverStatusFlag.DIALOG_STATUS_NONE
-    End Function
-
-    Public Overridable Function OnQuestHello(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong) As Boolean
-        Return True
-    End Function
-End Class
 #End Region
