@@ -96,7 +96,7 @@ Namespace Objects
             Public Sub SendToNearPlayers(ByRef packet As PacketClass, Optional ByVal NotTo As ULong = 0, Optional ByVal ToSelf As Boolean = True)
                 If ToSelf AndAlso (TypeOf Me Is CharacterObject) AndAlso CType(Me, CharacterObject).client IsNot Nothing Then CType(Me, CharacterObject).client.SendMultiplyPackets(packet)
                 For Each objCharacter As ULong In SeenBy.ToArray
-                    If objCharacter <> NotTo AndAlso CHARACTERs.ContainsKey(objCharacter) AndAlso CHARACTERs(objCharacter).client IsNot Nothing Then CHARACTERs(objCharacter).client.SendMultiplyPackets(packet)
+                    If objCharacter <> NotTo AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter) AndAlso _WorldServer.CHARACTERs(objCharacter).client IsNot Nothing Then _WorldServer.CHARACTERs(objCharacter).client.SendMultiplyPackets(packet)
                 Next
             End Sub
         End Class
@@ -231,19 +231,19 @@ Namespace Objects
             Public gameObjects As New List(Of GameObjectObject)
 
             Public Overridable Sub Die(ByRef Attacker As BaseUnit)
-                Log.WriteLine(LogType.WARNING, "BaseUnit can't die.")
+                _WorldServer.Log.WriteLine(LogType.WARNING, "BaseUnit can't die.")
             End Sub
 
             Public Overridable Sub DealDamage(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
-                Log.WriteLine(LogType.WARNING, "No damage dealt.")
+                _WorldServer.Log.WriteLine(LogType.WARNING, "No damage dealt.")
             End Sub
 
             Public Overridable Sub Heal(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
-                Log.WriteLine(LogType.WARNING, "No healing done.")
+                _WorldServer.Log.WriteLine(LogType.WARNING, "No healing done.")
             End Sub
 
             Public Overridable Sub Energize(ByVal Damage As Integer, ByVal Power As ManaTypes, Optional ByRef Attacker As BaseUnit = Nothing)
-                Log.WriteLine(LogType.WARNING, "No mana increase done.")
+                _WorldServer.Log.WriteLine(LogType.WARNING, "No mana increase done.")
             End Sub
 
             Public Overridable ReadOnly Property IsDead() As Boolean
@@ -255,9 +255,9 @@ Namespace Objects
             Public Overridable ReadOnly Property Exist() As Boolean
                 Get
                     If TypeOf Me Is CharacterObject Then
-                        Return CHARACTERs.ContainsKey(GUID)
+                        Return _WorldServer.CHARACTERs.ContainsKey(GUID)
                     ElseIf TypeOf Me Is CreatureObject Then
-                        Return WORLD_CREATUREs.ContainsKey(GUID)
+                        Return _WorldServer.WORLD_CREATUREs.ContainsKey(GUID)
                     End If
                     Return False
                 End Get
@@ -431,7 +431,7 @@ Namespace Objects
                         'DONE: Removing additional spell auras (Mind Vision)
                         If (TypeOf Me Is CharacterObject) AndAlso
                            (CType(Me, CharacterObject).DuelArbiter <> 0) AndAlso (CType(Me, CharacterObject).DuelPartner Is Nothing) Then
-                            WORLD_CREATUREs(CType(Me, CharacterObject).DuelArbiter).RemoveAuraBySpell(SpellID)
+                            _WorldServer.WORLD_CREATUREs(CType(Me, CharacterObject).DuelArbiter).RemoveAuraBySpell(SpellID)
                             CType(Me, CharacterObject).DuelArbiter = 0
                         End If
                         Exit Sub
@@ -554,7 +554,7 @@ Namespace Objects
                         Next
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "ERROR ADDING AURA!{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "ERROR ADDING AURA!{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
 
                 For slot As Integer = AuraStart To AuraEnd
@@ -773,7 +773,7 @@ Namespace Objects
                 End If
 
                 Dim tmp As Integer = 10000 - HitChance
-                Dim rand As Integer = Rnd.Next(0, 10001)
+                Dim rand As Integer = _WorldServer.Rnd.Next(0, 10001)
 
                 If rand < tmp Then Return SpellMissInfo.SPELL_MISS_RESIST
 
@@ -789,7 +789,7 @@ Namespace Objects
                 Dim skillDiff As Integer = attackerWeaponSkill - (Level * 5)
                 Dim fullSkillDiff As Integer = attackerWeaponSkill - GetDefenceSkill(Caster)
 
-                Dim roll As Integer = Rnd.Next(0, 10001)
+                Dim roll As Integer = _WorldServer.Rnd.Next(0, 10001)
                 Dim missChance As Integer = Fix(0.0F * 100.0F)
 
                 'Roll miss
@@ -910,7 +910,7 @@ Namespace Objects
                     partialChances = New Integer() {3, 16, 55, 25}
                 End If
 
-                Dim ran As Integer = Rnd.Next(0, 101)
+                Dim ran As Integer = _WorldServer.Rnd.Next(0, 101)
                 Dim m As Integer = 0
                 Dim val As Integer = 0
                 For i As Integer = 0 To 3
@@ -935,16 +935,16 @@ Namespace Objects
                 Dim ListChange As New Dictionary(Of Integer, UInteger)
                 Dim StartDmg As Integer = Damage
 
-                Log.WriteLine(LogType.DEBUG, "Damage: {0} [{1}]", Damage, School)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Damage: {0} [{1}]", Damage, School)
 
                 For Each tmpSpell As KeyValuePair(Of Integer, UInteger) In AbsorbSpellLeft
                     Dim Schools As Integer = (tmpSpell.Value >> 23UI)
                     Dim AbsorbDamage As Integer = tmpSpell.Value And &H7FFFFF
 
-                    Log.WriteLine(LogType.DEBUG, "Spell: {0} [{1}]", AbsorbDamage, Schools)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Spell: {0} [{1}]", AbsorbDamage, Schools)
 
                     If HaveFlag(Schools, School) Then
-                        Log.WriteLine(LogType.DEBUG, "Apmongo, yes?!")
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "Apmongo, yes?!")
                         If Damage = AbsorbDamage Then
                             ListChange.Add(tmpSpell.Key, 0)
                             Damage = 0
@@ -978,7 +978,7 @@ Namespace Objects
                     End If
                 Next
 
-                Log.WriteLine(LogType.DEBUG, "Absorbed: {0}", StartDmg - Damage)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Absorbed: {0}", StartDmg - Damage)
                 Return StartDmg - Damage
             End Function
 

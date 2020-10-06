@@ -63,10 +63,10 @@ Namespace Globals
                     buffer += " |" & Environment.NewLine
                 End If
 
-                Log.WriteLine(LogType.DEBUG, buffer, Nothing)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, buffer, Nothing)
                 '#End If
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", Environment.NewLine, e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", Environment.NewLine, e.ToString)
             End Try
         End Sub
 
@@ -186,8 +186,8 @@ Namespace Globals
                     packet.AddSingle(updateObject.orientation)
                     packet.AddSingle(0)
 
-                    packet.AddSingle(CREATURESDatabase(updateObject.ID).WalkSpeed)
-                    packet.AddSingle(CREATURESDatabase(updateObject.ID).RunSpeed)
+                    packet.AddSingle(_WorldServer.CREATURESDatabase(updateObject.ID).WalkSpeed)
+                    packet.AddSingle(_WorldServer.CREATURESDatabase(updateObject.ID).RunSpeed)
                     packet.AddSingle(_Global_Constants.UNIT_NORMAL_SWIM_BACK_SPEED)
                     packet.AddSingle(_Global_Constants.UNIT_NORMAL_SWIM_SPEED)
                     packet.AddSingle(_Global_Constants.UNIT_NORMAL_WALK_BACK_SPEED)
@@ -309,7 +309,7 @@ Namespace Globals
                 packet.AddPackGUID(updateObject.GUID)
 
                 If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT Then
-                    If ITEMDatabase(updateObject.ItemEntry).ContainerSlots > 0 Then
+                    If _WorldServer.ITEMDatabase(updateObject.ItemEntry).ContainerSlots > 0 Then
                         packet.AddInt8(ObjectTypeID.TYPEID_CONTAINER)
                     Else
                         packet.AddInt8(ObjectTypeID.TYPEID_ITEM)

@@ -57,7 +57,7 @@ Namespace Objects
             Dim guid As ULong
             guid = packet.GetUInt64
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TRAINER_LIST [GUID={2}]", client.IP, client.Port, guid)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TRAINER_LIST [GUID={2}]", client.IP, client.Port, guid)
 
             SendTrainerList(client.Character, guid)
         End Sub
@@ -76,11 +76,11 @@ Namespace Objects
             Dim spellID As Integer
             spellID = packet.GetInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TRAINER_BUY_SPELL [GUID={2} Spell={3}]", client.IP, client.Port, cGuid, spellID)
-            If WORLD_CREATUREs.ContainsKey(cGuid) = False OrElse (WORLD_CREATUREs(cGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TRAINER) = 0 Then Exit Sub
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TRAINER_BUY_SPELL [GUID={2} Spell={3}]", client.IP, client.Port, cGuid, spellID)
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(cGuid) = False OrElse (_WorldServer.WORLD_CREATUREs(cGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TRAINER) = 0 Then Exit Sub
 
             Dim mySqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM npc_trainer WHERE entry = {0} AND spell = {1};", WORLD_CREATUREs(cGuid).ID, spellID), mySqlQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM npc_trainer WHERE entry = {0} AND spell = {1};", _WorldServer.WORLD_CREATUREs(cGuid).ID, spellID), mySqlQuery)
             If mySqlQuery.Rows.Count = 0 Then Exit Sub
 
             Dim spellInfo As WS_Spells.SpellInfo
@@ -120,16 +120,16 @@ Namespace Objects
                 If spellInfo.SpellVisual = 222 Then
                     tmpCaster = client.Character
                 Else
-                    tmpCaster = WORLD_CREATUREs(cGuid)
+                    tmpCaster = _WorldServer.WORLD_CREATUREs(cGuid)
                 End If
 
                 Dim castParams As New CastSpellParameters(spellTargets, tmpCaster, spellID, True)
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
 
-                WORLD_CREATUREs(cGuid).MoveToInstant(WORLD_CREATUREs(cGuid).positionX, WORLD_CREATUREs(cGuid).positionY, WORLD_CREATUREs(cGuid).positionZ, WORLD_CREATUREs(cGuid).SpawnO)
+                _WorldServer.WORLD_CREATUREs(cGuid).MoveToInstant(_WorldServer.WORLD_CREATUREs(cGuid).positionX, _WorldServer.WORLD_CREATUREs(cGuid).positionY, _WorldServer.WORLD_CREATUREs(cGuid).positionZ, _WorldServer.WORLD_CREATUREs(cGuid).SpawnO)
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Training Spell Error: Unable to cast spell. [{0}:{1}]", Environment.NewLine, e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Training Spell Error: Unable to cast spell. [{0}:{1}]", Environment.NewLine, e.ToString)
 
                 'TODO: Fix this opcode
                 'Dim errorPacket As New PacketClass(OPCODES.SMSG_TRAINER_BUY_FAILED)
@@ -165,12 +165,12 @@ Namespace Objects
             spellSqlQuery = New DataTable
             'Dim npcTextSQLQuery As New DataTable
             Dim creatureInfo As CreatureInfo
-            creatureInfo = WORLD_CREATUREs(cGuid).CreatureInfo
+            creatureInfo = _WorldServer.WORLD_CREATUREs(cGuid).CreatureInfo
             Dim spellsList As List(Of DataRow)
             spellsList = New List(Of DataRow)
 
             If (creatureInfo.Classe = 0 OrElse creatureInfo.Classe = objCharacter.Classe) AndAlso (creatureInfo.Race = 0 OrElse (creatureInfo.Race = objCharacter.Race OrElse objCharacter.GetReputation(creatureInfo.Faction) = ReputationRank.Exalted)) Then
-                WorldDatabase.Query(String.Format("SELECT * FROM npc_trainer WHERE entry = {0};", WORLD_CREATUREs(cGuid).ID), spellSqlQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM npc_trainer WHERE entry = {0};", _WorldServer.WORLD_CREATUREs(cGuid).ID), spellSqlQuery)
 
                 For Each sellRow As DataRow In spellSqlQuery.Rows
                     spellsList.Add(sellRow)
@@ -185,7 +185,7 @@ Namespace Objects
             packet.AddInt32(spellsList.Count)              'Trains Length
 
             'DONE: Discount on reputation
-            Dim discountMod As Single = objCharacter.GetDiscountMod(WORLD_CREATUREs(cGuid).Faction)
+            Dim discountMod As Single = objCharacter.GetDiscountMod(_WorldServer.WORLD_CREATUREs(cGuid).Faction)
 
             Dim spellID As Integer
             For Each sellRow As DataRow In spellsList
@@ -264,11 +264,11 @@ Namespace Objects
             packet.GetInt16()
             Dim guid As ULong
             guid = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LIST_INVENTORY [GUID={2:X}]", client.IP, client.Port, guid)
-            If WORLD_CREATUREs.ContainsKey(guid) = False OrElse (WORLD_CREATUREs(guid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) = 0 Then Exit Sub
-            If WORLD_CREATUREs(guid).Evade Then Exit Sub
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LIST_INVENTORY [GUID={2:X}]", client.IP, client.Port, guid)
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(guid) = False OrElse (_WorldServer.WORLD_CREATUREs(guid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) = 0 Then Exit Sub
+            If _WorldServer.WORLD_CREATUREs(guid).Evade Then Exit Sub
 
-            WORLD_CREATUREs(guid).StopMoving()
+            _WorldServer.WORLD_CREATUREs(guid).StopMoving()
             SendListInventory(client.Character, guid)
         End Sub
 
@@ -286,10 +286,10 @@ Namespace Objects
             Dim itemGuid As ULong
             itemGuid = packet.GetUInt64
             Dim count As Byte = packet.GetInt8
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SELL_ITEM [vendorGuid={2:X} itemGuid={3:X} Count={4}]", client.IP, client.Port, vendorGuid, itemGuid, count)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SELL_ITEM [vendorGuid={2:X} itemGuid={3:X} Count={4}]", client.IP, client.Port, vendorGuid, itemGuid, count)
 
             Try
-                If itemGuid = 0 OrElse WORLD_ITEMs.ContainsKey(itemGuid) = False Then
+                If itemGuid = 0 OrElse _WorldServer.WORLD_ITEMs.ContainsKey(itemGuid) = False Then
                     Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
@@ -302,7 +302,7 @@ Namespace Objects
                     Exit Sub
                 End If
                 'DONE: You can't sell someone else's items
-                If WORLD_ITEMs(itemGuid).OwnerGUID <> client.Character.GUID Then
+                If _WorldServer.WORLD_ITEMs(itemGuid).OwnerGUID <> client.Character.GUID Then
                     Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
@@ -314,7 +314,7 @@ Namespace Objects
                     End Try
                     Exit Sub
                 End If
-                If Not WORLD_CREATUREs.ContainsKey(vendorGuid) Then
+                If Not _WorldServer.WORLD_CREATUREs.ContainsKey(vendorGuid) Then
                     Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
@@ -327,7 +327,7 @@ Namespace Objects
                     Exit Sub
                 End If
                 'DONE: Can't sell quest items
-                If (ITEMDatabase(WORLD_ITEMs(itemGuid).ItemEntry).SellPrice = 0) Or (ITEMDatabase(WORLD_ITEMs(itemGuid).ItemEntry).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST) Then
+                If (_WorldServer.ITEMDatabase(_WorldServer.WORLD_ITEMs(itemGuid).ItemEntry).SellPrice = 0) Or (_WorldServer.ITEMDatabase(_WorldServer.WORLD_ITEMs(itemGuid).ItemEntry).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST) Then
                     Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
@@ -352,26 +352,26 @@ Namespace Objects
                     End If
                 Next
 
-                If count < 1 Then count = WORLD_ITEMs(itemGuid).StackCount
-                If WORLD_ITEMs(itemGuid).StackCount > count Then
-                    WORLD_ITEMs(itemGuid).StackCount -= count
+                If count < 1 Then count = _WorldServer.WORLD_ITEMs(itemGuid).StackCount
+                If _WorldServer.WORLD_ITEMs(itemGuid).StackCount > count Then
+                    _WorldServer.WORLD_ITEMs(itemGuid).StackCount -= count
                     Dim tmpItem As ItemObject = LoadItemByGUID(itemGuid) 'Lets create a new stack to place in the buyback
-                    itemGuidCounter += 1 'Get a new GUID for our new stack
-                    tmpItem.GUID = itemGuidCounter
+                    _WorldServer.itemGuidCounter += 1 'Get a new GUID for our new stack
+                    tmpItem.GUID = _WorldServer.itemGuidCounter
                     tmpItem.StackCount = count
                     client.Character.ItemADD_BuyBack(tmpItem)
 
-                    client.Character.Copper += (ITEMDatabase(WORLD_ITEMs(itemGuid).ItemEntry).SellPrice * count)
+                    client.Character.Copper += (_WorldServer.ITEMDatabase(_WorldServer.WORLD_ITEMs(itemGuid).ItemEntry).SellPrice * count)
                     client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
-                    client.Character.SendItemUpdate(WORLD_ITEMs(itemGuid))
-                    WORLD_ITEMs(itemGuid).Save(False)
+                    client.Character.SendItemUpdate(_WorldServer.WORLD_ITEMs(itemGuid))
+                    _WorldServer.WORLD_ITEMs(itemGuid).Save(False)
                 Else
                     'DONE: Move item to buyback
                     'TODO: Remove items that expire in the buyback, in mangos it seems like they use 30 hours until it's removed.
 
                     For Each item As KeyValuePair(Of Byte, ItemObject) In client.Character.Items
                         If item.Value.GUID = itemGuid Then
-                            client.Character.Copper += (ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
+                            client.Character.Copper += (_WorldServer.ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
                             client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
                             If item.Key < InventorySlots.INVENTORY_SLOT_BAG_END Then client.Character.UpdateRemoveItemStats(item.Value, item.Key)
@@ -393,7 +393,7 @@ Namespace Objects
                         If client.Character.Items.ContainsKey(bag) Then
                             For Each item As KeyValuePair(Of Byte, ItemObject) In client.Character.Items(bag).Items
                                 If item.Value.GUID = itemGuid Then
-                                    client.Character.Copper += (ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
+                                    client.Character.Copper += (_WorldServer.ITEMDatabase(item.Value.ItemEntry).SellPrice * item.Value.StackCount)
                                     client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
                                     client.Character.ItemREMOVE(item.Value.GUID, False, True)
@@ -413,7 +413,7 @@ Namespace Objects
                 End If
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error selling item: {0}{1}", Environment.NewLine, e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error selling item: {0}{1}", Environment.NewLine, e.ToString)
             End Try
         End Sub
 
@@ -430,18 +430,18 @@ Namespace Objects
             Dim itemID As Integer = packet.GetInt32
             Dim count As Byte = packet.GetInt8
             Dim slot As Byte = packet.GetInt8       '??
-            If WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse ((WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 AndAlso (WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) = 0) Then Exit Sub
-            If ITEMDatabase.ContainsKey(itemID) = False Then Exit Sub
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_ITEM [vendorGuid={2:X} ItemID={3} Count={4} Slot={5}]", client.IP, client.Port, vendorGuid, itemID, count, slot)
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse ((_WorldServer.WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 AndAlso (_WorldServer.WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) = 0) Then Exit Sub
+            If _WorldServer.ITEMDatabase.ContainsKey(itemID) = False Then Exit Sub
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_ITEM [vendorGuid={2:X} ItemID={3} Count={4} Slot={5}]", client.IP, client.Port, vendorGuid, itemID, count, slot)
 
             'TODO: Make sure that the vendor sells the item!
 
             'DONE: No count cheating
-            If count > ITEMDatabase(itemID).Stackable Then count = ITEMDatabase(itemID).Stackable
+            If count > _WorldServer.ITEMDatabase(itemID).Stackable Then count = _WorldServer.ITEMDatabase(itemID).Stackable
             If count = 0 Then count = 1
 
             'DONE: Can't buy quest items
-            If ITEMDatabase(itemID).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST Then
+            If _WorldServer.ITEMDatabase(itemID).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST Then
                 Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
                     errorPckt.AddUInt64(vendorGuid)
@@ -455,11 +455,11 @@ Namespace Objects
             End If
 
             Dim itemPrice As Integer = 0
-            If count * ITEMDatabase(itemID).BuyCount > ITEMDatabase(itemID).Stackable Then count = (ITEMDatabase(itemID).Stackable / ITEMDatabase(itemID).BuyCount)
+            If count * _WorldServer.ITEMDatabase(itemID).BuyCount > _WorldServer.ITEMDatabase(itemID).Stackable Then count = (_WorldServer.ITEMDatabase(itemID).Stackable / _WorldServer.ITEMDatabase(itemID).BuyCount)
 
             'DONE: Reputation discount
-            Dim discountMod As Single = client.Character.GetDiscountMod(WORLD_CREATUREs(vendorGuid).Faction)
-            itemPrice = ITEMDatabase(itemID).BuyPrice * discountMod
+            Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(vendorGuid).Faction)
+            itemPrice = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
             If client.Character.Copper < (itemPrice * count) Then
                 Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
@@ -479,7 +479,7 @@ Namespace Objects
             client.Character.SendCharacterUpdate(False)
 
             Dim tmpItem As New ItemObject(itemID, client.Character.GUID) With {
-                    .StackCount = count * ITEMDatabase(itemID).BuyCount
+                    .StackCount = count * _WorldServer.ITEMDatabase(itemID).BuyCount
                     }
 
             'TODO: Remove one count of the item from the vendor if it's not unlimited
@@ -512,15 +512,15 @@ Namespace Objects
             Dim clientGuid As ULong = packet.GetUInt64
             Dim slot As Byte = packet.GetInt8
             Dim count As Byte = packet.GetInt8
-            If WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse ((WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 AndAlso (WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) = 0) Then Exit Sub
-            If ITEMDatabase.ContainsKey(itemID) = False Then Exit Sub
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_ITEM_IN_SLOT [vendorGuid={2:X} ItemID={3} Count={4} Slot={5}]", client.IP, client.Port, vendorGuid, itemID, count, slot)
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse ((_WorldServer.WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 AndAlso (_WorldServer.WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) = 0) Then Exit Sub
+            If _WorldServer.ITEMDatabase.ContainsKey(itemID) = False Then Exit Sub
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_ITEM_IN_SLOT [vendorGuid={2:X} ItemID={3} Count={4} Slot={5}]", client.IP, client.Port, vendorGuid, itemID, count, slot)
 
             'DONE: No count cheating
-            If count > ITEMDatabase(itemID).Stackable Then count = ITEMDatabase(itemID).Stackable
+            If count > _WorldServer.ITEMDatabase(itemID).Stackable Then count = _WorldServer.ITEMDatabase(itemID).Stackable
 
             'DONE: Can't buy quest items
-            If ITEMDatabase(itemID).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST Then
+            If _WorldServer.ITEMDatabase(itemID).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST Then
                 Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
                 errorPckt.AddUInt64(vendorGuid)
                 errorPckt.AddInt32(itemID)
@@ -533,8 +533,8 @@ Namespace Objects
             Dim itemPrice As Integer = 0
 
             'DONE: Reputation discount
-            Dim discountMod As Single = client.Character.GetDiscountMod(WORLD_CREATUREs(vendorGuid).Faction)
-            itemPrice = ITEMDatabase(itemID).BuyPrice * discountMod
+            Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(vendorGuid).Faction)
+            itemPrice = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
 
             If client.Character.Copper < (itemPrice * count) Then
                 Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
@@ -638,7 +638,7 @@ Namespace Objects
             packet.GetInt16()
             Dim vendorGuid As ULong = packet.GetUInt64
             Dim slot As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUYBACK_ITEM [vendorGuid={2:X} Slot={3}]", client.IP, client.Port, vendorGuid, slot)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUYBACK_ITEM [vendorGuid={2:X} Slot={3}]", client.IP, client.Port, vendorGuid, slot)
 
             'TODO: If item is not located in your buyback you can't buy it back (this checking below doesn't work)
             If slot < BuyBackSlots.BUYBACK_SLOT_START OrElse slot >= BuyBackSlots.BUYBACK_SLOT_END OrElse client.Character.Items.ContainsKey(slot) = False Then
@@ -696,21 +696,21 @@ Namespace Objects
             packet.GetInt16()
             Dim vendorGuid As ULong = packet.GetUInt64
             Dim itemGuid As ULong = packet.GetUInt64
-            If WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse (WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 Then Exit Sub
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPAIR_ITEM [vendorGuid={2:X} itemGuid={3:X}]", client.IP, client.Port, vendorGuid, itemGuid)
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(vendorGuid) = False OrElse (_WorldServer.WORLD_CREATUREs(vendorGuid).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) = 0 Then Exit Sub
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPAIR_ITEM [vendorGuid={2:X} itemGuid={3:X}]", client.IP, client.Port, vendorGuid, itemGuid)
 
             'DONE: Reputation discount
-            Dim discountMod As Single = client.Character.GetDiscountMod(WORLD_CREATUREs(vendorGuid).Faction)
+            Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(vendorGuid).Faction)
             Dim price As UInteger = 0
 
             If itemGuid <> 0 Then
-                price = (WORLD_ITEMs(itemGuid).GetDurabulityCost * discountMod)
+                price = (_WorldServer.WORLD_ITEMs(itemGuid).GetDurabulityCost * discountMod)
                 If client.Character.Copper >= price Then
                     client.Character.Copper -= price
                     client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
                     client.Character.SendCharacterUpdate(False)
 
-                    WORLD_ITEMs(itemGuid).ModifyToDurability(100.0F, client)
+                    _WorldServer.WORLD_ITEMs(itemGuid).ModifyToDurability(100.0F, client)
                 End If
             Else
                 For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
@@ -743,7 +743,7 @@ Namespace Objects
                 packet.AddUInt64(guid)
 
                 Dim mySqlQuery As New DataTable
-                WorldDatabase.Query(String.Format("SELECT * FROM npc_vendor WHERE entry = {0};", WORLD_CREATUREs(guid).ID), mySqlQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM npc_vendor WHERE entry = {0};", _WorldServer.WORLD_CREATUREs(guid).ID), mySqlQuery)
                 Dim dataPos As Integer = packet.Data.Length
                 packet.AddInt8(0) 'Will be updated later
 
@@ -752,16 +752,16 @@ Namespace Objects
                 For Each sellRow As DataRow In mySqlQuery.Rows
                     itemID = sellRow.Item("item")
                     'DONE: You will now only see items for your class
-                    If ITEMDatabase.ContainsKey(itemID) = False Then
+                    If _WorldServer.ITEMDatabase.ContainsKey(itemID) = False Then
                         Dim tmpItem As New ItemInfo(itemID)
                         'The New does a an add to the .Containskey collection above
                     End If
 
-                    If (ITEMDatabase(itemID).AvailableClasses = 0 OrElse (ITEMDatabase(itemID).AvailableClasses And objCharacter.ClassMask)) Then
+                    If (_WorldServer.ITEMDatabase(itemID).AvailableClasses = 0 OrElse (_WorldServer.ITEMDatabase(itemID).AvailableClasses And objCharacter.ClassMask)) Then
                         i += 1
                         packet.AddInt32(-1) 'i-1
                         packet.AddInt32(itemID)
-                        packet.AddInt32(ITEMDatabase(itemID).Model)
+                        packet.AddInt32(_WorldServer.ITEMDatabase(itemID).Model)
 
                         'AviableCount
                         If sellRow.Item("maxcount") <= 0 Then
@@ -771,10 +771,10 @@ Namespace Objects
                         End If
 
                         'DONE: Discount on reputation
-                        Dim discountMod As Single = objCharacter.GetDiscountMod(WORLD_CREATUREs(guid).Faction)
-                        packet.AddInt32(ITEMDatabase(itemID).BuyPrice * discountMod)
+                        Dim discountMod As Single = objCharacter.GetDiscountMod(_WorldServer.WORLD_CREATUREs(guid).Faction)
+                        packet.AddInt32(_WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod)
                         packet.AddInt32(-1) 'Durability
-                        packet.AddInt32(ITEMDatabase(itemID).BuyCount)
+                        packet.AddInt32(_WorldServer.ITEMDatabase(itemID).BuyCount)
                     End If
                 Next
 
@@ -782,7 +782,7 @@ Namespace Objects
                 objCharacter.client.Send(packet)
                 packet.Dispose()
             Catch e As Exception
-                Log.WriteLine(LogType.DEBUG, "Error while listing inventory.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Error while listing inventory.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -801,7 +801,7 @@ Namespace Objects
             Dim srcSlot As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOBANK_ITEM [srcSlot={2}:{3}]", client.IP, client.Port, srcBag, srcSlot)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOBANK_ITEM [srcSlot={2}:{3}]", client.IP, client.Port, srcBag, srcSlot)
 
             For dstSlot As Byte = BankItemSlots.BANK_SLOT_ITEM_START To BankItemSlots.BANK_SLOT_ITEM_END
                 If Not client.Character.Items.ContainsKey(dstSlot) Then
@@ -840,7 +840,7 @@ Namespace Objects
             Dim srcSlot As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BANK_ITEM [srcSlot={2}:{3}]", client.IP, client.Port, srcBag, srcSlot)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BANK_ITEM [srcSlot={2}:{3}]", client.IP, client.Port, srcBag, srcSlot)
 
             For dstSlot As Byte = InventoryPackSlots.INVENTORY_SLOT_ITEM_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END
                 If Not client.Character.Items.ContainsKey(dstSlot) Then
@@ -873,14 +873,14 @@ Namespace Objects
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
         Public Sub On_CMSG_BUY_BANK_SLOT(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_BANK_SLOT", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_BANK_SLOT", client.IP, client.Port)
 
             If client.Character.Items_AvailableBankSlots < DbcBankBagSlotsMax AndAlso
                client.Character.Copper >= DbcBankBagSlotPrices(client.Character.Items_AvailableBankSlots) Then
                 client.Character.Copper -= DbcBankBagSlotPrices(client.Character.Items_AvailableBankSlots)
                 client.Character.Items_AvailableBankSlots += 1
 
-                CharacterDatabase.Update(String.Format("UPDATE characters SET char_bankSlots = {0}, char_copper = {1};", client.Character.Items_AvailableBankSlots, client.Character.Copper))
+                _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters SET char_bankSlots = {0}, char_copper = {1};", client.Character.Items_AvailableBankSlots, client.Character.Copper))
 
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_BYTES_2, client.Character.cPlayerBytes2)
@@ -909,7 +909,7 @@ Namespace Objects
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BANKER_ACTIVATE [GUID={2:X}]", client.IP, client.Port, guid)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BANKER_ACTIVATE [GUID={2:X}]", client.IP, client.Port, guid)
 
             SendShowBank(client.Character, guid)
         End Sub
@@ -962,15 +962,15 @@ Namespace Objects
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BINDER_ACTIVATE [binderGUID={2:X}]", client.IP, client.Port, guid)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BINDER_ACTIVATE [binderGUID={2:X}]", client.IP, client.Port, guid)
 
-            If WORLD_CREATUREs.ContainsKey(guid) = False Then Exit Sub
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(guid) = False Then Exit Sub
 
             client.Character.SendGossipComplete()
 
             Dim spellTargets As New SpellTargets
             spellTargets.SetTarget_UNIT(client.Character)
-            Dim castParams As New CastSpellParameters(spellTargets, WORLD_CREATUREs(guid), 3286, True)
+            Dim castParams As New CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), 3286, True)
             ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
         End Sub
 
@@ -1002,7 +1002,7 @@ Namespace Objects
                 packet.GetInt16()
                 Dim guid As ULong = packet.GetPackGuid
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_TALENT_WIPE_CONFIRM [GUID={2:X}]", client.IP, client.Port, guid)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_TALENT_WIPE_CONFIRM [GUID={2:X}]", client.IP, client.Port, guid)
                 If client.Character.Level < 10 Then Exit Sub
 
                 'DONE: Removing all talents
@@ -1055,7 +1055,7 @@ Namespace Objects
                 End Try
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error unlearning talents: {0}{1}", Environment.NewLine, e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error unlearning talents: {0}{1}", Environment.NewLine, e.ToString)
             End Try
         End Sub
 
@@ -1077,7 +1077,7 @@ Namespace Objects
 
                 objCharacter.TalkMenuTypes.Clear()
 
-                Dim creatureInfo As CreatureInfo = WORLD_CREATUREs(cGuid).CreatureInfo
+                Dim creatureInfo As CreatureInfo = _WorldServer.WORLD_CREATUREs(cGuid).CreatureInfo
                 Try
                     If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_VENDOR) OrElse (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_ARMORER) Then
                         npcMenu.AddMenu("Let me browse your goods.", MenuIcon.MENUICON_VENDOR)
@@ -1202,17 +1202,17 @@ Namespace Objects
                         objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_STABLEPET)
                     End If
 
-                    If textID = 0 Then textID = WORLD_CREATUREs(cGuid).NPCTextID
+                    If textID = 0 Then textID = _WorldServer.WORLD_CREATUREs(cGuid).NPCTextID
 
                     If (creatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_QUESTGIVER) = NPCFlags.UNIT_NPC_FLAG_QUESTGIVER Then
 
-                        Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(objCharacter, cGuid)
+                        Dim qMenu As QuestMenu = _WorldServer.ALLQUESTS.GetQuestMenu(objCharacter, cGuid)
                         If qMenu.IDs.Count = 0 AndAlso npcMenu.Menus.Count = 0 Then Exit Sub
 
                         If npcMenu.Menus.Count = 0 Then ' If we only have quests to list
                             If qMenu.IDs.Count = 1 Then ' If we only have one quest to list, we direct the client directly to it
                                 Dim questID As Integer = qMenu.IDs(0)
-                                If Not ALLQUESTS.IsValidQuest(questID) Then
+                                If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                                     'TODO: Another chunk that doesn't do anything but should
                                     Dim tmpQuest As New WS_QuestInfo(questID)
                                 End If
@@ -1221,17 +1221,17 @@ Namespace Objects
                                     For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                                         If objCharacter.TalkQuests(i) IsNot Nothing AndAlso objCharacter.TalkQuests(i).ID = questID Then
                                             'Load quest data
-                                            objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                                            ALLQUESTS.SendQuestRequireItems(objCharacter.client, objCharacter.TalkCurrentQuest, cGuid, objCharacter.TalkQuests(i))
+                                            objCharacter.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
+                                            _WorldServer.ALLQUESTS.SendQuestRequireItems(objCharacter.client, objCharacter.TalkCurrentQuest, cGuid, objCharacter.TalkQuests(i))
                                             Exit For
                                         End If
                                     Next
                                 Else
-                                    objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                                    ALLQUESTS.SendQuestDetails(objCharacter.client, objCharacter.TalkCurrentQuest, cGuid, True)
+                                    objCharacter.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
+                                    _WorldServer.ALLQUESTS.SendQuestDetails(objCharacter.client, objCharacter.TalkCurrentQuest, cGuid, True)
                                 End If
                             Else ' There were more than one quest to list
-                                ALLQUESTS.SendQuestMenu(objCharacter, cGuid, "I have some tasks for you, $N.", qMenu)
+                                _WorldServer.ALLQUESTS.SendQuestMenu(objCharacter, cGuid, "I have some tasks for you, $N.", qMenu)
                             End If
                         Else ' We have to list both gossip options and quests
                             objCharacter.SendGossip(cGuid, textID, npcMenu, qMenu)
@@ -1286,11 +1286,11 @@ Namespace Objects
                     Case Gossip_Option.GOSSIP_OPTION_TALENTWIPE
                         SendTalentWipeConfirm(objCharacter, 0)
                     Case Gossip_Option.GOSSIP_OPTION_GOSSIP
-                        objCharacter.SendTalking(WORLD_CREATUREs(cGUID).NPCTextID)
+                        objCharacter.SendTalking(_WorldServer.WORLD_CREATUREs(cGUID).NPCTextID)
                     Case Gossip_Option.GOSSIP_OPTION_QUESTGIVER
                         'NOTE: This may stay unused
-                        Dim qMenu As QuestMenu = ALLQUESTS.GetQuestMenu(objCharacter, cGUID)
-                        ALLQUESTS.SendQuestMenu(objCharacter, cGUID, "I have some tasks for you, $N.", qMenu)
+                        Dim qMenu As QuestMenu = _WorldServer.ALLQUESTS.GetQuestMenu(objCharacter, cGUID)
+                        _WorldServer.ALLQUESTS.SendQuestMenu(objCharacter, cGUID, "I have some tasks for you, $N.", qMenu)
                 End Select
                 ''c.SendGossipComplete()
             End Sub

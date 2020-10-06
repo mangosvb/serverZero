@@ -96,11 +96,11 @@ Namespace Handlers
                 ElseIf Not Command.CommandDelegate(client.Character, Arguments) Then
                     client.Character.CommandResponse(Command.CommandHelp)
                 Else
-                    Log.WriteLine(LogType.USER, "[{0}:{1}] {2} used command: {3}", client.IP, client.Port, Name, Message)
+                    _WorldServer.Log.WriteLine(LogType.USER, "[{0}:{1}] {2} used command: {3}", client.IP, client.Port, Name, Message)
                 End If
 
             Catch err As Exception
-                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Client command caused error! {3}{2}", client.IP, client.Port, err.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Client command caused error! {3}{2}", client.IP, client.Port, err.ToString, Environment.NewLine)
                 client.Character.CommandResponse(String.Format("Your command caused error:" & Environment.NewLine & " [{0}]", err.Message))
             End Try
         End Sub
@@ -137,22 +137,22 @@ Namespace Handlers
             Dim SpellID As Integer = tmp(0)
             Dim Target As String = _CommonFunctions.UppercaseFirstLetter(tmp(1))
 
-            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 Select Case Target
                     Case "ME"
-                        WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, objCharacter)
+                        _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, objCharacter)
                     Case "SELF"
-                        WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, WORLD_CREATUREs(objCharacter.TargetGUID))
+                        _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID))
                 End Select
-            ElseIf _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Select Case Target
                     Case "ME"
                         Dim Targets As New WS_Spells.SpellTargets
                         Targets.SetTarget_UNIT(objCharacter)
-                        Dim castParams As New CastSpellParameters(Targets, CHARACTERs(objCharacter.TargetGUID), SpellID)
+                        Dim castParams As New CastSpellParameters(Targets, _WorldServer.CHARACTERs(objCharacter.TargetGUID), SpellID)
                         ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
                     Case "SELF"
-                        CHARACTERs(objCharacter.TargetGUID).CastOnSelf(SpellID)
+                        _WorldServer.CHARACTERs(objCharacter.TargetGUID).CastOnSelf(SpellID)
                 End Select
             Else
                 objCharacter.CommandResponse(String.Format("GUID=[{0:X}] not found or unsupported.", objCharacter.TargetGUID))
@@ -190,16 +190,16 @@ Namespace Handlers
                 Return True
             End If
 
-            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                 packet1.AddPackGUID(objCharacter.TargetGUID)
                 packet1.AddInt8(0)
-                CHARACTERs(objCharacter.TargetGUID).client.Send(packet1)
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).client.Send(packet1)
                 packet1.Dispose()
 
-                objCharacter.MindControl = CHARACTERs(objCharacter.TargetGUID)
-            ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
-                objCharacter.MindControl = WORLD_CREATUREs(objCharacter.TargetGUID)
+                objCharacter.MindControl = _WorldServer.CHARACTERs(objCharacter.TargetGUID)
+            ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+                objCharacter.MindControl = _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID)
             Else
                 objCharacter.CommandResponse("You need a target.")
                 Return True
@@ -229,7 +229,7 @@ Namespace Handlers
             'Dim GuildName As String = Message
 
             'Dim MySQLQuery As New DataTable
-            'CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES ('{0}', {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = '{0}';", GuildName, objCharacter.GUID, Now.Year, Now.Month, Now.Day), MySQLQuery)
+            '_WorldServer.CharacterDatabase.Query(String.Format("INSERT INTO guilds (guild_name, guild_leader, guild_cYear, guild_cMonth, guild_cDay) VALUES ('{0}', {1}, {2}, {3}, {4}); SELECT guild_id FROM guilds WHERE guild_name = '{0}';", GuildName, objCharacter.GUID, Now.Year, Now.Month, Now.Day), MySQLQuery)
 
             'AddCharacterToGuild(objCharacter, MySQLQuery.Rows(0).Item("guild_id"), 0)
             Return True
@@ -241,20 +241,20 @@ Namespace Handlers
             Dim tmp As String() = Split(Message, " ", 2)
             Dim SpellID As Integer = tmp(0)
 
-            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim Targets As New SpellTargets
-                Targets.SetTarget_UNIT(WORLD_CREATUREs(objCharacter.TargetGUID))
+                Targets.SetTarget_UNIT(_WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID))
                 Dim castParams As New CastSpellParameters(Targets, objCharacter, SpellID)
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
 
-                objCharacter.CommandResponse("You are now casting [" & SpellID & "] at [" & WORLD_CREATUREs(objCharacter.TargetGUID).Name & "].")
-            ElseIf _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                objCharacter.CommandResponse("You are now casting [" & SpellID & "] at [" & _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).Name & "].")
+            ElseIf _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim Targets As New SpellTargets
-                Targets.SetTarget_UNIT(CHARACTERs(objCharacter.TargetGUID))
+                Targets.SetTarget_UNIT(_WorldServer.CHARACTERs(objCharacter.TargetGUID))
                 Dim castParams As New CastSpellParameters(Targets, objCharacter, SpellID)
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
 
-                objCharacter.CommandResponse("You are now casting [" & SpellID & "] at [" & CHARACTERs(objCharacter.TargetGUID).Name & "].")
+                objCharacter.CommandResponse("You are now casting [" & SpellID & "] at [" & _WorldServer.CHARACTERs(objCharacter.TargetGUID).Name & "].")
             Else
                 objCharacter.CommandResponse(String.Format("GUID=[{0:X}] not found or unsupported.", objCharacter.TargetGUID))
             End If
@@ -266,8 +266,8 @@ Namespace Handlers
         <ChatCommand("save", "save - Saves selected character.", AccessLevel.Developer)>
         Public Function cmdSave(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).Save()
-                CHARACTERs(objCharacter.TargetGUID).CommandResponse(String.Format("Character {0} saved.", CHARACTERs(objCharacter.TargetGUID).Name))
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).Save()
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).CommandResponse(String.Format("Character {0} saved.", _WorldServer.CHARACTERs(objCharacter.TargetGUID).Name))
             Else
                 objCharacter.Save()
                 objCharacter.CommandResponse(String.Format("Character {0} saved.", objCharacter.Name))
@@ -281,8 +281,8 @@ Namespace Handlers
         Public Function cmdSpawns(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             objCharacter.CommandResponse("Spawns loaded in server memory:")
             objCharacter.CommandResponse("-------------------------------")
-            objCharacter.CommandResponse("Creatures: " & WORLD_CREATUREs.Count)
-            objCharacter.CommandResponse("GameObjects: " & WORLD_GAMEOBJECTs.Count)
+            objCharacter.CommandResponse("Creatures: " & _WorldServer.WORLD_CREATUREs.Count)
+            objCharacter.CommandResponse("GameObjects: " & _WorldServer.WORLD_GAMEOBJECTs.Count)
 
             Return True
         End Function
@@ -324,15 +324,15 @@ Namespace Handlers
                 objCharacter.CommandResponse("Select target first!")
                 Exit Function
             End If
-            If Not WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+            If Not _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 objCharacter.CommandResponse("Selected target is not creature!")
                 Exit Function
             End If
 
-            If WORLD_CREATUREs(objCharacter.TargetGUID).aiScript Is Nothing Then
+            If _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).aiScript Is Nothing Then
                 objCharacter.CommandResponse("This creature doesn't have AI")
             Else
-                With WORLD_CREATUREs(objCharacter.TargetGUID)
+                With _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID)
                     objCharacter.CommandResponse(String.Format("Information for creature [{0}]:{1}ai = {2}{1}state = {3}{1}maxdist = {4}", .Name, Environment.NewLine, .aiScript.ToString, .aiScript.State.ToString, .MaxDistance))
                     objCharacter.CommandResponse("Hate table:")
                     For Each u As KeyValuePair(Of WS_Base.BaseUnit, Integer) In .aiScript.aiHateTable
@@ -363,7 +363,7 @@ Namespace Handlers
             packet.AddString(Text)
 
             packet.UpdateLength()
-            ClsWorldServer.Cluster.Broadcast(packet.Data)
+            _WorldServer.ClsWorldServer.Cluster.Broadcast(packet.Data)
             packet.Dispose()
 
             Return True
@@ -378,7 +378,7 @@ Namespace Handlers
             packet.AddString(Text)
 
             packet.UpdateLength()
-            ClsWorldServer.Cluster.Broadcast(packet.Data)
+            _WorldServer.ClsWorldServer.Cluster.Broadcast(packet.Data)
             packet.Dispose()
 
             Return True
@@ -391,7 +391,7 @@ Namespace Handlers
             If objCharacter.TargetGUID = 0 Then Return False
 
             If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
-                WORLD_CREATUREs(objCharacter.TargetGUID).SendChatMessage(Message, ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL, objCharacter.GUID)
+                _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).SendChatMessage(Message, ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL, objCharacter.GUID)
             Else
                 Return False
             End If
@@ -402,9 +402,9 @@ Namespace Handlers
         'ResetFactions Command
         <ChatCommand("resetfactions", "resetfactions - Resets character reputation standings.", AccessLevel.Admin)>
         Public Function cmdResetFactions(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
-            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                InitializeReputations(CHARACTERs(objCharacter.TargetGUID))
-                CHARACTERs(objCharacter.TargetGUID).SaveCharacter()
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                InitializeReputations(_WorldServer.CHARACTERs(objCharacter.TargetGUID))
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SaveCharacter()
             Else
                 InitializeReputations(objCharacter)
                 objCharacter.SaveCharacter()
@@ -436,12 +436,12 @@ Namespace Handlers
             If Level > DEFAULT_MAX_LEVEL Then Level = DEFAULT_MAX_LEVEL
             If Level > 60 Then Level = 60
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) = False Then
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) = False Then
                 objCharacter.CommandResponse("Target not found or not character.")
                 Return True
             End If
 
-            CHARACTERs(objCharacter.TargetGUID).SetLevel(Level)
+            _WorldServer.CHARACTERs(objCharacter.TargetGUID).SetLevel(Level)
 
             Return True
         End Function
@@ -453,8 +453,8 @@ Namespace Handlers
 
             Dim XP As Integer = tXP
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).AddXP(XP, 0, 0, True)
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).AddXP(XP, 0, 0, True)
             Else
                 objCharacter.CommandResponse("Target not found or not character.")
             End If
@@ -469,13 +469,13 @@ Namespace Handlers
 
             Dim XP As Integer = tXP
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).RestBonus += XP
-                CHARACTERs(objCharacter.TargetGUID).RestState = XPSTATE.Rested
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).RestBonus += XP
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).RestState = XPSTATE.Rested
 
-                CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_REST_STATE_EXPERIENCE, CHARACTERs(objCharacter.TargetGUID).RestBonus)
-                CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_BYTES_2, CHARACTERs(objCharacter.TargetGUID).cPlayerBytes2)
-                CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate()
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_REST_STATE_EXPERIENCE, _WorldServer.CHARACTERs(objCharacter.TargetGUID).RestBonus)
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_BYTES_2, _WorldServer.CHARACTERs(objCharacter.TargetGUID).cPlayerBytes2)
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate()
             Else
                 objCharacter.CommandResponse("Target not found or not character.")
             End If
@@ -490,10 +490,10 @@ Namespace Handlers
 
         '    Dim Honor As Integer = tHONOR
 
-        '    If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-        '        CHARACTERs(objCharacter.TargetGUID).HonorPoints += Honor
-        '        'CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, CHARACTERs(objCharacter.TargetGUID).HonorCurrency)
-        '        CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate(False)
+        '    If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+        '        _WorldServer.CHARACTERs(objCharacter.TargetGUID).HonorPoints += Honor
+        '        '_WorldServer.CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, _WorldServer.CHARACTERs(objCharacter.TargetGUID).HonorCurrency)
+        '        _WorldServer.CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate(False)
         '    Else
         '        objCharacter.CommandResponse("Target not found or not character.")
         '    End If
@@ -518,7 +518,7 @@ Namespace Handlers
         Public Function cmdCombatList(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             Dim combatList() As ULong = {}
             If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
-                combatList = CHARACTERs(objCharacter.TargetGUID).inCombatWith.ToArray()
+                combatList = _WorldServer.CHARACTERs(objCharacter.TargetGUID).inCombatWith.ToArray()
             Else
                 combatList = objCharacter.inCombatWith.ToArray()
             End If
@@ -536,9 +536,9 @@ Namespace Handlers
         Public Function cmdCooldownList(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             Dim targetUnit As BaseUnit = Nothing
             If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
-                If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = CHARACTERs(objCharacter.TargetGUID)
+                If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = _WorldServer.CHARACTERs(objCharacter.TargetGUID)
             ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
-                If WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = WORLD_CREATUREs(objCharacter.TargetGUID)
+                If _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID)
             End If
             If targetUnit Is Nothing Then
                 targetUnit = objCharacter
@@ -575,9 +575,9 @@ Namespace Handlers
         Public Function cmdClearCooldowns(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             Dim targetUnit As BaseUnit = Nothing
             If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
-                If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = CHARACTERs(objCharacter.TargetGUID)
+                If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = _WorldServer.CHARACTERs(objCharacter.TargetGUID)
             ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
-                If WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = WORLD_CREATUREs(objCharacter.TargetGUID)
+                If _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID)
             End If
             If targetUnit Is Nothing Then
                 targetUnit = objCharacter
@@ -590,7 +590,7 @@ Namespace Handlers
                     If Spell.Value.Cooldown > 0UI Then
                         Spell.Value.Cooldown = 0UI
                         Spell.Value.CooldownItem = 0UI
-                        CharacterDatabase.Update(String.Format("UPDATE characters_spells SET cooldown={2}, cooldownitem={3} WHERE guid = {0} AND spellid = {1};", objCharacter.GUID, Spell.Key, 0, 0))
+                        _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_spells SET cooldown={2}, cooldownitem={3} WHERE guid = {0} AND spellid = {1};", objCharacter.GUID, Spell.Key, 0, 0))
                         cooldownSpells.Add(Spell.Key)
                     End If
                 Next
@@ -613,8 +613,8 @@ Namespace Handlers
         '    <ChatCommand("StartCheck", "STARTCHECK - Initialize Warden anti-cheat engine for selected character.", AccessLevel.Developer)>
         '    Public Function cmdStartCheck(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '#If WARDEN Then
-        '        If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-        '            MaievInit(CHARACTERs(objCharacter.TargetGUID))
+        '        If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+        '            MaievInit(_WorldServer.CHARACTERs(objCharacter.TargetGUID))
         '        Else
         '            objCharacter.CommandResponse("No player target selected.")
         '        End If
@@ -628,8 +628,8 @@ Namespace Handlers
         '    <ChatCommand("SendCheck", "SENDCHECK - Sends a Warden anti-cheat check packet to the selected character.", AccessLevel.Developer)>
         '    Public Function cmdSendCheck(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '#If WARDEN Then
-        '        If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-        '            MaievSendCheck(CHARACTERs(objCharacter.TargetGUID))
+        '        If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+        '            MaievSendCheck(_WorldServer.CHARACTERs(objCharacter.TargetGUID))
         '        Else
         '            objCharacter.CommandResponse("No player target selected.")
         '        End If
@@ -649,13 +649,13 @@ Namespace Handlers
             Dim id As Integer = tmp(0)
             Dim Count As Integer = 1
             If tmp.Length = 2 Then Count = tmp(1)
-            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim newItem As New ItemObject(id, objCharacter.TargetGUID) With {
                         .StackCount = Count
                         }
 
-                If CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
-                    CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, Count, True, False)
+                If _WorldServer.CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
+                    _WorldServer.CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, Count, True, False)
                 Else
                     newItem.Delete()
                 End If
@@ -683,14 +683,14 @@ Namespace Handlers
             Dim id As Integer = tmp(0)
 
             If ItemSet.ContainsKey(id) Then
-                If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                     For Each item As Integer In ItemSet(id).ItemID
                         Dim newItem As New ItemObject(item, objCharacter.TargetGUID) With {
                                 .StackCount = 1
                                 }
 
-                        If CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
-                            CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, 1, False, True)
+                        If _WorldServer.CHARACTERs(objCharacter.TargetGUID).ItemADD(newItem) Then
+                            _WorldServer.CHARACTERs(objCharacter.TargetGUID).LogLootItem(newItem, 1, False, True)
                         Else
                             newItem.Delete()
                         End If
@@ -739,7 +739,7 @@ Namespace Handlers
         Public Function cmdLearnSkill(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             If Message = "" Then Return False
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim tmp() As String
                 tmp = Split(Trim(Message), " ")
 
@@ -747,15 +747,15 @@ Namespace Handlers
                 Dim Current As Short = tmp(1)
                 Dim Maximum As Short = tmp(2)
 
-                If CHARACTERs(objCharacter.TargetGUID).Skills.ContainsKey(SkillID) Then
-                    CType(CHARACTERs(objCharacter.TargetGUID).Skills(SkillID), TSkill).Base = Maximum
-                    CType(CHARACTERs(objCharacter.TargetGUID).Skills(SkillID), TSkill).Current = Current
+                If _WorldServer.CHARACTERs(objCharacter.TargetGUID).Skills.ContainsKey(SkillID) Then
+                    CType(_WorldServer.CHARACTERs(objCharacter.TargetGUID).Skills(SkillID), TSkill).Base = Maximum
+                    CType(_WorldServer.CHARACTERs(objCharacter.TargetGUID).Skills(SkillID), TSkill).Current = Current
                 Else
-                    CHARACTERs(objCharacter.TargetGUID).LearnSkill(SkillID, Current, Maximum)
+                    _WorldServer.CHARACTERs(objCharacter.TargetGUID).LearnSkill(SkillID, Current, Maximum)
                 End If
 
-                CHARACTERs(objCharacter.TargetGUID).FillAllUpdateFlags()
-                CHARACTERs(objCharacter.TargetGUID).SendUpdate()
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).FillAllUpdateFlags()
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SendUpdate()
             Else
                 objCharacter.CommandResponse("Target not found or not character.")
             End If
@@ -775,12 +775,12 @@ Namespace Handlers
                 Exit Function
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).LearnSpell(ID)
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).LearnSpell(ID)
                 If objCharacter.TargetGUID = objCharacter.GUID Then
                     objCharacter.CommandResponse("You learned spell: " & ID)
                 Else
-                    objCharacter.CommandResponse(CHARACTERs(objCharacter.TargetGUID).Name & " has learned spell: " & ID)
+                    objCharacter.CommandResponse(_WorldServer.CHARACTERs(objCharacter.TargetGUID).Name & " has learned spell: " & ID)
                 End If
             Else
                 objCharacter.CommandResponse("Target not found or not character.")
@@ -796,12 +796,12 @@ Namespace Handlers
 
             Dim ID As Integer = tID
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).UnLearnSpell(ID)
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).UnLearnSpell(ID)
                 If objCharacter.TargetGUID = objCharacter.GUID Then
                     objCharacter.CommandResponse("You unlearned spell: " & ID)
                 Else
-                    objCharacter.CommandResponse(CHARACTERs(objCharacter.TargetGUID).Name & " has unlearned spell: " & ID)
+                    objCharacter.CommandResponse(_WorldServer.CHARACTERs(objCharacter.TargetGUID).Name & " has unlearned spell: " & ID)
                 End If
             Else
                 objCharacter.CommandResponse("Target not found or not character.")
@@ -879,10 +879,10 @@ Namespace Handlers
                 Return True
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).Life.Current -= CHARACTERs(objCharacter.TargetGUID).Life.Maximum * 0.1
-                CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CHARACTERs(objCharacter.TargetGUID).Life.Current)
-                CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate()
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).Life.Current -= _WorldServer.CHARACTERs(objCharacter.TargetGUID).Life.Maximum * 0.1
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, _WorldServer.CHARACTERs(objCharacter.TargetGUID).Life.Current)
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SendCharacterUpdate()
                 Return True
             End If
 
@@ -897,8 +897,8 @@ Namespace Handlers
                 Return True
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).SetMoveRoot()
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SetMoveRoot()
                 Return True
             End If
 
@@ -913,8 +913,8 @@ Namespace Handlers
                 Return True
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).SetMoveUnroot()
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).SetMoveUnroot()
                 Return True
             End If
 
@@ -929,8 +929,8 @@ Namespace Handlers
                 Return True
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CharacterResurrect(CHARACTERs(objCharacter.TargetGUID))
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                CharacterResurrect(_WorldServer.CHARACTERs(objCharacter.TargetGUID))
                 Return True
             End If
 
@@ -945,8 +945,8 @@ Namespace Handlers
                 Return True
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                AllGraveYards.GoToNearestGraveyard(CHARACTERs(objCharacter.TargetGUID), False, True)
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.AllGraveYards.GoToNearestGraveyard(_WorldServer.CHARACTERs(objCharacter.TargetGUID), False, True)
                 Return True
             End If
 
@@ -961,9 +961,9 @@ Namespace Handlers
                 Return True
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim Info As New DataTable
-                Dim Character As CharacterObject = CHARACTERs(objCharacter.TargetGUID)
+                Dim Character As CharacterObject = _WorldServer.CHARACTERs(objCharacter.TargetGUID)
                 Dim Race As Races
 
                 Select Case _CommonFunctions.UppercaseFirstLetter(StringRace)
@@ -988,7 +988,7 @@ Namespace Handlers
                         Return True
                 End Select
 
-                WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0};", CType(Race, Integer)), Info)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0};", CType(Race, Integer)), Info)
                 Character.Teleport(Info.Rows(0).Item("position_x"), Info.Rows(0).Item("position_y"), Info.Rows(0).Item("position_z"), Info.Rows(0).Item("orientation"), Info.Rows(0).Item("map"))
                 Return True
             End If
@@ -1000,12 +1000,12 @@ Namespace Handlers
         <ChatCommand("summon", "summon #name - Instantly teleports the player to you.", AccessLevel.GameMaster)>
         Public Function cmdSummon(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
             Dim GUID As ULong = GetGUID(CapitalizeName(Name))
-            If CHARACTERs.ContainsKey(GUID) Then
+            If _WorldServer.CHARACTERs.ContainsKey(GUID) Then
                 If objCharacter.OnTransport IsNot Nothing Then
-                    CType(CHARACTERs(GUID), CharacterObject).OnTransport = objCharacter.OnTransport
-                    CHARACTERs(GUID).Transfer(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
+                    CType(_WorldServer.CHARACTERs(GUID), CharacterObject).OnTransport = objCharacter.OnTransport
+                    _WorldServer.CHARACTERs(GUID).Transfer(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
                 Else
-                    CHARACTERs(GUID).Teleport(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
+                    _WorldServer.CHARACTERs(GUID).Teleport(objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ, objCharacter.orientation, objCharacter.MapID)
                 End If
                 Return True
             Else
@@ -1018,8 +1018,8 @@ Namespace Handlers
         <ChatCommand("appear", "appear #name - Instantly teleports you to the player.", AccessLevel.GameMaster)>
         Public Function cmdAppear(ByRef objCharacter As CharacterObject, ByVal Name As String) As Boolean
             Dim GUID As ULong = GetGUID(CapitalizeName(Name))
-            If CHARACTERs.ContainsKey(GUID) Then
-                With CHARACTERs(GUID)
+            If _WorldServer.CHARACTERs.ContainsKey(GUID) Then
+                With _WorldServer.CHARACTERs(GUID)
                     If .OnTransport IsNot Nothing Then
                         objCharacter.OnTransport = .OnTransport
                         objCharacter.Transfer(.positionX, .positionY, .positionZ, .orientation, .MapID)
@@ -1037,14 +1037,14 @@ Namespace Handlers
         '    <ChatCommand("VmapTest", "VMAPTEST - Tests VMAP functionality.", AccessLevel.Developer)>
         '    Public Function cmdVmapTest(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '#If VMAPS Then
-        '        If Config.VMapsEnabled Then
+        '        If _WorldServer.Config.VMapsEnabled Then
         '            Dim target As BaseUnit = Nothing
         '            If objCharacter.TargetGUID > 0 Then
-        '                If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-        '                    target = CHARACTERs(objCharacter.TargetGUID)
-        '                ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
-        '                    target = WORLD_CREATUREs(objCharacter.TargetGUID)
-        '                    WORLD_CREATUREs(objCharacter.TargetGUID).SetToRealPosition()
+        '                If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+        '                    target = _WorldServer.CHARACTERs(objCharacter.TargetGUID)
+        '                ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+        '                    target = _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID)
+        '                    _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).SetToRealPosition()
         '                End If
         '            End If
 
@@ -1082,16 +1082,16 @@ Namespace Handlers
         '    <ChatCommand("VmapTest2", "VMAPTEST2 - Tests VMAP functionality.", AccessLevel.Developer)>
         '    Public Function cmdVmapTest2(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '#If VMAPS Then
-        '        If Config.VMapsEnabled Then
-        '            If objCharacter.TargetGUID = 0UL OrElse _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) = False OrElse WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) = False Then
+        '        If _WorldServer.Config.VMapsEnabled Then
+        '            If objCharacter.TargetGUID = 0UL OrElse _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) = False OrElse _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) = False Then
         '                objCharacter.CommandResponse("You must target a creature first.")
         '            Else
-        '                WORLD_CREATUREs(objCharacter.TargetGUID).SetToRealPosition()
+        '                _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).SetToRealPosition()
 
         '                Dim resX As Single = 0.0F
         '                Dim resY As Single = 0.0F
         '                Dim resZ As Single = 0.0F
-        '                Dim result As Boolean = GetObjectHitPos(objCharacter, WORLD_CREATUREs(objCharacter.TargetGUID), resX, resY, resZ, -1.0F)
+        '                Dim result As Boolean = GetObjectHitPos(objCharacter, _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID), resX, resY, resZ, -1.0F)
 
         '                If result = False Then
         '                    objCharacter.CommandResponse("You teleported without any problems.")
@@ -1099,7 +1099,7 @@ Namespace Handlers
         '                    objCharacter.CommandResponse("You teleported by hitting something.")
         '                End If
 
-        '                objCharacter.orientation = GetOrientation(objCharacter.positionX, WORLD_CREATUREs(objCharacter.TargetGUID).positionX, objCharacter.positionY, WORLD_CREATUREs(objCharacter.TargetGUID).positionY)
+        '                objCharacter.orientation = GetOrientation(objCharacter.positionX, _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).positionX, objCharacter.positionY, _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).positionY)
         '                resZ = GetVMapHeight(objCharacter.MapID, resX, resY, resZ + 2.0F)
         '                objCharacter.Teleport(resX, resY, resZ, objCharacter.orientation, objCharacter.MapID)
         '            End If
@@ -1161,10 +1161,10 @@ Namespace Handlers
         <ChatCommand("los", "los #on/off - Enables/Disables line of sight calculation.", AccessLevel.Developer)>
         Public Function cmdLineOfSight(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             If Message.ToUpper = "on" Then
-                Config.LineOfSightEnabled = True
+                _WorldServer.Config.LineOfSightEnabled = True
                 objCharacter.CommandResponse("Line of Sight Calculation is now Enabled.")
             ElseIf Message.ToUpper = "on" Then
-                Config.LineOfSightEnabled = False
+                _WorldServer.Config.LineOfSightEnabled = False
                 objCharacter.CommandResponse("Line of Sight Calculation is now Disabled.")
             Else
                 Return False
@@ -1230,7 +1230,7 @@ Namespace Handlers
                 Dim cmdList As String = "Listing of available locations:" & Environment.NewLine
 
                 Dim listSqlQuery As New DataTable
-                WorldDatabase.Query("SELECT * FROM game_tele order by name", listSqlQuery)
+                _WorldServer.WorldDatabase.Query("SELECT * FROM game_tele order by name", listSqlQuery)
 
                 For Each locationRow As DataRow In listSqlQuery.Rows
                     cmdList += locationRow.Item("name") & ", "
@@ -1245,9 +1245,9 @@ Namespace Handlers
             Dim mySqlQuery As New DataTable
             If location.Contains("*") Then
                 location = location.Replace("*", "")
-                WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name like '{0}%' order by name;", location), mySqlQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name like '{0}%' order by name;", location), mySqlQuery)
             Else
-                WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name = '{0}' order by name LIMIT 1;", location), mySqlQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM game_tele WHERE name = '{0}' order by name LIMIT 1;", location), mySqlQuery)
             End If
             If mySqlQuery.Rows.Count > 0 Then
                 If mySqlQuery.Rows.Count = 1 Then
@@ -1281,11 +1281,11 @@ Namespace Handlers
                 'DONE: Kick by selection
                 If objCharacter.TargetGUID = 0 Then
                     objCharacter.CommandResponse("No target selected.")
-                ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                ElseIf _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                     'DONE: Kick gracefully
-                    objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", CHARACTERs(objCharacter.TargetGUID).Name))
-                    Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, CHARACTERs(objCharacter.TargetGUID).Name)
-                    CHARACTERs(objCharacter.TargetGUID).Logout()
+                    objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", _WorldServer.CHARACTERs(objCharacter.TargetGUID).Name))
+                    _WorldServer.Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, _WorldServer.CHARACTERs(objCharacter.TargetGUID).Name)
+                    _WorldServer.CHARACTERs(objCharacter.TargetGUID).Logout()
                 Else
                     objCharacter.CommandResponse(String.Format("Character GUID=[{0}] not found.", objCharacter.TargetGUID))
                 End If
@@ -1293,18 +1293,18 @@ Namespace Handlers
             Else
 
                 'DONE: Kick by name
-                CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                For Each Character As KeyValuePair(Of ULong, CharacterObject) In _WorldServer.CHARACTERs
                     If _CommonFunctions.UppercaseFirstLetter(Character.Value.Name) = Name Then
-                        CHARACTERs_Lock.ReleaseReaderLock()
+                        _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
                         'DONE: Kick gracefully
                         Character.Value.Logout()
                         objCharacter.CommandResponse(String.Format("Character [{0}] kicked form server.", Character.Value.Name))
-                        Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, Name)
+                        _WorldServer.Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Character [{3}] kicked by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.client.Character.Name, Name)
                         Return True
                     End If
                 Next
-                CHARACTERs_Lock.ReleaseReaderLock()
+                _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
                 objCharacter.CommandResponse(String.Format("Character [{0:X}] not found.", Name))
 
             End If
@@ -1317,8 +1317,8 @@ Namespace Handlers
         Public Function cmdForceRename(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             If objCharacter.TargetGUID = 0 Then
                 objCharacter.CommandResponse("No target selected.")
-            ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CharacterDatabase.Update(String.Format("UPDATE characters SET force_restrictions = 1 WHERE char_guid = {0};", objCharacter.TargetGUID))
+            ElseIf _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters SET force_restrictions = 1 WHERE char_guid = {0};", objCharacter.TargetGUID))
                 objCharacter.CommandResponse("Player will be asked to change his name on next logon.")
             Else
                 objCharacter.CommandResponse(String.Format("Character GUID=[{0:X}] not found.", objCharacter.TargetGUID))
@@ -1333,8 +1333,8 @@ Namespace Handlers
         Public Function cmdBanChar(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             If objCharacter.TargetGUID = 0 Then
                 objCharacter.CommandResponse("No target selected.")
-            ElseIf CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CharacterDatabase.Update(String.Format("UPDATE characters SET force_restrictions = 2 WHERE char_guid = {0};", objCharacter.TargetGUID))
+            ElseIf _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters SET force_restrictions = 2 WHERE char_guid = {0};", objCharacter.TargetGUID))
                 objCharacter.CommandResponse("Character disabled.")
             Else
                 objCharacter.CommandResponse(String.Format("Character GUID=[{0:X}] not found.", objCharacter.TargetGUID))
@@ -1350,21 +1350,21 @@ Namespace Handlers
             If Name = "" Then Return False
 
             Dim account As New DataTable
-            AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
+            _WorldServer.AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
             Dim accountID As ULong = account.Rows(0).Item("id")
             Dim IP As Integer = account.Rows(0).Item("last_ip")
 
             Dim result As New DataTable
-            AccountDatabase.Query("SELECT active FROM account_banned WHERE id = " & accountID & ";", result)
+            _WorldServer.AccountDatabase.Query("SELECT active FROM account_banned WHERE id = " & accountID & ";", result)
             If result.Rows.Count > 0 Then
                 If result.Rows(0).Item("active") = 1 Then
                     objCharacter.CommandResponse(String.Format("Account [{0}] already banned.", Name))
                 Else
                     'TODO: We May Want To Allow Account and IP to be Banned Separately
-                    AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}', active = 1);", accountID, Format(Now, "yyyy-MM-dd hh:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
-                    AccountDatabase.Update(String.Format("INSERT INTO `ip_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}');", IP, Format(Now, "yyyy-MM-dd hh:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
+                    _WorldServer.AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}', active = 1);", accountID, Format(Now, "yyyy-MM-dd hh:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
+                    _WorldServer.AccountDatabase.Update(String.Format("INSERT INTO `ip_banned` VALUES ('{0}', UNIX_TIMESTAMP({1}), UNIX_TIMESTAMP({2}), '{3}', '{4}');", IP, Format(Now, "yyyy-MM-dd hh:mm:ss"), "0000-00-00 00:00:00", objCharacter.Name, "No Reason Specified."))
                     objCharacter.CommandResponse(String.Format("Account [{0}] banned.", Name))
-                    Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] banned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
+                    _WorldServer.Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] banned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
                 End If
             Else
                 objCharacter.CommandResponse(String.Format("Account [{0}] not found.", Name))
@@ -1379,21 +1379,21 @@ Namespace Handlers
             If Name = "" Then Return False
 
             Dim account As New DataTable
-            AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
+            _WorldServer.AccountDatabase.Query("SELECT id, last_ip FROM account WHERE username = """ & Name & """;", account)
             Dim accountID As ULong = account.Rows(0).Item("id")
             Dim IP As Integer = account.Rows(0).Item("last_ip")
 
             Dim result As New DataTable
-            AccountDatabase.Query("SELECT active FROM account_banned WHERE id = '" & accountID & "';", result)
+            _WorldServer.AccountDatabase.Query("SELECT active FROM account_banned WHERE id = '" & accountID & "';", result)
             If result.Rows.Count > 0 Then
                 If result.Rows(0).Item("active") = 0 Then
                     objCharacter.CommandResponse(String.Format("Account [{0}] is not banned.", Name))
                 Else
                     'TODO: Do we want to update the account_banned, ip_banned tables or DELETE the records?
-                    AccountDatabase.Update("UPDATE account_banned SET active = 0 WHERE id = '" & accountID & "';")
-                    AccountDatabase.Update(String.Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
+                    _WorldServer.AccountDatabase.Update("UPDATE account_banned SET active = 0 WHERE id = '" & accountID & "';")
+                    _WorldServer.AccountDatabase.Update(String.Format("DELETE FROM `ip_banned` WHERE `ip` = '{0}';", IP))
                     objCharacter.CommandResponse(String.Format("Account [{0}] unbanned.", Name))
-                    Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] unbanned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
+                    _WorldServer.Log.WriteLine(LogType.INFORMATION, "[{0}:{1}] Account [{3}] unbanned by [{2}].", objCharacter.client.IP.ToString, objCharacter.client.Port, objCharacter.Name, Name)
                 End If
             Else
                 objCharacter.CommandResponse(String.Format("Account [{0}] not found.", Name))
@@ -1467,22 +1467,22 @@ Namespace Handlers
 
             If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
                 'DONE: Delete creature
-                If Not WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+                If Not _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not creature!")
                     Return True
                 End If
 
-                WORLD_CREATUREs(objCharacter.TargetGUID).Destroy()
+                _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).Destroy()
                 objCharacter.CommandResponse("Creature deleted.")
 
             ElseIf _CommonGlobalFunctions.GuidIsGameObject(objCharacter.TargetGUID) Then
                 'DONE: Delete GO
-                If Not WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) Then
+                If Not _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not game object!")
                     Return True
                 End If
 
-                WORLD_GAMEOBJECTs(objCharacter.TargetGUID).Destroy(WORLD_GAMEOBJECTs(objCharacter.TargetGUID))
+                _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).Destroy(_WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID))
                 objCharacter.CommandResponse("Game object deleted.")
 
             End If
@@ -1501,21 +1501,21 @@ Namespace Handlers
 
             If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
                 'DONE: Turn creature
-                If Not WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+                If Not _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not creature!")
                     Return True
                 End If
 
-                WORLD_CREATUREs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
+                _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
 
             ElseIf _CommonGlobalFunctions.GuidIsGameObject(objCharacter.TargetGUID) Then
                 'DONE: Turn GO
-                If Not WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) Then
+                If Not _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not game object!")
                     Return True
                 End If
 
-                WORLD_GAMEOBJECTs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
+                _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
 
                 Dim q As New DataTable
                 Dim GUID As ULong = objCharacter.TargetGUID - _Global_Constants.GUID_GAMEOBJECT
@@ -1545,12 +1545,12 @@ Namespace Handlers
                 objCharacter.CommandResponse("Select target first!")
                 Return True
             End If
-            If Not WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+            If Not _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 objCharacter.CommandResponse("Selected target is not creature!")
                 Return True
             End If
 
-            Dim creature As CreatureObject = WORLD_CREATUREs(objCharacter.TargetGUID)
+            Dim creature As CreatureObject = _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID)
 
             If creature.aiScript IsNot Nothing AndAlso creature.aiScript.InCombat() Then
                 objCharacter.CommandResponse("Creature is in combat. It has to be out of combat first.")
@@ -1574,11 +1574,11 @@ Namespace Handlers
                 Return True
             End If
 
-            If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
-                CHARACTERs(objCharacter.TargetGUID).Die(objCharacter)
+            If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.CHARACTERs(objCharacter.TargetGUID).Die(objCharacter)
                 Return True
-            ElseIf WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
-                WORLD_CREATUREs(objCharacter.TargetGUID).DealDamage(WORLD_CREATUREs(objCharacter.TargetGUID).Life.Maximum)
+            ElseIf _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+                _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).DealDamage(_WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).Life.Maximum)
                 Return True
             End If
             Return False
@@ -1602,17 +1602,17 @@ Namespace Handlers
         'ActiveGameObject Command
         <ChatCommand("activatego", "activatego - Activates your targetted game object.", AccessLevel.Developer)>
         Public Function cmdActivateGameObject(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
-            If WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) = False Then Return False
+            If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) = False Then Return False
 
-            If WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State = GameObjectLootState.DOOR_CLOSED Then
-                WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State = GameObjectLootState.DOOR_OPEN
-                WORLD_GAMEOBJECTs(objCharacter.TargetGUID).SetState(GameObjectLootState.DOOR_OPEN)
+            If _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State = GameObjectLootState.DOOR_CLOSED Then
+                _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State = GameObjectLootState.DOOR_OPEN
+                _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).SetState(GameObjectLootState.DOOR_OPEN)
             Else
-                WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State = GameObjectLootState.DOOR_CLOSED
-                WORLD_GAMEOBJECTs(objCharacter.TargetGUID).SetState(GameObjectLootState.DOOR_CLOSED)
+                _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State = GameObjectLootState.DOOR_CLOSED
+                _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).SetState(GameObjectLootState.DOOR_CLOSED)
             End If
 
-            objCharacter.CommandResponse(String.Format("Activated game object [{0}] to state [{1}].", WORLD_GAMEOBJECTs(objCharacter.TargetGUID).Name, WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State))
+            objCharacter.CommandResponse(String.Format("Activated game object [{0}] to state [{1}].", _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).Name, _WorldServer.WORLD_GAMEOBJECTs(objCharacter.TargetGUID).State))
 
             Return True
         End Function
@@ -1643,7 +1643,7 @@ Namespace Handlers
             Dim aName As String = acct(0)
             Dim aPassword As String = acct(1)
             Dim aEmail As String = acct(2)
-            AccountDatabase.Query("SELECT username FROM account WHERE username = """ & aName & """;", result)
+            _WorldServer.AccountDatabase.Query("SELECT username FROM account WHERE username = """ & aName & """;", result)
             If result.Rows.Count > 0 Then
                 objCharacter.CommandResponse(String.Format("Account [{0}] already exists.", aName))
             Else
@@ -1651,7 +1651,7 @@ Namespace Handlers
                 Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                 Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                AccountDatabase.Insert(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
+                _WorldServer.AccountDatabase.Insert(String.Format("INSERT INTO account (username, sha_pass_hash, email, joindate, last_ip) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", aName, hashStr, aEmail, Format(Now, "yyyy-MM-dd"), "0.0.0.0"))
                 objCharacter.CommandResponse(String.Format("Account [{0}] has been created.", aName))
             End If
             Return True
@@ -1669,7 +1669,7 @@ Namespace Handlers
             Dim aName As String = acct(0)
             Dim aPassword As String = acct(1)
 
-            AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
+            _WorldServer.AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
             If result.Rows.Count = 0 Then
                 objCharacter.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
             Else
@@ -1681,7 +1681,7 @@ Namespace Handlers
                     Dim passwordHash() As Byte = New Security.Cryptography.SHA1Managed().ComputeHash(passwordStr)
                     Dim hashStr As String = BitConverter.ToString(passwordHash).Replace("-", "")
 
-                    AccountDatabase.Update(String.Format("UPDATE account SET password='{0}' WHERE id={1}", hashStr, result.Rows(0).Item("id")))
+                    _WorldServer.AccountDatabase.Update(String.Format("UPDATE account SET password='{0}' WHERE id={1}", hashStr, result.Rows(0).Item("id")))
                     objCharacter.CommandResponse(String.Format("Account [{0}] now has a new password [{1}].", aName, aPassword))
                 End If
             End If
@@ -1712,7 +1712,7 @@ Namespace Handlers
                 Return True
             End If
 
-            AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
+            _WorldServer.AccountDatabase.Query("SELECT id, gmlevel FROM account WHERE username = """ & aName & """;", result)
             If result.Rows.Count = 0 Then
                 objCharacter.CommandResponse(String.Format("Account [{0}] does not exist.", aName))
             Else
@@ -1720,7 +1720,7 @@ Namespace Handlers
                 If targetLevel >= objCharacter.Access Then
                     objCharacter.CommandResponse("You cannot set access levels to accounts with the same or a higher access level than yourself.")
                 Else
-                    AccountDatabase.Update(String.Format("UPDATE account SET gmlevel={0} WHERE id={1}", CByte(newLevel), result.Rows(0).Item("id")))
+                    _WorldServer.AccountDatabase.Update(String.Format("UPDATE account SET gmlevel={0} WHERE id={1}", CByte(newLevel), result.Rows(0).Item("id")))
                     objCharacter.CommandResponse(String.Format("Account [{0}] now has access level [{1}].", aName, newLevel))
                 End If
             End If
@@ -1731,7 +1731,7 @@ Namespace Handlers
 
         Public Function GetGUID(ByVal Name As String) As ULong
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = ""{0}"";", Name), MySQLQuery)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = ""{0}"";", Name), MySQLQuery)
 
             If MySQLQuery.Rows.Count > 0 Then
                 Return MySQLQuery.Rows(0).Item("char_guid")
@@ -1744,7 +1744,7 @@ Namespace Handlers
             Dim packet As PacketClass = BuildChatMessage(0, "System Message: " & Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
 
             packet.UpdateLength()
-            ClsWorldServer.Cluster.Broadcast(packet.Data)
+            _WorldServer.ClsWorldServer.Cluster.Broadcast(packet.Data)
             packet.Dispose()
         End Sub
 
@@ -1756,12 +1756,12 @@ Namespace Handlers
             UpdateData.SetUpdateFlag(Index, Value)
 
             If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
-                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
+                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
             ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
                 If GUID = client.Character.GUID Then
-                    UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CHARACTERs(GUID))
+                    UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.CHARACTERs(GUID))
                 Else
-                    UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CHARACTERs(GUID))
+                    UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.CHARACTERs(GUID))
                 End If
             End If
 

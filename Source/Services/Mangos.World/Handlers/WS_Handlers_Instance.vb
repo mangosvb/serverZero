@@ -32,7 +32,7 @@ Namespace Handlers
         Public Sub InstanceMapUpdate()
             Dim q As New DataTable
             Dim t As UInteger = GetTimestamp(Now)
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE expire < {0};", t), q)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE expire < {0};", t), q)
 
             For Each r As DataRow In q.Rows
                 If WS_Maps.Maps.ContainsKey(r.Item("map")) Then InstanceMapExpire(r.Item("map"), r.Item("instance"))
@@ -42,7 +42,7 @@ Namespace Handlers
             Dim q As New DataTable
 
             'TODO: Save instance IDs in MAP class, using current way it may happen 2 groups to be in same instance
-            CharacterDatabase.Query(String.Format("SELECT MAX(instance) FROM characters_instances WHERE map = {0};", Map), q)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT MAX(instance) FROM characters_instances WHERE map = {0};", Map), q)
             If q.Rows(0).Item(0) IsNot DBNull.Value Then
                 Return CInt(q.Rows(0).Item(0)) + 1
             Else
@@ -54,7 +54,7 @@ Namespace Handlers
             For x As Short = 0 To 63
                 For y As Short = 0 To 63
                     If WS_Maps.Maps(Map).TileUsed(x, y) = False AndAlso IO.File.Exists(String.Format("maps\{0}{1}{2}.map", Format(Map, "000"), Format(x, "00"), Format(y, "00"))) Then
-                        Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x, y, Map)
+                        _WorldServer.Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x, y, Map)
                         WS_Maps.Maps(Map).TileUsed(x, y) = True
                         WS_Maps.Maps(Map).Tiles(x, y) = New WS_Maps.TMapTile(x, y, Map)
                     End If
@@ -75,7 +75,7 @@ Namespace Handlers
                     For y As Short = 0 To 63
                         If WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
                             For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).PlayersHere.ToArray
-                                If CHARACTERs(GUID).instance = Instance Then
+                                If _WorldServer.CHARACTERs(GUID).instance = Instance Then
                                     empty = False
                                     Exit For
                                 End If
@@ -88,24 +88,24 @@ Namespace Handlers
 
                 If empty Then
                     'DONE: Delete the instance if there are no players
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_instances WHERE instance = {0} AND map = {1};", Instance, Map))
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_instances_group WHERE instance = {0} AND map = {1};", Instance, Map))
+                    _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_instances WHERE instance = {0} AND map = {1};", Instance, Map))
+                    _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_instances_group WHERE instance = {0} AND map = {1};", Instance, Map))
 
                     'DONE: Delete spawned things
                     For x As Short = 0 To 63
                         For y As Short = 0 To 63
                             If WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
                                 For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).CreaturesHere.ToArray
-                                    If WORLD_CREATUREs(GUID).instance = Instance Then WORLD_CREATUREs(GUID).Destroy()
+                                    If _WorldServer.WORLD_CREATUREs(GUID).instance = Instance Then _WorldServer.WORLD_CREATUREs(GUID).Destroy()
                                 Next
                                 For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
-                                    If WORLD_GAMEOBJECTs(GUID).instance = Instance Then WORLD_GAMEOBJECTs(GUID).Destroy(WORLD_GAMEOBJECTs(GUID))
+                                    If _WorldServer.WORLD_GAMEOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_GAMEOBJECTs(GUID).Destroy(_WorldServer.WORLD_GAMEOBJECTs(GUID))
                                 Next
                                 For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).CorpseObjectsHere.ToArray
-                                    If WORLD_CORPSEOBJECTs(GUID).instance = Instance Then WORLD_CORPSEOBJECTs(GUID).Destroy()
+                                    If _WorldServer.WORLD_CORPSEOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_CORPSEOBJECTs(GUID).Destroy()
                                 Next
                                 For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).DynamicObjectsHere.ToArray
-                                    If WORLD_DYNAMICOBJECTs(GUID).instance = Instance Then WORLD_DYNAMICOBJECTs(GUID).Delete()
+                                    If _WorldServer.WORLD_DYNAMICOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_DYNAMICOBJECTs(GUID).Delete()
                                 Next
                             End If
 
@@ -113,18 +113,18 @@ Namespace Handlers
                     Next
                 Else
                     'DONE: Extend the expire time
-                    CharacterDatabase.Update(String.Format("UPDATE characters_instances SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, GetTimestamp(Now) + WS_Maps.Maps(Map).ResetTime()))
-                    CharacterDatabase.Update(String.Format("UPDATE characters_instances_group SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, GetTimestamp(Now) + WS_Maps.Maps(Map).ResetTime()))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_instances SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, GetTimestamp(Now) + WS_Maps.Maps(Map).ResetTime()))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_instances_group SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, GetTimestamp(Now) + WS_Maps.Maps(Map).ResetTime()))
 
                     'DONE: Respawn the instance if there are players
                     For x As Short = 0 To 63
                         For y As Short = 0 To 63
                             If WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
                                 For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).CreaturesHere.ToArray
-                                    If WORLD_CREATUREs(GUID).instance = Instance Then WORLD_CREATUREs(GUID).Respawn()
+                                    If _WorldServer.WORLD_CREATUREs(GUID).instance = Instance Then _WorldServer.WORLD_CREATUREs(GUID).Respawn()
                                 Next
                                 For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
-                                    If WORLD_GAMEOBJECTs(GUID).instance = Instance Then WORLD_GAMEOBJECTs(GUID).Respawn(WORLD_GAMEOBJECTs(GUID))
+                                    If _WorldServer.WORLD_GAMEOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_GAMEOBJECTs(GUID).Respawn(_WorldServer.WORLD_GAMEOBJECTs(GUID))
                                 Next
                             End If
                         Next
@@ -132,7 +132,7 @@ Namespace Handlers
                 End If
 
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error expiring map instance.{0}{1}", Environment.NewLine, ex.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error expiring map instance.{0}{1}", Environment.NewLine, ex.ToString)
             End Try
         End Sub
 
@@ -150,7 +150,7 @@ Namespace Handlers
                 Dim q As New DataTable
 
                 'DONE: Check if player is already saved to instance
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0} AND map = {1};", objCharacter.GUID, objCharacter.MapID), q)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0} AND map = {1};", objCharacter.GUID, objCharacter.MapID), q)
                 If q.Rows.Count > 0 Then
                     'Character is saved to instance
                     objCharacter.instance = q.Rows(0).Item("instance")
@@ -163,7 +163,7 @@ Namespace Handlers
 
                 'DONE: Check if group is already in instance
                 If objCharacter.IsInGroup Then
-                    CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances_group WHERE group_id = {0} AND map = {1};", objCharacter.Group.ID, objCharacter.MapID), q)
+                    _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances_group WHERE group_id = {0} AND map = {1};", objCharacter.Group.ID, objCharacter.MapID), q)
 
                     If q.Rows.Count > 0 Then
                         'Group is saved to instance
@@ -185,7 +185,7 @@ Namespace Handlers
 
                 If objCharacter.IsInGroup Then
                     'Set group in the same instance
-                    CharacterDatabase.Update(String.Format("INSERT INTO characters_instances_group (group_id, map, instance, expire) VALUES ({0}, {1}, {2}, {3});", objCharacter.Group.ID, objCharacter.MapID, instanceNewID, instanceNewResetTime))
+                    _WorldServer.CharacterDatabase.Update(String.Format("INSERT INTO characters_instances_group (group_id, map, instance, expire) VALUES ({0}, {1}, {2}, {3});", objCharacter.Group.ID, objCharacter.MapID, instanceNewID, instanceNewResetTime))
                 End If
 
                 InstanceMapSpawn(objCharacter.MapID, instanceNewID)
@@ -227,7 +227,7 @@ Namespace Handlers
         End Sub
 
         Private Sub SendUpdateInstanceOwnership(ByRef client As ClientClass, ByVal Saved As UInteger)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_INSTANCE_OWNERSHIP", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_INSTANCE_OWNERSHIP", client.IP, client.Port)
 
             'Dim p As New PacketClass(OPCODES.SMSG_UPDATE_INSTANCE_OWNERSHIP)
             'p.AddUInt32(Saved)                  'True/False if have been saved
@@ -235,7 +235,7 @@ Namespace Handlers
             'p.Dispose()
         End Sub
         Private Sub SendUpdateLastInstance(ByRef client As ClientClass, ByVal Map As UInteger)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_LAST_INSTANCE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_LAST_INSTANCE", client.IP, client.Port)
 
             'Dim p As New PacketClass(OPCODES.SMSG_UPDATE_LAST_INSTANCE)
             'p.AddUInt32(Map)
@@ -244,7 +244,7 @@ Namespace Handlers
         End Sub
         Public Sub SendInstanceSaved(ByVal Character As CharacterObject)
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", Character.GUID), q)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", Character.GUID), q)
 
             SendUpdateInstanceOwnership(Character.client, q.Rows.Count > 0)
 

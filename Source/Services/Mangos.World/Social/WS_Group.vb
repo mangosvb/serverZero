@@ -75,7 +75,7 @@ Namespace Social
             ''' <returns></returns>
             Public Sub Broadcast(ByVal p As Packets.PacketClass)
                 p.UpdateLength()
-                ClsWorldServer.Cluster.BroadcastGroup(ID, p.Data)
+                _WorldServer.ClsWorldServer.Cluster.BroadcastGroup(ID, p.Data)
             End Sub
 
             ''' <summary>
@@ -100,7 +100,7 @@ Namespace Social
                     _lastLooter = LocalMembers.Item(0)
                 End If
 
-                Return CHARACTERs(_lastLooter)
+                Return _WorldServer.CHARACTERs(_lastLooter)
             End Function
 
             ''' <summary>

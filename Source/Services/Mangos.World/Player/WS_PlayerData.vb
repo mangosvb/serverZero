@@ -196,9 +196,9 @@ Namespace Player
 
             Public ReadOnly Property GetTarget() As BaseUnit
                 Get
-                    If _CommonGlobalFunctions.GuidIsCreature(TargetGUID) Then Return WORLD_CREATUREs(TargetGUID)
-                    If _CommonGlobalFunctions.GuidIsPlayer(TargetGUID) Then Return CHARACTERs(TargetGUID)
-                    If _CommonGlobalFunctions.GuidIsPet(TargetGUID) Then Return WORLD_CREATUREs(TargetGUID)
+                    If _CommonGlobalFunctions.GuidIsCreature(TargetGUID) Then Return _WorldServer.WORLD_CREATUREs(TargetGUID)
+                    If _CommonGlobalFunctions.GuidIsPlayer(TargetGUID) Then Return _WorldServer.CHARACTERs(TargetGUID)
+                    If _CommonGlobalFunctions.GuidIsPet(TargetGUID) Then Return _WorldServer.WORLD_CREATUREs(TargetGUID)
                     Return Nothing
                 End Get
             End Property
@@ -337,8 +337,8 @@ Namespace Player
             Public AttackTimeMods() As Single = {1.0F, 1.0F, 1.0F}
 
             'Item Bonuses
-            Public ManaRegenerationModifier As Single = Config.ManaRegenerationRate
-            Public LifeRegenerationModifier As Single = Config.HealthRegenerationRate
+            Public ManaRegenerationModifier As Single = _WorldServer.Config.ManaRegenerationRate
+            Public LifeRegenerationModifier As Single = _WorldServer.Config.HealthRegenerationRate
             Public ManaRegenBonus As Integer = 0
             Public ManaRegenPercent As Single = 1
             Public ManaRegen As Integer = 0
@@ -418,7 +418,7 @@ Namespace Player
             Public DishonorKillsToday As Short = 0
 
             Public Sub HonorSaveAsNew()
-                CharacterDatabase.Update("INSERT INTO characters_honor (char_guid)  VALUES (" & GUID & ");")
+                _WorldServer.CharacterDatabase.Update("INSERT INTO characters_honor (char_guid)  VALUES (" & GUID & ");")
             End Sub
 
             'Done: Player Honor Save
@@ -435,15 +435,15 @@ Namespace Player
                 honor = honor & ", kills_dishonortoday =" & DishonorKillsToday
 
                 honor = honor + String.Format(" WHERE char_guid = ""{0}"";", GUID)
-                CharacterDatabase.Update(honor)
+                _WorldServer.CharacterDatabase.Update(honor)
             End Sub
 
             'Done: Player Honor Load
             Public Sub HonorLoad()
                 Dim MySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters_honor WHERE char_guid = {0};", GUID), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_honor WHERE char_guid = {0};", GUID), MySQLQuery)
                 If MySQLQuery.Rows.Count = 0 Then
-                    Log.WriteLine(LogType.FAILED, "Unable to get SQLDataBase honor info for character [GUID={0:X}]", GUID)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Unable to get SQLDataBase honor info for character [GUID={0:X}]", GUID)
                     Exit Sub
                 End If
 
@@ -1412,10 +1412,10 @@ Namespace Player
                 Set(ByVal Value As Boolean)
                     If Value Then
                         cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_AFK
-                        ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_AFK)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_AFK)
                     Else
                         cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_AFK)
-                        ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
                     End If
                 End Set
             End Property
@@ -1427,10 +1427,10 @@ Namespace Player
                 Set(ByVal Value As Boolean)
                     If Value Then
                         cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_DND
-                        ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_DND)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_DND)
                     Else
                         cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_DND)
-                        ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
                     End If
                 End Set
             End Property
@@ -1442,10 +1442,10 @@ Namespace Player
                 Set(ByVal Value As Boolean)
                     If Value Then
                         cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_GM
-                        ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_GM)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, ChatFlag.FLAGS_GM)
                     Else
                         cPlayerFlags = cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_GM)
-                        ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSetChatFlag(client.Index, 0)
                     End If
                 End Set
             End Property
@@ -1469,7 +1469,7 @@ Namespace Player
                     client.Send(packet)
                     packet.Dispose()
                 Next
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_MESSAGECHAT", client.IP, client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_MESSAGECHAT", client.IP, client.Port)
             End Sub
 
             Public Sub SystemMessage(ByVal Message As String)
@@ -1591,7 +1591,7 @@ Namespace Player
                 Spells.Add(SpellID, New CharacterSpell(SpellID, 1, 0, 0))
 
                 'DONE: Save it to the database
-                CharacterDatabase.Update(String.Format("INSERT INTO characters_spells (guid, spellid, active, cooldown, cooldownitem) VALUES ({0},{1},{2},{3},{4});", GUID, SpellID, 1, 0, 0))
+                _WorldServer.CharacterDatabase.Update(String.Format("INSERT INTO characters_spells (guid, spellid, active, cooldown, cooldownitem) VALUES ({0},{1},{2},{3},{4});", GUID, SpellID, 1, 0, 0))
 
                 If client Is Nothing Then Exit Sub
                 Dim SMSG_LEARNED_SPELL As New PacketClass(OPCODES.SMSG_LEARNED_SPELL)
@@ -1619,7 +1619,7 @@ Namespace Player
                             Spells(SpellChains(SpellID)).Active = 0 'NOTE: Deactivate spell, don't remove it
 
                             'DONE: Save it to the database
-                            CharacterDatabase.Update(String.Format("UPDATE characters_spells SET active = 0 WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
+                            _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_spells SET active = 0 WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
 
                             Dim packet As New PacketClass(OPCODES.SMSG_SUPERCEDED_SPELL)
                             Try
@@ -1761,7 +1761,7 @@ Namespace Player
                 Spells.Remove(SpellID)
 
                 'DONE: Save it to the database
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
+                _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
 
                 Dim SMSG_REMOVED_SPELL As New PacketClass(OPCODES.SMSG_REMOVED_SPELL)
                 Try
@@ -1823,7 +1823,7 @@ Namespace Player
                 If SkillID = 0 Then Exit Sub
                 If Skills(SkillID).Current >= Skills(SkillID).Maximum Then Exit Sub
 
-                If ((Skills(SkillID).Current / Skills(SkillID).Maximum) - SpeedMod) < Rnd.NextDouble Then
+                If ((Skills(SkillID).Current / Skills(SkillID).Maximum) - SpeedMod) < _WorldServer.Rnd.NextDouble Then
                     Skills(SkillID).Increment()
                     SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + SkillsPositions(SkillID) * 3 + 1, Skills(SkillID).GetSkill)
                     SendCharacterUpdate()
@@ -1871,7 +1871,7 @@ CheckXPAgain:
                         GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL
 
                         'DONE: Send update to cluster
-                        ClsWorldServer.Cluster.ClientUpdate(client.Index, ZoneID, Level)
+                        _WorldServer.ClsWorldServer.Cluster.ClientUpdate(client.Index, ZoneID, Level)
 
                         Dim oldLife As Integer = Life.Maximum
                         Dim oldMana As Integer = Mana.Maximum
@@ -1979,12 +1979,12 @@ CheckXPAgain:
                     End If
                     SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + srcSlot * 2, 0)
 
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                     If Destroy Then Items(srcSlot).Delete()
                     Items.Remove(srcSlot)
                     If Update Then SendCharacterUpdate()
                 Else
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                     If Destroy Then Items(srcBag).Items(srcSlot).Delete()
                     Items(srcBag).Items.Remove(srcSlot)
                     If Update Then SendItemUpdate(Items(srcBag))
@@ -1997,7 +1997,7 @@ CheckXPAgain:
                     If Items.ContainsKey(slot) Then
                         If Items(slot).GUID = itemGuid Then
 
-                            CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(slot).GUID - _Global_Constants.GUID_ITEM))
+                            _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(slot).GUID - _Global_Constants.GUID_ITEM))
                             If slot < InventorySlots.INVENTORY_SLOT_BAG_END Then
                                 If slot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + slot * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                                 UpdateRemoveItemStats(Items(slot), slot)
@@ -2023,7 +2023,7 @@ CheckXPAgain:
                             If Items(bag).Items.ContainsKey(slot) Then
 
                                 If Items(bag).Items(slot).GUID = itemGuid Then
-                                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(bag).Items(slot).GUID - _Global_Constants.GUID_ITEM))
+                                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(bag).Items(slot).GUID - _Global_Constants.GUID_ITEM))
 
                                     If Destroy Then Items(bag).Items(slot).Delete()
                                     Items(bag).Items.Remove(slot)
@@ -2050,7 +2050,7 @@ CheckXPAgain:
                     'DONE: Fire quest event to check for if this item is required for quest
                     'TODO: This needs to be fired BEFORE the client has the item in the bag...
                     'NOTE: Not only quest items are needed for quests
-                    ALLQUESTS.OnQuestItemAdd(Me, tmpEntry, tmpCount)
+                    _WorldServer.ALLQUESTS.OnQuestItemAdd(Me, tmpEntry, tmpCount)
 
                     Return True
                 End If
@@ -2297,7 +2297,7 @@ CheckXPAgain:
                            (Items(dstBag).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_CONTAINER AndAlso Items(dstBag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_ENCHANTING_BAG AndAlso Item.ItemInfo.BagFamily <> ITEM_BAG.ENCHANTING) OrElse
                            (Items(dstBag).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_QUIVER AndAlso Items(dstBag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_QUIVER AndAlso Item.ItemInfo.BagFamily <> ITEM_BAG.ARROW) OrElse
                            (Items(dstBag).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_QUIVER AndAlso Items(dstBag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_BULLET AndAlso Item.ItemInfo.BagFamily <> ITEM_BAG.BULLET) Then
-                            Log.WriteLine(LogType.DEBUG, "{0} - {1} - {2}", Items(dstBag).ItemInfo.ObjectClass, Items(dstBag).ItemInfo.SubClass, Item.ItemInfo.BagFamily)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "{0} - {1} - {2}", Items(dstBag).ItemInfo.ObjectClass, Items(dstBag).ItemInfo.SubClass, Item.ItemInfo.BagFamily)
                             SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG, Item.GUID, 0)
                             Return False
                         End If
@@ -2348,7 +2348,7 @@ CheckXPAgain:
                     'DONE: Bind a nonbinded BIND WHEN PICKED UP item or a nonbinded quest item
                     'DONE: Put in inventory
                     Items(dstSlot) = Item
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, GUID, Item.StackCount, Item.GUID - _Global_Constants.GUID_ITEM))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, GUID, Item.StackCount, Item.GUID - _Global_Constants.GUID_ITEM))
 
                     SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + dstSlot * 2, Item.GUID)
                     If dstSlot < EquipmentSlots.EQUIPMENT_SLOT_END Then
@@ -2363,7 +2363,7 @@ CheckXPAgain:
                 Else
                     'DONE: Put in bag
                     Items(dstBag).Items(dstSlot) = Item
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, Items(dstBag).GUID, Item.StackCount, Item.GUID - _Global_Constants.GUID_ITEM))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, Items(dstBag).GUID, Item.StackCount, Item.GUID - _Global_Constants.GUID_ITEM))
                 End If
 
                 'DONE: Send updates
@@ -2641,7 +2641,7 @@ CheckXPAgain:
 
                     End If
                 Catch err As Exception
-                    Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2} {3}", client.IP, client.Port, Environment.NewLine, err.ToString)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2} {3}", client.IP, client.Port, Environment.NewLine, err.ToString)
                     Return InventoryChangeFailure.EQUIP_ERR_CANT_DO_RIGHT_NOW
                 End Try
             End Function
@@ -2903,8 +2903,8 @@ CheckXPAgain:
                                     SendItemUpdate(Items(dstBag))
                                 End If
 
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
-                                If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
+                                _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items(srcBag).Items.ContainsKey(srcSlot) Then _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
 
@@ -2949,8 +2949,8 @@ CheckXPAgain:
                                 End If
 
                                 SendItemAndCharacterUpdate(Items(srcBag))
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
-                                If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
+                                _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items(srcBag).Items.ContainsKey(srcSlot) Then _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
 
@@ -2995,8 +2995,8 @@ CheckXPAgain:
                                 End If
 
                                 SendItemAndCharacterUpdate(Items(dstBag))
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
-                                If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
+                                _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items.ContainsKey(srcSlot) Then _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
 
@@ -3047,14 +3047,14 @@ CheckXPAgain:
                                 End If
 
                                 SendItemAndCharacterUpdate(Items(dstSlot))
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
-                                If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
+                                _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items.ContainsKey(srcSlot) Then _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
                     End If
 
                 Catch err As Exception
-                    Log.WriteLine(LogType.DEBUG, "[{0}:{1}] Unable to swap items. {2}{3}", client.IP, client.Port, Environment.NewLine, err.ToString)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] Unable to swap items. {2}{3}", client.IP, client.Port, Environment.NewLine, err.ToString)
                 Finally
 
                     If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
@@ -3411,7 +3411,7 @@ CheckXPAgain:
                     Exit Sub
                 End If
 
-                Log.WriteLine(LogType.INFORMATION, "World: Player Teleport: X[{0}], Y[{1}], Z[{2}], O[{3}]", posX, posY, posZ, ori)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: Player Teleport: X[{0}], Y[{1}], Z[{2}], O[{3}]", posX, posY, posZ, ori)
 
                 charMovementFlags = 0
 
@@ -3443,7 +3443,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
-                Log.WriteLine(LogType.INFORMATION, "World: Player Transfer: X[{0}], Y[{1}], Z[{2}], O[{3}], MAP[{4}]", posX, posY, posZ, ori, map)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: Player Transfer: X[{0}], Y[{1}], Z[{2}], O[{3}], MAP[{4}]", posX, posY, posZ, ori, map)
 
                 Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
                 Try
@@ -3472,13 +3472,13 @@ CheckXPAgain:
                 client.Character.Save()
 
                 'Do global transfer
-                ClsWorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, map)
+                _WorldServer.ClsWorldServer.ClientTransfer(client.Index, posX, posY, posZ, ori, map)
             End Sub
 
             Public Sub ZoneCheck()
                 Dim ZoneFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
                 If AreaTable.ContainsKey(ZoneFlag) = False Then
-                    Log.WriteLine(LogType.WARNING, "Zone Flag {0} does not exist.", ZoneFlag)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Zone Flag {0} does not exist.", ZoneFlag)
                     Exit Sub
                 End If
                 AreaID = AreaTable(ZoneFlag).ID
@@ -3556,7 +3556,7 @@ CheckXPAgain:
             Public Sub ZoneCheckInstance()
                 Dim ZoneFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
                 If AreaTable.ContainsKey(ZoneFlag) = False Then
-                    Log.WriteLine(LogType.WARNING, "Zone Flag {0} does not exist.", ZoneFlag)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Zone Flag {0} does not exist.", ZoneFlag)
                     Exit Sub
                 End If
                 AreaID = AreaTable(ZoneFlag).ID
@@ -3732,7 +3732,7 @@ CheckXPAgain:
                 Finally
                     SMSG_FORCE_MOVE_ROOT.Dispose()
                 End Try
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_ROOT", client.IP, client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_ROOT", client.IP, client.Port)
             End Sub
 
             Public Sub SetMoveUnroot()
@@ -3744,7 +3744,7 @@ CheckXPAgain:
                 Finally
                     SMSG_FORCE_MOVE_UNROOT.Dispose()
                 End Try
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_UNROOT", client.IP, client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FORCE_MOVE_UNROOT", client.IP, client.Port)
             End Sub
 
             Public Sub StartMirrorTimer(ByVal Type As MirrorTimer, ByVal MaxValue As Integer)
@@ -3816,7 +3816,7 @@ CheckXPAgain:
                         ModifyMirrorTimer(MirrorTimer.DROWNING, 70000, underWaterTimer.DrowningValue, -1)
                     End If
                 Catch e As Exception
-                    Log.WriteLine(LogType.FAILED, "Error at HandleDrowning():", e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Error at HandleDrowning():", e.ToString)
                     If underWaterTimer IsNot Nothing Then underWaterTimer.Dispose()
                     underWaterTimer = Nothing
                 End Try
@@ -3986,9 +3986,9 @@ CheckXPAgain:
                 GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
 
                 For Each uGuid As ULong In inCombatWith
-                    If _CommonGlobalFunctions.GuidIsPlayer(uGuid) AndAlso CHARACTERs.ContainsKey(uGuid) Then
+                    If _CommonGlobalFunctions.GuidIsPlayer(uGuid) AndAlso _WorldServer.CHARACTERs.ContainsKey(uGuid) Then
                         'DONE: Remove combat from players who had you in combat
-                        CHARACTERs(uGuid).RemoveFromCombat(Me)
+                        _WorldServer.CHARACTERs(uGuid).RemoveFromCombat(Me)
                     End If
                 Next
                 inCombatWith.Clear()
@@ -4089,11 +4089,11 @@ CheckXPAgain:
 
                     'DONE: Fight support by NPCs
                     For Each cGUID As ULong In creaturesNear.ToArray
-                        If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso WORLD_CREATUREs(cGUID).isGuard Then
-                            If WORLD_CREATUREs(cGUID).IsDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
+                        If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso _WorldServer.WORLD_CREATUREs(cGUID).isGuard Then
+                            If _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
                                 If inCombatWith.Contains(cGUID) Then Continue For
-                                If GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.FIGHT_SUPPORT AndAlso GetDistance(WORLD_CREATUREs(cGUID), Me) <= WORLD_CREATUREs(cGUID).AggroRange(Me) Then
-                                    WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Attacker, Damage)
+                                If GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) = TReaction.FIGHT_SUPPORT AndAlso GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), Me) <= _WorldServer.WORLD_CREATUREs(cGUID).AggroRange(Me) Then
+                                    _WorldServer.WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Attacker, Damage)
                                 End If
                             End If
                         End If
@@ -4192,8 +4192,8 @@ CheckXPAgain:
                 If DuelPartner IsNot Nothing Then
                     If DuelPartner.DuelArbiter = DuelArbiter Then
                         DuelComplete(DuelPartner, Me)
-                    ElseIf WORLD_GAMEOBJECTs.ContainsKey(DuelArbiter) Then
-                        WORLD_GAMEOBJECTs(DuelArbiter).Destroy(WORLD_GAMEOBJECTs(DuelArbiter))
+                    ElseIf _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(DuelArbiter) Then
+                        _WorldServer.WORLD_GAMEOBJECTs(DuelArbiter).Destroy(_WorldServer.WORLD_GAMEOBJECTs(DuelArbiter))
                     End If
                 End If
 
@@ -4202,10 +4202,10 @@ CheckXPAgain:
                 Try
                     client.Send(SMSG_LOGOUT_COMPLETE)
                     SMSG_LOGOUT_COMPLETE.Dispose()
-                    Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_COMPLETE", client.IP, client.Port)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_COMPLETE", client.IP, client.Port)
 
                     client.Character = Nothing
-                    Log.WriteLine(LogType.USER, "Character {0} logged off.", Name)
+                    _WorldServer.Log.WriteLine(LogType.USER, "Character {0} logged off.", Name)
 
                     client.Delete()
                     client = Nothing
@@ -4223,7 +4223,7 @@ CheckXPAgain:
 
                 'DONE: If we have changed map
                 If MapID <> LoginMap Then
-                    Log.WriteLine(LogType.DEBUG, "Spawned on wrong map [{0}], transferring to [{1}].", LoginMap, MapID)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Spawned on wrong map [{0}], transferring to [{1}].", LoginMap, MapID)
                     Transfer(positionX, positionY, positionZ, orientation, MapID)
                     Exit Sub
                 End If
@@ -4233,7 +4233,7 @@ CheckXPAgain:
                 Try
                     If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Failed loading maps at character logging in.{0}{1}", Environment.NewLine, ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "Failed loading maps at character logging in.{0}{1}", Environment.NewLine, ex.ToString())
                 End Try
 
                 'DONE: SMSG_BINDPOINTUPDATE
@@ -4296,13 +4296,13 @@ CheckXPAgain:
             Public Sub SetOnTransport()
                 If LoginTransport = 0UL Then Exit Sub
 
-                Log.WriteLine(LogType.DEBUG, "Spawning on transport.")
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Spawning on transport.")
                 Dim TransportGUID As ULong = LoginTransport
                 LoginTransport = 0UL
                 If TransportGUID > 0 Then
-                    If _CommonGlobalFunctions.GuidIsMoTransport(TransportGUID) AndAlso WORLD_TRANSPORTs.ContainsKey(TransportGUID) Then
-                        OnTransport = WORLD_TRANSPORTs(TransportGUID)
-                        WORLD_TRANSPORTs(TransportGUID).AddPassenger(Me)
+                    If _CommonGlobalFunctions.GuidIsMoTransport(TransportGUID) AndAlso _WorldServer.WORLD_TRANSPORTs.ContainsKey(TransportGUID) Then
+                        OnTransport = _WorldServer.WORLD_TRANSPORTs(TransportGUID)
+                        _WorldServer.WORLD_TRANSPORTs(TransportGUID).AddPassenger(Me)
                         transportX = positionX
                         transportY = positionY
                         transportZ = positionZ
@@ -4311,8 +4311,8 @@ CheckXPAgain:
                         positionZ = OnTransport.positionZ
                         MapID = OnTransport.MapID
                     ElseIf _CommonGlobalFunctions.GuidIsTransport(TransportGUID) Then
-                        If WORLD_GAMEOBJECTs.ContainsKey(TransportGUID) Then
-                            OnTransport = WORLD_GAMEOBJECTs(TransportGUID)
+                        If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(TransportGUID) Then
+                            OnTransport = _WorldServer.WORLD_GAMEOBJECTs(TransportGUID)
                             transportX = positionX
                             transportY = positionY
                             transportZ = positionZ
@@ -4320,7 +4320,7 @@ CheckXPAgain:
                             positionY = OnTransport.positionY
                             positionZ = OnTransport.positionZ
                         Else
-                            Log.WriteLine(LogType.CRITICAL, "Spawning new transport!")
+                            _WorldServer.Log.WriteLine(LogType.CRITICAL, "Spawning new transport!")
                             Dim newGameobject As New GameObjectObject(TransportGUID - _Global_Constants.GUID_TRANSPORT)
                             newGameobject.AddToWorld()
                             OnTransport = newGameobject
@@ -4332,8 +4332,8 @@ CheckXPAgain:
                             positionZ = OnTransport.positionZ
                         End If
                     Else
-                        Log.WriteLine(LogType.CRITICAL, "Character logging in on non-existant transport [{0}].", TransportGUID - _Global_Constants.GUID_MO_TRANSPORT)
-                        AllGraveYards.GoToNearestGraveyard(Me, True, False)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Character logging in on non-existant transport [{0}].", TransportGUID - _Global_Constants.GUID_MO_TRANSPORT)
+                        _WorldServer.AllGraveYards.GoToNearestGraveyard(Me, True, False)
                         OnTransport = Nothing
                     End If
                 Else
@@ -4391,7 +4391,7 @@ CheckXPAgain:
                     'WARNING: Do not save character here!!!
 
                     'DONE: Remove buyback items when logged out
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = {0} AND item_slot >= {1} AND item_slot <= {2}", GUID, 69, 80 - 1))
+                    _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = {0} AND item_slot >= {1} AND item_slot <= {2}", GUID, 69, 80 - 1))
 
                     If Not underWaterTimer Is Nothing Then underWaterTimer.Dispose()
 
@@ -4417,13 +4417,13 @@ CheckXPAgain:
                         End If
                     End If
 
-                    CHARACTERs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                    CHARACTERs.Remove(GUID)
-                    CHARACTERs_Lock.ReleaseWriterLock()
+                    _WorldServer.CHARACTERs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.CHARACTERs.Remove(GUID)
+                    _WorldServer.CHARACTERs_Lock.ReleaseWriterLock()
 
                     If FullyLoggedIn Then RemoveFromWorld(Me)
 
-                    Log.WriteLine(LogType.USER, "Character {0} disposed.", Name)
+                    _WorldServer.Log.WriteLine(LogType.USER, "Character {0} disposed.", Name)
 
                     For Each Item As KeyValuePair(Of Byte, ItemObject) In Items
                         'DONE: Dispose items in bags (done in Item.Dispose)
@@ -4487,7 +4487,7 @@ CheckXPAgain:
                                     Dim CanUse As InventoryChangeFailure = CanUseAmmo(Me, slot.Value.ItemEntry)
                                     If CanUse = InventoryChangeFailure.EQUIP_ERR_OK Then
                                         AmmoID = slot.Value.ItemEntry
-                                        AmmoDPS = ITEMDatabase(AmmoID).Damage(0).Minimum
+                                        AmmoDPS = _WorldServer.ITEMDatabase(AmmoID).Damage(0).Minimum
                                         CalculateMinMaxDamage(Me, WeaponAttackType.RANGED_ATTACK)
 
                                         GoTo DoneAmmo
@@ -4528,9 +4528,9 @@ DoneAmmo:
 
                 'DONE: Get character info from DB
                 Dim MySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE char_guid = {0}; UPDATE characters SET char_online = 1 WHERE char_guid = {0};", GUID), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE char_guid = {0}; UPDATE characters SET char_online = 1 WHERE char_guid = {0};", GUID), MySQLQuery)
                 If MySQLQuery.Rows.Count = 0 Then
-                    Log.WriteLine(LogType.DEBUG, "[{0}:{1}] Unable to get SQLDataBase info for character [GUID={2:X}]", client.IP, client.Port, GUID)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] Unable to get SQLDataBase info for character [GUID={2:X}]", client.IP, client.Port, GUID)
                     Dispose()
                     Exit Sub
                 End If
@@ -4607,7 +4607,7 @@ DoneAmmo:
 
                 Dim SpellQuery As New DataTable
                 'ToDo: Need better string to query the data correctly. An ugly method.
-                CharacterDatabase.Query(String.Format("UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1}; 
+                _WorldServer.CharacterDatabase.Query(String.Format("UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1}; 
                 SELECT * FROM characters_spells WHERE guid = {0}; 
                 UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1};", GUID, GetTimestamp(Now)), SpellQuery)
 
@@ -4731,7 +4731,7 @@ DoneAmmo:
 
                 'DONE: Get Items
                 MySQLQuery.Clear()
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID), MySQLQuery)
                 For Each row As DataRow In MySQLQuery.Rows
                     If row.Item("item_slot") <> _Global_Constants.ITEM_SLOT_NULL Then
                         Dim tmpItem As ItemObject = LoadItemByGUID(CType(row.Item("item_guid"), Long), Me, (CType(row.Item("item_slot"), Byte) < EquipmentSlots.EQUIPMENT_SLOT_END))
@@ -4744,7 +4744,7 @@ DoneAmmo:
                 HonorLoad()
 
                 'DONE: Load quests in progress
-                ALLQUESTS.LoadQuests(Me)
+                _WorldServer.ALLQUESTS.LoadQuests(Me)
 
                 'DONE: Initialize Internal fields
                 Initialize()
@@ -4754,7 +4754,7 @@ DoneAmmo:
 
                 'DONE: Load corpse if present
                 MySQLQuery.Clear()
-                CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE player = {0};", GUID), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE player = {0};", GUID), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     corpseGUID = MySQLQuery.Rows(0).Item("guid") + _Global_Constants.GUID_CORPSE
                     corpseMapID = MySQLQuery.Rows(0).Item("map")
@@ -4764,7 +4764,7 @@ DoneAmmo:
 
                     'DONE: If you logout before releasing your corpse you will now go to the graveyard
                     If positionX = corpsePositionX AndAlso positionY = corpsePositionY AndAlso positionZ = corpsePositionZ AndAlso MapID = corpseMapID Then
-                        AllGraveYards.GoToNearestGraveyard(Me, False, False)
+                        _WorldServer.AllGraveYards.GoToNearestGraveyard(Me, False, False)
                     End If
 
                     'DONE: Make Dead
@@ -4929,10 +4929,10 @@ DoneAmmo:
                 tmpValues = tmpValues & ", " & ForceRestrictions
 
                 tmpCMD = tmpCMD & ") " & tmpValues & ");"
-                CharacterDatabase.Update(tmpCMD)
+                _WorldServer.CharacterDatabase.Update(tmpCMD)
 
                 Dim MySQLQuery As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = '{0}';", Name), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE char_name = '{0}';", Name), MySQLQuery)
                 GUID = CType(MySQLQuery.Rows(0).Item("char_guid"), Long)
 
                 HonorSaveAsNew()
@@ -5066,7 +5066,7 @@ DoneAmmo:
                 tmp = tmp & ", force_restrictions=" & ForceRestrictions
 
                 tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
-                CharacterDatabase.Update(tmp)
+                _WorldServer.CharacterDatabase.Update(tmp)
             End Sub
 
             Public Sub SavePosition()
@@ -5078,7 +5078,7 @@ DoneAmmo:
                 tmp = tmp & ", char_map_id=" & MapID
 
                 tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
-                CharacterDatabase.Update(tmp)
+                _WorldServer.CharacterDatabase.Update(tmp)
             End Sub
 
             'Party/Raid
@@ -5158,7 +5158,7 @@ DoneAmmo:
                 For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                     If TalkQuests(i) Is Nothing Then
                         'DONE: Initialize quest info
-                        ALLQUESTS.CreateQuest(TalkQuests(i), Quest)
+                        _WorldServer.ALLQUESTS.CreateQuest(TalkQuests(i), Quest)
 
                         'DONE: Initialize quest
                         If TypeOf TalkQuests(i) Is WS_QuestsBaseScripted Then
@@ -5176,7 +5176,7 @@ DoneAmmo:
                         SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + i * 3, questState)
                         SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + i * 3 + 1, 0) 'Timer
 
-                        CharacterDatabase.Update(String.Format("INSERT INTO characters_quests (char_guid, quest_id, quest_status) VALUES ({0}, {1}, {2});", GUID, TalkQuests(i).ID, questState))
+                        _WorldServer.CharacterDatabase.Update(String.Format("INSERT INTO characters_quests (char_guid, quest_id, quest_status) VALUES ({0}, {1}, {2});", GUID, TalkQuests(i).ID, questState))
 
                         SendCharacterUpdate(updateDataCount <> 0)
                         Return True
@@ -5198,7 +5198,7 @@ DoneAmmo:
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3, 0)
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3 + 1, 0)
 
-                    CharacterDatabase.Update(String.Format("DELETE  FROM characters_quests WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID))
+                    _WorldServer.CharacterDatabase.Update(String.Format("DELETE  FROM characters_quests WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID))
                     TalkQuests(QuestSlot) = Nothing
 
                     SendCharacterUpdate(updateDataCount <> 0)
@@ -5218,7 +5218,7 @@ DoneAmmo:
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3 + 1, 0)
 
                     QuestsCompleted.Add(TalkQuests(QuestSlot).ID)
-                    CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = -1 WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = -1 WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID))
                     TalkQuests(QuestSlot) = Nothing
 
                     'SendCharacterUpdate(updateDataCount <> 0)
@@ -5235,7 +5235,7 @@ DoneAmmo:
                     Dim tmpProgress As Integer = TalkQuests(QuestSlot).GetProgress
                     Dim tmpTimer As Integer = 0
                     If TalkQuests(QuestSlot).TimeEnd > 0 Then tmpTimer = TalkQuests(QuestSlot).TimeEnd - GetTimestamp(Now)
-                    CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = {2} WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID, tmpProgress))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = {2} WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID, tmpProgress))
 
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3, tmpProgress)
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3 + 1, 0) 'Timer
@@ -5248,7 +5248,7 @@ DoneAmmo:
             Public Function TalkCanAccept(ByRef Quest As WS_QuestInfo) As Boolean
 
                 Dim DBResult As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT quest_status FROM characters_quests WHERE char_guid = {0} AND quest_id = {1} LIMIT 1;", GUID, Quest.ID), DBResult)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT quest_status FROM characters_quests WHERE char_guid = {0} AND quest_id = {1} LIMIT 1;", GUID, Quest.ID), DBResult)
                 If DBResult.Rows.Count > 0 Then
                     Dim status As Integer = DBResult.Rows(0).Item("quest_status")
 
@@ -5315,7 +5315,7 @@ DoneAmmo:
 
             Public Function IsQuestCompleted(ByVal QuestID As Integer) As Boolean
                 Dim q As New DataTable
-                CharacterDatabase.Query(String.Format("SELECT quest_id FROM characters_quests WHERE char_guid = {0} AND quest_status = -1 AND quest_id = {1};", GUID, QuestID), q)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT quest_id FROM characters_quests WHERE char_guid = {0} AND quest_status = -1 AND quest_id = {1};", GUID, QuestID), q)
 
                 Return q.Rows.Count <> 0
             End Function

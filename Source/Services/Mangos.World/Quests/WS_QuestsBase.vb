@@ -164,7 +164,7 @@ Namespace Quests
             For i As Byte = 0 To 3
                 If ObjectivesItem(i) <> 0 Then
                     ProgressItem(i) = objCharacter.ItemCOUNT(ObjectivesItem(i))
-                    Log.WriteLine(LogType.DEBUG, "ITEM COUNT UPDATED TO: {0}", ProgressItem(i))
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "ITEM COUNT UPDATED TO: {0}", ProgressItem(i))
                 End If
             Next
 
@@ -279,7 +279,7 @@ Namespace Quests
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
 
-            ALLQUESTS.SendQuestMessageAddKill(objCharacter.client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+            _WorldServer.ALLQUESTS.SendQuestMessageAddKill(objCharacter.client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
         End Sub
 
         ''' <summary>
@@ -293,7 +293,7 @@ Namespace Quests
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
 
-            ALLQUESTS.SendQuestMessageAddKill(objCharacter.client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
+            _WorldServer.ALLQUESTS.SendQuestMessageAddKill(objCharacter.client, ID, oGUID, ObjectivesObject(index), Progress(index), ObjectivesCount(index))
         End Sub
 
         ''' <summary>
@@ -305,7 +305,7 @@ Namespace Quests
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
 
-            ALLQUESTS.SendQuestMessageComplete(objCharacter.client, ID)
+            _WorldServer.ALLQUESTS.SendQuestMessageComplete(objCharacter.client, ID)
         End Sub
 
         ''' <summary>
@@ -318,7 +318,7 @@ Namespace Quests
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
 
-            ALLQUESTS.SendQuestMessageComplete(objCharacter.client, ID)
+            _WorldServer.ALLQUESTS.SendQuestMessageComplete(objCharacter.client, ID)
         End Sub
 
         ''' <summary>
@@ -335,7 +335,7 @@ Namespace Quests
 
             'TODO: When item quest event is fired as it should, remove -1 here.
             Dim ItemCount As Integer = Count - 1
-            ALLQUESTS.SendQuestMessageAddItem(objCharacter.client, ObjectivesItem(index), ItemCount)
+            _WorldServer.ALLQUESTS.SendQuestMessageAddItem(objCharacter.client, ObjectivesItem(index), ItemCount)
         End Sub
 
         ''' <summary>

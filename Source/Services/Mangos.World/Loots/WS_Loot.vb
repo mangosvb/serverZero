@@ -76,23 +76,23 @@ Namespace Loots
 
             Public ReadOnly Property ItemModel() As Integer
                 Get
-                    If Not ITEMDatabase.ContainsKey(ItemID) Then
+                    If Not _WorldServer.ITEMDatabase.ContainsKey(ItemID) Then
                         'TODO: Another one of these useless bits of code, needs to be implemented correctly
                         Dim tmpItem As New WS_Items.ItemInfo(ItemID)
                         Try
-                            ITEMDatabase.Remove((ItemID))
+                            _WorldServer.ITEMDatabase.Remove((ItemID))
                         Catch ex As Exception
 
                         End Try
-                        ITEMDatabase.Add(ItemID, tmpItem)
+                        _WorldServer.ITEMDatabase.Add(ItemID, tmpItem)
                     End If
-                    Return ITEMDatabase(ItemID).Model
+                    Return _WorldServer.ITEMDatabase(ItemID).Model
                 End Get
             End Property
 
             Public Sub New(ByRef Item As LootStoreItem)
                 ItemID = Item.ItemID
-                ItemCount = Rnd.Next(Item.MinCountOrRef, Item.MaxCount + 1)
+                ItemCount = _WorldServer.Rnd.Next(Item.MinCountOrRef, Item.MaxCount + 1)
             End Sub
 
 #Region "IDisposable Support"
@@ -166,7 +166,7 @@ Namespace Loots
 
             Public Function Roll() As LootStoreItem
                 If ExplicitlyChanced.Count > 0 Then
-                    Dim rollChance As Single = Rnd.NextDouble() * 100.0F
+                    Dim rollChance As Single = _WorldServer.Rnd.NextDouble() * 100.0F
 
                     For i As Integer = 0 To ExplicitlyChanced.Count - 1
                         If ExplicitlyChanced(i).Chance >= 100.0F Then Return ExplicitlyChanced(i)
@@ -176,7 +176,7 @@ Namespace Loots
                     Next
                 End If
                 If EqualChanced.Count > 0 Then
-                    Return EqualChanced(Rnd.Next(0, EqualChanced.Count))
+                    Return EqualChanced(_WorldServer.Rnd.Next(0, EqualChanced.Count))
                 End If
                 Return Nothing
             End Function
@@ -261,7 +261,7 @@ Namespace Loots
                         'DONE: Check threshold if in group
                         For i As Byte = 0 To Items.Count - 1
                             If Not Items(i) Is Nothing Then
-                                If ITEMDatabase(Items(i).ItemID).Quality >= client.Character.Group.LootThreshold Then
+                                If _WorldServer.ITEMDatabase(Items(i).ItemID).Quality >= client.Character.Group.LootThreshold Then
                                     GroupLootInfo(i) = New GroupLootInfo
                                     CType(GroupLootInfo(i), GroupLootInfo).LootObject = Me
                                     CType(GroupLootInfo(i), GroupLootInfo).LootSlot = i
@@ -337,7 +337,7 @@ Namespace Loots
                         response.Dispose()
                     End If
                 Catch e As Exception
-                    Log.WriteLine(LogType.DEBUG, "Error getting loot.{0}", Environment.NewLine & e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Error getting loot.{0}", Environment.NewLine & e.ToString)
                 End Try
             End Sub
 
@@ -369,7 +369,7 @@ Namespace Loots
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
                     LootTable.Remove(GUID)
-                    Log.WriteLine(LogType.DEBUG, "Loot destroyed.")
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Loot destroyed.")
                 End If
                 _disposedValue = True
             End Sub
@@ -455,7 +455,7 @@ Namespace Loots
                 Templates.Add(Entry, newTemplate)
 
                 Dim MysqlQuery As New DataTable
-                WorldDatabase.Query(String.Format("SELECT * FROM {0} WHERE entry = {1};", Name, Entry), MysqlQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM {0} WHERE entry = {1};", Name, Entry), MysqlQuery)
                 If MysqlQuery.Rows.Count = 0 Then
                     Templates(Entry) = Nothing
                     Return Nothing ' No results found
@@ -516,7 +516,7 @@ Namespace Loots
                     Dim looterCharacter As CharacterObject = Nothing
                     For Each looter As KeyValuePair(Of CharacterObject, Integer) In Looters
                         If looter.Value = maxRollType Then
-                            Dim rollValue As Byte = Rnd.Next(0, 100)
+                            Dim rollValue As Byte = _WorldServer.Rnd.Next(0, 100)
 
                             If rollValue > maxRoll Then
                                 maxRoll = rollValue
@@ -600,7 +600,7 @@ Namespace Loots
             Try
                 packet.GetInt16()
                 Dim slot As Byte = packet.GetInt8
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_LOOT_ITEM [slot={2}]", client.IP, client.Port, slot)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_LOOT_ITEM [slot={2}]", client.IP, client.Port, slot)
 
                 If LootTable.ContainsKey(client.Character.lootGUID) Then
                     LootTable(client.Character.lootGUID).GetLoot(client, slot)
@@ -614,11 +614,11 @@ Namespace Loots
                     response.Dispose()
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.DEBUG, "Error looting item.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Error looting item.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
         Public Sub On_CMSG_LOOT_MONEY(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_MONEY", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_MONEY", client.IP, client.Port)
 
             If Not LootTable.ContainsKey(client.Character.lootGUID) Then Exit Sub
 
@@ -666,7 +666,7 @@ Namespace Loots
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT [GUID={2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT [GUID={2:X}]", client.IP, client.Port, GUID)
 
             'DONE: Make sure other players sees that you're looting
             client.Character.cUnitFlags = client.Character.cUnitFlags Or UnitFlags.UNIT_FLAG_LOOTING
@@ -683,7 +683,7 @@ Namespace Loots
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_RELEASE [lootGUID={2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_RELEASE [lootGUID={2:X}]", client.IP, client.Port, GUID)
 
             If client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL) IsNot Nothing Then
                 client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL).State = SpellCastState.SPELL_STATE_IDLE
@@ -709,32 +709,32 @@ Namespace Loots
                     If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                         If LootType = LootType.LOOTTYPE_CORPSE Then
                             'DONE: Set skinnable
-                            If WORLD_CREATUREs(GUID).CreatureInfo.SkinLootID > 0 Then
-                                WORLD_CREATUREs(GUID).cUnitFlags = WORLD_CREATUREs(GUID).cUnitFlags Or UnitFlags.UNIT_FLAG_SKINNABLE
+                            If _WorldServer.WORLD_CREATUREs(GUID).CreatureInfo.SkinLootID > 0 Then
+                                _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags = _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags Or UnitFlags.UNIT_FLAG_SKINNABLE
                             End If
 
-                            WORLD_CREATUREs(GUID).cDynamicFlags = 0
+                            _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags = 0
 
                             Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             response.AddInt32(1)
                             response.AddInt8(0)
                             Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                            UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, WORLD_CREATUREs(GUID).cDynamicFlags)
-                            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, WORLD_CREATUREs(GUID).cUnitFlags)
-                            UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
-                            WORLD_CREATUREs(GUID).SendToNearPlayers(response)
+                            UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags)
+                            UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags)
+                            UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
+                            _WorldServer.WORLD_CREATUREs(GUID).SendToNearPlayers(response)
                             response.Dispose()
                             UpdateData.Dispose()
                         ElseIf LootType = LootType.LOOTTYPE_SKINNING Then
-                            WORLD_CREATUREs(GUID).Despawn()
+                            _WorldServer.WORLD_CREATUREs(GUID).Despawn()
                         End If
 
-                    ElseIf _CommonGlobalFunctions.GuidIsGameObject(GUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(GUID) Then
-                        If WORLD_GAMEOBJECTs(GUID).IsConsumeable Then
-                            WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_LOOTED
-                            WORLD_GAMEOBJECTs(GUID).Despawn()
+                    ElseIf _CommonGlobalFunctions.GuidIsGameObject(GUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(GUID) Then
+                        If _WorldServer.WORLD_GAMEOBJECTs(GUID).IsConsumeable Then
+                            _WorldServer.WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_LOOTED
+                            _WorldServer.WORLD_GAMEOBJECTs(GUID).Despawn()
                         Else
-                            WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_UNLOOTED
+                            _WorldServer.WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_UNLOOTED
                         End If
 
                     ElseIf _CommonGlobalFunctions.GuidIsItem(GUID) Then
@@ -747,38 +747,38 @@ Namespace Loots
                     'DONE: Send loot for other players
                     If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                         If LootType = LootType.LOOTTYPE_CORPSE Then
-                            If WORLD_CREATUREs.ContainsKey(GUID) = False Then
+                            If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) = False Then
                                 LootTable(GUID).Dispose()
                             Else
-                                WORLD_CREATUREs(GUID).cDynamicFlags = DynamicFlags.UNIT_DYNFLAG_LOOTABLE
+                                _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags = DynamicFlags.UNIT_DYNFLAG_LOOTABLE
 
                                 Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                 response.AddInt32(1)
                                 response.AddInt8(0)
                                 Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                                UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, WORLD_CREATUREs(GUID).cDynamicFlags)
-                                UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
-                                WORLD_CREATUREs(GUID).SendToNearPlayers(response)
+                                UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags)
+                                UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
+                                _WorldServer.WORLD_CREATUREs(GUID).SendToNearPlayers(response)
                                 response.Dispose()
                                 UpdateData.Dispose()
                             End If
                         ElseIf LootType = LootType.LOOTTYPE_SKINNING Then
-                            WORLD_CREATUREs(GUID).Despawn()
+                            _WorldServer.WORLD_CREATUREs(GUID).Despawn()
                         End If
                     ElseIf _CommonGlobalFunctions.GuidIsGameObject(GUID) Then
-                        If WORLD_GAMEOBJECTs.ContainsKey(GUID) = False OrElse LootTable(GUID).LootType = LootType.LOOTTYPE_FISHING Then
+                        If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(GUID) = False OrElse LootTable(GUID).LootType = LootType.LOOTTYPE_FISHING Then
                             LootTable(GUID).Dispose()
                         Else
-                            WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_UNLOOTED
+                            _WorldServer.WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_UNLOOTED
 
                             Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             response.AddInt32(1)
                             response.AddInt8(0)
                             Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                            UpdateData.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, WORLD_GAMEOBJECTs(GUID).State)
-                            UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_GAMEOBJECTs(GUID))
+                            UpdateData.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, _WorldServer.WORLD_GAMEOBJECTs(GUID).State)
+                            UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_GAMEOBJECTs(GUID))
 
-                            WORLD_GAMEOBJECTs(GUID).SendToNearPlayers(response)
+                            _WorldServer.WORLD_GAMEOBJECTs(GUID).SendToNearPlayers(response)
                             response.Dispose()
                             UpdateData.Dispose()
                         End If
@@ -801,20 +801,20 @@ Namespace Loots
 
                 If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                     'DONE: Set skinnable
-                    If WORLD_CREATUREs(GUID).CreatureInfo.SkinLootID > 0 Then
-                        WORLD_CREATUREs(GUID).cUnitFlags = WORLD_CREATUREs(GUID).cUnitFlags Or UnitFlags.UNIT_FLAG_SKINNABLE
+                    If _WorldServer.WORLD_CREATUREs(GUID).CreatureInfo.SkinLootID > 0 Then
+                        _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags = _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags Or UnitFlags.UNIT_FLAG_SKINNABLE
                     End If
 
-                    WORLD_CREATUREs(GUID).cDynamicFlags = 0
+                    _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags = 0
 
                     Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     response.AddInt32(1)
                     response.AddInt8(0)
                     Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, WORLD_CREATUREs(GUID).cDynamicFlags)
-                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, WORLD_CREATUREs(GUID).cUnitFlags)
-                    UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
-                    WORLD_CREATUREs(GUID).SendToNearPlayers(response)
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags)
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags)
+                    UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
+                    _WorldServer.WORLD_CREATUREs(GUID).SendToNearPlayers(response)
                     response.Dispose()
                     UpdateData.Dispose()
                 End If
@@ -832,7 +832,7 @@ Namespace Loots
             client.Send(response)
             response.Dispose()
 #If DEBUG Then
-            Log.WriteLine(LogType.WARNING, "[{0}:{1}] Empty loot for GUID [{2:X}].", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Empty loot for GUID [{2:X}].", client.IP, client.Port, GUID)
 #End If
         End Sub
 
@@ -842,7 +842,7 @@ Namespace Loots
                     }
 
             For Each GUID As ULong In Character.Group.LocalMembers
-                If Character.playersNear.Contains(GUID) Then rollCharacters.Add(CHARACTERs(GUID))
+                If Character.playersNear.Contains(GUID) Then rollCharacters.Add(_WorldServer.CHARACTERs(GUID))
             Next
 
             Dim startRoll As New PacketClass(OPCODES.SMSG_LOOT_START_ROLL)
@@ -869,7 +869,7 @@ Namespace Loots
             Dim Slot As Byte = packet.GetInt32
             Dim rollType As Byte = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_ROLL [loot={2} roll={3}]", client.IP, client.Port, GUID, rollType)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_ROLL [loot={2} roll={3}]", client.IP, client.Port, GUID, rollType)
 
             '0 - Pass
             '1 - Need

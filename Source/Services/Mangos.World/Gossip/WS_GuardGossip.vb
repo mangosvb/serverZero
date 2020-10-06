@@ -34,7 +34,7 @@ Namespace Gossip
 
 #Region "Gossip functions"
             Public Overrides Sub OnGossipHello(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
-                Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
+                Dim Gossip As Gossips = GetGossip(_WorldServer.WORLD_CREATUREs(cGUID).ID)
 
                 Select Case Gossip
                     Case Gossips.Darnassus
@@ -62,12 +62,12 @@ Namespace Gossip
                     Case Gossips.Undercity
                         OnGossipHello_Undercity(objCharacter, cGUID)
                     Case Else
-                        Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
                 End Select
             End Sub
 
             Public Overrides Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
-                Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
+                Dim Gossip As Gossips = GetGossip(_WorldServer.WORLD_CREATUREs(cGUID).ID)
 
                 Select Case Gossip
                     Case Gossips.Darnassus
@@ -95,7 +95,7 @@ Namespace Gossip
                     Case Gossips.Undercity
                         OnGossipSelect_Undercity(objCharacter, cGUID, selected)
                     Case Else
-                        Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
                 End Select
             End Sub
 
@@ -124,7 +124,7 @@ Namespace Gossip
                     Case Guards.Deathguard_Bartholomew, Guards.Deathguard_Burgess, Guards.Deathguard_Cyrus, Guards.Deathguard_Dillinger, Guards.Deathguard_Lawrence, Guards.Deathguard_Lundmark, Guards.Deathguard_Morris, Guards.Deathguard_Mort, Guards.Deathguard_Terrence
                         Return Gossips.Tirisfall
                     Case Else
-                        Log.WriteLine(LogType.DEBUG, "Creature Entry [{0}] was not found in guard table.", Entry)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "Creature Entry [{0}] was not found in guard table.", Entry)
                         Return 0
                 End Select
             End Function

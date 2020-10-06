@@ -70,9 +70,9 @@ Namespace Warden
 
                 ModuleData = File.ReadAllBytes("warden\" & ModuleName & ".bin")
                 If LoadModule(ModuleName, ModuleData, ModuleKey) Then
-                    Log.WriteLine(LogType.SUCCESS, "[WARDEN] Load of module, success [{0}]", ModuleName)
+                    _WorldServer.Log.WriteLine(LogType.SUCCESS, "[WARDEN] Load of module, success [{0}]", ModuleName)
                 Else
-                    Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to load module [{0}]", ModuleName)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to load module [{0}]", ModuleName)
                 End If
             End Sub
 #End Region
@@ -84,7 +84,7 @@ Namespace Warden
 
                 Dim UncompressedLen As Integer = BitConverter.ToInt32(Data, 0)
                 If UncompressedLen < 0 Then
-                    Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to decrypt {0}, incorrect length.", Name)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to decrypt {0}, incorrect length.", Name)
                     Return False
                 End If
 
@@ -93,7 +93,7 @@ Namespace Warden
                 Dim dataPos As Integer = 4 + CompressedData.Length
                 Dim Sign As String = Chr(Data(dataPos + 3)) & Chr(Data(dataPos + 2)) & Chr(Data(dataPos + 1)) & Chr(Data(dataPos))
                 If Sign <> "SIGN" Then
-                    Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to decrypt {0}, sign missing.", Name)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to decrypt {0}, sign missing.", Name)
                     Return False
                 End If
                 dataPos += 4
@@ -103,7 +103,7 @@ Namespace Warden
 
                 'Check signature
                 If CheckSignature(Signature, Data, Data.Length - &H104) = False Then
-                    Log.WriteLine(LogType.CRITICAL, "[WARDEN] Signature fail on Warden Module.")
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Signature fail on Warden Module.")
                     Return False
                 End If
 
@@ -112,12 +112,12 @@ Namespace Warden
 
                 If Not PrepairModule(DecompressedData) Then Return False
 
-                Log.WriteLine(LogType.SUCCESS, "[WARDEN] Successfully prepaired Warden Module.")
+                _WorldServer.Log.WriteLine(LogType.SUCCESS, "[WARDEN] Successfully prepaired Warden Module.")
 
                 Try
                     If Not InitModule() Then Return False
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "[WARDEN] InitModule Failed.")
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] InitModule Failed.")
                 End Try
 
                 Return True
@@ -232,8 +232,8 @@ Namespace Warden
                                 bCopyChunk = Not bCopyChunk
                             End While
 
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] Update...")
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] Update: Adjusting references to global variables...")
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] Update...")
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] Update: Adjusting references to global variables...")
 
                             Dim pbRelocationTable As Integer = m_Mod + Header.dwSizeOfCode
                             Dim dwRelocationIndex As Integer = 0
@@ -260,7 +260,7 @@ Namespace Warden
                                 dwLastRelocation = dwValue
                             End While
 
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] Update: Updating API library references...")
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] Update: Updating API library references...")
 
                             Dim dwLibraryIndex As Integer = 0
                             While dwLibraryIndex < Header.dwLibraryCount
@@ -268,7 +268,7 @@ Namespace Warden
 
                                 Dim procLib As String = Marshal.PtrToStringAnsi(New IntPtr(m_Mod + pLibraryTable.dwFileName))
 
-                                Log.WriteLine(LogType.DEBUG, "    Library: {0}", procLib)
+                                _WorldServer.Log.WriteLine(LogType.DEBUG, "    Library: {0}", procLib)
                                 Dim hModule As Integer = LoadLibrary(procLib, "")
                                 If hModule Then
                                     Dim dwImports As Integer = m_Mod + pLibraryTable.dwImports
@@ -280,18 +280,18 @@ Namespace Warden
                                             dwCurrent = (dwCurrent And &H7FFFFFFF)
                                             procAddr = GetProcAddress(hModule, Convert.ToString(New IntPtr(dwCurrent)), "")
 
-                                            Log.WriteLine(LogType.DEBUG, "        Ordinary: 0x{0:X8}", dwCurrent)
+                                            _WorldServer.Log.WriteLine(LogType.DEBUG, "        Ordinary: 0x{0:X8}", dwCurrent)
                                         Else
                                             Dim procFunc As String = Marshal.PtrToStringAnsi(New IntPtr(m_Mod + dwCurrent))
                                             Dim procRedirector As Reflection.MethodInfo = GetType(ApiRedirector).GetMethod("my" + procFunc)
                                             Dim procDelegate As Type = GetType(ApiRedirector).GetNestedType("d" + procFunc)
                                             If procRedirector Is Nothing OrElse procDelegate Is Nothing Then
                                                 procAddr = GetProcAddress(hModule, procFunc, "")
-                                                Log.WriteLine(LogType.DEBUG, "        Function: {0} @ 0x{1:X8}", procFunc, procAddr)
+                                                _WorldServer.Log.WriteLine(LogType.DEBUG, "        Function: {0} @ 0x{1:X8}", procFunc, procAddr)
                                             Else
                                                 delegateCache.Add(procFunc, [Delegate].CreateDelegate(procDelegate, procRedirector))
                                                 procAddr = Marshal.GetFunctionPointerForDelegate(delegateCache(procFunc))
-                                                Log.WriteLine(LogType.DEBUG, "        Function: {0} @ MY 0x{1:X8}", procFunc, procAddr)
+                                                _WorldServer.Log.WriteLine(LogType.DEBUG, "        Function: {0} @ MY 0x{1:X8}", procFunc, procAddr)
                                             End If
                                             Marshal.WriteInt32(New IntPtr(dwImports), procAddr)
                                         End If
@@ -343,7 +343,7 @@ Namespace Warden
 
                     Return True
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Failed to prepair module.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "Failed to prepair module.{0}{1}", Environment.NewLine, ex.ToString)
                     Return False
                 End Try
             End Function
@@ -447,10 +447,10 @@ Namespace Warden
 
                 Console.WriteLine("Initializing module")
                 Try
-                    Log.WriteLine(LogType.SUCCESS, "[WARDEN] Successfully Initialized Module.")
+                    _WorldServer.Log.WriteLine(LogType.SUCCESS, "[WARDEN] Successfully Initialized Module.")
                     init = CType(Marshal.GetDelegateForFunctionPointer(New IntPtr(InitPointer), GetType(InitializeModule)), InitializeModule)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to Initialize Module.")
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to Initialize Module.")
                 End Try
 
                 pWardenList = Marshal.ReadInt32(New IntPtr(m_ModMem))
@@ -753,38 +753,38 @@ Namespace Warden
                         Case CheckTypes.MEM_CHECK ' MEM_CHECK: uint8 result, uint8[] bytes
                             Dim result As Byte = p.GetInt8()
                             Dim bytes() As Byte = p.GetByteArray '(Check.Length)
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Bytes=0x{2}", Check.Type, result, BitConverter.ToString(bytes).Replace("-", ""))
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Bytes=0x{2}", Check.Type, result, BitConverter.ToString(bytes).Replace("-", ""))
 
                         Case CheckTypes.PAGE_CHECK_A_B ' PAGE_CHECK_A_B: uint8 result
                             Dim result As Byte = p.GetInt8()
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1}", Check.Type, result)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1}", Check.Type, result)
 
                         Case CheckTypes.MPQ_CHECK ' MPQ_CHECK: uint8 result, uint8[20] sha1
                             Dim result As Byte = p.GetInt8()
                             Dim hash() As Byte = p.GetByteArray '(20)
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Hash=0x{2}", Check.Type, result, BitConverter.ToString(hash).Replace("-", ""))
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Hash=0x{2}", Check.Type, result, BitConverter.ToString(hash).Replace("-", ""))
 
                         Case CheckTypes.LUA_STR_CHECK ' LUA_STR_CHECK: uint8 unk, uint8 len, char[len] data
                             Dim unk As Byte = p.GetInt8()
                             Dim data As String = p.GetString2()
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Data={2}", Check.Type, unk, data)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Data={2}", Check.Type, unk, data)
 
                         Case CheckTypes.DRIVER_CHECK ' DRIVER_CHECK: uint8 result
                             Dim result As Byte = p.GetInt8()
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1}", Check.Type, result)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1}", Check.Type, result)
 
                         Case CheckTypes.TIMING_CHECK ' TIMING_CHECK: uint8 result, uint32 time
                             Dim result As Byte = p.GetInt8()
                             Dim time As Integer = p.GetInt32()
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Time={2}", Check.Type, result, time)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1} Time={2}", Check.Type, result, time)
 
                         Case CheckTypes.PROC_CHECK ' PROC_CHECK: uint8 result
                             Dim result As Byte = p.GetInt8()
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1}", Check.Type, result)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}] Result={1}", Check.Type, result)
 
                         Case CheckTypes.MODULE_CHECK
                             'What is the structure for this result?
-                            Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}]", Check.Type)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] [{0}]", Check.Type)
 
                     End Select
                 Next

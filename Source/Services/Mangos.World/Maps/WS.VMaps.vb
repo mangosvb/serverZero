@@ -83,17 +83,17 @@ Public Module _Global_Constants.VMAP_Module
 
                 Dim result As Boolean = True
                 fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
-                Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
 
                 If fileVersion <> _Global_Constants.VMAP_MAGIC Then Throw New FileLoadException()
                 b.Read(ident, 0, 8)
                 flags = b.ReadUInt32()
                 'POS
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "POS: {0}", Text.Encoding.ASCII.GetString(chunk))
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "POS: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
                 iBasePosition = New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())
-                Log.WriteLine(LogType.DEBUG, "Position: {0}", iBasePosition)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Position: {0}", iBasePosition)
 
 #If VMAPS_DEBUG Then
                 sw.WriteLine(fileVersion)
@@ -104,12 +104,12 @@ Public Module _Global_Constants.VMAP_Module
 
                 '---- Box
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "BOX: {0}", Text.Encoding.ASCII.GetString(chunk))
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "BOX: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
                 Dim low As New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())
                 Dim high As New Vector3(b.ReadSingle(), b.ReadSingle(), b.ReadSingle())
                 iBox = New AABox(low, high)
-                Log.WriteLine(LogType.DEBUG, "Box: {0}", iBox)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Box: {0}", iBox)
 
 #If VMAPS_DEBUG Then
                 sw.WriteLine("Bounds: {0}", iBox)
@@ -118,7 +118,7 @@ Public Module _Global_Constants.VMAP_Module
 
                 '---- TreeNodes
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "NODE: {0}", Text.Encoding.ASCII.GetString(chunk))
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "NODE: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
 
                 numNodes = b.ReadInt32()
@@ -126,7 +126,7 @@ Public Module _Global_Constants.VMAP_Module
                 sw.WriteLine("TreeNodes: {0}", numNodes)
                 sw.WriteLine("===================")
 #End If
-                Log.WriteLine(LogType.DEBUG, "NumNodes: {0}", numNodes)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "NumNodes: {0}", numNodes)
                 iTreeNodes = New List(Of TreeNode)(numNodes)
                 For i As Integer = 0 To numNodes - 1
                     iTreeNodes.Add(New TreeNode(i, b.ReadSingle(), b.ReadInt32(), b.ReadInt32(), b.ReadInt32(), b.ReadInt32(),
@@ -144,7 +144,7 @@ Public Module _Global_Constants.VMAP_Module
 
                 '---- TriangleBoxes
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "TRIB: {0}", Text.Encoding.ASCII.GetString(chunk))
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "TRIB: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
 
                 numTriangles = b.ReadInt32()
@@ -152,7 +152,7 @@ Public Module _Global_Constants.VMAP_Module
                 sw.WriteLine("TriangleBoxes: {0}", numTriangles)
                 sw.WriteLine("===================")
 #End If
-                Log.WriteLine(LogType.DEBUG, "NumTriangles: {0}", numTriangles)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "NumTriangles: {0}", numTriangles)
                 iTriangles = New List(Of IBaseCollision)(numTriangles)
                 For i As Integer = 0 To numTriangles - 1
                     iTriangles.Add(New TriangleBox(New ShortVector(b.ReadInt16(), b.ReadInt16(), b.ReadInt16()),
@@ -169,7 +169,7 @@ Public Module _Global_Constants.VMAP_Module
 
                 '---- SubModel
                 b.Read(chunk, 0, 4)
-                Log.WriteLine(LogType.DEBUG, "SUBM: {0}", Text.Encoding.ASCII.GetString(chunk))
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "SUBM: {0}", Text.Encoding.ASCII.GetString(chunk))
                 size = b.ReadUInt32()
 
                 numSubModels = b.ReadInt32()
@@ -177,7 +177,7 @@ Public Module _Global_Constants.VMAP_Module
                 sw.WriteLine("SubModels: {0}", numSubModels)
                 sw.WriteLine("===================")
 #End If
-                Log.WriteLine(LogType.DEBUG, "NumSubModels: {0}", numSubModels)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "NumSubModels: {0}", numSubModels)
                 subModels = New List(Of IBaseCollision)(numSubModels)
                 For i As Integer = 0 To numSubModels - 1
                     Dim newSubModel As New SubModel()
@@ -201,9 +201,9 @@ Public Module _Global_Constants.VMAP_Module
                 Return True
 
             Catch ex As FileLoadException
-                Log.WriteLine(LogType.CRITICAL, "Error loading map file [{0}]. Wrong file version [{1}].", fileName, fileVersion)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error loading map file [{0}]. Wrong file version [{1}].", fileName, fileVersion)
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error loading map file [{0}].{1}{2}", fileName, Environment.NewLine, ex.ToString())
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error loading map file [{0}].{1}{2}", fileName, Environment.NewLine, ex.ToString())
             End Try
 
             If f IsNot Nothing Then
@@ -216,7 +216,7 @@ Public Module _Global_Constants.VMAP_Module
 
         Public Overloads Sub Intersect(ByVal pRay As Ray, ByRef pMaxDist As Single, ByVal pStopAtFirstHit As Boolean) Implements IBaseCollision.Intersect
 #If VMAPS_DEBUG Then
-            Log.WriteLine(LogType.DEBUG, "Checking model container hit!")
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "Checking model container hit!")
 #End If
             iTreeNodes(0).IntersectRay(pRay, pMaxDist, iTreeNodes, 0, subModels, 0, pStopAtFirstHit, False)
         End Sub
@@ -549,16 +549,16 @@ Public Module _Global_Constants.VMAP_Module
                 If Not Intersects(ray, distance) Then
                     'The ray doesn't hit this node, so it can't hit the children of the node.
 #If VMAPS_DEBUG Then
-                    Log.WriteLine(LogType.DEBUG, "Node wasn't hit!")
-                    Log.WriteLine(LogType.DEBUG, "iBounds: {0}", splitBounds)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Node wasn't hit!")
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "iBounds: {0}", splitBounds)
 #End If
                     Exit Sub
                 End If
 #If VMAPS_DEBUG Then
-                Log.WriteLine(LogType.DEBUG, "Node was hit!")
-                Log.WriteLine(LogType.DEBUG, "iBounds: {0}", splitBounds)
-                If child(0) IsNot Nothing Then Log.WriteLine(LogType.DEBUG, "child(0) iBounds: {0}", child(0).splitBounds)
-                If child(1) IsNot Nothing Then Log.WriteLine(LogType.DEBUG, "child(1) iBounds: {0}", child(1).splitBounds)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Node was hit!")
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "iBounds: {0}", splitBounds)
+                If child(0) IsNot Nothing Then _WorldServer.Log.WriteLine(LogType.DEBUG, "child(0) iBounds: {0}", child(0).splitBounds)
+                If child(1) IsNot Nothing Then _WorldServer.Log.WriteLine(LogType.DEBUG, "child(1) iBounds: {0}", child(1).splitBounds)
 #End If
 
                 'Test for intersection against every object at this node.
@@ -569,7 +569,7 @@ Public Module _Global_Constants.VMAP_Module
                         Dim location As Vector3
                         Dim bounds As AABox = boundsArray(v)
 #If VMAPS_DEBUG Then
-                        Log.WriteLine(LogType.DEBUG, "valueArray({1}): {0}", bounds, v)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "valueArray({1}): {0}", bounds, v)
 #End If
                         Dim alreadyInsideBounds As Boolean = False
                         Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(
@@ -678,23 +678,23 @@ Public Module _Global_Constants.VMAP_Module
             End Sub
 
             Public Sub VerifyNode(ByVal lo As Vector3, ByVal hi As Vector3)
-                If lo <> splitBounds.Low Then Log.WriteLine(LogType.FAILED, "[VerifyNode] splitBounds.Low <> lo [{0} - {1}]", lo, splitBounds.Low)
-                If hi <> splitBounds.High Then Log.WriteLine(LogType.FAILED, "[VerifyNode] splitBounds.High <> hi [{0} - {1}]", hi, splitBounds.High)
+                If lo <> splitBounds.Low Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] splitBounds.Low <> lo [{0} - {1}]", lo, splitBounds.Low)
+                If hi <> splitBounds.High Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] splitBounds.High <> hi [{0} - {1}]", hi, splitBounds.High)
 
                 For i As Integer = 0 To valueArray.Count - 1
                     Dim b As AABox = valueArray(i).Bounds
-                    If b <> boundsArray(i) Then Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}) <> b [{1} - {2}]", i, b, boundsArray(i))
+                    If b <> boundsArray(i) Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}) <> b [{1} - {2}]", i, b, boundsArray(i))
 
                     For axis As Integer = 0 To 2
-                        If b.Low(axis) > b.High(axis) Then Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}).Low({1}) > high [{2} - {3}]", i, axis, b.Low(axis), b.High(axis))
-                        If b.Low(axis) < lo(axis) Then Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}).Low({1}) < parentLow [{2} - {3}]", i, axis, b.Low(axis), lo(axis))
-                        If b.High(axis) > hi(axis) Then Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}).High({1}) > parentHigh [{2} - {3}]", i, axis, b.High(axis), hi(axis))
+                        If b.Low(axis) > b.High(axis) Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}).Low({1}) > high [{2} - {3}]", i, axis, b.Low(axis), b.High(axis))
+                        If b.Low(axis) < lo(axis) Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}).Low({1}) < parentLow [{2} - {3}]", i, axis, b.Low(axis), lo(axis))
+                        If b.High(axis) > hi(axis) Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] boundsArray({0}).High({1}) > parentHigh [{2} - {3}]", i, axis, b.High(axis), hi(axis))
                     Next
                 Next
 
                 If (child(0) IsNot Nothing) OrElse (child(1) IsNot Nothing) Then
-                    If lo(splitAxis) >= splitLocation Then Log.WriteLine(LogType.FAILED, "[VerifyNode] lo(splitAxis) >= splitLocation [{0} - {1}]", lo(splitAxis), splitLocation)
-                    If hi(splitAxis) <= splitLocation Then Log.WriteLine(LogType.FAILED, "[VerifyNode] hi(splitAxis) <= splitLocation [{0} - {1}]", hi(splitAxis), splitLocation)
+                    If lo(splitAxis) >= splitLocation Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] lo(splitAxis) >= splitLocation [{0} - {1}]", lo(splitAxis), splitLocation)
+                    If hi(splitAxis) <= splitLocation Then _WorldServer.Log.WriteLine(LogType.FAILED, "[VerifyNode] hi(splitAxis) <= splitLocation [{0} - {1}]", hi(splitAxis), splitLocation)
                 End If
 
                 Dim newLo As New Vector3(lo)
@@ -889,23 +889,23 @@ Public Module _Global_Constants.VMAP_Module
                 End If
 
 #If VMAPS_DEBUG Then
-                If (lt.Count + node.valueArray.Count + gt.Count) <> source.Count Then Log.WriteLine(LogType.CRITICAL, "[MakeNode] Node count doesn't match! [{0} - {1}]", (lt.Count + node.valueArray.Count + gt.Count), source.Count)
+                If (lt.Count + node.valueArray.Count + gt.Count) <> source.Count Then _WorldServer.Log.WriteLine(LogType.CRITICAL, "[MakeNode] Node count doesn't match! [{0} - {1}]", (lt.Count + node.valueArray.Count + gt.Count), source.Count)
                 'Verify that all objects ended up on the correct side of the split.
                 '(i.e., make sure that the Array partition was correct)
                 For i As Integer = 0 To lt.Count - 1
                     Dim bounds2 As AABox = lt(i).Bounds
-                    If bounds2.High(splitAxis) >= splitLocation Then Log.WriteLine(LogType.CRITICAL, "[MakeNode] lt({0}).Bounds.High(splitAxis) >= splitLocation [{1} - {2}]", i, bounds2.High(splitAxis), splitLocation)
+                    If bounds2.High(splitAxis) >= splitLocation Then _WorldServer.Log.WriteLine(LogType.CRITICAL, "[MakeNode] lt({0}).Bounds.High(splitAxis) >= splitLocation [{1} - {2}]", i, bounds2.High(splitAxis), splitLocation)
                 Next
 
                 For i As Integer = 0 To gt.Count - 1
                     Dim bounds2 As AABox = gt(i).Bounds
-                    If bounds2.Low(splitAxis) <= splitLocation Then Log.WriteLine(LogType.CRITICAL, "[MakeNode] gt({0}).Bounds.Low(splitAxis) <= splitLocation [{1} - {2}]", i, bounds2.Low(splitAxis), splitLocation)
+                    If bounds2.Low(splitAxis) <= splitLocation Then _WorldServer.Log.WriteLine(LogType.CRITICAL, "[MakeNode] gt({0}).Bounds.Low(splitAxis) <= splitLocation [{1} - {2}]", i, bounds2.Low(splitAxis), splitLocation)
                 Next
 
                 For i As Integer = 0 To node.valueArray.Count - 1
                     Dim bounds2 As AABox = node.valueArray(i).Bounds
-                    If bounds2.High(splitAxis) < splitLocation Then Log.WriteLine(LogType.CRITICAL, "[MakeNode] node.valueArray({0}).Bounds.High(splitAxis) < splitLocation [{1} - {2}]", i, bounds2.High(splitAxis), splitLocation)
-                    If bounds2.Low(splitAxis) > splitLocation Then Log.WriteLine(LogType.CRITICAL, "[MakeNode] node.valueArray({0}).Bounds.Low(splitAxis) > splitLocation [{1} - {2}]", i, bounds2.Low(splitAxis), splitLocation)
+                    If bounds2.High(splitAxis) < splitLocation Then _WorldServer.Log.WriteLine(LogType.CRITICAL, "[MakeNode] node.valueArray({0}).Bounds.High(splitAxis) < splitLocation [{1} - {2}]", i, bounds2.High(splitAxis), splitLocation)
+                    If bounds2.Low(splitAxis) > splitLocation Then _WorldServer.Log.WriteLine(LogType.CRITICAL, "[MakeNode] node.valueArray({0}).Bounds.Low(splitAxis) > splitLocation [{1} - {2}]", i, bounds2.Low(splitAxis), splitLocation)
                 Next
 #End If
 
@@ -980,21 +980,21 @@ Public Module _Global_Constants.VMAP_Module
         Public Sub IntersectRay(ByVal ray As Ray, ByRef distance As Single, ByRef pNodes As List(Of TreeNode), ByVal iNodeStart As Integer, ByRef pSecond As List(Of IBaseCollision), ByVal iSecondStart As Integer, ByVal pStopAtFirstHit As Boolean, ByVal intersectCallbackIsFast As Boolean)
             Dim enterDistance As Single = distance
 #If VMAPS_DEBUG Then
-            Log.WriteLine(LogType.DEBUG, "TreeNode ID: {0}!", ID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "TreeNode ID: {0}!", ID)
 #End If
             If Not Intersects(ray, distance) Then
                 'The ray doesn't hit this node, so it can't hit the children of the node.
 #If VMAPS_DEBUG Then
-                Log.WriteLine(LogType.DEBUG, "Doesn't hit TreeNode!")
-                Log.WriteLine(LogType.DEBUG, "iBounds: {0}", iBounds)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Doesn't hit TreeNode!")
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "iBounds: {0}", iBounds)
 #End If
                 Exit Sub
             End If
 #If VMAPS_DEBUG Then
-            Log.WriteLine(LogType.DEBUG, "Hit TreeNode!")
-            Log.WriteLine(LogType.DEBUG, "iBounds: {0}", iBounds)
-            If iChilds(0) > 0 Then Log.WriteLine(LogType.DEBUG, "child(0) iBounds: {0}", pNodes(iNodeStart + iChilds(0)).iBounds)
-            If iChilds(1) > 0 Then Log.WriteLine(LogType.DEBUG, "child(1) iBounds: {0}", pNodes(iNodeStart + iChilds(1)).iBounds)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "Hit TreeNode!")
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "iBounds: {0}", iBounds)
+            If iChilds(0) > 0 Then _WorldServer.Log.WriteLine(LogType.DEBUG, "child(0) iBounds: {0}", pNodes(iNodeStart + iChilds(0)).iBounds)
+            If iChilds(1) > 0 Then _WorldServer.Log.WriteLine(LogType.DEBUG, "child(1) iBounds: {0}", pNodes(iNodeStart + iChilds(1)).iBounds)
 #End If
 
             'Test for intersection against every object at this node.
@@ -1005,7 +1005,7 @@ Public Module _Global_Constants.VMAP_Module
                     Dim location As Vector3
                     Dim bounds As AABox = nodeValue.Bounds()
 #If VMAPS_DEBUG Then
-                    Log.WriteLine(LogType.DEBUG, "submodel({1}) iBounds: {0}", bounds, v)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "submodel({1}) iBounds: {0}", bounds, v)
 #End If
                     Dim alreadyInsideBounds As Boolean = False
                     Dim rayWillHitBounds As Boolean = collisionLocationForMovingPointFixedAABox(
@@ -1060,7 +1060,7 @@ Public Module _Global_Constants.VMAP_Module
             'Test on the side closer to the ray origin.
             If firstChild <> NONE AndAlso iChilds(firstChild) > 0 Then
 #If VMAPS_DEBUG Then
-                Log.WriteLine(LogType.DEBUG, "TreeNode child({0}) testing!", firstChild)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "TreeNode child({0}) testing!", firstChild)
 #End If
                 pNodes(iNodeStart + iChilds(firstChild)).IntersectRay(ray, distance, pNodes, iNodeStart, pSecond, iSecondStart, pStopAtFirstHit, intersectCallbackIsFast)
                 If pStopAtFirstHit AndAlso distance < enterDistance Then Exit Sub
@@ -1079,7 +1079,7 @@ Public Module _Global_Constants.VMAP_Module
             'Test on the side farther from the ray origin.
             If secondChild <> NONE AndAlso iChilds(secondChild) > 0 Then
 #If VMAPS_DEBUG Then
-                Log.WriteLine(LogType.DEBUG, "TreeNode child({0}) testing!", secondChild)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "TreeNode child({0}) testing!", secondChild)
 #End If
                 pNodes(iNodeStart + iChilds(secondChild)).IntersectRay(ray, distance, pNodes, iNodeStart, pSecond, iSecondStart, pStopAtFirstHit, intersectCallbackIsFast)
             End If

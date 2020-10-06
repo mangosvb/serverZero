@@ -150,7 +150,7 @@ Namespace Quests
 
             '        Quests.Add(ID, Me)
 
-            WorldDatabase.Query(String.Format("SELECT * FROM quests WHERE entry = {0};", QuestID), MySQLQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM quests WHERE entry = {0};", QuestID), MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Throw New ApplicationException("Quest " & QuestID & " not found in database.")
 
             If MySQLQuery.Rows(0).Item("PrevQuestId") > 0 Then PreQuests.Add(MySQLQuery.Rows(0).Item("PrevQuestId"))
@@ -315,32 +315,32 @@ Namespace Quests
         ''' </summary>
         Private Sub InitQuest()
             If NextQuestInChain > 0 Then
-                If ALLQUESTS.IsValidQuest(NextQuestInChain) = False Then
+                If _WorldServer.ALLQUESTS.IsValidQuest(NextQuestInChain) = False Then
                     Dim tmpQuest As New WS_QuestInfo(NextQuestInChain)
                     If tmpQuest.PreQuests.Contains(ID) = False Then
-                        Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", ID, NextQuestInChain) ', ALLQUESTS.ReturnQuestNameById(ID), ALLQUESTS.ReturnQuestNameById(NextQuestInChain))
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", ID, NextQuestInChain) ', _WorldServer.ALLQUESTS.ReturnQuestNameById(ID), _WorldServer.ALLQUESTS.ReturnQuestNameById(NextQuestInChain))
                         tmpQuest.PreQuests.Add(ID)
                     End If
                 Else
-                    If ALLQUESTS.DoesPreQuestExist(NextQuestInChain, ID) = False Then
-                        Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", NextQuestInChain, ID) ', ALLQUESTS.ReturnQuestNameById(NextQuestInChain), ALLQUESTS.ReturnQuestNameById(ID))
-                        ALLQUESTS.ReturnQuestInfoById(NextQuestInChain).PreQuests.Add(ID)
+                    If _WorldServer.ALLQUESTS.DoesPreQuestExist(NextQuestInChain, ID) = False Then
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", NextQuestInChain, ID) ', _WorldServer.ALLQUESTS.ReturnQuestNameById(NextQuestInChain), _WorldServer.ALLQUESTS.ReturnQuestNameById(ID))
+                        _WorldServer.ALLQUESTS.ReturnQuestInfoById(NextQuestInChain).PreQuests.Add(ID)
                     End If
                 End If
             End If
             If NextQuest <> 0 Then
                 Dim unsignedNextQuest As Integer = Math.Abs(NextQuest)
                 Dim signedQuestID As Integer = If((NextQuest < 0), -ID, ID)
-                If ALLQUESTS.IsValidQuest(unsignedNextQuest) = False Then
+                If _WorldServer.ALLQUESTS.IsValidQuest(unsignedNextQuest) = False Then
                     Dim tmpQuest As New WS_QuestInfo(unsignedNextQuest)
                     If tmpQuest.PreQuests.Contains(signedQuestID) = False Then
-                        Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", signedQuestID, unsignedNextQuest) ', ALLQUESTS.ReturnQuestNameById(signedQuestID), ALLQUESTS.ReturnQuestNameById(unsignedNextQuest))
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", signedQuestID, unsignedNextQuest) ', _WorldServer.ALLQUESTS.ReturnQuestNameById(signedQuestID), _WorldServer.ALLQUESTS.ReturnQuestNameById(unsignedNextQuest))
                         tmpQuest.PreQuests.Add(signedQuestID)
                     End If
                 Else
-                    If ALLQUESTS.DoesPreQuestExist(unsignedNextQuest, signedQuestID) = False Then
-                        Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", signedQuestID, unsignedNextQuest) ', ALLQUESTS.ReturnQuestNameById(signedQuestID), ALLQUESTS.ReturnQuestNameById(unsignedNextQuest))
-                        ALLQUESTS.ReturnQuestInfoById(unsignedNextQuest).PreQuests.Add(signedQuestID)
+                    If _WorldServer.ALLQUESTS.DoesPreQuestExist(unsignedNextQuest, signedQuestID) = False Then
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "Added prequest [{0}] to quest [{1}]", signedQuestID, unsignedNextQuest) ', _WorldServer.ALLQUESTS.ReturnQuestNameById(signedQuestID), _WorldServer.ALLQUESTS.ReturnQuestNameById(unsignedNextQuest))
+                        _WorldServer.ALLQUESTS.ReturnQuestInfoById(unsignedNextQuest).PreQuests.Add(signedQuestID)
                     End If
                 End If
             End If

@@ -32,14 +32,14 @@ Namespace Objects
         Public Sub New(ByVal CreatureID As Integer)
             Me.New()
             Id = CreatureID
-            CREATURESDatabase.Add(Id, Me)
+            _WorldServer.CREATURESDatabase.Add(Id, Me)
 
             'DONE: Load Item Data from MySQL
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
 
             If MySQLQuery.Rows.Count = 0 Then
-                Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
                 found_ = False
                 'Throw New ApplicationException(String.Format("CreatureID {0} not found in SQL database.", CreatureID))
                 Exit Sub
@@ -157,7 +157,7 @@ Namespace Objects
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                CREATURESDatabase.Remove(Id)
+                _WorldServer.CREATURESDatabase.Remove(Id)
             End If
             _disposedValue = True
         End Sub
@@ -172,13 +172,13 @@ Namespace Objects
 
         Public ReadOnly Property Life() As Integer
             Get
-                Return Rnd.Next(MinLife, MaxLife)
+                Return _WorldServer.Rnd.Next(MinLife, MaxLife)
             End Get
         End Property
 
         Public ReadOnly Property Mana() As Integer
             Get
-                Return Rnd.Next(MinMana, MaxMana)
+                Return _WorldServer.Rnd.Next(MinMana, MaxMana)
             End Get
         End Property
 
@@ -203,7 +203,7 @@ Namespace Objects
                     current += 1
                 End If
                 If current = 0 Then Return 0
-                Return modelIDs(Rnd.Next(0, current))
+                Return modelIDs(_WorldServer.Rnd.Next(0, current))
             End Get
         End Property
 

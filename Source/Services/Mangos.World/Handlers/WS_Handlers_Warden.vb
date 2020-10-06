@@ -45,7 +45,7 @@ Namespace Handlers
             packet.GetInt16()
             Dim Response As MaievResponse = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WARDEN_DATA [{2}]", client.IP, client.Port, Response)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WARDEN_DATA [{2}]", client.IP, client.Port, Response)
 
             If client.Character.WardenData.Ready Then
                 Select Case Response
@@ -72,7 +72,7 @@ Namespace Handlers
 
                         Dim HandledBytes As Integer = Maiev.HandlePacket(PacketData)
                         If HandledBytes <= 0 Then
-                            Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to handle 0x05 packet.")
+                            _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to handle 0x05 packet.")
                             Exit Sub
                         End If
                         Dim thePacket() As Byte = Maiev.ReadPacket()
@@ -82,7 +82,7 @@ Namespace Handlers
                         Maiev.ReadXorByte(Client.Character)
                         Maiev.ReadKeys(Client.Character)
 
-                        Log.WriteLine(LogType.DEBUG, "[WARDEN] XorByte: {0}", client.Character.WardenData.xorByte)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] XorByte: {0}", client.Character.WardenData.xorByte)
 
                         Dim HashCorrect As Boolean = True
                         For i As Integer = 0 To 19
@@ -93,7 +93,7 @@ Namespace Handlers
                         Next
 
                         If Not HashCorrect Then
-                            Log.WriteLine(LogType.CRITICAL, "[WARDEN] Hashes in packet 0x05 didn't match. Cheater?")
+                            _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Hashes in packet 0x05 didn't match. Cheater?")
                         Else
                             'MaievSendUnk(Client.Character)
                         End If
@@ -102,7 +102,7 @@ Namespace Handlers
         End Sub
 
         Public Sub MaievInit(ByRef objCharacter As WS_PlayerData.CharacterObject)
-            Dim k As Byte() = ClsWorldServer.Cluster.ClientGetCryptKey(objCharacter.client.Index)
+            Dim k As Byte() = _WorldServer.ClsWorldServer.Cluster.ClientGetCryptKey(objCharacter.client.Index)
             Dim m As New MaievData(k)
             Dim seedOut As Byte() = m.GetBytes(16)
             Dim seedIn As Byte() = m.GetBytes(16)
@@ -122,7 +122,7 @@ Namespace Handlers
         Public Sub MaievSendModule(ByRef objCharacter As CharacterObject)
             If Not objCharacter.WardenData.Ready Then Throw New ApplicationException("Maiev.mod not ready!")
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [{2}]", objCharacter.Client.IP, objCharacter.Client.Port, Maiev.ModuleName)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [{2}]", objCharacter.Client.IP, objCharacter.Client.Port, Maiev.ModuleName)
 
             Dim r As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
             r.AddInt8(MaievOpcode.MAIEV_MODULE_INFORMATION)     'Opcode
@@ -146,7 +146,7 @@ Namespace Handlers
                     r.AddInt8(file.ReadByte)
                 Next
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [data]", objCharacter.Client.IP, objCharacter.Client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [data]", objCharacter.Client.IP, objCharacter.Client.Port)
                 'DumpPacket(r.Data, objCharacter.Client, 4)
 
                 SendWardenPacket(objCharacter, r)
@@ -162,7 +162,7 @@ Namespace Handlers
                     r.AddInt8(file.ReadByte)
                 Next
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [done]", objCharacter.Client.IP, objCharacter.Client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [done]", objCharacter.Client.IP, objCharacter.Client.Port)
                 'DumpPacket(r.Data, objCharacter.Client, 4)
 
                 SendWardenPacket(objCharacter, r)
@@ -208,12 +208,12 @@ Namespace Handlers
             Dim data() As Byte = Packet.GetByteArray()
             Packet.Offset = tmpOffset
             If ControlChecksum(checkSum, data) = False Then
-                Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed checkSum at result packet. Cheater?")
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed checkSum at result packet. Cheater?")
                 objCharacter.CommandResponse("[WARDEN] Pack your bags cheater, you're going!")
                 Exit Sub
             End If
 
-            Log.WriteLine(LogType.DEBUG, "[WARDEN] Result bufLen:{0} checkSum:{1:X}", bufLen, checkSum)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] Result bufLen:{0} checkSum:{1:X}", bufLen, checkSum)
 
             objCharacter.WardenData.Scan.HandleResponse(Packet)
         End Sub

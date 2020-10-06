@@ -112,13 +112,13 @@ Namespace Objects
             Dim PetNumber As Integer = packet.GetInt32()
             Dim PetGUID As ULong = packet.GetUInt64()
 
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_NAME_QUERY [Number={0} GUID={1:X}", PetNumber, PetGUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_NAME_QUERY [Number={0} GUID={1:X}", PetNumber, PetGUID)
 
             SendPetNameQuery(client, PetGUID, PetNumber)
         End Sub
 
         Public Sub On_CMSG_REQUEST_PET_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "CMSG_REQUEST_PET_INFO")
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_REQUEST_PET_INFO")
 
             DumpPacket(packet.Data, client, 6)
         End Sub
@@ -130,11 +130,11 @@ Namespace Objects
             Dim SpellFlag As UShort = packet.GetUInt16()
             Dim TargetGUID As ULong = packet.GetUInt64()
 
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_ACTION [GUID={0:X} Spell={1} Flag={2:X} Target={3:X}]", PetGUID, SpellID, SpellFlag, TargetGUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_ACTION [GUID={0:X} Spell={1} Flag={2:X} Target={3:X}]", PetGUID, SpellID, SpellFlag, TargetGUID)
         End Sub
 
         Public Sub On_CMSG_PET_CANCEL_AURA(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_CANCEL_AURA")
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_CANCEL_AURA")
 
             DumpPacket(packet.Data, client, 6)
         End Sub
@@ -143,7 +143,7 @@ Namespace Objects
             packet.GetInt16()
             Dim PetGUID As ULong = packet.GetUInt64()
 
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_ABANDON [GUID={0:X}]", PetGUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_ABANDON [GUID={0:X}]", PetGUID)
         End Sub
 
         Public Sub On_CMSG_PET_RENAME(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -151,7 +151,7 @@ Namespace Objects
             Dim PetGUID As ULong = packet.GetUInt64()
             Dim PetName As String = packet.GetString()
 
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_RENAME [GUID={0:X} Name={1}]", PetGUID, PetName)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_RENAME [GUID={0:X} Name={1}]", PetGUID, PetName)
         End Sub
 
         Public Sub On_CMSG_PET_SET_ACTION(ByRef packet As PacketClass, ByRef client As ClientClass)
@@ -161,34 +161,34 @@ Namespace Objects
             Dim SpellID As UShort = packet.GetUInt16()
             Dim ActionState As Short = packet.GetInt16()
 
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_SET_ACTION [GUID={0:X} Pos={1} Spell={2} Action={3}]", PetGUID, Position, SpellID, ActionState)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_SET_ACTION [GUID={0:X} Pos={1} Spell={2} Action={3}]", PetGUID, Position, SpellID, ActionState)
         End Sub
 
         Public Sub On_CMSG_PET_SPELL_AUTOCAST(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_SPELL_AUTOCAST")
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_SPELL_AUTOCAST")
 
             DumpPacket(packet.Data, client, 6)
         End Sub
 
         Public Sub On_CMSG_PET_STOP_ATTACK(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_STOP_ATTACK")
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_STOP_ATTACK")
 
             DumpPacket(packet.Data, client, 6)
         End Sub
 
         Public Sub On_CMSG_PET_UNLEARN(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "CMSG_PET_UNLEARN")
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "CMSG_PET_UNLEARN")
 
             DumpPacket(packet.Data, client, 6)
         End Sub
 
         Public Sub SendPetNameQuery(ByRef client As ClientClass, ByVal PetGUID As ULong, ByVal PetNumber As Integer)
-            If WORLD_CREATUREs.ContainsKey(PetGUID) = False Then Exit Sub
-            If Not TypeOf WORLD_CREATUREs(PetGUID) Is PetObject Then Exit Sub
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(PetGUID) = False Then Exit Sub
+            If Not TypeOf _WorldServer.WORLD_CREATUREs(PetGUID) Is PetObject Then Exit Sub
 
             Dim response As New PacketClass(OPCODES.SMSG_PET_NAME_QUERY_RESPONSE)
             response.AddInt32(PetNumber)
-            response.AddString(CType(WORLD_CREATUREs(PetGUID), PetObject).PetName) 'Pet name
+            response.AddString(CType(_WorldServer.WORLD_CREATUREs(PetGUID), PetObject).PetName) 'Pet name
             response.AddInt32(_NativeMethods.timeGetTime("")) 'Pet name timestamp
             client.Send(response)
             response.Dispose()
@@ -214,7 +214,7 @@ Namespace Objects
             If objCharacter.Pet IsNot Nothing Then Exit Sub
 
             Dim PetQuery As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT * FROM character_pet WHERE owner = '{0}';", objCharacter.GUID), PetQuery)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM character_pet WHERE owner = '{0}';", objCharacter.GUID), PetQuery)
             If PetQuery.Rows.Count = 0 Then Exit Sub
             Dim PetInfo As DataRow = PetQuery.Rows(0)
 
@@ -240,7 +240,7 @@ Namespace Objects
             objCharacter.Pet.positionZ = objCharacter.positionZ
             objCharacter.Pet.MapID = objCharacter.MapID
 
-            Log.WriteLine(LogType.DEBUG, "Loaded pet [{0}] for character [{1}].", objCharacter.Pet.GUID, objCharacter.GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "Loaded pet [{0}] for character [{1}].", objCharacter.Pet.GUID, objCharacter.GUID)
         End Sub
 
         Public Sub SendPetInitialize(ByRef Caster As CharacterObject, ByRef Pet As BaseUnit)

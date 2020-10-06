@@ -214,20 +214,20 @@ Namespace Globals
         Public Sub Ban_Account(ByVal Name As String, ByVal Reason As String)
             Dim account As New DataTable
             Dim bannedAccount As New DataTable
-            AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", Name), account)
+            _WorldServer.AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", Name), account)
             If (account.Rows.Count > 0) Then
                 Dim accID As Integer = account.Rows(0).Item("id")
-                AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accID), bannedAccount)
+                _WorldServer.AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accID), bannedAccount)
 
                 If (bannedAccount.Rows.Count > 0) Then
-                    AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accID & "';")
+                    _WorldServer.AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accID & "';")
                 Else
                     Dim tempBanDate As String = FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
-                    AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, tempBanDate, "0000-00-00 00:00:00", Name, Reason))
+                    _WorldServer.AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accID, tempBanDate, "0000-00-00 00:00:00", Name, Reason))
                 End If
-                Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", Name, Reason)
             Else
-                Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", Name)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", Name)
             End If
         End Sub
 
@@ -348,7 +348,7 @@ Namespace Globals
 
         Public Function RollChance(ByVal Chance As Single) As Boolean
             Dim nChance As Integer = Chance * 100
-            If Rnd.Next(1, 10001) <= nChance Then Return True
+            If _WorldServer.Rnd.Next(1, 10001) <= nChance Then Return True
             Return False
         End Function
 
@@ -381,11 +381,11 @@ Namespace Globals
         End Sub
 
         Public Sub Broadcast(ByVal Message As String)
-            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In CHARACTERs
+            _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+            For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In _WorldServer.CHARACTERs
                 If Character.Value.client IsNot Nothing Then SendMessageSystem(Character.Value.client, "System Message: " & SetColor(Message, 255, 0, 0))
             Next
-            CHARACTERs_Lock.ReleaseReaderLock()
+            _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
 
         Public Sub SendAccountMD5(ByRef client As ClientClass, ByRef Character As CharacterObject)
@@ -393,16 +393,16 @@ Namespace Globals
 
             'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
             'Dim AccData As New DataTable
-            'AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), AccData)
+            '_WorldServer.AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), AccData)
             'If AccData.Rows.Count > 0 Then
             '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
 
             '    AccData.Clear()
-            '    AccountDatabase.Query(String.Format("SELECT * FROM account_data WHERE account_id = {0}", AccID), AccData)
+            '    _WorldServer.AccountDatabase.Query(String.Format("SELECT * FROM account_data WHERE account_id = {0}", AccID), AccData)
             '    If AccData.Rows.Count > 0 Then
             '        FoundData = True
             '    Else
-            '        AccountDatabase.Update(String.Format("INSERT INTO account_data VALUES({0}, '', '', '', '', '', '', '', '')", AccID))
+            '        _WorldServer.AccountDatabase.Update(String.Format("INSERT INTO account_data VALUES({0}, '', '', '', '', '', '', '', '')", AccID))
             '    End If
             'End If
 
@@ -430,7 +430,7 @@ Namespace Globals
             Finally
                 SMSG_ACCOUNT_DATA_TIMES.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
         End Sub
 
         Public Sub SendTriggerCinematic(ByRef client As ClientClass, ByRef Character As CharacterObject)
@@ -439,7 +439,7 @@ Namespace Globals
                 If CharRaces.ContainsKey(Character.Race) Then
                     packet.AddInt32(CharRaces(Character.Race).CinematicID)
                 Else
-                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, Character.Race, Character.Classe)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, Character.Race, Character.Classe)
                     Exit Sub
                 End If
 
@@ -447,7 +447,7 @@ Namespace Globals
             Finally
                 packet.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", client.IP, client.Port)
         End Sub
 
         Public Sub SendTimeSyncReq(ByRef client As ClientClass)
@@ -475,7 +475,7 @@ Namespace Globals
             Finally
                 SMSG_LOGIN_SETTIMESPEED.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
         End Sub
 
         Public Sub SendProficiency(ByRef client As ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
@@ -488,7 +488,7 @@ Namespace Globals
             Finally
                 packet.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
         End Sub
 
         Public Sub SendCorpseReclaimDelay(ByRef client As ClientClass, ByRef Character As CharacterObject, Optional ByVal Seconds As Integer = 30)
@@ -499,7 +499,7 @@ Namespace Globals
             Finally
                 packet.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, Seconds)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, Seconds)
         End Sub
 
         Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
@@ -519,9 +519,9 @@ Namespace Globals
                     Case ChatMsg.CHAT_MSG_SYSTEM, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_IGNORED, ChatMsg.CHAT_MSG_SKILL, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_OFFICER, ChatMsg.CHAT_MSG_RAID, ChatMsg.CHAT_MSG_WHISPER_INFORM, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_WHISPER, ChatMsg.CHAT_MSG_AFK, ChatMsg.CHAT_MSG_DND, ChatMsg.CHAT_MSG_RAID_LEADER, ChatMsg.CHAT_MSG_RAID_WARNING
                         packet.AddUInt64(SenderGUID)
                     Case ChatMsg.CHAT_MSG_MONSTER_SAY, ChatMsg.CHAT_MSG_MONSTER_EMOTE, ChatMsg.CHAT_MSG_MONSTER_YELL
-                        Log.WriteLine(LogType.WARNING, "Use Creature.SendChatMessage() for this message type - {0}!", msgType)
+                        _WorldServer.Log.WriteLine(LogType.WARNING, "Use Creature.SendChatMessage() for this message type - {0}!", msgType)
                     Case Else
-                        Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
+                        _WorldServer.Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
                 End Select
 
                 packet.AddUInt32(Text.Encoding.UTF8.GetByteCount(Message) + 1)
@@ -529,7 +529,7 @@ Namespace Globals
 
                 packet.AddInt8(Flag)
             Catch ex As Exception
-                Log.WriteLine(LogType.FAILED, "failed chat message type - {0}!", msgType)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "failed chat message type - {0}!", msgType)
             End Try
             Return packet
         End Function

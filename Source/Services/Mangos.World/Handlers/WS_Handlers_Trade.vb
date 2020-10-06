@@ -312,7 +312,7 @@ Namespace Handlers
                     End Try
 
                 Catch e As Exception
-                    Log.WriteLine(LogType.FAILED, "Error doing trade: {0}{1}", Environment.NewLine, e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Error doing trade: {0}{1}", Environment.NewLine, e.ToString)
                 End Try
             End Sub
         End Class
@@ -322,7 +322,7 @@ Namespace Handlers
             If client Is Nothing Then Exit Sub
             If client.Character Is Nothing Then Exit Sub
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_TRADE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_TRADE", client.IP, client.Port)
 
             If client.Character.tradeInfo IsNot Nothing Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
@@ -341,7 +341,7 @@ Namespace Handlers
             packet.GetInt16()
             Dim gold As UInteger = packet.GetUInt32()
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_TRADE_GOLD [gold={2}]", client.IP, client.Port, gold)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_TRADE_GOLD [gold={2}]", client.IP, client.Port, gold)
 
             If client.Character.tradeInfo Is Nothing Then Exit Sub
             If client.Character.tradeInfo.Trader Is client.Character Then
@@ -359,7 +359,7 @@ Namespace Handlers
             Dim mySlot As Byte = packet.GetInt8
             If myBag = 255 Then myBag = 0
             If slot > 6 Then Exit Sub
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_TRADE_ITEM [slot={2} myBag={3} mySlot={4}]", client.IP, client.Port, slot, myBag, mySlot)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_TRADE_ITEM [slot={2} myBag={3} mySlot={4}]", client.IP, client.Port, slot, myBag, mySlot)
 
             If client.Character.tradeInfo Is Nothing Then Exit Sub
             If client.Character.tradeInfo.Trader Is client.Character Then
@@ -373,7 +373,7 @@ Namespace Handlers
         Public Sub On_CMSG_CLEAR_TRADE_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
             Dim slot As Byte = packet.GetInt8
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CLEAR_TRADE_ITEM [slot={2}]", client.IP, client.Port, slot)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CLEAR_TRADE_ITEM [slot={2}]", client.IP, client.Port, slot)
 
             If client.Character.tradeInfo.Trader Is client.Character Then
                 client.Character.tradeInfo.TraderSlots(slot) = -1
@@ -387,7 +387,7 @@ Namespace Handlers
         Public Sub On_CMSG_INITIATE_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
             Dim targetGUID As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_INITIATE_TRADE [Trader={2} Target={3}]", client.IP, client.Port, client.Character.GUID, targetGUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_INITIATE_TRADE [Trader={2} Target={3}]", client.IP, client.Port, client.Character.GUID, targetGUID)
 
             If client.Character.DEAD = True Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
@@ -418,7 +418,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If CHARACTERs.ContainsKey(targetGUID) = False Then
+            If _WorldServer.CHARACTERs.ContainsKey(targetGUID) = False Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_TARGET_MISSING)
@@ -427,7 +427,7 @@ Namespace Handlers
                     response.Dispose()
                 End Try
                 Exit Sub
-            ElseIf CHARACTERs(targetGUID).DEAD = True Then
+            ElseIf _WorldServer.CHARACTERs(targetGUID).DEAD = True Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_TARGET_DEAD)
@@ -436,7 +436,7 @@ Namespace Handlers
                     response.Dispose()
                 End Try
                 Exit Sub
-            ElseIf CHARACTERs(targetGUID).LogoutTimer IsNot Nothing Then
+            ElseIf _WorldServer.CHARACTERs(targetGUID).LogoutTimer IsNot Nothing Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_TARGET_LOGOUT)
@@ -445,7 +445,7 @@ Namespace Handlers
                     response.Dispose()
                 End Try
                 Exit Sub
-            ElseIf (CHARACTERs(targetGUID).cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then
+            ElseIf (_WorldServer.CHARACTERs(targetGUID).cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_STUNNED)
@@ -467,7 +467,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If Not CHARACTERs(targetGUID).tradeInfo Is Nothing Then
+            If Not _WorldServer.CHARACTERs(targetGUID).tradeInfo Is Nothing Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_TARGET_UNAVIABLE2)
@@ -478,7 +478,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If CHARACTERs(targetGUID).IsHorde <> client.Character.IsHorde Then
+            If _WorldServer.CHARACTERs(targetGUID).IsHorde <> client.Character.IsHorde Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_TARGET_DIFF_FACTION)
@@ -489,7 +489,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If GetDistance(client.Character, CHARACTERs(targetGUID)) > 30.0F Then
+            If GetDistance(client.Character, _WorldServer.CHARACTERs(targetGUID)) > 30.0F Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_TARGET_TOO_FAR)
@@ -510,7 +510,7 @@ Namespace Handlers
                 End Try
                 Exit Sub
             End If
-            If CHARACTERs(targetGUID).Access = AccessLevel.Trial Then
+            If _WorldServer.CHARACTERs(targetGUID).Access = AccessLevel.Trial Then
                 Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
                 Try
                     response.AddInt32(TradeStatus.TRADE_TRIAL_ACCOUNT)
@@ -522,7 +522,7 @@ Namespace Handlers
             End If
 
             'TODO: Another of these currently 'DO NOTHING' lines, needs to be implemented correctly
-            Dim tmpTradeInfo As New TTradeInfo(client.Character, CHARACTERs(targetGUID))
+            Dim tmpTradeInfo As New TTradeInfo(client.Character, _WorldServer.CHARACTERs(targetGUID))
 
             Dim response_ok As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
             Try
@@ -535,7 +535,7 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_BEGIN_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BEGIN_TRADE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BEGIN_TRADE", client.IP, client.Port)
 
             client.Character.tradeInfo.ID += 1
 
@@ -550,7 +550,7 @@ Namespace Handlers
             End Try
         End Sub
         Public Sub On_CMSG_UNACCEPT_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UNACCEPT_TRADE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UNACCEPT_TRADE", client.IP, client.Port)
 
             Dim response As New PacketClass(OPCODES.SMSG_TRADE_STATUS)
             Try
@@ -567,15 +567,15 @@ Namespace Handlers
             End Try
         End Sub
         Public Sub On_CMSG_ACCEPT_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ACCEPT_TRADE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ACCEPT_TRADE", client.IP, client.Port)
             client.Character.tradeInfo.DoTrade(client.Character)
         End Sub
 
         Public Sub On_CMSG_IGNORE_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_IGNORE_TRADE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_IGNORE_TRADE", client.IP, client.Port)
         End Sub
         Public Sub On_CMSG_BUSY_TRADE(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUSY_TRADE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUSY_TRADE", client.IP, client.Port)
         End Sub
 
     End Module

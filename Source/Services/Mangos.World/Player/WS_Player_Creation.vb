@@ -44,7 +44,7 @@ Namespace Player
             Character.FacialHair = FacialHair
 
             'DONE: Query Access Level and Account ID
-            AccountDatabase.Query(String.Format("SELECT id, gmlevel FROM account WHERE username = ""{0}"";", Account), MySQLQuery)
+            _WorldServer.AccountDatabase.Query(String.Format("SELECT id, gmlevel FROM account WHERE username = ""{0}"";", Account), MySQLQuery)
             Dim Account_ID As Integer = MySQLQuery.Rows(0).Item("id")
             Dim Account_Access As AccessLevel = MySQLQuery.Rows(0).Item("gmlevel")
             Character.Access = Account_Access
@@ -56,7 +56,7 @@ Namespace Player
             'DONE: Name In Use
             Try
                 MySQLQuery.Clear()
-                CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name = ""{0}"";", Character.Name), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name = ""{0}"";", Character.Name), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     Return CharResponse.CHAR_CREATE_NAME_IN_USE
                 End If
@@ -73,7 +73,7 @@ Namespace Player
             'TODO: Only if it's a pvp realm
             If Account_Access <= AccessLevel.Player Then
                 MySQLQuery.Clear()
-                CharacterDatabase.Query(String.Format("SELECT char_race FROM characters WHERE account_id = ""{0}"" LIMIT 1;", Account_ID), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_race FROM characters WHERE account_id = ""{0}"" LIMIT 1;", Account_ID), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     If Character.IsHorde <> GetCharacterSide(MySQLQuery.Rows(0).Item("char_race")) Then
                         Return CharResponse.CHAR_CREATE_PVP_TEAMS_VIOLATION
@@ -83,14 +83,14 @@ Namespace Player
 
             'DONE: Check for MAX characters limit on this realm
             MySQLQuery.Clear()
-            CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
             If MySQLQuery.Rows.Count >= 10 Then
                 Return CharResponse.CHAR_CREATE_SERVER_LIMIT
             End If
 
             'DONE: Check for max characters in total on all realms
             MySQLQuery.Clear()
-            CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE account_id = ""{0}"";", Account_ID), MySQLQuery)
             If MySQLQuery.Rows.Count >= 10 Then
                 Return CharResponse.CHAR_CREATE_ACCOUNT_LIMIT
             End If
@@ -104,9 +104,9 @@ Namespace Player
                 CreateCharacterSpells(Character)
                 CreateCharacterItems(Character)
 
-                'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Character.Name)
+                '_WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Character.Name)
             Catch err As Exception
-                Log.WriteLine(LogType.FAILED, "Error initializing character! {0} {1}", Environment.NewLine, err.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error initializing character! {0} {1}", Environment.NewLine, err.ToString)
                 Return CharResponse.CHAR_CREATE_FAILED
             Finally
                 Character.Dispose()
@@ -124,29 +124,29 @@ Namespace Player
 
             Dim ButtonPos As Integer = 0
 
-            WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfo)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfo)
             If CreateInfo.Rows.Count <= 0 Then
-                Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
             End If
 
-            WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_action WHERE race = {0} AND class = {1} ORDER BY button;", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoBars)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_action WHERE race = {0} AND class = {1} ORDER BY button;", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoBars)
             If CreateInfoBars.Rows.Count <= 0 Then
-                Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_action table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_action table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
             End If
 
-            WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_skill WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSkills)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_skill WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSkills)
             If CreateInfoSkills.Rows.Count <= 0 Then
-                Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_skill table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_skill table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
             End If
 
-            WorldDatabase.Query(String.Format("SELECT * FROM player_levelstats WHERE race = {0} AND class = {1} AND level = {2};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), LevelStats)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM player_levelstats WHERE race = {0} AND class = {1} AND level = {2};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), LevelStats)
             If LevelStats.Rows.Count <= 0 Then
-                Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for Race: {0}, Class: {1}, Level: {2}", objCharacter.Race, objCharacter.Classe, objCharacter.Level)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in player_levelstats table for Race: {0}, Class: {1}, Level: {2}", objCharacter.Race, objCharacter.Classe, objCharacter.Level)
             End If
 
-            WorldDatabase.Query(String.Format("SELECT * FROM player_classlevelstats WHERE class = {0} AND level = {1};", CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), ClassLevelStats)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM player_classlevelstats WHERE class = {0} AND level = {1};", CType(objCharacter.Classe, Integer), CType(objCharacter.Level, Integer)), ClassLevelStats)
             If ClassLevelStats.Rows.Count <= 0 Then
-                Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for Class: {0}, Level: {1}", objCharacter.Classe, objCharacter.Level)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in player_classlevelstats table for Class: {0}, Level: {1}", objCharacter.Classe, objCharacter.Level)
             End If
 
             ' Initialize Character Variables
@@ -227,9 +227,9 @@ Namespace Player
         Public Sub CreateCharacterSpells(ByRef objCharacter As CharacterObject)
             Dim CreateInfoSpells As New DataTable
 
-            WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_spell WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSpells)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_spell WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSpells)
             If CreateInfoSpells.Rows.Count <= 0 Then
-                Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_spell table Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_spell table Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
             End If
 
             ' Set Player Create Spells
@@ -241,9 +241,9 @@ Namespace Player
         Public Sub CreateCharacterItems(ByRef objCharacter As CharacterObject)
 
             Dim CreateInfoItems As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_item WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoItems)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_item WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoItems)
             If CreateInfoItems.Rows.Count <= 0 Then
-                Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_item table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo_item table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
             End If
 
             ' Set Player Create Items
@@ -256,13 +256,13 @@ Namespace Player
 
             'First add bags
             For Each Item As KeyValuePair(Of Integer, Integer) In Items
-                If ITEMDatabase.ContainsKey(Item.Key) = False Then
+                If _WorldServer.ITEMDatabase.ContainsKey(Item.Key) = False Then
                     Dim newItem As New WS_Items.ItemInfo(Item.Key)
                     'The New does a an add to the .Containskey collection above
                 End If
 
-                If ITEMDatabase(Item.Key).ContainerSlots > 0 Then
-                    Dim Slots() As Byte = ITEMDatabase(Item.Key).GetSlots
+                If _WorldServer.ITEMDatabase(Item.Key).ContainerSlots > 0 Then
+                    Dim Slots() As Byte = _WorldServer.ITEMDatabase(Item.Key).GetSlots
                     For Each tmpSlot As Byte In Slots
                         If Not objCharacter.Items.ContainsKey(tmpSlot) Then
                             objCharacter.ItemADD(Item.Key, 0, tmpSlot, Item.Value)
@@ -277,7 +277,7 @@ Namespace Player
             For Each Item As KeyValuePair(Of Integer, Integer) In Items
                 If Used.Contains(Item.Key) Then Continue For
 
-                Dim Slots() As Byte = ITEMDatabase(Item.Key).GetSlots
+                Dim Slots() As Byte = _WorldServer.ITEMDatabase(Item.Key).GetSlots
                 For Each tmpSlot As Byte In Slots
                     If Not objCharacter.Items.ContainsKey(tmpSlot) Then
                         objCharacter.ItemADD(Item.Key, 0, tmpSlot, Item.Value)

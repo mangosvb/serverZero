@@ -247,7 +247,7 @@ Namespace Spells
                     For j As Byte = 0 To 1
                         Dim ImplicitTarget As SpellImplicitTargets = SpellEffects(Index).implicitTargetA
                         If j = 1 Then ImplicitTarget = SpellEffects(Index).implicitTargetB
-                        Log.WriteLine(LogType.DEBUG, "{0}: {1}", CStr(IIf(j = 1, "ImplicitTargetB", "ImplicitTargetA")), ImplicitTarget)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "{0}: {1}", CStr(IIf(j = 1, "ImplicitTargetB", "ImplicitTargetA")), ImplicitTarget)
                         If ImplicitTarget = SpellImplicitTargets.TARGET_NOTHING Then Continue For
                         Select Case ImplicitTarget
                             Case SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA, SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT
@@ -683,10 +683,10 @@ Namespace Spells
 
                             'DONE: Check if the spell was needed for a quest
                             If Not (Targets.unitTarget Is Nothing) AndAlso TypeOf Targets.unitTarget Is CreatureObject Then
-                                ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.unitTarget, CreatureObject), ID)
+                                _WorldServer.ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.unitTarget, CreatureObject), ID)
                             End If
                             If Not (Targets.goTarget Is Nothing) Then
-                                ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.goTarget, GameObjectObject), ID)
+                                _WorldServer.ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.goTarget, GameObjectObject), ID)
                             End If
                         End With
 
@@ -775,7 +775,7 @@ Namespace Spells
                     For i As Byte = 0 To 2
                         If SpellEffects(i) IsNot Nothing Then
 #If DEBUG Then
-                            Log.WriteLine(LogType.DEBUG, "DEBUG: Casting effect: {0}", SpellEffects(i).ID)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "DEBUG: Casting effect: {0}", SpellEffects(i).ID)
 #End If
 
                             SpellCastError = SPELL_EFFECTs(SpellEffects(i).ID).Invoke(Targets, Caster, SpellEffects(i), ID, TargetHits(i), castParams.Item)
@@ -804,7 +804,7 @@ Namespace Spells
                         End If
                     End If
                 Catch e As Exception
-                    Log.WriteLine(LogType.FAILED, "Error when casting spell.{0}", Environment.NewLine & e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Error when casting spell.{0}", Environment.NewLine & e.ToString)
                 End Try
                 If castParams IsNot Nothing Then
                     Try
@@ -1043,8 +1043,8 @@ Namespace Spells
                             If RangedItem.ItemInfo.InventoryType = INVENTORY_TYPES.INVTYPE_THROWN Then
                                 ItemInfo = RangedItem.ItemInfo
                             Else
-                                If .AmmoID <> 0 AndAlso ITEMDatabase.ContainsKey(.AmmoID) Then
-                                    ItemInfo = ITEMDatabase(.AmmoID)
+                                If .AmmoID <> 0 AndAlso _WorldServer.ITEMDatabase.ContainsKey(.AmmoID) Then
+                                    ItemInfo = _WorldServer.ITEMDatabase(.AmmoID)
                                 End If
                             End If
                         End If
@@ -1053,11 +1053,11 @@ Namespace Spells
                 End If
 
                 If ItemInfo Is Nothing Then
-                    If ITEMDatabase.ContainsKey(2512) = False Then
+                    If _WorldServer.ITEMDatabase.ContainsKey(2512) = False Then
                         Dim tmpInfo As New ItemInfo(2512)
-                        ITEMDatabase.Add(2512, tmpInfo)
+                        _WorldServer.ITEMDatabase.Add(2512, tmpInfo)
                     End If
-                    ItemInfo = ITEMDatabase(2512)
+                    ItemInfo = _WorldServer.ITEMDatabase(2512)
 
                 End If
 
@@ -1254,7 +1254,7 @@ Namespace Spells
 
                 'DONE: Save the cooldown, but only if it's really worth saving
                 If Recovery > 10000 Then
-                    CharacterDatabase.Update(String.Format("UPDATE characters_spells SET cooldown={2}, cooldownitem={3} WHERE guid = {0} AND spellid = {1};", objCharacter.GUID, ID, objCharacter.Spells(ID).Cooldown, objCharacter.Spells(ID).CooldownItem))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_spells SET cooldown={2}, cooldownitem={3} WHERE guid = {0} AND spellid = {1};", objCharacter.GUID, ID, objCharacter.Spells(ID).Cooldown, objCharacter.Spells(ID).CooldownItem))
                 End If
 
                 'DONE: Send the cooldown
@@ -1331,7 +1331,7 @@ Namespace Spells
             Public ReadOnly Property GetValue(ByVal Level As Integer, Optional ByVal ComboPoints As Integer = 0) As Integer
                 Get
                     Try
-                        Return valueBase + (Level * valuePerLevel) + ComboPoints * valuePerComboPoint + Rnd.Next(1, valueDie + (Level * dicePerLevel))
+                        Return valueBase + (Level * valuePerLevel) + ComboPoints * valuePerComboPoint + _WorldServer.Rnd.Next(1, valueDie + (Level * dicePerLevel))
                     Catch
                         Return valueBase + (Level * valuePerLevel) + ComboPoints * valuePerComboPoint + 1
                     End Try
@@ -1412,25 +1412,25 @@ Namespace Spells
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) Then
                     Dim GUID As ULong = packet.GetPackGuid
                     If _CommonGlobalFunctions.GuidIsCreature(GUID) OrElse _CommonGlobalFunctions.GuidIsPet(GUID) Then
-                        unitTarget = WORLD_CREATUREs(GUID)
+                        unitTarget = _WorldServer.WORLD_CREATUREs(GUID)
                     ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
-                        unitTarget = CHARACTERs(GUID)
+                        unitTarget = _WorldServer.CHARACTERs(GUID)
                     End If
                 End If
 
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_OBJECT) Then
                     Dim GUID As ULong = packet.GetPackGuid
                     If _CommonGlobalFunctions.GuidIsGameObject(GUID) Then
-                        goTarget = WORLD_GAMEOBJECTs(GUID)
+                        goTarget = _WorldServer.WORLD_GAMEOBJECTs(GUID)
                     ElseIf _CommonGlobalFunctions.GuidIsDnyamicObject(GUID) Then
-                        goTarget = WORLD_DYNAMICOBJECTs(GUID)
+                        goTarget = _WorldServer.WORLD_DYNAMICOBJECTs(GUID)
                     End If
                 End If
 
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_ITEM) OrElse (targetMask And SpellCastTargetFlags.TARGET_FLAG_TRADE_ITEM) Then
                     Dim GUID As ULong = packet.GetPackGuid
                     If _CommonGlobalFunctions.GuidIsItem(GUID) Then
-                        itemTarget = WORLD_ITEMs(GUID)
+                        itemTarget = _WorldServer.WORLD_ITEMs(GUID)
                     End If
                 End If
 
@@ -1451,7 +1451,7 @@ Namespace Spells
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_CORPSE) OrElse (targetMask And SpellCastTargetFlags.TARGET_FLAG_PVP_CORPSE) Then
                     Dim GUID As ULong = packet.GetPackGuid
                     If _CommonGlobalFunctions.GuidIsCorpse(GUID) Then
-                        corpseTarget = WORLD_CORPSEOBJECTs(GUID)
+                        corpseTarget = _WorldServer.WORLD_CORPSEOBJECTs(GUID)
                     End If
                 End If
             End Sub
@@ -1584,7 +1584,7 @@ Namespace Spells
                     Stopped = False
                     SPELLs(SpellID).Cast(Me)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.WARNING, "Cast Exception {0} : Interrupted {1}", SpellID, Stopped)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Cast Exception {0} : Interrupted {1}", SpellID, Stopped)
                 End Try
             End Sub
 
@@ -1592,7 +1592,7 @@ Namespace Spells
                 Try
                     Stopped = True
                 Catch ex As Exception
-                    Log.WriteLine(LogType.WARNING, "StopCast Exception {0} : Interrupted {1}", SpellID, Stopped)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "StopCast Exception {0} : Interrupted {1}", SpellID, Stopped)
                 End Try
             End Sub
 
@@ -1601,7 +1601,7 @@ Namespace Spells
 
                 'Calculate resist chance
                 Dim resistChance As Integer = CType(Caster, BaseUnit).GetAuraModifier(AuraEffects_Names.SPELL_AURA_RESIST_PUSHBACK)
-                If resistChance > 0 AndAlso resistChance > Rnd.Next(0, 100) Then Exit Sub 'Resisted pushback
+                If resistChance > 0 AndAlso resistChance > _WorldServer.Rnd.Next(0, 100) Then Exit Sub 'Resisted pushback
 
                 'TODO: Calculate delay time?
                 Dim delaytime As Integer = 200
@@ -2299,7 +2299,7 @@ Namespace Spells
                                 If TeleportCoords.ContainsKey(SpellID) Then
                                     .Teleport(TeleportCoords(SpellID).PosX, TeleportCoords(SpellID).PosY, TeleportCoords(SpellID).PosZ, .orientation, TeleportCoords(SpellID).MapID)
                                 Else
-                                    Log.WriteLine(LogType.WARNING, "WARNING: Spell {0} did not have any teleport coordinates.", SpellID)
+                                    _WorldServer.Log.WriteLine(LogType.WARNING, "WARNING: Spell {0} did not have any teleport coordinates.", SpellID)
                                 End If
                         End Select
                     End With
@@ -2468,23 +2468,23 @@ Namespace Spells
 
             If lockID = 0 Then
                 'TODO: Send loot for items
-                If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
-                    WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
+                If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
+                    _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
                 End If
 
                 Return SpellFailedReason.SPELL_NO_ERROR
             End If
 
             If Locks.ContainsKey(lockID) = False Then
-                Log.WriteLine(LogType.DEBUG, "[DEBUG] Lock {0} did not exist.", lockID)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Lock {0} did not exist.", lockID)
                 Return SpellFailedReason.SPELL_FAILED_ERROR
             End If
 
             For i As Byte = 0 To 4
                 If Item IsNot Nothing AndAlso Locks(lockID).KeyType(i) = LockKeyType.LOCK_KEY_ITEM AndAlso Locks(lockID).Keys(i) = Item.ItemEntry Then
                     'TODO: Send loot for items
-                    If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
-                        WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
+                    If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
+                        _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
                     End If
 
                     Return SpellFailedReason.SPELL_NO_ERROR
@@ -2518,8 +2518,8 @@ Namespace Spells
             End If
 
             'TODO: Send loot for items
-            If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
-                WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
+            If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
+                _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
             End If
 
             Return SpellFailedReason.SPELL_NO_ERROR
@@ -2535,7 +2535,7 @@ Namespace Spells
                         If .IsDead = False Then
                             Dim chance As Integer = 10 + CType(Caster, BaseUnit).Level - .Level
 
-                            If chance > Rnd.Next(0, 20) Then
+                            If chance > _WorldServer.Rnd.Next(0, 20) Then
                                 'Successful pickpocket
                                 If .CreatureInfo.PocketLootID > 0 Then
                                     Dim Loot As New WS_Loot.LootObject(.GUID, LootType.LOOTTYPE_PICKPOCKETING) With {
@@ -2848,17 +2848,17 @@ Namespace Spells
                                 If auraTarget.ActiveSpells(i).Aura(0) Is Nothing Then
                                     auraTarget.ActiveSpells(i).Aura(0) = AURAs(SpellInfo.ApplyAuraIndex)
                                     auraTarget.ActiveSpells(i).Aura_Info(0) = SpellInfo
-                                    Log.WriteLine(LogType.DEBUG, "APPLYING AURA {0}", CType(SpellInfo.ApplyAuraIndex, AuraEffects_Names))
+                                    _WorldServer.Log.WriteLine(LogType.DEBUG, "APPLYING AURA {0}", CType(SpellInfo.ApplyAuraIndex, AuraEffects_Names))
                                     Exit For
                                 ElseIf auraTarget.ActiveSpells(i).Aura(1) Is Nothing Then
                                     auraTarget.ActiveSpells(i).Aura(1) = AURAs(SpellInfo.ApplyAuraIndex)
                                     auraTarget.ActiveSpells(i).Aura_Info(1) = SpellInfo
-                                    Log.WriteLine(LogType.DEBUG, "APPLYING AURA {0}", CType(SpellInfo.ApplyAuraIndex, AuraEffects_Names))
+                                    _WorldServer.Log.WriteLine(LogType.DEBUG, "APPLYING AURA {0}", CType(SpellInfo.ApplyAuraIndex, AuraEffects_Names))
                                     Exit For
                                 ElseIf auraTarget.ActiveSpells(i).Aura(2) Is Nothing Then
                                     auraTarget.ActiveSpells(i).Aura(2) = AURAs(SpellInfo.ApplyAuraIndex)
                                     auraTarget.ActiveSpells(i).Aura_Info(2) = SpellInfo
-                                    Log.WriteLine(LogType.DEBUG, "APPLYING AURA {0}", CType(SpellInfo.ApplyAuraIndex, AuraEffects_Names))
+                                    _WorldServer.Log.WriteLine(LogType.DEBUG, "APPLYING AURA {0}", CType(SpellInfo.ApplyAuraIndex, AuraEffects_Names))
                                     Exit For
                                 Else
                                     spellCasted = SLOT_NO_SPACE
@@ -2880,7 +2880,7 @@ Namespace Spells
                 AURAs(SpellInfo.ApplyAuraIndex).Invoke(auraTarget, Caster, SpellInfo, SpellID, 1, AuraAction.AURA_ADD)
 
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error while applying aura for spell {0}:{1}", SpellID, Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error while applying aura for spell {0}:{1}", SpellID, Environment.NewLine & e.ToString)
             End Try
 
             Return SpellFailedReason.SPELL_NO_ERROR
@@ -2933,7 +2933,7 @@ Namespace Spells
         Public Function SPELL_EFFECT_PERSISTENT_AREA_AURA(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             If (Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) = 0 Then Return SpellFailedReason.SPELL_FAILED_BAD_IMPLICIT_TARGETS
 
-            Log.WriteLine(LogType.DEBUG, "Amplitude: {0}", SpellInfo.Amplitude)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "Amplitude: {0}", SpellInfo.Amplitude)
             Dim tmpDO As New DynamicObjectObject(Caster, SpellID, Target.dstX, Target.dstY, Target.dstZ, SPELLs(SpellID).GetDuration, SpellInfo.GetRadius)
             tmpDO.AddEffect(SpellInfo)
             tmpDO.Bytes = &H1EEEEEE
@@ -2947,11 +2947,11 @@ Namespace Spells
             If Not TypeOf Target.unitTarget Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
             Dim Amount As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level - SPELLs(SpellID).spellLevel)
             If Amount < 0 Then Return SpellFailedReason.SPELL_FAILED_ERROR
-            If ITEMDatabase.ContainsKey(SpellInfo.ItemType) = False Then
+            If _WorldServer.ITEMDatabase.ContainsKey(SpellInfo.ItemType) = False Then
                 Dim tmpInfo As New ItemInfo(SpellInfo.ItemType)
-                ITEMDatabase.Add(SpellInfo.ItemType, tmpInfo)
+                _WorldServer.ITEMDatabase.Add(SpellInfo.ItemType, tmpInfo)
             End If
-            If Amount > ITEMDatabase(SpellInfo.ItemType).Stackable Then Amount = ITEMDatabase(SpellInfo.ItemType).Stackable
+            If Amount > _WorldServer.ITEMDatabase(SpellInfo.ItemType).Stackable Then Amount = _WorldServer.ITEMDatabase(SpellInfo.ItemType).Stackable
 
             Dim Targets As List(Of BaseUnit) = GetFriendPlayersAroundMe(Caster, SpellInfo.GetRadius)
             For Each Unit As BaseUnit In Infected
@@ -3017,9 +3017,9 @@ Namespace Spells
 
                     CType(Target.unitTarget, CreatureObject).MoveToInstant(Caster.positionX, Caster.positionY, Caster.positionZ, Caster.orientation)
                 ElseIf TypeOf Unit Is CorpseObject Then
-                    If CHARACTERs.ContainsKey(CType(Unit, CorpseObject).Owner) Then
+                    If _WorldServer.CHARACTERs.ContainsKey(CType(Unit, CorpseObject).Owner) Then
                         'DONE: Save resurrection data
-                        With CHARACTERs(CType(Unit, CorpseObject).Owner)
+                        With _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner)
                             .resurrectGUID = Caster.GUID
                             .resurrectMapID = Caster.MapID
                             .resurrectPositionX = Caster.positionX
@@ -3088,15 +3088,15 @@ Namespace Spells
 
                     CType(Target.unitTarget, CreatureObject).MoveToInstant(Caster.positionX, Caster.positionY, Caster.positionZ, Caster.orientation)
                 ElseIf TypeOf Unit Is CorpseObject Then
-                    If CHARACTERs.ContainsKey(CType(Unit, CorpseObject).Owner) Then
+                    If _WorldServer.CHARACTERs.ContainsKey(CType(Unit, CorpseObject).Owner) Then
                         'DONE: Save resurrection data
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectGUID = Caster.GUID
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectMapID = Caster.MapID
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionX = Caster.positionX
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionY = Caster.positionY
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionZ = Caster.positionZ
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectHealth = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectMana = SpellInfo.MiscValue
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectGUID = Caster.GUID
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectMapID = Caster.MapID
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionX = Caster.positionX
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionY = Caster.positionY
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionZ = Caster.positionZ
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectHealth = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectMana = SpellInfo.MiscValue
 
                         'DONE: Send request to corpse owner
                         Dim RessurectRequest As New PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
@@ -3104,7 +3104,7 @@ Namespace Spells
                         RessurectRequest.AddUInt32(1)
                         RessurectRequest.AddUInt16(0)
                         RessurectRequest.AddUInt32(1)
-                        CHARACTERs(CType(Unit, CorpseObject).Owner).client.Send(RessurectRequest)
+                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).client.Send(RessurectRequest)
                         RessurectRequest.Dispose()
                     End If
                 End If
@@ -3117,7 +3117,7 @@ Namespace Spells
 
             For Each Unit As BaseUnit In Infected
                 If TypeOf Unit Is CharacterObject Then
-                    AllGraveYards.GoToNearestGraveyard(CType(Unit, CharacterObject), False, True)
+                    _WorldServer.AllGraveYards.GoToNearestGraveyard(CType(Unit, CharacterObject), False, True)
                 End If
             Next
 
@@ -3194,7 +3194,7 @@ Namespace Spells
         Public Function SPELL_EFFECT_SUMMON(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             'Select Case SpellInfo.MiscValueB
             '    Case SummonType.SUMMON_TYPE_GUARDIAN, SummonType.SUMMON_TYPE_POSESSED, SummonType.SUMMON_TYPE_POSESSED2
-            '        Log.WriteLine(LogType.DEBUG, "[DEBUG] Summon Guardian")
+            '        _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Summon Guardian")
             '    Case SummonType.SUMMON_TYPE_WILD
             '        Dim Duration As Integer = SPELLs(SpellID).GetDuration
             '        Dim Type As TempSummonType = TempSummonType.TEMPSUMMON_TIMED_OR_DEAD_DESPAWN
@@ -3218,9 +3218,9 @@ Namespace Spells
             '        tmpCreature.CreatedBySpell = SpellID
             '        tmpCreature.AddToWorld()
             '    Case SummonType.SUMMON_TYPE_DEMON
-            '        Log.WriteLine(LogType.DEBUG, "[DEBUG] Summon Demon")
+            '        _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Summon Demon")
             '    Case SummonType.SUMMON_TYPE_SUMMON
-            '        Log.WriteLine(LogType.DEBUG, "[DEBUG] Summon")
+            '        _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Summon")
             '    Case SummonType.SUMMON_TYPE_CRITTER, SummonType.SUMMON_TYPE_CRITTER2
             '        If CType(Caster, CharacterObject).NonCombatPet IsNot Nothing AndAlso CType(Caster, CharacterObject).NonCombatPet.ID = SpellInfo.MiscValue Then
             '            CType(Caster, CharacterObject).NonCombatPet.Destroy()
@@ -3268,15 +3268,15 @@ Namespace Spells
             '                Slot = 255
             '        End Select
 
-            '        Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem Slot [{0}].", Slot)
+            '        _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem Slot [{0}].", Slot)
 
             '        'Normal shaman totem
             '        If Slot < 4 Then
             '            Dim GUID As ULong = CType(Caster, CharacterObject).TotemSlot(Slot)
             '            If GUID <> 0 Then
-            '                If WORLD_CREATUREs.ContainsKey(GUID) Then
-            '                    Log.WriteLine(LogType.DEBUG, "[DEBUG] Destroyed old totem.")
-            '                    WORLD_CREATUREs(GUID).Destroy()
+            '                If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
+            '                    _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Destroyed old totem.")
+            '                    _WorldServer.WORLD_CREATUREs(GUID).Destroy()
             '                End If
             '            End If
             '        End If
@@ -3337,7 +3337,7 @@ Namespace Spells
             '                NewTotem.InitSpell(8145)
             '        End Select
             '        NewTotem.AddToWorld()
-            '        Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem spawned [{0:X}].", NewTotem.GUID)
+            '        _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem spawned [{0:X}].", NewTotem.GUID)
 
             '        If Slot < 4 AndAlso TypeOf Caster Is CharacterObject Then
             '            CType(Caster, CharacterObject).TotemSlot(Slot) = NewTotem.GUID
@@ -3351,7 +3351,7 @@ Namespace Spells
             '            'TotemCreated.Dispose()
             '        End If
             '    Case Else
-            '        Log.WriteLine(LogType.DEBUG, "Unknown SummonType: {0}", SpellInfo.MiscValueB)
+            '        _WorldServer.Log.WriteLine(LogType.DEBUG, "Unknown SummonType: {0}", SpellInfo.MiscValueB)
             '        Exit Function
             'End Select
 
@@ -3400,15 +3400,15 @@ Namespace Spells
                     Exit Function
             End Select
 
-            Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem Slot [{0}].", Slot)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem Slot [{0}].", Slot)
 
             'Normal shaman totem
             If Slot < 4 Then
                 Dim GUID As ULong = CType(Caster, CharacterObject).TotemSlot(Slot)
                 If GUID <> 0 Then
-                    If WORLD_CREATUREs.ContainsKey(GUID) Then
-                        Log.WriteLine(LogType.DEBUG, "[DEBUG] Destroyed old totem.")
-                        WORLD_CREATUREs(GUID).Destroy()
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Destroyed old totem.")
+                        _WorldServer.WORLD_CREATUREs(GUID).Destroy()
                     End If
                 End If
             End If
@@ -3434,13 +3434,13 @@ Namespace Spells
                 NewTotem.Faction = CType(Caster, CreatureObject).Faction
             End If
 
-            If CREATURESDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
+            If _WorldServer.CREATURESDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
                 Dim tmpInfo As New CreatureInfo(SpellInfo.MiscValue)
-                CREATURESDatabase.Add(SpellInfo.MiscValue, tmpInfo)
+                _WorldServer.CREATURESDatabase.Add(SpellInfo.MiscValue, tmpInfo)
             End If
-            NewTotem.InitSpell(CREATURESDatabase(SpellInfo.MiscValue).Spells(0))
+            NewTotem.InitSpell(_WorldServer.CREATURESDatabase(SpellInfo.MiscValue).Spells(0))
             NewTotem.AddToWorld()
-            Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem spawned [{0:X}].", NewTotem.GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem spawned [{0:X}].", NewTotem.GUID)
 
             If Slot < 4 AndAlso TypeOf Caster Is CharacterObject Then
                 CType(Caster, CharacterObject).TotemSlot(Slot) = NewTotem.GUID
@@ -3473,10 +3473,10 @@ Namespace Spells
             End If
 
             Dim GameobjectInfo As GameObjectInfo
-            If GAMEOBJECTSDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
+            If _WorldServer.GAMEOBJECTSDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
                 GameobjectInfo = New GameObjectInfo(SpellInfo.MiscValue)
             Else
-                GameobjectInfo = GAMEOBJECTSDatabase(SpellInfo.MiscValue)
+                GameobjectInfo = _WorldServer.GAMEOBJECTSDatabase(SpellInfo.MiscValue)
             End If
 
             If GameobjectInfo.Type = GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then
@@ -3523,8 +3523,8 @@ Namespace Spells
             'TODO: If there already is an enchantment here, ask for permission?
 
             Target.itemTarget.AddEnchantment(SpellInfo.MiscValue, EnchantSlots.ENCHANTMENT_PERM)
-            If CHARACTERs.ContainsKey(Target.itemTarget.OwnerGUID) Then
-                CHARACTERs(Target.itemTarget.OwnerGUID).SendItemUpdate(Target.itemTarget)
+            If _WorldServer.CHARACTERs.ContainsKey(Target.itemTarget.OwnerGUID) Then
+                _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).SendItemUpdate(Target.itemTarget)
 
                 Dim EnchantLog As New PacketClass(OPCODES.SMSG_ENCHANTMENTLOG)
                 EnchantLog.AddUInt64(Target.itemTarget.OwnerGUID)
@@ -3532,13 +3532,13 @@ Namespace Spells
                 EnchantLog.AddInt32(Target.itemTarget.ItemEntry)
                 EnchantLog.AddInt32(SpellInfo.MiscValue)
                 EnchantLog.AddInt8(0)
-                CHARACTERs(Target.itemTarget.OwnerGUID).client.Send(EnchantLog)
+                _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).client.Send(EnchantLog)
                 'DONE: Send to trader also
-                If CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo IsNot Nothing Then
-                    If CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo.Trader Is CHARACTERs(Target.itemTarget.OwnerGUID) Then
-                        CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo.SendTradeUpdateToTarget()
+                If _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo IsNot Nothing Then
+                    If _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo.Trader Is _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID) Then
+                        _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo.SendTradeUpdateToTarget()
                     Else
-                        CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo.SendTradeUpdateToTrader()
+                        _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).tradeInfo.SendTradeUpdateToTrader()
                     End If
                 End If
                 EnchantLog.Dispose()
@@ -3571,11 +3571,11 @@ Namespace Spells
                 Duration *= 1000
             End If
 
-            Log.WriteLine(LogType.DEBUG, "[DEBUG] Enchant duration [{0}]", Duration)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Enchant duration [{0}]", Duration)
 
             Target.itemTarget.AddEnchantment(SpellInfo.MiscValue, EnchantSlots.ENCHANTMENT_TEMP, Duration)
-            If CHARACTERs.ContainsKey(Target.itemTarget.OwnerGUID) Then
-                CHARACTERs(Target.itemTarget.OwnerGUID).SendItemUpdate(Target.itemTarget)
+            If _WorldServer.CHARACTERs.ContainsKey(Target.itemTarget.OwnerGUID) Then
+                _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).SendItemUpdate(Target.itemTarget)
 
                 Dim EnchantLog As New PacketClass(OPCODES.SMSG_ENCHANTMENTLOG)
                 EnchantLog.AddUInt64(Target.itemTarget.OwnerGUID)
@@ -3583,7 +3583,7 @@ Namespace Spells
                 EnchantLog.AddInt32(Target.itemTarget.ItemEntry)
                 EnchantLog.AddInt32(SpellInfo.MiscValue)
                 EnchantLog.AddInt8(0)
-                CHARACTERs(Target.itemTarget.OwnerGUID).client.Send(EnchantLog)
+                _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).client.Send(EnchantLog)
                 EnchantLog.Dispose()
             End If
 
@@ -3596,7 +3596,7 @@ Namespace Spells
             Dim Duration As Integer = SPELLs(SpellID).GetDuration
             If Duration = 0 Then Duration = (SpellInfo.valueBase + 1) * 1000
             If Duration = 0 Then Duration = 10000
-            Log.WriteLine(LogType.DEBUG, "[DEBUG] Enchant duration [{0}]({1})", Duration, SpellInfo.valueBase)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Enchant duration [{0}]({1})", Duration, SpellInfo.valueBase)
 
             For Each Unit As BaseUnit In Infected
                 If TypeOf Unit Is CharacterObject AndAlso CType(Unit, CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
@@ -3747,7 +3747,7 @@ Namespace Spells
 
             For Each Unit As BaseUnit In Infected
                 If TypeOf Unit Is CharacterObject Then
-                    ALLQUESTS.CompleteQuest(CType(Unit, CharacterObject), SpellInfo.MiscValue, Caster.GUID)
+                    _WorldServer.ALLQUESTS.CompleteQuest(CType(Unit, CharacterObject), SpellInfo.MiscValue, Caster.GUID)
                 End If
             Next
 
@@ -3759,21 +3759,21 @@ Namespace Spells
 
             If TypeOf objCharacter Is CharacterObject Then
                 For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(objCharacter, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(objCharacter, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(objCharacter, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso (CType(objCharacter, CharacterObject).IsHorde <> _WorldServer.CHARACTERs(pGUID).IsHorde OrElse (CType(objCharacter, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(objCharacter, CharacterObject).DuelPartner Is _WorldServer.CHARACTERs(pGUID))) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
                 For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
-                    If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(WORLD_CREATUREs(cGUID), PosX, PosY, PosZ) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
+                        If GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
                     End If
                 Next
 
             ElseIf TypeOf objCharacter Is CreatureObject Then
                 For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) <= TReaction.NEUTRAL Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3787,21 +3787,21 @@ Namespace Spells
             If r Is Nothing Then r = objCharacter
             If TypeOf r Is CharacterObject Then
                 For Each pGUID As ULong In CType(r, CharacterObject).playersNear.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).IsHorde <> CHARACTERs(pGUID).IsHorde OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is CHARACTERs(pGUID))) AndAlso CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).IsHorde <> _WorldServer.CHARACTERs(pGUID).IsHorde OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is _WorldServer.CHARACTERs(pGUID))) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
                 For Each cGUID As ULong In CType(r, CharacterObject).creaturesNear.ToArray
-                    If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(r, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(r, CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
+                        If GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
                     End If
                 Next
 
             ElseIf TypeOf r Is CreatureObject Then
                 For Each pGUID As ULong In r.SeenBy.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(r, CreatureObject).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(r, CreatureObject).Faction) <= TReaction.NEUTRAL Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3814,21 +3814,21 @@ Namespace Spells
 
             If TypeOf objCharacter Is CharacterObject Then
                 For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = _WorldServer.CHARACTERs(pGUID).IsHorde AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
                 For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
-                    If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
-                        If GetDistance(WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(WORLD_CREATUREs(cGUID))
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
+                        If GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
                     End If
                 Next
 
             ElseIf TypeOf objCharacter Is CreatureObject Then
                 For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
-                        If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3841,15 +3841,15 @@ Namespace Spells
 
             If TypeOf objCharacter Is CharacterObject Then
                 For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = CHARACTERs(pGUID).IsHorde AndAlso CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = _WorldServer.CHARACTERs(pGUID).IsHorde AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
             ElseIf TypeOf objCharacter Is CreatureObject Then
                 For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                    If CHARACTERs.ContainsKey(pGUID) AndAlso CHARACTERs(pGUID).IsDead = False AndAlso CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
-                        If GetDistance(CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
+                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3864,8 +3864,8 @@ Namespace Spells
             If Not objCharacter.IsInGroup Then Return result
 
             For Each GUID As ULong In objCharacter.Group.LocalMembers.ToArray
-                If objCharacter.playersNear.Contains(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
-                    If GetDistance(objCharacter, CHARACTERs(GUID)) < distance Then result.Add(CHARACTERs(GUID))
+                If objCharacter.playersNear.Contains(GUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(GUID) Then
+                    If GetDistance(objCharacter, _WorldServer.CHARACTERs(GUID)) < distance Then result.Add(_WorldServer.CHARACTERs(GUID))
                 End If
             Next
 
@@ -3879,8 +3879,8 @@ Namespace Spells
             If Not objCharacter.IsInGroup Then Return result
 
             For Each GUID As ULong In objCharacter.Group.LocalMembers.ToArray
-                If objCharacter.playersNear.Contains(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
-                    If GetDistance(CHARACTERs(GUID), PosX, PosY, PosZ) < Distance Then result.Add(CHARACTERs(GUID))
+                If objCharacter.playersNear.Contains(GUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(GUID) Then
+                    If GetDistance(_WorldServer.CHARACTERs(GUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(GUID))
                 End If
             Next
 
@@ -3921,7 +3921,7 @@ Namespace Spells
         End Sub
 
         Public Sub SPELL_AURA_DUMMY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            Log.WriteLine(LogType.DEBUG, "[DEBUG] Aura Dummy for spell {0}.", SpellID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Aura Dummy for spell {0}.", SpellID)
             Select Case Action
                 Case AuraAction.AURA_REMOVEBYDURATION
                     Select Case SpellID
@@ -4397,11 +4397,11 @@ Namespace Spells
 
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    If Not CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
+                    If Not _WorldServer.CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
                         Dim creature As New CreatureInfo(EffectInfo.MiscValue)
-                        CREATURESDatabase.Add(EffectInfo.MiscValue, creature)
+                        _WorldServer.CREATURESDatabase.Add(EffectInfo.MiscValue, creature)
                     End If
-                    Target.Model = CREATURESDatabase(EffectInfo.MiscValue).GetFirstModel
+                    Target.Model = _WorldServer.CREATURESDatabase(EffectInfo.MiscValue).GetFirstModel
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     If TypeOf Target Is CharacterObject Then
@@ -4910,12 +4910,12 @@ Namespace Spells
                     Target.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOUNTED, SpellID)     'Remove other mounted spells
                     Target.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOUNTING)
 
-                    If Not CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
+                    If Not _WorldServer.CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
                         Dim creature As New CreatureInfo(EffectInfo.MiscValue)
-                        CREATURESDatabase.Add(EffectInfo.MiscValue, creature)
+                        _WorldServer.CREATURESDatabase.Add(EffectInfo.MiscValue, creature)
                     End If
-                    If CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
-                        Target.Mount = CREATURESDatabase(EffectInfo.MiscValue).GetFirstModel
+                    If _WorldServer.CREATURESDatabase.ContainsKey(EffectInfo.MiscValue) Then
+                        Target.Mount = _WorldServer.CREATURESDatabase(EffectInfo.MiscValue).GetFirstModel
                     Else
                         Target.Mount = 0
                     End If
@@ -6368,9 +6368,9 @@ Namespace Spells
 
             If TypeOf Target Is CharacterObject Then
                 For Each CreatureGUID As ULong In CType(Target, CharacterObject).creaturesNear
-                    If Not WORLD_CREATUREs(CreatureGUID).aiScript Is Nothing AndAlso
-                       WORLD_CREATUREs(CreatureGUID).aiScript.aiHateTable.ContainsKey(Target) Then
-                        WORLD_CREATUREs(CreatureGUID).aiScript.OnGenerateHate(Target, Value)
+                    If Not _WorldServer.WORLD_CREATUREs(CreatureGUID).aiScript Is Nothing AndAlso
+                       _WorldServer.WORLD_CREATUREs(CreatureGUID).aiScript.aiHateTable.ContainsKey(Target) Then
+                        _WorldServer.WORLD_CREATUREs(CreatureGUID).aiScript.OnGenerateHate(Target, Value)
                     End If
                 Next
             Else
@@ -6409,8 +6409,8 @@ Namespace Spells
         Public Const DUEL_COUNTER_DISABLED As Byte = 11
 
         Public Sub CheckDuelDistance(ByRef objCharacter As CharacterObject)
-            If WORLD_GAMEOBJECTs.ContainsKey(objCharacter.DuelArbiter) = False Then Exit Sub
-            If GetDistance(objCharacter, WORLD_GAMEOBJECTs(objCharacter.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
+            If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(objCharacter.DuelArbiter) = False Then Exit Sub
+            If GetDistance(objCharacter, _WorldServer.WORLD_GAMEOBJECTs(objCharacter.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
                 If objCharacter.DuelOutOfBounds = DUEL_COUNTER_DISABLED Then
                     'DONE: Notify for out of bounds of the duel flag and start counting
                     Dim packet As New PacketClass(OPCODES.SMSG_DUEL_OUTOFBOUNDS)
@@ -6453,7 +6453,7 @@ Namespace Spells
             Loser.attackState.AttackStop()
 
             'DONE: Clear duel things
-            If WORLD_GAMEOBJECTs.ContainsKey(Winner.DuelArbiter) Then WORLD_GAMEOBJECTs(Winner.DuelArbiter).Destroy(WORLD_GAMEOBJECTs(Winner.DuelArbiter))
+            If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(Winner.DuelArbiter) Then _WorldServer.WORLD_GAMEOBJECTs(Winner.DuelArbiter).Destroy(_WorldServer.WORLD_GAMEOBJECTs(Winner.DuelArbiter))
 
             Winner.DuelOutOfBounds = DUEL_COUNTER_DISABLED
             Winner.DuelArbiter = 0
@@ -6511,7 +6511,7 @@ Namespace Spells
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DUEL_ACCEPTED [{2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DUEL_ACCEPTED [{2:X}]", client.IP, client.Port, GUID)
 
             'NOTE: Only invited player must have GUID set up
             If client.Character.DuelArbiter <> GUID Then Exit Sub
@@ -6548,10 +6548,10 @@ Namespace Spells
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DUEL_CANCELLED [{2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DUEL_CANCELLED [{2:X}]", client.IP, client.Port, GUID)
 
             'DONE: Clear for client
-            WORLD_GAMEOBJECTs(client.Character.DuelArbiter).Despawn()
+            _WorldServer.WORLD_GAMEOBJECTs(client.Character.DuelArbiter).Despawn()
             client.Character.DuelArbiter = 0
             client.Character.DuelPartner.DuelArbiter = 0
 
@@ -6572,7 +6572,7 @@ Namespace Spells
             Dim GUID As ULong = packet.GetUInt64
             Dim Status As Byte = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_RESURRECT_RESPONSE [GUID={2:X} Status={3}]", client.IP, client.Port, GUID, Status)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_RESURRECT_RESPONSE [GUID={2:X} Status={3}]", client.IP, client.Port, GUID, Status)
 
             If Status = 0 Then
                 'DONE: Decline the request
@@ -6604,13 +6604,13 @@ Namespace Spells
             'If (packet.Data.Length - 1) < 11 Then Exit Sub
             packet.GetInt16()
             Dim spellID As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CSMG_CAST_SPELL [spellID={2}]", client.IP, client.Port, spellID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CSMG_CAST_SPELL [spellID={2}]", client.IP, client.Port, spellID)
             If Not client.Character.HaveSpell(spellID) Then
-                Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Character {2} casting unlearned spell {3}!", client.IP, client.Port, client.Character.Name, spellID)
+                _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Character {2} casting unlearned spell {3}!", client.IP, client.Port, client.Character.Name, spellID)
                 Exit Sub
             End If
             If SPELLs.ContainsKey(spellID) = False Then
-                Log.WriteLine(LogType.WARNING, "[{0}:{1}] Character tried to cast a spell that didn't exist: {2}!", client.IP, client.Port, spellID)
+                _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Character tried to cast a spell that didn't exist: {2}!", client.IP, client.Port, spellID)
                 Exit Sub
             End If
             Dim spellCooldown As UInteger = client.Character.Spells(spellID).Cooldown
@@ -6648,7 +6648,7 @@ Namespace Spells
                             client.Character.attackState.Ranged = True
                             client.Character.attackState.AttackStart(client.Character.GetTarget)
                         Catch e As Exception
-                            Log.WriteLine(LogType.FAILED, "Error casting auto-shoot {0}.{1}", spellID, Environment.NewLine & e.ToString)
+                            _WorldServer.Log.WriteLine(LogType.FAILED, "Error casting auto-shoot {0}.{1}", spellID, Environment.NewLine & e.ToString)
                         End Try
                     End If
                 End If
@@ -6674,7 +6674,7 @@ Namespace Spells
                 End If
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error casting spell {0}.{1}", spellID, Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error casting spell {0}.{1}", spellID, Environment.NewLine & e.ToString)
                 SendCastResult(castResult, client, spellID)
             End Try
         End Sub
@@ -6683,7 +6683,7 @@ Namespace Spells
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim SpellID As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_CAST", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_CAST", client.IP, client.Port)
 
             'TODO: Other players can't see when you are interrupting your spells
 
@@ -6699,13 +6699,13 @@ Namespace Spells
         End Sub
 
         Public Sub On_CMSG_CANCEL_AUTO_REPEAT_SPELL(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_AUTO_REPEAT_SPELL", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_AUTO_REPEAT_SPELL", client.IP, client.Port)
 
             client.Character.FinishSpell(CurrentSpellTypes.CURRENT_AUTOREPEAT_SPELL)
         End Sub
 
         Public Sub On_CMSG_CANCEL_CHANNELLING(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_CHANNELLING", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_CHANNELLING", client.IP, client.Port)
 
             client.Character.FinishSpell(CurrentSpellTypes.CURRENT_CHANNELED_SPELL)
         End Sub
@@ -6714,7 +6714,7 @@ Namespace Spells
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim spellID As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_AURA [spellID={2}]", client.IP, client.Port, spellID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_AURA [spellID={2}]", client.IP, client.Port, spellID)
 
             client.Character.RemoveAuraBySpell(spellID)
         End Sub
@@ -6733,7 +6733,7 @@ Namespace Spells
                 Dim DependsOn As Integer
                 Dim SpentPoints As Integer
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEARN_TALENT [{2}:{3}]", client.IP, client.Port, TalentID, RequestedRank)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEARN_TALENT [{2}:{3}]", client.IP, client.Port, TalentID, RequestedRank)
 
                 If CurrentTalentPoints = 0 Then Exit Sub
                 If RequestedRank > 4 Then Exit Sub
@@ -6779,7 +6779,7 @@ Namespace Spells
                 End If
 
 #If DEBUG Then
-                Log.WriteLine(LogType.INFORMATION, "Talents spent: {0}", SpentPoints)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Talents spent: {0}", SpentPoints)
 #End If
 
                 If SpentPoints < (Talents(TalentID).Row * 5) Then Exit Sub
@@ -6809,7 +6809,7 @@ Namespace Spells
 
                 client.Character.SaveCharacter()
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error learning talen: {0}{1}", Environment.NewLine, e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error learning talen: {0}{1}", Environment.NewLine, e.ToString)
             End Try
         End Sub
 
@@ -6818,7 +6818,7 @@ Namespace Spells
 #Region "WS.Spells.Loot"
         Public Sub SendLoot(ByVal Player As CharacterObject, ByVal GUID As ULong, ByVal LootingType As LootType)
             If _CommonGlobalFunctions.GuidIsGameObject(GUID) Then
-                Select Case WORLD_GAMEOBJECTs(GUID).ObjectInfo.Type
+                Select Case _WorldServer.WORLD_GAMEOBJECTs(GUID).ObjectInfo.Type
                     Case GameObjectType.GAMEOBJECT_TYPE_DOOR, GameObjectType.GAMEOBJECT_TYPE_BUTTON
                         Exit Sub
                     Case GameObjectType.GAMEOBJECT_TYPE_QUESTGIVER
@@ -6834,7 +6834,7 @@ Namespace Spells
             End If
 
             'DONE: Sending loot
-            WORLD_GAMEOBJECTs(GUID).LootObject(Player, LootingType)
+            _WorldServer.WORLD_GAMEOBJECTs(GUID).LootObject(Player, LootingType)
         End Sub
 #End Region
 

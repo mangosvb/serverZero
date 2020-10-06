@@ -64,7 +64,7 @@ Namespace Weather
                 '- 30% - weather gets better (if not fine) or change weather type
                 '- 30% - weather worsens (if not fine)
                 '- 10% - radical change (if not fine)
-                Dim u As Integer = Rnd.Next(0, 100)
+                Dim u As Integer = _WorldServer.Rnd.Next(0, 100)
 
                 If u < 30 Then Exit Function 'No change
 
@@ -102,7 +102,7 @@ Namespace Weather
                         Return True
                     Else
                         If Intensity > 0.6666667F Then
-                            Dim v As Integer = Rnd.Next(0, 100)
+                            Dim v As Integer = _WorldServer.Rnd.Next(0, 100)
                             If v < 50 Then 'Severe change, but how severe?
                                 Intensity -= 0.6666667F
                                 Return True
@@ -118,7 +118,7 @@ Namespace Weather
                 Dim chance2 As Integer = chance1 + Seasons(Season).SnowChance
                 Dim chance3 As Integer = chance2 + Seasons(Season).StormChance
 
-                Dim r As Integer = Rnd.Next(0, 100)
+                Dim r As Integer = _WorldServer.Rnd.Next(0, 100)
                 If r < chance1 Then
                     CurrentWeather = WeatherType.WEATHER_RAIN
                 ElseIf r < chance2 Then
@@ -138,14 +138,14 @@ Namespace Weather
                 If CurrentWeather = WeatherType.WEATHER_FINE Then
                     Intensity = 0.0F
                 ElseIf u < 90 Then
-                    Intensity = Rnd.NextDouble() * 0.3333F
+                    Intensity = _WorldServer.Rnd.NextDouble() * 0.3333F
                 Else
                     'Severe change, but how severe?
-                    r = Rnd.Next(0, 100)
+                    r = _WorldServer.Rnd.Next(0, 100)
                     If r < 50 Then
-                        Intensity = CSng(Rnd.NextDouble() * 0.3333F) + 0.3334F
+                        Intensity = CSng(_WorldServer.Rnd.NextDouble() * 0.3333F) + 0.3334F
                     Else
-                        Intensity = CSng(Rnd.NextDouble() * 0.3333F) + 0.6667F
+                        Intensity = CSng(_WorldServer.Rnd.NextDouble() * 0.3333F) + 0.6667F
                     End If
                 End If
 
@@ -191,24 +191,24 @@ Namespace Weather
                 SMSG_WEATHER.AddInt32(GetSound())
 
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
                     Try
-                        For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In CHARACTERs
+                        For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In _WorldServer.CHARACTERs
                             If Character.Value.client IsNot Nothing AndAlso Character.Value.ZoneID = ZoneID Then
                                 Character.Value.client.SendMultiplyPackets(SMSG_WEATHER)
                             End If
                         Next
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", Environment.NewLine, ex.ToString)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", Environment.NewLine, ex.ToString)
                     Finally
-                        CHARACTERs_Lock.ReleaseReaderLock()
+                        _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
                     End Try
 
                 Catch ex As ApplicationException
-                    Log.WriteLine(LogType.WARNING, "Update: Weather Manager timed out")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: Weather Manager timed out")
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error updating Weather.{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
 
                 SMSG_WEATHER.Dispose()

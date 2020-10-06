@@ -37,7 +37,7 @@ Imports Mangos.World.Player
 Imports Mangos.World.Quests
 Imports Mangos.World.Server
 
-Public Module WorldServer
+Public Class WorldServer
 
 #Region "Global.Variables"
     'Players' containers
@@ -465,4 +465,4 @@ Public Module WorldServer
         tw.Close()
     End Sub
 
-End Module
+End Class
