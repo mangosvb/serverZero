@@ -1548,16 +1548,16 @@ Namespace Objects
                             Language(i) = MySQLQuery.Rows(0).Item("lang" & i & "")
                         End If
 
+                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_0_delay")) = False Then
+                            EmoteDelay1(i) = MySQLQuery.Rows(0).Item("em" & i & "_0_delay")
+                        End If
+
                         If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_0")) = False Then
-                            EmoteDelay1(i) = MySQLQuery.Rows(0).Item("em" & i & "_0")
+                            Emote1(i) = MySQLQuery.Rows(0).Item("em" & i & "_0")
                         End If
 
-                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_1")) = False Then
-                            Emote1(i) = MySQLQuery.Rows(0).Item("em" & i & "_1")
-                        End If
-
-                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_2")) = False Then
-                            EmoteDelay2(i) = MySQLQuery.Rows(0).Item("em" & i & "_2")
+                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_1_delay")) = False Then
+                            EmoteDelay2(i) = MySQLQuery.Rows(0).Item("em" & i & "_1_delay")
                         End If
 
                         If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_3")) = False Then
