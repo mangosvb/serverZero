@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Public Module Functions
+Public Class Functions
     Function UppercaseFirstLetter(ByVal val As String) As String
         If String.IsNullOrEmpty(val) Then
             Return val
@@ -40,4 +40,4 @@ Public Module Functions
 
         Return New String(array)
     End Function
-End Module
+End Class

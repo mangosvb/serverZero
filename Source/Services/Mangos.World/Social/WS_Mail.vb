@@ -17,7 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Enums.Social
@@ -447,7 +447,7 @@ Namespace Social
 
                 Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30) 'Add 30 days to the current date/time
                 CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_type, mail_stationary, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, item_guid) VALUES
-                ({0},{1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10});", client.Character.GUID, ReceiverGUID, 0, 41, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), itemGuid = GUID_ITEM))
+                ({0},{1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10});", client.Character.GUID, ReceiverGUID, 0, 41, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), itemGuid = _Global_Constants.GUID_ITEM))
 
                 If itemGuid > 0 Then client.Character.ItemREMOVE(itemGuid, False, True)
 
@@ -459,7 +459,7 @@ Namespace Social
                 client.Send(sendOK)
                 sendOK.Dispose()
 
-                CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 If CHARACTERs.ContainsKey(ReceiverGUID) Then
                     Dim response As New PacketClass(OPCODES.SMSG_RECEIVED_MAIL)
                     response.AddInt32(0)

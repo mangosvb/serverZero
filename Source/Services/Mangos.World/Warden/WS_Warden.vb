@@ -20,7 +20,7 @@ Imports System.IO
 Imports System.Numerics
 Imports System.Runtime.InteropServices
 Imports System.Security.Cryptography
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Warden
 Imports Mangos.Common.Globals
@@ -107,7 +107,7 @@ Namespace Warden
                     Return False
                 End If
 
-                Dim DecompressedData() As Byte = DeCompress(CompressedData)
+                Dim DecompressedData() As Byte = _GlobalZip.DeCompress(CompressedData)
                 CompressedData = Nothing
 
                 If Not PrepairModule(DecompressedData) Then Return False

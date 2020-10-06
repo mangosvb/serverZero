@@ -18,7 +18,7 @@
 
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.GameObject
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Group
@@ -706,7 +706,7 @@ Namespace Loots
                     LootTable(GUID).Dispose()
 
                     'DONE: Remove loot sing for player
-                    If GuidIsCreature(GUID) Then
+                    If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                         If LootType = LootType.LOOTTYPE_CORPSE Then
                             'DONE: Set skinnable
                             If WORLD_CREATUREs(GUID).CreatureInfo.SkinLootID > 0 Then
@@ -718,7 +718,7 @@ Namespace Loots
                             Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             response.AddInt32(1)
                             response.AddInt8(0)
-                            Dim UpdateData As New UpdateClass
+                            Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                             UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, WORLD_CREATUREs(GUID).cDynamicFlags)
                             UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, WORLD_CREATUREs(GUID).cUnitFlags)
                             UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
@@ -729,7 +729,7 @@ Namespace Loots
                             WORLD_CREATUREs(GUID).Despawn()
                         End If
 
-                    ElseIf GuidIsGameObject(GUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(GUID) Then
+                    ElseIf _CommonGlobalFunctions.GuidIsGameObject(GUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(GUID) Then
                         If WORLD_GAMEOBJECTs(GUID).IsConsumeable Then
                             WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_LOOTED
                             WORLD_GAMEOBJECTs(GUID).Despawn()
@@ -737,7 +737,7 @@ Namespace Loots
                             WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_UNLOOTED
                         End If
 
-                    ElseIf GuidIsItem(GUID) Then
+                    ElseIf _CommonGlobalFunctions.GuidIsItem(GUID) Then
 
                         client.Character.ItemREMOVE(GUID, True, True)
                     End If
@@ -745,7 +745,7 @@ Namespace Loots
                 Else
 
                     'DONE: Send loot for other players
-                    If GuidIsCreature(GUID) Then
+                    If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                         If LootType = LootType.LOOTTYPE_CORPSE Then
                             If WORLD_CREATUREs.ContainsKey(GUID) = False Then
                                 LootTable(GUID).Dispose()
@@ -755,7 +755,7 @@ Namespace Loots
                                 Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                 response.AddInt32(1)
                                 response.AddInt8(0)
-                                Dim UpdateData As New UpdateClass
+                                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, WORLD_CREATUREs(GUID).cDynamicFlags)
                                 UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
                                 WORLD_CREATUREs(GUID).SendToNearPlayers(response)
@@ -765,7 +765,7 @@ Namespace Loots
                         ElseIf LootType = LootType.LOOTTYPE_SKINNING Then
                             WORLD_CREATUREs(GUID).Despawn()
                         End If
-                    ElseIf GuidIsGameObject(GUID) Then
+                    ElseIf _CommonGlobalFunctions.GuidIsGameObject(GUID) Then
                         If WORLD_GAMEOBJECTs.ContainsKey(GUID) = False OrElse LootTable(GUID).LootType = LootType.LOOTTYPE_FISHING Then
                             LootTable(GUID).Dispose()
                         Else
@@ -774,7 +774,7 @@ Namespace Loots
                             Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             response.AddInt32(1)
                             response.AddInt8(0)
-                            Dim UpdateData As New UpdateClass
+                            Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                             UpdateData.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, WORLD_GAMEOBJECTs(GUID).State)
                             UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_GAMEOBJECTs(GUID))
 
@@ -783,7 +783,7 @@ Namespace Loots
                             UpdateData.Dispose()
                         End If
 
-                    ElseIf GuidIsItem(GUID) Then
+                    ElseIf _CommonGlobalFunctions.GuidIsItem(GUID) Then
                         LootTable(GUID).Dispose()
                         client.Character.ItemREMOVE(GUID, True, True)
                     Else
@@ -799,7 +799,7 @@ Namespace Loots
                 client.Send(responseRelease)
                 responseRelease.Dispose()
 
-                If GuidIsCreature(GUID) Then
+                If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                     'DONE: Set skinnable
                     If WORLD_CREATUREs(GUID).CreatureInfo.SkinLootID > 0 Then
                         WORLD_CREATUREs(GUID).cUnitFlags = WORLD_CREATUREs(GUID).cUnitFlags Or UnitFlags.UNIT_FLAG_SKINNABLE
@@ -810,7 +810,7 @@ Namespace Loots
                     Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     response.AddInt32(1)
                     response.AddInt8(0)
-                    Dim UpdateData As New UpdateClass
+                    Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, WORLD_CREATUREs(GUID).cDynamicFlags)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, WORLD_CREATUREs(GUID).cUnitFlags)
                     UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))

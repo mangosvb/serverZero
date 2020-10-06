@@ -17,8 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Globals
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Character
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
@@ -66,7 +65,7 @@ Namespace Player
             End Try
 
             'DONE: Check for disabled class/race, only for non GM/Admin
-            If (SERVER_CONFIG_DISABLED_CLASSES(Character.Classe - 1) = True) OrElse (SERVER_CONFIG_DISABLED_RACES(Character.Race - 1) = True) AndAlso Account_Access < AccessLevel.GameMaster Then
+            If (_Global_Constants.SERVER_CONFIG_DISABLED_CLASSES(Character.Classe - 1) = True) OrElse (_Global_Constants.SERVER_CONFIG_DISABLED_RACES(Character.Race - 1) = True) AndAlso Account_Access < AccessLevel.GameMaster Then
                 Return CharResponse.CHAR_CREATE_DISABLED
             End If
 

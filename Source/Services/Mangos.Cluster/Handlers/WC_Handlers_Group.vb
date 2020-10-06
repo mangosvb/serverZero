@@ -47,7 +47,7 @@ Namespace Handlers
             Public LootThreshold As GroupLootThreshold = GroupLootThreshold.Uncommon
 
             Public Leader As Byte
-            Public Members(GROUP_SIZE) As CharacterObject
+            Public Members(_Global_Constants.GROUP_SIZE) As CharacterObject
             Public TargetIcons(7) As ULong
 
             Public Sub New(ByRef objCharacter As CharacterObject)
@@ -211,8 +211,8 @@ Namespace Handlers
             End Property
 
             Public Sub ConvertToRaid()
-                ReDim Preserve Members(GROUP_RAIDSIZE)
-                For i As Byte = GROUP_SIZE + 1 To GROUP_RAIDSIZE
+                ReDim Preserve Members(_Global_Constants.GROUP_RAIDSIZE)
+                For i As Byte = _Global_Constants.GROUP_SIZE + 1 To _Global_Constants.GROUP_RAIDSIZE
                     Members(i) = Nothing
                 Next
 
@@ -299,7 +299,7 @@ Namespace Handlers
             Public Sub BroadcastToOutOfRange(ByRef packet As PacketClass, ByRef objCharacter As CharacterObject)
                 For i As Byte = 0 To Members.Length - 1
                     If Members(i) IsNot Nothing AndAlso Members(i) IsNot objCharacter AndAlso Members(i).Client IsNot Nothing Then
-                        If objCharacter.Map <> Members(i).Map OrElse Math.Sqrt((objCharacter.PositionX - Members(i).PositionX) ^ 2 + (objCharacter.PositionY - Members(i).PositionY) ^ 2) > DEFAULT_DISTANCE_VISIBLE Then
+                        If objCharacter.Map <> Members(i).Map OrElse Math.Sqrt((objCharacter.PositionX - Members(i).PositionX) ^ 2 + (objCharacter.PositionY - Members(i).PositionY) ^ 2) > _Global_Constants.DEFAULT_DISTANCE_VISIBLE Then
                             Members(i).Client.SendMultiplyPackets(packet)
                         End If
                     End If
@@ -314,7 +314,7 @@ Namespace Handlers
 
                         Dim packet As New PacketClass(OPCODES.SMSG_GROUP_LIST)
                         packet.AddInt8(Type)                                    'GroupType 0:Party 1:Raid
-                        Dim MemberFlags As Byte = Int(i / GROUP_SUBGROUPSIZE)
+                        Dim MemberFlags As Byte = Int(i / _Global_Constants.GROUP_SUBGROUPSIZE)
                         'If Members(i).GroupAssistant Then MemberFlags = MemberFlags Or &H1
                         packet.AddInt8(MemberFlags)
                         packet.AddInt32(GroupCount - 1)
@@ -328,7 +328,7 @@ Namespace Handlers
                                 Else
                                     packet.AddInt8(0)                           'CharOnline?
                                 End If
-                                MemberFlags = Int(j / GROUP_SUBGROUPSIZE)
+                                MemberFlags = Int(j / _Global_Constants.GROUP_SUBGROUPSIZE)
                                 'If Members(j).GroupAssistant Then MemberFlags = MemberFlags Or &H1
                                 packet.AddInt8(MemberFlags)
                             End If
@@ -403,9 +403,9 @@ Namespace Handlers
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_INVITE [{2}]", client.IP, client.Port, Name)
 
             Dim GUID As ULong = 0
-            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UppercaseFirstLetter(Character.Value.Name) = UppercaseFirstLetter(Name) Then
+                If _CommonFunctions.UppercaseFirstLetter(Character.Value.Name) = _CommonFunctions.UppercaseFirstLetter(Name) Then
                     GUID = Character.Value.Guid
                     Exit For
                 End If
@@ -510,9 +510,9 @@ Namespace Handlers
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_UNINVITE [{2}]", client.IP, client.Port, Name)
 
             Dim GUID As ULong = 0
-            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UppercaseFirstLetter(Character.Value.Name) = UppercaseFirstLetter(Name) Then
+                If _CommonFunctions.UppercaseFirstLetter(Character.Value.Name) = _CommonFunctions.UppercaseFirstLetter(Name) Then
                     GUID = Character.Value.Guid
                     Exit For
                 End If
@@ -593,7 +593,7 @@ Namespace Handlers
             If client.Character.IsInGroup Then
                 Dim j As Integer
 
-                For j = subGroup * GROUP_SUBGROUPSIZE To ((subGroup + 1) * GROUP_SUBGROUPSIZE - 1)
+                For j = subGroup * _Global_Constants.GROUP_SUBGROUPSIZE To ((subGroup + 1) * _Global_Constants.GROUP_SUBGROUPSIZE - 1)
                     If client.Character.Group.Members(j) Is Nothing Then
                         Exit For
                     End If

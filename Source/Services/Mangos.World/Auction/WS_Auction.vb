@@ -17,7 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.AuctionHouse
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
@@ -280,11 +280,11 @@ Namespace Auction
 
             'DONE: Add auction entry into table
             CharacterDatabase.Update(String.Format("INSERT INTO auctionhouse (auction_bid, auction_buyout, auction_timeleft, auction_bidder, auction_owner, auction_itemId, auction_itemGuid, auction_itemCount) VALUES 
-            ({0},{1},{2},{3},{4},{5},{6},{7});", Bid, Buyout, Time, 0, client.Character.GUID, WORLD_ITEMs(iGUID).ItemEntry, iGUID - GUID_ITEM, WORLD_ITEMs(iGUID).StackCount))
+            ({0},{1},{2},{3},{4},{5},{6},{7});", Bid, Buyout, Time, 0, client.Character.GUID, WORLD_ITEMs(iGUID).ItemEntry, iGUID - _Global_Constants.GUID_ITEM, WORLD_ITEMs(iGUID).StackCount))
 
             'DONE: Send result packet
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query("SELECT auction_id FROM auctionhouse WHERE auction_itemGuid = " & iGUID - GUID_ITEM & ";", MySQLQuery)
+            CharacterDatabase.Query("SELECT auction_id FROM auctionhouse WHERE auction_itemGuid = " & iGUID - _Global_Constants.GUID_ITEM & ";", MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
             SendAuctionCommandResult(client, MySQLQuery.Rows(0).Item("auction_id"), AuctionAction.AUCTION_SELL_ITEM, AuctionError.AUCTION_OK, 0)

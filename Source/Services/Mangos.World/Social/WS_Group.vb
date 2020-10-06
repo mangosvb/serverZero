@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Group
 Imports Mangos.Common.Globals
@@ -171,7 +171,7 @@ Namespace Social
                 Dim auraMask As ULong = 0
                 Dim auraPos As Integer = packet.Data.Length
                 packet.AddUInt64(0) 'AuraMask (is set after the loop)
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If Not objCharacter.ActiveSpells(i) Is Nothing Then
                         auraMask = auraMask Or (CULng(1) << CULng(i))
                         packet.AddUInt16(objCharacter.ActiveSpells(i).SpellID)
@@ -250,7 +250,7 @@ Namespace Social
                     Dim auraMask As ULong = 0
                     Dim auraPos As Integer = packet.Data.Length
                     packet.AddUInt64(0) 'AuraMask (is set after the loop)
-                    For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                    For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                         If Not objCharacter.Pet.ActiveSpells(i) Is Nothing Then
                             auraMask = auraMask Or (CULng(1) << CULng(i))
                             packet.AddUInt16(objCharacter.Pet.ActiveSpells(i).SpellID)

@@ -19,7 +19,7 @@
 Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Map
 Imports Mangos.Common.Globals
@@ -92,9 +92,9 @@ Namespace Maps
             Implements IDisposable
 
             'TMap contains 64x64 TMapTile(s)
-            Public AreaFlag(RESOLUTION_FLAGS, RESOLUTION_FLAGS) As UShort
-            Public AreaTerrain(RESOLUTION_TERRAIN, RESOLUTION_TERRAIN) As Byte
-            Public WaterLevel(RESOLUTION_WATER, RESOLUTION_WATER) As Single
+            Public AreaFlag(_Global_Constants.RESOLUTION_FLAGS, _Global_Constants.RESOLUTION_FLAGS) As UShort
+            Public AreaTerrain(_Global_Constants.RESOLUTION_TERRAIN, _Global_Constants.RESOLUTION_TERRAIN) As Byte
+            Public WaterLevel(_Global_Constants.RESOLUTION_WATER, _Global_Constants.RESOLUTION_WATER) As Single
             'Public ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP) As Single
             Public ZCoord(,) As Single
 
@@ -164,18 +164,18 @@ Namespace Maps
                     fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
                     Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
 
-                    For x = 0 To RESOLUTION_FLAGS
-                        For y = 0 To RESOLUTION_FLAGS
+                    For x = 0 To _Global_Constants.RESOLUTION_FLAGS
+                        For y = 0 To _Global_Constants.RESOLUTION_FLAGS
                             AreaFlag(x, y) = b.ReadUInt16()
                         Next y
                     Next x
-                    For x = 0 To RESOLUTION_TERRAIN
-                        For y = 0 To RESOLUTION_TERRAIN
+                    For x = 0 To _Global_Constants.RESOLUTION_TERRAIN
+                        For y = 0 To _Global_Constants.RESOLUTION_TERRAIN
                             AreaTerrain(x, y) = b.ReadByte
                         Next y
                     Next x
-                    For x = 0 To RESOLUTION_WATER
-                        For y = 0 To RESOLUTION_WATER
+                    For x = 0 To _Global_Constants.RESOLUTION_WATER
+                        For y = 0 To _Global_Constants.RESOLUTION_WATER
                             WaterLevel(x, y) = b.ReadSingle
                         Next y
                     Next x
@@ -333,7 +333,7 @@ Namespace Maps
                 Get
                     Select Case Type
                         Case MapTypes.MAP_BATTLEGROUND
-                            Return DEFAULT_BATTLEFIELD_EXPIRE_TIME
+                            Return _Global_Constants.DEFAULT_BATTLEFIELD_EXPIRE_TIME
 
                         Case MapTypes.MAP_RAID, MapTypes.MAP_INSTANCE
                             '* Molten Core: Every Tuesday at 3:00AM or during weekly maintenance
@@ -352,7 +352,7 @@ Namespace Maps
                                     Return GetNextDay(DayOfWeek.Tuesday, 3).Subtract(Now).TotalSeconds
                             End Select
 
-                            Return DEFAULT_INSTANCE_EXPIRE_TIME
+                            Return _Global_Constants.DEFAULT_INSTANCE_EXPIRE_TIME
                     End Select
                 End Get
             End Property
@@ -396,7 +396,7 @@ Namespace Maps
             Dim height As Single = Single.PositiveInfinity
             Dim dir As New Vector3(0.0F, -1.0F, 0.0F)
             Dim ray As New Ray(pos, dir)
-            Dim maxDist As Single = VMAP_MAX_CAN_FALL_DISTANCE
+            Dim maxDist As Single = _Global_Constants.VMAP_MAX_CAN_FALL_DISTANCE
             Dim dist As Single = GetIntersectionTime(ray, maxDist, False)
 #If VMAPS_DEBUG Then
             Log.WriteLine(LogType.DEBUG, "GetHeight dist: {0}", dist)
@@ -543,43 +543,43 @@ Namespace Maps
         ''' <param name="coord"></param>
         ''' <returns></returns>
         Public Function ValidateMapCoord(coord As Single) As Single
-            If coord > 32 * SIZE Then
+            If coord > 32 * _Global_Constants.SIZE Then
                 'Invalid Value for X provided, so clamp it to x
-                coord = 32 * SIZE
-            ElseIf coord < -32 * SIZE Then
+                coord = 32 * _Global_Constants.SIZE
+            ElseIf coord < -32 * _Global_Constants.SIZE Then
                 'Invalid Value for X provided, so clamp it to -x
-                coord = -32 * SIZE
+                coord = -32 * _Global_Constants.SIZE
             End If
             Return coord
         End Function
 
         Public Sub GetMapTile(ByVal x As Single, ByVal y As Single, ByRef MapTileX As Byte, ByRef MapTileY As Byte)
             'How to calculate where is X,Y:
-            MapTileX = Fix(32 - (ValidateMapCoord(x) / SIZE))
-            MapTileY = Fix(32 - (ValidateMapCoord(y) / SIZE))
+            MapTileX = Fix(32 - (ValidateMapCoord(x) / _Global_Constants.SIZE))
+            MapTileY = Fix(32 - (ValidateMapCoord(y) / _Global_Constants.SIZE))
         End Sub
         Public Function GetMapTileX(ByVal x As Single) As Byte
-            Return Fix(32 - (ValidateMapCoord(x) / SIZE))
+            Return Fix(32 - (ValidateMapCoord(x) / _Global_Constants.SIZE))
         End Function
         Public Function GetMapTileY(ByVal y As Single) As Byte
-            Return Fix(32 - (ValidateMapCoord(y) / SIZE))
+            Return Fix(32 - (ValidateMapCoord(y) / _Global_Constants.SIZE))
         End Function
         Public Function GetSubMapTileX(ByVal x As Single) As Byte
-            Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(x) / SIZE) - Fix(32 - (ValidateMapCoord(x) / SIZE))))
+            Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(x) / _Global_Constants.SIZE) - Fix(32 - (ValidateMapCoord(x) / _Global_Constants.SIZE))))
         End Function
         Public Function GetSubMapTileY(ByVal y As Single) As Byte
-            Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(y) / SIZE) - Fix(32 - (ValidateMapCoord(y) / SIZE))))
+            Return Fix(RESOLUTION_ZMAP * (32 - (ValidateMapCoord(y) / _Global_Constants.SIZE) - Fix(32 - (ValidateMapCoord(y) / _Global_Constants.SIZE))))
         End Function
         Public Function GetZCoord(ByVal x As Single, ByVal y As Single, ByVal Map As UInteger) As Single
             Try
                 x = ValidateMapCoord(x)
                 y = ValidateMapCoord(y)
-                Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-                Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-                Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
-                Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
-                Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
-                Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
+                Dim MapTileX As Byte = Fix(32 - (x / _Global_Constants.SIZE))
+                Dim MapTileY As Byte = Fix(32 - (y / _Global_Constants.SIZE))
+                Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / _Global_Constants.SIZE) - MapTileX)
+                Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / _Global_Constants.SIZE) - MapTileY)
+                Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / _Global_Constants.SIZE) - MapTileX) - MapTile_LocalX
+                Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / _Global_Constants.SIZE) - MapTileY) - MapTile_LocalY
 
                 If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
 
@@ -605,10 +605,10 @@ Namespace Maps
         Public Function GetWaterLevel(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Single
             x = ValidateMapCoord(x)
             y = ValidateMapCoord(y)
-            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = RESOLUTION_WATER * (32 - (x / SIZE) - MapTileX)
-            Dim MapTile_LocalY As Byte = RESOLUTION_WATER * (32 - (y / SIZE) - MapTileY)
+            Dim MapTileX As Byte = Fix(32 - (x / _Global_Constants.SIZE))
+            Dim MapTileY As Byte = Fix(32 - (y / _Global_Constants.SIZE))
+            Dim MapTile_LocalX As Byte = _Global_Constants.RESOLUTION_WATER * (32 - (x / _Global_Constants.SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = _Global_Constants.RESOLUTION_WATER * (32 - (y / _Global_Constants.SIZE) - MapTileY)
 
             If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
             Return Maps(Map).Tiles(MapTileX, MapTileY).WaterLevel(MapTile_LocalX, MapTile_LocalY)
@@ -616,10 +616,10 @@ Namespace Maps
         Public Function GetTerrainType(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Byte
             x = ValidateMapCoord(x)
             y = ValidateMapCoord(y)
-            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = RESOLUTION_TERRAIN * (32 - (x / SIZE) - MapTileX)
-            Dim MapTile_LocalY As Byte = RESOLUTION_TERRAIN * (32 - (y / SIZE) - MapTileY)
+            Dim MapTileX As Byte = Fix(32 - (x / _Global_Constants.SIZE))
+            Dim MapTileY As Byte = Fix(32 - (y / _Global_Constants.SIZE))
+            Dim MapTile_LocalX As Byte = _Global_Constants.RESOLUTION_TERRAIN * (32 - (x / _Global_Constants.SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = _Global_Constants.RESOLUTION_TERRAIN * (32 - (y / _Global_Constants.SIZE) - MapTileY)
 
             If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
             Return Maps(Map).Tiles(MapTileX, MapTileY).AreaTerrain(MapTile_LocalX, MapTile_LocalY)
@@ -627,10 +627,10 @@ Namespace Maps
         Public Function GetAreaFlag(ByVal x As Single, ByVal y As Single, ByVal Map As Integer) As Integer
             x = ValidateMapCoord(x)
             y = ValidateMapCoord(y)
-            Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-            Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-            Dim MapTile_LocalX As Byte = RESOLUTION_FLAGS * (32 - (x / SIZE) - MapTileX)
-            Dim MapTile_LocalY As Byte = RESOLUTION_FLAGS * (32 - (y / SIZE) - MapTileY)
+            Dim MapTileX As Byte = Fix(32 - (x / _Global_Constants.SIZE))
+            Dim MapTileY As Byte = Fix(32 - (y / _Global_Constants.SIZE))
+            Dim MapTile_LocalX As Byte = _Global_Constants.RESOLUTION_FLAGS * (32 - (x / _Global_Constants.SIZE) - MapTileX)
+            Dim MapTile_LocalY As Byte = _Global_Constants.RESOLUTION_FLAGS * (32 - (y / _Global_Constants.SIZE) - MapTileY)
 
             If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0
             Return Maps(Map).Tiles(MapTileX, MapTileY).AreaFlag(MapTile_LocalX, MapTile_LocalY)
@@ -755,7 +755,7 @@ Namespace Maps
             If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then
                 'Return vmap height if one was found
                 Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 2.0F)
-                If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
+                If VMapHeight <> _Global_Constants.VMAP_INVALID_HEIGHT_VALUE Then
                     Return VMapHeight
                 End If
             End If
@@ -811,17 +811,17 @@ Namespace Maps
                 x = ValidateMapCoord(x)
                 y = ValidateMapCoord(y)
                 z = ValidateMapCoord(z)
-                Dim MapTileX As Byte = Fix(32 - (x / SIZE))
-                Dim MapTileY As Byte = Fix(32 - (y / SIZE))
-                Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX)
-                Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY)
-                Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / SIZE) - MapTileX) - MapTile_LocalX
-                Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / SIZE) - MapTileY) - MapTile_LocalY
+                Dim MapTileX As Byte = Fix(32 - (x / _Global_Constants.SIZE))
+                Dim MapTileY As Byte = Fix(32 - (y / _Global_Constants.SIZE))
+                Dim MapTile_LocalX As Byte = RESOLUTION_ZMAP * (32 - (x / _Global_Constants.SIZE) - MapTileX)
+                Dim MapTile_LocalY As Byte = RESOLUTION_ZMAP * (32 - (y / _Global_Constants.SIZE) - MapTileY)
+                Dim xNormalized As Single = RESOLUTION_ZMAP * (32 - (x / _Global_Constants.SIZE) - MapTileX) - MapTile_LocalX
+                Dim yNormalized As Single = RESOLUTION_ZMAP * (32 - (y / _Global_Constants.SIZE) - MapTileY) - MapTile_LocalY
 
                 If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then
                     'Return vmap height if one was found
                     Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 5.0F)
-                    If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
+                    If VMapHeight <> _Global_Constants.VMAP_INVALID_HEIGHT_VALUE Then
                         Return VMapHeight
                     End If
 
@@ -831,7 +831,7 @@ Namespace Maps
                 If Math.Abs(Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY) - z) >= 2.0F Then
                     'Return vmap height if one was found
                     Dim VMapHeight As Single = GetVMapHeight(Map, x, y, z + 5.0F)
-                    If VMapHeight <> VMAP_INVALID_HEIGHT_VALUE Then
+                    If VMapHeight <> _Global_Constants.VMAP_INVALID_HEIGHT_VALUE Then
                         Return VMapHeight
                     End If
                 End If
@@ -917,7 +917,7 @@ Namespace Maps
             x = ValidateMapCoord(x)
             y = ValidateMapCoord(y)
             z = ValidateMapCoord(z)
-            Dim height As Single = VMAP_INVALID_HEIGHT_VALUE
+            Dim height As Single = _Global_Constants.VMAP_INVALID_HEIGHT_VALUE
 #If VMAPS Then
         If Config.HeightCalcEnabled AndAlso Maps.ContainsKey(MapID) Then
             Dim pos As Vector3 = convertPositionToInternalRep(x, y, z)
@@ -934,7 +934,7 @@ Namespace Maps
             Log.WriteLine(LogType.DEBUG, "GetVMapHeight: {0}", height)
 #End If
             If Not (height < Single.PositiveInfinity) Then
-                height = VMAP_INVALID_HEIGHT_VALUE
+                height = _Global_Constants.VMAP_INVALID_HEIGHT_VALUE
             End If
         End If
 #End If
@@ -991,10 +991,10 @@ Namespace Maps
 
         Public Sub LoadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger, ByVal TileInstance As UInteger)
             'Caluclate (x1, y1) and (x2, y2)
-            Dim MinX As Single = ((32 - TileX) * SIZE)
-            Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
-            Dim MinY As Single = ((32 - TileY) * SIZE)
-            Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
+            Dim MinX As Single = ((32 - TileX) * _Global_Constants.SIZE)
+            Dim MaxX As Single = ((32 - (TileX + 1)) * _Global_Constants.SIZE)
+            Dim MinY As Single = ((32 - TileY) * _Global_Constants.SIZE)
+            Dim MaxY As Single = ((32 - (TileY + 1)) * _Global_Constants.SIZE)
             'We need the maximum value to be the largest value
             If MinX > MaxX Then
                 Dim tmpSng As Single = MinX
@@ -1017,7 +1017,7 @@ Namespace Maps
             Dim MysqlQuery As New DataTable
             WorldDatabase.Query(String.Format("SELECT * FROM creature LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid WHERE map={0} AND position_X BETWEEN '{1}' AND '{2}' AND position_Y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
             For Each InfoRow As DataRow In MysqlQuery.Rows
-                If Not WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd + GUID_UNIT) Then
+                If Not WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd + _Global_Constants.GUID_UNIT) Then
                     Try
                         Dim tmpCr As CreatureObject = New CreatureObject(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd, InfoRow)
                         If tmpCr.GameEvent = 0 Then
@@ -1034,8 +1034,8 @@ Namespace Maps
             MysqlQuery.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_map={0} AND spawn_spawntime>=0 AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
             For Each InfoRow As DataRow In MysqlQuery.Rows
-                If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso
-                   Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + GUID_TRANSPORT) Then
+                If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + _Global_Constants.GUID_GAMEOBJECT) AndAlso
+                   Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + _Global_Constants.GUID_TRANSPORT) Then
                     Try
                         Dim tmpGo As GameObjectObject = New GameObjectObject(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd, InfoRow)
                         If tmpGo.GameEvent = 0 Then
@@ -1052,7 +1052,7 @@ Namespace Maps
             MysqlQuery.Clear()
             CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE map={0} AND instance={5} AND position_x BETWEEN '{1}' AND '{2}' AND position_y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY, TileInstance), MysqlQuery)
             For Each InfoRow As DataRow In MysqlQuery.Rows
-                If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + GUID_CORPSE) Then
+                If Not WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + _Global_Constants.GUID_CORPSE) Then
                     Try
                         Dim tmpCorpse As CorpseObject = New CorpseObject(InfoRow.Item("guid"), InfoRow) With {
                                 .instance = TileInstance
@@ -1076,7 +1076,7 @@ Namespace Maps
                             Transport.Value.NotifyEnter()
                         End If
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Error when creating transport [{0}].{1}{2}", Transport.Key - GUID_MO_TRANSPORT, Environment.NewLine, ex.ToString)
+                        Log.WriteLine(LogType.CRITICAL, "Error when creating transport [{0}].{1}{2}", Transport.Key - _Global_Constants.GUID_MO_TRANSPORT, Environment.NewLine, ex.ToString)
                     End Try
                 Next
             Catch
@@ -1086,10 +1086,10 @@ Namespace Maps
         End Sub
         Public Sub UnloadSpawns(ByVal TileX As Byte, ByVal TileY As Byte, ByVal TileMap As UInteger)
             'Caluclate (x1, y1) and (x2, y2)
-            Dim MinX As Single = ((32 - TileX) * SIZE)
-            Dim MaxX As Single = ((32 - (TileX + 1)) * SIZE)
-            Dim MinY As Single = ((32 - TileY) * SIZE)
-            Dim MaxY As Single = ((32 - (TileY + 1)) * SIZE)
+            Dim MinX As Single = ((32 - TileX) * _Global_Constants.SIZE)
+            Dim MaxX As Single = ((32 - (TileX + 1)) * _Global_Constants.SIZE)
+            Dim MinY As Single = ((32 - TileY) * _Global_Constants.SIZE)
+            Dim MaxY As Single = ((32 - (TileY + 1)) * _Global_Constants.SIZE)
             'We need the maximum value to be the largest value
             If MinX > MaxX Then
                 Dim tmpSng As Single = MinX
@@ -1103,7 +1103,7 @@ Namespace Maps
             End If
 
             Try
-                WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                WORLD_CREATUREs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 For Each Creature As KeyValuePair(Of ULong, CreatureObject) In WORLD_CREATUREs
                     If Creature.Value.MapID = TileMap AndAlso Creature.Value.SpawnX >= MinX AndAlso Creature.Value.SpawnX <= MaxX AndAlso Creature.Value.SpawnY >= MinY AndAlso Creature.Value.SpawnY <= MaxY Then
                         Creature.Value.Destroy()
@@ -1148,4 +1148,4 @@ Namespace Maps
 #End Region
 
     End Module
-End NameSpace
+End Namespace

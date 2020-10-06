@@ -17,7 +17,7 @@
 '
 
 Namespace Globals
-    Public Module Converter
+    Public Class Converter
 
 #Region "ToByte|ToBytes"
         Public Function ToByte(ByVal d As Byte(), ByRef offset As Integer) As Byte
@@ -143,5 +143,5 @@ Namespace Globals
         End Function
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

@@ -27,6 +27,7 @@ Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Enums.Player
+Imports Mangos.Common
 
 Namespace Globals
     Public Module Functions
@@ -369,7 +370,7 @@ Namespace Globals
         End Sub
 
         Public Sub Broadcast(message As String)
-            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
             For Each character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                 If character.Value.Client IsNot Nothing Then SendMessageSystem(character.Value.Client, "System Message: " & SetColor(message, 255, 0, 0))
             Next

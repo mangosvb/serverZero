@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.GameObject
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
@@ -80,7 +80,7 @@ Namespace Globals
             Public UpdateMask As BitArray
             Public UpdateData As New Hashtable
 
-            Public Sub New(Optional ByVal max As Integer = FIELD_MASK_SIZE_PLAYER)
+            Public Sub New(ByVal max As Integer)
                 UpdateMask = New BitArray(max, False)
             End Sub
 
@@ -188,10 +188,10 @@ Namespace Globals
 
                     packet.AddSingle(CREATURESDatabase(updateObject.ID).WalkSpeed)
                     packet.AddSingle(CREATURESDatabase(updateObject.ID).RunSpeed)
-                    packet.AddSingle(UNIT_NORMAL_SWIM_BACK_SPEED)
-                    packet.AddSingle(UNIT_NORMAL_SWIM_SPEED)
-                    packet.AddSingle(UNIT_NORMAL_WALK_BACK_SPEED)
-                    packet.AddSingle(UNIT_NORMAL_TURN_RATE)
+                    packet.AddSingle(_Global_Constants.UNIT_NORMAL_SWIM_BACK_SPEED)
+                    packet.AddSingle(_Global_Constants.UNIT_NORMAL_SWIM_SPEED)
+                    packet.AddSingle(_Global_Constants.UNIT_NORMAL_WALK_BACK_SPEED)
+                    packet.AddSingle(_Global_Constants.UNIT_NORMAL_TURN_RATE)
 
                     packet.AddUInt32(1)
                 End If
@@ -268,7 +268,7 @@ Namespace Globals
                     packet.AddSingle(updateObject.SwimBackSpeed)
                     packet.AddSingle(updateObject.TurnRate)
 
-                    packet.AddUInt32(GuidLow(updateObject.GUID))
+                    packet.AddUInt32(_CommonGlobalFunctions.GuidLow(updateObject.GUID))
                 End If
 
                 If updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT OrElse updateType = ObjectUpdateType.UPDATETYPE_VALUES OrElse updateType = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF Then
@@ -383,7 +383,7 @@ Namespace Globals
                     End If
 
                     'packet.AddUInt64(updateObject.GUID)
-                    packet.AddUInt32(GuidHigh(updateObject.GUID))
+                    packet.AddUInt32(_CommonGlobalFunctions.GuidHigh(updateObject.GUID))
 
                     If updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_TRANSPORT OrElse updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_MO_TRANSPORT Then
                         packet.AddInt32(MsTime)
@@ -580,7 +580,7 @@ Namespace Globals
                 If Data.Length < 200 Then Exit Sub 'Too small packet
 
                 Dim uncompressedSize As Integer = Data.Length
-                Dim compressedBuffer() As Byte = Compress(Data, 4, Data.Length - 4)
+                Dim compressedBuffer() As Byte = _GlobalZip.Compress(Data, 4, Data.Length - 4)
                 If compressedBuffer.Length = 0 Then Exit Sub
 
                 ReDim Data(3)

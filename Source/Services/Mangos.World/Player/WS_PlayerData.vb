@@ -196,9 +196,9 @@ Namespace Player
 
             Public ReadOnly Property GetTarget() As BaseUnit
                 Get
-                    If GuidIsCreature(TargetGUID) Then Return WORLD_CREATUREs(TargetGUID)
-                    If GuidIsPlayer(TargetGUID) Then Return CHARACTERs(TargetGUID)
-                    If GuidIsPet(TargetGUID) Then Return WORLD_CREATUREs(TargetGUID)
+                    If _CommonGlobalFunctions.GuidIsCreature(TargetGUID) Then Return WORLD_CREATUREs(TargetGUID)
+                    If _CommonGlobalFunctions.GuidIsPlayer(TargetGUID) Then Return CHARACTERs(TargetGUID)
+                    If _CommonGlobalFunctions.GuidIsPet(TargetGUID) Then Return WORLD_CREATUREs(TargetGUID)
                     Return Nothing
                 End Get
             End Property
@@ -371,7 +371,7 @@ Namespace Player
                 Dim PowerRegenMP5 As Single = (ManaRegenBonus / 5)
                 Dim PowerRegenInterrupt As Integer = 0
 
-                For i As Integer = 0 To MAX_AURA_EFFECTs - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                     If Not ActiveSpells(i) Is Nothing Then
                         For j As Byte = 0 To 2
                             If Not ActiveSpells(i).Aura_Info(j) Is Nothing Then
@@ -488,12 +488,12 @@ Namespace Player
             Public TaxiNodes As New Queue(Of Integer)
             Public ZonesExplored() As UInteger = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-            Public WalkSpeed As Single = UNIT_NORMAL_WALK_SPEED
-            Public RunSpeed As Single = UNIT_NORMAL_RUN_SPEED
-            Public RunBackSpeed As Single = UNIT_NORMAL_WALK_BACK_SPEED
-            Public SwimSpeed As Single = UNIT_NORMAL_SWIM_SPEED
-            Public SwimBackSpeed As Single = UNIT_NORMAL_SWIM_BACK_SPEED
-            Public TurnRate As Single = UNIT_NORMAL_TURN_RATE
+            Public WalkSpeed As Single = _Global_Constants.UNIT_NORMAL_WALK_SPEED
+            Public RunSpeed As Single = _Global_Constants.UNIT_NORMAL_RUN_SPEED
+            Public RunBackSpeed As Single = _Global_Constants.UNIT_NORMAL_WALK_BACK_SPEED
+            Public SwimSpeed As Single = _Global_Constants.UNIT_NORMAL_SWIM_SPEED
+            Public SwimBackSpeed As Single = _Global_Constants.UNIT_NORMAL_SWIM_BACK_SPEED
+            Public TurnRate As Single = _Global_Constants.UNIT_NORMAL_TURN_RATE
 
             Public charMovementFlags As Integer = 0
             Public ZoneID As Integer = 0
@@ -525,19 +525,19 @@ Namespace Player
 
             Public ReadOnly Property isMoving() As Boolean
                 Get
-                    Return (movementFlagsMask And charMovementFlags)
+                    Return (_Global_Constants.movementFlagsMask And charMovementFlags)
                 End Get
             End Property
 
             Public ReadOnly Property isTurning() As Boolean
                 Get
-                    Return (TurningFlagsMask And charMovementFlags)
+                    Return (_Global_Constants.TurningFlagsMask And charMovementFlags)
                 End Get
             End Property
 
             Public ReadOnly Property isMovingOrTurning() As Boolean
                 Get
-                    Return (movementOrTurningFlagsMask And charMovementFlags)
+                    Return (_Global_Constants.movementOrTurningFlagsMask And charMovementFlags)
                 End Get
             End Property
 
@@ -645,13 +645,13 @@ Namespace Player
 
             Public ReadOnly Property IsInCombat() As Boolean
                 Get
-                    Return (inCombatWith.Count > 0 OrElse (timeGetTime("") - lastPvpAction) < DEFAULT_PVP_COMBAT_TIME)
+                    Return (inCombatWith.Count > 0 OrElse (_NativeMethods.timeGetTime("") - lastPvpAction) < _Global_Constants.DEFAULT_PVP_COMBAT_TIME)
                 End Get
             End Property
 
             Public Sub AddToCombat(ByVal Unit As BaseUnit)
                 If TypeOf Unit Is CharacterObject Then
-                    lastPvpAction = timeGetTime("")
+                    lastPvpAction = _NativeMethods.timeGetTime("")
                 Else
                     If inCombatWith.Contains(Unit.GUID) Then Exit Sub
 
@@ -742,7 +742,7 @@ Namespace Player
             Public TutorialFlags() As Byte = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
             'Updating
-            Private UpdateMask As New BitArray(FIELD_MASK_SIZE_PLAYER, False)
+            Private UpdateMask As New BitArray(_Global_Constants.FIELD_MASK_SIZE_PLAYER, False)
             Private UpdateData As New Hashtable
             Public Sub SetUpdateFlag(ByVal pos As Integer, ByVal value As Integer)
                 UpdateMask.Set(pos, True)
@@ -776,7 +776,7 @@ Namespace Player
             Public Sub SendOutOfRangeUpdate()
                 Dim GUIDs() As ULong
 
-                guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 GUIDs = guidsForRemoving.ToArray()
                 guidsForRemoving.Clear()
                 guidsForRemoving_Lock.ReleaseWriterLock()
@@ -811,7 +811,7 @@ Namespace Player
 
                     'DONE: If character is on a transport, create the transport right here
                     If OnTransport IsNot Nothing Then
-                        Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                         OnTransport.FillAllUpdateFlags(tmpUpdate, Me)
                         tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, OnTransport)
                         tmpUpdate.Dispose()
@@ -823,7 +823,7 @@ Namespace Player
                     PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
 
                     For Each tmpItem As KeyValuePair(Of Byte, ItemObject) In Items
-                        Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                         tmpItem.Value.FillAllUpdateFlags(tmpUpdate)
                         tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, (tmpItem.Value))
                         tmpUpdate.Dispose()
@@ -851,7 +851,7 @@ Namespace Player
                     packet.AddInt32(1)      'Operations.Count
                     packet.AddInt8(0)
 
-                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                     Item.FillAllUpdateFlags(tmpUpdate)
                     tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Item)
                     tmpUpdate.Dispose()
@@ -872,21 +872,21 @@ Namespace Player
                         If Items.ContainsKey(i) Then
                             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
                             If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
-                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_1 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT
-                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_2 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 3
-                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_3 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 6
-                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_4 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 9
-                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_5 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 12
-                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_6 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 15
-                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_7 + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 18
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), 0)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
+                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_1 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT
+                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_2 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 3
+                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_3 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 6
+                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_4 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 9
+                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_5 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 12
+                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_6 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 15
+                                'SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_7 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)           'ITEM_FIELD_ENCHANTMENT + 18
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), 0)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
                             End If
                         Else
                             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, Long))
                             If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                             End If
                         End If
                     Next
@@ -901,7 +901,7 @@ Namespace Player
 
             Public Sub SendItemAndCharacterUpdate(ByVal Item As ItemObject, Optional ByVal UPDATETYPE As Integer = ObjectUpdateType.UPDATETYPE_VALUES)
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 Try
                     packet.AddInt32(2)      'Operations.Count
                     packet.AddInt8(0)
@@ -914,13 +914,13 @@ Namespace Player
                         If Items.ContainsKey(i) Then
                             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
                             If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
                             End If
                         Else
                             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, CType(0, ULong))
                             If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                             End If
                         End If
                     Next
@@ -936,10 +936,10 @@ Namespace Player
                 'DONE: Send to others
                 For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                     If Items.ContainsKey(i) Then
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
+                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
+                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).RandomProperties)   'ITEM_FIELD_RANDOM_PROPERTIES_ID
                     Else
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                     End If
                 Next
                 SendCharacterUpdate(True, True)
@@ -950,7 +950,7 @@ Namespace Player
 
                 'DONE: Send to near
                 If toNear AndAlso SeenBy.Count > 0 Then
-                    Dim forOthers As New UpdateClass With {
+                    Dim forOthers As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER) With {
                             .UpdateData = UpdateData.Clone,
                             .UpdateMask = UpdateMask.Clone
                             }
@@ -1199,7 +1199,7 @@ Namespace Player
                 SetUpdateFlag(EPlayerFields.PLAYER_DODGE_PERCENTAGE, GetBasePercentDodge(Me, 0))
                 SetUpdateFlag(EPlayerFields.PLAYER_PARRY_PERCENTAGE, GetBasePercentParry(Me, 0))
 
-                For i As Byte = 0 To PLAYER_EXPLORED_ZONES_SIZE
+                For i As Byte = 0 To _Global_Constants.PLAYER_EXPLORED_ZONES_SIZE
                     SetUpdateFlag(EPlayerFields.PLAYER_EXPLORED_ZONES_1 + i, ZonesExplored(i))
                 Next i
 
@@ -1218,21 +1218,21 @@ Namespace Player
                 For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To KeyRingSlots.KEYRING_SLOT_END - 1
                     If Items.ContainsKey(i) Then
                         If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
                             'DONE: Include enchantment info
                             For Each Enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Items(i).Enchantments
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 1 + Enchant.Key * 3 + i * PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 2 + Enchant.Key * 3 + i * PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.Charges) 'Correct?
-                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 3 + Enchant.Key * 3 + i * PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.Duration) 'Correct?
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 1 + Enchant.Key * 3 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 2 + Enchant.Key * 3 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.Charges) 'Correct?
+                                SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 3 + Enchant.Key * 3 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.Duration) 'Correct?
                             Next
-                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * PLAYER_VISIBLE_ITEM_SIZE, Items(i).RandomProperties)
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Items(i).RandomProperties)
                         End If
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
                     Else
                         If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
-                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
+                            SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                         End If
                         SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, 0)
                     End If
@@ -1240,15 +1240,15 @@ Namespace Player
 
                 SetUpdateFlag(EPlayerFields.PLAYER_AMMO_ID, AmmoID)
 
-                For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + i, ActiveSpells(i).SpellID)
                     End If
                 Next
-                For i As Byte = 0 To MAX_AURA_EFFECT_FLAGs - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECT_FLAGs - 1
                     SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + i, ActiveSpells_Flags(i))
                 Next
-                For i As Byte = 0 To MAX_AURA_EFFECT_LEVELSs - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECT_LEVELSs - 1
                     SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + i, ActiveSpells_Count(i))
                     SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + i, ActiveSpells_Level(i))
                 Next
@@ -1301,33 +1301,33 @@ Namespace Player
                 For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                     If Items.ContainsKey(i) Then
                         If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
+                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
                             'DONE: Include enchantment info
                             'For Each Enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Items(i).Enchantments
-                            '    Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0_1 + Enchant.Key + i * PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
+                            '    Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0_1 + Enchant.Key + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
                             'Next
-                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * PLAYER_VISIBLE_ITEM_SIZE, Items(i).RandomProperties)
+                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Items(i).RandomProperties)
                         End If
                         Update.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, Items(i).GUID)
                     Else
                         If i < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
-                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
+                            Update.SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                         End If
                         Update.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + i * 2, 0)
                     End If
                 Next
 
-                For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + i, ActiveSpells(i).SpellID)
                     End If
                 Next
-                For i As Byte = 0 To MAX_AURA_EFFECT_FLAGs - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECT_FLAGs - 1
                     Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + i, ActiveSpells_Flags(i))
                 Next
-                For i As Byte = 0 To MAX_AURA_EFFECT_LEVELSs - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECT_LEVELSs - 1
                     Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + i, ActiveSpells_Count(i))
                     Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + i, ActiveSpells_Level(i))
                 Next
@@ -1791,13 +1791,13 @@ Namespace Player
                     'DONE: Learn this skill as new
                     'TODO: Needs to be tidied up
                     Dim i As Short = 0
-                    For i = 0 To PLAYER_SKILL_INFO_SIZE
+                    For i = 0 To _Global_Constants.PLAYER_SKILL_INFO_SIZE
                         If Not SkillsPositions.ContainsValue(i) Then
                             Exit For
                         End If
                     Next
 
-                    If i > PLAYER_SKILL_INFO_SIZE Then Exit Sub
+                    If i > _Global_Constants.PLAYER_SKILL_INFO_SIZE Then Exit Sub
 
                     SkillsPositions.Add(SkillID, i)
                     Skills.Add(SkillID, New TSkill(Current, Maximum))
@@ -1863,7 +1863,7 @@ Namespace Player
                         SetUpdateFlag(EPlayerFields.PLAYER_REST_STATE_EXPERIENCE, RestBonus)
                     End If
 
-                    CheckXPAgain:
+CheckXPAgain:
                     If XP >= XPTable(Level) Then
                         XP -= XPTable(Level)
                         Level = Level + 1
@@ -1974,17 +1974,17 @@ Namespace Player
             Public Sub ItemREMOVE(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal Destroy As Boolean, ByVal Update As Boolean)
                 If srcBag = 0 Then
                     If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then
-                        If srcSlot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + srcSlot * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                        If srcSlot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + srcSlot * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                         UpdateRemoveItemStats(Items(srcSlot), srcSlot)
                     End If
                     SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + srcSlot * 2, 0)
 
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(srcSlot).GUID - GUID_ITEM))
+                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                     If Destroy Then Items(srcSlot).Delete()
                     Items.Remove(srcSlot)
                     If Update Then SendCharacterUpdate()
                 Else
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(srcBag).Items(srcSlot).GUID - GUID_ITEM))
+                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                     If Destroy Then Items(srcBag).Items(srcSlot).Delete()
                     Items(srcBag).Items.Remove(srcSlot)
                     If Update Then SendItemUpdate(Items(srcBag))
@@ -1997,9 +1997,9 @@ Namespace Player
                     If Items.ContainsKey(slot) Then
                         If Items(slot).GUID = itemGuid Then
 
-                            CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(slot).GUID - GUID_ITEM))
+                            CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(slot).GUID - _Global_Constants.GUID_ITEM))
                             If slot < InventorySlots.INVENTORY_SLOT_BAG_END Then
-                                If slot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + slot * PLAYER_VISIBLE_ITEM_SIZE, 0)
+                                If slot < EquipmentSlots.EQUIPMENT_SLOT_END Then SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + slot * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, 0)
                                 UpdateRemoveItemStats(Items(slot), slot)
                             End If
                             SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + slot * 2, 0)
@@ -2023,7 +2023,7 @@ Namespace Player
                             If Items(bag).Items.ContainsKey(slot) Then
 
                                 If Items(bag).Items(slot).GUID = itemGuid Then
-                                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", ITEM_SLOT_NULL, ITEM_BAG_NULL, Items(bag).Items(slot).GUID - GUID_ITEM))
+                                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", _Global_Constants.ITEM_SLOT_NULL, _Global_Constants.ITEM_BAG_NULL, Items(bag).Items(slot).GUID - _Global_Constants.GUID_ITEM))
 
                                     If Destroy Then Items(bag).Items(slot).Delete()
                                     Items(bag).Items.Remove(slot)
@@ -2061,12 +2061,12 @@ Namespace Player
 
             Public Sub ItemADD_BuyBack(ByRef Item As ItemObject)
                 Dim i As Byte, Slot As Byte, eSlot As Byte, OldestTime As Integer, OldestSlot As Byte
-                Slot = ITEM_SLOT_NULL
+                Slot = _Global_Constants.ITEM_SLOT_NULL
                 OldestTime = GetTimestamp(Now)
-                OldestSlot = ITEM_SLOT_NULL
+                OldestSlot = _Global_Constants.ITEM_SLOT_NULL
                 For i = BuyBackSlots.BUYBACK_SLOT_START To BuyBackSlots.BUYBACK_SLOT_END - 1
                     If Items.ContainsKey(i) = False OrElse BuyBackTimeStamp(i - BuyBackSlots.BUYBACK_SLOT_START) = 0 Then 'Woho we found a empty slot to use!
-                        If Slot = ITEM_SLOT_NULL Then Slot = i
+                        If Slot = _Global_Constants.ITEM_SLOT_NULL Then Slot = i
                     Else 'If not let's find out the oldest item in the buyback
                         If BuyBackTimeStamp(i - BuyBackSlots.BUYBACK_SLOT_START) < OldestTime Then
                             OldestTime = BuyBackTimeStamp(i - BuyBackSlots.BUYBACK_SLOT_START)
@@ -2074,8 +2074,8 @@ Namespace Player
                         End If
                     End If
                 Next
-                If Slot = ITEM_SLOT_NULL Then 'We never found a empty slot so let's just remove the oldest item
-                    If OldestSlot <> ITEM_SLOT_NULL Then Exit Sub 'Somehow it all got very wrong o_O
+                If Slot = _Global_Constants.ITEM_SLOT_NULL Then 'We never found a empty slot so let's just remove the oldest item
+                    If OldestSlot <> _Global_Constants.ITEM_SLOT_NULL Then Exit Sub 'Somehow it all got very wrong o_O
                     ItemREMOVE(0, OldestSlot, True, True)
                     Slot = OldestSlot
                 End If
@@ -2348,22 +2348,22 @@ Namespace Player
                     'DONE: Bind a nonbinded BIND WHEN PICKED UP item or a nonbinded quest item
                     'DONE: Put in inventory
                     Items(dstSlot) = Item
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, GUID, Item.StackCount, Item.GUID - GUID_ITEM))
+                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, GUID, Item.StackCount, Item.GUID - _Global_Constants.GUID_ITEM))
 
                     SetUpdateFlag(EPlayerFields.PLAYER_FIELD_INV_SLOT_HEAD + dstSlot * 2, Item.GUID)
                     If dstSlot < EquipmentSlots.EQUIPMENT_SLOT_END Then
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + dstSlot * PLAYER_VISIBLE_ITEM_SIZE, Item.ItemEntry)
+                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + dstSlot * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Item.ItemEntry)
                         'For Each Enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Item.Enchantments
-                        '   SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + Enchant.Key + dstSlot * PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
+                        '   SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + Enchant.Key + dstSlot * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
                         'Next
-                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + dstSlot * PLAYER_VISIBLE_ITEM_SIZE, Item.RandomProperties)
+                        SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_PROPERTIES + dstSlot * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Item.RandomProperties)
                         'DONE: Bind a nonbinded BIND WHEN EQUIPPED item
                         If Item.ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_WHEN_EQUIPED AndAlso Item.IsSoulBound = False Then Item.SoulbindItem()
                     End If
                 Else
                     'DONE: Put in bag
                     Items(dstBag).Items(dstSlot) = Item
-                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, Items(dstBag).GUID, Item.StackCount, Item.GUID - GUID_ITEM))
+                    CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1}, item_stackCount = {2} WHERE item_guid = {3};", dstSlot, Items(dstBag).GUID, Item.StackCount, Item.GUID - _Global_Constants.GUID_ITEM))
                 End If
 
                 'DONE: Send updates
@@ -2779,7 +2779,7 @@ Namespace Player
                     ItemSETSLOT(tmpItem, dstBag, dstSlot)
 
                     Dim SMSG_UPDATE_OBJECT As New UpdatePacketClass
-                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                     Try
                         tmpItem.FillAllUpdateFlags(tmpUpdate)
                         tmpUpdate.AddToPacket((SMSG_UPDATE_OBJECT), ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, tmpItem)
@@ -2903,8 +2903,8 @@ Namespace Player
                                     SendItemUpdate(Items(dstBag))
                                 End If
 
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - GUID_ITEM))
-                                If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - GUID_ITEM))
+                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
 
@@ -2949,8 +2949,8 @@ Namespace Player
                                 End If
 
                                 SendItemAndCharacterUpdate(Items(srcBag))
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - GUID_ITEM))
-                                If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - GUID_ITEM))
+                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items(srcBag).Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, Items(srcBag).GUID, Items(srcBag).Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
 
@@ -2995,8 +2995,8 @@ Namespace Player
                                 End If
 
                                 SendItemAndCharacterUpdate(Items(dstBag))
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - GUID_ITEM))
-                                If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - GUID_ITEM))
+                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, Items(dstBag).GUID, Items(dstBag).Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
 
@@ -3047,8 +3047,8 @@ Namespace Player
                                 End If
 
                                 SendItemAndCharacterUpdate(Items(dstSlot))
-                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - GUID_ITEM))
-                                If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - GUID_ITEM))
+                                CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", dstSlot, GUID, Items(dstSlot).GUID - _Global_Constants.GUID_ITEM))
+                                If Items.ContainsKey(srcSlot) Then CharacterDatabase.Update(String.Format("UPDATE characters_inventory SET item_slot = {0}, item_bag = {1} WHERE item_guid = {2};", srcSlot, GUID, Items(srcSlot).GUID - _Global_Constants.GUID_ITEM))
                             End If
                         End If
                     End If
@@ -3076,7 +3076,7 @@ Namespace Player
             Public Function ItemGETByGUID(ByVal GUID As ULong) As ItemObject
                 Dim srcBag As Byte, srcSlot As Byte
                 srcSlot = client.Character.ItemGetSLOTBAG(GUID, srcBag)
-                If srcSlot = ITEM_SLOT_NULL Then Return Nothing
+                If srcSlot = _Global_Constants.ITEM_SLOT_NULL Then Return Nothing
                 Return ItemGET(srcBag, srcSlot)
             End Function
             Public Function ItemGetGUID(ByVal srcBag As Byte, ByVal srcSlot As Byte) As ULong
@@ -3111,8 +3111,8 @@ Namespace Player
                     End If
                 Next
 
-                bag = ITEM_SLOT_NULL
-                Return ITEM_SLOT_NULL
+                bag = _Global_Constants.ITEM_SLOT_NULL
+                Return _Global_Constants.ITEM_SLOT_NULL
             End Function
 
             Public Sub UpdateAddItemStats(ByRef Item As ItemObject, ByVal slot As Byte)
@@ -3986,7 +3986,7 @@ Namespace Player
                 GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
 
                 For Each uGuid As ULong In inCombatWith
-                    If GuidIsPlayer(uGuid) AndAlso CHARACTERs.ContainsKey(uGuid) Then
+                    If _CommonGlobalFunctions.GuidIsPlayer(uGuid) AndAlso CHARACTERs.ContainsKey(uGuid) Then
                         'DONE: Remove combat from players who had you in combat
                         CHARACTERs(uGuid).RemoveFromCombat(Me)
                     End If
@@ -4001,7 +4001,7 @@ Namespace Player
                 End If
 
                 'DONE: Remove all spells when you die
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         RemoveAura(i, ActiveSpells(i).SpellCaster, , False)
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + i, 0)
@@ -4279,7 +4279,7 @@ Namespace Player
             End Sub
 
             Public Sub UpdateAuraDurations()
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         Dim SMSG_UPDATE_AURA_DURATION As New PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
                         Try
@@ -4300,7 +4300,7 @@ Namespace Player
                 Dim TransportGUID As ULong = LoginTransport
                 LoginTransport = 0UL
                 If TransportGUID > 0 Then
-                    If GuidIsMoTransport(TransportGUID) AndAlso WORLD_TRANSPORTs.ContainsKey(TransportGUID) Then
+                    If _CommonGlobalFunctions.GuidIsMoTransport(TransportGUID) AndAlso WORLD_TRANSPORTs.ContainsKey(TransportGUID) Then
                         OnTransport = WORLD_TRANSPORTs(TransportGUID)
                         WORLD_TRANSPORTs(TransportGUID).AddPassenger(Me)
                         transportX = positionX
@@ -4310,7 +4310,7 @@ Namespace Player
                         positionY = OnTransport.positionY
                         positionZ = OnTransport.positionZ
                         MapID = OnTransport.MapID
-                    ElseIf GuidIsTransport(TransportGUID) Then
+                    ElseIf _CommonGlobalFunctions.GuidIsTransport(TransportGUID) Then
                         If WORLD_GAMEOBJECTs.ContainsKey(TransportGUID) Then
                             OnTransport = WORLD_GAMEOBJECTs(TransportGUID)
                             transportX = positionX
@@ -4321,7 +4321,7 @@ Namespace Player
                             positionZ = OnTransport.positionZ
                         Else
                             Log.WriteLine(LogType.CRITICAL, "Spawning new transport!")
-                            Dim newGameobject As New GameObjectObject(TransportGUID - GUID_TRANSPORT)
+                            Dim newGameobject As New GameObjectObject(TransportGUID - _Global_Constants.GUID_TRANSPORT)
                             newGameobject.AddToWorld()
                             OnTransport = newGameobject
                             transportX = positionX
@@ -4332,7 +4332,7 @@ Namespace Player
                             positionZ = OnTransport.positionZ
                         End If
                     Else
-                        Log.WriteLine(LogType.CRITICAL, "Character logging in on non-existant transport [{0}].", TransportGUID - GUID_MO_TRANSPORT)
+                        Log.WriteLine(LogType.CRITICAL, "Character logging in on non-existant transport [{0}].", TransportGUID - _Global_Constants.GUID_MO_TRANSPORT)
                         AllGraveYards.GoToNearestGraveyard(Me, True, False)
                         OnTransport = Nothing
                     End If
@@ -4417,7 +4417,7 @@ Namespace Player
                         End If
                     End If
 
-                    CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     CHARACTERs.Remove(GUID)
                     CHARACTERs_Lock.ReleaseWriterLock()
 
@@ -4496,7 +4496,7 @@ Namespace Player
                             Next
                         End If
                     Next
-                    DoneAmmo:
+DoneAmmo:
                 End If
             End Sub
 
@@ -4514,7 +4514,7 @@ Namespace Player
 
             Public Sub New(ByRef ClientVal As ClientClass, ByVal GuidVal As ULong)
                 'DONE: Add space for passive auras
-                ReDim ActiveSpells(MAX_AURA_EFFECTs - 1)
+                ReDim ActiveSpells(_Global_Constants.MAX_AURA_EFFECTs - 1)
 
                 'DONE: Initialize Defaults
                 client = ClientVal
@@ -4646,13 +4646,13 @@ Namespace Player
                                 Dim AuraSlot As Integer = tmp2(0)
                                 Dim AuraSpellID As Integer = tmp2(1)
                                 Dim AuraExpire As Long = tmp2(2)
-                                If AuraSlot < 0 OrElse AuraSlot >= MAX_AURA_EFFECTs_VISIBLE Then Continue For 'Not acceptable slot
+                                If AuraSlot < 0 OrElse AuraSlot >= _Global_Constants.MAX_AURA_EFFECTs_VISIBLE Then Continue For 'Not acceptable slot
                                 If WS_Spells.SPELLs.ContainsKey(AuraSpellID) = False Then Continue For 'Non-existant spell
 
                                 If ActiveSpells(AuraSlot) Is Nothing Then
                                     Dim duration As Integer = 0
                                     If AuraExpire = 0L Then 'Infinite duration aura
-                                        duration = SPELL_DURATION_INFINITE
+                                        duration = _Global_Constants.SPELL_DURATION_INFINITE
                                     ElseIf AuraExpire < 0L Then 'Duration paused during offline-time
                                         duration = -AuraExpire
                                     Else 'Duration continued during offline-time
@@ -4733,7 +4733,7 @@ Namespace Player
                 MySQLQuery.Clear()
                 CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID), MySQLQuery)
                 For Each row As DataRow In MySQLQuery.Rows
-                    If row.Item("item_slot") <> ITEM_SLOT_NULL Then
+                    If row.Item("item_slot") <> _Global_Constants.ITEM_SLOT_NULL Then
                         Dim tmpItem As ItemObject = LoadItemByGUID(CType(row.Item("item_guid"), Long), Me, (CType(row.Item("item_slot"), Byte) < EquipmentSlots.EQUIPMENT_SLOT_END))
                         Items(row.Item("item_slot")) = tmpItem
                         If CType(row.Item("item_slot"), Byte) < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(tmpItem, row.Item("item_slot"))
@@ -4756,7 +4756,7 @@ Namespace Player
                 MySQLQuery.Clear()
                 CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE player = {0};", GUID), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
-                    corpseGUID = MySQLQuery.Rows(0).Item("guid") + GUID_CORPSE
+                    corpseGUID = MySQLQuery.Rows(0).Item("guid") + _Global_Constants.GUID_CORPSE
                     corpseMapID = MySQLQuery.Rows(0).Item("map")
                     corpsePositionX = MySQLQuery.Rows(0).Item("position_x")
                     corpsePositionY = MySQLQuery.Rows(0).Item("position_y")
@@ -5011,10 +5011,10 @@ Namespace Player
 
                 'char_auraList
                 temp.Clear()
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
-                    If ActiveSpells(i) IsNot Nothing AndAlso (ActiveSpells(i).SpellDuration = SPELL_DURATION_INFINITE OrElse ActiveSpells(i).SpellDuration > 10000) Then 'If the aura exists and if it's worth saving
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
+                    If ActiveSpells(i) IsNot Nothing AndAlso (ActiveSpells(i).SpellDuration = _Global_Constants.SPELL_DURATION_INFINITE OrElse ActiveSpells(i).SpellDuration > 10000) Then 'If the aura exists and if it's worth saving
                         Dim expire As Long = 0L
-                        If ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then expire = GetTimestamp(Now) + (ActiveSpells(i).SpellDuration \ 1000)
+                        If ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then expire = GetTimestamp(Now) + (ActiveSpells(i).SpellDuration \ 1000)
                         'TODO: If Not_Tick_While_Offline Then expire = -ActiveSpells(i).SpellDuration
                         temp.Add(String.Format("{0}:{1}:{2}", i, ActiveSpells(i).SpellID, expire))
                     End If

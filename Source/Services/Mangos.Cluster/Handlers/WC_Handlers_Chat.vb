@@ -76,9 +76,9 @@ Namespace Handlers
 
                     'DONE: Send whisper MSG to receiver
                     Dim guid As ULong = 0
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     For Each character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                        If UppercaseFirstLetter(character.Value.Name) = UppercaseFirstLetter(toUser) Then
+                        If _CommonFunctions.UppercaseFirstLetter(character.Value.Name) = _CommonFunctions.UppercaseFirstLetter(toUser) Then
                             guid = character.Value.Guid
                             Exit For
                         End If

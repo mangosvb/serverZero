@@ -27,7 +27,6 @@ Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Common.Logging.BaseWriter
-Imports Mangos.Common.Globals.Global_Constants
 Imports Mangos.SignalR
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -71,12 +70,12 @@ Public Module WorldServer
     Public GAMEOBJECTSDatabase As New Dictionary(Of Integer, GameObjectInfo)
 
     'Other
-    Public itemGuidCounter As ULong = GUID_ITEM
-    Public CreatureGUIDCounter As ULong = GUID_UNIT
-    Public GameObjectsGUIDCounter As ULong = GUID_GAMEOBJECT
-    Public CorpseGUIDCounter As ULong = GUID_CORPSE
-    Public DynamicObjectsGUIDCounter As ULong = GUID_DYNAMICOBJECT
-    Public TransportGUIDCounter As ULong = GUID_MO_TRANSPORT
+    Public itemGuidCounter As ULong = _Global_Constants.GUID_ITEM
+    Public CreatureGUIDCounter As ULong = _Global_Constants.GUID_UNIT
+    Public GameObjectsGUIDCounter As ULong = _Global_Constants.GUID_GAMEOBJECT
+    Public CorpseGUIDCounter As ULong = _Global_Constants.GUID_CORPSE
+    Public DynamicObjectsGUIDCounter As ULong = _Global_Constants.GUID_DYNAMICOBJECT
+    Public TransportGUIDCounter As ULong = _Global_Constants.GUID_MO_TRANSPORT
 
     'System Things...
     Public Log As New BaseWriter
@@ -224,7 +223,7 @@ Public Module WorldServer
             If RESOLUTION_ZMAP > 255 Then RESOLUTION_ZMAP = 255
 
             'DONE: Creating logger
-            CreateLog(Config.LogType, Config.LogConfig, Log)
+            Log = CreateLog(Config.LogType, Config.LogConfig)
             Log.LogLevel = Config.LogLevel
 
         Catch e As Exception
@@ -343,9 +342,9 @@ Public Module WorldServer
 
         'Check the Database version, exit if its wrong
         Dim areDbVersionsOk As Boolean = True
-        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
-        If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
-        If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then areDbVersionsOk = False
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then areDbVersionsOk = False
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then areDbVersionsOk = False
 
         If areDbVersionsOk = False Then
             Console.WriteLine("*************************")

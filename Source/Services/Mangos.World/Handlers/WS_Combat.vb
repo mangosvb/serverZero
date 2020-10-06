@@ -726,10 +726,10 @@ Namespace Handlers
                 End If
 
                 Dim AttackSpeed As Integer = GetAttackTime(Character, False)
-                If (timeGetTime("") - LastAttack) >= AttackSpeed Then
+                If (_NativeMethods.timeGetTime("") - LastAttack) >= AttackSpeed Then
                     DoAttack(Nothing)
                 Else
-                    NextAttackTimer.Change((timeGetTime("") - LastAttack), Timeout.Infinite)
+                    NextAttackTimer.Change((_NativeMethods.timeGetTime("") - LastAttack), Timeout.Infinite)
                 End If
             End Sub
 
@@ -741,7 +741,7 @@ Namespace Handlers
                     Exit Sub
                 End If
 
-                LastAttack = timeGetTime("")
+                LastAttack = _NativeMethods.timeGetTime("")
                 Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_START_ATTACK)
                 Try
                     If Ranged Then
@@ -976,7 +976,7 @@ Namespace Handlers
                 'TODO: If the victim has a spelltrigger on melee attacks
                 Dim Target As New SpellTargets
                 Target.SetTarget_UNIT(Character)
-                For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If Victim.ActiveSpells(i) IsNot Nothing AndAlso (Victim.ActiveSpells(i).GetSpellInfo.procFlags And ProcFlags.PROC_FLAG_HIT_MELEE) Then
                         For j As Byte = 0 To 2
                             If Victim.ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso Victim.ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraEffects_Names.SPELL_AURA_PROC_TRIGGER_SPELL Then
@@ -1099,9 +1099,9 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If GuidIsCreature(GUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                 client.Character.attackState.AttackStart(WORLD_CREATUREs(GUID))
-            ElseIf GuidIsPlayer(GUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
                 client.Character.attackState.AttackStart(CHARACTERs(GUID))
             Else
                 Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)

@@ -170,9 +170,9 @@ Namespace Globals
 
         Public Function CapitalizeName(ByRef Name As String) As String
             If Name.Length > 1 Then 'Why would a name be one letter, or even 0? :P
-                Return UppercaseFirstLetter(Left(Name, 1)) & LowercaseFirstLetter(Right(Name, Name.Length - 1))
+                Return _CommonFunctions.UppercaseFirstLetter(Left(Name, 1)) & _CommonFunctions.LowercaseFirstLetter(Right(Name, Name.Length - 1))
             Else
-                Return UppercaseFirstLetter(Name)
+                Return _CommonFunctions.UppercaseFirstLetter(Name)
             End If
         End Function
 
@@ -381,7 +381,7 @@ Namespace Globals
         End Sub
 
         Public Sub Broadcast(ByVal Message As String)
-            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
             For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In CHARACTERs
                 If Character.Value.client IsNot Nothing Then SendMessageSystem(Character.Value.client, "System Message: " & SetColor(Message, 255, 0, 0))
             Next

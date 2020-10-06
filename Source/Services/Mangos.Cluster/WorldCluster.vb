@@ -348,7 +348,7 @@ Public Module WorldCluster
             End If
 
             'DONE: Creating logger
-            CreateLog(Config.LogType, Config.LogConfig, Log)
+            Log = CreateLog(Config.LogType, Config.LogConfig)
             Log.LogLevel = Config.LogLevel
 
             'DONE: Cleaning up the packet log
@@ -490,7 +490,7 @@ Public Module WorldCluster
         InitializeInternalDatabase()
         IntializePacketHandlers()
 
-        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then         'Check the Database version, exit if its wrong
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then         'Check the Database version, exit if its wrong
 
             If True Then
                 Console.WriteLine("*************************")
@@ -501,7 +501,7 @@ Public Module WorldCluster
             End If
         End If
 
-        If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then         'Check the Database version, exit if its wrong
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then         'Check the Database version, exit if its wrong
 
             If True Then
                 Console.WriteLine("*************************")
@@ -512,7 +512,7 @@ Public Module WorldCluster
             End If
         End If
 
-        If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then         'Check the Database version, exit if its wrong
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then         'Check the Database version, exit if its wrong
 
             If True Then
                 Console.WriteLine("*************************")

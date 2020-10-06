@@ -28,6 +28,7 @@ Imports Mangos.World.Handlers
 Imports Mangos.World.Maps
 Imports Mangos.World.Player
 Imports Mangos.World.Server
+Imports Mangos.Common
 
 Namespace Objects
 
@@ -407,7 +408,7 @@ Namespace Objects
                 Dim mePacket As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 mePacket.AddInt32(1)
                 mePacket.AddInt8(0)
-                Dim meTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
+                Dim meTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 Character.FillAllUpdateFlags(meTmpUpdate)
                 meTmpUpdate.AddToPacket(mePacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Character)
                 meTmpUpdate.Dispose()
@@ -423,7 +424,7 @@ Namespace Objects
                             Try
                                 myPacket.AddInt32(1)
                                 myPacket.AddInt8(0)
-                                Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
+                                Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                 CType(tmpUnit, CharacterObject).FillAllUpdateFlags(myTmpUpdate)
                                 myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CharacterObject))
                                 myTmpUpdate.Dispose()
@@ -447,7 +448,7 @@ Namespace Objects
                             Try
                                 myPacket.AddInt32(1)
                                 myPacket.AddInt8(0)
-                                Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
+                                Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
                                 CType(tmpUnit, CreatureObject).FillAllUpdateFlags(myTmpUpdate)
                                 myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CreatureObject))
                                 myTmpUpdate.Dispose()
@@ -504,7 +505,7 @@ Namespace Objects
                                         Try
                                             packet.AddInt32(1)
                                             packet.AddInt8(0)
-                                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                                             Try
                                                 FillAllUpdateFlags(tmpUpdate, CHARACTERs(plGUID))
                                                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
@@ -529,7 +530,7 @@ Namespace Objects
                 'DONE: Removing from players that can see the object
                 For Each plGUID As ULong In SeenBy.ToArray
                     If CHARACTERs(plGUID).gameObjectsNear.Contains(GUID) Then
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                         CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
                         CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 

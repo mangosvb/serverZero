@@ -18,7 +18,6 @@
 
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Faction
 Imports Mangos.Common.Enums.GameObject
 Imports Mangos.Common.Enums.Global
@@ -700,7 +699,7 @@ Namespace Spells
 
                                     'DONE: Send the update
                                     Dim updatePacket As New UpdatePacketClass
-                                    Dim powerUpdate As New UpdateClass
+                                    Dim powerUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                     powerUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, .Mana.Current)
                                     powerUpdate.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
                                     .SendToNearPlayers(updatePacket)
@@ -711,7 +710,7 @@ Namespace Spells
 
                                     'DONE: Send the update
                                     Dim updatePacket As New UpdatePacketClass
-                                    Dim powerUpdate As New UpdateClass
+                                    Dim powerUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                     powerUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, .Life.Current)
                                     powerUpdate.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
                                     .SendToNearPlayers(updatePacket)
@@ -755,7 +754,7 @@ Namespace Spells
                                 If castParams.Item.StackCount <= 0 Then
                                     Dim bag As Byte, slot As Byte
                                     slot = CType(Caster, CharacterObject).ItemGetSLOTBAG(castParams.Item.GUID, bag)
-                                    If bag <> ITEM_SLOT_NULL And slot <> ITEM_SLOT_NULL Then
+                                    If bag <> _Global_Constants.ITEM_SLOT_NULL And slot <> _Global_Constants.ITEM_SLOT_NULL Then
                                         CType(Caster, CharacterObject).ItemREMOVE(bag, slot, True, True)
                                     End If
                                 Else
@@ -880,7 +879,7 @@ Namespace Spells
                     Return SpellFailedReason.SPELL_FAILED_ONLY_STEALTHED
                 End If
 
-                If (Character.charMovementFlags And movementFlagsMask) Then
+                If (Character.charMovementFlags And _Global_Constants.movementFlagsMask) Then
                     If ((Character.charMovementFlags And MovementFlags.MOVEMENTFLAG_FALLING) = 0 OrElse SpellEffects(0).ID <> SpellEffects_Names.SPELL_EFFECT_STUCK) AndAlso (IsAutoRepeat OrElse (auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED)) Then
                         Return SpellFailedReason.SPELL_FAILED_MOVING
                     End If
@@ -978,7 +977,7 @@ Namespace Spells
 
                 'TODO: Check for same category - more powerful spell
                 'If (Not Targets.unitTarget Is Nothing) Then
-                '    For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                '    For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                 '        If Not Targets.unitTarget.ActiveSpells(i) Is Nothing Then
                 '            If Targets.unitTarget.ActiveSpells(i).SpellID <> 0 AndAlso _
                 '                CType(SPELLs(Targets.unitTarget.ActiveSpells(i).SpellID), SpellInfo).Category = Category AndAlso _
@@ -1015,7 +1014,7 @@ Namespace Spells
                 End If
 
                 Dim updatePacket As New UpdatePacketClass()
-                Dim updateBlock As New UpdateClass
+                Dim updateBlock As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 updateBlock.SetUpdateFlag(EUnitFields.UNIT_CHANNEL_SPELL, ID)
 
                 'DONE: Let others know what target we channel against
@@ -1412,25 +1411,25 @@ Namespace Spells
 
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) Then
                     Dim GUID As ULong = packet.GetPackGuid
-                    If GuidIsCreature(GUID) OrElse GuidIsPet(GUID) Then
+                    If _CommonGlobalFunctions.GuidIsCreature(GUID) OrElse _CommonGlobalFunctions.GuidIsPet(GUID) Then
                         unitTarget = WORLD_CREATUREs(GUID)
-                    ElseIf GuidIsPlayer(GUID) Then
+                    ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
                         unitTarget = CHARACTERs(GUID)
                     End If
                 End If
 
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_OBJECT) Then
                     Dim GUID As ULong = packet.GetPackGuid
-                    If GuidIsGameObject(GUID) Then
+                    If _CommonGlobalFunctions.GuidIsGameObject(GUID) Then
                         goTarget = WORLD_GAMEOBJECTs(GUID)
-                    ElseIf GuidIsDnyamicObject(GUID) Then
+                    ElseIf _CommonGlobalFunctions.GuidIsDnyamicObject(GUID) Then
                         goTarget = WORLD_DYNAMICOBJECTs(GUID)
                     End If
                 End If
 
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_ITEM) OrElse (targetMask And SpellCastTargetFlags.TARGET_FLAG_TRADE_ITEM) Then
                     Dim GUID As ULong = packet.GetPackGuid
-                    If GuidIsItem(GUID) Then
+                    If _CommonGlobalFunctions.GuidIsItem(GUID) Then
                         itemTarget = WORLD_ITEMs(GUID)
                     End If
                 End If
@@ -1451,7 +1450,7 @@ Namespace Spells
 
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_CORPSE) OrElse (targetMask And SpellCastTargetFlags.TARGET_FLAG_PVP_CORPSE) Then
                     Dim GUID As ULong = packet.GetPackGuid
-                    If GuidIsCorpse(GUID) Then
+                    If _CommonGlobalFunctions.GuidIsCorpse(GUID) Then
                         corpseTarget = WORLD_CORPSEOBJECTs(GUID)
                     End If
                 End If
@@ -2260,7 +2259,7 @@ Namespace Spells
 
                     'TODO: Cast highest rank of stealth
                 Case 35729
-                    For i As Byte = MAX_POSITIVE_AURA_EFFECTs To MAX_AURA_EFFECTs_VISIBLE - 1
+                    For i As Byte = _Global_Constants.MAX_POSITIVE_AURA_EFFECTs To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                         If Not Target.unitTarget.ActiveSpells(i) Is Nothing Then
                             If (SPELLs(Target.unitTarget.ActiveSpells(i).SpellID).School And 1) = 0 Then 'No physical spells
                                 If (SPELLs(Target.unitTarget.ActiveSpells(i).SpellID).Attributes And &H10000) Then
@@ -2469,7 +2468,7 @@ Namespace Spells
 
             If lockID = 0 Then
                 'TODO: Send loot for items
-                If GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
+                If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
                     WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
                 End If
 
@@ -2484,7 +2483,7 @@ Namespace Spells
             For i As Byte = 0 To 4
                 If Item IsNot Nothing AndAlso Locks(lockID).KeyType(i) = LockKeyType.LOCK_KEY_ITEM AndAlso Locks(lockID).Keys(i) = Item.ItemEntry Then
                     'TODO: Send loot for items
-                    If GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
+                    If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
                         WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
                     End If
 
@@ -2519,7 +2518,7 @@ Namespace Spells
             End If
 
             'TODO: Send loot for items
-            If GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
+            If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
                 WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
             End If
 
@@ -2799,13 +2798,13 @@ Namespace Spells
                 Do
                     'DONE: If active add to visible
                     'TODO: If positive effect add to upper part spells
-                    Dim AuraStart As Integer = MAX_AURA_EFFECTs_VISIBLE - 1
+                    Dim AuraStart As Integer = _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     Dim AuraEnd As Integer = 0
 
                     'DONE: Passives are not displayed
                     If SPELLs(SpellID).IsPassive Then
-                        AuraStart = MAX_AURA_EFFECTs - 1
-                        AuraEnd = MAX_AURA_EFFECTs_VISIBLE
+                        AuraStart = _Global_Constants.MAX_AURA_EFFECTs - 1
+                        AuraEnd = _Global_Constants.MAX_AURA_EFFECTs_VISIBLE
                     End If
 
                     'DONE: Get spell duration
@@ -3631,7 +3630,7 @@ Namespace Spells
             SMSG_MONSTER_MOVE.AddSingle(Caster.positionX)
             SMSG_MONSTER_MOVE.AddSingle(Caster.positionY)
             SMSG_MONSTER_MOVE.AddSingle(Caster.positionZ)
-            SMSG_MONSTER_MOVE.AddInt32(timeGetTime(""))         'Sequence/MSTime?
+            SMSG_MONSTER_MOVE.AddInt32(_NativeMethods.timeGetTime(""))         'Sequence/MSTime?
             SMSG_MONSTER_MOVE.AddInt8(0)
             SMSG_MONSTER_MOVE.AddInt32(&H100)
             SMSG_MONSTER_MOVE.AddInt32(TimeToMove)  'Time
@@ -3681,7 +3680,7 @@ Namespace Spells
                     If Target.unitTarget Is Nothing OrElse Target.unitTarget.IsDead Then Return SpellFailedReason.SPELL_FAILED_TARGETS_DEAD
 
                     Dim SpellID2 As Integer = 0
-                    For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                    For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                         If CType(Caster, BaseUnit).ActiveSpells(i) IsNot Nothing AndAlso CType(Caster, BaseUnit).ActiveSpells(i).GetSpellInfo.SpellVisual = 5622 AndAlso CType(Caster, BaseUnit).ActiveSpells(i).GetSpellInfo.SpellFamilyName = SpellFamilyNames.SPELLFAMILY_PALADIN Then
                             If CType(Caster, BaseUnit).ActiveSpells(i).Aura_Info(2) IsNot Nothing Then
                                 SpellID2 = CType(Caster, BaseUnit).ActiveSpells(i).Aura_Info(2).valueBase + 1
@@ -4628,11 +4627,11 @@ Namespace Spells
                     End If
 
                     Target.ShapeshiftForm = EffectInfo.MiscValue
-                    Target.ManaType = GetShapeshiftManaType(EffectInfo.MiscValue, Target.ManaType)
+                    Target.ManaType = _CommonGlobalFunctions.GetShapeshiftManaType(EffectInfo.MiscValue, Target.ManaType)
                     If TypeOf Target Is CharacterObject Then
-                        Target.Model = GetShapeshiftModel(EffectInfo.MiscValue, CType(Target, CharacterObject).Race, Target.Model)
+                        Target.Model = _CommonGlobalFunctions.GetShapeshiftModel(EffectInfo.MiscValue, CType(Target, CharacterObject).Race, Target.Model)
                     Else
-                        Target.Model = GetShapeshiftModel(EffectInfo.MiscValue, 0, Target.Model)
+                        Target.Model = _CommonGlobalFunctions.GetShapeshiftModel(EffectInfo.MiscValue, 0, Target.Model)
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
@@ -6469,7 +6468,7 @@ Namespace Spells
             Loser.RemoveFromCombat(Winner)
 
             'DONE: Remove all spells by your duel partner
-            For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+            For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                 If Winner.ActiveSpells(i) IsNot Nothing Then Winner.RemoveAura(i, Winner.ActiveSpells(i).SpellCaster)
                 If Loser.ActiveSpells(i) IsNot Nothing Then Loser.RemoveAura(i, Loser.ActiveSpells(i).SpellCaster)
             Next
@@ -6818,7 +6817,7 @@ Namespace Spells
 
 #Region "WS.Spells.Loot"
         Public Sub SendLoot(ByVal Player As CharacterObject, ByVal GUID As ULong, ByVal LootingType As LootType)
-            If GuidIsGameObject(GUID) Then
+            If _CommonGlobalFunctions.GuidIsGameObject(GUID) Then
                 Select Case WORLD_GAMEOBJECTs(GUID).ObjectInfo.Type
                     Case GameObjectType.GAMEOBJECT_TYPE_DOOR, GameObjectType.GAMEOBJECT_TYPE_BUTTON
                         Exit Sub

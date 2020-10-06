@@ -17,7 +17,7 @@
 '
 
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Authentication
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Item
@@ -77,7 +77,7 @@ Namespace Handlers
 
             If Not client.Character.positionZ > (GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) + 10) Then
                 'DONE: Initialize packet
-                Dim UpdateData As New UpdateClass
+                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
@@ -143,7 +143,7 @@ Namespace Handlers
                 End Try
 
                 'DONE: Initialize packet
-                Dim UpdateData As New UpdateClass
+                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count

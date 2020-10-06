@@ -65,7 +65,7 @@ Namespace Handlers
                                     .CommandDelegate = [Delegate].CreateDelegate(GetType(ChatCommandDelegate), tmpMethod)
                                     }
 
-                            ChatCommands.Add(UppercaseFirstLetter(info.cmdName), cmd)
+                            ChatCommands.Add(_CommonFunctions.UppercaseFirstLetter(info.cmdName), cmd)
                         Next
                     End If
                 Next
@@ -78,8 +78,8 @@ Namespace Handlers
                 'DONE: Find the command
                 Dim tmp() As String = Split(Message, " ", 2)
                 Dim Command As ChatCommand = Nothing
-                If ChatCommands.ContainsKey(UppercaseFirstLetter(tmp(0))) Then
-                    Command = ChatCommands(UppercaseFirstLetter(tmp(0)))
+                If ChatCommands.ContainsKey(_CommonFunctions.UppercaseFirstLetter(tmp(0))) Then
+                    Command = ChatCommands(_CommonFunctions.UppercaseFirstLetter(tmp(0)))
                 End If
 
                 'DONE: Build argument string
@@ -109,7 +109,7 @@ Namespace Handlers
         <ChatCommand("help", "help #command\r\nDisplays usage information about command, if no command specified - displays list of available commands.", AccessLevel.GameMaster)>
         Public Function Help(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             If Trim(Message) <> "" Then
-                Dim Command As ChatCommand = ChatCommands(Trim(UppercaseFirstLetter(Message)))
+                Dim Command As ChatCommand = ChatCommands(Trim(_CommonFunctions.UppercaseFirstLetter(Message)))
                 If Command Is Nothing Then
                     objCharacter.CommandResponse("Unknown command.")
                 ElseIf Command.CommandAccess > objCharacter.Access Then
@@ -120,7 +120,7 @@ Namespace Handlers
             Else
                 Dim cmdList As String = "Listing available commands:" & Environment.NewLine
                 For Each Command As KeyValuePair(Of String, ChatCommand) In ChatCommands
-                    If Command.Value.CommandAccess <= objCharacter.Access Then cmdList += UppercaseFirstLetter(Command.Key) & Environment.NewLine '", "
+                    If Command.Value.CommandAccess <= objCharacter.Access Then cmdList += _CommonFunctions.UppercaseFirstLetter(Command.Key) & Environment.NewLine '", "
                 Next
                 cmdList += Environment.NewLine + "Use help #command for usage information about particular command."
                 objCharacter.CommandResponse(cmdList)
@@ -135,16 +135,16 @@ Namespace Handlers
             Dim tmp As String() = Split(Message, " ", 2)
             If tmp.Length < 2 Then Return False
             Dim SpellID As Integer = tmp(0)
-            Dim Target As String = UppercaseFirstLetter(tmp(1))
+            Dim Target As String = _CommonFunctions.UppercaseFirstLetter(tmp(1))
 
-            If GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 Select Case Target
                     Case "ME"
                         WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, objCharacter)
                     Case "SELF"
                         WORLD_CREATUREs(objCharacter.TargetGUID).CastSpell(SpellID, WORLD_CREATUREs(objCharacter.TargetGUID))
                 End Select
-            ElseIf GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Select Case Target
                     Case "ME"
                         Dim Targets As New WS_Spells.SpellTargets
@@ -190,7 +190,7 @@ Namespace Handlers
                 Return True
             End If
 
-            If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                 packet1.AddPackGUID(objCharacter.TargetGUID)
                 packet1.AddInt8(0)
@@ -198,7 +198,7 @@ Namespace Handlers
                 packet1.Dispose()
 
                 objCharacter.MindControl = CHARACTERs(objCharacter.TargetGUID)
-            ElseIf GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 objCharacter.MindControl = WORLD_CREATUREs(objCharacter.TargetGUID)
             Else
                 objCharacter.CommandResponse("You need a target.")
@@ -241,14 +241,14 @@ Namespace Handlers
             Dim tmp As String() = Split(Message, " ", 2)
             Dim SpellID As Integer = tmp(0)
 
-            If GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim Targets As New SpellTargets
                 Targets.SetTarget_UNIT(WORLD_CREATUREs(objCharacter.TargetGUID))
                 Dim castParams As New CastSpellParameters(Targets, objCharacter, SpellID)
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
 
                 objCharacter.CommandResponse("You are now casting [" & SpellID & "] at [" & WORLD_CREATUREs(objCharacter.TargetGUID).Name & "].")
-            ElseIf GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim Targets As New SpellTargets
                 Targets.SetTarget_UNIT(CHARACTERs(objCharacter.TargetGUID))
                 Dim castParams As New CastSpellParameters(Targets, objCharacter, SpellID)
@@ -265,7 +265,7 @@ Namespace Handlers
         'Save Command
         <ChatCommand("save", "save - Saves selected character.", AccessLevel.Developer)>
         Public Function cmdSave(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
-            If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
+            If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
                 CHARACTERs(objCharacter.TargetGUID).Save()
                 CHARACTERs(objCharacter.TargetGUID).CommandResponse(String.Format("Character {0} saved.", CHARACTERs(objCharacter.TargetGUID).Name))
             Else
@@ -304,10 +304,10 @@ Namespace Handlers
         'NpcAI Command
         <ChatCommand("npcai", "npcai #enable/disable - Enables/Disables  Creature AI updating.", AccessLevel.Developer)>
         Public Function cmdAI(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
-            If UppercaseFirstLetter(Message) = "ENABLE" Then
+            If _CommonFunctions.UppercaseFirstLetter(Message) = "ENABLE" Then
                 AIManager.AIManagerTimer.Change(TAIManager.UPDATE_TIMER, TAIManager.UPDATE_TIMER)
                 objCharacter.CommandResponse("AI is enabled.")
-            ElseIf UppercaseFirstLetter(Message) = "DISABLE" Then
+            ElseIf _CommonFunctions.UppercaseFirstLetter(Message) = "DISABLE" Then
                 AIManager.AIManagerTimer.Change(Timeout.Infinite, Timeout.Infinite)
                 objCharacter.CommandResponse("AI is disabled.")
             Else
@@ -390,7 +390,7 @@ Namespace Handlers
             If Message = "" Then Return False
             If objCharacter.TargetGUID = 0 Then Return False
 
-            If GuidIsCreature(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
                 WORLD_CREATUREs(objCharacter.TargetGUID).SendChatMessage(Message, ChatMsg.CHAT_MSG_MONSTER_SAY, LANGUAGES.LANG_UNIVERSAL, objCharacter.GUID)
             Else
                 Return False
@@ -402,7 +402,7 @@ Namespace Handlers
         'ResetFactions Command
         <ChatCommand("resetfactions", "resetfactions - Resets character reputation standings.", AccessLevel.Admin)>
         Public Function cmdResetFactions(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
-            If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 InitializeReputations(CHARACTERs(objCharacter.TargetGUID))
                 CHARACTERs(objCharacter.TargetGUID).SaveCharacter()
             Else
@@ -517,7 +517,7 @@ Namespace Handlers
         <ChatCommand("combatlist", "combatlist - Lists everyone in your targets combatlist.", AccessLevel.Developer)>
         Public Function cmdCombatList(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             Dim combatList() As ULong = {}
-            If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) Then
+            If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
                 combatList = CHARACTERs(objCharacter.TargetGUID).inCombatWith.ToArray()
             Else
                 combatList = objCharacter.inCombatWith.ToArray()
@@ -535,9 +535,9 @@ Namespace Handlers
         <ChatCommand("cooldownlist", "cooldownlist - Lists all cooldowns of your target.", AccessLevel.GameMaster)>
         Public Function cmdCooldownList(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             Dim targetUnit As BaseUnit = Nothing
-            If GuidIsPlayer(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
                 If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = CHARACTERs(objCharacter.TargetGUID)
-            ElseIf GuidIsCreature(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
                 If WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = WORLD_CREATUREs(objCharacter.TargetGUID)
             End If
             If targetUnit Is Nothing Then
@@ -574,9 +574,9 @@ Namespace Handlers
         <ChatCommand("clearcooldowns", "clearcooldowns - Clears all cooldowns of your target.", AccessLevel.Developer)>
         Public Function cmdClearCooldowns(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
             Dim targetUnit As BaseUnit = Nothing
-            If GuidIsPlayer(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) Then
                 If CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = CHARACTERs(objCharacter.TargetGUID)
-            ElseIf GuidIsCreature(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
                 If WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then targetUnit = WORLD_CREATUREs(objCharacter.TargetGUID)
             End If
             If targetUnit Is Nothing Then
@@ -613,7 +613,7 @@ Namespace Handlers
         '    <ChatCommand("StartCheck", "STARTCHECK - Initialize Warden anti-cheat engine for selected character.", AccessLevel.Developer)>
         '    Public Function cmdStartCheck(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '#If WARDEN Then
-        '        If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+        '        If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
         '            MaievInit(CHARACTERs(objCharacter.TargetGUID))
         '        Else
         '            objCharacter.CommandResponse("No player target selected.")
@@ -628,7 +628,7 @@ Namespace Handlers
         '    <ChatCommand("SendCheck", "SENDCHECK - Sends a Warden anti-cheat check packet to the selected character.", AccessLevel.Developer)>
         '    Public Function cmdSendCheck(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '#If WARDEN Then
-        '        If objCharacter.TargetGUID <> 0 AndAlso GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+        '        If objCharacter.TargetGUID <> 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
         '            MaievSendCheck(CHARACTERs(objCharacter.TargetGUID))
         '        Else
         '            objCharacter.CommandResponse("No player target selected.")
@@ -649,7 +649,7 @@ Namespace Handlers
             Dim id As Integer = tmp(0)
             Dim Count As Integer = 1
             If tmp.Length = 2 Then Count = tmp(1)
-            If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                 Dim newItem As New ItemObject(id, objCharacter.TargetGUID) With {
                         .StackCount = Count
                         }
@@ -683,7 +683,7 @@ Namespace Handlers
             Dim id As Integer = tmp(0)
 
             If ItemSet.ContainsKey(id) Then
-                If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+                If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
                     For Each item As Integer In ItemSet(id).ItemID
                         Dim newItem As New ItemObject(item, objCharacter.TargetGUID) With {
                                 .StackCount = 1
@@ -966,7 +966,7 @@ Namespace Handlers
                 Dim Character As CharacterObject = CHARACTERs(objCharacter.TargetGUID)
                 Dim Race As Races
 
-                Select Case UppercaseFirstLetter(StringRace)
+                Select Case _CommonFunctions.UppercaseFirstLetter(StringRace)
                     Case "DWARF", "DW"
                         Race = Races.RACE_DWARF
                     Case "GNOME", "GN"
@@ -1040,15 +1040,15 @@ Namespace Handlers
         '        If Config.VMapsEnabled Then
         '            Dim target As BaseUnit = Nothing
         '            If objCharacter.TargetGUID > 0 Then
-        '                If GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
+        '                If _CommonGlobalFunctions.GuidIsPlayer(objCharacter.TargetGUID) AndAlso CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
         '                    target = CHARACTERs(objCharacter.TargetGUID)
-        '                ElseIf GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
+        '                ElseIf _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) AndAlso WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
         '                    target = WORLD_CREATUREs(objCharacter.TargetGUID)
         '                    WORLD_CREATUREs(objCharacter.TargetGUID).SetToRealPosition()
         '                End If
         '            End If
 
-        '            Dim timeStart As Integer = timeGetTime("")
+        '            Dim timeStart As Integer = _NativeMethods.timeGetTime("")
 
         '            Dim height As Single = GetVMapHeight(objCharacter.MapID, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ + 2.0F)
 
@@ -1057,9 +1057,9 @@ Namespace Handlers
         '                isInLOS = IsInLineOfSight(objCharacter, target)
         '            End If
 
-        '            Dim timeTaken As Integer = timeGetTime("") - timeStart
+        '            Dim timeTaken As Integer = _NativeMethods.timeGetTime("") - timeStart
 
-        '            If height = VMAP_INVALID_HEIGHT_VALUE Then
+        '            If height = _Global_Constants.VMAP_INVALID_HEIGHT_VALUE Then
         '                objCharacter.CommandResponse(String.Format("Unable to retrieve VMap height for your location."))
         '            Else
         '                objCharacter.CommandResponse(String.Format("Your Z: {0}  VMap Z: {1}", objCharacter.positionZ, height))
@@ -1083,7 +1083,7 @@ Namespace Handlers
         '    Public Function cmdVmapTest2(ByRef objCharacter As CharacterObject, ByVal Message As String) As Boolean
         '#If VMAPS Then
         '        If Config.VMapsEnabled Then
-        '            If objCharacter.TargetGUID = 0UL OrElse GuidIsCreature(objCharacter.TargetGUID) = False OrElse WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) = False Then
+        '            If objCharacter.TargetGUID = 0UL OrElse _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) = False OrElse WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) = False Then
         '                objCharacter.CommandResponse("You must target a creature first.")
         '            Else
         '                WORLD_CREATUREs(objCharacter.TargetGUID).SetToRealPosition()
@@ -1226,7 +1226,7 @@ Namespace Handlers
             Dim posO As Single '= 0
             Dim posMap As Integer '= 0
 
-            If UppercaseFirstLetter(location) = "LIST" Then
+            If _CommonFunctions.UppercaseFirstLetter(location) = "LIST" Then
                 Dim cmdList As String = "Listing of available locations:" & Environment.NewLine
 
                 Dim listSqlQuery As New DataTable
@@ -1293,9 +1293,9 @@ Namespace Handlers
             Else
 
                 'DONE: Kick by name
-                CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                    If UppercaseFirstLetter(Character.Value.Name) = Name Then
+                    If _CommonFunctions.UppercaseFirstLetter(Character.Value.Name) = Name Then
                         CHARACTERs_Lock.ReleaseReaderLock()
                         'DONE: Kick gracefully
                         Character.Value.Logout()
@@ -1413,19 +1413,19 @@ Namespace Handlers
             'SetFlag(PLAYER_BYTES_2, 0x8);
 
             'Commnad: .setgm <gmflag:off/on> <invisibility:off/on>
-            If UppercaseFirstLetter(value1) = "off" Then
+            If _CommonFunctions.UppercaseFirstLetter(value1) = "off" Then
                 objCharacter.GM = False
                 objCharacter.CommandResponse("GameMaster Flag turned off.")
-            ElseIf UppercaseFirstLetter(value1) = "on" Then
+            ElseIf _CommonFunctions.UppercaseFirstLetter(value1) = "on" Then
                 objCharacter.GM = True
                 objCharacter.CommandResponse("GameMaster Flag turned on.")
             End If
 
-            If UppercaseFirstLetter(value2) = "off" Then
+            If _CommonFunctions.UppercaseFirstLetter(value2) = "off" Then
                 objCharacter.Invisibility = InvisibilityLevel.VISIBLE
                 objCharacter.CanSeeInvisibility = InvisibilityLevel.VISIBLE
                 objCharacter.CommandResponse("GameMaster Invisibility turned off.")
-            ElseIf UppercaseFirstLetter(value1) = "on" Then
+            ElseIf _CommonFunctions.UppercaseFirstLetter(value1) = "on" Then
                 objCharacter.Invisibility = InvisibilityLevel.GM
                 objCharacter.CanSeeInvisibility = InvisibilityLevel.GM
                 objCharacter.CommandResponse("GameMaster Invisibility turned on.")
@@ -1465,7 +1465,7 @@ Namespace Handlers
                 Return True
             End If
 
-            If GuidIsCreature(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
                 'DONE: Delete creature
                 If Not WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not creature!")
@@ -1475,7 +1475,7 @@ Namespace Handlers
                 WORLD_CREATUREs(objCharacter.TargetGUID).Destroy()
                 objCharacter.CommandResponse("Creature deleted.")
 
-            ElseIf GuidIsGameObject(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsGameObject(objCharacter.TargetGUID) Then
                 'DONE: Delete GO
                 If Not WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not game object!")
@@ -1499,7 +1499,7 @@ Namespace Handlers
                 Return True
             End If
 
-            If GuidIsCreature(objCharacter.TargetGUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(objCharacter.TargetGUID) Then
                 'DONE: Turn creature
                 If Not WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not creature!")
@@ -1508,7 +1508,7 @@ Namespace Handlers
 
                 WORLD_CREATUREs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
 
-            ElseIf GuidIsGameObject(objCharacter.TargetGUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsGameObject(objCharacter.TargetGUID) Then
                 'DONE: Turn GO
                 If Not WORLD_GAMEOBJECTs.ContainsKey(objCharacter.TargetGUID) Then
                     objCharacter.CommandResponse("Selected target is not game object!")
@@ -1518,7 +1518,7 @@ Namespace Handlers
                 WORLD_GAMEOBJECTs(objCharacter.TargetGUID).TurnTo(objCharacter.positionX, objCharacter.positionY)
 
                 Dim q As New DataTable
-                Dim GUID As ULong = objCharacter.TargetGUID - GUID_GAMEOBJECT
+                Dim GUID As ULong = objCharacter.TargetGUID - _Global_Constants.GUID_GAMEOBJECT
 
                 objCharacter.CommandResponse("Object rotation will be visible when the object is reloaded!")
 
@@ -1752,12 +1752,12 @@ Namespace Handlers
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             packet.AddInt32(1)      'Operations.Count
             packet.AddInt8(0)
-            Dim UpdateData As New UpdateClass
+            Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
             UpdateData.SetUpdateFlag(Index, Value)
 
-            If GuidIsCreature(GUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                 UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, WORLD_CREATUREs(GUID))
-            ElseIf GuidIsPlayer(GUID) Then
+            ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
                 If GUID = client.Character.GUID Then
                     UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CHARACTERs(GUID))
                 Else

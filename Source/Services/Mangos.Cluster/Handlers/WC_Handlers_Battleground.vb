@@ -23,6 +23,7 @@ Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
+Imports Mangos.Common
 
 Namespace Handlers
 
@@ -108,7 +109,7 @@ Namespace Handlers
                 _maxPlayersPerTeam = Battlegrounds(rMapType).MaxPlayersPerTeam
                 _minPlayersPerTeam = Battlegrounds(rMapType).MinPlayersPerTeam
 
-                BATTLEFIELDs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                BATTLEFIELDs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 BATTLEFIELDs.Add(ID, Me)
                 BATTLEFIELDs_Lock.ReleaseWriterLock()
 
@@ -123,7 +124,7 @@ Namespace Handlers
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    BATTLEFIELDs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    BATTLEFIELDs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     BATTLEFIELDs.Remove(ID)
                     BATTLEFIELDs_Lock.ReleaseWriterLock()
                     _bfTimer.Dispose()
@@ -301,7 +302,7 @@ Namespace Handlers
         Public Function GetBattlefield(ByVal mapType As BattlefieldMapType, ByVal level As Byte) As Battlefield
             Dim battlefield As Battlefield = Nothing
 
-            BATTLEFIELDs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            BATTLEFIELDs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
             For Each b As KeyValuePair(Of Integer, Battlefield) In BATTLEFIELDs
                 If b.Value.MapType = mapType AndAlso b.Value.LevelMax >= level AndAlso b.Value.LevelMin <= level Then
                     battlefield = b.Value

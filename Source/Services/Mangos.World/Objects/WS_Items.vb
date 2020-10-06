@@ -18,7 +18,7 @@
 
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Item
 Imports Mangos.Common.Enums.Player
@@ -533,8 +533,8 @@ Namespace Objects
 
         Public Function LoadItemByGUID(ByVal guid As ULong, Optional ByVal owner As WS_PlayerData.CharacterObject = Nothing,
                                        Optional ByVal equipped As Boolean = False) As ItemObject
-            If WORLD_ITEMs.ContainsKey(guid + GUID_ITEM) Then
-                Return WORLD_ITEMs(guid + GUID_ITEM)
+            If WORLD_ITEMs.ContainsKey(guid + _Global_Constants.GUID_ITEM) Then
+                Return WORLD_ITEMs(guid + _Global_Constants.GUID_ITEM)
             End If
 
             Dim tmpItem As New ItemObject(guid, owner, equipped)

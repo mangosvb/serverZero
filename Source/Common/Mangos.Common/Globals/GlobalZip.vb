@@ -21,7 +21,7 @@ Imports System.Runtime.CompilerServices
 Imports ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 Namespace Globals
-    Public Module GlobalZip
+    Public Class GlobalZip
 
         <MethodImpl(MethodImplOptions.Synchronized)>
         Public Function Compress(b As Byte(), offset As Integer, len As Integer) As Byte()
@@ -65,5 +65,5 @@ Namespace Globals
         End Function
 
 
-    End Module
+        End Class
 End Namespace

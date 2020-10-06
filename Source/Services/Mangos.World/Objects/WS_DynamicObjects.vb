@@ -82,7 +82,7 @@ Namespace Objects
                 Duration = Duration_
                 Radius = Radius_
 
-                CastTime = timeGetTime("")
+                CastTime = _NativeMethods.timeGetTime("")
             End Sub
 
             Public Sub FillAllUpdateFlags(ByRef Update As Packets.UpdateClass)
@@ -116,7 +116,7 @@ Namespace Objects
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_DYNAMICOBJECT)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_DYNAMICOBJECT)
                 FillAllUpdateFlags(tmpUpdate)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF, Me)
                 tmpUpdate.Dispose()
@@ -148,7 +148,7 @@ Namespace Objects
                 'DONE: Remove the dynamic object from players that can see the object
                 For Each plGUID As ULong In SeenBy.ToArray
                     If CHARACTERs(plGUID).dynamicObjectsNear.Contains(GUID) Then
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                         CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
                         CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 

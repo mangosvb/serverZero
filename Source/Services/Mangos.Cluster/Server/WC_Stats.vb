@@ -24,6 +24,7 @@ Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Enums.Player
+Imports Mangos.Common
 
 Namespace Server
 
@@ -88,7 +89,7 @@ Namespace Server
             CountGMs = 0
             Latency = 0
 
-            CHARACTERs_Lock.AcquireReaderLock(Mangos.Common.Globals.DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                 If objCharacter.Value.IsInWorld Then
                     CountPlayers += 1
@@ -234,7 +235,7 @@ Namespace Server
             '</world>
             f.WriteEndElement()
 
-            CHARACTERs_Lock.AcquireReaderLock(Mangos.Common.Globals.DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
             f.WriteStartElement("users")
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs

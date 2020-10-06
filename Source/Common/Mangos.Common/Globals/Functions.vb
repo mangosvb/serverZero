@@ -23,62 +23,62 @@ Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 
 Namespace Globals
-    Public Module Functions
+    Public Class Functions
         Public Function GuidIsCreature(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_UNIT Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_UNIT Then Return True
             Return False
         End Function
 
         Public Function GuidIsPet(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_PET Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_PET Then Return True
             Return False
         End Function
 
         Public Function GuidIsItem(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_ITEM Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_ITEM Then Return True
             Return False
         End Function
 
         Public Function GuidIsGameObject(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_GAMEOBJECT Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_GAMEOBJECT Then Return True
             Return False
         End Function
 
         Public Function GuidIsDnyamicObject(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_DYNAMICOBJECT Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_DYNAMICOBJECT Then Return True
             Return False
         End Function
 
         Public Function GuidIsTransport(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_TRANSPORT Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_TRANSPORT Then Return True
             Return False
         End Function
 
         Public Function GuidIsMoTransport(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_MO_TRANSPORT Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_MO_TRANSPORT Then Return True
             Return False
         End Function
 
         Public Function GuidIsCorpse(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_CORPSE Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_CORPSE Then Return True
             Return False
         End Function
 
         Public Function GuidIsPlayer(ByVal guid As ULong) As Boolean
-            If GuidHigh2(guid) = GUID_PLAYER Then Return True
+            If GuidHigh2(guid) = _Global_Constants.GUID_PLAYER Then Return True
             Return False
         End Function
 
         Public Function GuidHigh2(ByVal guid As ULong) As ULong
-            Return (guid And GUID_MASK_HIGH)
+            Return (guid And _Global_Constants.GUID_MASK_HIGH)
         End Function
 
         Public Function GuidHigh(ByVal guid As ULong) As UInteger
-            Return (guid And GUID_MASK_HIGH) >> 32UL
+            Return (guid And _Global_Constants.GUID_MASK_HIGH) >> 32UL
         End Function
 
         Public Function GuidLow(ByVal guid As ULong) As UInteger
-            Return (guid And GUID_MASK_LOW)
+            Return (guid And _Global_Constants.GUID_MASK_LOW)
         End Function
 
         Public Function GetShapeshiftModel(ByVal form As ShapeshiftForm, ByVal race As Races, ByVal model As Integer) As Integer
@@ -143,17 +143,17 @@ Namespace Globals
             Dim coreDbContent As Integer = 0
             Select Case thisServerDb
                 Case ServerDb.Realm
-                    coreDbVersion = RevisionDbRealmVersion
-                    coreDbStructure = RevisionDbRealmStructure
-                    coreDbContent = RevisionDbRealmContent
+                    coreDbVersion = _Global_Constants.RevisionDbRealmVersion
+                    coreDbStructure = _Global_Constants.RevisionDbRealmStructure
+                    coreDbContent = _Global_Constants.RevisionDbRealmContent
                 Case ServerDb.Character
-                    coreDbVersion = RevisionDbCharactersVersion
-                    coreDbStructure = RevisionDbCharactersStructure
-                    coreDbContent = RevisionDbCharactersContent
+                    coreDbVersion = _Global_Constants.RevisionDbCharactersVersion
+                    coreDbStructure = _Global_Constants.RevisionDbCharactersStructure
+                    coreDbContent = _Global_Constants.RevisionDbCharactersContent
                 Case ServerDb.World
-                    coreDbVersion = RevisionDbMangosVersion
-                    coreDbStructure = RevisionDbMangosStructure
-                    coreDbContent = RevisionDbMangosContent
+                    coreDbVersion = _Global_Constants.RevisionDbMangosVersion
+                    coreDbStructure = _Global_Constants.RevisionDbMangosStructure
+                    coreDbContent = _Global_Constants.RevisionDbMangosContent
             End Select
 
             If mySqlQuery.Rows.Count > 0 Then
@@ -214,5 +214,5 @@ Namespace Globals
                 Return False
             End If
         End Function
-    End Module
+    End Class
 End Namespace

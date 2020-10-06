@@ -39,8 +39,8 @@ Namespace Server
         Public WC_MsTime As Integer = 0
 
         Public Function MsTime() As Integer
-            'DONE: Calculate the clusters timeGetTime("")
-            Return WC_MsTime + (timeGetTime("") - LastPing)
+            'DONE: Calculate the clusters _NativeMethods.timeGetTime("")
+            Return WC_MsTime + (_NativeMethods.timeGetTime("") - LastPing)
         End Function
 
         Public Class WorldServerClass
@@ -65,7 +65,7 @@ Namespace Server
                 Cluster = Nothing
 
                 'Creating connection timer
-                LastPing = timeGetTime("")
+                LastPing = _NativeMethods.timeGetTime("")
                 m_Connection = New Timer(AddressOf CheckConnection, Nothing, 10000, 10000)
 
                 'Creating CPU check timer
@@ -166,7 +166,7 @@ Namespace Server
                     Dim client As ClientClass = WorldServer.CLIENTs(id)
                     Dim Character As New WS_PlayerData.CharacterObject(client, guid)
 
-                    CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     CHARACTERs(guid) = Character
                     CHARACTERs_Lock.ReleaseWriterLock()
 
@@ -209,21 +209,21 @@ Namespace Server
             End Function
 
             Public Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer Implements IWorld.Ping
-                Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime("") - timestamp)
-                LastPing = timeGetTime("")
+                Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", _NativeMethods.timeGetTime("") - timestamp)
+                LastPing = _NativeMethods.timeGetTime("")
                 WC_MsTime = timestamp + latency
 
-                Return timeGetTime("")
+                Return _NativeMethods.timeGetTime("")
             End Function
 
             Public Sub CheckConnection(ByVal State As Object)
-                If (timeGetTime("") - LastPing) > 40000 Then
+                If (_NativeMethods.timeGetTime("") - LastPing) > 40000 Then
                     If Cluster IsNot Nothing Then
                         Log.WriteLine(LogType.FAILED, "Cluster timed out. Reconnecting")
                         ClusterDisconnect()
                     End If
                     ClusterConnect()
-                    LastPing = timeGetTime("")
+                    LastPing = _NativeMethods.timeGetTime("")
                 End If
             End Sub
 
@@ -370,14 +370,14 @@ Namespace Server
                 While Packets.Count >= 1
                     Try ' Trap a Packets.Dequeue issue when no packets are queued... possibly an error with the Packets.Count above'
                         Dim p As PacketClass = Packets.Dequeue
-                        Dim start As Integer = timeGetTime("")
+                        Dim start As Integer = _NativeMethods.timeGetTime("")
                         Try
                             If Not IsNothing(p) Then
                                 If PacketHandlers.ContainsKey(p.OpCode) = True Then
                                     Try
                                         PacketHandlers(p.OpCode).Invoke(p, Me)
-                                        If timeGetTime("") - start > 100 Then
-                                            Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
+                                        If _NativeMethods.timeGetTime("") - start > 100 Then
+                                            Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, _NativeMethods.timeGetTime("") - start)
                                         End If
                                     Catch e As Exception 'TargetInvocationException
                                         Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, Environment.NewLine, p.OpCode, p.OpCode)

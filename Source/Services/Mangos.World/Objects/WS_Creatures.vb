@@ -163,7 +163,7 @@ Namespace Objects
 
             Public ReadOnly Property NPCTextID() As Integer
                 Get
-                    If CreatureGossip.ContainsKey(GUID - GUID_UNIT) Then Return CreatureGossip(GUID - GUID_UNIT)
+                    If CreatureGossip.ContainsKey(GUID - _Global_Constants.GUID_UNIT) Then Return CreatureGossip(GUID - _Global_Constants.GUID_UNIT)
                     Return &HFFFFFF
                 End Get
             End Property
@@ -309,15 +309,15 @@ Namespace Objects
                 'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_MINRANGEDDAMAGE, CREATURESDatabase(ID).RangedDamage.Minimum)
                 'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXRANGEDDAMAGE, CREATURESDatabase(ID).RangedDamage.Maximum)
 
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + i, ActiveSpells(i).SpellID)
                     End If
                 Next
-                For i As Integer = 0 To MAX_AURA_EFFECT_FLAGs - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECT_FLAGs - 1
                     Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + i, ActiveSpells_Flags(i))
                 Next
-                For i As Integer = 0 To MAX_AURA_EFFECT_LEVELSs - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECT_LEVELSs - 1
                     Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + i, ActiveSpells_Count(i))
                     Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + i, ActiveSpells_Level(i))
                 Next
@@ -333,7 +333,7 @@ Namespace Objects
                     Dim packet As New PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
                     packet.AddPackGUID(GUID)
                     packet.AddInt32(0) 'Movementflags
-                    packet.AddInt32(timeGetTime(""))
+                    packet.AddInt32(_NativeMethods.timeGetTime(""))
                     packet.AddSingle(positionX)
                     packet.AddSingle(positionY)
                     packet.AddSingle(positionZ)
@@ -358,7 +358,7 @@ Namespace Objects
                 If aiScript Is Nothing Then Exit Sub
                 If Forced = False AndAlso aiScript.State = AIState.AI_MOVING_TO_SPAWN Then Exit Sub
 
-                Dim timeDiff As Integer = timeGetTime("") - LastMove
+                Dim timeDiff As Integer = _NativeMethods.timeGetTime("") - LastMove
                 If (Forced OrElse aiScript.IsMoving) AndAlso LastMove > 0 AndAlso timeDiff < LastMove_Time Then
                     Dim distance As Single
 
@@ -432,7 +432,7 @@ Namespace Objects
                     OldX = positionX
                     OldY = positionY
                     OldZ = positionZ
-                    LastMove = timeGetTime("")
+                    LastMove = _NativeMethods.timeGetTime("")
                     LastMove_Time = TimeToMove
                     PositionUpdated = False
                     positionX = x
@@ -491,7 +491,7 @@ Namespace Objects
                         Try
                             packet.AddPackGUID(GUID)
                             packet.AddInt32(0) 'Movementflags
-                            packet.AddInt32(timeGetTime(""))
+                            packet.AddInt32(_NativeMethods.timeGetTime(""))
                             packet.AddSingle(positionX)
                             packet.AddSingle(positionY)
                             packet.AddSingle(positionZ)
@@ -534,7 +534,7 @@ Namespace Objects
                 Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
 
                 'DONE: Remove all spells when the creature die
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         RemoveAura(i, ActiveSpells(i).SpellCaster, , False)
                         UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + i, 0)
@@ -651,7 +651,7 @@ Namespace Objects
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim UpdateData As New UpdateClass
+                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, cDynamicFlags)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
                 UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -1082,11 +1082,11 @@ Namespace Objects
                     Dim baseCreature As New CreatureInfo(ID)
                 End If
 
-                GUID = GUID_ + GUID_UNIT
+                GUID = GUID_ + _Global_Constants.GUID_UNIT
                 Initialize()
 
                 Try
-                    WORLD_CREATUREs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_CREATUREs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     WORLD_CREATUREs.Add(GUID, Me)
                     WORLD_CREATUREsKeys.Add(GUID)
                     WORLD_CREATUREs_Lock.ReleaseWriterLock()
@@ -1109,7 +1109,7 @@ Namespace Objects
                 Initialize()
 
                 Try
-                    WORLD_CREATUREs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_CREATUREs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     WORLD_CREATUREs.Add(GUID, Me)
                     WORLD_CREATUREsKeys.Add(GUID)
                     WORLD_CREATUREs_Lock.ReleaseWriterLock()
@@ -1132,7 +1132,7 @@ Namespace Objects
                 Initialize()
 
                 Try
-                    WORLD_CREATUREs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_CREATUREs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     WORLD_CREATUREs.Add(GUID, Me)
                     WORLD_CREATUREsKeys.Add(GUID)
                     WORLD_CREATUREs_Lock.ReleaseWriterLock()
@@ -1171,7 +1171,7 @@ Namespace Objects
                 End If
 
                 Try
-                    WORLD_CREATUREs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_CREATUREs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     WORLD_CREATUREs.Add(GUID, Me)
                     WORLD_CREATUREsKeys.Add(GUID)
                     WORLD_CREATUREs_Lock.ReleaseWriterLock()
@@ -1193,7 +1193,7 @@ Namespace Objects
                     RemoveFromWorld()
 
                     Try
-                        WORLD_CREATUREs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                        WORLD_CREATUREs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                         WORLD_CREATUREs.Remove(GUID)
                         WORLD_CREATUREsKeys.Remove(GUID)
                         WORLD_CREATUREs_Lock.ReleaseWriterLock()
@@ -1216,7 +1216,7 @@ Namespace Objects
             Public Sub Destroy(Optional ByVal state As Object = Nothing)
                 'TODO: Remove pets also
                 If SummonedBy > 0 Then
-                    If GuidIsPlayer(SummonedBy) AndAlso CHARACTERs.ContainsKey(SummonedBy) Then
+                    If _CommonGlobalFunctions.GuidIsPlayer(SummonedBy) AndAlso CHARACTERs.ContainsKey(SummonedBy) Then
                         If CHARACTERs(SummonedBy).NonCombatPet IsNot Nothing AndAlso CHARACTERs(SummonedBy).NonCombatPet Is Me Then
                             CHARACTERs(SummonedBy).NonCombatPet = Nothing
                         End If
@@ -1307,7 +1307,7 @@ Namespace Objects
                                         Try
                                             packet.AddInt32(1)
                                             packet.AddInt8(0)
-                                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
+                                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
                                             FillAllUpdateFlags(tmpUpdate)
                                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
                                             tmpUpdate.Dispose()
@@ -1335,7 +1335,7 @@ Namespace Objects
                 'DONE: Removing from players who can see the creature
                 For Each plGUID As ULong In SeenBy.ToArray
                     If CHARACTERs.ContainsKey(plGUID) Then
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                         CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
                         CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 
@@ -1399,7 +1399,7 @@ Namespace Objects
                     Exit Sub
                 Else
                     Creature = CREATURESDatabase(CreatureID)
-                    'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [CreatureID={2} CreatureGUID={3:X}]", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, CreatureID, CreatureGUID - GUID_UNIT)
+                    'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CREATURE_QUERY [CreatureID={2} CreatureGUID={3:X}]", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port, CreatureID, CreatureGUID - _Global_Constants.GUID_UNIT)
                 End If
 
                 response.AddInt32(Creature.Id)

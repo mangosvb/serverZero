@@ -72,7 +72,7 @@ Namespace Server
                 RegenerationWorking = True
                 NextGroupUpdate = Not NextGroupUpdate 'Group update = every 4 sec
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In CHARACTERs
                         'DONE: If all invalid check passed then regenerate
                         'DONE: If dead don't regenerate
@@ -240,7 +240,7 @@ Namespace Server
 
                 Try
 
-                    WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_CREATUREs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
                     For i As Long = 0 To WORLD_CREATUREsKeys.Count - 1
                         If WORLD_CREATUREs(WORLD_CREATUREsKeys(i)) IsNot Nothing Then
@@ -257,7 +257,7 @@ Namespace Server
                 End Try
 
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                         If Character.Value IsNot Nothing Then UpdateSpells(Character.Value)
                     Next
@@ -269,7 +269,7 @@ Namespace Server
 
                 Dim DynamicObjectsToDelete As New List(Of WS_DynamicObjects.DynamicObjectObject)
                 Try
-                    WORLD_DYNAMICOBJECTs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_DYNAMICOBJECTs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     For Each Dynamic As KeyValuePair(Of ULong, DynamicObjectObject) In WORLD_DYNAMICOBJECTs
                         If Dynamic.Value IsNot Nothing AndAlso Dynamic.Value.Update() Then
                             DynamicObjectsToDelete.Add(Dynamic.Value)
@@ -315,11 +315,11 @@ Namespace Server
                 If TypeOf objCharacter Is TotemObject Then
                     CType(objCharacter, TotemObject).Update()
                 Else
-                    For i As Integer = 0 To MAX_AURA_EFFECTs - 1
+                    For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                         If objCharacter.ActiveSpells(i) IsNot Nothing Then
 
                             'DONE: Count aura duration
-                            If objCharacter.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then
+                            If objCharacter.ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then
                                 objCharacter.ActiveSpells(i).SpellDuration -= UPDATE_TIMER
 
                                 'DONE: Cast aura (check if: there is aura; aura is periodic; time for next activation)
@@ -332,7 +332,7 @@ Namespace Server
                                 Next j
 
                                 'DONE: Remove finished aura
-                                If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).SpellDuration <= 0 AndAlso objCharacter.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster, True)
+                                If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).SpellDuration <= 0 AndAlso objCharacter.ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster, True)
                             End If
 
                             'DONE: Check if there are units that are out of range for the area aura
@@ -406,12 +406,12 @@ Namespace Server
                     Exit Sub
                 End If
 
-                Dim StartTime As Integer = timeGetTime("")
+                Dim StartTime As Integer = _NativeMethods.timeGetTime("")
                 AIManagerWorking = True
 
                 'First transports
                 Try
-                    WORLD_TRANSPORTs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_TRANSPORTs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
                     For Each Transport As KeyValuePair(Of ULong, TransportObject) In WORLD_TRANSPORTs
                         Transport.Value.Update()
@@ -425,7 +425,7 @@ Namespace Server
 
                 'Then creatures
                 Try
-                    WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    WORLD_CREATUREs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
                     Try
                         For i As Long = 0 To WORLD_CREATUREsKeys.Count - 1
@@ -493,7 +493,7 @@ Namespace Server
 
                 CharacterSaverWorking = True
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
                         Character.Value.SaveCharacter()
                     Next

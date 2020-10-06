@@ -172,7 +172,7 @@ Namespace Handlers
 
                 LoadIgnoreList(Me)
 
-                CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                CHARACTERs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 CHARACTERs.Add(Guid, Me)
                 CHARACTERs_Lock.ReleaseWriterLock()
             End Sub
@@ -219,7 +219,7 @@ Namespace Handlers
                         End If
                     End While
 
-                    CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     CHARACTERs.Remove(Guid)
                     CHARACTERs_Lock.ReleaseWriterLock()
                 End If
@@ -360,9 +360,9 @@ Namespace Handlers
         Public Function GetCharacterGUIDByName(ByVal Name As String) As ULong
             Dim GUID As ULong = 0
 
-            CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
             For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
-                If UppercaseFirstLetter(objCharacter.Value.Name) = UppercaseFirstLetter(Name) Then
+                If _CommonFunctions.UppercaseFirstLetter(objCharacter.Value.Name) = _CommonFunctions.UppercaseFirstLetter(Name) Then
                     GUID = objCharacter.Value.Guid
                     Exit For
                 End If

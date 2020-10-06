@@ -17,7 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
@@ -88,7 +88,7 @@ Namespace Handlers
                 End If
 
                 'Asking for player name
-                If GuidIsPlayer(GUID) Then
+                If _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
                     If CHARACTERs.ContainsKey(GUID) = True Then
                         Try
                             SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
@@ -126,7 +126,7 @@ Namespace Handlers
                 End If
 
                 'Asking for creature name (only used in quests?)
-                If GuidIsCreature(GUID) Then
+                If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
                     If WORLD_CREATUREs.ContainsKey(GUID) Then
                         Try
                             SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
@@ -207,7 +207,7 @@ Namespace Handlers
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTIONBAR_TOGGLES [{2:X}]", client.IP, client.Port, ActionBar)
 
-            client.Character.cPlayerFieldBytes = (Client.Character.cPlayerFieldBytes And &HFFF0FFFF) Or (ActionBar << 16)
+            client.Character.cPlayerFieldBytes = (client.Character.cPlayerFieldBytes And &HFFF0FFFF) Or (ActionBar << 16)
 
             client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BYTES, client.Character.cPlayerFieldBytes)
             client.Character.SendCharacterUpdate(True)
@@ -218,7 +218,7 @@ Namespace Handlers
 
             Dim response As New PacketClass(OPCODES.SMSG_MOUNTSPECIAL_ANIM)
             Try
-                response.AddPackGUID(Client.Character.GUID)
+                response.AddPackGUID(client.Character.GUID)
                 client.Character.SendToNearPlayers(response)
             Finally
                 response.Dispose()
@@ -234,7 +234,7 @@ Namespace Handlers
             Dim response As New PacketClass(OPCODES.SMSG_EMOTE)
             Try
                 response.AddInt32(emoteID)
-                response.AddUInt64(Client.Character.GUID)
+                response.AddUInt64(client.Character.GUID)
                 client.Character.SendToNearPlayers(response)
             Finally
                 response.Dispose()
@@ -250,9 +250,9 @@ Namespace Handlers
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TEXT_EMOTE [TextEmote={2} Unk={3}]", client.IP, client.Port, TextEmote, Unk)
 
-            If GuidIsCreature(GUID) AndAlso WORLD_CREATUREs.ContainsKey(GUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(GUID) AndAlso WORLD_CREATUREs.ContainsKey(GUID) Then
                 'DONE: Some quests needs emotes being done
-                ALLQUESTS.OnQuestDoEmote(Client.Character, WORLD_CREATUREs(GUID), TextEmote)
+                ALLQUESTS.OnQuestDoEmote(client.Character, WORLD_CREATUREs(GUID), TextEmote)
 
                 'DONE: Doing emotes to guards
                 If WORLD_CREATUREs(GUID).aiScript IsNot Nothing AndAlso (TypeOf WORLD_CREATUREs(GUID).aiScript Is WS_Creatures_AI.GuardAI) Then
@@ -385,7 +385,7 @@ Namespace Handlers
                 UpdateCell(Client.Character)
 
                 'DONE: Remove all auras
-                For i As Integer = 0 To MAX_AURA_EFFECTs - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                     If client.Character.ActiveSpells(i) IsNot Nothing Then client.Character.RemoveAura(i, client.Character.ActiveSpells(i).SpellCaster)
                 Next
 
@@ -452,7 +452,7 @@ Namespace Handlers
                 If WORLD_CORPSEOBJECTs.ContainsKey(Character.corpseGUID) Then
                     WORLD_CORPSEOBJECTs(Character.corpseGUID).ConvertToBones()
                 Else
-                    Log.WriteLine(LogType.DEBUG, "Corpse wasn't found [{0}]!", Character.corpseGUID - GUID_CORPSE)
+                    Log.WriteLine(LogType.DEBUG, "Corpse wasn't found [{0}]!", Character.corpseGUID - _Global_Constants.GUID_CORPSE)
 
                     'DONE: Delete from database
                     CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Character.GUID))
@@ -486,7 +486,7 @@ Namespace Handlers
             Try
                 response.AddUInt64(GUID)
 
-                CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 response.AddInt8(CHARACTERs(GUID).HonorRank)                                                            'Highest Rank
                 response.AddInt32(CHARACTERs(GUID).HonorKillsToday + CInt(CHARACTERs(GUID).DishonorKillsToday) << 16)   'PLAYER_FIELD_SESSION_KILLS                - Today Honorable and Dishonorable Kills
                 response.AddInt32(CHARACTERs(GUID).HonorKillsYesterday)                                                 'PLAYER_FIELD_YESTERDAY_KILLS              - Yesterday Honorable Kills

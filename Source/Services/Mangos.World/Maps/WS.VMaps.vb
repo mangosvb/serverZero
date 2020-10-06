@@ -18,7 +18,7 @@
 
 #If VMAPS Then
 
-Public Module VMAP_Module
+Public Module _Global_Constants.VMAP_Module
 
     Public Class ModelContainer
         Inherits BaseModel
@@ -85,7 +85,7 @@ Public Module VMAP_Module
                 fileVersion = Text.Encoding.ASCII.GetString(b.ReadBytes(8), 0, 8)
                 Log.WriteLine(LogType.INFORMATION, "Loading map file [{0}] version [{1}]", fileName, fileVersion)
 
-                If fileVersion <> VMAP_MAGIC Then Throw New FileLoadException()
+                If fileVersion <> _Global_Constants.VMAP_MAGIC Then Throw New FileLoadException()
                 b.Read(ident, 0, 8)
                 flags = b.ReadUInt32()
                 'POS

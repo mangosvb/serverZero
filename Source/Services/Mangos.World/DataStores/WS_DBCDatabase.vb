@@ -17,8 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Globals
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.World.Handlers
 Imports Mangos.World.Maps
@@ -592,9 +591,9 @@ Namespace DataStores
                 Try
                     CharacterDatabase.Query(String.Format("SELECT MAX(item_guid) FROM characters_inventory;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        itemGuidCounter = MySQLQuery.Rows(0).Item(0) + GUID_ITEM
+                        itemGuidCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_ITEM
                     Else
-                        itemGuidCounter = 0 + GUID_ITEM
+                        itemGuidCounter = 0 + _Global_Constants.GUID_ITEM
                     End If
                 Catch ex As Exception
                     Log.WriteLine(LogType.FAILED, "World: Failed loading characters_inventory....")
@@ -603,9 +602,9 @@ Namespace DataStores
                 Try
                     WorldDatabase.Query(String.Format("SELECT MAX(guid) FROM creature;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_UNIT
+                        CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_UNIT
                     Else
-                        CreatureGUIDCounter = 0 + GUID_UNIT
+                        CreatureGUIDCounter = 0 + _Global_Constants.GUID_UNIT
                     End If
                 Catch ex As Exception
                     Log.WriteLine(LogType.FAILED, "World: Failed loading creature....")
@@ -615,9 +614,9 @@ Namespace DataStores
                 Try
                     WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_gameobjects;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_GAMEOBJECT
+                        GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_GAMEOBJECT
                     Else
-                        GameObjectsGUIDCounter = 0 + GUID_GAMEOBJECT
+                        GameObjectsGUIDCounter = 0 + _Global_Constants.GUID_GAMEOBJECT
                     End If
                 Catch ex As Exception
                     Log.WriteLine(LogType.FAILED, "World: Failed loading spawn_gameobjects....")
@@ -627,9 +626,9 @@ Namespace DataStores
                 Try
                     CharacterDatabase.Query(String.Format("SELECT MAX(guid) FROM corpse"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_CORPSE
+                        CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_CORPSE
                     Else
-                        CorpseGUIDCounter = 0 + GUID_CORPSE
+                        CorpseGUIDCounter = 0 + _Global_Constants.GUID_CORPSE
                     End If
                 Catch ex As Exception
                     Log.WriteLine(LogType.FAILED, "World: Failed loading corpse....")

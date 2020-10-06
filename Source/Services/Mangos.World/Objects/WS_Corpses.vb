@@ -18,7 +18,7 @@
 
 Imports System.Data
 Imports System.Runtime.CompilerServices
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
@@ -83,7 +83,7 @@ Namespace Objects
                 Try
                     packet.AddInt32(1)
                     packet.AddInt8(0)
-                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
                     Try
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_OWNER, 0)
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_FLAGS, 5)
@@ -104,7 +104,7 @@ Namespace Objects
             Public Sub Save()
                 'Only for creating New Character
                 Dim tmpCmd As String = "INSERT INTO corpse (guid"
-                Dim tmpValues As String = " VALUES (" & (GUID - GUID_CORPSE)
+                Dim tmpValues As String = " VALUES (" & (GUID - _Global_Constants.GUID_CORPSE)
 
                 tmpCmd = tmpCmd & ", player"
                 tmpValues = tmpValues & ", " & Owner
@@ -255,7 +255,7 @@ Namespace Objects
 
                 Flags = 4
 
-                GUID = cGUID + GUID_CORPSE
+                GUID = cGUID + _Global_Constants.GUID_CORPSE
                 WORLD_CORPSEOBJECTs.Add(GUID, Me)
             End Sub
 
@@ -268,7 +268,7 @@ Namespace Objects
                 'DONE: Sending to players in nearby cells
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
-                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
                     Try
                         packet.AddInt32(1)
                         packet.AddInt8(0)
@@ -311,7 +311,7 @@ Namespace Objects
                         list = .PlayersHere.ToArray
                         For Each plGUID As ULong In list
                             If CHARACTERs(plGUID).corpseObjectsNear.Contains(GUID) Then
-                                CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                                CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                                 CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
                                 CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 

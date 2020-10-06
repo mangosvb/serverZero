@@ -39,7 +39,7 @@ Namespace Server
 
         Public Function MsTime() As Integer
             'DONE: Calculate the clusters timeGetTime("")
-            Return (timeGetTime("") - LastPing)
+            Return (_NativeMethods.timeGetTime("") - LastPing)
         End Function
 
         Class WorldServerClass
@@ -185,9 +185,9 @@ Namespace Server
                     For Each w As KeyValuePair(Of UInteger, IWorld) In Worlds
                         Try
                             If Not SentPingTo.ContainsKey(WorldsInfo(w.Key)) Then
-                                MyTime = timeGetTime("")
+                                MyTime = _NativeMethods.timeGetTime("")
                                 ServerTime = w.Value.Ping(MyTime, WorldsInfo(w.Key).Latency)
-                                Latency = Math.Abs(MyTime - timeGetTime(""))
+                                Latency = Math.Abs(MyTime - _NativeMethods.timeGetTime(""))
 
                                 WorldsInfo(w.Key).Latency = Latency
                                 SentPingTo(WorldsInfo(w.Key)) = Latency
@@ -270,7 +270,7 @@ Namespace Server
 
             Public Sub Broadcast(ByVal Data() As Byte) Implements ICluster.Broadcast
                 Dim b As Byte()
-                CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
 
                     If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then
@@ -397,7 +397,7 @@ Namespace Server
             Public Function BattlefieldList(ByVal MapType As Byte) As List(Of Integer) Implements ICluster.BattlefieldList
                 Dim BattlefieldMap As New List(Of Integer)
 
-                BATTLEFIELDs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                BATTLEFIELDs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 For Each BG As KeyValuePair(Of Integer, Battlefield) In BATTLEFIELDs
                     If BG.Value.MapType = MapType Then
                         BattlefieldMap.Add(BG.Value.ID)

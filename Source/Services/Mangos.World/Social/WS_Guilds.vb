@@ -17,7 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Guild
 Imports Mangos.Common.Enums.Misc
@@ -46,9 +46,9 @@ Namespace Social
 
             If Count = 1 Then
                 packet.AddInt32(1) 'Index
-                packet.AddInt32(PETITION_GUILD)
+                packet.AddInt32(_Global_Constants.PETITION_GUILD)
                 packet.AddInt32(16161) 'Charter display ID
-                packet.AddInt32(PETITION_GUILD_PRICE)
+                packet.AddInt32(_Global_Constants.PETITION_GUILD_PRICE)
                 packet.AddInt32(0) 'Unknown
                 packet.AddInt32(9) 'Required signatures
             End If
@@ -91,8 +91,8 @@ Namespace Social
             Dim CharterID As Integer = 0
             Dim CharterPrice As Integer = 0
             If client.Character.GuildID <> 0 Then Exit Sub
-            CharterID = PETITION_GUILD
-            CharterPrice = PETITION_GUILD_PRICE
+            CharterID = _Global_Constants.PETITION_GUILD
+            CharterPrice = _Global_Constants.PETITION_GUILD_PRICE
 
             Dim q As New DataTable
             CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_name = '{0}'", Name), q)
@@ -132,11 +132,11 @@ Namespace Social
             Dim tmpItem As New ItemObject(CharterID, client.Character.GUID) With {
                     .StackCount = 1
                     }
-            tmpItem.AddEnchantment(tmpItem.GUID - GUID_ITEM, 0, 0, 0)
+            tmpItem.AddEnchantment(tmpItem.GUID - _Global_Constants.GUID_ITEM, 0, 0, 0)
 
             If client.Character.ItemADD(tmpItem) Then
                 'Save petition into database
-                CharacterDatabase.Update(String.Format("INSERT INTO petitions (petition_id, petition_itemGuid, petition_owner, petition_name, petition_type, petition_signedMembers) VALUES ({0}, {0}, {1}, '{2}', {3}, 0);", tmpItem.GUID - GUID_ITEM, client.Character.GUID - GUID_PLAYER, Name, 9))
+                CharacterDatabase.Update(String.Format("INSERT INTO petitions (petition_id, petition_itemGuid, petition_owner, petition_name, petition_type, petition_signedMembers) VALUES ({0}, {0}, {1}, '{2}', {3}, 0);", tmpItem.GUID - _Global_Constants.GUID_ITEM, client.Character.GUID - _Global_Constants.GUID_PLAYER, Name, 9))
             Else
                 'No free inventory slot
                 tmpItem.Delete()
@@ -145,7 +145,7 @@ Namespace Social
 
         Public Sub SendPetitionSignatures(ByRef objCharacter As CharacterObject, ByVal iGUID As ULong)
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & iGUID - GUID_ITEM & ";", MySQLQuery)
+            CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & iGUID - _Global_Constants.GUID_ITEM & ";", MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
             Dim response As New PacketClass(OPCODES.SMSG_PETITION_SHOW_SIGNATURES)
@@ -182,7 +182,7 @@ Namespace Social
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_QUERY [pGUID={3} iGUID={2:X}]", client.IP, client.Port, itemGuid, PetitionGUID)
 
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";", MySQLQuery)
+            CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & ";", MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
             Dim response As New PacketClass(OPCODES.SMSG_PETITION_QUERY_RESPONSE)
@@ -226,13 +226,13 @@ Namespace Social
 
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_PETITION_RENAME [NewName={3} GUID={2:X}]", client.IP, client.Port, itemGuid, NewName)
 
-            CharacterDatabase.Update("UPDATE petitions SET petition_name = '" & NewName & "' WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";")
+            CharacterDatabase.Update("UPDATE petitions SET petition_name = '" & NewName & "' WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & ";")
 
             'DONE: Update client-side name information
             Dim response As New PacketClass(OPCODES.MSG_PETITION_RENAME)
             response.AddUInt64(itemGuid)
             response.AddString(NewName)
-            response.AddInt32(itemGuid - GUID_ITEM)
+            response.AddInt32(itemGuid - _Global_Constants.GUID_ITEM)
             client.Send(response)
             response.Dispose()
         End Sub
@@ -263,10 +263,10 @@ Namespace Social
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_SIGN [GUID={2:X} Unk={3}]", client.IP, client.Port, itemGuid, Unk)
 
             Dim MySQLQuery As New DataTable
-            CharacterDatabase.Query("SELECT petition_signedMembers, petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";", MySQLQuery)
+            CharacterDatabase.Query("SELECT petition_signedMembers, petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & ";", MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-            CharacterDatabase.Update("UPDATE petitions SET petition_signedMembers = petition_signedMembers + 1, petition_signedMember" & (MySQLQuery.Rows(0).Item("petition_signedMembers") + 1) & " = " & client.Character.GUID & " WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & ";")
+            CharacterDatabase.Update("UPDATE petitions SET petition_signedMembers = petition_signedMembers + 1, petition_signedMember" & (MySQLQuery.Rows(0).Item("petition_signedMembers") + 1) & " = " & client.Character.GUID & " WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & ";")
 
             'DONE: Send result to both players
             Dim response As New PacketClass(OPCODES.SMSG_PETITION_SIGN_RESULTS)
@@ -287,7 +287,7 @@ Namespace Social
 
             'DONE: Get petition owner
             Dim q As New DataTable
-            CharacterDatabase.Query("SELECT petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & " LIMIT 1;", q)
+            CharacterDatabase.Query("SELECT petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & " LIMIT 1;", q)
 
             'DONE: Send message to player
             Dim response As New PacketClass(OPCODES.MSG_PETITION_DECLINE)

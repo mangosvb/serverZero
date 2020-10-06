@@ -68,7 +68,7 @@ Namespace Handlers
             SMSG_GMTICKET_GETTICKET.Dispose()
 
             Dim SMSG_QUERY_TIME_RESPONSE As New PacketClass(OPCODES.SMSG_QUERY_TIME_RESPONSE)
-            SMSG_QUERY_TIME_RESPONSE.AddInt32(timeGetTime("")) 'GetTimestamp(Now))
+            SMSG_QUERY_TIME_RESPONSE.AddInt32(_NativeMethods.timeGetTime("")) 'GetTimestamp(Now))
             client.Send(SMSG_QUERY_TIME_RESPONSE)
             SMSG_QUERY_TIME_RESPONSE.Dispose()
         End Sub

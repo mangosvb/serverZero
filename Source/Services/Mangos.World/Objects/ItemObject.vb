@@ -19,7 +19,7 @@
 'WARNING: Use only with ITEMs()
 Imports System.Data
 Imports System.Runtime.CompilerServices
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Item
 Imports Mangos.Common.Enums.Player
@@ -141,7 +141,7 @@ Namespace Objects
             packet.AddInt8(0)
 
             For Each item As KeyValuePair(Of Byte, ItemObject) In Items
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 item.Value.FillAllUpdateFlags(tmpUpdate)
                 tmpUpdate.AddToPacket(packet, updatetype, item.Value)
                 tmpUpdate.Dispose()
@@ -272,7 +272,7 @@ Namespace Objects
             If mySqlQuery.Rows.Count = 0 Then _
                 Err.Raise(1, "ItemObject.New", String.Format("itemGuid {0} not found in SQL database!", guidVal))
 
-            GUID = mySqlQuery.Rows(0).Item("item_guid") + GUID_ITEM
+            GUID = mySqlQuery.Rows(0).Item("item_guid") + _Global_Constants.GUID_ITEM
             CreatorGUID = mySqlQuery.Rows(0).Item("item_creator")
             OwnerGUID = mySqlQuery.Rows(0).Item("item_owner")
             GiftCreatorGUID = mySqlQuery.Rows(0).Item("item_giftCreator")
@@ -312,7 +312,7 @@ Namespace Objects
             CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID),
                                     mySqlQuery)
             For Each row As DataRow In mySqlQuery.Rows
-                If row.Item("item_slot") <> ITEM_SLOT_NULL Then
+                If row.Item("item_slot") <> _Global_Constants.ITEM_SLOT_NULL Then
                     Dim tmpItem As New ItemObject(CType(row.Item("item_guid"), Long))
                     Items(row.Item("item_slot")) = tmpItem
                 End If
@@ -357,7 +357,7 @@ Namespace Objects
         Private Sub SaveAsNew()
             'DONE: Save to SQL
             Dim tmpCmd As String = "INSERT INTO characters_inventory (item_guid"
-            Dim tmpValues As String = " VALUES (" & GUID - GUID_ITEM
+            Dim tmpValues As String = " VALUES (" & GUID - _Global_Constants.GUID_ITEM
             tmpCmd = tmpCmd & ", item_owner"
             tmpValues = tmpValues & ", """ & OwnerGUID & """"
             tmpCmd = tmpCmd & ", item_creator"
@@ -413,7 +413,7 @@ Namespace Objects
             tmp = tmp & ", item_enchantment=""" & Join(temp.ToArray, " ") & """"
             tmp = tmp & ", item_textId=" & ItemText
 
-            tmp = tmp & " WHERE item_guid = """ & (GUID - GUID_ITEM) & """;"
+            tmp = tmp & " WHERE item_guid = """ & (GUID - _Global_Constants.GUID_ITEM) & """;"
 
             CharacterDatabase.Update(tmp)
 
@@ -427,9 +427,9 @@ Namespace Objects
         Public Sub Delete()
             'DONE: Check if item is petition
             If _
-                ItemEntry = PETITION_GUILD Then _
-                CharacterDatabase.Update("DELETE FROM petitions WHERE petition_itemGuid = " & GUID - GUID_ITEM & ";")
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = {0}", GUID - GUID_ITEM))
+                ItemEntry = _Global_Constants.PETITION_GUILD Then _
+                CharacterDatabase.Update("DELETE FROM petitions WHERE petition_itemGuid = " & GUID - _Global_Constants.GUID_ITEM & ";")
+            CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = {0}", GUID - _Global_Constants.GUID_ITEM))
 
             If ITEMDatabase(ItemEntry).IsContainer() Then
                 For Each item As KeyValuePair(Of Byte, ItemObject) In Items
@@ -495,7 +495,7 @@ Namespace Objects
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             packet.AddInt32(1)      'Operations.Count
             packet.AddInt8(0)
-            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
             tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_DURABILITY, Durability)
             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
             tmpUpdate.Dispose()
@@ -598,7 +598,7 @@ Namespace Objects
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3), 0)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 1, 0)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 2, 0)
@@ -623,7 +623,7 @@ Namespace Objects
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
 

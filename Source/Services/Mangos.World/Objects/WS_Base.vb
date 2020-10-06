@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Enums.Spell
@@ -44,7 +44,7 @@ Namespace Objects
             Public SpawnID As Integer = 0
             Public SeenBy As New List(Of ULong)
 
-            Public VisibleDistance As Single = DEFAULT_DISTANCE_VISIBLE
+            Public VisibleDistance As Single = _Global_Constants.DEFAULT_DISTANCE_VISIBLE
 
             Public Invisibility As InvisibilityLevel = InvisibilityLevel.VISIBLE
             Public Invisibility_Value As Integer = 0
@@ -60,7 +60,7 @@ Namespace Objects
                 'DONE: GM and DEAD invisibility
                 If objCharacter.Invisibility > CanSeeInvisibility Then Return False
                 'DONE: Stealth Detection
-                If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso (Math.Sqrt((objCharacter.positionX - positionX) ^ 2 + (objCharacter.positionY - positionY) ^ 2) < DEFAULT_DISTANCE_DETECTION) Then Return True
+                If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso (Math.Sqrt((objCharacter.positionX - positionX) ^ 2 + (objCharacter.positionY - positionY) ^ 2) < _Global_Constants.DEFAULT_DISTANCE_DETECTION) Then Return True
                 'DONE: Check invisibility
                 If objCharacter.Invisibility = InvisibilityLevel.INIVISIBILITY AndAlso objCharacter.Invisibility_Value > CanSeeInvisibility_Invisibility Then Return False
                 If objCharacter.Invisibility = InvisibilityLevel.STEALTH AndAlso objCharacter.Invisibility_Value > CanSeeInvisibility_Stealth Then Return False
@@ -296,10 +296,10 @@ Namespace Objects
             End Function
 
             'Spell Aura Managment
-            Public ActiveSpells(MAX_AURA_EFFECTs - 1) As BaseActiveSpell
-            Public ActiveSpells_Flags(MAX_AURA_EFFECT_FLAGs - 1) As Integer
-            Public ActiveSpells_Count(MAX_AURA_EFFECT_LEVELSs - 1) As Integer
-            Public ActiveSpells_Level(MAX_AURA_EFFECT_LEVELSs - 1) As Integer
+            Public ActiveSpells(_Global_Constants.MAX_AURA_EFFECTs - 1) As BaseActiveSpell
+            Public ActiveSpells_Flags(_Global_Constants.MAX_AURA_EFFECT_FLAGs - 1) As Integer
+            Public ActiveSpells_Count(_Global_Constants.MAX_AURA_EFFECT_LEVELSs - 1) As Integer
+            Public ActiveSpells_Level(_Global_Constants.MAX_AURA_EFFECT_LEVELSs - 1) As Integer
             Public Sub SetAura(ByVal SpellID As Integer, ByVal Slot As Integer, ByVal Duration As Integer, Optional ByVal SendUpdate As Boolean = True)
                 If ActiveSpells(Slot) Is Nothing Then Exit Sub
                 'DONE: Passive auras are not displayed
@@ -339,7 +339,7 @@ Namespace Objects
                             SMSG_UPDATE_AURA_DURATION.Dispose()
                         End Try
                     Else
-                        Dim tmpUpdate As New UpdateClass
+                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                         Dim tmpPacket As New UpdatePacketClass
                         Try
                             tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + Slot, SpellID)
@@ -375,14 +375,14 @@ Namespace Objects
             End Sub
 
             Public Function HaveAura(ByVal SpellID As Integer) As Boolean
-                For i As Byte = 0 To MAX_AURA_EFFECTs - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                     If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).SpellID = SpellID Then Return True
                 Next
                 Return False
             End Function
 
             Public Function HaveAuraType(ByVal AuraIndex As AuraEffects_Names) As Boolean
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If Not ActiveSpells(i) Is Nothing Then
                         For j As Byte = 0 To 2
                             If ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraIndex Then
@@ -395,14 +395,14 @@ Namespace Objects
             End Function
 
             Public Function HaveVisibleAura(ByVal SpellID As Integer) As Boolean
-                For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If Not ActiveSpells(i) Is Nothing AndAlso ActiveSpells(i).SpellID = SpellID Then Return True
                 Next
                 Return False
             End Function
 
             Public Function HavePassiveAura(ByVal SpellID As Integer) As Boolean
-                For i As Byte = MAX_AURA_EFFECTs_VISIBLE To MAX_AURA_EFFECTs - 1
+                For i As Byte = _Global_Constants.MAX_AURA_EFFECTs_VISIBLE To _Global_Constants.MAX_AURA_EFFECTs - 1
                     If Not ActiveSpells(i) Is Nothing AndAlso ActiveSpells(i).SpellID = SpellID Then Return True
                 Next
                 Return False
@@ -418,13 +418,13 @@ Namespace Objects
                     Next j
                 End If
 
-                If SendUpdate AndAlso Slot < MAX_AURA_EFFECTs_VISIBLE Then SetAura(0, Slot, 0)
+                If SendUpdate AndAlso Slot < _Global_Constants.MAX_AURA_EFFECTs_VISIBLE Then SetAura(0, Slot, 0)
                 ActiveSpells(Slot) = Nothing
             End Sub
 
             Public Sub RemoveAuraBySpell(ByVal SpellID As Integer)
                 'DONE: Real aura removing
-                For i As Integer = 0 To MAX_AURA_EFFECTs - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                     If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).SpellID = SpellID Then
                         RemoveAura(i, ActiveSpells(i).SpellCaster)
 
@@ -441,7 +441,7 @@ Namespace Objects
 
             Public Sub RemoveAurasOfType(ByVal AuraIndex As AuraEffects_Names, Optional ByRef NotSpellID As Integer = 0)
                 'DONE: Removing SpellAuras of a certain type
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).SpellID <> NotSpellID Then
                         For j As Byte = 0 To 2
                             If (Not ActiveSpells(i).Aura_Info(j) Is Nothing) AndAlso ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraIndex Then
@@ -455,7 +455,7 @@ Namespace Objects
 
             Public Sub RemoveAurasByMechanic(ByVal Mechanic As Integer)
                 'DONE: Removing SpellAuras of a certain mechanic
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing AndAlso WS_Spells.SPELLs(ActiveSpells(i).SpellID).Mechanic = Mechanic Then
                         RemoveAura(i, ActiveSpells(i).SpellCaster)
                     End If
@@ -464,7 +464,7 @@ Namespace Objects
 
             Public Sub RemoveAurasByDispellType(ByVal DispellType As Integer, ByVal Amount As Integer)
                 'DONE: Removing SpellAuras of a certain dispelltype
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing AndAlso WS_Spells.SPELLs(ActiveSpells(i).SpellID).DispellType = DispellType Then
                         RemoveAura(i, ActiveSpells(i).SpellCaster)
                         Amount -= 1
@@ -475,7 +475,7 @@ Namespace Objects
 
             Public Sub RemoveAurasByInterruptFlag(ByVal AuraInterruptFlag As Integer)
                 'DONE: Removing SpellAuras with a certain interruptflag
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         If WS_Spells.SPELLs.ContainsKey(ActiveSpells(i).SpellID) AndAlso (WS_Spells.SPELLs(ActiveSpells(i).SpellID).auraInterruptFlags And AuraInterruptFlag) Then
                             If (WS_Spells.SPELLs(ActiveSpells(i).SpellID).procFlags And SpellAuraProcFlags.AURA_PROC_REMOVEONUSE) = 0 Then
@@ -503,7 +503,7 @@ Namespace Objects
 
             Public Function GetAuraModifier(ByVal AuraIndex As AuraEffects_Names) As Integer
                 Dim Modifier As Integer = 0
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         For j As Byte = 0 To 2
                             If (Not ActiveSpells(i).Aura_Info(j) Is Nothing) AndAlso ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraIndex Then
@@ -517,7 +517,7 @@ Namespace Objects
 
             Public Function GetAuraModifierByMiscMask(ByVal AuraIndex As AuraEffects_Names, ByVal Mask As Integer) As Integer
                 Dim Modifier As Integer = 0
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
                         For j As Byte = 0 To 2
                             If (Not ActiveSpells(i).Aura_Info(j) Is Nothing) AndAlso ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraIndex AndAlso (ActiveSpells(i).Aura_Info(j).MiscValue And Mask) = Mask Then
@@ -531,20 +531,20 @@ Namespace Objects
 
             Public Sub AddAura(ByVal SpellID As Integer, ByVal Duration As Integer, ByRef Caster As BaseUnit)
                 Dim AuraStart As Integer = 0
-                Dim AuraEnd As Integer = MAX_POSITIVE_AURA_EFFECTs - 1
+                Dim AuraEnd As Integer = _Global_Constants.MAX_POSITIVE_AURA_EFFECTs - 1
                 If WS_Spells.SPELLs(SpellID).IsPassive Then
-                    AuraStart = MAX_AURA_EFFECTs_VISIBLE
-                    AuraEnd = MAX_AURA_EFFECTs
+                    AuraStart = _Global_Constants.MAX_AURA_EFFECTs_VISIBLE
+                    AuraEnd = _Global_Constants.MAX_AURA_EFFECTs
                 ElseIf WS_Spells.SPELLs(SpellID).IsNegative Then
-                    AuraStart = MAX_POSITIVE_AURA_EFFECTs
-                    AuraEnd = MAX_AURA_EFFECTs_VISIBLE - 1
+                    AuraStart = _Global_Constants.MAX_POSITIVE_AURA_EFFECTs
+                    AuraEnd = _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                 End If
 
                 'Try to remove spells that can't be used at the same time as this one
                 Try
                     If Not WS_Spells.SPELLs(SpellID).IsPassive Then
                         Dim SpellInfo As WS_Spells.SpellInfo = WS_Spells.SPELLs(SpellID)
-                        For slot As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                        For slot As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                             If ActiveSpells(slot) IsNot Nothing AndAlso ActiveSpells(slot).GetSpellInfo.Target = SpellInfo.Target AndAlso
                                ActiveSpells(slot).GetSpellInfo.Category = SpellInfo.Category AndAlso ActiveSpells(slot).GetSpellInfo.SpellIconID = SpellInfo.SpellIconID AndAlso
                                ActiveSpells(slot).GetSpellInfo.SpellVisual = SpellInfo.SpellVisual AndAlso ActiveSpells(slot).GetSpellInfo.Attributes = SpellInfo.Attributes AndAlso
@@ -564,7 +564,7 @@ Namespace Objects
                             .SpellCaster = Caster
                             }
 
-                        If slot < MAX_AURA_EFFECTs_VISIBLE Then SetAura(SpellID, slot, Duration)
+                        If slot < _Global_Constants.MAX_AURA_EFFECTs_VISIBLE Then SetAura(SpellID, slot, Duration)
                         Exit For
                     End If
                 Next
@@ -578,7 +578,7 @@ Namespace Objects
 
             Public Sub UpdateAura(ByVal Slot As Integer)
                 If ActiveSpells(Slot) Is Nothing Then Exit Sub
-                If Slot >= MAX_AURA_EFFECTs_VISIBLE Then Exit Sub
+                If Slot >= _Global_Constants.MAX_AURA_EFFECTs_VISIBLE Then Exit Sub
 
                 Dim AuraFlag_Slot As Integer = Slot \ 4
                 Dim AuraFlag_SubSlot As Integer = (Slot Mod 4) * 8
@@ -597,7 +597,7 @@ Namespace Objects
                         SMSG_UPDATE_AURA_DURATION.Dispose()
                     End Try
                 Else
-                    Dim tmpUpdate As New UpdateClass
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                     Dim tmpPacket As New UpdatePacketClass
                     Try
                         tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraFlag_Slot, ActiveSpells_Count(AuraFlag_Slot))

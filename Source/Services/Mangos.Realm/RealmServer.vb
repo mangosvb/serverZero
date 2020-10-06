@@ -158,7 +158,7 @@ Public Module RealmServer
 
         Private Sub AcceptConnection()
             Do While Not FlagStopListen
-                Thread.Sleep(ConnectionSleepTime)
+                Thread.Sleep(_Global_Constants.ConnectionSleepTime)
                 If LstConnection.Pending() Then
                     Dim client As New ClientClass With {
                         .Socket = LstConnection.AcceptSocket
@@ -304,7 +304,7 @@ Public Module RealmServer
             If Not AccountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
 
                 While Not RealmServer.FlagStopListen
-                    Thread.Sleep(ConnectionSleepTime)
+                    Thread.Sleep(_Global_Constants.ConnectionSleepTime)
                     If Socket.Available > 0 Then
                         If Socket.Available > 100 Then 'DONE: Data flood protection
                             Console.ForegroundColor = ConsoleColor.Red
@@ -415,7 +415,7 @@ Public Module RealmServer
             dataResponse(0) = AuthCMD.CMD_AUTH_LOGON_PROOF
             dataResponse(1) = AccountState.LOGIN_BADVERSION
             client.Send(dataResponse, "RS_LOGON_CHALLENGE-FAIL-BADVERSION")
-        ElseIf (clientBuild = Required_Build_1_12_1) Or (clientBuild = Required_Build_1_12_2) Or (clientBuild = Required_Build_1_12_3) Then
+        ElseIf (clientBuild = _Global_Constants.Required_Build_1_12_1) Or (clientBuild = _Global_Constants.Required_Build_1_12_2) Or (clientBuild = _Global_Constants.Required_Build_1_12_3) Then
             'TODO: in the far future should check if the account is expired too
             Dim result As DataTable = Nothing
             Try
@@ -563,13 +563,13 @@ Public Module RealmServer
                 dataResponse(0) = AuthCMD.CMD_XFER_INITIATE
                 'Name Len 0x05 -> sizeof(Patch)
                 Dim i As Integer = 1
-                ToBytes(CType(5, Byte), dataResponse, i)
+                _Converter.ToBytes(CType(5, Byte), dataResponse, i)
                 'Name 'Patch'
-                ToBytes("Patch", dataResponse, i)
+                _Converter.ToBytes("Patch", dataResponse, i)
                 'Size 0x34 C4 0D 00 = 902,196 byte (180->181 enGB)
-                ToBytes(CType(FileLen(client.UpdateFile), Integer), dataResponse, i)
+                _Converter.ToBytes(CType(FileLen(client.UpdateFile), Integer), dataResponse, i)
                 'Unknown 0x0 always
-                ToBytes(0, dataResponse, i)
+                _Converter.ToBytes(0, dataResponse, i)
                 'MD5 CheckSum
                 Dim md5 As New MD5CryptoServiceProvider
                 Dim buffer() As Byte
@@ -700,32 +700,32 @@ Public Module RealmServer
 
             '(uint8) Realm Icon
             '	0 -> Normal; 1 -> PvP; 6 -> RP; 8 -> RPPvP;
-            ToBytes(CType(host.Item("icon"), Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(host.Item("icon"), Byte), dataResponse, tmp)
             '(uint8) IsLocked
             '	0 -> none; 1 -> locked
-            ToBytes(CType(0, Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(0, Byte), dataResponse, tmp)
             '(uint8) unk
-            ToBytes(CType(0, Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(0, Byte), dataResponse, tmp)
             '(uint8) unk
-            ToBytes(CType(0, Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(0, Byte), dataResponse, tmp)
             '(uint8) Realm Color
             '   0 -> Green; 1 -> Red; 2 -> Offline;
-            ToBytes(CType(host.Item("realmflags"), Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(host.Item("realmflags"), Byte), dataResponse, tmp)
             '(string) Realm Name (zero terminated)
-            ToBytes(CType(host.Item("name"), String), dataResponse, tmp)
-            ToBytes(CType(0, Byte), dataResponse, tmp) '\0
+            _Converter.ToBytes(CType(host.Item("name"), String), dataResponse, tmp)
+            _Converter.ToBytes(CType(0, Byte), dataResponse, tmp) '\0
             '(string) Realm Address ("ip:port", zero terminated)
-            ToBytes(host.Item("address") & ":" & host.Item("port"), dataResponse, tmp)
-            ToBytes(CType(0, Byte), dataResponse, tmp) '\0
+            _Converter.ToBytes(host.Item("address") & ":" & host.Item("port"), dataResponse, tmp)
+            _Converter.ToBytes(CType(0, Byte), dataResponse, tmp) '\0
             '(float) Population
             '   400F -> Full; 5F -> Medium; 1.6F -> Low; 200F -> New; 2F -> High
             '   00 00 48 43 -> Recommended
             '   00 00 C8 43 -> Full
             '   9C C4 C0 3F -> Low
             '   BC 74 B3 3F -> Low
-            ToBytes(CType(host.Item("population"), Single), dataResponse, tmp)
+            _Converter.ToBytes(CType(host.Item("population"), Single), dataResponse, tmp)
             '(byte) Number of character at this realm for this account
-            ToBytes(CType(characterCount, Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(characterCount, Byte), dataResponse, tmp)
             '(byte) Timezone
             '   0x01 - Development
             '   0x02 - USA
@@ -757,9 +757,9 @@ Public Module RealmServer
             '   0x1C - QA Server
             '   0x1D - CN9
             '   0x1E - Test Server 2
-            ToBytes(CType(host.Item("timezone"), Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(host.Item("timezone"), Byte), dataResponse, tmp)
             '(byte) Unknown (may be 2 -> TestRealm, / 6 -> ?)
-            ToBytes(CType(0, Byte), dataResponse, tmp)
+            _Converter.ToBytes(CType(0, Byte), dataResponse, tmp)
         Next
 
         dataResponse(tmp) = 2 '2=list of realms 0=wizard
@@ -792,7 +792,7 @@ Public Module RealmServer
             tmp = 1
             Dim dataResponse(filelen + 2) As Byte
             dataResponse(0) = AuthCMD.CMD_XFER_DATA
-            ToBytes(CType(filelen, Short), dataResponse, tmp)
+            _Converter.ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, 0, dataResponse, 3, filelen)
             client.Send(dataResponse, "CMD-XFER-ACCEPT-3")
         Else
@@ -802,7 +802,7 @@ Public Module RealmServer
                 tmp = 1
                 ReDim dataResponse(1500 + 2)
                 dataResponse(0) = AuthCMD.CMD_XFER_DATA
-                ToBytes(CType(1500, Short), dataResponse, tmp)
+                _Converter.ToBytes(CType(1500, Short), dataResponse, tmp)
                 Array.Copy(buffer, fileOffset, dataResponse, 3, 1500)
                 filelen = filelen - 1500
                 fileOffset = fileOffset + 1500
@@ -811,7 +811,7 @@ Public Module RealmServer
             tmp = 1
             ReDim dataResponse(filelen + 2)
             dataResponse(0) = AuthCMD.CMD_XFER_DATA
-            ToBytes(CType(filelen, Short), dataResponse, tmp)
+            _Converter.ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, fileOffset, dataResponse, 3, filelen)
             client.Send(dataResponse, "CMD-XFER-ACCEPT-2")
         End If
@@ -825,7 +825,7 @@ Public Module RealmServer
         Dim filelen As Integer
         filelen = FileSystem.FileLen(client.UpdateFile)
         Dim fileOffset As Integer
-        fileOffset = ToInt32(data, tmp)
+        fileOffset = _Converter.ToInt32(data, tmp)
         filelen = filelen - fileOffset
 
         Dim fs As FileStream = New FileStream(client.UpdateFile, FileMode.Open, FileAccess.Read)
@@ -841,7 +841,7 @@ Public Module RealmServer
             tmp = 1
             Dim dataResponse(filelen + 2) As Byte
             dataResponse(0) = AuthCMD.CMD_XFER_DATA
-            ToBytes(CType(filelen, Short), dataResponse, tmp)
+            _Converter.ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, 0, dataResponse, 3, filelen)
             client.Send(dataResponse, "XFER-RESUME-XFER-DATA")
         Else
@@ -851,7 +851,7 @@ Public Module RealmServer
                 tmp = 1
                 ReDim dataResponse(1500 + 2)
                 dataResponse(0) = AuthCMD.CMD_XFER_DATA
-                ToBytes(CType(1500, Short), dataResponse, tmp)
+                _Converter.ToBytes(CType(1500, Short), dataResponse, tmp)
                 Array.Copy(buffer, fileOffset, dataResponse, 3, 1500)
                 filelen = filelen - 1500
                 fileOffset = fileOffset + 1500
@@ -860,7 +860,7 @@ Public Module RealmServer
             tmp = 1
             ReDim dataResponse(filelen + 2)
             dataResponse(0) = AuthCMD.CMD_XFER_DATA
-            ToBytes(CType(filelen, Short), dataResponse, tmp)
+            _Converter.ToBytes(CType(filelen, Short), dataResponse, tmp)
             Array.Copy(buffer, fileOffset, dataResponse, 3, filelen)
             client.Send(dataResponse, "XFER-RESUME-XFER-DATALARGER")
         End If
@@ -917,7 +917,7 @@ Public Module RealmServer
 
         Console.ForegroundColor = ConsoleColor.DarkGreen
         For Each row As DataRow In result1.Rows
-            Console.WriteLine("     [{1}] at {0}:{2} - {3}", row.Item("address").PadRight(6), row.Item("name").PadRight(6), Format(row.Item("port")).PadRight(6), WorldServerStatus(Int(row.Item("realmflags"))).PadRight(6))
+            Console.WriteLine("     [{1}] at {0}:{2} - {3}", row.Item("address").PadRight(6), row.Item("name").PadRight(6), Format(row.Item("port")).PadRight(6), _Global_Constants.WorldServerStatus(Int(row.Item("realmflags"))).PadRight(6))
         Next
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
@@ -978,7 +978,7 @@ Public Module RealmServer
             End
         End If
 
-        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then 'Check the Database version, exit if its wrong
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then 'Check the Database version, exit if its wrong
 
             If True Then
                 Console.WriteLine("*************************")

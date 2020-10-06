@@ -28,6 +28,7 @@ Imports Mangos.Common.Enums.Character
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Enums.Player
+Imports Mangos.Common
 
 Namespace Handlers
 
@@ -141,7 +142,7 @@ Namespace Handlers
             'DONE: Addons info reading
             Dim decompressBuffer(packet.Data.Length - packet.Offset) As Byte
             Array.Copy(packet.Data, packet.Offset, decompressBuffer, 0, packet.Data.Length - packet.Offset)
-            packet.Data = DeCompress(decompressBuffer)
+            packet.Data = _GlobalZip.DeCompress(decompressBuffer)
             packet.Offset = 0
             'DumpPacket(packet.Data)
 
@@ -451,7 +452,7 @@ Namespace Handlers
                     'DONE: Delete items
                     CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = ""{0}"";", row.Item("item_guid")))
                     'DONE: Delete items in bags
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = ""{0}"";", CULng(row.Item("item_guid")) + GUID_ITEM))
+                    CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = ""{0}"";", CULng(row.Item("item_guid")) + _Global_Constants.GUID_ITEM))
                 Next
                 CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_owner = {0};", guid), q)
                 q.Clear()

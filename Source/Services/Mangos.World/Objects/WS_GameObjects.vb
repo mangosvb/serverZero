@@ -19,7 +19,7 @@
 Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.GameObject
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Spell
@@ -410,9 +410,9 @@ Namespace Objects
                 If Type = GameObjectType.GAMEOBJECT_TYPE_TRANSPORT Then
                     'State = GameObjectLootState.DOOR_CLOSED
                     VisibleDistance = 99999.0F
-                    GUID = cGUID + GUID_TRANSPORT
+                    GUID = cGUID + _Global_Constants.GUID_TRANSPORT
                 Else
-                    GUID = cGUID + GUID_GAMEOBJECT
+                    GUID = cGUID + _Global_Constants.GUID_GAMEOBJECT
                 End If
                 WORLD_GAMEOBJECTs.Add(GUID, Me)
 
@@ -450,7 +450,7 @@ Namespace Objects
                                         Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                         packet.AddInt32(1)
                                         packet.AddInt8(0)
-                                        Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                                         FillAllUpdateFlags(tmpUpdate, CHARACTERs(plGUID))
                                         tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
                                         tmpUpdate.Dispose()
@@ -476,7 +476,7 @@ Namespace Objects
                 'DONE: Removing from players that can see the object
                 For Each plGUID As ULong In SeenBy.ToArray
                     If CHARACTERs(plGUID).gameObjectsNear.Contains(GUID) Then
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                         CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
                         CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 
@@ -489,7 +489,7 @@ Namespace Objects
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, State)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
                 tmpUpdate.Dispose()
@@ -507,7 +507,7 @@ Namespace Objects
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, State)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -523,7 +523,7 @@ Namespace Objects
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, state)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -596,7 +596,7 @@ Namespace Objects
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, state)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -625,7 +625,7 @@ Namespace Objects
                     Loot = Nothing
                 End If
 
-                If Owner > 0 AndAlso GuidIsPlayer(Owner) AndAlso CHARACTERs.ContainsKey(Owner) Then
+                If Owner > 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(Owner) AndAlso CHARACTERs.ContainsKey(Owner) Then
                     Dim fishEscaped As New PacketClass(OPCODES.SMSG_FISH_ESCAPED)
                     CHARACTERs(Owner).client.Send(fishEscaped)
                     fishEscaped.Dispose()
@@ -743,7 +743,7 @@ Namespace Objects
                     Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     packet.AddInt32(2)
                     packet.AddInt8(0)
-                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                     tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FACING, orientation)
                     tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION, Rotations(0))
                     tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 1, Rotations(1))

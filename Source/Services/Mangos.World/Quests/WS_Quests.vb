@@ -18,7 +18,7 @@
 
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Enums.Quest
@@ -1195,7 +1195,7 @@ Namespace Quests
 
             Dim alreadyHave As New List(Of Integer)
 
-            If GuidIsCreature(cGuid) = True Then    'Is the GUID a creature (or npc)
+            If _CommonGlobalFunctions.GuidIsCreature(cGuid) = True Then    'Is the GUID a creature (or npc)
                 If WORLD_CREATUREs.ContainsKey(cGuid) = False Then
                     status = QuestgiverStatusFlag.DIALOG_STATUS_NONE
                     Return status
@@ -1249,7 +1249,7 @@ Namespace Quests
                 Return status
                 'End If
 
-            ElseIf GuidIsGameObject(cGuid) = True Then  'Or is it a worldobject
+            ElseIf _CommonGlobalFunctions.GuidIsGameObject(cGuid) = True Then  'Or is it a worldobject
                 If WORLD_GAMEOBJECTs.ContainsKey(cGuid) = False Then
                     status = QuestgiverStatusFlag.DIALOG_STATUS_NONE
                     Return status
@@ -1264,7 +1264,7 @@ Namespace Quests
             For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If objCharacter.TalkQuests(i) IsNot Nothing Then
                     alreadyHave.Add(objCharacter.TalkQuests(i).ID)
-                    If GuidIsCreature(cGuid) Then
+                    If _CommonGlobalFunctions.GuidIsCreature(cGuid) Then
                         If CreatureQuestFinishers.ContainsKey(WORLD_CREATUREs(cGuid).ID) AndAlso CreatureQuestFinishers(WORLD_CREATUREs(cGuid).ID).Contains(objCharacter.TalkQuests(i).ID) Then
                             If objCharacter.TalkQuests(i).Complete Then
                                 status = QuestgiverStatusFlag.DIALOG_STATUS_REWARD
@@ -1376,7 +1376,7 @@ Namespace Quests
 
             If client.Character.TalkCanAccept(client.Character.TalkCurrentQuest) Then
                 If client.Character.TalkAddQuest(client.Character.TalkCurrentQuest) Then
-                    If GuidIsPlayer(guid) Then
+                    If _CommonGlobalFunctions.GuidIsPlayer(guid) Then
                         Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                         Try
                             response.AddUInt64(client.Character.GUID)

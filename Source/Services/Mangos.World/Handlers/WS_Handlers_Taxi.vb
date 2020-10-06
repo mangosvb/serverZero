@@ -477,17 +477,17 @@ Namespace Handlers
                         SMSG_MONSTER_MOVE.AddSingle(character.positionX)
                         SMSG_MONSTER_MOVE.AddSingle(character.positionY)
                         SMSG_MONSTER_MOVE.AddSingle(character.positionZ)
-                        SMSG_MONSTER_MOVE.AddInt32(timeGetTime(""))
+                        SMSG_MONSTER_MOVE.AddInt32(_NativeMethods.timeGetTime(""))
                         SMSG_MONSTER_MOVE.AddInt8(0)
                         SMSG_MONSTER_MOVE.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
-                        SMSG_MONSTER_MOVE.AddInt32(Fix(totalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
+                        SMSG_MONSTER_MOVE.AddInt32(Fix(totalDistance / _Global_Constants.UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
                         SMSG_MONSTER_MOVE.AddInt32(waypointNodes.Count)             'Points Count
                         For j As Integer = 0 To waypointNodes.Count - 1
                             SMSG_MONSTER_MOVE.AddSingle(waypointNodes(j).x)         'First Point X
                             SMSG_MONSTER_MOVE.AddSingle(waypointNodes(j).y)         'First Point Y
                             SMSG_MONSTER_MOVE.AddSingle(waypointNodes(j).z)         'First Point Z
                         Next
-                        character.Client.Send(SMSG_MONSTER_MOVE)
+                        character.client.Send(SMSG_MONSTER_MOVE)
                     Finally
                         SMSG_MONSTER_MOVE.Dispose()
                     End Try
@@ -506,10 +506,10 @@ Namespace Handlers
                             p.AddSingle(character.positionX)
                             p.AddSingle(character.positionY)
                             p.AddSingle(character.positionZ)
-                            p.AddInt32(timeGetTime(""))
+                            p.AddInt32(_NativeMethods.timeGetTime(""))
                             p.AddInt8(0)
                             p.AddInt32(&H300)                           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
-                            p.AddInt32(Fix(totalDistance / UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
+                            p.AddInt32(Fix(totalDistance / _Global_Constants.UNIT_NORMAL_TAXI_SPEED * 1000))   'Time
                             p.AddInt32(waypointNodes.Count)             'Points Count
                             For j As Integer = i To waypointNodes.Count - 1
                                 p.AddSingle(waypointNodes(j).x)         'First Point X
@@ -522,7 +522,7 @@ Namespace Handlers
                         End Try
 
                         'Wait move to complete
-                        Thread.Sleep(Fix(moveDistance / UNIT_NORMAL_TAXI_SPEED * 1000))
+                        Thread.Sleep(Fix(moveDistance / _Global_Constants.UNIT_NORMAL_TAXI_SPEED * 1000))
 
                         'Update character postion
                         totalDistance -= moveDistance

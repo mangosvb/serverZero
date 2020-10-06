@@ -30,7 +30,7 @@ Namespace Handlers
         Public Sub On_CMSG_QUERY_TIME(ByRef packet As PacketClass, ByRef client As ClientClass)
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUERY_TIME", client.IP, client.Port)
             Dim response As New PacketClass(OPCODES.SMSG_QUERY_TIME_RESPONSE)
-            response.AddInt32(timeGetTime("")) 'GetTimestamp(Now))
+            response.AddInt32(_NativeMethods.timeGetTime("")) 'GetTimestamp(Now))
             client.Send(response)
             response.Dispose()
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUERY_TIME_RESPONSE", client.IP, client.Port)
@@ -60,7 +60,7 @@ Namespace Handlers
             Dim GUID As ULong = packet.GetUInt64()
             Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", client.IP, client.Port, GUID)
 
-            If GuidIsPlayer(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
+            If _CommonGlobalFunctions.GuidIsPlayer(GUID) AndAlso CHARACTERs.ContainsKey(GUID) Then
                 Dim SMSG_NAME_QUERY_RESPONSE As New PacketClass(OPCODES.SMSG_NAME_QUERY_RESPONSE)
                 SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
                 SMSG_NAME_QUERY_RESPONSE.AddString(CHARACTERs(GUID).Name)

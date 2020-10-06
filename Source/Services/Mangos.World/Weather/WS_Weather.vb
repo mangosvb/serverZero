@@ -16,7 +16,7 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Globals
@@ -191,7 +191,7 @@ Namespace Weather
                 SMSG_WEATHER.AddInt32(GetSound())
 
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
                     Try
                         For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In CHARACTERs

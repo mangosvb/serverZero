@@ -17,8 +17,7 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Globals
-Imports Mangos.Common.Enums
+Imports Mangos.Common
 Imports Mangos.Common.Enums.Faction
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Unit
@@ -76,9 +75,9 @@ Namespace Objects
             RangedAttackPower = MySQLQuery.Rows(0).Item("rangedattackpower")
 
             'TODO: What exactly is the speed column in the DB? It sure as hell wasn't runspeed :P
-            WalkSpeed = UNIT_NORMAL_WALK_SPEED
+            WalkSpeed = _Global_Constants.UNIT_NORMAL_WALK_SPEED
             'RunSpeed = MySQLQuery.Rows(0).Item("speed")
-            RunSpeed = UNIT_NORMAL_RUN_SPEED
+            RunSpeed = _Global_Constants.UNIT_NORMAL_RUN_SPEED
             BaseAttackTime = MySQLQuery.Rows(0).Item("baseattacktime")
             BaseRangedAttackTime = MySQLQuery.Rows(0).Item("rangeattacktime")
 
@@ -250,8 +249,8 @@ Namespace Objects
         Public RangedAttackPower As Integer = 0
         Public Resistances() As Integer = {0, 0, 0, 0, 0, 0, 0}
 
-        Public WalkSpeed As Single = UNIT_NORMAL_WALK_SPEED
-        Public RunSpeed As Single = UNIT_NORMAL_RUN_SPEED
+        Public WalkSpeed As Single = _Global_Constants.UNIT_NORMAL_WALK_SPEED
+        Public RunSpeed As Single = _Global_Constants.UNIT_NORMAL_RUN_SPEED
         Public BaseAttackTime As Short = 2000
         Public BaseRangedAttackTime As Short = 2000
 

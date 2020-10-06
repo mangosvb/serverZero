@@ -23,6 +23,7 @@ Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Guild
+Imports Mangos.Common
 
 Namespace Handlers
 
@@ -469,7 +470,7 @@ Namespace Handlers
             ElseIf objCharacter.GuildRank <= client.Character.GuildRank Then
                 SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
                 Exit Sub
-            ElseIf objCharacter.GuildRank = GUILD_RANK_MIN Then
+            ElseIf objCharacter.GuildRank = _Global_Constants.GUILD_RANK_MIN Then
                 SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
                 Exit Sub
             End If
@@ -525,7 +526,7 @@ Namespace Handlers
             ElseIf objCharacter.GuildRank <= client.Character.GuildRank Then
                 SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PERMISSIONS)
                 Exit Sub
-            ElseIf objCharacter.GuildRank = GUILD_RANK_MAX Then
+            ElseIf objCharacter.GuildRank = _Global_Constants.GUILD_RANK_MAX Then
                 SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_INTERNAL)
                 Exit Sub
             End If
@@ -666,7 +667,7 @@ Namespace Handlers
 
             'DONE: Get info
             Dim q As New DataTable
-            CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - GUID_ITEM & " LIMIT 1;", q)
+            CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & " LIMIT 1;", q)
             If q.Rows.Count = 0 Then Exit Sub
             Dim Type As Byte = q.Rows(0).Item("petition_type")
             Dim Name As String = q.Rows(0).Item("petition_name")
