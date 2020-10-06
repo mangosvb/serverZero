@@ -1560,16 +1560,16 @@ Namespace Objects
                             EmoteDelay2(i) = MySQLQuery.Rows(0).Item("em" & i & "_1_delay")
                         End If
 
-                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_3")) = False Then
-                            Emote2(i) = MySQLQuery.Rows(0).Item("em" & i & "_3")
+                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_1")) = False Then
+                            Emote2(i) = MySQLQuery.Rows(0).Item("em" & i & "_1")
                         End If
 
-                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_4")) = False Then
-                            EmoteDelay3(i) = MySQLQuery.Rows(0).Item("em" & i & "_4")
+                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_2_delay")) = False Then
+                            EmoteDelay3(i) = MySQLQuery.Rows(0).Item("em" & i & "_2_delay")
                         End If
 
-                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_5")) = False Then
-                            Emote3(i) = MySQLQuery.Rows(0).Item("em" & i & "_5")
+                        If IsDBNull(MySQLQuery.Rows(0).Item("em" & i & "_2")) = False Then
+                            Emote3(i) = MySQLQuery.Rows(0).Item("em" & i & "_2")
                         End If
 
                         If TextLine1(i) <> "" Then Count = CByte(i) + 1
