@@ -1013,17 +1013,17 @@ Namespace Maps
 
             'DONE: Creatures
             Dim MysqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM spawns_creatures LEFT OUTER JOIN game_event_creature ON spawns_creatures.spawn_id = game_event_creature.guid WHERE spawn_map={0} AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
+            WorldDatabase.Query(String.Format("SELECT * FROM creature LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid WHERE map={0} AND position_X BETWEEN '{1}' AND '{2}' AND position_Y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
             For Each InfoRow As DataRow In MysqlQuery.Rows
-                If Not WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("spawn_id"), Long) + InstanceGuidAdd + GUID_UNIT) Then
+                If Not WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd + GUID_UNIT) Then
                     Try
-                        Dim tmpCr As CreatureObject = New CreatureObject(CType(InfoRow.Item("spawn_id"), Long) + InstanceGuidAdd, InfoRow)
+                        Dim tmpCr As CreatureObject = New CreatureObject(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd, InfoRow)
                         If tmpCr.GameEvent = 0 Then
                             tmpCr.instance = TileInstance
                             tmpCr.AddToWorld()
                         End If
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Error when creating creature [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
+                        Log.WriteLine(LogType.CRITICAL, "Error when creating creature [{0}].{1}{2}", InfoRow.Item("id"), Environment.NewLine, ex.ToString)
                     End Try
                 End If
             Next
@@ -1032,16 +1032,16 @@ Namespace Maps
             MysqlQuery.Clear()
             WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_map={0} AND spawn_spawntime>=0 AND spawn_positionX BETWEEN '{1}' AND '{2}' AND spawn_positionY BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
             For Each InfoRow As DataRow In MysqlQuery.Rows
-                If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso
-                   Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd + GUID_TRANSPORT) Then
+                If Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + GUID_GAMEOBJECT) AndAlso
+                   Not WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + GUID_TRANSPORT) Then
                     Try
-                        Dim tmpGo As GameObjectObject = New GameObjectObject(CType(InfoRow.Item("spawn_id"), ULong) + InstanceGuidAdd, InfoRow)
+                        Dim tmpGo As GameObjectObject = New GameObjectObject(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd, InfoRow)
                         If tmpGo.GameEvent = 0 Then
                             tmpGo.instance = TileInstance
                             tmpGo.AddToWorld()
                         End If
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Error when creating gameobject [{0}].{1}{2}", InfoRow.Item("spawn_entry"), Environment.NewLine, ex.ToString)
+                        Log.WriteLine(LogType.CRITICAL, "Error when creating gameobject [{0}].{1}{2}", InfoRow.Item("id"), Environment.NewLine, ex.ToString)
                     End Try
                 End If
             Next

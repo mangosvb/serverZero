@@ -600,14 +600,14 @@ Namespace DataStores
                 End Try
                 MySQLQuery = New DataTable
                 Try
-                    WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_creatures;"), MySQLQuery)
+                    WorldDatabase.Query(String.Format("SELECT MAX(guid) FROM creature;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                         CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_UNIT
                     Else
                         CreatureGUIDCounter = 0 + GUID_UNIT
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "World: Failed loading spawns_creatures....")
+                    Log.WriteLine(LogType.FAILED, "World: Failed loading creature....")
                 End Try
 
                 MySQLQuery = New DataTable

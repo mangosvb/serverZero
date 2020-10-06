@@ -26,7 +26,7 @@ Namespace Globals
         Public Const RevisionDbCharactersContent As Integer = 0
 
         Public Const RevisionDbMangosVersion As Integer = 21
-        Public Const RevisionDbMangosStructure As Integer = 2
+        Public Const RevisionDbMangosStructure As Integer = 3
         Public Const RevisionDbMangosContent As Integer = 1
 
         Public Const RevisionDbRealmVersion As Integer = 21

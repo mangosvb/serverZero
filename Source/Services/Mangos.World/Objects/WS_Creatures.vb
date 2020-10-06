@@ -1004,7 +1004,7 @@ Namespace Objects
 
                 If Info Is Nothing Then
                     Dim MySQLQuery As New DataTable
-                    WorldDatabase.Query(String.Format("SELECT * FROM spawns_creatures LEFT OUTER JOIN game_event_creature ON spawns_creatures.spawn_id = game_event_creature.guid WHERE spawn_id = {0};", GUID_), MySQLQuery)
+                    WorldDatabase.Query(String.Format("SELECT * FROM creature LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid WHERE creature.guid = {0};", GUID_), MySQLQuery)
                     If MySQLQuery.Rows.Count > 0 Then
                         Info = MySQLQuery.Rows(0)
                     Else
@@ -1020,10 +1020,10 @@ Namespace Objects
                     AddonInfo = AddonInfoQuery.Rows(0)
                 End If
 
-                positionX = Info.Item("spawn_positionX")
-                positionY = Info.Item("spawn_positionY")
-                positionZ = Info.Item("spawn_positionZ")
-                orientation = Info.Item("spawn_orientation")
+                positionX = Info.Item("position_X")
+                positionY = Info.Item("position_Y")
+                positionZ = Info.Item("position_Z")
+                orientation = Info.Item("orientation")
 
                 OldX = positionX
                 OldY = positionY
@@ -1034,26 +1034,26 @@ Namespace Objects
                 SpawnZ = positionZ
                 SpawnO = orientation
 
-                ID = Info.Item("spawn_entry")
-                MapID = Info.Item("spawn_map")
-                SpawnID = Info.Item("spawn_id")
+                ID = Info.Item("id")
+                MapID = Info.Item("map")
+                SpawnID = Info.Item("guid")
 
-                Model = Info.Item("spawn_displayid")
-                SpawnTime = Info.Item("spawn_spawntime")
+                Model = Info.Item("modelid")
+                SpawnTime = Info.Item("spawntimesecs")
 
-                SpawnRange = Info.Item("spawn_spawndist")
-                MoveType = Info.Item("spawn_movetype")
+                SpawnRange = Info.Item("spawndist")
+                MoveType = Info.Item("MovementType")
 
-                Life.Current = Info.Item("spawn_curhealth")
-                Mana.Current = Info.Item("spawn_curmana")
+                Life.Current = Info.Item("curhealth")
+                Mana.Current = Info.Item("curmana")
 
-                EquipmentID = Info.Item("spawn_equipmentid")
+                EquipmentID = Info.Item("equipment_id")
 
-                If Not Info.Item("event") Is DBNull.Value Then
-                    GameEvent = Info.Item("event")
-                Else
-                    GameEvent = 0
-                End If
+                'If Not Info.Item("event") Is DBNull.Value Then
+                '    GameEvent = Info.Item("event")
+                'Else
+                '    GameEvent = 0
+                'End If
 
                 'TODO: spawn_deathstate?
 
