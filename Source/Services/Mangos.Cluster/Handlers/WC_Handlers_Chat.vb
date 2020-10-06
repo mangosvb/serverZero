@@ -27,28 +27,28 @@ Imports Mangos.Common.Enums.Misc
 
 Namespace Handlers
 
-    Public Module WC_Handlers_Chat
+    Public Class WC_Handlers_Chat
 
-        Public Sub On_CMSG_CHAT_IGNORED(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHAT_IGNORED(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
 
             Dim guid As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAT_IGNORED [0x{2}]", client.IP, client.Port, guid)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAT_IGNORED [0x{2}]", client.IP, client.Port, guid)
 
-            If CHARACTERs.ContainsKey(guid) Then
-                Dim response As PacketClass = BuildChatMessage(client.Character.Guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, 0, "")
-                CHARACTERs(guid).Client.Send(response)
+            If _WorldCluster.CHARACTERs.ContainsKey(guid) Then
+                Dim response As Packets.PacketClass = _Functions.BuildChatMessage(client.Character.Guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, 0, "")
+                _WorldCluster.CHARACTERs(guid).Client.Send(response)
                 response.Dispose()
             End If
         End Sub
 
-        Public Sub On_CMSG_MESSAGECHAT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MESSAGECHAT(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
 
             Dim msgType As ChatMsg = packet.GetInt32()
             Dim msgLanguage As LANGUAGES = packet.GetInt32()
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT [{2}:{3}]", client.IP, client.Port, msgType, msgLanguage)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT [{2}:{3}]", client.IP, client.Port, msgType, msgLanguage)
 
             Select Case msgType
 
@@ -58,13 +58,13 @@ Namespace Handlers
                     Dim message As String = packet.GetString()
 
                     'DONE: Broadcast to all
-                    If CHAT_CHANNELs.ContainsKey(channel) Then
-                        CHAT_CHANNELs(channel).Say(message, msgLanguage, client.Character)
+                    If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(channel) Then
+                        _WS_Handler_Channels.CHAT_CHANNELs(channel).Say(message, msgLanguage, client.Character)
                     End If
                     Exit Sub
 
                 Case ChatMsg.CHAT_MSG_WHISPER
-                    Dim toUser As String = CapitalizeName(packet.GetString())
+                    Dim toUser As String = _Functions.CapitalizeName(packet.GetString())
                     If (packet.Data.Length - 1) < (14 + toUser.Length) Then Exit Sub
                     Dim message As String = packet.GetString()
 
@@ -76,36 +76,36 @@ Namespace Handlers
 
                     'DONE: Send whisper MSG to receiver
                     Dim guid As ULong = 0
-                    CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                    For Each character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                    _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    For Each character As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
                         If _CommonFunctions.UppercaseFirstLetter(character.Value.Name) = _CommonFunctions.UppercaseFirstLetter(toUser) Then
                             guid = character.Value.Guid
                             Exit For
                         End If
                     Next
-                    CHARACTERs_Lock.ReleaseReaderLock()
+                    _WorldCluster.CHARACTERs_Lock.ReleaseReaderLock()
 
-                    If guid > 0 AndAlso CHARACTERs.ContainsKey(guid) Then
+                    If guid > 0 AndAlso _WorldCluster.CHARACTERs.ContainsKey(guid) Then
                         'DONE: Check if ignoring
-                        If CHARACTERs(guid).IgnoreList.Contains(client.Character.Guid) AndAlso client.Character.Access < AccessLevel.GameMaster Then
+                        If _WorldCluster.CHARACTERs(guid).IgnoreList.Contains(client.Character.Guid) AndAlso client.Character.Access < AccessLevel.GameMaster Then
                             'Client.Character.SystemMessage(String.Format("{0} is ignoring you.", ToUser))
                             client.Character.SendChatMessage(guid, "", ChatMsg.CHAT_MSG_IGNORED, LANGUAGES.LANG_UNIVERSAL, "")
                         Else
                             'To message
                             client.Character.SendChatMessage(guid, message, ChatMsg.CHAT_MSG_WHISPER_INFORM, msgLanguage, "")
-                            If CHARACTERs(guid).DND = False OrElse client.Character.Access >= AccessLevel.GameMaster Then
+                            If _WorldCluster.CHARACTERs(guid).DND = False OrElse client.Character.Access >= AccessLevel.GameMaster Then
                                 'From message
-                                CHARACTERs(guid).SendChatMessage(client.Character.Guid, message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage, "")
+                                _WorldCluster.CHARACTERs(guid).SendChatMessage(client.Character.Guid, message, ChatMsg.CHAT_MSG_WHISPER, msgLanguage, "")
                             Else
                                 'DONE: Send the DND message
-                                client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_DND, msgLanguage, "")
+                                client.Character.SendChatMessage(guid, _WorldCluster.CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_DND, msgLanguage, "")
                             End If
 
                             'DONE: Send the AFK message
-                            If CHARACTERs(guid).AFK Then client.Character.SendChatMessage(guid, CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_AFK, msgLanguage, "")
+                            If _WorldCluster.CHARACTERs(guid).AFK Then client.Character.SendChatMessage(guid, _WorldCluster.CHARACTERs(guid).AfkMessage, ChatMsg.CHAT_MSG_AFK, msgLanguage, "")
                         End If
                     Else
-                        Dim smsgChatPlayerNotFound As New PacketClass(OPCODES.SMSG_CHAT_PLAYER_NOT_FOUND)
+                        Dim smsgChatPlayerNotFound As New Packets.PacketClass(OPCODES.SMSG_CHAT_PLAYER_NOT_FOUND)
                         smsgChatPlayerNotFound.AddString(toUser)
                         client.Send(smsgChatPlayerNotFound)
                         smsgChatPlayerNotFound.Dispose()
@@ -175,87 +175,87 @@ Namespace Handlers
                     Dim message As String = packet.GetString()
 
                     'DONE: Broadcast to guild
-                    BroadcastChatMessageGuild(client.Character, message, msgLanguage, client.Character.Guild.ID)
+                    _WC_Guild.BroadcastChatMessageGuild(client.Character, message, msgLanguage, client.Character.Guild.ID)
                     Exit Select
 
                 Case ChatMsg.CHAT_MSG_OFFICER
                     Dim message As String = packet.GetString()
 
                     'DONE: Broadcast to officer chat
-                    BroadcastChatMessageOfficer(client.Character, message, msgLanguage, client.Character.Guild.ID)
+                    _WC_Guild.BroadcastChatMessageOfficer(client.Character, message, msgLanguage, client.Character.Guild.ID)
                     Exit Select
 
                 Case Else
-                    Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
-                    DumpPacket(packet.Data, client)
+                    _WorldCluster.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
+                    _Packets.DumpPacket(packet.Data, client)
             End Select
 
         End Sub
 
-        Public Sub On_CMSG_JOIN_CHANNEL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_JOIN_CHANNEL(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim channelName As String = packet.GetString()
             Dim password As String = packet.GetString()
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_JOIN_CHANNEL [{2}]", client.IP, client.Port, channelName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_JOIN_CHANNEL [{2}]", client.IP, client.Port, channelName)
 
-            If Not CHAT_CHANNELs.ContainsKey(channelName) Then
+            If Not _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(channelName) Then
                 'The New does a an add to the .Containskey collection above
-                Dim newChannel As New ChatChannelClass(channelName)
+                Dim newChannel As New WS_Handler_Channels.ChatChannelClass(channelName)
             End If
-            CHAT_CHANNELs(channelName).Join(client.Character, password)
+            _WS_Handler_Channels.CHAT_CHANNELs(channelName).Join(client.Character, password)
         End Sub
 
-        Public Sub On_CMSG_LEAVE_CHANNEL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LEAVE_CHANNEL(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEAVE_CHANNEL [{2}]", client.IP, client.Port, ChannelName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEAVE_CHANNEL [{2}]", client.IP, client.Port, ChannelName)
 
             ChannelName = ChannelName
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).Part(client.Character)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).Part(client.Character)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_LIST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_LIST(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString()
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_LIST [{2}]", client.IP, client.Port, ChannelName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_LIST [{2}]", client.IP, client.Port, ChannelName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).List(client.Character)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).List(client.Character)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_PASSWORD(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_PASSWORD(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             Dim ChannelNewPassword As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_PASSWORD [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelNewPassword)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_PASSWORD [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelNewPassword)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).SetPassword(client.Character, ChannelNewPassword)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetPassword(client.Character, ChannelNewPassword)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_SET_OWNER(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_SET_OWNER(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             Dim ChannelNewOwner As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_SET_OWNER [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelNewOwner)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_SET_OWNER [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelNewOwner)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                If CHAT_CHANNELs(ChannelName).CanSetOwner(client.Character, ChannelNewOwner) Then
-                    For Each GUID As ULong In CHAT_CHANNELs(ChannelName).Joined.ToArray
-                        If CHARACTERs(GUID).Name.ToUpper = ChannelNewOwner.ToUpper Then
-                            CHAT_CHANNELs(ChannelName).SetOwner(CHARACTERs(GUID))
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                If _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).CanSetOwner(client.Character, ChannelNewOwner) Then
+                    For Each GUID As ULong In _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).Joined.ToArray
+                        If _WorldCluster.CHARACTERs(GUID).Name.ToUpper = ChannelNewOwner.ToUpper Then
+                            _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetOwner(_WorldCluster.CHARACTERs(GUID))
                             Exit For
                         End If
                     Next
@@ -263,153 +263,153 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_OWNER(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_OWNER(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_OWNER [{2}]", client.IP, client.Port, ChannelName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_OWNER [{2}]", client.IP, client.Port, ChannelName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).GetOwner(client.Character)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).GetOwner(client.Character)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_MODERATOR(ByRef packet As PacketClass, ByRef client As ClientClass)
-            packet.GetInt16()
-            Dim ChannelName As String = packet.GetString
-            Dim ChannelUser As String = packet.GetString
-
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MODERATOR [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
-
-            'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).SetModerator(client.Character, ChannelUser)
-            End If
-        End Sub
-
-        Public Sub On_CMSG_CHANNEL_UNMODERATOR(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_MODERATOR(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             Dim ChannelUser As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNMODERATOR [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MODERATOR [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).SetUnModerator(client.Character, ChannelUser)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetModerator(client.Character, ChannelUser)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_MUTE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_UNMODERATOR(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             Dim ChannelUser As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MUTE [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNMODERATOR [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).SetMute(client.Character, ChannelUser)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetUnModerator(client.Character, ChannelUser)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_UNMUTE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_MUTE(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             Dim ChannelUser As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNMUTE [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MUTE [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).SetUnMute(client.Character, ChannelUser)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetMute(client.Character, ChannelUser)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_INVITE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_UNMUTE(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+            packet.GetInt16()
+            Dim ChannelName As String = packet.GetString
+            Dim ChannelUser As String = packet.GetString
+
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNMUTE [{2}, {3}]", client.IP, client.Port, ChannelName, ChannelUser)
+
+            'ChannelName = ChannelName.ToUpper
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetUnMute(client.Character, ChannelUser)
+            End If
+        End Sub
+
+        Public Sub On_CMSG_CHANNEL_INVITE(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             If (packet.Data.Length - 1) < 6 + ChannelName.Length + 1 Then Exit Sub
-            Dim PlayerName As String = CapitalizeName(packet.GetString)
+            Dim PlayerName As String = _Functions.CapitalizeName(packet.GetString)
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_INVITE [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_INVITE [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).Invite(client.Character, PlayerName)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).Invite(client.Character, PlayerName)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_KICK(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_KICK(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             If (packet.Data.Length - 1) < 6 + ChannelName.Length + 1 Then Exit Sub
-            Dim PlayerName As String = CapitalizeName(packet.GetString)
+            Dim PlayerName As String = _Functions.CapitalizeName(packet.GetString)
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_KICK [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_KICK [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).Kick(client.Character, PlayerName)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).Kick(client.Character, PlayerName)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_ANNOUNCEMENTS(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_ANNOUNCEMENTS(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_ANNOUNCEMENTS [{2}]", client.IP, client.Port, ChannelName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_ANNOUNCEMENTS [{2}]", client.IP, client.Port, ChannelName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).SetAnnouncements(client.Character)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetAnnouncements(client.Character)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_BAN(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_BAN(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             If (packet.Data.Length - 1) < 6 + ChannelName.Length + 1 Then Exit Sub
-            Dim PlayerName As String = CapitalizeName(packet.GetString)
+            Dim PlayerName As String = _Functions.CapitalizeName(packet.GetString)
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_BAN [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_BAN [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).Ban(client.Character, PlayerName)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).Ban(client.Character, PlayerName)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_UNBAN(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_UNBAN(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
             If (packet.Data.Length - 1) < 6 + ChannelName.Length + 1 Then Exit Sub
-            Dim PlayerName As String = CapitalizeName(packet.GetString)
+            Dim PlayerName As String = _Functions.CapitalizeName(packet.GetString)
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNBAN [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_UNBAN [{2}, {3}]", client.IP, client.Port, ChannelName, PlayerName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).UnBan(client.Character, PlayerName)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).UnBan(client.Character, PlayerName)
             End If
         End Sub
 
-        Public Sub On_CMSG_CHANNEL_MODERATE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHANNEL_MODERATE(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim ChannelName As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MODERATE [{2}]", client.IP, client.Port, ChannelName)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHANNEL_MODERATE [{2}]", client.IP, client.Port, ChannelName)
 
             'ChannelName = ChannelName.ToUpper
-            If CHAT_CHANNELs.ContainsKey(ChannelName) Then
-                CHAT_CHANNELs(ChannelName).SetModeration(client.Character)
+            If _WS_Handler_Channels.CHAT_CHANNELs.ContainsKey(ChannelName) Then
+                _WS_Handler_Channels.CHAT_CHANNELs(ChannelName).SetModeration(client.Character)
             End If
         End Sub
 
-    End Module
+    End Class
 End Namespace

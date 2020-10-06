@@ -28,7 +28,7 @@ Imports Mangos.Common
 
 Namespace Server
 
-    Public Module WC_Stats
+    Public Class WC_Stats
 
         'http://www.15seconds.com/issue/050615.htm
 
@@ -63,7 +63,7 @@ Namespace Server
         Private CountPlayersHorde As Integer = 0
         Private CountGMs As Integer = 0
 
-        Private w As New Dictionary(Of WorldInfo, List(Of String))
+        Private w As New Dictionary(Of WC_Network.WorldInfo, List(Of String))
 
         Private Function FormatUptime(time As TimeSpan) As String
             Return String.Format("{0}d {1}h {2}m {3}s {4}ms", time.Days, time.Hours, time.Minutes, time.Seconds, time.Milliseconds)
@@ -89,8 +89,8 @@ Namespace Server
             CountGMs = 0
             Latency = 0
 
-            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
                 If objCharacter.Value.IsInWorld Then
                     CountPlayers += 1
 
@@ -104,13 +104,13 @@ Namespace Server
                     Latency += objCharacter.Value.Latency
                 End If
             Next
-            CHARACTERs_Lock.ReleaseReaderLock()
+            _WorldCluster.CHARACTERs_Lock.ReleaseReaderLock()
 
             If CountPlayers > 1 Then
                 Latency = Latency \ CountPlayers
             End If
 
-            For Each objCharacter As KeyValuePair(Of UInteger, WorldInfo) In WorldServer.WorldsInfo
+            For Each objCharacter As KeyValuePair(Of UInteger, WC_Network.WorldInfo) In _WC_Network.WorldServer.WorldsInfo
                 If Not w.ContainsKey(objCharacter.Value) Then
                     w.Add(objCharacter.Value, New List(Of String))
                 End If
@@ -118,10 +118,10 @@ Namespace Server
             Next
         End Sub
         Public Sub GenerateStats(state As Object)
-            Log.WriteLine(LogType.DEBUG, "Generating stats")
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "Generating stats")
             PrepareStats()
 
-            Dim f As XmlWriter = XmlWriter.Create(Config.StatsLocation)
+            Dim f As XmlWriter = XmlWriter.Create(_WorldCluster.Config.StatsLocation)
             f.WriteStartDocument(True)
             f.WriteComment("generated at " & Date.Now.ToString("hh:mm:ss"))
             '<?xml-stylesheet type="text/xsl" href="stats.xsl"?>
@@ -206,7 +206,7 @@ Namespace Server
             '<world>
             f.WriteStartElement("world")
             Try
-                For Each objCharacter As KeyValuePair(Of WorldInfo, List(Of String)) In w
+                For Each objCharacter As KeyValuePair(Of WC_Network.WorldInfo, List(Of String)) In w
                     f.WriteStartElement("instance")
                     f.WriteStartElement("uptime")
                     f.WriteValue(FormatUptime(Now - objCharacter.Key.Started))
@@ -230,15 +230,15 @@ Namespace Server
                     f.WriteEndElement()
                 Next
             Catch ex As Exception
-                Log.WriteLine(LogType.FAILED, "Error while generating stats file: {0}", ex.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "Error while generating stats file: {0}", ex.ToString)
             End Try
             '</world>
             f.WriteEndElement()
 
-            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+            _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
             f.WriteStartElement("users")
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
                 If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Access >= AccessLevel.GameMaster Then
                     f.WriteStartElement("gmplayer")
                     f.WriteStartElement("name")
@@ -253,7 +253,7 @@ Namespace Server
             f.WriteEndElement()
 
             f.WriteStartElement("sessions")
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
                 If objCharacter.Value.IsInWorld Then
                     f.WriteStartElement("player")
                     f.WriteStartElement("name")
@@ -286,7 +286,7 @@ Namespace Server
             Next
             f.WriteEndElement()
 
-            CHARACTERs_Lock.ReleaseReaderLock()
+            _WorldCluster.CHARACTERs_Lock.ReleaseReaderLock()
 
             '</server>
             f.WriteEndElement()
@@ -296,5 +296,5 @@ Namespace Server
             w.Clear()
         End Sub
 
-    End Module
+    End Class
 End Namespace

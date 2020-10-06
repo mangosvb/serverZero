@@ -20,7 +20,7 @@ Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 Namespace DataStores
-    Public Module WS_DBCLoad
+    Public Class WS_DBCLoad
 
         Public Sub InitializeInternalDatabase()
 
@@ -28,21 +28,21 @@ Namespace DataStores
 
             Try
                 'Set all characters offline
-                CharacterDatabase.Update("UPDATE characters SET char_online = 0;")
+                _WorldCluster.CharacterDatabase.Update("UPDATE characters SET char_online = 0;")
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
             End Try
         End Sub
 
         Private Sub InitializeLoadDbCs()
-            InitializeMaps()
-            InitializeChatChannels()
-            InitializeBattlegrounds()
-            InitializeWorldSafeLocs()
-            InitializeCharRaces()
-            InitializeCharClasses()
+            _WS_DBCDatabase.InitializeMaps()
+            _WS_DBCDatabase.InitializeChatChannels()
+            _WS_DBCDatabase.InitializeBattlegrounds()
+            _WS_DBCDatabase.InitializeWorldSafeLocs()
+            _WS_DBCDatabase.InitializeCharRaces()
+            _WS_DBCDatabase.InitializeCharClasses()
         End Sub
 
-    End Module
+    End Class
 End Namespace

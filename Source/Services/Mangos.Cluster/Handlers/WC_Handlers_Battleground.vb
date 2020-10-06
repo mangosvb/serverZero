@@ -27,9 +27,9 @@ Imports Mangos.Common
 
 Namespace Handlers
 
-    Public Module WC_Handlers_Battleground
+    Public Class WC_Handlers_Battleground
 
-        Public Sub On_CMSG_BATTLEFIELD_PORT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BATTLEFIELD_PORT(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
 
             'Dim Unk1 As Byte = packet.GetInt8
@@ -39,8 +39,8 @@ Namespace Handlers
             Dim id As UInteger = packet.GetUInt16               'ID
             Dim action As Byte = packet.GetUInt8                 'enter battle 0x1, leave queue 0x0
 
-            'Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [MapType: {2}, Action: {3}, Unk1: {4}, Unk2: {5}, ID: {6}]", client.IP, client.Port, MapType, Action, Unk1, Unk2, ID)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [Action: {1}, ID: {2}]", client.IP, client.Port, action, id)
+            '_WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [MapType: {2}, Action: {3}, Unk1: {4}, Unk2: {5}, ID: {6}]", client.IP, client.Port, MapType, Action, Unk1, Unk2, ID)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_PORT [Action: {1}, ID: {2}]", client.IP, client.Port, action, id)
 
             If action = 0 Then
                 BATTLEFIELDs(id).Leave(client.Character)
@@ -49,7 +49,7 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub On_CMSG_LEAVE_BATTLEFIELD(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LEAVE_BATTLEFIELD(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
 
             Dim Unk1 As Byte = packet.GetInt8
@@ -57,12 +57,12 @@ Namespace Handlers
             Dim MapType As UInteger = packet.GetInt32
             Dim ID As UInteger = packet.GetUInt16
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEAVE_BATTLEFIELD [MapType: {2}, Unk1: {3}, Unk2: {4}, ID: {5}]", client.IP, client.Port, MapType, Unk1, Unk2, ID)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LEAVE_BATTLEFIELD [MapType: {2}, Unk1: {3}, Unk2: {4}, ID: {5}]", client.IP, client.Port, MapType, Unk1, Unk2, ID)
 
             BATTLEFIELDs(ID).Leave(client.Character)
         End Sub
 
-        Public Sub On_CMSG_BATTLEMASTER_JOIN(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BATTLEMASTER_JOIN(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 16 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -70,7 +70,7 @@ Namespace Handlers
             Dim instance As UInteger = packet.GetInt32
             Dim asGroup As Byte = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_JOIN [MapType: {2}, Instance: {3}, Group: {4}, GUID: {5}]", client.IP, client.Port, mapType, instance, asGroup, guid)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_JOIN [MapType: {2}, Instance: {3}, Group: {4}, GUID: {5}]", client.IP, client.Port, mapType, instance, asGroup, guid)
 
             GetBattlefield(mapType, client.Character.Level).Enqueue(client.Character)
         End Sub
@@ -101,17 +101,17 @@ Namespace Handlers
             Private ReadOnly _bfTimer As Timer
 
             Public Sub New(ByVal rMapType As BattlefieldMapType, ByVal rLevel As Byte, ByVal rMap As UInteger)
-                ID = Interlocked.Increment(BATTLEFIELDs_Counter)
+                ID = Interlocked.Increment(_WC_Handlers_Battleground.BATTLEFIELDs_Counter)
                 LevelMin = 0
                 LevelMax = 60
                 MapType = rMapType
                 _map = rMap
-                _maxPlayersPerTeam = Battlegrounds(rMapType).MaxPlayersPerTeam
-                _minPlayersPerTeam = Battlegrounds(rMapType).MinPlayersPerTeam
+                _maxPlayersPerTeam = _WS_DBCDatabase.Battlegrounds(rMapType).MaxPlayersPerTeam
+                _minPlayersPerTeam = _WS_DBCDatabase.Battlegrounds(rMapType).MinPlayersPerTeam
 
-                BATTLEFIELDs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                BATTLEFIELDs.Add(ID, Me)
-                BATTLEFIELDs_Lock.ReleaseWriterLock()
+                _WC_Handlers_Battleground.BATTLEFIELDs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                _WC_Handlers_Battleground.BATTLEFIELDs.Add(ID, Me)
+                _WC_Handlers_Battleground.BATTLEFIELDs_Lock.ReleaseWriterLock()
 
                 _bfTimer = New Timer(AddressOf Update, Nothing, 20000, 20000)
             End Sub
@@ -124,9 +124,9 @@ Namespace Handlers
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    BATTLEFIELDs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                    BATTLEFIELDs.Remove(ID)
-                    BATTLEFIELDs_Lock.ReleaseWriterLock()
+                    _WC_Handlers_Battleground.BATTLEFIELDs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    _WC_Handlers_Battleground.BATTLEFIELDs.Remove(ID)
+                    _WC_Handlers_Battleground.BATTLEFIELDs_Lock.ReleaseWriterLock()
                     _bfTimer.Dispose()
                 End If
                 _disposedValue = True
@@ -170,7 +170,7 @@ Namespace Handlers
             ''' <param name="objCharacter">The obj char.</param>
             ''' <returns></returns>
             Public Sub Enqueue(ByVal objCharacter As CharacterObject)
-                If GetCharacterSide(objCharacter.Race) Then
+                If _Functions.GetCharacterSide(objCharacter.Race) Then
                     _queueTeam1.Add(objCharacter)
                 Else
                     _queueTeam2.Add(objCharacter)
@@ -197,16 +197,16 @@ Namespace Handlers
 
                     SendBattlegroundStatus(objCharacter, 0)
 
-                    With WorldSafeLocs(Battlegrounds(MapType).AllianceStartLoc)
+                    With _WS_DBCDatabase.WorldSafeLocs(_WS_DBCDatabase.Battlegrounds(MapType).AllianceStartLoc)
                         'TODO: WTF? characters_locations table? when?
                         'Dim q As New DataTable
-                        'CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters_locations WHERE char_guid = {0};", objCharacter.GUID), q)
+                        '_WorldCluster.CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters_locations WHERE char_guid = {0};", objCharacter.GUID), q)
                         'If q.Rows.Count = 0 Then
                         '    'Save only first BG location
-                        '    CharacterDatabase.Update(String.Format("INSERT INTO characters_locations(char_guid, char_positionX, char_positionY, char_positionZ, char_zone_id, char_map_id, char_orientation) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});", _
+                        '    _WorldCluster.CharacterDatabase.Update(String.Format("INSERT INTO characters_locations(char_guid, char_positionX, char_positionY, char_positionZ, char_zone_id, char_map_id, char_orientation) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});", _
                         '                                                    objCharacter.GUID, Trim(Str(objCharacter.PositionX)), Trim(Str(objCharacter.PositionY)), Trim(Str(objCharacter.PositionZ)), objCharacter.Zone, objCharacter.Map, 0))
                         'End If
-                        objCharacter.Transfer(.x, .y, .z, Battlegrounds(MapType).AllianceStartO, .map)
+                        objCharacter.Transfer(.x, .y, .z, _WS_DBCDatabase.Battlegrounds(MapType).AllianceStartO, .map)
                     End With
                 End If
             End Sub
@@ -227,7 +227,7 @@ Namespace Handlers
 
                     'TODO: Still.. characters_locations, doesn't exist?
                     'Dim q As New DataTable
-                    'CharacterDatabase.Query(String.Format("SELECT * FROM characters_locations WHERE char_guid = {0};", objCharacter.GUID), q)
+                    '_WorldCluster.CharacterDatabase.Query(String.Format("SELECT * FROM characters_locations WHERE char_guid = {0};", objCharacter.GUID), q)
                     'If q.Rows.Count = 0 Then
                     '    SendMessageSystem(objCharacter.Client, "You don't have location saved!")
                     'Else
@@ -256,7 +256,7 @@ Namespace Handlers
                     'Do nothing
                 End If
 
-                Dim p As New PacketClass(OPCODES.SMSG_BATTLEFIELD_STATUS)
+                Dim p As New Packets.PacketClass(OPCODES.SMSG_BATTLEFIELD_STATUS)
                 Try
                     p.AddUInt32(slot)               'Slot (0, 1 or 2)
 
@@ -286,7 +286,7 @@ Namespace Handlers
                         Case BattlegroundStatus.STATUS_CLEAR
                             'Do nothing
                     End Select
-                    objCharacter.client.Send(p)
+                    objCharacter.Client.Send(p)
                 Finally
                     p.Dispose()
                 End Try
@@ -313,7 +313,7 @@ Namespace Handlers
             'DONE: Create new if not found any
             If battlefield Is Nothing Then
                 Dim map As UInteger = GetBattleGrounMapIdByTypeId(mapType)
-                If WorldServer.BattlefieldCheck(map) Then
+                If _WC_Network.WorldServer.BattlefieldCheck(map) Then
                     battlefield = New Battlefield(mapType, level, map)
                 Else
                     Return Nothing
@@ -370,17 +370,17 @@ Namespace Handlers
             '3 - Your group has joined the queue for AB
 
 
-            Dim p As New PacketClass(OPCODES.SMSG_GROUP_JOINED_BATTLEGROUND)
+            Dim p As New Packets.PacketClass(OPCODES.SMSG_GROUP_JOINED_BATTLEGROUND)
             Try
                 p.AddUInt32(&HFFFFFFFEUI)
-                objCharacter.client.Send(p)
+                objCharacter.Client.Send(p)
             Finally
                 p.Dispose()
             End Try
         End Sub
 
         Public Sub On_MSG_BATTLEGROUND_PLAYER_POSITIONS()
-            Dim p As New PacketClass(OPCODES.MSG_BATTLEGROUND_PLAYER_POSITIONS)
+            Dim p As New Packets.PacketClass(OPCODES.MSG_BATTLEGROUND_PLAYER_POSITIONS)
             Try
                 p.AddUInt32(0)
                 p.AddUInt32(0) 'flagCarrierCount
@@ -389,5 +389,5 @@ Namespace Handlers
             End Try
         End Sub
 
-    End Module
+    End Class
 End Namespace

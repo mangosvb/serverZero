@@ -30,7 +30,7 @@ Imports Mangos.Common.Enums.Player
 Imports Mangos.Common
 
 Namespace Globals
-    Public Module Functions
+    Public Class Functions
         Public Function ToInteger(value As Boolean) As Integer
             If value Then
                 Return 1
@@ -201,20 +201,20 @@ Namespace Globals
         Public Sub Ban_Account(name As String, reason As String)
             Dim account As New DataTable
             Dim bannedAccount As New DataTable
-            AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", name), account)
+            _WorldCluster.AccountDatabase.Query(String.Format("SELECT id, username FROM account WHERE username = {0};", name), account)
             If (account.Rows.Count > 0) Then
                 Dim accId As Integer = account.Rows(0).Item("id")
-                AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accId), bannedAccount)
+                _WorldCluster.AccountDatabase.Query(String.Format("SELECT id, active FROM account_banned WHERE id = {0};", accId), bannedAccount)
 
                 If (bannedAccount.Rows.Count > 0) Then
-                    AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accId & "';")
+                    _WorldCluster.AccountDatabase.Update("UPDATE account_banned SET active = 1 WHERE id = '" & accId & "';")
                 Else
                     Dim tempBanDate As String = FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongDate) & " " & FormatDateTime(Date.Now.ToFileTimeUtc.ToString(), DateFormat.LongTime)
-                    AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accId, tempBanDate, "0000-00-00 00:00:00", name, reason))
+                    _WorldCluster.AccountDatabase.Update(String.Format("INSERT INTO `account_banned` VALUES ('{0}', UNIX_TIMESTAMP('{1}'), UNIX_TIMESTAMP('{2}'), '{3}', '{4}', active = 1);", accId, tempBanDate, "0000-00-00 00:00:00", name, reason))
                 End If
-                Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", name, reason)
+                _WorldCluster.Log.WriteLine(LogType.INFORMATION, "Account [{0}] banned by server. Reason: [{1}].", name, reason)
             Else
-                Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", name)
+                _WorldCluster.Log.WriteLine(LogType.INFORMATION, "Account [{0}] NOT Found in Database.", name)
             End If
         End Sub
 
@@ -341,17 +341,17 @@ Namespace Globals
 
         Public Function RollChance(chance As Single) As Boolean
             Dim nChance As Integer = chance * 100
-            If Rnd.Next(1, 10001) <= nChance Then Return True
+            If _WorldCluster.Rnd.Next(1, 10001) <= nChance Then Return True
             Return False
         End Function
 
-        Public Sub SendMessageMOTD(ByRef client As ClientClass, message As String)
-            Dim packet As PacketClass = BuildChatMessage(0, message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
+        Public Sub SendMessageMOTD(ByRef client As WC_Network.ClientClass, message As String)
+            Dim packet As Packets.PacketClass = BuildChatMessage(0, message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
             client.Send(packet)
         End Sub
 
-        Public Sub SendMessageNotification(ByRef client As ClientClass, message As String)
-            Dim packet As New PacketClass(OPCODES.SMSG_NOTIFICATION)
+        Public Sub SendMessageNotification(ByRef client As WC_Network.ClientClass, message As String)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_NOTIFICATION)
             Try
                 packet.AddString(message)
                 client.Send(packet)
@@ -360,8 +360,8 @@ Namespace Globals
             End Try
         End Sub
 
-        Public Sub SendMessageSystem(objCharacter As ClientClass, message As String)
-            Dim packet As PacketClass = BuildChatMessage(0, message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
+        Public Sub SendMessageSystem(objCharacter As WC_Network.ClientClass, message As String)
+            Dim packet As Packets.PacketClass = BuildChatMessage(0, message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
             Try
                 objCharacter.Send(packet)
             Finally
@@ -370,32 +370,32 @@ Namespace Globals
         End Sub
 
         Public Sub Broadcast(message As String)
-            CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+            _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+            For Each character As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
                 If character.Value.Client IsNot Nothing Then SendMessageSystem(character.Value.Client, "System Message: " & SetColor(message, 255, 0, 0))
             Next
-            CHARACTERs_Lock.ReleaseReaderLock()
+            _WorldCluster.CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
 
-        Public Sub SendAccountMD5(ByRef client As ClientClass, ByRef character As CharacterObject)
+        Public Sub SendAccountMD5(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
             Dim FoundData As Boolean = False
 
             'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
             'Dim AccData As New DataTable
-            'AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), AccData)
+            '_WorldCluster.AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), AccData)
             'If AccData.Rows.Count > 0 Then
             '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
 
             '    AccData.Clear()
-            '    AccountDatabase.Query(String.Format("SELECT * FROM account_data WHERE account_id = {0}", AccID), AccData)
+            '    _WorldCluster.AccountDatabase.Query(String.Format("SELECT * FROM account_data WHERE account_id = {0}", AccID), AccData)
             '    If AccData.Rows.Count > 0 Then
             '        FoundData = True
             '    Else
-            '        AccountDatabase.Update(String.Format("INSERT INTO account_data VALUES({0}, '', '', '', '', '', '', '', '')", AccID))
+            '        _WorldCluster.AccountDatabase.Update(String.Format("INSERT INTO account_data VALUES({0}, '', '', '', '', '', '', '', '')", AccID))
             '    End If
             'End If
 
-            Dim smsgAccountDataTimes As New PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
+            Dim smsgAccountDataTimes As New Packets.PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
             Try
                 'Dim md5hash As MD5 = MD5.Create()
                 For i As Integer = 0 To 7
@@ -419,16 +419,16 @@ Namespace Globals
             Finally
                 smsgAccountDataTimes.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
         End Sub
 
-        Public Sub SendTriggerCinematic(ByRef client As ClientClass, ByRef character As CharacterObject)
-            Dim packet As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
+        Public Sub SendTriggerCinematic(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
             Try
-                If CharRaces.ContainsKey(character.Race) Then
-                    packet.AddInt32(CharRaces(character.Race).CinematicID)
+                If _WS_DBCDatabase.CharRaces.ContainsKey(character.Race) Then
+                    packet.AddInt32(_WS_DBCDatabase.CharRaces(character.Race).CinematicID)
                 Else
-                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, character.Race, character.Classe)
+                    _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, character.Race, character.Classe)
                     Exit Sub
                 End If
 
@@ -436,17 +436,17 @@ Namespace Globals
             Finally
                 packet.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", client.IP, client.Port)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", client.IP, client.Port)
         End Sub
 
-        Public Sub SendTimeSyncReq(ByRef client As ClientClass)
+        Public Sub SendTimeSyncReq(ByRef client As WC_Network.ClientClass)
             'Dim packet As New PacketClass(OPCODES.SMSG_TIME_SYNC_REQ)
             'packet.AddInt32(0)
             'Client.Send(packet)
         End Sub
 
-        Public Sub SendGameTime(ByRef client As ClientClass, ByRef character As CharacterObject)
-            Dim smsgLoginSettimespeed As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
+        Public Sub SendGameTime(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
+            Dim smsgLoginSettimespeed As New Packets.PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
             Try
                 Dim time As Date = Date.Now
                 Dim year As Integer = time.Year - 2000
@@ -464,11 +464,11 @@ Namespace Globals
             Finally
                 smsgLoginSettimespeed.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
         End Sub
 
-        Public Sub SendProficiency(ByRef client As ClientClass, proficiencyType As Byte, proficiencyFlags As Integer)
-            Dim packet As New PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
+        Public Sub SendProficiency(ByRef client As WC_Network.ClientClass, proficiencyType As Byte, proficiencyFlags As Integer)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
             Try
                 packet.AddInt8(proficiencyType)
                 packet.AddInt32(proficiencyFlags)
@@ -477,22 +477,22 @@ Namespace Globals
             Finally
                 packet.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
         End Sub
 
-        Public Sub SendCorpseReclaimDelay(ByRef client As ClientClass, ByRef character As CharacterObject, Optional ByVal seconds As Integer = 30)
-            Dim packet As New PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
+        Public Sub SendCorpseReclaimDelay(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject, Optional ByVal seconds As Integer = 30)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
             Try
                 packet.AddInt32(seconds * 1000)
                 client.Send(packet)
             Finally
                 packet.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, seconds)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, seconds)
         End Sub
 
-        Public Function BuildChatMessage(senderGuid As ULong, message As String, msgType As ChatMsg, msgLanguage As LANGUAGES, Optional ByVal flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
-            Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
+        Public Function BuildChatMessage(senderGuid As ULong, message As String, msgType As ChatMsg, msgLanguage As LANGUAGES, Optional ByVal flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As Packets.PacketClass
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_MESSAGECHAT)
             Try
                 packet.AddInt8(msgType)
                 packet.AddInt32(msgLanguage)
@@ -508,9 +508,9 @@ Namespace Globals
                     Case ChatMsg.CHAT_MSG_SYSTEM, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_IGNORED, ChatMsg.CHAT_MSG_SKILL, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_OFFICER, ChatMsg.CHAT_MSG_RAID, ChatMsg.CHAT_MSG_WHISPER_INFORM, ChatMsg.CHAT_MSG_GUILD, ChatMsg.CHAT_MSG_WHISPER, ChatMsg.CHAT_MSG_AFK, ChatMsg.CHAT_MSG_DND, ChatMsg.CHAT_MSG_RAID_LEADER, ChatMsg.CHAT_MSG_RAID_WARNING
                         packet.AddUInt64(senderGuid)
                     Case ChatMsg.CHAT_MSG_MONSTER_SAY, ChatMsg.CHAT_MSG_MONSTER_EMOTE, ChatMsg.CHAT_MSG_MONSTER_YELL
-                        Log.WriteLine(LogType.WARNING, "Use Creature.SendChatMessage() for this message type - {0}!", msgType)
+                        _WorldCluster.Log.WriteLine(LogType.WARNING, "Use Creature.SendChatMessage() for this message type - {0}!", msgType)
                     Case Else
-                        Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
+                        _WorldCluster.Log.WriteLine(LogType.WARNING, "Unknown chat message type - {0}!", msgType)
                 End Select
 
                 packet.AddUInt32(Text.Encoding.UTF8.GetByteCount(message) + 1)
@@ -518,7 +518,7 @@ Namespace Globals
 
                 packet.AddInt8(flag)
             Catch ex As Exception
-                Log.WriteLine(LogType.FAILED, "failed chat message type - {0}!", msgType)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "failed chat message type - {0}!", msgType)
             End Try
             Return packet
         End Function
@@ -577,12 +577,12 @@ Namespace Globals
             GROUP_UPDATE_FULL_REQUEST_REPLY = &H7FFC0BFF
         End Enum
 
-        Function BuildPartyMemberStatsOffline(guid As ULong) As PacketClass
-            Dim packet As New PacketClass(OPCODES.SMSG_PARTY_MEMBER_STATS_FULL)
+        Function BuildPartyMemberStatsOffline(guid As ULong) As Packets.PacketClass
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_PARTY_MEMBER_STATS_FULL)
             packet.AddPackGUID(guid)
             packet.AddUInt32(PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS)
             packet.AddInt8(PartyMemberStatsStatus.STATUS_OFFLINE)
             Return packet
         End Function
-    End Module
+    End Class
 End Namespace

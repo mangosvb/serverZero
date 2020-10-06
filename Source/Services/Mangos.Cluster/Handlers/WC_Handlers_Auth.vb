@@ -32,17 +32,17 @@ Imports Mangos.Common
 
 Namespace Handlers
 
-    Public Module WC_Handlers_Auth
+    Public Class WC_Handlers_Auth
 
         Const REQUIRED_BUILD_LOW As Integer = 5875 ' 1.12.1
         Const REQUIRED_BUILD_HIGH As Integer = 6141
 
-        Public Sub SendLoginOk(ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
+        Public Sub SendLoginOk(ByRef client As WC_Network.ClientClass)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTH_SESSION [{2}]", client.IP, client.Port, client.Account)
 
             Thread.Sleep(500)
 
-            Dim response As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
             response.AddInt8(LoginResponse.LOGIN_OK)
             response.AddInt32(0)
             response.AddInt8(2) 'BillingPlanFlags
@@ -50,8 +50,8 @@ Namespace Handlers
             client.Send(response)
         End Sub
 
-        Public Sub On_CMSG_AUTH_SESSION(ByRef packet As PacketClass, ByRef client As ClientClass)
-            'Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
+        Public Sub On_CMSG_AUTH_SESSION(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+            '_WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}] [{1}:{2}] CMSG_AUTH_SESSION", Format(TimeOfDay, "hh:mm:ss"), client.IP, client.Port)
 
             packet.GetInt16()
             Dim clientVersion As Integer = packet.GetInt32
@@ -68,7 +68,7 @@ Namespace Handlers
             Dim tmp As String = clientAccount
 
             'DONE: Kick if existing
-            For Each tmpClientEntry As KeyValuePair(Of UInteger, ClientClass) In CLIENTs
+            For Each tmpClientEntry As KeyValuePair(Of UInteger, WC_Network.ClientClass) In _WorldCluster.CLIENTs
                 If Not tmpClientEntry.Value Is Nothing Then
                     If tmpClientEntry.Value.Account = tmp Then
                         If Not tmpClientEntry.Value.Character Is Nothing Then
@@ -89,13 +89,13 @@ Namespace Handlers
             Dim result As New DataTable
             Dim query As String
             query = "SELECT sessionkey, gmlevel FROM account WHERE username = '" & client.Account & "';"
-            AccountDatabase.Query(query, result)
+            _WorldCluster.AccountDatabase.Query(query, result)
             If result.Rows.Count > 0 Then
                 tmp = result.Rows(0).Item("sessionkey")
                 client.Access = result.Rows(0).Item("gmlevel")
             Else
-                Log.WriteLine(LogType.USER, "[{0}:{1}] AUTH_UNKNOWN_ACCOUNT: Account not in DB!", client.IP, client.Port)
-                Dim response_unk_acc As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
+                _WorldCluster.Log.WriteLine(LogType.USER, "[{0}:{1}] AUTH_UNKNOWN_ACCOUNT: Account not in DB!", client.IP, client.Port)
+                Dim response_unk_acc As New Packets.PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
                 response_unk_acc.AddInt8(AuthResult.WOW_FAIL_UNKNOWN_ACCOUNT)
                 client.Send(response_unk_acc)
                 Exit Sub
@@ -108,7 +108,7 @@ Namespace Handlers
 
             'DONE: Disconnect clients trying to enter with an invalid build
             If clientVersion < REQUIRED_BUILD_LOW OrElse clientVersion > REQUIRED_BUILD_HIGH Then
-                Dim invalid_version As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
+                Dim invalid_version As New Packets.PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
                 invalid_version.AddInt8(AuthResult.WOW_FAIL_VERSION_INVALID)
                 client.Send(invalid_version)
                 Exit Sub
@@ -121,8 +121,8 @@ Namespace Handlers
             'temp = Concat(temp, BitConverter.GetBytes(client.Index))
             'temp = Concat(temp, client.SS_Hash)
             'Dim ShaDigest() As Byte = New System.Security.Cryptography.SHA1Managed().ComputeHash(temp)
-            'Log.WriteLine(LogType.DEBUG, "Client Hash: {0}", BitConverter.ToString(clientHash).Replace("-", ""))
-            'Log.WriteLine(LogType.DEBUG, "Server Hash: {0}", BitConverter.ToString(ShaDigest).Replace("-", ""))
+            '_WorldCluster.Log.WriteLine(LogType.DEBUG, "Client Hash: {0}", BitConverter.ToString(clientHash).Replace("-", ""))
+            '_WorldCluster.Log.WriteLine(LogType.DEBUG, "Server Hash: {0}", BitConverter.ToString(ShaDigest).Replace("-", ""))
             'For i As Integer = 0 To 19
             '    If clientHash(i) <> ShaDigest(i) Then
             '        Dim responseFail As New PacketClass(OPCODES.SMSG_AUTH_RESPONSE)
@@ -133,7 +133,7 @@ Namespace Handlers
             'Next
 
             'DONE: If server full then queue, If GM/Admin let in
-            If CLIENTs.Count > Config.ServerPlayerLimit And client.Access <= AccessLevel.Player Then
+            If _WorldCluster.CLIENTs.Count > _WorldCluster.Config.ServerPlayerLimit And client.Access <= AccessLevel.Player Then
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf client.EnQueue))
             Else
                 SendLoginOk(client)
@@ -156,13 +156,13 @@ Namespace Handlers
                 packet.GetInt8() 'Unk6
                 'AddOnsConsoleWrite &= String.Format("{0}{1} AddOnName: [{2,-30}], AddOnHash: [{3:X}]", vbNewLine, vbTab, AddOnsNames(AddOnsNames.Count - 1), AddOnsHashes(AddOnsHashes.Count - 1))
             End While
-            'Log.WriteLine(LogType.DEBUG, AddOnsConsoleWrite)
+            '_WorldCluster.Log.WriteLine(LogType.DEBUG, AddOnsConsoleWrite)
 
             'DONE: Build mysql addons query
             'Not needed already - in 1.11 addons list is removed.
 
             'DONE: Send packet
-            Dim addOnsEnable As New PacketClass(OPCODES.SMSG_ADDON_INFO)
+            Dim addOnsEnable As New Packets.PacketClass(OPCODES.SMSG_ADDON_INFO)
             For i As Integer = 0 To AddOnsNames.Count - 1
                 If IO.File.Exists(String.Format("interface\{0}.pub", AddOnsNames(i))) AndAlso (AddOnsHashes(i) <> &H1C776D01UI) Then
                     'We have hash data
@@ -189,11 +189,11 @@ Namespace Handlers
             addOnsEnable.Dispose()
         End Sub
 
-        Public Sub On_CMSG_PING(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PING(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
 
-            Dim response As New PacketClass(OPCODES.SMSG_PONG)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_PONG)
             response.AddInt32(packet.GetInt32)
             client.Send(response)
 
@@ -201,24 +201,24 @@ Namespace Handlers
                 client.Character.Latency = packet.GetInt32
             End If
 
-            'Log.WriteLine(LogType.NETWORK, "[{0}:{1}] SMSG_PONG [{2}]", client.IP, client.Port, client.Character.Latency)
+            '_WorldCluster.Log.WriteLine(LogType.NETWORK, "[{0}:{1}] SMSG_PONG [{2}]", client.IP, client.Port, client.Character.Latency)
         End Sub
 
-        Public Sub On_CMSG_UPDATE_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_UPDATE_ACCOUNT_DATA(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             Try
                 If (packet.Data.Length - 1) < 13 Then Exit Sub
                 packet.GetInt16()
                 Dim DataID As UInteger = packet.GetUInt32
                 Dim UncompressedSize As UInteger = packet.GetUInt32
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [ID={2} Size={3}]", client.IP, client.Port, DataID, UncompressedSize)
+                _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [ID={2} Size={3}]", client.IP, client.Port, DataID, UncompressedSize)
                 If DataID > 7 Then Exit Sub
 
                 'TODO: How does Mangos Zero Handle the Account Data For the Character?
                 'Dim AccData As New DataTable
-                'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", client.Account), AccData)
+                '_WorldCluster.AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", client.Account), AccData)
                 'If AccData.Rows.Count = 0 Then
-                '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Account ID not found]", client.IP, client.Port)
+                '    _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Account ID not found]", client.IP, client.Port)
                 '    Exit Sub
                 'End If
 
@@ -227,13 +227,13 @@ Namespace Handlers
 
                 'DONE: Clear the entry
                 'If UncompressedSize = 0 Then
-                '    AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`='' WHERE `account_id`={1}", DataID, AccID))
+                '    _WorldCluster.AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`='' WHERE `account_id`={1}", DataID, AccID))
                 '    Exit Sub
                 'End If
 
                 'DONE: Can not handle more than 65534 bytes
                 'If UncompressedSize >= 65534 Then
-                '    Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Invalid uncompressed size]", client.IP, client.Port)
+                '    _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] CMSG_UPDATE_ACCOUNT_DATA [Invalid uncompressed size]", client.IP, client.Port)
                 '    Exit Sub
                 'End If
 
@@ -249,32 +249,32 @@ Namespace Handlers
                 '    dataStr = ToHex(packet.Data, packet.Offset)
                 'End If
 
-                'AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`={2} WHERE `account_id`={1};", DataID, AccID, dataStr))
+                '_WorldCluster.AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`={2} WHERE `account_id`={1};", DataID, AccID, dataStr))
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error while updating account data.{0}", vbNewLine & e.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "Error while updating account data.{0}", vbNewLine & e.ToString)
             End Try
         End Sub
 
-        Public Sub On_CMSG_REQUEST_ACCOUNT_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_REQUEST_ACCOUNT_DATA(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim DataID As UInteger = packet.GetUInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_ACCOUNT_DATA [ID={2}]", client.IP, client.Port, DataID)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_ACCOUNT_DATA [ID={2}]", client.IP, client.Port, DataID)
             If DataID > 7 Then Exit Sub
 
             Dim FoundData As Boolean = False
             'Dim AccData As New DataTable
-            'AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", client.Account), AccData)
+            '_WorldCluster.AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", client.Account), AccData)
             'If AccData.Rows.Count > 0 Then
             '    Dim AccID As Integer = CType(AccData.Rows(0).Item("account_id"), Integer)
             '
             '    AccData.Clear()
-            '    AccountDatabase.Query(String.Format("SELECT `account_data{1}` FROM account_data WHERE account_id = {0}", AccID, DataID), AccData)
+            '    _WorldCluster.AccountDatabase.Query(String.Format("SELECT `account_data{1}` FROM account_data WHERE account_id = {0}", AccID, DataID), AccData)
             '    If AccData.Rows.Count > 0 Then FoundData = True
             'End If
 
-            Dim response As New PacketClass(OPCODES.SMSG_UPDATE_ACCOUNT_DATA)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_UPDATE_ACCOUNT_DATA)
             response.AddUInt32(DataID)
 
             'If FoundData = False Then
@@ -299,29 +299,29 @@ Namespace Handlers
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_CHAR_ENUM(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_ENUM", client.IP, client.Port)
+        Public Sub On_CMSG_CHAR_ENUM(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_ENUM", client.IP, client.Port)
 
-            'DONE: Query Characters DB
-            Dim response As New PacketClass(OPCODES.SMSG_CHAR_ENUM)
+            'DONE: Query _WorldCluster.CHARACTERs DB
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_CHAR_ENUM)
             Dim MySQLQuery As New DataTable
             Dim Account_ID As Integer
 
             Try
-                AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = '{0}';", client.Account), MySQLQuery)
+                _WorldCluster.AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = '{0}';", client.Account), MySQLQuery)
                 Account_ID = MySQLQuery.Rows(0).Item("id")
                 MySQLQuery.Clear()
-                CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE account_id = '{0}' ORDER BY char_guid;", Account_ID), MySQLQuery)
+                _WorldCluster.CharacterDatabase.Query(String.Format("SELECT * FROM characters WHERE account_id = '{0}' ORDER BY char_guid;", Account_ID), MySQLQuery)
 
                 'DONE: Make The Packet
                 response.AddInt8(MySQLQuery.Rows.Count)
                 For i As Integer = 0 To MySQLQuery.Rows.Count - 1
                     Dim DEAD As Boolean = False
                     Dim DeadMySQLQuery As New DataTable
-                    CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM corpse WHERE player = {0};", MySQLQuery.Rows(i).Item("char_guid")), DeadMySQLQuery)
+                    _WorldCluster.CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM corpse WHERE player = {0};", MySQLQuery.Rows(i).Item("char_guid")), DeadMySQLQuery)
                     If CInt(DeadMySQLQuery.Rows(0).Item(0)) > 0 Then DEAD = True
                     Dim PetQuery As New DataTable
-                    CharacterDatabase.Query(String.Format("SELECT modelid, level, entry FROM character_pet WHERE owner = '{0}';", MySQLQuery.Rows(i).Item("char_guid")), PetQuery)
+                    _WorldCluster.CharacterDatabase.Query(String.Format("SELECT modelid, level, entry FROM character_pet WHERE owner = '{0}';", MySQLQuery.Rows(i).Item("char_guid")), PetQuery)
 
                     response.AddInt64(MySQLQuery.Rows(i).Item("char_guid"))
                     response.AddString(MySQLQuery.Rows(i).Item("char_name"))
@@ -367,7 +367,7 @@ Namespace Handlers
                         PetModel = PetQuery.Rows(0).Item("modelid")
                         PetLevel = PetQuery.Rows(0).Item("level")
                         Dim PetFamilyQuery As New DataTable
-                        WorldDatabase.Query(String.Format("SELECT family FROM creature_template WHERE entry = '{0}'", PetQuery.Rows(0).Item("entry")), PetFamilyQuery)
+                        _WorldCluster.WorldDatabase.Query(String.Format("SELECT family FROM creature_template WHERE entry = '{0}'", PetQuery.Rows(0).Item("entry")), PetFamilyQuery)
                         PetFamily = PetFamilyQuery.Rows(0).Item("family")
                     End If
 
@@ -378,9 +378,9 @@ Namespace Handlers
                     'DONE: Get items
                     Dim GUID As Long = MySQLQuery.Rows(i).Item("char_guid")
                     Dim ItemsMySQLQuery As New DataTable
-                    Dim characterDB As String = CharacterDatabase.SQLDBName
-                    Dim worldDB As String = WorldDatabase.SQLDBName
-                    CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM " & characterDB & ".characters_inventory, " & worldDB & ".item_template WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
+                    Dim characterDB As String = _WorldCluster.CharacterDatabase.SQLDBName
+                    Dim worldDB As String = _WorldCluster.WorldDatabase.SQLDBName
+                    _WorldCluster.CharacterDatabase.Query(String.Format("SELECT item_slot, displayid, inventorytype FROM " & characterDB & ".characters_inventory, " & worldDB & ".item_template WHERE item_bag = {0} AND item_slot <> 255 AND entry = item_id  ORDER BY item_slot;", GUID), ItemsMySQLQuery)
 
                     Dim e As IEnumerator = ItemsMySQLQuery.Rows.GetEnumerator
                     e.Reset()
@@ -411,20 +411,20 @@ Namespace Handlers
                 Next i
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to enum characters. [{2}]", client.IP, client.Port, e.Message)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to enum characters. [{2}]", client.IP, client.Port, e.Message)
                 'TODO: Find what opcode officials use
-                response = New PacketClass(OPCODES.SMSG_CHAR_CREATE)
+                response = New Packets.PacketClass(OPCODES.SMSG_CHAR_CREATE)
                 response.AddInt8(CharResponse.CHAR_LIST_FAILED)
             End Try
 
             client.Send(response)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_ENUM", client.IP, client.Port)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_ENUM", client.IP, client.Port)
         End Sub
 
-        Public Sub On_CMSG_CHAR_DELETE(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_DELETE", client.IP, client.Port)
+        Public Sub On_CMSG_CHAR_DELETE(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_DELETE", client.IP, client.Port)
 
-            Dim response As New PacketClass(OPCODES.SMSG_CHAR_DELETE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_CHAR_DELETE)
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64()
 
@@ -432,54 +432,54 @@ Namespace Handlers
                 Dim q As New DataTable
 
                 'Done: Fixed packet manipulation protection
-                AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), q)
+                _WorldCluster.AccountDatabase.Query(String.Format("SELECT id FROM account WHERE username = ""{0}"";", client.Account), q)
                 If q.Rows.Count = 0 Then
                     Exit Sub
                 End If
 
-                CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE account_id = ""{0}"" AND char_guid = ""{1}"";", q.Rows(0).Item("id"), guid), q)
+                _WorldCluster.CharacterDatabase.Query(String.Format("SELECT char_guid FROM characters WHERE account_id = ""{0}"" AND char_guid = ""{1}"";", q.Rows(0).Item("id"), guid), q)
                 If q.Rows.Count = 0 Then
                     response.AddInt8(AuthResult.WOW_FAIL_BANNED)
                     client.Send(response)
-                    Ban_Account(client.Account, "Packet Manipulation/Character Deletion")
+                    _Functions.Ban_Account(client.Account, "Packet Manipulation/Character Deletion")
                     client.Delete()
                     Exit Sub
                 End If
                 q.Clear()
 
-                CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_bag = {0};", guid), q)
+                _WorldCluster.CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_bag = {0};", guid), q)
                 For Each row As DataRow In q.Rows
                     'DONE: Delete items
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = ""{0}"";", row.Item("item_guid")))
+                    _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = ""{0}"";", row.Item("item_guid")))
                     'DONE: Delete items in bags
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = ""{0}"";", CULng(row.Item("item_guid")) + _Global_Constants.GUID_ITEM))
+                    _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_bag = ""{0}"";", CULng(row.Item("item_guid")) + _Global_Constants.GUID_ITEM))
                 Next
-                CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_owner = {0};", guid), q)
+                _WorldCluster.CharacterDatabase.Query(String.Format("SELECT item_guid FROM characters_inventory WHERE item_owner = {0};", guid), q)
                 q.Clear()
 
-                CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_receiver = ""{0}"";", guid), q)
+                _WorldCluster.CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_receiver = ""{0}"";", guid), q)
                 For Each row As DataRow In q.Rows
                     'TODO: Return mails?
                     'DONE: Delete mails
-                    CharacterDatabase.Update(String.Format("DELETE FROM characters_mail WHERE mail_id = ""{0}"";", row.Item("mail_id")))
+                    _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters_mail WHERE mail_id = ""{0}"";", row.Item("mail_id")))
                     'DONE: Delete mail items
-                    CharacterDatabase.Update(String.Format("DELETE FROM mail_items WHERE mail_id = ""{0}"";", row.Item("mail_id")))
+                    _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM mail_items WHERE mail_id = ""{0}"";", row.Item("mail_id")))
                 Next
-                CharacterDatabase.Update(String.Format("DELETE FROM characters WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_honor WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_quests WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE guid = '{0}' OR friend = '{0}';", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM petitions WHERE petition_owner = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM auctionhouse WHERE auction_owner = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = ""{0}"";", guid))
-                CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE guid = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters WHERE char_guid = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters_honor WHERE char_guid = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters_quests WHERE char_guid = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM character_social WHERE guid = '{0}' OR friend = '{0}';", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM petitions WHERE petition_owner = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM auctionhouse WHERE auction_owner = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM characters_tickets WHERE char_guid = ""{0}"";", guid))
+                _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE guid = ""{0}"";", guid))
                 q.Clear()
 
-                CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_leader = ""{0}"";", guid), q)
+                _WorldCluster.CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_leader = ""{0}"";", guid), q)
                 If q.Rows.Count > 0 Then
-                    CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildid = 0, char_guildrank = 0, char_guildpnote = '', charguildoffnote = '' WHERE char_guildid = ""{0}"";", q.Rows(0).Item("guild_id")))
-                    CharacterDatabase.Update(String.Format("DELETE FROM guild WHERE guild_id = ""{0}"";", q.Rows(0).Item("guild_id")))
+                    _WorldCluster.CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildid = 0, char_guildrank = 0, char_guildpnote = '', charguildoffnote = '' WHERE char_guildid = ""{0}"";", q.Rows(0).Item("guild_id")))
+                    _WorldCluster.CharacterDatabase.Update(String.Format("DELETE FROM guild WHERE guild_id = ""{0}"";", q.Rows(0).Item("guild_id")))
                 End If
                 response.AddInt8(CharResponse.CHAR_DELETE_SUCCESS) ' Changed in 1.12.x client branch?
             Catch e As Exception
@@ -487,29 +487,29 @@ Namespace Handlers
             End Try
 
             client.Send(response)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_DELETE [{2:X}]", client.IP, client.Port, guid)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CHAR_DELETE [{2:X}]", client.IP, client.Port, guid)
         End Sub
 
-        Public Sub On_CMSG_CHAR_RENAME(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHAR_RENAME(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
             Dim GUID As Long = packet.GetInt64()
             Dim Name As String = packet.GetString
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_RENAME [{2}:{3}]", client.IP, client.Port, GUID, Name)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_RENAME [{2}:{3}]", client.IP, client.Port, GUID, Name)
 
             Dim ErrCode As Byte = ATLoginFlags.AT_LOGIN_RENAME
 
             'DONE: Check for existing name
             Dim q As New DataTable
-            CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name LIKE ""{0}"";", Name), q)
+            _WorldCluster.CharacterDatabase.Query(String.Format("SELECT char_name FROM characters WHERE char_name LIKE ""{0}"";", Name), q)
             If q.Rows.Count > 0 Then
                 ErrCode = CharResponse.CHAR_CREATE_NAME_IN_USE
             End If
 
             'DONE: Do the rename
-            If ErrCode = ATLoginFlags.AT_LOGIN_RENAME Then CharacterDatabase.Update(String.Format("UPDATE characters SET char_name = ""{1}"", force_restrictions = 0 WHERE char_guid = {0};", GUID, Name))
+            If ErrCode = ATLoginFlags.AT_LOGIN_RENAME Then _WorldCluster.CharacterDatabase.Update(String.Format("UPDATE characters SET char_name = ""{1}"", force_restrictions = 0 WHERE char_guid = {0};", GUID, Name))
 
             'DONE: Send response
-            Dim response As New PacketClass(OPCODES.SMSG_CHAR_RENAME)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_CHAR_RENAME)
             response.AddInt8(ErrCode)
             client.Send(response)
             response.Dispose()
@@ -517,12 +517,12 @@ Namespace Handlers
             On_CMSG_CHAR_ENUM(Nothing, client)
         End Sub
 
-        Public Sub On_CMSG_CHAR_CREATE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CHAR_CREATE(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             packet.GetInt16()
 
             Dim Name As String = packet.GetString
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Name)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CHAR_CREATE [{2}]", client.IP, client.Port, Name)
 
             Dim Race As Byte = packet.GetInt8
             Dim Classe As Byte = packet.GetInt8
@@ -538,26 +538,26 @@ Namespace Handlers
 
             'Try to pass the packet to one of World Servers
             Try
-                If WorldServer.Worlds.ContainsKey(0) Then
-                    result = WorldServer.Worlds(0).ClientCreateCharacter(client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
-                ElseIf WorldServer.Worlds.ContainsKey(1) Then
-                    result = WorldServer.Worlds(1).ClientCreateCharacter(client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
+                If _WC_Network.WorldServer.Worlds.ContainsKey(0) Then
+                    result = _WC_Network.WorldServer.Worlds(0).ClientCreateCharacter(client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
+                ElseIf _WC_Network.WorldServer.Worlds.ContainsKey(1) Then
+                    result = _WC_Network.WorldServer.Worlds(1).ClientCreateCharacter(client.Account, Name, Race, Classe, Gender, Skin, Face, HairStyle, HairColor, FacialHair, OutfitId)
                 End If
             Catch ex As Exception
                 result = CharResponse.CHAR_CREATE_ERROR
-                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Character creation failed!{2}{3}", client.IP, client.Port, vbNewLine, ex.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Character creation failed!{2}{3}", client.IP, client.Port, vbNewLine, ex.ToString)
             End Try
 
-            Dim response As New PacketClass(OPCODES.SMSG_CHAR_CREATE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_CHAR_CREATE)
             response.AddInt8(result)
             client.Send(response)
         End Sub
 
-        Public Sub On_CMSG_PLAYER_LOGIN(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PLAYER_LOGIN(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             Dim GUID As ULong = 0
             packet.GetInt16()               'int16 unknown
             GUID = packet.GetUInt64()       'uint64 guid
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", client.IP, client.Port, GUID)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", client.IP, client.Port, GUID)
 
             If client.Character Is Nothing Then
                 client.Character = New CharacterObject(GUID, client)
@@ -570,28 +570,28 @@ Namespace Handlers
                 End If
             End If
 
-            If WorldServer.InstanceCheck(client, client.Character.Map) Then
+            If _WC_Network.WorldServer.InstanceCheck(client, client.Character.Map) Then
                 client.Character.GetWorld.ClientConnect(client.Index, client.GetClientInfo)
                 client.Character.IsInWorld = True
                 client.Character.GetWorld.ClientLogin(client.Index, client.Character.Guid)
 
                 client.Character.OnLogin()
             Else
-                Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: WORLD SERVER DOWN", client.Index)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: WORLD SERVER DOWN", client.Index)
 
                 client.Character.Dispose()
                 client.Character = Nothing
-                Dim r As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
+                Dim r As New Packets.PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
                 Try
                     r.AddInt8(CharResponse.CHAR_LOGIN_NO_WORLD)
                     client.Send(r)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: {1}", client.Index, ex.ToString)
+                    _WorldCluster.Log.WriteLine(LogType.FAILED, "[{0:000000}] Unable to login: {1}", client.Index, ex.ToString)
 
                     client.Character.Dispose()
                     client.Character = Nothing
 
-                    Dim a As New PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
+                    Dim a As New Packets.PacketClass(OPCODES.SMSG_CHARACTER_LOGIN_FAILED)
                     Try
                         a.AddInt8(CharResponse.CHAR_LOGIN_FAILED)
                         client.Send(a)
@@ -604,8 +604,8 @@ Namespace Handlers
 
         'Leak is with in this code. Needs a rewrite to correct the leak. This only effects the CPU Usage.
         'Happens when the client disconnects from the server.
-        Public Sub On_CMSG_PLAYER_LOGOUT(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGOUT", client.IP, client.Port)
+        Public Sub On_CMSG_PLAYER_LOGOUT(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGOUT", client.IP, client.Port)
             client.Character.OnLogout()
 
             client.Character.GetWorld.ClientDisconnect(client.Index) 'Likely the cause of it
@@ -613,11 +613,11 @@ Namespace Handlers
             client.Character = Nothing
         End Sub
 
-        Public Sub On_MSG_MOVE_WORLDPORT_ACK(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MOVE_WORLDPORT_ACK", client.IP, client.Port)
+        Public Sub On_MSG_MOVE_WORLDPORT_ACK(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+            _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MOVE_WORLDPORT_ACK", client.IP, client.Port)
 
             Try
-                If Not WorldServer.InstanceCheck(client, client.Character.Map) Then Exit Sub
+                If Not _WC_Network.WorldServer.InstanceCheck(client, client.Character.Map) Then Exit Sub
 
                 If client.Character.IsInWorld Then
                     'Inside server transfer
@@ -631,9 +631,9 @@ Namespace Handlers
                     client.Character.GetWorld.ClientLogin(client.Index, client.Character.Guid)
                 End If
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "{0}", ex.ToString)
+                _WorldCluster.Log.WriteLine(LogType.CRITICAL, "{0}", ex.ToString)
             End Try
         End Sub
 
-    End Module
+    End Class
 End Namespace

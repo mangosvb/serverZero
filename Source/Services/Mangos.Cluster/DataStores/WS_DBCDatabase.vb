@@ -24,7 +24,7 @@ Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Map
 
 Namespace DataStores
-    Public Module WS_DBCDatabase
+    Public Class WS_DBCDatabase
 
         Private ReadOnly MapDBC As String = "dbc" & Path.DirectorySeparatorChar & "Map.dbc"
         Public Maps As New Dictionary(Of Integer, MapInfo)
@@ -44,7 +44,7 @@ Namespace DataStores
                     Maps.Add(m.ID, m)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps Initialized.", New BufferedDbc(MapDBC).Rows - 1)
+                _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps Initialized.", New BufferedDbc(MapDBC).Rows - 1)
                 Call New BufferedDbc(MapDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -104,7 +104,7 @@ Namespace DataStores
                     WorldSafeLocs.Add(WorldSafeLoc.ID, WorldSafeLoc)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs Initialized.", New BufferedDbc(WorldSafeLocsDBC).Rows - 1)
+                _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs Initialized.", New BufferedDbc(WorldSafeLocsDBC).Rows - 1)
                 Call New BufferedDbc(WorldSafeLocsDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -127,7 +127,7 @@ Namespace DataStores
             Dim Entry As Byte
 
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), MySQLQuery)
+            _WorldCluster.WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), MySQLQuery)
 
             For Each row As DataRow In MySQLQuery.Rows
                 Entry = row.Item("id")
@@ -146,7 +146,7 @@ Namespace DataStores
                 Battlegrounds(Entry).HordeStartO = row.Item("HordeStartO")
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Initialized.", MySQLQuery.Rows.Count)
+            _WorldCluster.Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Initialized.", MySQLQuery.Rows.Count)
         End Sub
 
         Public Class TBattleground
@@ -177,7 +177,7 @@ Namespace DataStores
                     ChatChannelsInfo.Add(ChatChannels.Index, ChatChannels)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels Initialized.", New BufferedDbc(ChatChannelsDBC).Rows - 1)
+                _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels Initialized.", New BufferedDbc(ChatChannelsDBC).Rows - 1)
                 Call New BufferedDbc(ChatChannelsDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -215,7 +215,7 @@ Namespace DataStores
                     CharRaces(CByte(raceID)) = New TCharRace(factionID, modelM, modelF, teamID, cinematicID)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrRace Loaded.", New BufferedDbc(ChrRacesDBC).Rows - 1)
+                _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrRace Loaded.", New BufferedDbc(ChrRacesDBC).Rows - 1)
                 Call New BufferedDbc(ChrRacesDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -239,7 +239,7 @@ Namespace DataStores
                     CharClasses(CByte(classID)) = New TCharClass(cinematicID)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrClasses Loaded.", New BufferedDbc(ChrClassesDBC).Rows - 1)
+                _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrClasses Loaded.", New BufferedDbc(ChrClassesDBC).Rows - 1)
                 Call New BufferedDbc(ChrClassesDBC).Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -274,5 +274,5 @@ Namespace DataStores
             End Sub
         End Class
 
-    End Module
+    End Class
 End Namespace
