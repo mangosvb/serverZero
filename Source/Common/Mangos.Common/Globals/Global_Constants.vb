@@ -27,12 +27,12 @@ Namespace Global
         Public ReadOnly RevisionDbCharactersContent As Integer = 0
 
         Public ReadOnly RevisionDbMangosVersion As Integer = 21
-        Public ReadOnly RevisionDbMangosStructure As Integer = 1
-        Public ReadOnly RevisionDbMangosContent As Integer = 0
-
-        Public ReadOnly RevisionDbMangosVersion As Integer = 21
-        Public ReadOnly RevisionDbMangosStructure As Integer = 3
+        Public ReadOnly RevisionDbMangosStructure As Integer = 2
         Public ReadOnly RevisionDbMangosContent As Integer = 1
+
+        Public ReadOnly RevisionDbRealmVersion As Integer = 21
+        Public ReadOnly RevisionDbRealmStructure As Integer = 2
+        Public ReadOnly RevisionDbRealmContent As Integer = 1
 
         Public ReadOnly GROUP_SUBGROUPSIZE As Integer = 5  '(MAX_RAID_SIZE / MAX_GROUP_SIZE)
         Public ReadOnly GROUP_SIZE As Integer = 5          'Normal Group Size/More then 5, it's a raid group

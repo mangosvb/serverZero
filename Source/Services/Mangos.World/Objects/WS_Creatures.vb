@@ -1012,7 +1012,7 @@ Namespace Objects
 
                 If Info Is Nothing Then
                     Dim MySQLQuery As New DataTable
-                    WorldDatabase.Query(String.Format("SELECT * FROM creature LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid WHERE creature.guid = {0};", GUID_), MySQLQuery)
+                    _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM creature LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid WHERE creature.guid = {0};", GUID_), MySQLQuery)
                     If MySQLQuery.Rows.Count > 0 Then
                         Info = MySQLQuery.Rows(0)
                     Else

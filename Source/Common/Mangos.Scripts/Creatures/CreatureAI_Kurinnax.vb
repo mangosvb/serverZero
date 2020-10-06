@@ -91,7 +91,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
                 Catch Ex As Exception
-                    Log.WriteLine(LogType.WARNING, "Mortal Wound failed to cast!")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Mortal Wound failed to cast!")
                 End Try
             End If
             If Next_Thrash <= 1 Then
