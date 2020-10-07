@@ -259,7 +259,7 @@ Namespace Auction
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_SELL_ITEM [Bid={2} BuyOut={3} Time={4}]", client.IP, client.Port, Bid, Buyout, Time)
 
             'DONE: Convert time in seconds left
-            Time = Time * 60
+            Time *= 60
 
             'DONE: Check if item is bag with items
             If _WorldServer.WORLD_ITEMs(iGUID).ItemInfo.IsContainer AndAlso Not _WorldServer.WORLD_ITEMs(iGUID).IsFree Then

@@ -18,10 +18,8 @@
 
 Imports System.Threading
 Imports Mangos.Common.Globals
-Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common
 
@@ -96,7 +94,7 @@ Namespace Handlers
             Friend ReadOnly LevelMin As Byte
             Friend ReadOnly LevelMax As Byte
             Private ReadOnly _maxPlayersPerTeam As Integer = 10 'Is this right
-            Private _minPlayersPerTeam As Integer = 10
+            Private ReadOnly _minPlayersPerTeam As Integer = 10
 
             Private ReadOnly _bfTimer As Timer
 

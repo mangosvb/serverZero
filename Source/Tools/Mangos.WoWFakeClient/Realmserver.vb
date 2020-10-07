@@ -23,8 +23,8 @@ Imports System.Security.Cryptography
 Imports System.Numerics
 
 Module Realmserver
-    Private Random As New Random
-    Private Connection As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
+    Private ReadOnly Random As New Random
+    Private ReadOnly Connection As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
     Private ConnIP As IPAddress
     Private ConnPort As Integer
 

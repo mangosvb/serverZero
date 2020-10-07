@@ -18,7 +18,6 @@
 
 Imports System.Data
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI

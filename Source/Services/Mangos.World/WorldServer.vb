@@ -28,9 +28,7 @@ Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Common.Logging.BaseWriter
 Imports Mangos.SignalR
-Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
 Imports Mangos.World.Maps
 Imports Mangos.World.Objects
 Imports Mangos.World.Player

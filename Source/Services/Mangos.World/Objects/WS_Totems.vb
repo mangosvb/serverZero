@@ -21,7 +21,6 @@ Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Spell
 Imports Mangos.World.Player
 Imports Mangos.World.Server
-Imports Mangos.World.Spells
 
 Namespace Objects
 
@@ -33,7 +32,7 @@ Namespace Objects
             Public Caster As WS_Base.BaseUnit = Nothing
             Public Duration As Integer = 0
 
-            Private Type As TotemType = TotemType.TOTEM_PASSIVE
+            Private ReadOnly Type As TotemType = TotemType.TOTEM_PASSIVE
 
             Public Sub New(ByVal Entry As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Orientation As Single, ByVal Map As Integer, Optional ByVal Duration_ As Integer = 0)
                 MyBase.New(Entry, PosX, PosY, PosZ, Orientation, Map, Duration_)
@@ -71,7 +70,7 @@ Namespace Objects
 
                         For j As Byte = 0 To 2
                             If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).Aura_Info(j) IsNot Nothing Then
-                                If ActiveSpells(i).Aura_Info(j).ID = SpellEffects_Names.SPELL_EFFECT_APPLY_AREA_AURA Then
+                                If MyBase.ActiveSpells(i).Aura_Info(j).ID = Global.Mangos.Common.Enums.Spell.SpellEffects_Names.SPELL_EFFECT_APPLY_AREA_AURA Then
                                     Dim Targets As New List(Of WS_Base.BaseUnit)
                                     If TypeOf Caster Is WS_PlayerData.CharacterObject Then
                                         Targets = _WS_Spells.GetPartyMembersAtPoint(CType(Caster, WS_PlayerData.CharacterObject), ActiveSpells(i).Aura_Info(j).GetRadius, positionX, positionY, positionZ)
@@ -79,7 +78,7 @@ Namespace Objects
                                         Targets = _WS_Spells.GetFriendAroundMe(Me, ActiveSpells(i).Aura_Info(j).GetRadius)
                                     End If
 
-                                    For Each Unit As WS_Base.BaseUnit In Targets
+                                    For Each Unit As WS_Base.BaseUnit In New List(Of WS_Base.BaseUnit)
                                         If Unit.HaveAura(ActiveSpells(i).SpellID) = False Then
                                             _WS_Spells.ApplyAura(Unit, Me, ActiveSpells(i).Aura_Info(j), ActiveSpells(i).SpellID)
                                         End If

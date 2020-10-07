@@ -17,10 +17,8 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Map
-Imports Mangos.World.Globals
 Imports Mangos.World.Maps
 Imports Mangos.World.Player
 Imports Mangos.World.Server
@@ -254,17 +252,11 @@ Namespace Handlers
         End Sub
 
         Public Sub SendInstanceMessage(ByRef client As WS_Network.ClientClass, ByVal Map As UInteger, ByVal Time As Integer)
-            Dim Type As RaidInstanceMessage
-
             If Time < 0 Then
-                Type = RaidInstanceMessage.RAID_INSTANCE_WELCOME
                 Time = -Time
             ElseIf Time > 60 AndAlso Time < 3600 Then
-                Type = RaidInstanceMessage.RAID_INSTANCE_WARNING_MIN
             ElseIf Time > 3600 Then
-                Type = RaidInstanceMessage.RAID_INSTANCE_WARNING_HOURS
             ElseIf Time < 60 Then
-                Type = RaidInstanceMessage.RAID_INSTANCE_WARNING_MIN_SOON
             End If
 
             'Dim p As New PacketClass(OPCODES.SMSG_RAID_INSTANCE_MESSAGE)

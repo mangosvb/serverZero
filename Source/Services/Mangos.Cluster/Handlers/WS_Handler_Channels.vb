@@ -16,11 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports ICSharpCode.SharpZipLib.Zip
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Channel
 Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Global

@@ -17,7 +17,6 @@
 '
 
 Imports System.IO
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 'Using this logging type, all logs are saved in files numbered by date.

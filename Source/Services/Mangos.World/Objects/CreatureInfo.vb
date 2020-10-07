@@ -242,7 +242,7 @@ Namespace Objects
             End Get
         End Property
 
-        Private found_ As Boolean = False
+        Private ReadOnly found_ As Boolean = False
 
         Public Id As Integer = 0
         Public Name As String = "MISSING_CREATURE_INFO"

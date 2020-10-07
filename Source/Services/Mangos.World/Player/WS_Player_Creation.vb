@@ -21,8 +21,6 @@ Imports Mangos.Common
 Imports Mangos.Common.Enums.Character
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
-Imports Mangos.World.DataStores
-Imports Mangos.World.Globals
 Imports Mangos.World.Objects
 
 Namespace Player
@@ -122,8 +120,6 @@ Namespace Player
             Dim LevelStats As New DataTable
             Dim ClassLevelStats As New DataTable
 
-            Dim ButtonPos As Integer = 0
-
             _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfo)
             If CreateInfo.Rows.Count <= 0 Then
                 _WorldServer.Log.WriteLine(LogType.FAILED, "No information found in playercreateinfo table for Race: {0}, Class: {1}", objCharacter.Race, objCharacter.Classe)
@@ -217,7 +213,7 @@ Namespace Player
             ' Set Player Create Action Buttons
             For Each BarRow As DataRow In CreateInfoBars.Rows
                 If BarRow.Item("action") > 0 Then
-                    ButtonPos = BarRow.Item("button")
+                    Dim ButtonPos As Integer = BarRow.Item("button")
                     objCharacter.ActionButtons(ButtonPos) = New WS_PlayerHelper.TActionButton(BarRow.Item("action"), BarRow.Item("type"), 0)
                 End If
             Next

@@ -18,7 +18,6 @@
 
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals

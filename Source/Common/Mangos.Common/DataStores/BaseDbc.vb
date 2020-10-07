@@ -18,7 +18,6 @@
 
 Imports System.ComponentModel
 Imports System.IO
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 Namespace DataStores
@@ -115,7 +114,6 @@ Namespace DataStores
 
                         Dim strByte As Byte
                         Dim strResult As String
-                        strByte = 0
                         strResult = ""
                         Do
                             strByte = Fs.ReadByte()

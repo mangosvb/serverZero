@@ -727,7 +727,8 @@ Namespace Objects
 
                 Dim lchance As Integer = If((TypeOf Me Is WS_PlayerData.CharacterObject), 7, 11)
                 Dim leveldiff As Integer = Level - CInt(Caster.Level)
-                Dim modHitChance As Integer = 0
+                Dim modHitChance As Integer
+
                 If leveldiff < 3 Then
                     modHitChance = 96 - leveldiff
                 Else
@@ -876,7 +877,7 @@ Namespace Objects
             End Function
 
             Public Function GetDamageReduction(ByRef t As BaseUnit, ByVal School As DamageTypes, ByVal Damage As Integer) As Single
-                Dim DamageReduction As Single = 0.0F
+                Dim DamageReduction As Single
 
                 If School = DamageTypes.DMG_PHYSICAL Then
                     DamageReduction = (Resistances(0).Base / (Resistances(0).Base + 400 + 85 * Level))

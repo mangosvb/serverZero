@@ -24,10 +24,8 @@ Imports Microsoft.AspNetCore.SignalR
 Imports Mangos.SignalR
 Imports Mangos.Common
 Imports Mangos.Common.Globals
-Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Authentication
 Imports Mangos.Common.Enums.Global
 
@@ -48,11 +46,11 @@ Namespace Server
             Implements IDisposable
 
             Public m_flagStopListen As Boolean = False
-            Private m_TimerPing As Timer
-            Private m_TimerStats As Timer
-            Private m_TimerCPU As Timer
+            Private ReadOnly m_TimerPing As Timer
+            Private ReadOnly m_TimerStats As Timer
+            Private ReadOnly m_TimerCPU As Timer
 
-            Private m_Socket As Socket
+            Private ReadOnly m_Socket As Socket
 
             Public Sub New()
                 Try
@@ -95,10 +93,10 @@ Namespace Server
             End Sub
 
 #Region "IDisposable Support"
-            Private _disposedValue As Boolean ' To detect redundant calls
+            Private ReadOnly _disposedValue As Boolean ' To detect redundant calls
 
             ' This code added by Visual Basic to correctly implement the disposable pattern.
-            Public Sub Dispose() Implements IDisposable.Dispose
+            Public Overloads Sub Dispose() Implements IDisposable.Dispose
                 m_flagStopListen = True
                 m_Socket.Close()
                 m_TimerPing.Dispose()

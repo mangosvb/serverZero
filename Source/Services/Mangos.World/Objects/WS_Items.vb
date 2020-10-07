@@ -26,7 +26,6 @@ Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
-Imports Mangos.World.Loots
 Imports Mangos.World.Player
 Imports Mangos.World.Server
 Imports Mangos.World.Spells
@@ -66,7 +65,7 @@ Namespace Objects
         'WARNING: Use only with _WorldServer.ITEMDatabase()
         Public Class ItemInfo
             Implements IDisposable
-            Private _found As Boolean = False
+            Private ReadOnly _found As Boolean = False
 
             Private Sub New()
                 Damage(0) = New TDamage
@@ -330,7 +329,7 @@ Namespace Objects
 
             'Item's Spells
             Public ReadOnly Spells(4) As TItemSpellInfo
-            Private _reqDisenchantSkill As Integer = -1
+            Private ReadOnly _reqDisenchantSkill As Integer = -1
             Public ArmorDamageModifier As Single = 0
             Public ExistingDuration As Integer = 0
 
@@ -1111,7 +1110,8 @@ Namespace Objects
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", client.IP, client.Port,
                           bag, slot)
 
-            Dim itemGuid As ULong = 0
+            Dim itemGuid As ULong
+
             If bag = 0 Then
                 itemGuid = client.Character.Items(slot).GUID
             Else

@@ -23,8 +23,6 @@ Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
-Imports Mangos.World.Maps
 Imports Mangos.World.Player
 
 Namespace Objects
@@ -106,24 +104,24 @@ Namespace Objects
                 Dim tmpCmd As String = "INSERT INTO corpse (guid"
                 Dim tmpValues As String = " VALUES (" & (GUID - _Global_Constants.GUID_CORPSE)
 
-                tmpCmd = tmpCmd & ", player"
+                tmpCmd &= ", player"
                 tmpValues = tmpValues & ", " & Owner
 
-                tmpCmd = tmpCmd & ", position_x"
+                tmpCmd &= ", position_x"
                 tmpValues = tmpValues & ", " & Trim(Str(positionX))
-                tmpCmd = tmpCmd & ", position_y"
+                tmpCmd &= ", position_y"
                 tmpValues = tmpValues & ", " & Trim(Str(positionY))
-                tmpCmd = tmpCmd & ", position_z"
+                tmpCmd &= ", position_z"
                 tmpValues = tmpValues & ", " & Trim(Str(positionZ))
-                tmpCmd = tmpCmd & ", map"
+                tmpCmd &= ", map"
                 tmpValues = tmpValues & ", " & MapID
-                tmpCmd = tmpCmd & ", instance"
+                tmpCmd &= ", instance"
                 tmpValues = tmpValues & ", " & instance
-                tmpCmd = tmpCmd & ", orientation"
+                tmpCmd &= ", orientation"
                 tmpValues = tmpValues & ", " & Trim(Str(orientation))
-                tmpCmd = tmpCmd & ", time"
-                tmpValues = tmpValues & ", UNIX_TIMESTAMP()"
-                tmpCmd = tmpCmd & ", corpse_type"
+                tmpCmd &= ", time"
+                tmpValues &= ", UNIX_TIMESTAMP()"
+                tmpCmd &= ", corpse_type"
                 tmpValues = tmpValues & ", " & CorpseType
 
                 'tmpCmd = tmpCmd & ", corpse_bytes1"

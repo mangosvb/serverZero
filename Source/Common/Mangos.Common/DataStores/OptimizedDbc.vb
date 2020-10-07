@@ -18,24 +18,23 @@
 
 Imports System.ComponentModel
 Imports System.IO
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 Namespace DataStores
-    <Description("DBC wrapper class using optimizations for reading row by row.")> _
+    <Description("DBC wrapper class using optimizations for reading row by row.")>
     Public Class OptimizedDbc
         Inherits BaseDBC
 
         Protected TmpRow() As Byte
         Protected TmpRowRead As Integer = -1
 
-        <Description("Open filename for reading and initialize internals.")> _
+        <Description("Open filename for reading and initialize internals.")>
         Public Sub New(ByVal fileName As String)
             MyBase.New(FileName)
 
             ReDim tmpRow(RowLength)
         End Sub
-        <Description("Open filename for reading and initialize internals.")> _
+        <Description("Open filename for reading and initialize internals.")>
         Public Sub New(ByVal stream As Stream)
             MyBase.New(Stream)
 

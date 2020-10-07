@@ -18,7 +18,6 @@
 
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Item
 Imports Mangos.Common.Enums.Player
@@ -88,7 +87,8 @@ Namespace Handlers
                 End Select
             End If
 
-            Dim Weapon As ItemObject = Nothing
+            Dim Weapon As ItemObject
+
             Select Case AttackType
                 Case WeaponAttackType.BASE_ATTACK
                     If CType(objCharacter, WS_PlayerData.CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) = False Then Return 2.4F 'Fist attack
@@ -121,8 +121,8 @@ Namespace Handlers
 
         Public Sub CalculateMinMaxDamage(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AttackType As WeaponAttackType)
             Dim AttSpeed As Single = GetAPMultiplier(objCharacter, AttackType, True)
-            Dim BaseValue As Single = 0
             Dim BasePercent As Single = 1
+            Dim BaseValue As Single
             Select Case AttackType
                 Case WeaponAttackType.BASE_ATTACK, WeaponAttackType.OFF_ATTACK
                     BaseValue = objCharacter.AttackPower + objCharacter.AttackPowerMods
@@ -370,7 +370,8 @@ Namespace Handlers
                 If (objCharacter.cUnitFlags And UnitFlags.UNIT_FLAG_STUNTED) Then Return 0
 
                 If CType(objCharacter, WS_PlayerData.CharacterObject).combatDodge > 0 Then
-                    Dim combatDodgeAgilityBonus As Integer = 0
+                    Dim combatDodgeAgilityBonus As Integer
+
                     Select Case CType(objCharacter, WS_PlayerData.CharacterObject).Classe
                         Case Classes.CLASS_HUNTER
                             combatDodgeAgilityBonus = Fix(CType(objCharacter, WS_PlayerData.CharacterObject).Agility.Base / 26.5F)
@@ -502,7 +503,7 @@ Namespace Handlers
             Dim angle As Single = Math.Atan2(y2 - y1, x2 - x1)
 
             If angle < 0 Then
-                angle = angle + 2 * Math.PI
+                angle += 2 * Math.PI
             End If
             Return angle
         End Function

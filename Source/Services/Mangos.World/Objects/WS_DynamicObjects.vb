@@ -17,12 +17,9 @@
 '
 
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
-Imports Mangos.World.Maps
 Imports Mangos.World.Server
 Imports Mangos.World.Spells
 

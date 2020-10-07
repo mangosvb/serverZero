@@ -17,7 +17,6 @@
 '
 
 Imports System.Threading
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 Namespace Logging

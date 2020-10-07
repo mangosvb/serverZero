@@ -18,7 +18,6 @@
 
 'Note: Temp place holder
 Imports System.Data
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 

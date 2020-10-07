@@ -22,9 +22,7 @@ Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI
-Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
-Imports Mangos.World.Maps
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
 Imports Mangos.World.Server

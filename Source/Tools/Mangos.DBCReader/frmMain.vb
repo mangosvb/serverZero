@@ -20,8 +20,8 @@ Imports System.IO
 
 Public Class frmMain
 
-    Private IsFloat As New List(Of Integer)
-    Private IsString As New List(Of Integer)
+    Private ReadOnly IsFloat As New List(Of Integer)
+    Private ReadOnly IsString As New List(Of Integer)
 
     Private StringData() As Byte = {}
 
@@ -43,7 +43,6 @@ Public Class frmMain
             s.BaseStream.Seek(0, SeekOrigin.Begin)
             Dim Buffer() As Byte = s.ReadBytes(FileLen(fdlg.FileName))
             HandleDBCData(Buffer)
-            Buffer = Nothing
             s.Close()
         End If
     End Sub
@@ -252,7 +251,6 @@ Public Class frmMain
     End Sub
 
     Private Function GetString(ByRef Data() As Byte, ByVal Index As Integer) As String
-        Dim tmpStr As String = ""
         Dim i As Integer
         For i = Index To Data.Length - 1
             If Data(i) = 0 Then Exit For

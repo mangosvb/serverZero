@@ -19,11 +19,7 @@
 Imports System.Data
 Imports Mangos.Common
 Imports Mangos.Common.Enums.Global
-Imports Mangos.World.Handlers
-Imports Mangos.World.Maps
-Imports Mangos.World.Player
 Imports Mangos.World.Server
-Imports Mangos.World.Spells
 
 Namespace DataStores
 

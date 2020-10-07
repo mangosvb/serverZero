@@ -18,18 +18,14 @@
 
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.DataStores
 Imports Mangos.World.Handlers
-Imports Mangos.World.Loots
-Imports Mangos.World.Maps
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
 Imports Mangos.World.Server
-Imports Mangos.Common.Globals
 
 Namespace AI
 
@@ -495,9 +491,10 @@ Namespace AI
                 If aiTarget Is Nothing Then
                     'DONE: Do simple random movement
                     Dim MoveTries As Integer = 0
-                    Dim selectedX As Single = 0.0F
-                    Dim selectedY As Single = 0.0F
-                    Dim selectedZ As Single = 0.0F
+
+                    Dim selectedX As Single
+                    Dim selectedY As Single
+                    Dim selectedZ As Single
                     While True
                         If MoveTries > 5 Then 'The creature is at a very weird location right now
                             GoBackToSpawn()
@@ -597,7 +594,8 @@ Namespace AI
             End Sub
 
             Protected Sub DoMoveReset()
-                Dim distance As Single = 0.0F
+                Dim distance As Single
+
                 If ResetRun Then
                     distance = AI_INTERVAL_MOVE / 1000 * aiCreature.CreatureInfo.RunSpeed
                 Else
@@ -780,7 +778,8 @@ TryMoveAgain:
                     End If
                 End If
 
-                Dim distance As Single = 0.0F
+                Dim distance As Single
+
                 If DoRun Then
                     distance = AI_INTERVAL_MOVE / 1000 * aiCreature.CreatureInfo.RunSpeed * aiCreature.SpeedMod
                 Else

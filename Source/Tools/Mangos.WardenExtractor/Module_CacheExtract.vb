@@ -53,15 +53,12 @@ Public Module Module_CacheExtract
             fs2.Write(ModData, 0, ModLen)
             fs2.Close()
             fs2.Dispose()
-            fs2 = Nothing
 
             Console.WriteLine("Module: {0} [{1} bytes]", ModName, ModLen)
         Loop
 
         fs.Close()
         fs.Dispose()
-        fs = Nothing
-        br = Nothing
     End Sub
 
     Public Sub ConvertWDB()
@@ -123,21 +120,15 @@ Public Module Module_CacheExtract
         Loop
         fs.Close()
         fs.Dispose()
-        fs = Nothing
-        br = Nothing
 
         Dim fs2 As New FileStream(sWDB.Replace(Path.GetExtension(sWDB), "") & ".new.wdb", FileMode.Create, FileAccess.Write, FileShare.Read)
         Dim newFile() As Byte = ms.ToArray
         fs2.Write(newFile, 0, newFile.Length)
-        newFile = Nothing
         fs2.Close()
         fs2.Dispose()
-        fs2 = Nothing
 
         ms.Close()
         ms.Dispose()
-        ms = Nothing
-        bw = Nothing
     End Sub
 
 End Module

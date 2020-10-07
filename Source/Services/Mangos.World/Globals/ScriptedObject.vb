@@ -19,18 +19,17 @@
 Imports System.CodeDom.Compiler
 Imports System.IO
 Imports System.Reflection
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 Namespace Globals
 
-'NOTE: How to use ScriptedObject as Function
-'   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")
-'   test.Invoke(".TestScript", "TestMeSub")
-'   x = test.Invoke(".TestScript", "TestMeFunction")
-'NOTE: How to use ScriptedObject as Constructor
-'   creature = test.Invoke("DefaultAI_1")
-'   creature.Move()
+    'NOTE: How to use ScriptedObject as Function
+    '   Dim test As New ScriptedObject("scripts\test.vb", "test.dll")
+    '   test.Invoke(".TestScript", "TestMeSub")
+    '   x = test.Invoke(".TestScript", "TestMeFunction")
+    'NOTE: How to use ScriptedObject as Constructor
+    '   creature = test.Invoke("DefaultAI_1")
+    '   creature.Move()
 
     Public Class ScriptedObject
         Implements IDisposable

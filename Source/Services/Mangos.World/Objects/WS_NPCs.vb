@@ -18,7 +18,6 @@
 
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Gossip
 Imports Mangos.Common.Enums.Item
@@ -28,14 +27,11 @@ Imports Mangos.Common.Enums.Quest
 Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
-Imports Mangos.World.Auction
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
 Imports Mangos.World.Player
 Imports Mangos.World.Quests
 Imports Mangos.World.Server
-Imports Mangos.World.Social
 Imports Mangos.World.Spells
 
 Namespace Objects
@@ -454,12 +450,11 @@ Namespace Objects
                 Exit Sub
             End If
 
-            Dim itemPrice As Integer = 0
             If count * _WorldServer.ITEMDatabase(itemID).BuyCount > _WorldServer.ITEMDatabase(itemID).Stackable Then count = (_WorldServer.ITEMDatabase(itemID).Stackable / _WorldServer.ITEMDatabase(itemID).BuyCount)
 
             'DONE: Reputation discount
             Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(vendorGuid).Faction)
-            itemPrice = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
+            Dim itemPrice As Integer = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
             If client.Character.Copper < (itemPrice * count) Then
                 Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
@@ -530,11 +525,9 @@ Namespace Objects
                 Exit Sub
             End If
 
-            Dim itemPrice As Integer = 0
-
             'DONE: Reputation discount
             Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(vendorGuid).Faction)
-            itemPrice = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
+            Dim itemPrice As Integer = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
 
             If client.Character.Copper < (itemPrice * count) Then
                 Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
@@ -546,7 +539,6 @@ Namespace Objects
                 Exit Sub
             End If
 
-            Dim errCode As Byte = 0
             Dim bag As Byte = 0
 
             If clientGuid = client.Character.GUID Then
@@ -594,7 +586,7 @@ Namespace Objects
                     .StackCount = count
                     }
 
-            errCode = client.Character.ItemCANEQUIP(tmpItem, bag, slot)
+            Dim errCode As Byte = client.Character.ItemCANEQUIP(tmpItem, bag, slot)
             If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
                 If errCode <> InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N Then
                     Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
@@ -701,7 +693,7 @@ Namespace Objects
 
             'DONE: Reputation discount
             Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(vendorGuid).Faction)
-            Dim price As UInteger = 0
+            Dim price As UInteger
 
             If itemGuid <> 0 Then
                 price = (_WorldServer.WORLD_ITEMs(itemGuid).GetDurabulityCost * discountMod)

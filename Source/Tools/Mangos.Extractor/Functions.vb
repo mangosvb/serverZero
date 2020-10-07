@@ -69,7 +69,7 @@ Public Module Functions
 
         'Read string
         While t <> 0
-            r = r + Chr(t)
+            r += Chr(t)
             t = f.ReadByte()
         End While
 
@@ -92,7 +92,7 @@ Public Module Functions
 
             'Read string
             While t <> 0
-                r = r + Chr(t)
+                r += Chr(t)
                 t = f.ReadByte()
             End While
         Catch
@@ -358,7 +358,6 @@ Public Module Functions
             Dim Names As New Stack(Of String)
             Dim Last As String = ""
             Dim Offset As Integer = REASON_NAME_OFFSET
-            Dim i As Integer = 0
             f.Seek(Offset, IO.SeekOrigin.Begin)
             While Last.Length = 0 OrElse Last.Substring(0, 13) = "SPELL_FAILED_"
                 Last = ReadString(f)
@@ -373,7 +372,7 @@ Public Module Functions
             w.WriteLine()
             w.WriteLine("Public Enum SpellFailedReason As Byte")
 
-            i = 0
+            Dim i As Integer = 0
             While Names.Count > 0
                 w.WriteLine("    {0,-64}' 0x{1:X3}", Names.Pop & " = &H" & Hex(i), i)
                 i += 1
@@ -404,7 +403,6 @@ Public Module Functions
             Dim Names As New Stack(Of String)
             Dim Last As String = ""
             Dim Offset As Integer = START
-            Dim i As Integer = 0
             f.Seek(Offset, IO.SeekOrigin.Begin)
             While Last.Length = 0 OrElse Last.Substring(0, 9) = "CHAT_MSG_"
                 Last = ReadString(f)
@@ -419,7 +417,7 @@ Public Module Functions
             w.WriteLine()
             w.WriteLine("Public Enum ChatMsg As Integer")
 
-            i = 0
+            Dim i As Integer = 0
             While Names.Count > 0
                 w.WriteLine("    {0,-64}' 0x{1:X3}", Names.Pop & " = &H" & Hex(i), i)
                 i += 1

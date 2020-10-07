@@ -17,12 +17,10 @@
 '
 
 Imports System.Threading
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
 Imports Mangos.World.Server
 Imports Mangos.World.Spells
 
@@ -41,7 +39,7 @@ Namespace Player
 
             Public Sub Increment(Optional ByVal Incrementator As Short = 1)
                 If (Current + Incrementator) < Base Then
-                    Current = Current + Incrementator
+                    Current += Incrementator
                 Else
                     Current = Base
                 End If
@@ -88,7 +86,7 @@ Namespace Player
             Public Modifier As Single = 1
             Public Sub Increment(Optional ByVal Incrementator As Integer = 1)
                 If (Current + Incrementator) < (Bonus + Base) Then
-                    Current = Current + Incrementator
+                    Current += Incrementator
                 Else
                     Current = Maximum
                 End If
@@ -197,7 +195,7 @@ Namespace Player
                 tmp = tmp & ", kills_dishonorableLifetime =" & KillsDisHonorableLifetime
                 tmp = tmp & ", kills_honorableLifetime =" & KillsHonorableLifetime
 
-                tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", CharGUID)
+                tmp += String.Format(" WHERE char_guid = ""{0}"";", CharGUID)
                 _WorldServer.CharacterDatabase.Update(tmp)
             End Sub
 
@@ -382,7 +380,8 @@ Namespace Player
 
         Public Sub SendInitWorldStates(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
             Character.ZoneCheck()
-            Dim NumberOfFields As UShort = 0
+            Dim NumberOfFields As UShort
+
             Select Case Character.ZoneID
                 Case 0, 1, 4, 8, 10, 11, 12, 36, 38, 40, 41, 51, 267, 1519, 1537, 2257, 2918
                     NumberOfFields = 6

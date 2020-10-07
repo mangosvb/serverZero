@@ -30,7 +30,6 @@ Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
 Imports Mangos.World.Loots
-Imports Mangos.World.Maps
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
 Imports Mangos.World.Server
@@ -251,7 +250,8 @@ Namespace Spells
                         If ImplicitTarget = SpellImplicitTargets.TARGET_NOTHING Then Continue For
                         Select Case ImplicitTarget
                             Case SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA, SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT
-                                Dim EnemyTargets As List(Of WS_Base.BaseUnit) = Nothing
+                                Dim EnemyTargets As List(Of WS_Base.BaseUnit)
+
                                 If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
                                     EnemyTargets = _WS_Spells.GetEnemyAtPoint(Caster, Targets.dstX, Targets.dstY, Targets.dstZ, SpellEffects(Index).GetRadius)
                                 Else
@@ -296,10 +296,10 @@ Namespace Spells
                                         Dim EnemyTargets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetEnemyAroundMe(TargetUnit, 10, Caster)
                                         TargetUnit = Nothing
                                         Dim LowHealth As Single = 1.01
-                                        Dim TmpLife As Single = 0
+
                                         For Each tmpUnit As WS_Base.BaseUnit In EnemyTargets
                                             If UsedTargets.Contains(tmpUnit) = False Then
-                                                TmpLife = (tmpUnit.Life.Current / tmpUnit.Life.Maximum)
+                                                Dim TmpLife As Single = (tmpUnit.Life.Current / tmpUnit.Life.Maximum)
                                                 If TmpLife < LowHealth Then
                                                     LowHealth = TmpLife
                                                     TargetUnit = tmpUnit
@@ -950,9 +950,9 @@ SkipShapeShift:
                                 If Character.IsRooted Then Return SpellFailedReason.SPELL_FAILED_ROOTED
                             Case SpellEffects_Names.SPELL_EFFECT_SUMMON_OBJECT
                                 If SpellEffects(i).MiscValue = 35591 Then
-                                    Dim selectedX As Single = 0.0F
-                                    Dim selectedY As Single = 0.0F
-                                    Dim selectedZ As Single = 0.0F
+
+                                    Dim selectedX As Single
+                                    Dim selectedY As Single
                                     If SpellEffects(i).RadiusIndex > 0 Then
                                         selectedX = Character.positionX + Math.Cos(Character.orientation) * SpellEffects(i).GetRadius
                                         selectedY = Character.positionY + Math.Sin(Character.orientation) * SpellEffects(i).GetRadius
@@ -2209,10 +2209,10 @@ SkipShapeShift:
         End Function
 
         Public Function SPELL_EFFECT_SCHOOL_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-
-            Dim Damage As Integer = 0
             Dim Current As Integer = 0
             For Each Unit As WS_Base.BaseUnit In Infected
+
+                Dim Damage As Integer
                 If TypeOf Caster Is WS_DynamicObjects.DynamicObjectObject Then
                     Damage = SpellInfo.GetValue(CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster.Level)
                 Else
@@ -2310,16 +2310,13 @@ SkipShapeShift:
         End Function
 
         Public Function SPELL_EFFECT_MANA_DRAIN(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-
-            Dim Damage As Integer = 0
-            Dim TargetPower As Integer = 0
             For Each Unit As WS_Base.BaseUnit In Infected
-                Damage = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                 If TypeOf Caster Is WS_PlayerData.CharacterObject Then Damage += SpellInfo.valuePerLevel * CType(Caster, WS_PlayerData.CharacterObject).Level
 
                 'DONE: Take the power from the target and give to the caster
                 'TODO: Rune power?
-                TargetPower = 0
+                Dim TargetPower As Integer = 0
                 Select Case SpellInfo.MiscValue
                     Case ManaTypes.TYPE_MANA
                         If Damage > Unit.Mana.Current Then Damage = Unit.Mana.Current
@@ -2391,11 +2388,9 @@ SkipShapeShift:
         End Function
 
         Public Function SPELL_EFFECT_HEAL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-
-            Dim Damage As Integer = 0
             Dim Current As Integer = 0
             For Each Unit As WS_Base.BaseUnit In Infected
-                Damage = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                 If Current > 0 Then Damage *= (SpellInfo.DamageMultiplier ^ Current)
 
                 'NOTE: This function heals as well
@@ -2407,11 +2402,9 @@ SkipShapeShift:
         End Function
 
         Public Function SPELL_EFFECT_HEAL_MAX_HEALTH(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-
-            Dim Damage As Integer = 0
             Dim Current As Integer = 0
             For Each Unit As WS_Base.BaseUnit In Infected
-                Damage = CType(Caster, WS_Base.BaseUnit).Life.Maximum
+                Dim Damage As Integer = CType(Caster, WS_Base.BaseUnit).Life.Maximum
                 If Current > 0 AndAlso SpellInfo.DamageMultiplier < 1 Then Damage *= (SpellInfo.DamageMultiplier ^ Current)
 
                 'NOTE: This function heals as well
@@ -3360,33 +3353,33 @@ SkipShapeShift:
 
         Public Function SPELL_EFFECT_SUMMON_WILD(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             Dim Duration As Integer = SPELLs(SpellID).GetDuration
-            Dim Type As TempSummonType = TempSummonType.TEMPSUMMON_TIMED_OR_DEAD_DESPAWN
-            If Duration = 0 Then Type = TempSummonType.TEMPSUMMON_DEAD_DESPAWN
+            If Duration = 0 Then
+                Dim SelectedX As Single, SelectedY As Single, SelectedZ As Single
+                If (Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
+                    SelectedX = Target.dstX
+                    SelectedY = Target.dstY
+                    SelectedZ = Target.dstZ
+                Else
+                    SelectedX = Caster.positionX
+                    SelectedY = Caster.positionY
+                    SelectedZ = Caster.positionZ
+                End If
 
-            Dim SelectedX As Single, SelectedY As Single, SelectedZ As Single
-            If (Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
-                SelectedX = Target.dstX
-                SelectedY = Target.dstY
-                SelectedZ = Target.dstZ
-            Else
-                SelectedX = Caster.positionX
-                SelectedY = Caster.positionY
-                SelectedZ = Caster.positionZ
+                'TODO: Level by engineering skill level
+                Dim tmpCreature As New WS_Creatures.CreatureObject(SpellInfo.MiscValue, SelectedX, SelectedY, SelectedZ, Caster.orientation, Caster.MapID, Duration) With {
+                        .Level = CType(Caster, WS_Base.BaseUnit).Level,
+                        .CreatedBy = Caster.GUID,
+                        .CreatedBySpell = SpellID
+                        }
+                tmpCreature.AddToWorld()
+
+                Return SpellFailedReason.SPELL_NO_ERROR
             End If
-
-            'TODO: Level by engineering skill level
-            Dim tmpCreature As New WS_Creatures.CreatureObject(SpellInfo.MiscValue, SelectedX, SelectedY, SelectedZ, Caster.orientation, Caster.MapID, Duration) With {
-                    .Level = CType(Caster, WS_Base.BaseUnit).Level,
-                    .CreatedBy = Caster.GUID,
-                    .CreatedBySpell = SpellID
-                    }
-            tmpCreature.AddToWorld()
-
-            Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
         Public Function SPELL_EFFECT_SUMMON_TOTEM(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            Dim Slot As Byte = 0
+            Dim Slot As Byte
+
             Select Case SpellInfo.ID
                 Case SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT1
                     Slot = 0
@@ -3460,10 +3453,11 @@ SkipShapeShift:
         Public Function SPELL_EFFECT_SUMMON_OBJECT(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             If Not TypeOf Caster Is WS_Base.BaseUnit Then Return SpellFailedReason.SPELL_FAILED_CASTER_DEAD
 
-            Dim selectedX As Single = 0.0F
-            Dim selectedY As Single = 0.0F
-            Dim selectedZ As Single = 0.0F
 
+
+            Dim selectedX As Single
+
+            Dim selectedY As Single
             If SpellInfo.RadiusIndex > 0 Then
                 selectedX = Caster.positionX + Math.Cos(Caster.orientation) * SpellInfo.GetRadius
                 selectedY = Caster.positionY + Math.Sin(Caster.orientation) * SpellInfo.GetRadius
@@ -3479,6 +3473,7 @@ SkipShapeShift:
                 GameobjectInfo = _WorldServer.GAMEOBJECTSDatabase(SpellInfo.MiscValue)
             End If
 
+            Dim selectedZ As Single
             If GameobjectInfo.Type = GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then
                 selectedZ = _WS_Maps.GetWaterLevel(selectedX, selectedY, Caster.MapID)
             Else
@@ -5263,7 +5258,7 @@ SkipShapeShift:
                         CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet)
                         packet.Dispose()
                     End If
-                    shiftdata = shiftdata << 1
+                    shiftdata <<= 1
                 Next
             ElseIf Action = AuraAction.AURA_REMOVE OrElse Action = AuraAction.AURA_REMOVEBYDURATION Then
                 'TODO: Remove spell modifier!
@@ -5306,7 +5301,7 @@ SkipShapeShift:
                         CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet)
                         packet.Dispose()
                     End If
-                    shiftdata = shiftdata << 1
+                    shiftdata <<= 1
                 Next
             ElseIf Action = AuraAction.AURA_REMOVE OrElse Action = AuraAction.AURA_REMOVEBYDURATION Then
                 'TODO: Remove spell modifier!
@@ -6503,7 +6498,6 @@ SkipShapeShift:
             tmpCharacter = Winner
             Loser.DuelPartner = Nothing
             tmpCharacter.DuelPartner = Nothing
-            tmpCharacter = Nothing
         End Sub
 
         Public Sub On_CMSG_DUEL_ACCEPTED(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)

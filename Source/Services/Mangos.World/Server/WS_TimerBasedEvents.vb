@@ -18,16 +18,13 @@
 
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
-Imports Mangos.World.Handlers
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
-Imports Mangos.World.Spells
 Imports Mangos.World.Weather
 Imports Functions = Mangos.World.Globals.Functions
 
@@ -48,7 +45,7 @@ Namespace Server
             Private RegenerationTimer As Timer = Nothing
             Private RegenerationWorking As Boolean = False
 
-            Private operationsCount As Integer
+            Private ReadOnly operationsCount As Integer
             Private BaseMana As Integer
             Private BaseLife As Integer
             Private BaseRage As Integer

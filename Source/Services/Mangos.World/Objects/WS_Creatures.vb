@@ -20,7 +20,6 @@ Imports System.Data
 Imports System.Runtime.CompilerServices
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Faction
 Imports Mangos.Common.Enums.Global
@@ -33,9 +32,7 @@ Imports Mangos.Common.Globals
 Imports Mangos.World.AI
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
 Imports Mangos.World.Loots
-Imports Mangos.World.Maps
 Imports Mangos.World.Objects.WS_Base
 Imports Mangos.World.Player
 Imports Mangos.World.Server
@@ -730,7 +727,7 @@ Namespace Objects
                 Dim lvlDifference As Integer = Character.Level - CInt(Level)
 
                 If lvlDifference > 0 Then 'Higher level mobs
-                    XP = XP * (1 + 0.05 * (Level - CInt(Character.Level)))
+                    XP *= (1 + 0.05 * (Level - CInt(Character.Level)))
                 ElseIf lvlDifference < 0 Then 'Lower level mobs
                     Dim GrayLevel As Byte = 0
                     Select Case Character.Level
@@ -757,7 +754,7 @@ Namespace Objects
                             Case Else : ZD = 17
                         End Select
 
-                        XP = XP * (1 - (Character.Level - CInt(Level)) / ZD)
+                        XP *= (1 - (Character.Level - CInt(Level)) / ZD)
                     Else
                         XP = 0
                     End If

@@ -26,11 +26,9 @@ Imports System.Text
 Imports System.Threading
 Imports System.Xml.Serialization
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Authentication
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
-Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 
 Public Module RealmServer
@@ -387,7 +385,7 @@ Public Module RealmServer
         'Read account name from packet
         packetAccount = ""
         For i As Integer = 0 To iUpper
-            packetAccount = packetAccount + Chr(data(34 + i))
+            packetAccount += Chr(data(34 + i))
         Next i
         client.Account = packetAccount
 
@@ -485,7 +483,7 @@ Public Module RealmServer
                             client.Send(dataResponse, "RS_LOGON_CHALLENGE OK")
                         Catch ex As Exception
                             Console.ForegroundColor = ConsoleColor.Red
-                            Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, vbNewLine, ex)
+                            Console.WriteLine("[{0}] [{1}:{2}] Error loading AuthEngine: {3}{4}", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, Environment.NewLine, ex)
                             Console.ForegroundColor = ConsoleColor.White
                         End Try
                     End If
@@ -645,7 +643,7 @@ Public Module RealmServer
             For i As Integer = 0 To 40 - 1
                 sshash = If(client.AuthEngine.SsHash(i) < 16, sshash + "0" + Hex(client.AuthEngine.SsHash(i)), sshash + Hex(client.AuthEngine.SsHash(i)))
             Next
-            AccountDatabase.Update($"UPDATE account SET sessionkey = '{sshash }', last_ip = '{client.Ip.ToString }', last_login = '{Format(Now, "yyyy-MM-dd") }' WHERE username = '{client.Account }';")
+            AccountDatabase.Update($"UPDATE account SET sessionkey = '{sshash }', last_ip = '{client.Ip}', last_login = '{Format(Now, "yyyy-MM-dd") }' WHERE username = '{client.Account }';")
 
             Console.WriteLine("[{0}] [{1}:{2}] Auth success for user {3}. [{4}]", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, client.Account, sshash)
         End If
@@ -804,8 +802,8 @@ Public Module RealmServer
                 dataResponse(0) = AuthCMD.CMD_XFER_DATA
                 _Converter.ToBytes(CType(1500, Short), dataResponse, tmp)
                 Array.Copy(buffer, fileOffset, dataResponse, 3, 1500)
-                filelen = filelen - 1500
-                fileOffset = fileOffset + 1500
+                filelen -= 1500
+                fileOffset += 1500
                 client.Send(dataResponse, "CMD-XFER-ACCEPT-1")
             End While
             tmp = 1
@@ -826,7 +824,7 @@ Public Module RealmServer
         filelen = FileSystem.FileLen(client.UpdateFile)
         Dim fileOffset As Integer
         fileOffset = _Converter.ToInt32(data, tmp)
-        filelen = filelen - fileOffset
+        filelen -= fileOffset
 
         Dim fs As FileStream = New FileStream(client.UpdateFile, FileMode.Open, FileAccess.Read)
         Dim r As BinaryReader = New BinaryReader(fs)
@@ -853,8 +851,8 @@ Public Module RealmServer
                 dataResponse(0) = AuthCMD.CMD_XFER_DATA
                 _Converter.ToBytes(CType(1500, Short), dataResponse, tmp)
                 Array.Copy(buffer, fileOffset, dataResponse, 3, 1500)
-                filelen = filelen - 1500
-                fileOffset = fileOffset + 1500
+                filelen -= 1500
+                fileOffset += 1500
                 client.Send(dataResponse, "XFER-RESUME")
             End While
             tmp = 1
@@ -870,28 +868,28 @@ Public Module RealmServer
     Private Sub DumpPacket(ByRef data() As Byte, ByRef client As ClientClass)
         Dim buffer As String = ""
         If client Is Nothing Then
-            buffer = buffer + String.Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "hh:mm:ss"), vbNewLine)
+            buffer += String.Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "hh:mm:ss"), Environment.NewLine)
         Else
-            buffer = buffer + String.Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, vbNewLine)
+            buffer += String.Format("[{0}] [{1}:{2}] DEBUG: Packet Dump{3}", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port, Environment.NewLine)
         End If
 
         Dim j As Integer
         If data.Length Mod 16 = 0 Then
             For j = 0 To data.Length - 1 Step 16
                 buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                buffer += " |  " & Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                buffer += " |  " & Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & Environment.NewLine
             Next
         Else
             For j = 0 To data.Length - 1 - 16 Step 16
                 buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                buffer += " |  " & Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                buffer += " |  " & Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & Environment.NewLine
             Next
 
             buffer += "|  " & BitConverter.ToString(data, j, data.Length Mod 16).Replace("-", " ")
             buffer += New String(" ", (16 - data.Length Mod 16) * 3)
             buffer += " |  " & Encoding.ASCII.GetString(data, j, data.Length Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
             buffer += New String(" ", 16 - data.Length Mod 16)
-            buffer += " |" & vbNewLine
+            buffer += " |" & Environment.NewLine
         End If
 
         Console.ForegroundColor = ConsoleColor.Red
@@ -1013,7 +1011,7 @@ Public Module RealmServer
     Private Sub GenericExceptionHandler(sender As Object, e As UnhandledExceptionEventArgs)
         Dim ex As Exception = e.ExceptionObject
 
-        Log.WriteLine(LogType.CRITICAL, ex.ToString & vbNewLine)
+        Log.WriteLine(LogType.CRITICAL, ex.ToString & Environment.NewLine)
         Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'RealmServer-Error-yyyy-mmm-d-h-mm.log' file has been created. Check your log folder for more information.")
 
         Dim tw As TextWriter

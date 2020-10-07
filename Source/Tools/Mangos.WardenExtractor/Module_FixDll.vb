@@ -45,9 +45,9 @@ Public Module Module_FixDll
             Dim virtualaddress As Integer = br.ReadInt32()
             Dim len As Integer = br.ReadInt32()
             Dim type As Integer = br.ReadInt32()
-            Dim name As String = ""
-            Dim characteristics As Integer = 0
 
+            Dim name As String
+            Dim characteristics As Integer
             If type = 2 Then
                 name = ".rdata"
                 characteristics = &H40000040I
@@ -96,7 +96,6 @@ Public Module Module_FixDll
 
         ms2.Close()
         ms2.Dispose()
-        ms2 = Nothing
         br = Nothing
 
         'TODO: Other headers!
@@ -267,8 +266,6 @@ Public Module Module_FixDll
         Data = DllData
         ms.Close()
         ms.Dispose()
-        ms = Nothing
-        bw = Nothing
     End Sub
 
     Public Sub FixWardenDll(ByRef Data() As Byte)
@@ -290,10 +287,10 @@ Public Module Module_FixDll
 
         If (characteristics And &H20) Then
             Dim InstructionPos As Integer = 0
-            Dim InstrPos As Integer = 0
+
             Do
                 Try
-                    InstrPos = InstructionPos
+                    Dim InstrPos As Integer = InstructionPos
                     Dim Instr As Instruction = ParseInstuction(tmpBytes, InstructionPos)
                     If Instr Is Nothing Then Continue Do
 
@@ -355,8 +352,6 @@ Public Module Module_FixDll
 
 #Region "IA32 Parser"
     Private Function ParseInstuction(ByRef Data() As Byte, ByRef Position As Integer) As Instruction
-        Dim bOpcode As Byte = 0
-
         Dim newInstruction As New Instruction
 
         If Data(Position) = 0 Then
@@ -372,7 +367,7 @@ Public Module Module_FixDll
         Next
         newInstruction.InitPrefix()
 
-        bOpcode = Data(Position)
+        Dim bOpcode As Byte = Data(Position)
         Position += 1
         If bOpcode = &HF Then
             newInstruction.Opcode = Data(Position)
@@ -604,7 +599,7 @@ Public Module Module_FixDll
 
     Private Function IsBitSetInTable(ByVal bOpcode As Byte, ByVal Table() As UShort) As Boolean
         Dim row_index As Byte = (&HF0 And bOpcode)
-        row_index = (row_index >> 4)
+        row_index >>= 4
         Dim col_index As Byte = (&HF And bOpcode)
 
         Dim databits As UShort = Table(row_index)

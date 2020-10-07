@@ -24,11 +24,11 @@ Namespace Server
     Public Class ReaderWriterLock_Debug
         Implements IDisposable
 
-        Private ID As String
-        Private file As FileStream
-        Private writer As StreamWriter
-        Private lock As ReaderWriterLock
-        Private WriteQueue As New Queue(Of String)
+        Private ReadOnly ID As String
+        Private ReadOnly file As FileStream
+        Private ReadOnly writer As StreamWriter
+        Private ReadOnly lock As ReaderWriterLock
+        Private ReadOnly WriteQueue As New Queue(Of String)
 
         Public Sub New(ByVal s As String)
             ID = s
@@ -117,10 +117,9 @@ Namespace Server
         End Sub
 
         Private Sub WriteLoop()
-            Dim i As Integer = 0
             Dim str As String = ""
             While True
-                i = 0
+                Dim i As Integer = 0
                 Do While WriteQueue.Count > 0
                     SyncLock WriteQueue
                         str = WriteQueue.Dequeue

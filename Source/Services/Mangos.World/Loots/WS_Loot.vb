@@ -30,7 +30,6 @@ Imports Mangos.World.Globals
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
 Imports Mangos.World.Server
-Imports Mangos.World.Spells
 
 Namespace Loots
 
@@ -435,8 +434,8 @@ Namespace Loots
 #Region "LootStore"
         Public Class LootStore
 
-            Private Name As String
-            Private Templates As New Dictionary(Of Integer, LootTemplate)
+            Private ReadOnly Name As String
+            Private ReadOnly Templates As New Dictionary(Of Integer, LootTemplate)
 
             Public Sub New(ByVal Name As String)
                 Me.Name = Name

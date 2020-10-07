@@ -284,7 +284,6 @@ Public Module WS_WardenClient
             dataPos += 4
             Dim Signature(&H100 - 1) As Byte
             Array.Copy(Data, dataPos, Signature, 0, Signature.Length)
-            dataPos += &H100
 
             'Check signature
             If CheckSignature(Signature, Data, Data.Length - &H104) = False Then
@@ -293,15 +292,12 @@ Public Module WS_WardenClient
             End If
 
             Dim DecompressedData() As Byte = DeCompress(CompressedData)
-            CompressedData = Nothing
 
             Dim ms As New MemoryStream(DecompressedData)
             Dim br As New BinaryReader(ms)
             ModuleData = PrepairModule(br)
-            DecompressedData = Nothing
             ms.Close()
             ms.Dispose()
-            ms = Nothing
             br = Nothing
 
             Console.WriteLine("[WARDEN] Successfully prepaired Warden Module.")
@@ -354,8 +350,6 @@ Public Module WS_WardenClient
         Private Declare Function CloseHandle Lib "kernel32.dll" (ByVal hObject As Integer) As Integer
 
         Private Function PrepairModule(ByRef br As BinaryReader) As Byte()
-            Dim counter As Integer = 0
-
             Dim length As Integer = br.ReadInt32()
             m_Mod = malloc(length)
 
@@ -403,8 +397,7 @@ Public Module WS_WardenClient
             br.BaseStream.Position = 8
             source_location = br.ReadInt32()
             destination_location = 0
-            counter = 0
-
+            Dim counter As Integer = 0
             br2.BaseStream.Position = &HC
             Dim CountTo As Integer = br2.ReadInt32()
             Do While counter < CountTo
@@ -425,7 +418,6 @@ Public Module WS_WardenClient
             Loop
 
             'Console.WriteLine("Updating API library references...")
-            counter = 0
             br2.BaseStream.Position = &H20
             limit = br2.ReadInt32()
             Dim library As String
@@ -446,11 +438,10 @@ Public Module WS_WardenClient
                 br2.BaseStream.Position = proc_offset
                 Dim proc As Integer = br2.ReadInt32()
                 Do While proc <> 0
-                    Dim addr As Integer = 0
 
                     If proc > 0 Then
                         Dim strProc As String = getNTString(br2, proc)
-                        addr = GetProcAddress(hModule, strProc)
+                        Dim addr As Integer = GetProcAddress(hModule, strProc)
 
                         'Console.WriteLine("    Function: {0} (0x{1:X})", strProc, addr)
                         bw.BaseStream.Position = proc_offset

@@ -19,10 +19,7 @@
 Imports System.IO
 Imports Foole.Mpq
 Imports Mangos.Common.DataStores
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
-
-Imports Mangos.Common.Enums.GlobalEnum
 
 Module MainModule
 
@@ -45,12 +42,13 @@ Module MainModule
             GoTo ExitNow
         End If
 
-        Dim MPQFilesToOpen As New List(Of String)
-        MPQFilesToOpen.Add("terrain.MPQ")
-        MPQFilesToOpen.Add("dbc.MPQ")
-        MPQFilesToOpen.Add("misc.MPQ")
-        MPQFilesToOpen.Add("patch.MPQ")
-        MPQFilesToOpen.Add("patch-2.MPQ")
+        Dim MPQFilesToOpen As New List(Of String) From {
+            "terrain.MPQ",
+            "dbc.MPQ",
+            "misc.MPQ",
+            "patch.MPQ",
+            "patch-2.MPQ"
+        }
 
         For Each mpq As String In MPQFilesToOpen
             If File.Exists("Data\" & mpq) = False Then

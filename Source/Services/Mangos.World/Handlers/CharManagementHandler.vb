@@ -26,7 +26,6 @@ Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
-Imports Mangos.World.Maps
 Imports Mangos.World.Player
 Imports Mangos.World.Server
 

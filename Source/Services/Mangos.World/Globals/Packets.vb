@@ -40,9 +40,9 @@ Namespace Globals
             Dim buffer As String = ""
             Try
                 If client Is Nothing Then
-                    buffer = buffer + String.Format("DEBUG: Packet Dump{0}", Environment.NewLine)
+                    buffer += String.Format("DEBUG: Packet Dump{0}", Environment.NewLine)
                 Else
-                    buffer = buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length - start, Environment.NewLine)
+                    buffer += String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length - start, Environment.NewLine)
                 End If
 
                 If (data.Length - start) Mod 16 = 0 Then
@@ -823,7 +823,7 @@ Namespace Globals
             ''' </summary>
             ''' <returns></returns>
             Public Function GetInt8() As Byte
-                Offset = Offset + 1
+                Offset += 1
                 Return Data(Offset - 1)
             End Function
 
@@ -834,7 +834,7 @@ Namespace Globals
             '''
             Public Function GetInt16() As Short
                 Dim num1 As Short = BitConverter.ToInt16(Data, Offset)
-                Offset = (Offset + 2)
+                Offset += 2
                 Return num1
             End Function
 
@@ -844,7 +844,7 @@ Namespace Globals
             ''' <returns></returns>
             Public Function GetInt32() As Integer
                 Dim num1 As Integer = BitConverter.ToInt32(Data, Offset)
-                Offset = (Offset + 4)
+                Offset += 4
                 Return num1
             End Function
 
@@ -854,7 +854,7 @@ Namespace Globals
             ''' <returns></returns>
             Public Function GetInt64() As Long
                 Dim num1 As Long = BitConverter.ToInt64(Data, Offset)
-                Offset = (Offset + 8)
+                Offset += 8
                 Return num1
             End Function
 
@@ -864,7 +864,7 @@ Namespace Globals
             ''' <returns></returns>
             Public Function GetFloat() As Single
                 Dim single1 As Single = BitConverter.ToSingle(Data, Offset)
-                Offset = (Offset + 4)
+                Offset += 4
                 Return single1
             End Function
 
@@ -883,10 +883,10 @@ Namespace Globals
                 Dim i As Integer = 0
 
                 While Data(start + i) <> 0
-                    i = i + 1
-                    Offset = Offset + 1
+                    i += 1
+                    Offset += 1
                 End While
-                Offset = Offset + 1
+                Offset += 1
 
                 Return _Functions.EscapeString(Text.Encoding.UTF8.GetString(Data, start, i))
             End Function
@@ -909,7 +909,7 @@ Namespace Globals
             ''' <returns></returns>
             Public Function GetUInt16() As UShort
                 Dim num1 As UShort = BitConverter.ToUInt16(Data, Offset)
-                Offset = (Offset + 2)
+                Offset += 2
                 Return num1
             End Function
 
@@ -919,7 +919,7 @@ Namespace Globals
             ''' <returns></returns>
             Public Function GetUInt32() As UInteger
                 Dim num1 As UInteger = BitConverter.ToUInt32(Data, Offset)
-                Offset = (Offset + 4)
+                Offset += 4
                 Return num1
             End Function
 
@@ -929,7 +929,7 @@ Namespace Globals
             ''' <returns></returns>
             Public Function GetUInt64() As ULong
                 Dim num1 As ULong = BitConverter.ToUInt64(Data, Offset)
-                Offset = (Offset + 8)
+                Offset += 8
                 Return num1
             End Function
 

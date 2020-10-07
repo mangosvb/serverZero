@@ -25,7 +25,6 @@ Imports Mangos.Common.Enums.Item
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
-Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
 Imports Mangos.World.Loots
 Imports Mangos.World.Player
@@ -358,23 +357,23 @@ Namespace Objects
             'DONE: Save to SQL
             Dim tmpCmd As String = "INSERT INTO characters_inventory (item_guid"
             Dim tmpValues As String = " VALUES (" & GUID - _Global_Constants.GUID_ITEM
-            tmpCmd = tmpCmd & ", item_owner"
+            tmpCmd &= ", item_owner"
             tmpValues = tmpValues & ", """ & OwnerGUID & """"
-            tmpCmd = tmpCmd & ", item_creator"
+            tmpCmd &= ", item_creator"
             tmpValues = tmpValues & ", " & CreatorGUID
-            tmpCmd = tmpCmd & ", item_giftCreator"
+            tmpCmd &= ", item_giftCreator"
             tmpValues = tmpValues & ", " & GiftCreatorGUID
-            tmpCmd = tmpCmd & ", item_stackCount"
+            tmpCmd &= ", item_stackCount"
             tmpValues = tmpValues & ", " & StackCount
-            tmpCmd = tmpCmd & ", item_durability"
+            tmpCmd &= ", item_durability"
             tmpValues = tmpValues & ", " & Durability
-            tmpCmd = tmpCmd & ", item_chargesLeft"
+            tmpCmd &= ", item_chargesLeft"
             tmpValues = tmpValues & ", " & ChargesLeft
-            tmpCmd = tmpCmd & ", item_random_properties"
+            tmpCmd &= ", item_random_properties"
             tmpValues = tmpValues & ", " & RandomProperties
-            tmpCmd = tmpCmd & ", item_id"
+            tmpCmd &= ", item_id"
             tmpValues = tmpValues & ", " & ItemEntry
-            tmpCmd = tmpCmd & ", item_flags"
+            tmpCmd &= ", item_flags"
             tmpValues = tmpValues & ", " & _flags
 
             'DONE: Saving enchanments
@@ -383,9 +382,9 @@ Namespace Objects
                 temp.Add(String.Format("{0}:{1}:{2}:{3}", enchantment.Key, enchantment.Value.ID,
                                        enchantment.Value.Duration, enchantment.Value.Charges))
             Next
-            tmpCmd = tmpCmd & ", item_enchantment"
+            tmpCmd &= ", item_enchantment"
             tmpValues = tmpValues & ", '" & Join(temp.ToArray, " ") & "'"
-            tmpCmd = tmpCmd & ", item_textId"
+            tmpCmd &= ", item_textId"
             tmpValues = tmpValues & ", " & ItemText
 
             tmpCmd = tmpCmd & ") " & tmpValues & ");"

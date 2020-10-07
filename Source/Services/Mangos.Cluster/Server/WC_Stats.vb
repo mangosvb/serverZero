@@ -20,7 +20,6 @@ Imports System.Reflection
 Imports System.Threading
 Imports System.Xml
 Imports Mangos.Cluster.Handlers
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Enums.Player
@@ -63,7 +62,7 @@ Namespace Server
         Private CountPlayersHorde As Integer = 0
         Private CountGMs As Integer = 0
 
-        Private w As New Dictionary(Of WC_Network.WorldInfo, List(Of String))
+        Private ReadOnly w As New Dictionary(Of WC_Network.WorldInfo, List(Of String))
 
         Private Function FormatUptime(time As TimeSpan) As String
             Return String.Format("{0}d {1}h {2}m {3}s {4}ms", time.Days, time.Hours, time.Minutes, time.Seconds, time.Milliseconds)
@@ -107,7 +106,7 @@ Namespace Server
             _WorldCluster.CHARACTERs_Lock.ReleaseReaderLock()
 
             If CountPlayers > 1 Then
-                Latency = Latency \ CountPlayers
+                Latency \= CountPlayers
             End If
 
             For Each objCharacter As KeyValuePair(Of UInteger, WC_Network.WorldInfo) In _WC_Network.WorldServer.WorldsInfo

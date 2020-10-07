@@ -18,16 +18,11 @@
 
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.GameObject
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
-Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
-Imports Mangos.World.Maps
 Imports Mangos.World.Player
-Imports Mangos.World.Server
 Imports Mangos.Common
 
 Namespace Objects
@@ -118,10 +113,10 @@ Namespace Objects
 
             Public TransportName As String = ""
 
-            Private Passengers As New List(Of WS_Base.BaseUnit)
+            Private ReadOnly Passengers As New List(Of WS_Base.BaseUnit)
 
-            Private Waypoints As New List(Of TransportWP)
-            Private Period As Integer = 0
+            Private ReadOnly Waypoints As New List(Of TransportWP)
+            Private ReadOnly Period As Integer = 0
             Private PathTime As Integer = 0
 
             Private FirstStop As Integer = -1
@@ -131,9 +126,9 @@ Namespace Objects
             Private NextWaypoint As Integer = 0
             Private NextNodeTime As Integer = 0
 
-            Private TimeToNextEvent As Integer = 0
-            Private TransportState As TransportStates = TransportStates.TRANSPORT_DOCKED
-            Private TransportAt As Byte = 0
+            Private ReadOnly TimeToNextEvent As Integer = 0
+            Private ReadOnly TransportState As TransportStates = TransportStates.TRANSPORT_DOCKED
+            Private ReadOnly TransportAt As Byte = 0
 
             Public Sub New(ByVal ID_ As Integer, ByVal Name As String, ByVal Period_ As Integer)
                 MyBase.New(ID_, _WS_Transports.GetNewGUID)
@@ -221,7 +216,8 @@ Namespace Objects
                     Next
 
                     Dim tmpDist As Single = 0.0F
-                    Dim j As Integer = 0
+                    Dim j As Integer
+
                     For i As Integer = 0 To PathPoints.Count - 1
                         j = (i + LastStop) Mod PathPoints.Count
                         If j >= 0 Then
@@ -297,7 +293,7 @@ Namespace Objects
                                     Else
                                         d = 0.5F * 30.0F * 30.0F + 30.0F * ((tFrom - 30000.0F) / 1000.0F)
                                     End If
-                                    d = d - PathPoints(i).DistSinceStop
+                                    d -= PathPoints(i).DistSinceStop
                                 Else
                                     If tTo <= 30000.0F Then
                                         d = 0.5F * (tTo / 1000.0F) * (tTo / 1000.0F)

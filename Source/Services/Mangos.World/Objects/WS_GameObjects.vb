@@ -25,12 +25,9 @@ Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
 Imports Mangos.World.Loots
-Imports Mangos.World.Maps
 Imports Mangos.World.Player
 Imports Mangos.World.Server
-Imports Mangos.World.Spells
 
 Namespace Objects
 
@@ -51,7 +48,7 @@ Namespace Objects
             Public Size As Single = 1
             Public Fields(23) As UInteger
             Public ScriptName As String = ""
-            Private found_ As Boolean = False
+            Private ReadOnly found_ As Boolean = False
 
             Public Sub New(ByVal ID_ As Integer)
                 ID = ID_
@@ -618,7 +615,6 @@ Namespace Objects
             Public Sub SetFishEscaped(state As Object, timedOut As Boolean)
                 If state <> GameObjectLootState.DOOR_OPEN Then Exit Sub
 
-                state = GameObjectLootState.DOOR_CLOSED
                 Flags = GameObjectFlags.GO_FLAG_LOCKED
 
                 If Loot IsNot Nothing Then
@@ -668,7 +664,6 @@ Namespace Objects
 
                 'DONE: Add to world
                 Loot = Nothing
-                state = GameObjectLootState.LOOT_UNLOOTED
                 AddToWorld()
 
                 'DONE: Recalculate mines remaining

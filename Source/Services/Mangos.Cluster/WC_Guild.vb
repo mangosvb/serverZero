@@ -21,7 +21,6 @@ Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Guild
 Imports Mangos.Common.Enums.Misc

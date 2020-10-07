@@ -19,10 +19,8 @@
 Imports System.Text.RegularExpressions
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Handlers
-Imports Mangos.Cluster.DataStores
 Imports Mangos.Cluster.Server
 Imports System.Data
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
@@ -94,7 +92,7 @@ Namespace Globals
         End Function
 
         Public Function HaveFlag(value As UInteger, flagPos As Byte) As Boolean
-            value = value >> CUInt(flagPos)
+            value >>= CUInt(flagPos)
             value = value Mod 2
 
             If value = 1 Then
@@ -168,13 +166,13 @@ Namespace Globals
             Return If(name.Length > 1, UCase(Left(name, 1)) & LCase(Right(name, name.Length - 1)), UCase(name))
         End Function
 
-        Private Regex_AZ As Regex = New Regex("^[a-zA-Z]+$")
+        Private ReadOnly Regex_AZ As Regex = New Regex("^[a-zA-Z]+$")
         Public Function ValidateName(strName As String) As Boolean
             If strName.Length < 2 OrElse strName.Length > 16 Then Return False
             Return Regex_AZ.IsMatch(strName)
         End Function
 
-        Private Regex_Guild As Regex = New Regex("^[a-z A-Z]+$")
+        Private ReadOnly Regex_Guild As Regex = New Regex("^[a-z A-Z]+$")
         Public Function ValidateGuildName(strName As String) As Boolean
             If strName.Length < 2 OrElse strName.Length > 16 Then Return False
             Return Regex_Guild.IsMatch(strName)

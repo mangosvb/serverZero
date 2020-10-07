@@ -31,10 +31,8 @@ Imports Mangos.Common.Enums.Quest
 Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
-Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
-Imports Mangos.World.Maps
 Imports Mangos.World.Objects
 Imports Mangos.World.Quests
 Imports Mangos.World.Server
@@ -434,7 +432,7 @@ Namespace Player
                 honor = honor & ", kills_today =" & HonorKillsToday
                 honor = honor & ", kills_dishonortoday =" & DishonorKillsToday
 
-                honor = honor + String.Format(" WHERE char_guid = ""{0}"";", GUID)
+                honor += String.Format(" WHERE char_guid = ""{0}"";", GUID)
                 _WorldServer.CharacterDatabase.Update(honor)
             End Sub
 
@@ -742,8 +740,8 @@ Namespace Player
             Public TutorialFlags() As Byte = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
             'Updating
-            Private UpdateMask As New BitArray(_Global_Constants.FIELD_MASK_SIZE_PLAYER, False)
-            Private UpdateData As New Hashtable
+            Private ReadOnly UpdateMask As New BitArray(_Global_Constants.FIELD_MASK_SIZE_PLAYER, False)
+            Private ReadOnly UpdateData As New Hashtable
             Public Sub SetUpdateFlag(ByVal pos As Integer, ByVal value As Integer)
                 UpdateMask.Set(pos, True)
                 UpdateData(pos) = (value)
@@ -1790,7 +1788,8 @@ Namespace Player
 
                     'DONE: Learn this skill as new
                     'TODO: Needs to be tidied up
-                    Dim i As Short = 0
+                    Dim i As Short
+
                     For i = 0 To _Global_Constants.PLAYER_SKILL_INFO_SIZE
                         If Not SkillsPositions.ContainsValue(i) Then
                             Exit For
@@ -1850,7 +1849,7 @@ Namespace Player
 
                 If Level < _WS_Player_Initializator.DEFAULT_MAX_LEVEL Then
 
-                    XP = XP + Ammount
+                    XP += Ammount
                     If LogIt Then LogXPGain(Ammount, RestedBonus, VictimGUID, 1.0F)
 
                     'Update rested state if needed
@@ -1866,7 +1865,7 @@ Namespace Player
 CheckXPAgain:
                     If XP >= _WS_Player_Initializator.XPTable(Level) Then
                         XP -= _WS_Player_Initializator.XPTable(Level)
-                        Level = Level + 1
+                        Level += 1
 
                         GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL
 
@@ -2018,7 +2017,8 @@ CheckXPAgain:
                     If Items.ContainsKey(bag) Then
 
                         'DONE: Search this bag
-                        Dim slot As Byte = 0
+                        Dim slot As Byte
+
                         For slot = 0 To Items(bag).ItemInfo.ContainerSlots - 1
                             If Items(bag).Items.ContainsKey(slot) Then
 
@@ -2399,7 +2399,8 @@ CheckXPAgain:
                     If Items.ContainsKey(bag) Then
 
                         'DONE: Search this bag
-                        Dim slot As Byte = 0
+                        Dim slot As Byte
+
                         For slot = 0 To Items(bag).ItemInfo.ContainerSlots - 1
                             If Items(bag).Items.ContainsKey(slot) Then
                                 If Items(bag).Items(slot).ItemEntry = ItemEntry Then count += Items(bag).Items(slot).StackCount
@@ -2457,7 +2458,8 @@ CheckXPAgain:
                     If Items.ContainsKey(bag) Then
 
                         'DONE: Search this bag
-                        Dim slot As Byte = 0
+                        Dim slot As Byte
+
                         For slot = 0 To Items(bag).ItemInfo.ContainerSlots - 1
                             If Items(bag).Items.ContainsKey(slot) Then
                                 If Items(bag).Items(slot).ItemEntry = ItemEntry Then
@@ -2647,13 +2649,14 @@ CheckXPAgain:
             End Function
 
             Public Function ItemSTACK(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal dstBag As Byte, ByVal dstSlot As Byte) As Boolean
-                Dim srcItem As ItemObject = Nothing
-                Dim dstItem As ItemObject = Nothing
+                Dim srcItem As ItemObject
                 If srcBag <> 0 Then
                     srcItem = Items(srcBag).Items(srcSlot)
                 Else
                     srcItem = Items(srcSlot)
                 End If
+
+                Dim dstItem As ItemObject
                 If dstBag <> 0 Then
                     dstItem = Items(dstBag).Items(dstSlot)
                 Else
@@ -2690,9 +2693,9 @@ CheckXPAgain:
             End Function
 
             Public Sub ItemSPLIT(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal dstBag As Byte, ByVal dstSlot As Byte, ByVal Count As Integer)
-                Dim srcItem As ItemObject = Nothing
                 Dim dstItem As ItemObject = Nothing
 
+                Dim srcItem As ItemObject
                 'DONE: Get source item
                 If srcBag = 0 Then
                     If Not client.Character.Items.ContainsKey(srcSlot) Then
@@ -3807,7 +3810,7 @@ CheckXPAgain:
                             underWaterTimer.DrowningValue = 0
                             LogEnvironmentalDamage(EnvironmentalDamage.DAMAGE_DROWNING, Fix(0.1F * Life.Maximum * underWaterTimer.DrowningDamage))
                             DealDamage(Fix(0.1F * Life.Maximum * underWaterTimer.DrowningDamage))
-                            underWaterTimer.DrowningDamage = underWaterTimer.DrowningDamage * 2
+                            underWaterTimer.DrowningDamage *= 2
                             If DEAD Then
                                 underWaterTimer.Dispose()
                                 underWaterTimer = Nothing
@@ -3897,7 +3900,7 @@ CheckXPAgain:
                 End If
 
                 If Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags > 0 Then
-                    points = points + Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value
+                    points += Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value
                 End If
                 Return points
             End Function
@@ -3922,7 +3925,7 @@ CheckXPAgain:
                 End If
 
                 If Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags > 0 Then
-                    points = points + Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value
+                    points += Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value
                 End If
 
                 Select Case points
@@ -4650,7 +4653,8 @@ DoneAmmo:
                                 If _WS_Spells.SPELLs.ContainsKey(AuraSpellID) = False Then Continue For 'Non-existant spell
 
                                 If ActiveSpells(AuraSlot) Is Nothing Then
-                                    Dim duration As Integer = 0
+                                    Dim duration As Integer
+
                                     If AuraExpire = 0L Then 'Infinite duration aura
                                         duration = _Global_Constants.SPELL_DURATION_INFINITE
                                     ElseIf AuraExpire < 0L Then 'Duration paused during offline-time
@@ -4806,66 +4810,66 @@ DoneAmmo:
                 Dim tmpValues As String = " VALUES (" & Account_ID
                 Dim temp As New ArrayList
 
-                tmpCMD = tmpCMD & ", char_name"
+                tmpCMD &= ", char_name"
                 tmpValues = tmpValues & ", """ & Name & """"
-                tmpCMD = tmpCMD & ", char_race"
+                tmpCMD &= ", char_race"
                 tmpValues = tmpValues & ", " & Race
-                tmpCMD = tmpCMD & ", char_class"
+                tmpCMD &= ", char_class"
                 tmpValues = tmpValues & ", " & Classe
-                tmpCMD = tmpCMD & ", char_gender"
+                tmpCMD &= ", char_gender"
                 tmpValues = tmpValues & ", " & Gender
-                tmpCMD = tmpCMD & ", char_skin"
+                tmpCMD &= ", char_skin"
                 tmpValues = tmpValues & ", " & Skin
-                tmpCMD = tmpCMD & ", char_face"
+                tmpCMD &= ", char_face"
                 tmpValues = tmpValues & ", " & Face
-                tmpCMD = tmpCMD & ", char_hairStyle"
+                tmpCMD &= ", char_hairStyle"
                 tmpValues = tmpValues & ", " & HairStyle
-                tmpCMD = tmpCMD & ", char_hairColor"
+                tmpCMD &= ", char_hairColor"
                 tmpValues = tmpValues & ", " & HairColor
-                tmpCMD = tmpCMD & ", char_facialHair"
+                tmpCMD &= ", char_facialHair"
                 tmpValues = tmpValues & ", " & FacialHair
-                tmpCMD = tmpCMD & ", char_level"
+                tmpCMD &= ", char_level"
                 tmpValues = tmpValues & ", " & Level
-                tmpCMD = tmpCMD & ", char_manaType"
+                tmpCMD &= ", char_manaType"
                 tmpValues = tmpValues & ", " & ManaType
 
-                tmpCMD = tmpCMD & ", char_mana"
+                tmpCMD &= ", char_mana"
                 tmpValues = tmpValues & ", " & Mana.Base
-                tmpCMD = tmpCMD & ", char_rage"
+                tmpCMD &= ", char_rage"
                 tmpValues = tmpValues & ", " & Rage.Base
-                tmpCMD = tmpCMD & ", char_energy"
+                tmpCMD &= ", char_energy"
                 tmpValues = tmpValues & ", " & Energy.Base
-                tmpCMD = tmpCMD & ", char_life"
+                tmpCMD &= ", char_life"
                 tmpValues = tmpValues & ", " & Life.Base
 
-                tmpCMD = tmpCMD & ", char_positionX"
+                tmpCMD &= ", char_positionX"
                 tmpValues = tmpValues & ", " & Trim(Str(positionX))
-                tmpCMD = tmpCMD & ", char_positionY"
+                tmpCMD &= ", char_positionY"
                 tmpValues = tmpValues & ", " & Trim(Str(positionY))
-                tmpCMD = tmpCMD & ", char_positionZ"
+                tmpCMD &= ", char_positionZ"
                 tmpValues = tmpValues & ", " & Trim(Str(positionZ))
-                tmpCMD = tmpCMD & ", char_map_id"
+                tmpCMD &= ", char_map_id"
                 tmpValues = tmpValues & ", " & MapID
-                tmpCMD = tmpCMD & ", char_zone_id"
+                tmpCMD &= ", char_zone_id"
                 tmpValues = tmpValues & ", " & ZoneID
-                tmpCMD = tmpCMD & ", char_orientation"
+                tmpCMD &= ", char_orientation"
                 tmpValues = tmpValues & ", " & Trim(Str(orientation))
-                tmpCMD = tmpCMD & ", bindpoint_positionX"
+                tmpCMD &= ", bindpoint_positionX"
                 tmpValues = tmpValues & ", " & Trim(Str(bindpoint_positionX))
-                tmpCMD = tmpCMD & ", bindpoint_positionY"
+                tmpCMD &= ", bindpoint_positionY"
                 tmpValues = tmpValues & ", " & Trim(Str(bindpoint_positionY))
-                tmpCMD = tmpCMD & ", bindpoint_positionZ"
+                tmpCMD &= ", bindpoint_positionZ"
                 tmpValues = tmpValues & ", " & Trim(Str(bindpoint_positionZ))
-                tmpCMD = tmpCMD & ", bindpoint_map_id"
+                tmpCMD &= ", bindpoint_map_id"
                 tmpValues = tmpValues & ", " & bindpoint_map_id
-                tmpCMD = tmpCMD & ", bindpoint_zone_id"
+                tmpCMD &= ", bindpoint_zone_id"
                 tmpValues = tmpValues & ", " & bindpoint_zone_id
 
-                tmpCMD = tmpCMD & ", char_copper"
+                tmpCMD &= ", char_copper"
                 tmpValues = tmpValues & ", " & Copper
-                tmpCMD = tmpCMD & ", char_xp"
+                tmpCMD &= ", char_xp"
                 tmpValues = tmpValues & ", " & XP
-                tmpCMD = tmpCMD & ", char_xp_rested"
+                tmpCMD &= ", char_xp_rested"
                 tmpValues = tmpValues & ", " & RestBonus
 
                 'char_skillList
@@ -4873,18 +4877,18 @@ DoneAmmo:
                 For Each Skill As KeyValuePair(Of Integer, WS_PlayerHelper.TSkill) In Skills
                     temp.Add(String.Format("{0}:{1}:{2}", Skill.Key, Skill.Value.Current, Skill.Value.Maximum))
                 Next
-                tmpCMD = tmpCMD & ", char_skillList"
+                tmpCMD &= ", char_skillList"
                 tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
-                tmpCMD = tmpCMD & ", char_auraList"
-                tmpValues = tmpValues & ", """""
+                tmpCMD &= ", char_auraList"
+                tmpValues &= ", """""
 
                 'char_tutorialFlags
                 temp.Clear()
                 For Each Flag As Byte In TutorialFlags
                     temp.Add(Flag)
                 Next
-                tmpCMD = tmpCMD & ", char_tutorialFlags"
+                tmpCMD &= ", char_tutorialFlags"
                 tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
                 'char_mapExplored
@@ -4892,7 +4896,7 @@ DoneAmmo:
                 For Each Flag As Byte In ZonesExplored
                     temp.Add(Flag)
                 Next
-                tmpCMD = tmpCMD & ", char_mapExplored"
+                tmpCMD &= ", char_mapExplored"
                 tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
                 'char_reputation
@@ -4900,7 +4904,7 @@ DoneAmmo:
                 For Each Reputation_Point As WS_PlayerHelper.TReputation In Reputation
                     temp.Add(Reputation_Point.Flags & ":" & Reputation_Point.Value)
                 Next
-                tmpCMD = tmpCMD & ", char_reputation"
+                tmpCMD &= ", char_reputation"
                 tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
                 'char_actionBar
@@ -4908,24 +4912,24 @@ DoneAmmo:
                 For Each ActionButton As KeyValuePair(Of Byte, WS_PlayerHelper.TActionButton) In ActionButtons
                     temp.Add(String.Format("{0}:{1}:{2}:{3}", ActionButton.Key, ActionButton.Value.Action, ActionButton.Value.ActionType, ActionButton.Value.ActionMisc))
                 Next
-                tmpCMD = tmpCMD & ", char_actionBar"
+                tmpCMD &= ", char_actionBar"
                 tmpValues = tmpValues & ", """ & Join(temp.ToArray, " ") & """"
 
-                tmpCMD = tmpCMD & ", char_strength"
+                tmpCMD &= ", char_strength"
                 tmpValues = tmpValues & ", " & Strength.RealBase
-                tmpCMD = tmpCMD & ", char_agility"
+                tmpCMD &= ", char_agility"
                 tmpValues = tmpValues & ", " & Agility.RealBase
-                tmpCMD = tmpCMD & ", char_stamina"
+                tmpCMD &= ", char_stamina"
                 tmpValues = tmpValues & ", " & Stamina.RealBase
-                tmpCMD = tmpCMD & ", char_intellect"
+                tmpCMD &= ", char_intellect"
                 tmpValues = tmpValues & ", " & Intellect.RealBase
-                tmpCMD = tmpCMD & ", char_spirit"
+                tmpCMD &= ", char_spirit"
                 tmpValues = tmpValues & ", " & Spirit.RealBase
 
                 Dim ForceRestrictions As UInteger = 0
                 If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDECLOAK
                 If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
-                tmpCMD = tmpCMD & ", force_restrictions"
+                tmpCMD &= ", force_restrictions"
                 tmpValues = tmpValues & ", " & ForceRestrictions
 
                 tmpCMD = tmpCMD & ") " & tmpValues & ");"
@@ -4985,7 +4989,7 @@ DoneAmmo:
                     tmp = tmp & ", char_positionY=" & Trim(Str(positionY))
                     tmp = tmp & ", char_positionZ=" & Trim(Str(positionZ))
                     tmp = tmp & ", char_orientation=" & Trim(Str(orientation))
-                    tmp = tmp & ", char_transportGuid=0"
+                    tmp &= ", char_transportGuid=0"
                 End If
                 tmp = tmp & ", bindpoint_positionX=" & Trim(Str(bindpoint_positionX))
                 tmp = tmp & ", bindpoint_positionY=" & Trim(Str(bindpoint_positionY))
@@ -5065,7 +5069,7 @@ DoneAmmo:
                 If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then ForceRestrictions = ForceRestrictions Or ForceRestrictionFlags.RESTRICT_HIDEHELM
                 tmp = tmp & ", force_restrictions=" & ForceRestrictions
 
-                tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
+                tmp += String.Format(" WHERE char_guid = ""{0}"";", GUID)
                 _WorldServer.CharacterDatabase.Update(tmp)
             End Sub
 
@@ -5077,7 +5081,7 @@ DoneAmmo:
                 tmp = tmp & ", char_positionZ=" & Trim(Str(positionZ))
                 tmp = tmp & ", char_map_id=" & MapID
 
-                tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", GUID)
+                tmp += String.Format(" WHERE char_guid = ""{0}"";", GUID)
                 _WorldServer.CharacterDatabase.Update(tmp)
             End Sub
 
@@ -5233,8 +5237,7 @@ DoneAmmo:
                     Dim updateDataCount As Integer = UpdateData.Count
                     Dim tmpState As Integer = TalkQuests(QuestSlot).GetState
                     Dim tmpProgress As Integer = TalkQuests(QuestSlot).GetProgress
-                    Dim tmpTimer As Integer = 0
-                    If TalkQuests(QuestSlot).TimeEnd > 0 Then tmpTimer = TalkQuests(QuestSlot).TimeEnd - _Functions.GetTimestamp(Now)
+                    If TalkQuests(QuestSlot).TimeEnd > 0 Then Dim tmpTimer As Integer = TalkQuests(QuestSlot).TimeEnd - _Functions.GetTimestamp(Now)
                     _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = {2} WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID, tmpProgress))
 
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3, tmpProgress)

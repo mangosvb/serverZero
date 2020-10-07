@@ -19,9 +19,7 @@
 Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
-Imports Mangos.World.Auction
 Imports Mangos.World.Loots
 Imports Mangos.World.Maps
 Imports Mangos.World.Spells

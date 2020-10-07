@@ -27,7 +27,7 @@ Imports Microsoft.Extensions.Logging
 Public Class ProxyServer(Of T As Hub)
     Implements IDisposable
 
-    Private webhost As IHost
+    Private ReadOnly webhost As IHost
 
     Sub New(address As IPAddress, port As Integer, hub As T)
         Dim hostbuilder = Host.CreateDefaultBuilder()

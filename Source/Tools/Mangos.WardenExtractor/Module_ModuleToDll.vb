@@ -116,7 +116,6 @@ Public Module Module_ModuleToDll
         dataPos += 4
         Dim Signature(&H100 - 1) As Byte
         Array.Copy(ModData, dataPos, Signature, 0, Signature.Length)
-        dataPos += &H100
 
         'Check signature
         If CheckSignature(Signature, ModData, ModData.Length - &H104) = False Then
@@ -130,7 +129,6 @@ Public Module Module_ModuleToDll
         fs3.Write(DecompressedData, 0, DecompressedData.Length)
         fs3.Close()
         fs3.Dispose()
-        fs3 = Nothing
 
         FixNormalDll(DecompressedData)
 
@@ -138,7 +136,6 @@ Public Module Module_ModuleToDll
         fs2.Write(DecompressedData, 0, DecompressedData.Length)
         fs2.Close()
         fs2.Dispose()
-        fs2 = Nothing
     End Sub
 
     Public Sub DllToModule(ByVal DllName As String, ByRef DllData() As Byte)
@@ -161,15 +158,12 @@ Public Module Module_ModuleToDll
 
         Dim tmpData() As Byte = mw.ToArray
         Dim Signature() As Byte = CreateSignature(tmpData, tmpData.Length - 4)
-        tmpData = Nothing
 
         bw.Write(Signature, 0, Signature.Length)
 
         tmpData = mw.ToArray
         mw.Close()
         mw.Dispose()
-        mw = Nothing
-        bw = Nothing
 
 
         RC4.Crypt(tmpData, Key)
@@ -178,7 +172,6 @@ Public Module Module_ModuleToDll
         fs2.Write(tmpData, 0, tmpData.Length)
         fs2.Close()
         fs2.Dispose()
-        fs2 = Nothing
     End Sub
 
     Public Function CheckSignature(ByVal Signature() As Byte, ByVal Data() As Byte, ByVal DataLen As Integer) As Boolean

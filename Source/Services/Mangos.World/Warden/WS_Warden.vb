@@ -99,7 +99,6 @@ Namespace Warden
                 dataPos += 4
                 Dim Signature(&H100 - 1) As Byte
                 Array.Copy(Data, dataPos, Signature, 0, Signature.Length)
-                dataPos += &H100
 
                 'Check signature
                 If CheckSignature(Signature, Data, Data.Length - &H104) = False Then
@@ -108,7 +107,6 @@ Namespace Warden
                 End If
 
                 Dim DecompressedData() As Byte = _GlobalZip.DeCompress(CompressedData)
-                CompressedData = Nothing
 
                 If Not PrepairModule(DecompressedData) Then Return False
 
@@ -196,7 +194,7 @@ Namespace Warden
                 Public dwChunkCount As Integer
             End Structure
 
-            Private delegateCache As New Dictionary(Of String, [Delegate])
+            Private ReadOnly delegateCache As New Dictionary(Of String, [Delegate])
 
             Private dwModuleSize As Integer = 0
             Private dwLibraryCount As Integer = 0
@@ -385,7 +383,7 @@ Namespace Warden
             Private Tick As TickDelegate = Nothing
 
             Private m_Mod As Integer = 0
-            Private m_ModMem As Integer = 0
+            Private ReadOnly m_ModMem As Integer = 0
 
             Private InitPointer As Integer = 0
             Private init As InitializeModule = Nothing
@@ -630,10 +628,10 @@ Namespace Warden
 #Region "Scans"
         Public Class WardenScan
 
-            Private Character As WS_PlayerData.CharacterObject = Nothing
+            Private ReadOnly Character As WS_PlayerData.CharacterObject = Nothing
 
-            Private UsedStrings As New List(Of String)
-            Private Checks As New List(Of CheatCheck)
+            Private ReadOnly UsedStrings As New List(Of String)
+            Private ReadOnly Checks As New List(Of CheatCheck)
 
             Public Sub New(ByRef objCharacter As WS_PlayerData.CharacterObject)
                 Character = objCharacter
@@ -857,8 +855,6 @@ Namespace Warden
                 Dim tmpData() As Byte = ms.ToArray
                 ms.Close()
                 'ms.Dispose()
-                ms = Nothing
-                bw = Nothing
                 Return tmpData
             End Function
 

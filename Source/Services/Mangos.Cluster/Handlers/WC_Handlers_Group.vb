@@ -22,7 +22,6 @@ Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Group
@@ -379,7 +378,7 @@ Namespace Handlers
                 response.AddUInt32(CInt(r.Item("expire")) - _Functions.GetTimestamp(Now))  'TimeLeft
                 response.AddUInt32(r.Item("instance"))                          'InstanceID
                 response.AddUInt32(i)                                           'Counter
-                i = i + 1
+                i += 1
             Next
             client.Send(response)
             response.Dispose()
@@ -634,7 +633,6 @@ Namespace Handlers
                         Dim tmpPlayer As WcHandlerCharacter.CharacterObject = client.Character.Group.Members(j)
                         client.Character.Group.Members(j) = client.Character.Group.Members(i)
                         client.Character.Group.Members(i) = tmpPlayer
-                        tmpPlayer = Nothing
 
                         If client.Character.Group.Leader = i Then
                             client.Character.Group.Leader = j

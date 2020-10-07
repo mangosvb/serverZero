@@ -18,14 +18,12 @@
 
 Imports System.Threading
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Group
 Imports Mangos.Common.Enums.Map
 Imports Mangos.Common.Globals
 Imports Mangos.SignalR
 Imports Mangos.World.Globals
-Imports Mangos.World.Handlers
 Imports Mangos.World.Maps
 Imports Mangos.World.Player
 Imports Mangos.World.Social
@@ -51,9 +49,9 @@ Namespace Server
             Public _flagStopListen As Boolean = False
             Public LocalURI As String
 
-            Private m_RemoteURI As String
-            Private m_Connection As Timer
-            Private m_TimerCPU As Timer
+            Private ReadOnly m_RemoteURI As String
+            Private ReadOnly m_Connection As Timer
+            Private ReadOnly m_TimerCPU As Timer
             Private LastInfo As Date
             Private LastCPUTime As Double = 0.0F
             Private UsageCPU As Single = 0.0F
@@ -76,7 +74,7 @@ Namespace Server
             Private _disposedValue As Boolean ' To detect redundant calls
 
             ' IDisposable
-            Protected Overridable Sub Dispose(ByVal disposing As Boolean)
+            Protected Overridable Overloads Sub Dispose(ByVal disposing As Boolean)
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
@@ -90,7 +88,7 @@ Namespace Server
             End Sub
 
             ' This code added by Visual Basic to correctly implement the disposable pattern.
-            Public Sub Dispose() Implements IDisposable.Dispose
+            Public Overloads Sub Dispose() Implements IDisposable.Dispose
                 ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
                 Dispose(True)
                 GC.SuppressFinalize(Me)
@@ -235,9 +233,10 @@ Namespace Server
             End Sub
 
             Public Function GetServerInfo() As ServerInfo Implements IWorld.GetServerInfo
-                Dim serverInfo As New ServerInfo
-                serverInfo.cpuUsage = UsageCPU
-                serverInfo.memoryUsage = Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024)
+                Dim serverInfo As New ServerInfo With {
+                    .cpuUsage = UsageCPU,
+                    .memoryUsage = Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024)
+                }
                 Return serverInfo
             End Function
 

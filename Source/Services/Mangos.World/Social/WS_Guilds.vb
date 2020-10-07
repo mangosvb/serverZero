@@ -87,12 +87,9 @@ Namespace Social
             If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) = False OrElse (_WorldServer.WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_PETITIONER) = 0 Then Exit Sub
 
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PETITION_BUY [GuildName={2}]", client.IP, client.Port, Name)
-
-            Dim CharterID As Integer = 0
-            Dim CharterPrice As Integer = 0
             If client.Character.GuildID <> 0 Then Exit Sub
-            CharterID = _Global_Constants.PETITION_GUILD
-            CharterPrice = _Global_Constants.PETITION_GUILD_PRICE
+            Dim CharterID As Integer = _Global_Constants.PETITION_GUILD
+            Dim CharterPrice As Integer = _Global_Constants.PETITION_GUILD_PRICE
 
             Dim q As New DataTable
             _WorldServer.CharacterDatabase.Query(String.Format("SELECT guild_id FROM guilds WHERE guild_name = '{0}'", Name), q)

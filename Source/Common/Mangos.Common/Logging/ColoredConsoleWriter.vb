@@ -17,7 +17,6 @@
 '
 
 Imports System.Runtime.CompilerServices
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 'Using this logging type, all logs are displayed in console.

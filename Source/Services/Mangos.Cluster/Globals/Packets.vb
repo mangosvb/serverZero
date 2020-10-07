@@ -19,7 +19,6 @@
 Imports System.IO
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Server
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 Namespace Globals
@@ -70,9 +69,9 @@ Namespace Globals
                 Dim TypeStr As String = "IN"
                 If Server Then TypeStr = "OUT"
                 If client Is Nothing Then
-                    buffer = buffer + String.Format("{4} Packet: (0x{0:X4}) {1} PacketSize = {2}{3}", CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
+                    buffer += String.Format("{4} Packet: (0x{0:X4}) {1} PacketSize = {2}{3}", CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
                 Else
-                    buffer = buffer + String.Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", client.IP, client.Port, CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
+                    buffer += String.Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", client.IP, client.Port, CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
                 End If
 
                 buffer += "|------------------------------------------------|----------------|" & vbNewLine
@@ -284,7 +283,7 @@ Namespace Globals
 
             Public Function GetUInt8() As UShort
                 Dim num1 As UShort = (Data.Length + 1)
-                Offset = (Offset + 1)
+                Offset += 1
                 Return num1
             End Function
 
@@ -324,7 +323,7 @@ Namespace Globals
             End Sub
 
             Public Function GetInt8() As Byte
-                Offset = Offset + 1
+                Offset += 1
                 Return Data(Offset - 1)
             End Function
 
@@ -335,7 +334,7 @@ Namespace Globals
 
             Public Function GetInt16() As Short
                 Dim num1 As Short = BitConverter.ToInt16(Data, Offset)
-                Offset = (Offset + 2)
+                Offset += 2
                 Return num1
             End Function
 
@@ -347,7 +346,7 @@ Namespace Globals
 
             Public Function GetInt32() As Integer
                 Dim num1 As Integer = BitConverter.ToInt32(Data, Offset)
-                Offset = (Offset + 4)
+                Offset += 4
                 Return num1
             End Function
 
@@ -359,7 +358,7 @@ Namespace Globals
 
             Public Function GetInt64() As Long
                 Dim num1 As Long = BitConverter.ToInt64(Data, Offset)
-                Offset = (Offset + 8)
+                Offset += 8
                 Return num1
             End Function
 
@@ -371,7 +370,7 @@ Namespace Globals
 
             Public Function GetFloat() As Single
                 Dim single1 As Single = BitConverter.ToSingle(Data, Offset)
-                Offset = (Offset + 4)
+                Offset += 4
                 Return single1
             End Function
 
@@ -383,7 +382,7 @@ Namespace Globals
 
             Public Function GetDouble() As Double
                 Dim num1 As Double = BitConverter.ToDouble(Data, Offset)
-                Offset = (Offset + 8)
+                Offset += 8
                 Return num1
             End Function
 
@@ -398,10 +397,10 @@ Namespace Globals
                 Dim i As Integer = 0
 
                 While Data(start + i) <> 0
-                    i = i + 1
-                    Offset = Offset + 1
+                    i += 1
+                    Offset += 1
                 End While
-                Offset = Offset + 1
+                Offset += 1
 
                 Return Text.Encoding.UTF8.GetString(Data, start, i)
             End Function
@@ -420,7 +419,7 @@ Namespace Globals
 
             Public Function GetUInt16() As UShort
                 Dim num1 As UShort = BitConverter.ToUInt16(Data, Offset)
-                Offset = (Offset + 2)
+                Offset += 2
                 Return num1
             End Function
 
@@ -432,7 +431,7 @@ Namespace Globals
 
             Public Function GetUInt32() As UInteger
                 Dim num1 As UInteger = BitConverter.ToUInt32(Data, Offset)
-                Offset = (Offset + 4)
+                Offset += 4
                 Return num1
             End Function
 
@@ -444,7 +443,7 @@ Namespace Globals
 
             Public Function GetUInt64() As ULong
                 Dim num1 As ULong = BitConverter.ToUInt64(Data, Offset)
-                Offset = (Offset + 8)
+                Offset += 8
                 Return num1
             End Function
 

@@ -17,7 +17,6 @@
 '
 
 Imports System.Security.Cryptography
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Warden
 Imports Mangos.Common.Globals
@@ -30,8 +29,8 @@ Namespace Handlers
 
     Public Class WS_Handlers_Warden
 
-        Private OutKeyAdr As Integer
-        Private InKeyAdr As Integer
+        Private ReadOnly OutKeyAdr As Integer
+        Private ReadOnly InKeyAdr As Integer
 
 #Region "Warden.Handlers"
         Public Sub On_CMSG_WARDEN_DATA(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)

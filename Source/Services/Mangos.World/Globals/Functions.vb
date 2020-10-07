@@ -19,13 +19,11 @@
 Imports System.Data
 Imports System.Text.RegularExpressions
 Imports Mangos.Common
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Chat
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
-Imports Mangos.World.DataStores
 Imports Mangos.World.Player
 Imports Mangos.World.Server
 
@@ -98,7 +96,7 @@ Namespace Globals
         End Function
 
         Public Function HaveFlag(ByVal value As UInteger, ByVal flagPos As Byte) As Boolean
-            value = value >> CUInt(flagPos)
+            value >>= CUInt(flagPos)
             value = value Mod 2
 
             If value = 1 Then
@@ -176,13 +174,13 @@ Namespace Globals
             End If
         End Function
 
-        Private Regex_AZ As Regex = New Regex("^[a-zA-Z]+$")
+        Private ReadOnly Regex_AZ As Regex = New Regex("^[a-zA-Z]+$")
         Public Function ValidateName(ByVal strName As String) As Boolean
             If strName.Length < 2 OrElse strName.Length > 16 Then Return False
             Return Regex_AZ.IsMatch(strName)
         End Function
 
-        Private Regex_Guild As Regex = New Regex("^[a-z A-Z]+$")
+        Private ReadOnly Regex_Guild As Regex = New Regex("^[a-z A-Z]+$")
         Public Function ValidateGuildName(ByVal strName As String) As Boolean
             If strName.Length < 2 OrElse strName.Length > 16 Then Return False
             Return Regex_Guild.IsMatch(strName)
@@ -329,17 +327,17 @@ Namespace Globals
             If Red < 16 Then
                 SetColor = SetColor & "0" & Hex(Red)
             Else
-                SetColor = SetColor & Hex(Red)
+                SetColor &= Hex(Red)
             End If
             If Green < 16 Then
                 SetColor = SetColor & "0" & Hex(Green)
             Else
-                SetColor = SetColor & Hex(Green)
+                SetColor &= Hex(Green)
             End If
             If Blue < 16 Then
                 SetColor = SetColor & "0" & Hex(Blue)
             Else
-                SetColor = SetColor & Hex(Blue)
+                SetColor &= Hex(Blue)
             End If
             SetColor = SetColor & Message & "|r"
 

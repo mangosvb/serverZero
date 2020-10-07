@@ -22,7 +22,6 @@ Imports System.Threading
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Authentication
 Imports Mangos.Common.Enums.Character
 Imports Mangos.Common.Enums.Global
@@ -263,7 +262,6 @@ Namespace Handlers
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REQUEST_ACCOUNT_DATA [ID={2}]", client.IP, client.Port, DataID)
             If DataID > 7 Then Exit Sub
 
-            Dim FoundData As Boolean = False
             'Dim AccData As New DataTable
             '_WorldCluster.AccountDatabase.Query(String.Format("SELECT account_id FROM accounts WHERE username = ""{0}"";", client.Account), AccData)
             'If AccData.Rows.Count > 0 Then
@@ -554,9 +552,8 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_PLAYER_LOGIN(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
-            Dim GUID As ULong = 0
             packet.GetInt16()               'int16 unknown
-            GUID = packet.GetUInt64()       'uint64 guid
+            Dim GUID As ULong = packet.GetUInt64()
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", client.IP, client.Port, GUID)
 
             If client.Character Is Nothing Then

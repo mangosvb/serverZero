@@ -28,7 +28,7 @@ Namespace Creatures
         Private CurrentWaypoint As Integer = 0
         Private NextWaypoint As Integer = 0
 
-        Private Waypoints As New List(Of WS_DBCDatabase.CreatureMovePoint)
+        Private ReadOnly Waypoints As New List(Of WS_DBCDatabase.CreatureMovePoint)
 
         Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
             aiCreature = Creature

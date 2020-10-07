@@ -33,7 +33,7 @@ Public Class ProxyClient
         End If
     End Function
 
-    Public Shared Function Create(Of T)(url As String) As T
+    Public Overloads Shared Function Create(Of T)(url As String) As T
         Dim hubConnectionBuilder = New HubConnectionBuilder()
         hubConnectionBuilder.WithUrl(url)
         Dim hubConnection = hubConnectionBuilder.Build()

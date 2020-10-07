@@ -21,7 +21,7 @@ Imports System.Net.Sockets
 Imports System.Net
 
 Public Module Worldserver
-    Private Connection As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
+    Private ReadOnly Connection As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP)
     Private ConnIP As IPAddress
     Private ConnPort As Integer
     Public Queue As New Queue
@@ -226,7 +226,7 @@ Public Module Worldserver
             Buffer(T) = A
 
             A = Key(1)
-            A = A + 1
+            A += 1
             Key(1) = A Mod 40
         Next T
     End Sub

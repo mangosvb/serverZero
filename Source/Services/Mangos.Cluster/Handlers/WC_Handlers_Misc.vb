@@ -20,7 +20,6 @@ Imports Mangos.Common
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Server
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
 
 Namespace Handlers

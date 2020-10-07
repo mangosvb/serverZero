@@ -31,8 +31,6 @@ Imports Mangos.World.Maps
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
 Imports Mangos.World.Server
-Imports Mangos.World.Spells
-Imports Mangos.World.Weather
 
 Namespace Handlers
 
