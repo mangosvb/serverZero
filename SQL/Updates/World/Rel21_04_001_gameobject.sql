@@ -41707,3 +41707,4 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2020-05-13 11:58:50
+INSERT INTO `db_version` VALUES (21, 04, 001, "gameobject", "gameobject");
