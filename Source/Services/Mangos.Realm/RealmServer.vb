@@ -31,9 +31,25 @@ Imports Mangos.Common.Logging
 Imports Mangos.Realm
 
 Public Class RealmServer
+    Private ReadOnly _CommonGlobalFunctions As Common.Globals.Functions
+    Private ReadOnly _Converter As Converter
+    Private ReadOnly _Global_Constants As Global_Constants
+    Private ReadOnly _RealmServerClassFactory as RealmServerClassFactory
+
     Private Const RealmPath As String = "configs/RealmServer.ini"
 
     Public Log As New BaseWriter
+
+    Public Sub New(
+                   commonGlobalFunctions As Common.Globals.Functions,
+                   converter As Converter,
+                   globalConstants As Global_Constants,
+                   realmServerClassFactory As RealmServerClassFactory)
+        _CommonGlobalFunctions = commonGlobalFunctions
+        _Converter = converter
+        _Global_Constants = globalConstants
+        _RealmServerClassFactory = realmServerClassFactory
+    End Sub
 
     Private Sub LoadConfig()
         Try
@@ -716,7 +732,7 @@ Public Class RealmServer
             End If
         End If
 
-        RealmServer = New RealmServerClass
+        RealmServer = _RealmServerClassFactory.Create(Me)
         GC.Collect()
 
         WorldServer_Status_Report()

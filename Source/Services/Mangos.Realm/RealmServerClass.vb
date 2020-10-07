@@ -5,7 +5,17 @@ Imports System.Threading
 Public Class RealmServerClass
     Implements IDisposable
 
-    Public Sub New()
+    Private ReadOnly _Global_Constants As Global_Constants
+    Private ReadOnly _ClientClassFactory As ClientClassFactory
+    Private ReadOnly _RealmServer As RealmServer
+
+    Public Sub New(globalConstants As Global_Constants,
+                   clientClassFactory As ClientClassFactory,
+                   realmServer As RealmServer)
+        _Global_Constants = globalConstants
+        _ClientClassFactory = clientClassFactory
+        _RealmServer = realmServer
+        LstHost = IPAddress.Parse(_RealmServer.Config.RealmServerAddress)
         Try
             Dim tcpListener As TcpListener = New TcpListener(LstHost, _RealmServer.Config.RealmServerPort)
             LstConnection = tcpListener
@@ -31,10 +41,8 @@ Public Class RealmServerClass
         Do While Not FlagStopListen
             Thread.Sleep(_Global_Constants.ConnectionSleepTime)
             If LstConnection.Pending() Then
-                Dim client As New ClientClass With {
-                        .Socket = LstConnection.AcceptSocket
-                        }
-
+                Dim client = _ClientClassFactory.Create(_RealmServer)
+                client.Socket = LstConnection.AcceptSocket
                 Call New Thread(AddressOf client.Process).Start()
             End If
         Loop
@@ -46,7 +54,7 @@ Public Class RealmServerClass
 
     Public Property FlagStopListen As Boolean = False
     Public ReadOnly Property LstConnection As TcpListener
-    Public ReadOnly Property LstHost As IPAddress = IPAddress.Parse(_RealmServer.Config.RealmServerAddress)
+    Public ReadOnly Property LstHost As IPAddress
 
     ' IDisposable
     'Default Functions
