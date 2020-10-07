@@ -1,4 +1,5 @@
-﻿Imports Mangos.World.AI
+﻿Imports Mangos.Common.Globals
+Imports Mangos.World.AI
 Imports Mangos.World.Auction
 Imports Mangos.World.Battlegrounds
 Imports Mangos.World.DataStores
@@ -16,8 +17,14 @@ Imports Mangos.World.Warden
 Imports Mangos.World.Weather
 
 Public Module WorldServiceLocator
+    Public Property _Global_Constants As New Global_Constants
+    Public Property _CommonGlobalFunctions As Mangos.Common.Globals.Functions
+    Public Property _CommonFunctions As New Mangos.Common.Functions
+    Public Property _GlobalZip As New GlobalZip
+    Public Property _NativeMethods As New Mangos.Common.NativeMethods
+
     Public Property _WorldServer As New WorldServer
-    Public Property _Functions As New Functions
+    Public Property _Functions As New Globals.Functions
     Public Property _WS_Creatures_AI As New WS_Creatures_AI
     Public Property _WS_Auction As New WS_Auction
     Public Property _WS_Battlegrounds As New WS_Battlegrounds
@@ -60,4 +67,8 @@ Public Module WorldServiceLocator
     Public Property _WS_Spells As New WS_Spells
     Public Property _WS_Warden As New WS_Warden
     Public Property _WS_Weather As New WS_Weather
+
+    Sub New()
+        _CommonGlobalFunctions = New Mangos.Common.Globals.Functions(_Global_Constants)
+    End Sub
 End Module

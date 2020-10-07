@@ -2,12 +2,20 @@
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
+Imports Mangos.Common
+Imports Mangos.Common.Globals
 
 Public Module ClusterServiceLocator
+    Public Property _Global_Constants As New Global_Constants
+    Public Property _CommonGlobalFunctions As Mangos.Common.Globals.Functions
+    Public Property _CommonFunctions As New Mangos.Common.Functions
+    Public Property _GlobalZip As New GlobalZip
+    Public Property _NativeMethods As New NativeMethods
+
     Public Property _WorldCluster As New WorldCluster
     Public Property _WS_DBCDatabase As New WS_DBCDatabase
     Public Property _WS_DBCLoad As New WS_DBCLoad
-    Public Property _Functions As New Functions
+    Public Property _Functions As New Globals.Functions
     Public Property _Packets As New Packets
     Public Property _WC_Guild As New WC_Guild
     Public Property _WC_Stats As New WC_Stats
@@ -23,4 +31,8 @@ Public Module ClusterServiceLocator
     Public Property _WC_Handlers_Tickets As New WC_Handlers_Tickets
     Public Property _WS_Handler_Channels As New WS_Handler_Channels
     Public Property _WcHandlerCharacter As New WcHandlerCharacter
+
+    Sub New()
+        _CommonGlobalFunctions = New Mangos.Common.Globals.Functions(_Global_Constants)
+    End Sub
 End Module

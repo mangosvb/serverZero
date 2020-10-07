@@ -30,8 +30,9 @@ Imports Mangos.Common.Enums.Authentication
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Logging
+Imports Mangos.Realm
 
-Public Module RealmServer
+Public Class RealmServer
     Private Const RealmPath As String = "configs/RealmServer.ini"
 
     Public Log As New BaseWriter
@@ -134,7 +135,7 @@ Public Module RealmServer
 
         Public Sub New()
             Try
-                Dim tcpListener As TcpListener = New TcpListener(LstHost, Config.RealmServerPort)
+                Dim tcpListener As TcpListener = New TcpListener(LstHost, RealmServiceLocator._RealmServer.Config.RealmServerPort)
                 LstConnection = tcpListener
                 LstConnection.Start()
 
@@ -145,7 +146,7 @@ Public Module RealmServer
                 rsListenThread = thread
                 rsListenThread.Start()
 
-                Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), LstHost, Config.RealmServerPort)
+                Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), LstHost, RealmServiceLocator._RealmServer.Config.RealmServerPort)
             Catch e As Exception
                 Console.WriteLine()
                 Console.ForegroundColor = ConsoleColor.Red
@@ -173,7 +174,7 @@ Public Module RealmServer
 
         Public Property FlagStopListen As Boolean = False
         Public ReadOnly Property LstConnection As TcpListener
-        Public ReadOnly Property LstHost As IPAddress = IPAddress.Parse(Config.RealmServerAddress)
+        Public ReadOnly Property LstHost As IPAddress = IPAddress.Parse(RealmServiceLocator._RealmServer.Config.RealmServerAddress)
 
         ' IDisposable
         'Default Functions
@@ -240,15 +241,15 @@ Public Module RealmServer
             Select Case data(0)
                 Case AuthCMD.CMD_AUTH_LOGON_CHALLENGE, AuthCMD.CMD_AUTH_RECONNECT_CHALLENGE
                     Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_CHALLENGE", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                    On_RS_LOGON_CHALLENGE(data, Me)
+                    RealmServiceLocator._RealmServer.On_RS_LOGON_CHALLENGE(data, Me)
 
                 Case AuthCMD.CMD_AUTH_LOGON_PROOF, AuthCMD.CMD_AUTH_RECONNECT_PROOF
                     Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                    On_RS_LOGON_PROOF(data, Me)
+                    RealmServiceLocator._RealmServer.On_RS_LOGON_PROOF(data, Me)
 
                 Case AuthCMD.CMD_AUTH_REALMLIST
                     Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                    On_RS_REALMLIST(data, Me)
+                    RealmServiceLocator._RealmServer.On_RS_REALMLIST(data, Me)
 
                 'TODO: No Value listed for AuthCMD
                 'Case CMD_AUTH_UPDATESRV
@@ -257,20 +258,20 @@ Public Module RealmServer
                 'ToDo: Check if these packets exist in supported version
                 Case AuthCMD.CMD_XFER_ACCEPT
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
-                    On_CMD_XFER_ACCEPT(data, Me)
+                    RealmServiceLocator._RealmServer.On_CMD_XFER_ACCEPT(data, Me)
 
                 Case AuthCMD.CMD_XFER_RESUME
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
-                    On_CMD_XFER_RESUME(data, Me)
+                    RealmServiceLocator._RealmServer.On_CMD_XFER_RESUME(data, Me)
 
                 Case AuthCMD.CMD_XFER_CANCEL
                     'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
-                    On_CMD_XFER_CANCEL(data, Me)
+                    RealmServiceLocator._RealmServer.On_CMD_XFER_CANCEL(data, Me)
                 Case Else
                     Console.ForegroundColor = ConsoleColor.Red
                     Console.WriteLine("[{0}] [{1}:{2}] Unknown Opcode 0x{3}", Format(TimeOfDay, "hh:mm:ss"), Ip, Port, data(0))
                     Console.ForegroundColor = ConsoleColor.Gray
-                    DumpPacket(data, Me)
+                    RealmServiceLocator._RealmServer.DumpPacket(data, Me)
             End Select
         End Sub
 
@@ -281,13 +282,13 @@ Public Module RealmServer
 
             'DONE: Connection spam protection
             Dim ipInt As UInteger
-            ipInt = Ip2Int(Ip.ToString)
+            ipInt = RealmServiceLocator._RealmServer.Ip2Int(Ip.ToString)
 
-            If Not LastSocketConnection.ContainsKey(ipInt) Then
-                LastSocketConnection.Add(ipInt, Now.AddSeconds(5))
+            If Not RealmServiceLocator._RealmServer.LastSocketConnection.ContainsKey(ipInt) Then
+                RealmServiceLocator._RealmServer.LastSocketConnection.Add(ipInt, Now.AddSeconds(5))
             Else
-                If Now > LastSocketConnection(ipInt) Then
-                    LastSocketConnection(ipInt) = Now.AddSeconds(5)
+                If Now > RealmServiceLocator._RealmServer.LastSocketConnection(ipInt) Then
+                    RealmServiceLocator._RealmServer.LastSocketConnection(ipInt) = Now.AddSeconds(5)
                 Else
                     Socket.Close()
                     Dispose()
@@ -299,9 +300,9 @@ Public Module RealmServer
             Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
             Console.ForegroundColor = ConsoleColor.Gray
-            If Not AccountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
+            If Not RealmServiceLocator._RealmServer.AccountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
 
-                While Not RealmServer.FlagStopListen
+                While Not RealmServiceLocator._RealmServer.RealmServer.FlagStopListen
                     Thread.Sleep(_Global_Constants.ConnectionSleepTime)
                     If Socket.Available > 0 Then
                         If Socket.Available > 100 Then 'DONE: Data flood protection
@@ -1019,4 +1020,4 @@ Public Module RealmServer
         tw.Write(ex.ToString)
         tw.Close()
     End Sub
-End Module
+End Class
