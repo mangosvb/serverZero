@@ -33,7 +33,7 @@ Imports Microsoft.AspNetCore.SignalR
 
 Namespace Server
 
-    Public Module WS_Network
+    Public Class WS_Network
 
         Private LastPing As Integer = 0
         Public WC_MsTime As Integer = 0
@@ -65,7 +65,7 @@ Namespace Server
                 Cluster = Nothing
 
                 'Creating connection timer
-                LastPing = _NativeMethods.timeGetTime("")
+                _WS_Network.LastPing = _NativeMethods.timeGetTime("")
                 m_Connection = New Timer(AddressOf CheckConnection, Nothing, 10000, 10000)
 
                 'Creating CPU check timer
@@ -128,7 +128,7 @@ Namespace Server
             End Sub
 
             Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
-                If Not WS_Maps.Maps.ContainsKey(map) Then
+                If Not _WS_Maps.Maps.ContainsKey(map) Then
                     _WorldServer.CLIENTs(ID).Character.Dispose()
                     _WorldServer.CLIENTs(ID).Delete()
                 End If
@@ -171,10 +171,10 @@ Namespace Server
                     _WorldServer.CHARACTERs_Lock.ReleaseWriterLock()
 
                     'DONE: SMSG_CORPSE_RECLAIM_DELAY
-                    SendCorpseReclaimDelay(client, Character)
+                    _Functions.SendCorpseReclaimDelay(client, Character)
 
                     'DONE: Cast talents and racial passive spells
-                    InitializeTalentSpells(Character)
+                    _WS_PlayerHelper.InitializeTalentSpells(Character)
 
                     Character.Login()
 
@@ -205,25 +205,25 @@ Namespace Server
 
             Public Function ClientCreateCharacter(ByVal account As String, ByVal name As String, ByVal race As Byte, ByVal classe As Byte, ByVal gender As Byte, ByVal skin As Byte, ByVal face As Byte, ByVal hairStyle As Byte, ByVal hairColor As Byte, ByVal facialHair As Byte, ByVal outfitId As Byte) As Integer Implements IWorld.ClientCreateCharacter
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Account {0} Created a character with Name {1}, Race {2}, Class {3}, Gender {4}, Skin {5}, Face {6}, HairStyle {7}, HairColor {8}, FacialHair {9}, outfitID {10}", account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
-                Return CreateCharacter(account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
+                Return _WS_Player_Creation.CreateCharacter(account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
             End Function
 
             Public Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer Implements IWorld.Ping
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", _NativeMethods.timeGetTime("") - timestamp)
-                LastPing = _NativeMethods.timeGetTime("")
-                WC_MsTime = timestamp + latency
+                _WS_Network.LastPing = _NativeMethods.timeGetTime("")
+                _WS_Network.WC_MsTime = timestamp + latency
 
                 Return _NativeMethods.timeGetTime("")
             End Function
 
             Public Sub CheckConnection(ByVal State As Object)
-                If (_NativeMethods.timeGetTime("") - LastPing) > 40000 Then
+                If (_NativeMethods.timeGetTime("") - _WS_Network.LastPing) > 40000 Then
                     If Cluster IsNot Nothing Then
                         _WorldServer.Log.WriteLine(LogType.FAILED, "Cluster timed out. Reconnecting")
                         ClusterDisconnect()
                     End If
                     ClusterConnect()
-                    LastPing = _NativeMethods.timeGetTime("")
+                    _WS_Network.LastPing = _NativeMethods.timeGetTime("")
                 End If
             End Sub
 
@@ -242,13 +242,13 @@ Namespace Server
             End Function
 
             Public Sub InstanceCreate(ByVal MapID As UInteger) Implements IWorld.InstanceCreate
-                If WS_Maps.Maps.ContainsKey(MapID) = False Then
+                If _WS_Maps.Maps.ContainsKey(MapID) = False Then
                     Dim Map As New WS_Maps.TMap(MapID)
                     'The New does a an add to the .Containskey collection above
                 End If
             End Sub
             Public Sub InstanceDestroy(ByVal MapID As UInteger) Implements IWorld.InstanceDestroy
-                WS_Maps.Maps(MapID).Dispose()
+                _WS_Maps.Maps(MapID).Dispose()
             End Sub
             Public Function InstanceCanCreate(ByVal Type As Integer) As Boolean Implements IWorld.InstanceCanCreate
                 Select Case Type
@@ -270,23 +270,23 @@ Namespace Server
                     _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G NULL]", ID)
 
                     _WorldServer.CLIENTs(ID).Character.Group = Nothing
-                    InstanceMapLeave(_WorldServer.CLIENTs(ID).Character)
+                    _WS_Handlers_Instance.InstanceMapLeave(_WorldServer.CLIENTs(ID).Character)
                 Else
                     _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G{1:00000}]", ID, GroupID)
 
-                    If Not WS_Group.Groups.ContainsKey(GroupID) Then
+                    If Not _WS_Group.Groups.ContainsKey(GroupID) Then
                         Dim Group As New WS_Group.Group(GroupID)
                         'The New does a an add to the .Containskey collection above
                         'Groups.Add(GroupID, Group)
                         Cluster.GroupRequestUpdate(ID)
                     End If
 
-                    _WorldServer.CLIENTs(ID).Character.Group = WS_Group.Groups(GroupID)
-                    InstanceMapEnter(_WorldServer.CLIENTs(ID).Character)
+                    _WorldServer.CLIENTs(ID).Character.Group = _WS_Group.Groups(GroupID)
+                    _WS_Handlers_Instance.InstanceMapEnter(_WorldServer.CLIENTs(ID).Character)
                 End If
             End Sub
             Public Sub GroupUpdate(ByVal GroupID As Long, ByVal GroupType As Byte, ByVal GroupLeader As ULong, ByVal Members() As ULong) Implements IWorld.GroupUpdate
-                If WS_Group.Groups.ContainsKey(GroupID) Then
+                If _WS_Group.Groups.ContainsKey(GroupID) Then
 
                     Dim list As New List(Of ULong)
                     For Each GUID As ULong In Members
@@ -296,34 +296,34 @@ Namespace Server
                     _WorldServer.Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update [{2}, {1} local members]", GroupID, list.Count, CType(GroupType, GroupType))
 
                     If list.Count = 0 Then
-                        WS_Group.Groups(GroupID).Dispose()
+                        _WS_Group.Groups(GroupID).Dispose()
                     Else
-                        WS_Group.Groups(GroupID).Type = GroupType
-                        WS_Group.Groups(GroupID).Leader = GroupLeader
-                        WS_Group.Groups(GroupID).LocalMembers = list
+                        _WS_Group.Groups(GroupID).Type = GroupType
+                        _WS_Group.Groups(GroupID).Leader = GroupLeader
+                        _WS_Group.Groups(GroupID).LocalMembers = list
                     End If
                 End If
             End Sub
             Public Sub GroupUpdateLoot(ByVal GroupID As Long, ByVal Difficulty As Byte, ByVal Method As Byte, ByVal Threshold As Byte, ByVal Master As ULong) Implements IWorld.GroupUpdateLoot
-                If WS_Group.Groups.ContainsKey(GroupID) Then
+                If _WS_Group.Groups.ContainsKey(GroupID) Then
 
                     _WorldServer.Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
-                    WS_Group.Groups(GroupID).DungeonDifficulty = Difficulty
-                    WS_Group.Groups(GroupID).LootMethod = Method
-                    WS_Group.Groups(GroupID).LootThreshold = Threshold
+                    _WS_Group.Groups(GroupID).DungeonDifficulty = Difficulty
+                    _WS_Group.Groups(GroupID).LootMethod = Method
+                    _WS_Group.Groups(GroupID).LootThreshold = Threshold
 
                     If _WorldServer.CHARACTERs.ContainsKey(Master) Then
-                        WS_Group.Groups(GroupID).LocalLootMaster = _WorldServer.CHARACTERs(Master)
+                        _WS_Group.Groups(GroupID).LocalLootMaster = _WorldServer.CHARACTERs(Master)
                     Else
-                        WS_Group.Groups(GroupID).LocalLootMaster = Nothing
+                        _WS_Group.Groups(GroupID).LocalLootMaster = Nothing
                     End If
                 End If
             End Sub
 
             Public Function GroupMemberStats(ByVal GUID As ULong, ByVal Flag As Integer) As Byte() Implements IWorld.GroupMemberStats
-                If Flag = 0 Then Flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL
-                Dim p As PacketClass = BuildPartyMemberStats(_WorldServer.CHARACTERs(GUID), Flag)
+                If Flag = 0 Then Flag = Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FULL
+                Dim p As Packets.PacketClass = _WS_Group.BuildPartyMemberStats(_WorldServer.CHARACTERs(GUID), Flag)
                 p.UpdateLength()
                 Return p.Data
             End Function
@@ -356,8 +356,8 @@ Namespace Server
             Inherits ClientInfo
             Implements IDisposable
 
-            Public Character As CharacterObject
-            Public Packets As New Queue(Of PacketClass)
+            Public Character As WS_PlayerData.CharacterObject
+            Public Packets As New Queue(Of Packets.PacketClass)
 
             Public DEBUG_CONNECTION As Boolean = False
 
@@ -369,7 +369,7 @@ Namespace Server
             Public Sub OnPacket(state As Object)
                 While Packets.Count >= 1
                     Try ' Trap a Packets.Dequeue issue when no packets are queued... possibly an error with the Packets.Count above'
-                        Dim p As PacketClass = Packets.Dequeue
+                        Dim p As Packets.PacketClass = Packets.Dequeue
                         Dim start As Integer = _NativeMethods.timeGetTime("")
                         Try
                             If Not IsNothing(p) Then
@@ -381,15 +381,15 @@ Namespace Server
                                         End If
                                     Catch e As Exception 'TargetInvocationException
                                         _WorldServer.Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, Environment.NewLine, p.OpCode, p.OpCode)
-                                        If Not IsNothing(p) Then DumpPacket(p.Data, Me)
+                                        If Not IsNothing(p) Then _Packets.DumpPacket(p.Data, Me)
                                     End Try
                                 Else
                                     _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
-                                    If Not IsNothing(p) Then DumpPacket(p.Data, Me)
+                                    If Not IsNothing(p) Then _Packets.DumpPacket(p.Data, Me)
                                 End If
                             Else
                                 _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] No Packet Information in Queue", IP, Port)
-                                If Not IsNothing(p) Then DumpPacket(p.Data, Me)
+                                If Not IsNothing(p) Then _Packets.DumpPacket(p.Data, Me)
                             End If
                         Catch err As Exception
                             _WorldServer.Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, Environment.NewLine)
@@ -399,7 +399,7 @@ Namespace Server
                             Catch ex As Exception
                                 If Packets.Count = 0 Then p.Dispose()
                                 _WorldServer.Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
-                                If Not IsNothing(p) Then DumpPacket(p.Data, Me)
+                                If Not IsNothing(p) Then _Packets.DumpPacket(p.Data, Me)
                             End Try
                         End Try
                     Catch err As Exception
@@ -428,7 +428,7 @@ Namespace Server
                     End Try
                 End SyncLock
             End Sub
-            Public Sub Send(ByRef packet As PacketClass)
+            Public Sub Send(ByRef packet As Packets.PacketClass)
                 If packet Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
                 SyncLock Me
                     Try
@@ -445,7 +445,7 @@ Namespace Server
                     End Try
                 End SyncLock
             End Sub
-            Public Sub SendMultiplyPackets(ByRef packet As PacketClass)
+            Public Sub SendMultiplyPackets(ByRef packet As Packets.PacketClass)
                 If packet Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
                 SyncLock Me
                     Try
@@ -519,5 +519,5 @@ Namespace Server
             End Sub
         End Class
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

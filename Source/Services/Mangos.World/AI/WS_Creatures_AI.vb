@@ -33,7 +33,7 @@ Imports Mangos.Common.Globals
 
 Namespace AI
 
-    Public Module WS_Creatures_AI
+    Public Class WS_Creatures_AI
 
 #Region "WS.Creatures.AI.Framework"
         Public Class TBaseAI
@@ -41,19 +41,19 @@ Namespace AI
 
             Public State As AIState = AIState.AI_DO_NOTHING
             Public aiTarget As WS_Base.BaseUnit = Nothing
-            Public aiHateTable As New Dictionary(Of BaseUnit, Integer)
-            Public aiHateTableRemove As New List(Of BaseUnit)
+            Public aiHateTable As New Dictionary(Of WS_Base.BaseUnit, Integer)
+            Public aiHateTableRemove As New List(Of WS_Base.BaseUnit)
 
             Public Overridable Function InCombat() As Boolean
                 Return (aiHateTable.Count > 0)
             End Function
             Public Sub ResetThreatTable()
-                Dim tmpUnits As New List(Of BaseUnit)
-                For Each Victim As KeyValuePair(Of BaseUnit, Integer) In aiHateTable
+                Dim tmpUnits As New List(Of WS_Base.BaseUnit)
+                For Each Victim As KeyValuePair(Of WS_Base.BaseUnit, Integer) In aiHateTable
                     tmpUnits.Add(Victim.Key)
                 Next
                 aiHateTable.Clear()
-                For Each Victim As BaseUnit In tmpUnits
+                For Each Victim As WS_Base.BaseUnit In tmpUnits
                     aiHateTable.Add(Victim, 0)
                 Next
             End Sub
@@ -77,9 +77,9 @@ Namespace AI
             End Sub
             Public Overridable Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)
             End Sub
-            Public Overridable Sub OnGenerateHate(ByRef Attacker As BaseUnit, ByVal HateValue As Integer)
+            Public Overridable Sub OnGenerateHate(ByRef Attacker As WS_Base.BaseUnit, ByVal HateValue As Integer)
             End Sub
-            Public Overridable Sub OnKill(ByRef Victim As BaseUnit)
+            Public Overridable Sub OnKill(ByRef Victim As WS_Base.BaseUnit)
             End Sub
             Public Overridable Sub OnHealthChange(ByVal Percent As Integer)
             End Sub
@@ -126,7 +126,7 @@ Namespace AI
         Public Class DefaultAI
             Inherits TBaseAI
 
-            Protected aiCreature As CreatureObject = Nothing
+            Protected aiCreature As WS_Creatures.CreatureObject = Nothing
             Protected aiTimer As Integer = 0
             Protected nextAttack As Integer = 0
             Protected ignoreLoot As Boolean = False
@@ -151,7 +151,7 @@ Namespace AI
             Protected Const AI_INTERVAL_DEAD As Integer = 60000
             Protected Const PIx2 As Single = 2 * Math.PI
 
-            Public Sub New(ByRef Creature As CreatureObject)
+            Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
                 State = AIState.AI_WANDERING
 
                 aiCreature = Creature
@@ -200,9 +200,9 @@ Namespace AI
             End Sub
             Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)
                 'DONE: Remove combat flag from everyone
-                For Each Victim As KeyValuePair(Of BaseUnit, Integer) In aiHateTable
+                For Each Victim As KeyValuePair(Of WS_Base.BaseUnit, Integer) In aiHateTable
                     If TypeOf Victim.Key Is WS_PlayerData.CharacterObject Then
-                        CType(Victim.Key, CharacterObject).RemoveFromCombat(aiCreature)
+                        CType(Victim.Key, WS_PlayerData.CharacterObject).RemoveFromCombat(aiCreature)
                     End If
                 Next
 
@@ -233,7 +233,7 @@ Namespace AI
                     DoMoveReset()
                 End If
             End Sub
-            Public Overrides Sub OnGenerateHate(ByRef Attacker As BaseUnit, ByVal HateValue As Integer)
+            Public Overrides Sub OnGenerateHate(ByRef Attacker As WS_Base.BaseUnit, ByVal HateValue As Integer)
                 If Attacker Is aiCreature Then Exit Sub
                 If State <> AIState.AI_DEAD AndAlso State <> AIState.AI_RESPAWN AndAlso State <> AIState.AI_MOVING_TO_SPAWN Then
                     aiCreature.SetToRealPosition()
@@ -241,8 +241,8 @@ Namespace AI
                     LastHitY = aiCreature.positionY
                     LastHitZ = aiCreature.positionZ
 
-                    If TypeOf Attacker Is CharacterObject Then
-                        CType(Attacker, CharacterObject).AddToCombat(aiCreature)
+                    If TypeOf Attacker Is WS_PlayerData.CharacterObject Then
+                        CType(Attacker, WS_PlayerData.CharacterObject).AddToCombat(aiCreature)
                     End If
 
                     If InCombat() = False Then
@@ -275,14 +275,14 @@ Namespace AI
             Protected Sub SelectTarget()
                 Try
                     Dim max As Integer = -1
-                    Dim tmpTarget As BaseUnit = Nothing
+                    Dim tmpTarget As WS_Base.BaseUnit = Nothing
 
                     'DONE: Select max hate
-                    For Each Victim As KeyValuePair(Of BaseUnit, Integer) In aiHateTable
+                    For Each Victim As KeyValuePair(Of WS_Base.BaseUnit, Integer) In aiHateTable
                         If Victim.Key.IsDead Then
                             aiHateTableRemove.Add(Victim.Key)
-                            If TypeOf Victim.Key Is CharacterObject Then
-                                CType(Victim.Key, CharacterObject).RemoveFromCombat(aiCreature)
+                            If TypeOf Victim.Key Is WS_PlayerData.CharacterObject Then
+                                CType(Victim.Key, WS_PlayerData.CharacterObject).RemoveFromCombat(aiCreature)
                             End If
                         ElseIf Victim.Value > max Then
                             max = Victim.Value
@@ -291,7 +291,7 @@ Namespace AI
                     Next
 
                     ' Remove From aiHateTable
-                    For Each VictimRemove As BaseUnit In aiHateTableRemove
+                    For Each VictimRemove As WS_Base.BaseUnit In aiHateTableRemove
                         aiHateTable.Remove(VictimRemove)
                     Next
 
@@ -322,7 +322,7 @@ Namespace AI
             Public Overrides Sub DoThink()
                 If aiCreature Is Nothing Then Exit Sub 'Fixes a crash
                 If aiTimer > WS_TimerBasedEvents.TAIManager.UPDATE_TIMER Then
-                    aiTimer -= TAIManager.UPDATE_TIMER
+                    aiTimer -= WS_TimerBasedEvents.TAIManager.UPDATE_TIMER
                     Exit Sub
                 Else
                     aiTimer = 0
@@ -362,12 +362,12 @@ Namespace AI
                         If aiHateTable.Count > 0 Then
                             OnLeaveCombat(False)
 
-                            aiTimer = CorpseDecay(aiCreature.CreatureInfo.Elite) * 1000
+                            aiTimer = _WS_Creatures.CorpseDecay(aiCreature.CreatureInfo.Elite) * 1000
                             ignoreLoot = False
                         Else
-                            If ignoreLoot = False AndAlso LootTable.ContainsKey(aiCreature.GUID) Then
+                            If ignoreLoot = False AndAlso _WS_Loot.LootTable.ContainsKey(aiCreature.GUID) Then
                                 'DONE: There's still loot, double up the decay time
-                                aiTimer = CorpseDecay(aiCreature.CreatureInfo.Elite) * 1000
+                                aiTimer = _WS_Creatures.CorpseDecay(aiCreature.CreatureInfo.Elite) * 1000
                                 ignoreLoot = True 'And make sure the corpse decay after this
                             Else
                                 State = AIState.AI_RESPAWN
@@ -436,28 +436,28 @@ Namespace AI
                             Exit Sub
                         End If
 
-                        Dim distance As Single = GetDistance(aiCreature, aiTarget)
+                        Dim distance As Single = _WS_Combat.GetDistance(aiCreature, aiTarget)
 
                         'DONE: Far objects handling
-                        If distance > (BaseUnit.CombatReach_Base + aiCreature.CombatReach + aiTarget.BoundingRadius) Then
+                        If distance > (WS_Base.BaseUnit.CombatReach_Base + aiCreature.CombatReach + aiTarget.BoundingRadius) Then
                             'DONE: Move closer
                             State = AIState.AI_MOVE_FOR_ATTACK
                             DoMove()
                             Exit Sub
                         End If
 
-                        nextAttack -= TAIManager.UPDATE_TIMER
+                        nextAttack -= WS_TimerBasedEvents.TAIManager.UPDATE_TIMER
                         If nextAttack > 0 Then Exit Sub
                         nextAttack = 0
 
                         'DONE: Look to aiTarget
-                        If Not IsInFrontOf(aiCreature, aiTarget) Then
+                        If Not _WS_Combat.IsInFrontOf(aiCreature, aiTarget) Then
                             aiCreature.TurnTo(aiTarget)
                         End If
 
                         'DONE: Deal the damage
-                        Dim damageInfo As WS_Combat.DamageInfo = CalculateDamage(aiCreature, aiTarget, False, False)
-                        SendAttackerStateUpdate(aiCreature, aiTarget, damageInfo)
+                        Dim damageInfo As WS_Combat.DamageInfo = _WS_Combat.CalculateDamage(aiCreature, aiTarget, False, False)
+                        _WS_Combat.SendAttackerStateUpdate(aiCreature, aiTarget, damageInfo)
                         aiTarget.DealDamage(damageInfo.GetDamage, aiCreature)
 
                         'TODO: Do in another way, since 1001-2000 = 2 secs, and for creatures with like 1.05 sec attack time attacks ALOT slower
@@ -473,13 +473,13 @@ Namespace AI
             Public Overrides Sub DoMove()
                 'DONE: Back to spawn if too far away
                 If aiTarget Is Nothing Then
-                    Dim distanceToSpawn As Single = GetDistance(aiCreature.positionX, aiCreature.SpawnX, aiCreature.positionY, aiCreature.SpawnY, aiCreature.positionZ, aiCreature.SpawnZ)
+                    Dim distanceToSpawn As Single = _WS_Combat.GetDistance(aiCreature.positionX, aiCreature.SpawnX, aiCreature.positionY, aiCreature.SpawnY, aiCreature.positionZ, aiCreature.SpawnZ)
                     If IsWaypoint = False AndAlso aiCreature.SpawnID > 0 AndAlso distanceToSpawn > aiCreature.MaxDistance Then
                         GoBackToSpawn()
                         Exit Sub
                     End If
                 Else
-                    Dim distanceToLastHit As Single = GetDistance(aiCreature.positionX, LastHitX, aiCreature.positionY, LastHitY, aiCreature.positionZ, LastHitZ)
+                    Dim distanceToLastHit As Single = _WS_Combat.GetDistance(aiCreature.positionX, LastHitX, aiCreature.positionY, LastHitY, aiCreature.positionZ, LastHitZ)
                     If distanceToLastHit > aiCreature.MaxDistance Then
                         OnLeaveCombat(True)
                         Exit Sub
@@ -511,10 +511,10 @@ Namespace AI
                         aiCreature.orientation = angle
                         selectedX = aiCreature.positionX + Math.Cos(angle) * distance
                         selectedY = aiCreature.positionY + Math.Sin(angle) * distance
-                        selectedZ = GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
+                        selectedZ = _WS_Maps.GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
                         MoveTries += 1
                         If Math.Abs(aiCreature.positionZ - selectedZ) > 5.0F Then Continue While 'Prevent most cases of wall climbing
-                        If IsInLineOfSight(aiCreature, selectedX, selectedY, selectedZ + 1.0F) = False Then Continue While 'Prevent moving through walls
+                        If _WS_Maps.IsInLineOfSight(aiCreature, selectedX, selectedY, selectedZ + 1.0F) = False Then Continue While 'Prevent moving through walls
                         Exit While 'Movement success
                     End While
 
@@ -534,17 +534,17 @@ Namespace AI
 
                     'DONE: Decide it's real position
                     aiCreature.SetToRealPosition()
-                    If TypeOf aiTarget Is CreatureObject Then CType(aiTarget, CreatureObject).SetToRealPosition()
+                    If TypeOf aiTarget Is WS_Creatures.CreatureObject Then CType(aiTarget, WS_Creatures.CreatureObject).SetToRealPosition()
 
                     'DONE: Do targeted movement to attack target
                     Dim distance As Single = 1000 * aiCreature.CreatureInfo.RunSpeed
-                    Dim distanceToTarget As Single = GetDistance(aiCreature, aiTarget)
+                    Dim distanceToTarget As Single = _WS_Combat.GetDistance(aiCreature, aiTarget)
 
                     If distanceToTarget < distance Then
                         'DONE: Move to target
                         State = AIState.AI_ATTACKING
 
-                        Dim destDist As Single = BaseUnit.CombatReach_Base + aiCreature.CombatReach + aiTarget.BoundingRadius
+                        Dim destDist As Single = WS_Base.BaseUnit.CombatReach_Base + aiCreature.CombatReach + aiTarget.BoundingRadius
                         If distanceToTarget <= destDist Then
                             DoAttack()
                         End If
@@ -554,16 +554,16 @@ Namespace AI
                         If aiTarget.positionX > aiCreature.positionX Then NearX -= destDist Else NearX += destDist
                         Dim NearY As Single = aiTarget.positionY
                         If aiTarget.positionY > aiCreature.positionY Then NearY -= destDist Else NearY += destDist
-                        Dim NearZ As Single = GetZCoord(NearX, NearY, aiCreature.positionZ, aiCreature.MapID)
+                        Dim NearZ As Single = _WS_Maps.GetZCoord(NearX, NearY, aiCreature.positionZ, aiCreature.MapID)
                         If NearZ > (aiTarget.positionZ + 2) Or NearZ < (aiTarget.positionZ - 2) Then NearZ = aiTarget.positionZ
                         If aiCreature.CanMoveTo(NearX, NearY, NearZ) Then
-                            aiCreature.orientation = GetOrientation(aiCreature.positionX, NearX, aiCreature.positionY, NearY)
+                            aiCreature.orientation = _WS_Combat.GetOrientation(aiCreature.positionX, NearX, aiCreature.positionY, NearY)
                             aiTimer = aiCreature.MoveTo(NearX, NearY, NearZ, , True)
                         Else
                             'DONE: Select next target
                             aiHateTable.Remove(aiTarget)
-                            If TypeOf aiTarget Is CharacterObject Then
-                                CType(aiTarget, CharacterObject).RemoveFromCombat(aiCreature)
+                            If TypeOf aiTarget Is WS_PlayerData.CharacterObject Then
+                                CType(aiTarget, WS_PlayerData.CharacterObject).RemoveFromCombat(aiCreature)
                             End If
                             SelectTarget()
                             CheckTarget()
@@ -573,19 +573,19 @@ Namespace AI
                         'DONE: Move to target by vector
                         State = AIState.AI_MOVE_FOR_ATTACK
 
-                        Dim angle As Single = GetOrientation(aiCreature.positionX, aiTarget.positionX, aiCreature.positionY, aiTarget.positionY)
+                        Dim angle As Single = _WS_Combat.GetOrientation(aiCreature.positionX, aiTarget.positionX, aiCreature.positionY, aiTarget.positionY)
                         aiCreature.orientation = angle
                         Dim selectedX As Single = aiCreature.positionX + Math.Cos(angle) * distance
                         Dim selectedY As Single = aiCreature.positionY + Math.Sin(angle) * distance
-                        Dim selectedZ As Single = GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
+                        Dim selectedZ As Single = _WS_Maps.GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
 
                         If aiCreature.CanMoveTo(selectedX, selectedY, selectedZ) Then
                             aiTimer = aiCreature.MoveTo(selectedX, selectedY, selectedZ, , True)
                         Else
                             'DONE: Select next target
                             aiHateTable.Remove(aiTarget)
-                            If TypeOf aiTarget Is CharacterObject Then
-                                CType(aiTarget, CharacterObject).RemoveFromCombat(aiCreature)
+                            If TypeOf aiTarget Is WS_PlayerData.CharacterObject Then
+                                CType(aiTarget, WS_PlayerData.CharacterObject).RemoveFromCombat(aiCreature)
                             End If
                             SelectTarget()
                             CheckTarget()
@@ -604,17 +604,17 @@ Namespace AI
                     distance = AI_INTERVAL_MOVE / 1000 * aiCreature.CreatureInfo.WalkSpeed
                 End If
                 aiCreature.SetToRealPosition(True)
-                Dim angle As Single = GetOrientation(aiCreature.positionX, ResetX, aiCreature.positionY, ResetY)
+                Dim angle As Single = _WS_Combat.GetOrientation(aiCreature.positionX, ResetX, aiCreature.positionY, ResetY)
                 aiCreature.orientation = angle
 
-                Dim tmpDist As Single = GetDistance(aiCreature, ResetX, ResetY, ResetZ)
+                Dim tmpDist As Single = _WS_Combat.GetDistance(aiCreature, ResetX, ResetY, ResetZ)
                 If tmpDist < distance Then
                     aiTimer = aiCreature.MoveTo(ResetX, ResetY, ResetZ, ResetO, ResetRun)
                     ResetFinished = True
                 Else
                     Dim selectedX As Single = aiCreature.positionX + Math.Cos(angle) * distance
                     Dim selectedY As Single = aiCreature.positionY + Math.Sin(angle) * distance
-                    Dim selectedZ As Single = GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
+                    Dim selectedZ As Single = _WS_Maps.GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
 
                     aiTimer = aiCreature.MoveTo(selectedX, selectedY, selectedZ, , ResetRun) - 50 'Remove 50ms so that it doesn't pause
                 End If
@@ -627,7 +627,7 @@ Namespace AI
         Public Class StandStillAI
             Inherits DefaultAI
 
-            Public Sub New(ByRef Creature As CreatureObject)
+            Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
                 MyBase.New(Creature)
                 AllowedMove = False
             End Sub
@@ -640,7 +640,7 @@ Namespace AI
         Public Class CritterAI
             Inherits TBaseAI
 
-            Protected aiCreature As CreatureObject = Nothing
+            Protected aiCreature As WS_Creatures.CreatureObject = Nothing
             Protected aiTimer As Integer = 0
             Protected CombatTimer As Integer = 0
             Protected WasAlive As Boolean = True
@@ -648,7 +648,7 @@ Namespace AI
             Protected Const AI_INTERVAL_MOVE As Integer = 3000
             Protected Const PIx2 As Single = 2 * Math.PI
 
-            Public Sub New(ByRef Creature As CreatureObject)
+            Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
                 State = AIState.AI_WANDERING
 
                 aiCreature = Creature
@@ -677,7 +677,7 @@ Namespace AI
             End Sub
             Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)
             End Sub
-            Public Overrides Sub OnGenerateHate(ByRef Attacker As BaseUnit, ByVal HateValue As Integer)
+            Public Overrides Sub OnGenerateHate(ByRef Attacker As WS_Base.BaseUnit, ByVal HateValue As Integer)
                 If CombatTimer > 0 Then Exit Sub
 
                 CombatTimer = 6000
@@ -689,8 +689,8 @@ Namespace AI
 
             Public Overrides Sub DoThink()
                 If aiCreature Is Nothing Then Exit Sub 'Fixes a crash
-                If aiTimer > TAIManager.UPDATE_TIMER Then
-                    aiTimer -= TAIManager.UPDATE_TIMER
+                If aiTimer > WS_TimerBasedEvents.TAIManager.UPDATE_TIMER Then
+                    aiTimer -= WS_TimerBasedEvents.TAIManager.UPDATE_TIMER
                     Exit Sub
                 Else
                     aiTimer = 0
@@ -761,7 +761,7 @@ Namespace AI
 
                 'DONE: Do simple random movement
                 Dim MoveTries As Byte = 0
-                TryMoveAgain:
+TryMoveAgain:
                 If MoveTries > 5 Then 'The creature is at a very weird location right now
                     aiCreature.MoveToInstant(aiCreature.SpawnX, aiCreature.SpawnY, aiCreature.SpawnZ, aiCreature.orientation)
                     Exit Sub
@@ -770,7 +770,7 @@ Namespace AI
                 'DONE: If the creature was attacked it will start fleeing randomly
                 Dim DoRun As Boolean = False
                 If State = AIState.AI_ATTACKING Then
-                    CombatTimer -= TAIManager.UPDATE_TIMER
+                    CombatTimer -= WS_TimerBasedEvents.TAIManager.UPDATE_TIMER
 
                     If CombatTimer <= 0 Then
                         CombatTimer = 0
@@ -793,10 +793,10 @@ Namespace AI
                 aiCreature.orientation = angle
                 Dim selectedX As Single = aiCreature.positionX + Math.Cos(angle) * distance
                 Dim selectedY As Single = aiCreature.positionY + Math.Sin(angle) * distance
-                Dim selectedZ As Single = GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
+                Dim selectedZ As Single = _WS_Maps.GetZCoord(selectedX, selectedY, aiCreature.positionZ, aiCreature.MapID)
                 MoveTries += 1
                 If Math.Abs(aiCreature.positionZ - selectedZ) > 5.0F Then GoTo TryMoveAgain 'Prevent most cases of wall climbing
-                If IsInLineOfSight(aiCreature, selectedX, selectedY, selectedZ + 2.0F) = False Then GoTo TryMoveAgain 'Prevent moving through walls
+                If _WS_Maps.IsInLineOfSight(aiCreature, selectedX, selectedY, selectedZ + 2.0F) = False Then GoTo TryMoveAgain 'Prevent moving through walls
 
                 If aiCreature.CanMoveTo(selectedX, selectedY, selectedZ) Then
                     aiTimer = aiCreature.MoveTo(selectedX, selectedY, selectedZ, , DoRun)
@@ -812,7 +812,7 @@ Namespace AI
         Public Class GuardAI
             Inherits DefaultAI
 
-            Public Sub New(ByRef Creature As CreatureObject)
+            Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
                 MyBase.New(Creature)
                 AllowedMove = False
             End Sub
@@ -842,7 +842,7 @@ Namespace AI
 
             Public CurrentWaypoint As Integer = -1
 
-            Public Sub New(ByRef Creature As CreatureObject)
+            Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
                 MyBase.New(Creature)
                 IsWaypoint = True
             End Sub
@@ -853,10 +853,10 @@ Namespace AI
             End Sub
 
             Public Overrides Sub DoMove()
-                Dim distanceToSpawn As Single = GetDistance(aiCreature.positionX, aiCreature.SpawnX, aiCreature.positionY, aiCreature.SpawnY, aiCreature.positionZ, aiCreature.SpawnZ)
+                Dim distanceToSpawn As Single = _WS_Combat.GetDistance(aiCreature.positionX, aiCreature.SpawnX, aiCreature.positionY, aiCreature.SpawnY, aiCreature.positionZ, aiCreature.SpawnZ)
 
                 If aiTarget Is Nothing Then
-                    If CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
+                    If _WS_DBCDatabase.CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
                         _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - _Global_Constants.GUID_UNIT)
                         aiCreature.ResetAI()
                         Exit Sub
@@ -864,8 +864,8 @@ Namespace AI
 
                     Try
                         CurrentWaypoint += 1
-                        If CreatureMovement(aiCreature.WaypointID).ContainsKey(CurrentWaypoint) = False Then CurrentWaypoint = 1
-                        Dim MovementPoint As WS_DBCDatabase.CreatureMovePoint = CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
+                        If _WS_DBCDatabase.CreatureMovement(aiCreature.WaypointID).ContainsKey(CurrentWaypoint) = False Then CurrentWaypoint = 1
+                        Dim MovementPoint As WS_DBCDatabase.CreatureMovePoint = _WS_DBCDatabase.CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
                         aiTimer = aiCreature.MoveTo(MovementPoint.x, MovementPoint.y, MovementPoint.z, , False) + MovementPoint.waittime
                     Catch ex As Exception
                         _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - _Global_Constants.GUID_UNIT)
@@ -887,7 +887,7 @@ Namespace AI
 
             Public CurrentWaypoint As Integer = -1
 
-            Public Sub New(ByRef Creature As CreatureObject)
+            Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
                 MyBase.New(Creature)
                 AllowedMove = True
                 IsWaypoint = True
@@ -899,10 +899,10 @@ Namespace AI
             End Sub
 
             Public Overrides Sub DoMove()
-                Dim distanceToSpawn As Single = GetDistance(aiCreature.positionX, aiCreature.SpawnX, aiCreature.positionY, aiCreature.SpawnY, aiCreature.positionZ, aiCreature.SpawnZ)
+                Dim distanceToSpawn As Single = _WS_Combat.GetDistance(aiCreature.positionX, aiCreature.SpawnX, aiCreature.positionY, aiCreature.SpawnY, aiCreature.positionZ, aiCreature.SpawnZ)
 
                 If aiTarget Is Nothing Then
-                    If CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
+                    If _WS_DBCDatabase.CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
                         _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - _Global_Constants.GUID_UNIT)
                         aiCreature.ResetAI()
                         Exit Sub
@@ -910,8 +910,8 @@ Namespace AI
 
                     Try
                         CurrentWaypoint += 1
-                        If CreatureMovement(aiCreature.WaypointID).ContainsKey(CurrentWaypoint) = False Then CurrentWaypoint = 1
-                        Dim MovementPoint As CreatureMovePoint = CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
+                        If _WS_DBCDatabase.CreatureMovement(aiCreature.WaypointID).ContainsKey(CurrentWaypoint) = False Then CurrentWaypoint = 1
+                        Dim MovementPoint As WS_DBCDatabase.CreatureMovePoint = _WS_DBCDatabase.CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
                         aiTimer = aiCreature.MoveTo(MovementPoint.x, MovementPoint.y, MovementPoint.z, , False) + MovementPoint.waittime
                     Catch ex As Exception
                         _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged. {1}", aiCreature.GUID - _Global_Constants.GUID_UNIT, ex.Message)
@@ -933,7 +933,7 @@ Namespace AI
         Public Class BossAI
             Inherits DefaultAI
 
-            Public Sub New(ByRef Creature As CreatureObject)
+            Public Sub New(ByRef Creature As WS_Creatures.CreatureObject)
                 MyBase.New(Creature)
             End Sub
 
@@ -941,9 +941,9 @@ Namespace AI
                 MyBase.OnEnterCombat()
 
                 'DONE: Set every player in the same raid into combat
-                For Each Unit As KeyValuePair(Of BaseUnit, Integer) In aiHateTable
-                    If TypeOf Unit.Key Is CharacterObject Then
-                        With CType(Unit.Key, CharacterObject)
+                For Each Unit As KeyValuePair(Of WS_Base.BaseUnit, Integer) In aiHateTable
+                    If TypeOf Unit.Key Is WS_PlayerData.CharacterObject Then
+                        With CType(Unit.Key, WS_PlayerData.CharacterObject)
                             If .IsInGroup Then
                                 Dim localMembers() As ULong = .Group.LocalMembers.ToArray()
                                 For Each member As ULong In localMembers
@@ -978,5 +978,5 @@ Namespace AI
 
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

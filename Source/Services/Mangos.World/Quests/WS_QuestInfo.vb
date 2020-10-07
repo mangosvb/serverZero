@@ -426,7 +426,7 @@ Namespace Quests
         ''' </summary>
         ''' <param name="objCharacter">The Character.</param>
         ''' <returns>Boolean</returns>
-        Public Function SatisfyQuestLevel(ByRef objCharacter As CharacterObject) As Boolean
+        Public Function SatisfyQuestLevel(ByRef objCharacter As WS_PlayerData.CharacterObject) As Boolean
             If objCharacter.Level < Level_Start Then Return False
             Return True
         End Function

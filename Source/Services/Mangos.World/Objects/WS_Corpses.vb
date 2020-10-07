@@ -29,10 +29,10 @@ Imports Mangos.World.Player
 
 Namespace Objects
 
-    Public Module WS_Corpses
+    Public Class WS_Corpses
         'WARNING: Use only with _WorldServer.WORLD_GAMEOBJECTs()
         Public Class CorpseObject
-            Inherits BaseObject
+            Inherits WS_Base.BaseObject
             Implements IDisposable
 
             Public DynFlags As Integer = 0
@@ -79,11 +79,11 @@ Namespace Objects
                     Items(i) = 0
                 Next
 
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     packet.AddInt32(1)
                     packet.AddInt8(0)
-                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
+                    Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
                     Try
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_OWNER, 0)
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_FLAGS, 5)
@@ -146,7 +146,7 @@ Namespace Objects
                 _WorldServer.CharacterDatabase.Update(tmpCmd)
             End Sub
             Public Sub Destroy()
-                Dim packet As New PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
                 Try
                     packet.AddUInt64(GUID)
                     SendToNearPlayers(packet)
@@ -180,7 +180,7 @@ Namespace Objects
 
             Public Sub New(ByRef Character As WS_PlayerData.CharacterObject)
                 'WARNING: Use only for spawning new object
-                GUID = GetNewGUID()
+                GUID = _WS_Corpses.GetNewGUID()
                 Bytes1 = (CType(Character.Race, Integer) << 8) + (CType(Character.Gender, Integer) << 16) + (CType(Character.Skin, Integer) << 24)
                 Bytes2 = Character.Face + (CType(Character.HairStyle, Integer) << 8) + (CType(Character.HairColor, Integer) << 16) + (CType(Character.FacialHair, Integer) << 24)
                 Model = Character.Model
@@ -260,15 +260,15 @@ Namespace Objects
             End Sub
 
             Public Sub AddToWorld()
-                GetMapTile(positionX, positionY, CellX, CellY)
-                If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
-                WS_Maps.Maps(MapID).Tiles(CellX, CellY).CorpseObjectsHere.Add(GUID)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then _WS_CharMovement.MAP_Load(CellX, CellY, MapID)
+                _WS_Maps.Maps(MapID).Tiles(CellX, CellY).CorpseObjectsHere.Add(GUID)
 
                 Dim list() As ULong
                 'DONE: Sending to players in nearby cells
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
-                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
+                    Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
                     Try
                         packet.AddInt32(1)
                         packet.AddInt8(0)
@@ -280,8 +280,8 @@ Namespace Objects
 
                     For i As Short = -1 To 1
                         For j As Short = -1 To 1
-                            If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
-                                With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
+                            If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
+                                With _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                     list = .PlayersHere.ToArray
                                     For Each plGUID As ULong In list
                                         If _WorldServer.CHARACTERs.ContainsKey(plGUID) AndAlso _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
@@ -300,14 +300,14 @@ Namespace Objects
             End Sub
 
             Public Sub RemoveFromWorld()
-                GetMapTile(positionX, positionY, CellX, CellY)
-                WS_Maps.Maps(MapID).Tiles(CellX, CellY).CorpseObjectsHere.Remove(GUID)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                _WS_Maps.Maps(MapID).Tiles(CellX, CellY).CorpseObjectsHere.Remove(GUID)
 
                 Dim list() As ULong
 
                 'DONE: Removing from players in <CENTER> Cell wich can see it
-                If WS_Maps.Maps(MapID).Tiles(CellX, CellY).PlayersHere.Count > 0 Then
-                    With WS_Maps.Maps(MapID).Tiles(CellX, CellY)
+                If _WS_Maps.Maps(MapID).Tiles(CellX, CellY).PlayersHere.Count > 0 Then
+                    With _WS_Maps.Maps(MapID).Tiles(CellX, CellY)
                         list = .PlayersHere.ToArray
                         For Each plGUID As ULong In list
                             If _WorldServer.CHARACTERs(plGUID).corpseObjectsNear.Contains(GUID) Then
@@ -329,5 +329,5 @@ Namespace Objects
             GetNewGUID = _WorldServer.CorpseGUIDCounter
         End Function
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

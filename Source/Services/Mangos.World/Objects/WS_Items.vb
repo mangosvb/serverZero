@@ -33,7 +33,7 @@ Imports Mangos.World.Spells
 
 Namespace Objects
 
-    Public Module WS_Items
+    Public Class WS_Items
 
 #Region "WS.Items.Constants"
 
@@ -416,8 +416,8 @@ Namespace Objects
 
             Public ReadOnly Property GetReqSkill() As Integer
                 Get
-                    If ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then Return ItemWeaponSkills(SubClass)
-                    If ObjectClass = ITEM_CLASS.ITEM_CLASS_ARMOR Then Return ItemArmorSkills(SubClass)
+                    If ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then Return _WS_Items.ItemWeaponSkills(SubClass)
+                    If ObjectClass = ITEM_CLASS.ITEM_CLASS_ARMOR Then Return _WS_Items.ItemArmorSkills(SubClass)
                     Return 0
                 End Get
             End Property
@@ -605,7 +605,7 @@ Namespace Objects
             response.AddSingle(item.Range)          'itemRangeModifier (Ranged Weapons = 100.0, Fishing Poles = 3.0)
 
             For i As Integer = 0 To 4
-                If WS_Spells.SPELLs.ContainsKey(item.Spells(i).SpellID) = False Then
+                If _WS_Spells.SPELLs.ContainsKey(item.Spells(i).SpellID) = False Then
                     response.AddInt32(0)
                     response.AddInt32(0)
                     response.AddInt32(0)
@@ -621,9 +621,9 @@ Namespace Objects
                         response.AddInt32(item.Spells(i).SpellCategory)
                         response.AddInt32(item.Spells(i).SpellCategoryCooldown)
                     Else
-                        response.AddInt32(WS_Spells.SPELLs(item.Spells(i).SpellID).SpellCooldown)
-                        response.AddInt32(WS_Spells.SPELLs(item.Spells(i).SpellID).Category)
-                        response.AddInt32(WS_Spells.SPELLs(item.Spells(i).SpellID).CategoryCooldown)
+                        response.AddInt32(_WS_Spells.SPELLs(item.Spells(i).SpellID).SpellCooldown)
+                        response.AddInt32(_WS_Spells.SPELLs(item.Spells(i).SpellID).Category)
+                        response.AddInt32(_WS_Spells.SPELLs(item.Spells(i).SpellID).CategoryCooldown)
                     End If
                 End If
             Next
@@ -654,7 +654,7 @@ Namespace Objects
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_ITEM_QUERY_SINGLE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_ITEM_QUERY_SINGLE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim itemID As Integer = packet.GetInt32
@@ -662,7 +662,7 @@ Namespace Objects
             SendItemInfo(client, itemID)
         End Sub
 
-        Public Sub On_CMSG_ITEM_NAME_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_ITEM_NAME_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim itemID As Integer = packet.GetInt32
@@ -675,7 +675,7 @@ Namespace Objects
                 item = _WorldServer.ITEMDatabase(itemID)
             End If
 
-            Dim response As New PacketClass(OPCODES.SMSG_ITEM_NAME_QUERY_RESPONSE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_ITEM_NAME_QUERY_RESPONSE)
             response.AddInt32(itemID)
             response.AddString(item.Name)
             response.AddInt32(item.InventoryType)
@@ -683,7 +683,7 @@ Namespace Objects
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_SWAP_INV_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SWAP_INV_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 7 Then Exit Sub
             packet.GetInt16()
             Dim srcSlot As Byte = packet.GetInt8
@@ -694,7 +694,7 @@ Namespace Objects
             client.Character.ItemSWAP(0, srcSlot, 0, dstSlot)
         End Sub
 
-        Public Sub On_CMSG_AUTOEQUIP_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUTOEQUIP_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 7 Then Exit Sub
             Try
                 packet.GetInt16()
@@ -754,7 +754,7 @@ Namespace Objects
                 End If
 
                 If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
-                    Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                     response.AddInt8(errCode)
                     response.AddUInt64(client.Character.ItemGetGUID(srcBag, srcSlot))
                     response.AddUInt64(0)
@@ -768,7 +768,7 @@ Namespace Objects
             End Try
         End Sub
 
-        Public Sub On_CMSG_AUTOSTORE_BAG_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUTOSTORE_BAG_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 8 Then Exit Sub
             packet.GetInt16()
             Dim srcBag As Byte = packet.GetInt8
@@ -786,7 +786,7 @@ Namespace Objects
             End If
         End Sub
 
-        Public Sub On_CMSG_SWAP_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SWAP_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim dstBag As Byte = packet.GetInt8
@@ -801,7 +801,7 @@ Namespace Objects
             client.Character.ItemSWAP(srcBag, srcSlot, dstBag, dstSlot)
         End Sub
 
-        Public Sub On_CMSG_SPLIT_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SPLIT_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 10 Then Exit Sub
             packet.GetInt16()
             Dim srcBag As Byte = packet.GetInt8
@@ -818,7 +818,7 @@ Namespace Objects
             If count > 0 Then client.Character.ItemSPLIT(srcBag, srcSlot, dstBag, dstSlot, count)
         End Sub
 
-        Public Sub On_CMSG_READ_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_READ_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 7 Then Exit Sub
             packet.GetInt16()
             Dim srcBag As Byte = packet.GetInt8
@@ -848,14 +848,14 @@ Namespace Objects
             End If
 
             If guid <> 0 Then
-                Dim response As New PacketClass(opcode)
+                Dim response As New Packets.PacketClass(opcode)
                 response.AddUInt64(guid)
                 client.Send(response)
                 response.Dispose()
             End If
         End Sub
 
-        Public Sub On_CMSG_PAGE_TEXT_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PAGE_TEXT_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim pageID As Integer = packet.GetInt32
@@ -866,7 +866,7 @@ Namespace Objects
             Dim mySqlQuery As New DataTable
             _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM page_text WHERE entry = ""{0}"";", pageID), mySqlQuery)
 
-            Dim response As New PacketClass(OPCODES.SMSG_PAGE_TEXT_QUERY_RESPONSE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_PAGE_TEXT_QUERY_RESPONSE)
             response.AddInt32(pageID)
             If mySqlQuery.Rows.Count <> 0 Then response.AddString(mySqlQuery.Rows(0).Item("text")) Else _
                 response.AddString("Page " & pageID & " not found! Please report this to database devs.")
@@ -876,7 +876,7 @@ Namespace Objects
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_WRAP_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_WRAP_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim giftBag As Byte = packet.GetInt8
@@ -953,7 +953,7 @@ Namespace Objects
             '_player->DestroyItemCount(gift, count, true);
         End Sub
 
-        Public Sub On_CMSG_DESTROYITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_DESTROYITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 8 Then Exit Sub
             Try
                 packet.GetInt16()
@@ -1002,7 +1002,7 @@ Namespace Objects
             End Try
         End Sub
 
-        Public Sub On_CMSG_USE_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_USE_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 If (packet.Data.Length - 1) < 9 Then Exit Sub
                 packet.GetInt16()
@@ -1027,11 +1027,11 @@ Namespace Objects
                 Dim InstantCast As Boolean = False
 
                 For i As Byte = 0 To 4
-                    If WS_Spells.SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
+                    If _WS_Spells.SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
                         If ((client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) = UnitFlags.UNIT_FLAG_IN_COMBAT) _
                             Then
                             If _
-                                (WS_Spells.SPELLs(itemInfo.Spells(i).SpellID).Attributes And
+                                (_WS_Spells.SPELLs(itemInfo.Spells(i).SpellID).Attributes And
                                  SpellAttributes.SPELL_ATTR_NOT_WHILE_COMBAT) Then
                                 SendInventoryChangeFailure(client.Character,
                                                            InventoryChangeFailure.EQUIP_ERR_CANT_DO_IN_COMBAT, itemGuid, 0)
@@ -1062,34 +1062,34 @@ Namespace Objects
                         itemInfo.Spells(i).SpellID > 0 AndAlso
                         (itemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
                          itemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE) Then
-                        If WS_Spells.SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
+                        If _WS_Spells.SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
                             'DONE: If there's no more charges
                             If itemInfo.Spells(i).SpellCharges > 0 AndAlso _WorldServer.WORLD_ITEMs(itemGuid).ChargesLeft = 0 Then
-                                SendCastResult(SpellFailedReason.SPELL_FAILED_NO_CHARGES_REMAIN, client,
+                                _WS_Spells.SendCastResult(SpellFailedReason.SPELL_FAILED_NO_CHARGES_REMAIN, client,
                                                itemInfo.Spells(i).SpellID)
                                 Exit Sub
                             End If
 
                             Dim tmpSpell As _
-                                    New CastSpellParameters(targets, client.Character, itemInfo.Spells(i).SpellID,
+                                    New WS_Spells.CastSpellParameters(targets, client.Character, itemInfo.Spells(i).SpellID,
                                                             _WorldServer.WORLD_ITEMs(itemGuid), InstantCast)
 
                             Dim castResult As Byte = SpellFailedReason.SPELL_NO_ERROR
                             Try
-                                castResult = WS_Spells.SPELLs(itemInfo.Spells(i).SpellID).CanCast(client.Character, targets, True)
+                                castResult = _WS_Spells.SPELLs(itemInfo.Spells(i).SpellID).CanCast(client.Character, targets, True)
 
                                 'Only instant cast send ERR_OK for cast result?
                                 If castResult = SpellFailedReason.SPELL_NO_ERROR Then
                                     'DONE: Enqueue spell casting function
                                     ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
                                 Else
-                                    SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
+                                    _WS_Spells.SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
                                 End If
 
                             Catch e As Exception
                                 _WorldServer.Log.WriteLine(LogType.DEBUG, "Error casting spell {0}.{1}",
                                               itemInfo.Spells(i).SpellID, Environment.NewLine & e.ToString)
-                                SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
+                                _WS_Spells.SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
                             End Try
                             Exit Sub
                         End If
@@ -1101,7 +1101,7 @@ Namespace Objects
             End Try
         End Sub
 
-        Public Sub On_CMSG_OPEN_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_OPEN_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 7 Then Exit Sub
             packet.GetInt16()
             Dim bag As Byte = packet.GetInt8
@@ -1120,16 +1120,16 @@ Namespace Objects
             If itemGuid = 0 OrElse _WorldServer.WORLD_ITEMs.ContainsKey(itemGuid) = False Then Exit Sub
 
             If _WorldServer.WORLD_ITEMs(itemGuid).GenerateLoot Then
-                LootTable(itemGuid).SendLoot(client)
+                _WS_Loot.LootTable(itemGuid).SendLoot(client)
                 Exit Sub
             End If
 
-            SendEmptyLoot(itemGuid, LootType.LOOTTYPE_CORPSE, client)
+            _WS_Loot.SendEmptyLoot(itemGuid, LootType.LOOTTYPE_CORPSE, client)
         End Sub
 
-        Public Sub SendInventoryChangeFailure(ByRef objCharacter As CharacterObject, ByVal errorCode As InventoryChangeFailure,
+        Public Sub SendInventoryChangeFailure(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal errorCode As InventoryChangeFailure,
                                               ByVal guid1 As ULong, ByVal guid2 As ULong)
-            Dim packet As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
             packet.AddInt8(errorCode)
 
             If errorCode = InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N Then
@@ -1166,5 +1166,5 @@ Namespace Objects
         'End Sub
 
 #End Region
-    End Module
-End NameSpace
+    End Class
+End Namespace

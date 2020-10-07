@@ -28,7 +28,7 @@ Imports Mangos.World.Server
 
 Namespace Social
 
-    Public Module WS_Mail
+    Public Class WS_Mail
 
 #Region "WS.Mail.Constants"
 
@@ -52,10 +52,10 @@ Namespace Social
             'B = A - B '3-2=1
             'A = A - B '3-1=2
 
-            Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30) 'Set expiredate to today + 30 days
+            Dim MailTime As Integer = _Functions.GetTimestamp(Now) + (TimeConstant.DAY * 30) 'Set expiredate to today + 30 days
             _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_mail SET mail_time = {1}, mail_read = 0, mail_receiver = (mail_receiver + mail_sender), mail_sender = (mail_receiver - mail_sender), mail_receiver = (mail_receiver - mail_sender) WHERE mail_id = {0};", MailID, MailTime))
 
-            Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
             response.AddInt32(MailID)
             response.AddInt32(MailResult.MAIL_RETURNED)
             response.AddInt32(0)
@@ -63,7 +63,7 @@ Namespace Social
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_MAIL_DELETE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MAIL_DELETE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -73,7 +73,7 @@ Namespace Social
 
             _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_mail WHERE mail_id = {0};", MailID))
 
-            Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
             response.AddInt32(MailID)
             response.AddInt32(MailResult.MAIL_DELETED)
             response.AddInt32(0)
@@ -81,29 +81,29 @@ Namespace Social
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_MAIL_MARK_AS_READ(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MAIL_MARK_AS_READ(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
             Dim MailID As Integer = packet.GetInt32
 
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MAIL_MARK_AS_READ [MailID={2}]", client.IP, client.Port, MailID)
-            Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 3) 'Set expiredate to today + 3 days
+            Dim MailTime As Integer = _Functions.GetTimestamp(Now) + (TimeConstant.DAY * 3) 'Set expiredate to today + 3 days
             _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_mail SET mail_read = 1, mail_time = {1} WHERE mail_id = {0} AND mail_read < 2;", MailID, MailTime))
         End Sub
 
-        Public Sub On_MSG_QUERY_NEXT_MAIL_TIME(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_QUERY_NEXT_MAIL_TIME(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_QUERY_NEXT_MAIL_TIME", client.IP, client.Port)
 
             Dim MySQLQuery As New DataTable
-            _WorldServer.CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM characters_mail WHERE mail_read = 0 AND mail_receiver = {0} AND mail_time > {1};", client.Character.GUID, GetTimestamp(Now)), MySQLQuery)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT COUNT(*) FROM characters_mail WHERE mail_read = 0 AND mail_receiver = {0} AND mail_time > {1};", client.Character.GUID, _Functions.GetTimestamp(Now)), MySQLQuery)
             If MySQLQuery.Rows(0).Item(0) > 0 Then
-                Dim response As New PacketClass(OPCODES.MSG_QUERY_NEXT_MAIL_TIME)
+                Dim response As New Packets.PacketClass(OPCODES.MSG_QUERY_NEXT_MAIL_TIME)
                 response.AddInt32(0)
                 client.Send(response)
                 response.Dispose()
             Else
-                Dim response As New PacketClass(OPCODES.MSG_QUERY_NEXT_MAIL_TIME)
+                Dim response As New Packets.PacketClass(OPCODES.MSG_QUERY_NEXT_MAIL_TIME)
                 response.AddInt8(0)
                 response.AddInt8(&HC0)
                 response.AddInt8(&HA8)
@@ -113,7 +113,7 @@ Namespace Social
             End If
         End Sub
 
-        Public Sub On_CMSG_GET_MAIL_LIST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_GET_MAIL_LIST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -123,7 +123,7 @@ Namespace Social
             Try
                 'Done: Check for old mails, and delete those that have expired
                 Dim MySQLQuery As New DataTable
-                _WorldServer.CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_time < {0};", GetTimestamp(Now)), MySQLQuery)
+                _WorldServer.CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_time < {0};", _Functions.GetTimestamp(Now)), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
                     For i As Byte = 0 To MySQLQuery.Rows.Count - 1
                         _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_mail WHERE mail_id = {0};", MySQLQuery.Rows(i).Item("mail_id")))
@@ -132,7 +132,7 @@ Namespace Social
 
                 _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_mail WHERE mail_receiver = {0};", client.Character.GUID), MySQLQuery)
 
-                Dim response As New PacketClass(OPCODES.SMSG_MAIL_LIST_RESULT)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_MAIL_LIST_RESULT)
                 response.AddInt8(MySQLQuery.Rows.Count)
 
                 Dim tmpItem As ItemObject
@@ -160,7 +160,7 @@ Namespace Social
                         response.AddInt32(MySQLQuery.Rows(i).Item("mail_stationary")) '41/62 = Mail Background
 
                         If CType(MySQLQuery.Rows(i).Item("item_guid"), ULong) > 0 Then
-                            tmpItem = LoadItemByGUID(MySQLQuery.Rows(i).Item("item_guid"))
+                            tmpItem = _WS_Items.LoadItemByGUID(MySQLQuery.Rows(i).Item("item_guid"))
                             response.AddInt32(tmpItem.ItemEntry)
 
                             If tmpItem.Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_PERM) Then
@@ -189,7 +189,7 @@ Namespace Social
                         response.AddUInt32(MySQLQuery.Rows(i).Item("mail_money"))    'Money on delivery
                         response.AddUInt32(MySQLQuery.Rows(i).Item("mail_COD"))      'Money as COD
                         response.AddInt32(MySQLQuery.Rows(i).Item("mail_read"))
-                        response.AddSingle(((CType(MySQLQuery.Rows(i).Item("mail_time"), UInteger) - GetTimestamp(Now)) / TimeConstant.DAY))
+                        response.AddSingle(((CType(MySQLQuery.Rows(i).Item("mail_time"), UInteger) - _Functions.GetTimestamp(Now)) / TimeConstant.DAY))
                         response.AddInt32(0) 'Mail template ID
                     Next
                 End If
@@ -202,7 +202,7 @@ Namespace Social
             End Try
         End Sub
 
-        Public Sub On_CMSG_MAIL_TAKE_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MAIL_TAKE_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -215,7 +215,7 @@ Namespace Social
                 Dim MySQLQuery As New DataTable
                 _WorldServer.CharacterDatabase.Query(String.Format("SELECT mail_cod, mail_sender, item_guid FROM characters_mail WHERE mail_id = {0} AND mail_receiver = {1};", MailID, client.Character.GUID), MySQLQuery)
                 If MySQLQuery.Rows.Count = 0 Then 'The mail didn't exit, wrong owner trying to get someone elses item?
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(MailID)
                     response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                     response.AddInt32(MailSentError.INTERNAL_ERROR)
@@ -227,7 +227,7 @@ Namespace Social
                 'DONE: Check for COD
                 If MySQLQuery.Rows(0).Item("mail_cod") <> 0 Then
                     If client.Character.Copper < MySQLQuery.Rows(0).Item("mail_cod") Then
-                        Dim noMoney As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                        Dim noMoney As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                         noMoney.AddInt32(MailID)
                         noMoney.AddInt32(MailResult.MAIL_SENT)
                         noMoney.AddInt32(MailSentError.NOT_ENOUGHT_MONEY)
@@ -241,7 +241,7 @@ Namespace Social
 
                         'DONE: Send COD to sender
                         'TODO: Edit text to be more blizzlike
-                        Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30) 'Set expiredate to today + 30 days
+                        Dim MailTime As Integer = _Functions.GetTimestamp(Now) + (TimeConstant.DAY * 30) 'Set expiredate to today + 30 days
                         _WorldServer.CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_subject, mail_body, mail_item_guid, mail_money, mail_COD, mail_time, mail_read, mail_type) VALUES 
                         ({0},{1},'{2}','{3}',{4},{5},{6},{7},{8},{9});", client.Character.GUID, MySQLQuery.Rows(0).Item("mail_sender"), "", "", 0, MySQLQuery.Rows(0).Item("mail_cod"), 0, MailTime, MailReadInfo.COD, 0))
                     End If
@@ -249,7 +249,7 @@ Namespace Social
 
                 'DONE: Get Item
                 If MySQLQuery.Rows(0).Item("item_guid") = 0 Then 'The item doesn't exist?
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(MailID)
                     response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                     response.AddInt32(MailSentError.INTERNAL_ERROR)
@@ -258,7 +258,7 @@ Namespace Social
                     Exit Sub
                 End If
 
-                Dim tmpItem As ItemObject = LoadItemByGUID(MySQLQuery.Rows(0).Item("item_guid"))
+                Dim tmpItem As ItemObject = _WS_Items.LoadItemByGUID(MySQLQuery.Rows(0).Item("item_guid"))
                 tmpItem.OwnerGUID = client.Character.GUID
                 tmpItem.Save()
 
@@ -267,7 +267,7 @@ Namespace Social
                     _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_mail SET item_guid = 0 WHERE mail_id = {0};", MailID))
                     _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM mail_items WHERE mail_id = {0};", MailID))
 
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(MailID)
                     response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                     response.AddInt32(MailSentError.NO_ERROR)
@@ -276,7 +276,7 @@ Namespace Social
                 Else
                     tmpItem.Dispose()
 
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(MailID)
                     response.AddInt32(MailResult.MAIL_ITEM_REMOVED)
                     response.AddInt32(MailSentError.BAG_FULL)
@@ -290,7 +290,7 @@ Namespace Social
             End Try
         End Sub
 
-        Public Sub On_CMSG_MAIL_TAKE_MONEY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MAIL_TAKE_MONEY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -307,7 +307,7 @@ Namespace Social
             End If
             client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
-            Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
             response.AddInt32(MailID)
             response.AddInt32(MailResult.MAIL_MONEY_REMOVED)
             response.AddInt32(0)
@@ -317,7 +317,7 @@ Namespace Social
             client.Character.SaveCharacter()
         End Sub
 
-        Public Sub On_CMSG_ITEM_TEXT_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_ITEM_TEXT_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim MailID As Integer = packet.GetInt32
@@ -329,14 +329,14 @@ Namespace Social
             _WorldServer.CharacterDatabase.Query(String.Format("SELECT mail_body FROM characters_mail WHERE mail_id = {0};", MailID), MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-            Dim response As New PacketClass(OPCODES.SMSG_ITEM_TEXT_QUERY_RESPONSE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_ITEM_TEXT_QUERY_RESPONSE)
             response.AddInt32(MailID)
             response.AddString(MySQLQuery.Rows(0).Item("mail_body"))
             client.Send(response)
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_MAIL_CREATE_TEXT_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MAIL_CREATE_TEXT_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -349,7 +349,7 @@ Namespace Social
                     .ItemText = MailID
                     }
             If Not client.Character.ItemADD(tmpItem) Then
-                Dim response As New PacketClass(OPCODES.SMSG_ITEM_TEXT_QUERY_RESPONSE)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_ITEM_TEXT_QUERY_RESPONSE)
                 response.AddInt32(MailID)
                 response.AddInt32(0)
                 response.AddInt32(1)
@@ -362,7 +362,7 @@ Namespace Social
             End If
         End Sub
 
-        Public Sub On_CMSG_SEND_MAIL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SEND_MAIL(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -385,7 +385,7 @@ Namespace Social
                 _WorldServer.CharacterDatabase.Query("SELECT char_guid, char_race FROM characters WHERE char_name Like '" & Receiver & "';", MySQLQuery)
 
                 If MySQLQuery.Rows.Count = 0 Then
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(0)
                     response.AddInt32(MailResult.MAIL_SENT)
                     response.AddInt32(MailSentError.CHARACTER_NOT_FOUND)
@@ -394,10 +394,10 @@ Namespace Social
                     Exit Sub
                 End If
                 Dim ReceiverGUID As ULong = MySQLQuery.Rows(0).Item("char_guid")
-                Dim ReceiverSide As Boolean = GetCharacterSide(MySQLQuery.Rows(0).Item("char_race"))
+                Dim ReceiverSide As Boolean = _Functions.GetCharacterSide(MySQLQuery.Rows(0).Item("char_race"))
 
                 If client.Character.GUID = ReceiverGUID Then
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(0)
                     response.AddInt32(MailResult.MAIL_SENT)
                     response.AddInt32(MailSentError.CANNOT_SEND_TO_SELF)
@@ -407,7 +407,7 @@ Namespace Social
                 End If
 
                 If client.Character.Copper < (Money + 30) Then
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(0)
                     response.AddInt32(MailResult.MAIL_SENT)
                     response.AddInt32(MailSentError.NOT_ENOUGHT_MONEY)
@@ -419,7 +419,7 @@ Namespace Social
                 'Lets check so that the receiver doesn't have a full inbox
                 _WorldServer.CharacterDatabase.Query(String.Format("SELECT mail_id FROM characters_mail WHERE mail_receiver = {0}", ReceiverGUID), MySQLQuery)
                 If MySQLQuery.Rows.Count >= 100 Then
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(0)
                     response.AddInt32(MailResult.MAIL_SENT)
                     response.AddInt32(MailSentError.INTERNAL_ERROR)
@@ -430,7 +430,7 @@ Namespace Social
 
                 'You can only send mails to characters with your same faction, but GMs can ofc
                 If client.Access >= AccessLevel.GameMaster AndAlso client.Character.IsHorde <> ReceiverSide Then
-                    Dim response As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                     response.AddInt32(0)
                     response.AddInt32(MailResult.MAIL_SENT)
                     response.AddInt32(MailSentError.NOT_YOUR_ALLIANCE)
@@ -445,14 +445,14 @@ Namespace Social
                 client.Character.Copper -= 30 + Money
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
 
-                Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30) 'Add 30 days to the current date/time
+                Dim MailTime As Integer = _Functions.GetTimestamp(Now) + (TimeConstant.DAY * 30) 'Add 30 days to the current date/time
                 _WorldServer.CharacterDatabase.Update(String.Format("INSERT INTO characters_mail (mail_sender, mail_receiver, mail_type, mail_stationary, mail_subject, mail_body, mail_money, mail_COD, mail_time, mail_read, item_guid) VALUES
                 ({0},{1},{2},{3},'{4}','{5}',{6},{7},{8},{9},{10});", client.Character.GUID, ReceiverGUID, 0, 41, Subject.Replace("'", "`"), Body.Replace("'", "`"), Money, COD, MailTime, CType(MailReadInfo.Unread, Byte), itemGuid = _Global_Constants.GUID_ITEM))
 
                 If itemGuid > 0 Then client.Character.ItemREMOVE(itemGuid, False, True)
 
                 'Tell the client we succeded
-                Dim sendOK As New PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
+                Dim sendOK As New Packets.PacketClass(OPCODES.SMSG_SEND_MAIL_RESULT)
                 sendOK.AddInt32(0)
                 sendOK.AddInt32(MailResult.MAIL_SENT)
                 sendOK.AddInt32(MailSentError.NO_ERROR)
@@ -461,7 +461,7 @@ Namespace Social
 
                 _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                 If _WorldServer.CHARACTERs.ContainsKey(ReceiverGUID) Then
-                    Dim response As New PacketClass(OPCODES.SMSG_RECEIVED_MAIL)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_RECEIVED_MAIL)
                     response.AddInt32(0)
                     _WorldServer.CHARACTERs(ReceiverGUID).client.Send(response)
                     response.Dispose()
@@ -480,5 +480,5 @@ Namespace Social
 
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

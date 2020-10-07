@@ -152,7 +152,7 @@ Namespace Quests
             SpecialFlags = Quest.SpecialFlags
             ObjectivesDeliver = Quest.ObjectivesDeliver
             'TODO: Fix a timer or something so that the quest really expires when it does
-            If Quest.TimeLimit > 0 Then TimeEnd = GetTimestamp(Now) + Quest.TimeLimit 'The time the quest expires
+            If Quest.TimeLimit > 0 Then TimeEnd = _Functions.GetTimestamp(Now) + Quest.TimeLimit 'The time the quest expires
         End Sub
 
         ''' <summary>
@@ -179,7 +179,7 @@ Namespace Quests
         ''' Initializes the specified objCharacter.
         ''' </summary>
         ''' <param name="objCharacter">The Character.</param>
-        Public Sub Initialize(ByRef objCharacter As CharacterObject)
+        Public Sub Initialize(ByRef objCharacter As WS_PlayerData.CharacterObject)
             If ObjectivesDeliver > 0 Then
                 Dim tmpItem As New ItemObject(ObjectivesDeliver, objCharacter.GUID)
                 If Not objCharacter.ItemADD(tmpItem) Then
@@ -274,7 +274,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="index">The index.</param>
         ''' <param name="oGUID">The o unique identifier.</param>
-        Public Sub AddKill(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
+        Public Sub AddKill(ByVal objCharacter As WS_PlayerData.CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
             Progress(index) += 1
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
@@ -288,7 +288,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="index">The index.</param>
         ''' <param name="oGUID">The o unique identifier.</param>
-        Public Sub AddCast(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
+        Public Sub AddCast(ByVal objCharacter As WS_PlayerData.CharacterObject, ByVal index As Byte, ByVal oGUID As ULong)
             Progress(index) += 1
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
@@ -300,7 +300,7 @@ Namespace Quests
         ''' Adds the explore.
         ''' </summary>
         ''' <param name="objCharacter">The Character.</param>
-        Public Sub AddExplore(ByVal objCharacter As CharacterObject)
+        Public Sub AddExplore(ByVal objCharacter As WS_PlayerData.CharacterObject)
             Explored = True
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
@@ -313,7 +313,7 @@ Namespace Quests
         ''' </summary>
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="index">The index.</param>
-        Public Sub AddEmote(ByVal objCharacter As CharacterObject, ByVal index As Byte)
+        Public Sub AddEmote(ByVal objCharacter As WS_PlayerData.CharacterObject, ByVal index As Byte)
             Progress(index) += 1
             IsCompleted()
             objCharacter.TalkUpdateQuest(Slot)
@@ -327,7 +327,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="index">The index.</param>
         ''' <param name="Count">The count.</param>
-        Public Sub AddItem(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal Count As Byte)
+        Public Sub AddItem(ByVal objCharacter As WS_PlayerData.CharacterObject, ByVal index As Byte, ByVal Count As Byte)
             If ProgressItem(index) + Count > ObjectivesItemCount(index) Then Count = ObjectivesItemCount(index) - ProgressItem(index)
             ProgressItem(index) += Count
             IsCompleted()
@@ -344,7 +344,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="index">The index.</param>
         ''' <param name="Count">The count.</param>
-        Public Sub RemoveItem(ByVal objCharacter As CharacterObject, ByVal index As Byte, ByVal Count As Byte)
+        Public Sub RemoveItem(ByVal objCharacter As WS_PlayerData.CharacterObject, ByVal index As Byte, ByVal Count As Byte)
             If ProgressItem(index) - CInt(Count) < 0 Then Count = ProgressItem(index)
             ProgressItem(index) -= Count
             IsCompleted()

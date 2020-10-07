@@ -144,21 +144,21 @@ Namespace Objects
 
             'AIScriptSource = MySQLQuery.Rows(0).Item("ScriptName")
 
-            If IO.File.Exists("scripts\gossip\" & FixName(Name) & ".vb") Then
-                Dim tmpScript As New ScriptedObject("scripts\gossip\" & FixName(Name) & ".vb", "", True)
+            If IO.File.Exists("scripts\gossip\" & _Functions.FixName(Name) & ".vb") Then
+                Dim tmpScript As New ScriptedObject("scripts\gossip\" & _Functions.FixName(Name) & ".vb", "", True)
                 TalkScript = tmpScript.InvokeConstructor("TalkScript")
                 tmpScript.Dispose()
             Else
                 If (cNpcFlags And NPCFlags.UNIT_NPC_FLAG_TRAINER) Then
-                    TalkScript = New TDefaultTalk
+                    TalkScript = New WS_NPCs.TDefaultTalk
                 ElseIf (cNpcFlags And NPCFlags.UNIT_NPC_FLAG_GUARD) Then
                     TalkScript = New WS_GuardGossip.TGuardTalk
                 ElseIf cNpcFlags = 0 Then
                     TalkScript = Nothing
                 ElseIf cNpcFlags = NPCFlags.UNIT_NPC_FLAG_GOSSIP Then
-                    TalkScript = New TDefaultTalk
+                    TalkScript = New WS_NPCs.TDefaultTalk
                 Else
-                    TalkScript = New TDefaultTalk
+                    TalkScript = New WS_NPCs.TDefaultTalk
                 End If
             End If
         End Sub
@@ -262,8 +262,8 @@ Namespace Objects
         Public CreatureFamily As Byte = CREATURE_FAMILY.NONE
         Public Elite As Byte = CREATURE_ELITE.NORMAL
         Public HonorRank As Byte = 0
-        Public Damage As New TDamage
-        Public RangedDamage As New TDamage
+        Public Damage As New WS_Items.TDamage
+        Public RangedDamage As New WS_Items.TDamage
         Public AttackPower As Integer = 0
         Public RangedAttackPower As Integer = 0
         Public Resistances() As Integer = {0, 0, 0, 0, 0, 0, 0}

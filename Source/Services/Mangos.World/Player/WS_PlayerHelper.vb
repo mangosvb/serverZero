@@ -28,7 +28,7 @@ Imports Mangos.World.Spells
 
 Namespace Player
 
-    Public Module WS_PlayerHelper
+    Public Class WS_PlayerHelper
 
         Public Class TSkill
             Private _Current As Short = 0
@@ -238,7 +238,7 @@ Namespace Player
             Public DrowningDamage As Byte = 1
             Public CharacterGUID As ULong = 0
 
-            Public Sub New(ByRef Character As CharacterObject)
+            Public Sub New(ByRef Character As WS_PlayerData.CharacterObject)
                 CharacterGUID = Character.GUID
                 Character.StartMirrorTimer(MirrorTimer.DROWNING, 70000)
                 DrowningTimer = New Timer(AddressOf Character.HandleDrowning, Nothing, 2000, 1000)
@@ -274,14 +274,14 @@ Namespace Player
             Implements IDisposable
 
             Private RepopTimer As Timer = Nothing
-            Public Character As CharacterObject = Nothing
+            Public Character As WS_PlayerData.CharacterObject = Nothing
 
-            Public Sub New(ByRef Character As CharacterObject)
+            Public Sub New(ByRef Character As WS_PlayerData.CharacterObject)
                 Me.Character = Character
                 RepopTimer = New Timer(AddressOf Repop, Nothing, 360000, 360000)
             End Sub
             Public Sub Repop(ByVal Obj As Object)
-                CharacterRepop(Character.client)
+                _WS_Handlers_Misc.CharacterRepop(Character.client)
                 Character.repopTimer = Nothing
                 Dispose()
             End Sub
@@ -309,7 +309,7 @@ Namespace Player
 #End Region
         End Class
 
-        Public Sub SendBindPointUpdate(ByRef client As WS_Network.ClientClass, ByRef Character As CharacterObject)
+        Public Sub SendBindPointUpdate(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
             Dim SMSG_BINDPOINTUPDATE As New Packets.PacketClass(OPCODES.SMSG_BINDPOINTUPDATE)
             Try
                 SMSG_BINDPOINTUPDATE.AddSingle(Character.bindpoint_positionX)
@@ -323,18 +323,18 @@ Namespace Player
             End Try
         End Sub
 
-        Public Sub Send_SMSG_SET_REST_START(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim SMSG_SET_REST_START As New PacketClass(OPCODES.SMSG_SET_REST_START)
+        Public Sub Send_SMSG_SET_REST_START(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim SMSG_SET_REST_START As New Packets.PacketClass(OPCODES.SMSG_SET_REST_START)
             Try
-                SMSG_SET_REST_START.AddInt32(MsTime)
+                SMSG_SET_REST_START.AddInt32(_WS_Network.MsTime)
                 client.Send(SMSG_SET_REST_START)
             Finally
                 SMSG_SET_REST_START.Dispose()
             End Try
         End Sub
 
-        Public Sub SendTutorialFlags(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim SMSG_TUTORIAL_FLAGS As New PacketClass(OPCODES.SMSG_TUTORIAL_FLAGS)
+        Public Sub SendTutorialFlags(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim SMSG_TUTORIAL_FLAGS As New Packets.PacketClass(OPCODES.SMSG_TUTORIAL_FLAGS)
             Try
                 '[8*Int32] or [32 Bytes] or [256 Bits Flags] Total!!!
                 'SMSG_TUTORIAL_FLAGS.AddInt8(0)
@@ -346,8 +346,8 @@ Namespace Player
             End Try
         End Sub
 
-        Public Sub SendFactions(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim packet As New PacketClass(OPCODES.SMSG_INITIALIZE_FACTIONS)
+        Public Sub SendFactions(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_INITIALIZE_FACTIONS)
             Try
                 packet.AddInt32(64)
                 For i As Byte = 0 To 63
@@ -361,8 +361,8 @@ Namespace Player
             End Try
         End Sub
 
-        Public Sub SendActionButtons(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim packet As New PacketClass(OPCODES.SMSG_ACTION_BUTTONS)
+        Public Sub SendActionButtons(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_ACTION_BUTTONS)
             Try
                 For i As Byte = 0 To 119    'or 480 ?
                     If Character.ActionButtons.ContainsKey(i) Then
@@ -380,7 +380,7 @@ Namespace Player
             End Try
         End Sub
 
-        Public Sub SendInitWorldStates(ByRef client As ClientClass, ByRef Character As CharacterObject)
+        Public Sub SendInitWorldStates(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
             Character.ZoneCheck()
             Dim NumberOfFields As UShort = 0
             Select Case Character.ZoneID
@@ -406,7 +406,7 @@ Namespace Player
                     NumberOfFields = 10
             End Select
 
-            Dim packet As New PacketClass(OPCODES.SMSG_INIT_WORLD_STATES)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_INIT_WORLD_STATES)
             Try
                 packet.AddUInt32(Character.MapID)
                 packet.AddInt32(Character.ZoneID)
@@ -459,8 +459,8 @@ Namespace Player
             End Try
         End Sub
 
-        Public Sub SendInitialSpells(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim packet As New PacketClass(OPCODES.SMSG_INITIAL_SPELLS)
+        Public Sub SendInitialSpells(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_INITIAL_SPELLS)
             Try
                 packet.AddInt8(0)
                 Dim countPos As Integer = packet.Data.Length
@@ -486,18 +486,18 @@ Namespace Player
                 packet.AddInt16(0) 'Updated later
 
                 For Each Cooldown As KeyValuePair(Of Integer, KeyValuePair(Of UInteger, Integer)) In spellCooldowns
-                    If WS_Spells.SPELLs.ContainsKey(Cooldown.Key) = False Then Continue For
+                    If _WS_Spells.SPELLs.ContainsKey(Cooldown.Key) = False Then Continue For
 
                     packet.AddUInt16(Cooldown.Key) 'SpellID
 
                     Dim timeLeft As Integer = 0
-                    If Cooldown.Value.Key > GetTimestamp(Now) Then
-                        timeLeft = (Cooldown.Value.Key - GetTimestamp(Now)) * 1000
+                    If Cooldown.Value.Key > _Functions.GetTimestamp(Now) Then
+                        timeLeft = (Cooldown.Value.Key - _Functions.GetTimestamp(Now)) * 1000
                     End If
 
                     packet.AddUInt16(Cooldown.Value.Value) 'CastItemID
-                    packet.AddUInt16(WS_Spells.SPELLs(Cooldown.Key).Category) 'SpellCategory
-                    If WS_Spells.SPELLs(Cooldown.Key).CategoryCooldown > 0 Then
+                    packet.AddUInt16(_WS_Spells.SPELLs(Cooldown.Key).Category) 'SpellCategory
+                    If _WS_Spells.SPELLs(Cooldown.Key).CategoryCooldown > 0 Then
                         packet.AddInt32(0) 'SpellCooldown
                         packet.AddInt32(timeLeft) 'CategoryCooldown
                     Else
@@ -515,22 +515,22 @@ Namespace Player
             End Try
         End Sub
 
-        Public Sub InitializeTalentSpells(ByVal objCharacter As CharacterObject)
-            Dim t As New SpellTargets
+        Public Sub InitializeTalentSpells(ByVal objCharacter As WS_PlayerData.CharacterObject)
+            Dim t As New WS_Spells.SpellTargets
             t.SetTarget_SELF(objCharacter)
 
-            For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In objCharacter.Spells
-                If WS_Spells.SPELLs.ContainsKey(Spell.Key) AndAlso (WS_Spells.SPELLs(Spell.Key).IsPassive) Then
+            For Each Spell As KeyValuePair(Of Integer, WS_Spells.CharacterSpell) In objCharacter.Spells
+                If _WS_Spells.SPELLs.ContainsKey(Spell.Key) AndAlso (_WS_Spells.SPELLs(Spell.Key).IsPassive) Then
                     'DONE: Add passive spell we don't have
                     'DONE: Remove passive spells we can't have anymore
-                    If objCharacter.HavePassiveAura(Spell.Key) = False AndAlso WS_Spells.SPELLs(Spell.Key).CanCast(objCharacter, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
-                        WS_Spells.SPELLs(Spell.Key).Apply(objCharacter, t)
-                    ElseIf objCharacter.HavePassiveAura(Spell.Key) AndAlso WS_Spells.SPELLs(Spell.Key).CanCast(objCharacter, t, False) <> SpellFailedReason.SPELL_NO_ERROR Then
+                    If objCharacter.HavePassiveAura(Spell.Key) = False AndAlso _WS_Spells.SPELLs(Spell.Key).CanCast(objCharacter, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
+                        _WS_Spells.SPELLs(Spell.Key).Apply(objCharacter, t)
+                    ElseIf objCharacter.HavePassiveAura(Spell.Key) AndAlso _WS_Spells.SPELLs(Spell.Key).CanCast(objCharacter, t, False) <> SpellFailedReason.SPELL_NO_ERROR Then
                         objCharacter.RemoveAuraBySpell(Spell.Key)
                     End If
                 End If
             Next
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

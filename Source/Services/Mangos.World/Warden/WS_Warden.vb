@@ -30,7 +30,7 @@ Imports Mangos.World.Player
 
 Namespace Warden
 
-    Public Module WS_Warden
+    Public Class WS_Warden
 
 #Region "Maiev"
         Public Maiev As New WardenMaiev
@@ -80,7 +80,7 @@ Namespace Warden
 #Region "Load Module"
             Public Function LoadModule(ByVal Name As String, ByRef Data() As Byte, ByVal Key() As Byte) As Boolean
                 Key = WS_Handlers_Warden.RC4.Init(Key)
-                RC4.Crypt(Data, Key)
+                _WS_Handlers_Warden.RC4.Crypt(Data, Key)
 
                 Dim UncompressedLen As Integer = BitConverter.ToInt32(Data, 0)
                 If UncompressedLen < 0 Then
@@ -205,13 +205,13 @@ Namespace Warden
 
             Private Function PrepairModule(ByRef data() As Byte) As Boolean
                 Try
-                    Dim pModule As Integer = ByteArrPtr(data)
+                    Dim pModule As Integer = _WS_Warden.ByteArrPtr(data)
                     Header = Marshal.PtrToStructure(New IntPtr(pModule), GetType(CHeader))
 
                     dwModuleSize = Header.dwModuleSize
 
                     If dwModuleSize < &H7FFFFFFF Then
-                        m_Mod = Malloc(dwModuleSize)
+                        m_Mod = _WS_Warden.Malloc(dwModuleSize)
 
                         If m_Mod Then
                             Marshal.Copy(data, 0, m_Mod, &H28)
@@ -440,10 +440,10 @@ Namespace Warden
                 Console.WriteLine("  GetRC4Data: 0x{0:X}", myFunctionList.fpGetRC4Data)
 
                 'http://forum.valhallalegends.com/index.php?topic=17758.0
-                myFuncList = New IntPtr(Malloc(&H1C))
+                myFuncList = New IntPtr(_WS_Warden.Malloc(&H1C))
                 Marshal.StructureToPtr(myFunctionList, myFuncList, False)
                 pFuncList = myFuncList.ToInt32()
-                ppFuncList = VarPtr(pFuncList)
+                ppFuncList = _WS_Warden.VarPtr(pFuncList)
 
                 Console.WriteLine("Initializing module")
                 Try
@@ -475,7 +475,7 @@ Namespace Warden
 #Region "Unload Module"
             Private Sub Unload_Module()
                 'TODO!!
-                Free(m_Mod)
+                _WS_Warden.Free(m_Mod)
             End Sub
 #End Region
 
@@ -537,11 +537,11 @@ Namespace Warden
             End Function
             Private Function AllocateMem(ByVal dwSize As Integer) As Integer
                 Console.WriteLine("Warden.AllocateMem() Size={0}", dwSize)
-                Return Malloc(dwSize)
+                Return _WS_Warden.Malloc(dwSize)
             End Function
             Private Sub FreeMemory(ByVal dwMemory As Integer)
                 Console.WriteLine("Warden.FreeMemory() Memory={0}", dwMemory)
-                Free(dwMemory)
+                _WS_Warden.Free(dwMemory)
             End Sub
             Private Function SetRC4Data(ByVal lpKeys As Integer, ByVal dwSize As Integer) As Integer
                 Console.WriteLine("Warden.SetRC4Data() Keys={0}, Size={1}", lpKeys, dwSize)
@@ -562,18 +562,18 @@ Namespace Warden
 
             Public Sub GenerateNewRC4Keys(ByVal K() As Byte)
                 m_RC4 = 0
-                Dim pK As Integer = ByteArrPtr(K)
+                Dim pK As Integer = _WS_Warden.ByteArrPtr(K)
                 GenerateRC4Keys(m_ModMem, pK, K.Length)
-                Free(pK)
+                _WS_Warden.Free(pK)
             End Sub
 
             Public Function HandlePacket(ByVal PacketData() As Byte) As Integer
                 m_PKT = New Byte() {}
                 Dim BytesRead As Integer = 0
-                BytesRead = VarPtr(BytesRead)
-                Dim pPacket As Integer = ByteArrPtr(PacketData)
+                BytesRead = _WS_Warden.VarPtr(BytesRead)
+                Dim pPacket As Integer = _WS_Warden.ByteArrPtr(PacketData)
                 PacketHandler(m_ModMem, pPacket, PacketData.Length, BytesRead)
-                Free(pPacket)
+                _WS_Warden.Free(pPacket)
                 Return Marshal.ReadInt32(New IntPtr(BytesRead))
             End Function
 
@@ -588,7 +588,7 @@ Namespace Warden
                 Buffer.BlockCopy(KeyData, 258, objCharacter.WardenData.KeyIn, 0, 258)
             End Sub
 
-            Public Sub ReadXorByte(ByRef objCharacter As CharacterObject)
+            Public Sub ReadXorByte(ByRef objCharacter As WS_PlayerData.CharacterObject)
                 Dim ClientSeed(16 - 1) As Byte
                 Marshal.Copy(New IntPtr(m_ModMem + 4), ClientSeed, 0, ClientSeed.Length)
 
@@ -630,12 +630,12 @@ Namespace Warden
 #Region "Scans"
         Public Class WardenScan
 
-            Private Character As CharacterObject = Nothing
+            Private Character As WS_PlayerData.CharacterObject = Nothing
 
             Private UsedStrings As New List(Of String)
             Private Checks As New List(Of CheatCheck)
 
-            Public Sub New(ByRef objCharacter As CharacterObject)
+            Public Sub New(ByRef objCharacter As WS_PlayerData.CharacterObject)
                 Character = objCharacter
             End Sub
 
@@ -720,8 +720,8 @@ Namespace Warden
                 Checks.Add(newCheck)
             End Sub
 
-            Public Function GetPacket() As PacketClass
-                Dim packet As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
+            Public Function GetPacket() As Packets.PacketClass
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_WARDEN_DATA)
                 packet.AddInt8(MaievOpcode.MAIEV_MODULE_RUN)
                 For Each tmpStr As String In UsedStrings
                     packet.AddString2(tmpStr)
@@ -730,7 +730,7 @@ Namespace Warden
 
                 Dim i As Byte = 0
                 For Each Check As CheatCheck In Checks
-                    Dim xorCheck As Byte = (Maiev.CheckIDs(Check.Type) Xor Character.WardenData.xorByte)
+                    Dim xorCheck As Byte = (_WS_Warden.Maiev.CheckIDs(Check.Type) Xor Character.WardenData.xorByte)
                     Dim checkData() As Byte = Check.ToData(xorCheck, i)
                     packet.AddByteArray(checkData)
                 Next
@@ -745,7 +745,7 @@ Namespace Warden
                 UsedStrings.Clear()
             End Sub
 
-            Public Sub HandleResponse(ByRef p As PacketClass)
+            Public Sub HandleResponse(ByRef p As Packets.PacketClass)
                 'TODO: Now do the check if we have a cheater or not :)
 
                 For Each Check As CheatCheck In Checks
@@ -892,16 +892,16 @@ Namespace Warden
         End Sub
 #End Region
 
-        Public Sub SendWardenPacket(ByRef objCharacter As CharacterObject, ByRef Packet As PacketClass)
+        Public Sub SendWardenPacket(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef Packet As Packets.PacketClass)
             'START Warden Encryption
             Dim b(Packet.Data.Length - 4 - 1) As Byte
             Buffer.BlockCopy(Packet.Data, 4, b, 0, b.Length)
-            RC4.Crypt(b, objCharacter.WardenData.KeyIn)
+            _WS_Handlers_Warden.RC4.Crypt(b, objCharacter.WardenData.KeyIn)
             Buffer.BlockCopy(b, 0, Packet.Data, 4, b.Length)
             'END
 
             objCharacter.client.Send(Packet)
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

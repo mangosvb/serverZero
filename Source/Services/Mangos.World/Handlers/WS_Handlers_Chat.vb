@@ -27,7 +27,7 @@ Imports Mangos.World.Server
 
 Namespace Handlers
 
-    Public Module WS_Handlers_Chat
+    Public Class WS_Handlers_Chat
 
         Public Function GetChatFlag(ByVal objCharacter As WS_PlayerData.CharacterObject) As Byte
             If objCharacter.GM Then
@@ -61,13 +61,13 @@ Namespace Handlers
                     'Handle admin/gm commands
                     If Message.StartsWith(_WorldServer.Config.CommandCharacter) AndAlso client.Character.Access > AccessLevel.Player Then
                         Message = Message.Remove(0, 1) ' Remove Command Start Character From Message
-                        Dim toCommand As PacketClass = BuildChatMessage(SystemGUID, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
+                        Dim toCommand As Packets.PacketClass = _Functions.BuildChatMessage(_WS_Commands.SystemGUID, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
                         Try
                             client.Send(toCommand)
                         Finally
                             toCommand.Dispose()
                         End Try
-                        OnCommand(client, Message)
+                        _WS_Commands.OnCommand(client, Message)
                         Exit Sub
                     Else
                         client.Character.SendChatMessage(client.Character, Message, msgType, msgLanguage, "", True)
@@ -104,10 +104,10 @@ Namespace Handlers
 
                 Case Else
                     _WorldServer.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
-                    DumpPacket(packet.Data, client)
+                    _Packets.DumpPacket(packet.Data, client)
             End Select
 
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

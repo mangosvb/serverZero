@@ -57,7 +57,7 @@ Namespace Examples
 
         Public Sub CastKnockdown() 'This is where the spell is brought into actual usage. 
             For i As Integer = 0 To 3 ' I believe this number is capped by the amount of spells from 0-any number. We'll make it 0 to 3 here just to be safe. You should do the same.
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub 'If no player is targetted, don't cast knockdown.
                 aiCreature.CastSpell(Spell_Knockdown, aiTarget) 'The casting of the spell. This will be casted on the selected target as defined previously.
             Next

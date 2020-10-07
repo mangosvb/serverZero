@@ -70,7 +70,7 @@ Namespace Creatures
 
         Public Sub CastLightning()
             For i As Integer = 0 To 3
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(Spell_Lightning_Bolt, aiTarget)
             Next
@@ -78,7 +78,7 @@ Namespace Creatures
 
         Public Sub CastSlumber()
             For i As Integer = 1 To 3
-                Dim target As BaseUnit = aiCreature
+                Dim target As WS_Base.BaseUnit = aiCreature
                 If target Is Nothing Then Exit Sub
             Next
             aiCreature.CastSpell(Slumber_Spell, aiTarget)

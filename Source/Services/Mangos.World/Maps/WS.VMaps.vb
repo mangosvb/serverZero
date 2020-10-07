@@ -18,7 +18,7 @@
 
 #If VMAPS Then
 
-Public Module _Global_Constants.VMAP_Module
+Public class _Global_Constants.VMAP_Module
 
     Public Class ModelContainer
         Inherits BaseModel
@@ -2091,6 +2091,6 @@ Public Module _Global_Constants.VMAP_Module
         entity.Intersect(ray, distance, pStopAtFirstHit)
     End Sub
 
-End Module
+End class
 
 #End If

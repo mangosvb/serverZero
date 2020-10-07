@@ -58,7 +58,7 @@ Namespace Creatures
 
         Public Sub CastHeal()
             For i As Integer = 0 To 1
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(HEAL_SPELL, aiTarget)
             Next
@@ -66,7 +66,7 @@ Namespace Creatures
 
         Public Sub CastBolt()
             For i As Integer = 1 To 1
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(BOLT_SPELL, aiTarget)
             Next

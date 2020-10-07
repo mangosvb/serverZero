@@ -37,7 +37,7 @@ Namespace Objects
     Public NotInheritable Class ItemObject
         Implements IDisposable
 
-        Public ReadOnly Property ItemInfo() As ItemInfo
+        Public ReadOnly Property ItemInfo() As WS_Items.ItemInfo
             Get
                 Return _WorldServer.ITEMDatabase(ItemEntry)
             End Get
@@ -56,7 +56,7 @@ Namespace Objects
         Public Items As Dictionary(Of Byte, ItemObject) = Nothing
         Public ReadOnly RandomProperties As Integer = 0
         Public SuffixFactor As Integer = 0
-        Public ReadOnly Enchantments As New Dictionary(Of Byte, TEnchantmentInfo)
+        Public ReadOnly Enchantments As New Dictionary(Of Byte, WS_Items.TEnchantmentInfo)
 
         Private _loot As WS_Loot.LootObject = Nothing
 
@@ -121,7 +121,7 @@ Namespace Objects
                 'Update.SetUpdateFlag(EItemFields.ITEM_FIELD_PROPERTY_SEED, 0)
                 update.SetUpdateFlag(EItemFields.ITEM_FIELD_RANDOM_PROPERTIES_ID, RandomProperties)
 
-                For Each enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
+                For Each enchant As KeyValuePair(Of Byte, WS_Items.TEnchantmentInfo) In Enchantments
                     update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key * 3, enchant.Value.ID)
                     update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key * 3 + 1, enchant.Value.Duration)
                     update.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + enchant.Key * 3 + 2, enchant.Value.Charges)
@@ -136,12 +136,12 @@ Namespace Objects
         Public Sub SendContainedItemsUpdate(ByRef client As WS_Network.ClientClass,
                                             Optional ByVal updatetype As Integer =
                                                ObjectUpdateType.UPDATETYPE_CREATE_OBJECT)
-            Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             packet.AddInt32(Items.Count)      'Operations.Count
             packet.AddInt8(0)
 
             For Each item As KeyValuePair(Of Byte, ItemObject) In Items
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 item.Value.FillAllUpdateFlags(tmpUpdate)
                 tmpUpdate.AddToPacket(packet, updatetype, item.Value)
                 tmpUpdate.Dispose()
@@ -252,8 +252,8 @@ Namespace Objects
             _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM item_loot WHERE entry = {0};", ItemEntry), mySqlQuery)
             If mySqlQuery.Rows.Count = 0 Then Return False
 
-            _loot = New LootObject(GUID, LootType.LOOTTYPE_CORPSE)
-            Dim template As LootTemplate = LootTemplates_Item.GetLoot(ItemEntry)
+            _loot = New WS_Loot.LootObject(GUID, LootType.LOOTTYPE_CORPSE)
+            Dim template As WS_Loot.LootTemplate = _WS_Loot.LootTemplates_Item.GetLoot(ItemEntry)
             If template IsNot Nothing Then
                 template.Process(_loot, 0)
             End If
@@ -292,7 +292,7 @@ Namespace Objects
                         Dim tmp2() As String
                         tmp2 = Split(tmp(i), ":")
                         'DONE: Add the enchantment
-                        Enchantments.Add(tmp2(0), New TEnchantmentInfo(tmp2(1), tmp2(2), tmp2(3)))
+                        Enchantments.Add(tmp2(0), New WS_Items.TEnchantmentInfo(tmp2(1), tmp2(2), tmp2(3)))
                         'DONE: Add the bonuses to the character
                         If equipped Then AddEnchantBonus(tmp2(0), owner)
                     End If
@@ -302,7 +302,7 @@ Namespace Objects
             'DONE: Load ItemID in cashe if not loaded
             If _WorldServer.ITEMDatabase.ContainsKey(ItemEntry) = False Then
                 'TODO: This needs to actually do something
-                Dim tmpItem As New ItemInfo(ItemEntry)
+                Dim tmpItem As New WS_Items.ItemInfo(ItemEntry)
             End If
 
             InitializeBag()
@@ -326,7 +326,7 @@ Namespace Objects
             Try
                 If _WorldServer.ITEMDatabase.ContainsKey(itemId) = False Then
                     'TODO: This needs to actually do something
-                    Dim tmpItem As New ItemInfo(itemId)
+                    Dim tmpItem As New WS_Items.ItemInfo(itemId)
                 End If
                 ItemEntry = itemId
                 OwnerGUID = owner
@@ -379,7 +379,7 @@ Namespace Objects
 
             'DONE: Saving enchanments
             Dim temp As New ArrayList
-            For Each enchantment As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
+            For Each enchantment As KeyValuePair(Of Byte, WS_Items.TEnchantmentInfo) In Enchantments
                 temp.Add(String.Format("{0}:{1}:{2}:{3}", enchantment.Key, enchantment.Value.ID,
                                        enchantment.Value.Duration, enchantment.Value.Charges))
             Next
@@ -406,7 +406,7 @@ Namespace Objects
 
             'DONE: Saving enchanments
             Dim temp As New ArrayList
-            For Each enchantment As KeyValuePair(Of Byte, TEnchantmentInfo) In Enchantments
+            For Each enchantment As KeyValuePair(Of Byte, WS_Items.TEnchantmentInfo) In Enchantments
                 temp.Add(String.Format("{0}:{1}:{2}:{3}", enchantment.Key, enchantment.Value.ID,
                                        enchantment.Value.Duration, enchantment.Value.Charges))
             Next
@@ -473,7 +473,7 @@ Namespace Objects
             Return (Durability = 0) AndAlso (ItemInfo.Durability > 0)
         End Function
 
-        Public Sub ModifyDurability(ByVal percent As Single, ByRef client As ClientClass)
+        Public Sub ModifyDurability(ByVal percent As Single, ByRef client As WS_Network.ClientClass)
             If _WorldServer.ITEMDatabase(ItemEntry).Durability > 0 Then
                 Durability -= Fix(_WorldServer.ITEMDatabase(ItemEntry).Durability * percent)
                 If Durability < 0 Then Durability = 0
@@ -482,7 +482,7 @@ Namespace Objects
             End If
         End Sub
 
-        Public Sub ModifyToDurability(ByVal percent As Single, ByRef client As ClientClass)
+        Public Sub ModifyToDurability(ByVal percent As Single, ByRef client As WS_Network.ClientClass)
             If _WorldServer.ITEMDatabase(ItemEntry).Durability > 0 Then
                 Durability = Fix(_WorldServer.ITEMDatabase(ItemEntry).Durability * percent)
                 If Durability < 0 Then Durability = 0
@@ -491,11 +491,11 @@ Namespace Objects
             End If
         End Sub
 
-        Private Sub UpdateDurability(ByRef client As ClientClass)
-            Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+        Private Sub UpdateDurability(ByRef client As WS_Network.ClientClass)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             packet.AddInt32(1)      'Operations.Count
             packet.AddInt8(0)
-            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
             tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_DURABILITY, Durability)
             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
             tmpUpdate.Dispose()
@@ -506,12 +506,12 @@ Namespace Objects
             Get
                 Try
                     Dim lostDurability As Integer = _WorldServer.ITEMDatabase(ItemEntry).Durability - Durability
-                    If lostDurability > DurabilityCosts_MAX Then lostDurability = DurabilityCosts_MAX
+                    If lostDurability > _WS_DBCDatabase.DurabilityCosts_MAX Then lostDurability = _WS_DBCDatabase.DurabilityCosts_MAX
                     Dim subClass As Integer = 0
                     If ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then subClass = ItemInfo.SubClass Else _
                         subClass = ItemInfo.SubClass + 21
                     Dim durabilityCost As UInteger =
-                            (lostDurability * ((DurabilityCosts(ItemInfo.Level, subClass) / 40) * 100))
+                            (lostDurability * ((_WS_DBCDatabase.DurabilityCosts(ItemInfo.Level, subClass) / 40) * 100))
                     _WorldServer.Log.WriteLine(LogType.DEBUG, "Durability cost: {0}", durabilityCost)
                     Return durabilityCost
                 Catch
@@ -525,27 +525,27 @@ Namespace Objects
             'DONE: Replace if an enchant already is placed in this slot
             If Enchantments.ContainsKey(slot) Then RemoveEnchantment(slot)
             'DONE: Add the enchantment
-            Enchantments.Add(slot, New TEnchantmentInfo(id, duration, charges))
+            Enchantments.Add(slot, New WS_Items.TEnchantmentInfo(id, duration, charges))
             'DONE: Add the bonuses to the character if it's equipped
             AddEnchantBonus(slot)
         End Sub
 
-        Public Sub AddEnchantBonus(ByVal slot As Byte, Optional ByRef objCharacter As CharacterObject = Nothing)
+        Public Sub AddEnchantBonus(ByVal slot As Byte, Optional ByRef objCharacter As WS_PlayerData.CharacterObject = Nothing)
             If objCharacter Is Nothing Then
                 If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) = False Then Exit Sub
                 objCharacter = _WorldServer.CHARACTERs(OwnerGUID)
             End If
-            If objCharacter IsNot Nothing AndAlso SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
+            If objCharacter IsNot Nothing AndAlso _WS_DBCDatabase.SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
                 For i As Byte = 0 To 2
-                    If SpellItemEnchantments(Enchantments(slot).ID).SpellID(i) <> 0 Then
-                        If WS_Spells.SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i)) Then
+                    If _WS_DBCDatabase.SpellItemEnchantments(Enchantments(slot).ID).SpellID(i) <> 0 Then
+                        If _WS_Spells.SPELLs.ContainsKey(_WS_DBCDatabase.SpellItemEnchantments(Enchantments(slot).ID).SpellID(i)) Then
                             Dim spellInfo As WS_Spells.SpellInfo
-                            spellInfo = WS_Spells.SPELLs(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i))
+                            spellInfo = _WS_Spells.SPELLs(_WS_DBCDatabase.SpellItemEnchantments(Enchantments(slot).ID).SpellID(i))
                             For j As Byte = 0 To 2
                                 If Not (spellInfo.SpellEffects(j) Is Nothing) Then
                                     Select Case spellInfo.SpellEffects(j).ID
                                         Case SpellEffects_Names.SPELL_EFFECT_APPLY_AURA
-                                            AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(objCharacter, objCharacter,
+                                            _WS_Spells.AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(objCharacter, objCharacter,
                                                                                                    spellInfo.
                                                                                                       SpellEffects(j),
                                                                                                    spellInfo.ID, 1,
@@ -560,17 +560,17 @@ Namespace Objects
         End Sub
 
         Public Sub RemoveEnchantBonus(ByVal slot As Byte)
-            If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) AndAlso SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
+            If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) AndAlso _WS_DBCDatabase.SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
                 For i As Byte = 0 To 2
-                    If SpellItemEnchantments(Enchantments(slot).ID).SpellID(i) <> 0 Then
-                        If WS_Spells.SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i)) Then
-                            Dim spellInfo As SpellInfo
-                            spellInfo = WS_Spells.SPELLs(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i))
+                    If _WS_DBCDatabase.SpellItemEnchantments(Enchantments(slot).ID).SpellID(i) <> 0 Then
+                        If _WS_Spells.SPELLs.ContainsKey(_WS_DBCDatabase.SpellItemEnchantments(Enchantments(slot).ID).SpellID(i)) Then
+                            Dim spellInfo As WS_Spells.SpellInfo
+                            spellInfo = _WS_Spells.SPELLs(_WS_DBCDatabase.SpellItemEnchantments(Enchantments(slot).ID).SpellID(i))
                             For j As Byte = 0 To 2
                                 If Not (spellInfo.SpellEffects(j) Is Nothing) Then
                                     Select Case spellInfo.SpellEffects(j).ID
                                         Case SpellEffects_Names.SPELL_EFFECT_APPLY_AURA
-                                            AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(_WorldServer.CHARACTERs(OwnerGUID),
+                                            _WS_Spells.AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(_WorldServer.CHARACTERs(OwnerGUID),
                                                                                                    _WorldServer.CHARACTERs(OwnerGUID),
                                                                                                    spellInfo.
                                                                                                       SpellEffects(j),
@@ -594,11 +594,11 @@ Namespace Objects
             Enchantments.Remove(slot)
             'DONE: Send the update to the client about it
             If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) Then
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3), 0)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 1, 0)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 2, 0)
@@ -610,7 +610,7 @@ Namespace Objects
             End If
         End Sub
 
-        Public Sub SoulbindItem(Optional ByRef client As ClientClass = Nothing)
+        Public Sub SoulbindItem(Optional ByRef client As WS_Network.ClientClass = Nothing)
             If (_flags And ITEM_FLAGS.ITEM_FLAGS_BINDED) = ITEM_FLAGS.ITEM_FLAGS_BINDED Then Exit Sub
 
             'DONE: Setting the flag
@@ -619,11 +619,11 @@ Namespace Objects
 
             'DONE: Sending update to character
             If Not client Is Nothing Then
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
 
@@ -639,4 +639,4 @@ Namespace Objects
             End Get
         End Property
     End Class
-End NameSpace
+End Namespace

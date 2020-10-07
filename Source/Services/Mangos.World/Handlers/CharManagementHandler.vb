@@ -33,7 +33,7 @@ Imports Mangos.World.Server
 Namespace Handlers
 
 #Region "WS.CharMangment.Handlers"
-    Public Module CharManagementHandler
+    Public Class CharManagementHandler
 
         Public Sub On_CMSG_SET_ACTION_BUTTON(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 10 Then Exit Sub
@@ -56,7 +56,7 @@ Namespace Handlers
             client.Character.ActionButtons(button) = New WS_PlayerHelper.TActionButton(action, actionType, actionMisc)
         End Sub
 
-        Public Sub On_CMSG_LOGOUT_REQUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LOGOUT_REQUEST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_REQUEST", client.IP, client.Port)
             client.Character.Save()
 
@@ -64,7 +64,7 @@ Namespace Handlers
 
             'DONE: Can't log out in combat
             If client.Character.IsInCombat Then
-                Dim LOGOUT_RESPONSE_DENIED As New PacketClass(OPCODES.SMSG_LOGOUT_RESPONSE)
+                Dim LOGOUT_RESPONSE_DENIED As New Packets.PacketClass(OPCODES.SMSG_LOGOUT_RESPONSE)
                 Try
                     LOGOUT_RESPONSE_DENIED.AddInt32(0)
                     LOGOUT_RESPONSE_DENIED.AddInt8(LogoutResponseCode.LOGOUT_RESPONSE_DENIED)
@@ -75,10 +75,10 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If Not client.Character.positionZ > (GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) + 10) Then
+            If Not client.Character.positionZ > (_WS_Maps.GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) + 10) Then
                 'DONE: Initialize packet
-                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                Dim SMSG_UPDATE_OBJECT As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
                     SMSG_UPDATE_OBJECT.AddInt8(0)
@@ -98,7 +98,7 @@ Namespace Handlers
                     SMSG_UPDATE_OBJECT.Dispose()
                 End Try
 
-                Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
+                Dim packetACK As New Packets.PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
                 Try
                     packetACK.AddInt8(StandStates.STANDSTATE_SIT)
                     client.Send(packetACK)
@@ -108,7 +108,7 @@ Namespace Handlers
             End If
 
             'DONE: Let the client to exit
-            Dim SMSG_LOGOUT_RESPONSE As New PacketClass(OPCODES.SMSG_LOGOUT_RESPONSE)
+            Dim SMSG_LOGOUT_RESPONSE As New Packets.PacketClass(OPCODES.SMSG_LOGOUT_RESPONSE)
             Try
                 SMSG_LOGOUT_RESPONSE.AddInt32(0)
                 SMSG_LOGOUT_RESPONSE.AddInt8(LogoutResponseCode.LOGOUT_RESPONSE_ACCEPTED)     'Logout Accepted
@@ -130,7 +130,7 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub On_CMSG_LOGOUT_CANCEL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LOGOUT_CANCEL(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_CANCEL", client.IP, client.Port)
                 If client Is Nothing Then Exit Sub
@@ -143,8 +143,8 @@ Namespace Handlers
                 End Try
 
                 'DONE: Initialize packet
-                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                Dim SMSG_UPDATE_OBJECT As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
                     SMSG_UPDATE_OBJECT.AddInt8(0)
@@ -164,7 +164,7 @@ Namespace Handlers
                     SMSG_UPDATE_OBJECT.Dispose()
                 End Try
 
-                Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
+                Dim packetACK As New Packets.PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
                 Try
                     packetACK.AddInt8(StandStates.STANDSTATE_STAND)
                     client.Send(packetACK)
@@ -173,7 +173,7 @@ Namespace Handlers
                 End Try
 
                 'DONE: Stop client logout
-                Dim SMSG_LOGOUT_CANCEL_ACK As New PacketClass(OPCODES.SMSG_LOGOUT_CANCEL_ACK)
+                Dim SMSG_LOGOUT_CANCEL_ACK As New Packets.PacketClass(OPCODES.SMSG_LOGOUT_CANCEL_ACK)
                 Try
                     client.Send(SMSG_LOGOUT_CANCEL_ACK)
                 Finally
@@ -188,7 +188,7 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_CMSG_STANDSTATECHANGE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_STANDSTATECHANGE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             packet.GetInt16()
 
@@ -202,7 +202,7 @@ Namespace Handlers
             client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, client.Character.cBytes1)
             client.Character.SendCharacterUpdate()
 
-            Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
+            Dim packetACK As New Packets.PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
             Try
                 packetACK.AddInt8(StandState)
                 client.Send(packetACK)
@@ -212,7 +212,7 @@ Namespace Handlers
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_STANDSTATECHANGE [{2}]", client.IP, client.Port, client.Character.StandState)
         End Sub
 
-        Public Function CanUseAmmo(ByRef objCharacter As CharacterObject, ByVal AmmoID As Integer) As InventoryChangeFailure
+        Public Function CanUseAmmo(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AmmoID As Integer) As InventoryChangeFailure
             If objCharacter.DEAD Then Return InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD
             If _WorldServer.ITEMDatabase.ContainsKey(AmmoID) = False Then Return InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND
             If _WorldServer.ITEMDatabase(AmmoID).InventoryType <> INVENTORY_TYPES.INVTYPE_AMMO Then Return InventoryChangeFailure.EQUIP_ERR_ONLY_AMMO_CAN_GO_HERE
@@ -232,7 +232,7 @@ Namespace Handlers
             Return InventoryChangeFailure.EQUIP_ERR_OK
         End Function
 
-        Public Function CheckAmmoCompatibility(ByRef objCharacter As CharacterObject, ByVal AmmoID As Integer) As Boolean
+        Public Function CheckAmmoCompatibility(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AmmoID As Integer) As Boolean
             If _WorldServer.ITEMDatabase.ContainsKey(AmmoID) = False Then Return False
             If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) = False OrElse objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).IsBroken Then Return False
             If objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON Then Return False
@@ -249,6 +249,6 @@ Namespace Handlers
             Return True
         End Function
 
-    End Module
+    End Class
 #End Region
-End NameSpace
+End Namespace

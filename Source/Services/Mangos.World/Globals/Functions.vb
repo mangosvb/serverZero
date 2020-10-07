@@ -31,7 +31,7 @@ Imports Mangos.World.Server
 
 Namespace Globals
 
-    Public Module Functions
+    Public Class Functions
 
 #Region "System"
 
@@ -357,12 +357,12 @@ Namespace Globals
 #Region "Packets"
 
         Public Sub SendMessageMOTD(ByRef client As WS_Network.ClientClass, ByVal Message As String)
-            Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
+            Dim packet As Packets.PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
             client.Send(packet)
         End Sub
 
-        Public Sub SendMessageNotification(ByRef client As ClientClass, ByVal Message As String)
-            Dim packet As New PacketClass(OPCODES.SMSG_NOTIFICATION)
+        Public Sub SendMessageNotification(ByRef client As WS_Network.ClientClass, ByVal Message As String)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_NOTIFICATION)
             Try
                 packet.AddString(Message)
                 client.Send(packet)
@@ -371,8 +371,8 @@ Namespace Globals
             End Try
         End Sub
 
-        Public Sub SendMessageSystem(ByVal objCharacter As ClientClass, ByVal Message As String)
-            Dim packet As PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
+        Public Sub SendMessageSystem(ByVal objCharacter As WS_Network.ClientClass, ByVal Message As String)
+            Dim packet As Packets.PacketClass = BuildChatMessage(0, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL, 0, "")
             Try
                 objCharacter.Send(packet)
             Finally
@@ -388,7 +388,7 @@ Namespace Globals
             _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
 
-        Public Sub SendAccountMD5(ByRef client As ClientClass, ByRef Character As CharacterObject)
+        Public Sub SendAccountMD5(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
             Dim FoundData As Boolean = False
 
             'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
@@ -406,7 +406,7 @@ Namespace Globals
             '    End If
             'End If
 
-            Dim SMSG_ACCOUNT_DATA_TIMES As New PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
+            Dim SMSG_ACCOUNT_DATA_TIMES As New Packets.PacketClass(OPCODES.SMSG_ACCOUNT_DATA_MD5)
             Try
                 'Dim md5hash As MD5 = MD5.Create()
                 For i As Integer = 0 To 7
@@ -433,11 +433,11 @@ Namespace Globals
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
         End Sub
 
-        Public Sub SendTriggerCinematic(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim packet As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
+        Public Sub SendTriggerCinematic(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
             Try
-                If CharRaces.ContainsKey(Character.Race) Then
-                    packet.AddInt32(CharRaces(Character.Race).CinematicID)
+                If _WS_DBCDatabase.CharRaces.ContainsKey(Character.Race) Then
+                    packet.AddInt32(_WS_DBCDatabase.CharRaces(Character.Race).CinematicID)
                 Else
                     _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC [Error: RACE={2} CLASS={3}]", client.IP, client.Port, Character.Race, Character.Classe)
                     Exit Sub
@@ -450,14 +450,14 @@ Namespace Globals
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_TRIGGER_CINEMATIC", client.IP, client.Port)
         End Sub
 
-        Public Sub SendTimeSyncReq(ByRef client As ClientClass)
+        Public Sub SendTimeSyncReq(ByRef client As WS_Network.ClientClass)
             'Dim packet As New PacketClass(OPCODES.SMSG_TIME_SYNC_REQ)
             'packet.AddInt32(0)
             'Client.Send(packet)
         End Sub
 
-        Public Sub SendGameTime(ByRef client As ClientClass, ByRef Character As CharacterObject)
-            Dim SMSG_LOGIN_SETTIMESPEED As New PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
+        Public Sub SendGameTime(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim SMSG_LOGIN_SETTIMESPEED As New Packets.PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
             Try
                 Dim time As Date = Date.Now
                 Dim Year As Integer = time.Year - 2000
@@ -478,8 +478,8 @@ Namespace Globals
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGIN_SETTIMESPEED", client.IP, client.Port)
         End Sub
 
-        Public Sub SendProficiency(ByRef client As ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
-            Dim packet As New PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
+        Public Sub SendProficiency(ByRef client As WS_Network.ClientClass, ByVal ProficiencyType As Byte, ByVal ProficiencyFlags As Integer)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_SET_PROFICIENCY)
             Try
                 packet.AddInt8(ProficiencyType)
                 packet.AddInt32(ProficiencyFlags)
@@ -491,8 +491,8 @@ Namespace Globals
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
         End Sub
 
-        Public Sub SendCorpseReclaimDelay(ByRef client As ClientClass, ByRef Character As CharacterObject, Optional ByVal Seconds As Integer = 30)
-            Dim packet As New PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
+        Public Sub SendCorpseReclaimDelay(ByRef client As WS_Network.ClientClass, ByRef Character As WS_PlayerData.CharacterObject, Optional ByVal Seconds As Integer = 30)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
             Try
                 packet.AddInt32(Seconds * 1000)
                 client.Send(packet)
@@ -502,8 +502,8 @@ Namespace Globals
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_CORPSE_RECLAIM_DELAY [{2}s]", client.IP, client.Port, Seconds)
         End Sub
 
-        Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As PacketClass
-            Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
+        Public Function BuildChatMessage(ByVal SenderGUID As ULong, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal Flag As Byte = 0, Optional ByVal msgChannel As String = "Global") As Packets.PacketClass
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_MESSAGECHAT)
             Try
                 packet.AddInt8(msgType)
                 packet.AddInt32(msgLanguage)
@@ -588,8 +588,8 @@ Namespace Globals
             GROUP_UPDATE_FULL_REQUEST_REPLY = &H7FFC0BFF
         End Enum
 
-        Function BuildPartyMemberStatsOffline(ByVal GUID As ULong) As PacketClass
-            Dim packet As New PacketClass(OPCODES.SMSG_PARTY_MEMBER_STATS_FULL)
+        Function BuildPartyMemberStatsOffline(ByVal GUID As ULong) As Packets.PacketClass
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_PARTY_MEMBER_STATS_FULL)
             packet.AddPackGUID(GUID)
             packet.AddUInt32(PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS)
             packet.AddInt8(PartyMemberStatsStatus.STATUS_OFFLINE)
@@ -598,5 +598,5 @@ Namespace Globals
 
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

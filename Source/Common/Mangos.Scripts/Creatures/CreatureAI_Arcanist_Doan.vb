@@ -92,7 +92,7 @@ Namespace Creatures
 
         Public Sub CastPolymorph()
             For i As Integer = 1 To 2
-                Dim target As BaseUnit = aiCreature.GetRandomTarget 'Finally learned how random target functions work.
+                Dim target As WS_Base.BaseUnit = aiCreature.GetRandomTarget 'Finally learned how random target functions work.
                 If target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(SPELL_POLYMORPH, aiCreature.GetRandomTarget) 'Might not properly work.
@@ -104,7 +104,7 @@ Namespace Creatures
 
         Public Sub CastSilence()
             For i As Integer = 2 To 2
-                Dim target As BaseUnit = aiCreature.GetRandomTarget
+                Dim target As WS_Base.BaseUnit = aiCreature.GetRandomTarget
                 If target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(SPELL_SILENCE, aiCreature.GetRandomTarget)

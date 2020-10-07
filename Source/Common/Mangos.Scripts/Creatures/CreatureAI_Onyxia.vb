@@ -79,7 +79,7 @@ Namespace Creatures
             aiCreature.SendChatMessage("LEAVING COMBAT!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         End Sub
 
-        Public Overrides Sub OnKill(ByRef Victim As BaseUnit)
+        Public Overrides Sub OnKill(ByRef Victim As WS_Base.BaseUnit)
             'TODO: Yell
             'TODO: Send sound (Die mortal?)!
             aiCreature.SendChatMessage("Die mortal, $N!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL, Victim.GUID)
@@ -161,7 +161,7 @@ Namespace Creatures
 
         Public Sub CastFireball()
             For i As Integer = 0 To 3
-                Dim theTarget As BaseUnit = aiCreature.GetRandomTarget
+                Dim theTarget As WS_Base.BaseUnit = aiCreature.GetRandomTarget
                 If theTarget Is Nothing Then Exit Sub
 
                 aiCreature.CastSpell(FIREBALL_SPELL, theTarget.positionX, theTarget.positionY, theTarget.positionZ)

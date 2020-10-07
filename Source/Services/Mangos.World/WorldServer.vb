@@ -54,20 +54,20 @@ Public Class WorldServer
 
     'Worlds containers
     Public WORLD_CREATUREs_Lock As New ReaderWriterLock ' ReaderWriterLock_Debug("CREATURES")
-    Public WORLD_CREATUREs As New Dictionary(Of ULong, CreatureObject)
+    Public WORLD_CREATUREs As New Dictionary(Of ULong, WS_Creatures.CreatureObject)
     Public WORLD_CREATUREsKeys As New ArrayList()
-    Public WORLD_GAMEOBJECTs As New Dictionary(Of ULong, GameObjectObject)
-    Public WORLD_CORPSEOBJECTs As New Dictionary(Of ULong, CorpseObject)
+    Public WORLD_GAMEOBJECTs As New Dictionary(Of ULong, WS_GameObjects.GameObjectObject)
+    Public WORLD_CORPSEOBJECTs As New Dictionary(Of ULong, WS_Corpses.CorpseObject)
     Public WORLD_DYNAMICOBJECTs_Lock As New ReaderWriterLock
-    Public WORLD_DYNAMICOBJECTs As New Dictionary(Of ULong, DynamicObjectObject)
+    Public WORLD_DYNAMICOBJECTs As New Dictionary(Of ULong, WS_DynamicObjects.DynamicObjectObject)
     Public WORLD_TRANSPORTs_Lock As New ReaderWriterLock
-    Public WORLD_TRANSPORTs As New Dictionary(Of ULong, TransportObject)
+    Public WORLD_TRANSPORTs As New Dictionary(Of ULong, WS_Transports.TransportObject)
     Public WORLD_ITEMs As New Dictionary(Of ULong, ItemObject)
 
     'Database's containers - READONLY
-    Public ITEMDatabase As New Dictionary(Of Integer, ItemInfo)
+    Public ITEMDatabase As New Dictionary(Of Integer, WS_Items.ItemInfo)
     Public CREATURESDatabase As New Dictionary(Of Integer, CreatureInfo)
-    Public GAMEOBJECTSDatabase As New Dictionary(Of Integer, GameObjectInfo)
+    Public GAMEOBJECTSDatabase As New Dictionary(Of Integer, WS_GameObjects.GameObjectInfo)
 
     'Other
     Public itemGuidCounter As ULong = _Global_Constants.GUID_ITEM
@@ -81,14 +81,14 @@ Public Class WorldServer
     Public Log As New BaseWriter
     Public PacketHandlers As New Dictionary(Of OPCODES, HandlePacket)
     Public Rnd As New Random
-    Delegate Sub HandlePacket(ByRef Packet As PacketClass, ByRef client As ClientClass)
+    Delegate Sub HandlePacket(ByRef Packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
 
     'Scripting Support
     Public AreaTriggers As ScriptedObject
     Public AI As ScriptedObject
     'Public CharacterCreation As ScriptedObject
 
-    Public ClsWorldServer As WorldServerClass
+    Public ClsWorldServer As WS_Network.WorldServerClass
 
     Public Const SERVERSEED As Integer = &HDE133700
 
@@ -218,9 +218,9 @@ Public Class WorldServer
                 Console.WriteLine("Invalid connect string for the world database!")
             End If
 
-            RESOLUTION_ZMAP = Config.MapResolution - 1
-            If RESOLUTION_ZMAP < 63 Then RESOLUTION_ZMAP = 63
-            If RESOLUTION_ZMAP > 255 Then RESOLUTION_ZMAP = 255
+            _WS_Maps.RESOLUTION_ZMAP = Config.MapResolution - 1
+            If _WS_Maps.RESOLUTION_ZMAP < 63 Then _WS_Maps.RESOLUTION_ZMAP = 63
+            If _WS_Maps.RESOLUTION_ZMAP > 255 Then _WS_Maps.RESOLUTION_ZMAP = 255
 
             'DONE: Creating logger
             Log = CreateLog(Config.LogType, Config.LogConfig)
@@ -354,8 +354,8 @@ Public Class WorldServer
             End
         End If
 
-        InitializeInternalDatabase()
-        IntializePacketHandlers()
+        _WS_DBCDatabase.InitializeInternalDatabase()
+        _WS_Handlers.IntializePacketHandlers()
 
 #If WARDEN Then
         Maiev.InitWarden()
@@ -365,10 +365,10 @@ Public Class WorldServer
 
         AllGraveYards.InitializeGraveyards()
 
-        LoadTransports()
+        _WS_Transports.LoadTransports()
 
-        ClsWorldServer = New WorldServerClass
-        Dim server = New ProxyServer(Of WorldServerClass)(Dns.GetHostAddresses(Config.LocalConnectHost)(0), Config.LocalConnectPort, ClsWorldServer)
+        ClsWorldServer = New WS_Network.WorldServerClass
+        Dim server = New ProxyServer(Of WS_Network.WorldServerClass)(Dns.GetHostAddresses(Config.LocalConnectHost)(0), Config.LocalConnectPort, ClsWorldServer)
         ClsWorldServer.ClusterConnect()
         Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}", ClsWorldServer.LocalURI)
         GC.Collect()
@@ -386,7 +386,7 @@ Public Class WorldServer
 
         Try
         Catch ex As Exception
-            Regenerator.Dispose()
+            _WS_TimerBasedEvents.Regenerator.Dispose()
             AreaTriggers.Dispose()
         End Try
     End Sub

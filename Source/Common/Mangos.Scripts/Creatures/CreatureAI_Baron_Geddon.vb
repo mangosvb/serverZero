@@ -73,7 +73,7 @@ Namespace Creatures
 
         Public Sub CastInferno()
             For i As Integer = 0 To 3
-                Dim Target As BaseUnit = aiTarget
+                Dim Target As WS_Base.BaseUnit = aiTarget
                 If Target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(Spell_Inferno, aiTarget) 'This spell should be mitigated with fire resistance and nothing more.
             Next
@@ -81,7 +81,7 @@ Namespace Creatures
 
         Public Sub CastIgnite()
             For i As Integer = 1 To 3
-                Dim target As BaseUnit = aiCreature.GetRandomTarget
+                Dim target As WS_Base.BaseUnit = aiCreature.GetRandomTarget
                 If target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(Spell_Ignite, aiCreature.GetRandomTarget) 'This spell drains 400 mana per second and MUST be dispelled immediately or your healers will wipe the group.
             Next
@@ -89,7 +89,7 @@ Namespace Creatures
 
         Public Sub CastLivingBomb()
             For i As Integer = 2 To 3
-                Dim target As BaseUnit = aiCreature.GetRandomTarget
+                Dim target As WS_Base.BaseUnit = aiCreature.GetRandomTarget
                 If target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(Spell_Living_Bomb, aiCreature.GetRandomTarget) 'The traditional way of getting away of this is to run where the dead trash is from your group so they don't die, but we may need to fix AoE implementations for this.
             Next

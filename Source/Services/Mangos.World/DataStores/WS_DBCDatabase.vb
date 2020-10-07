@@ -27,7 +27,7 @@ Imports Mangos.World.Spells
 
 Namespace DataStores
 
-    Public Module WS_DBCDatabase
+    Public Class WS_DBCDatabase
 
 #Region "Emotes"
         Public EmotesState As New Dictionary(Of Integer, Integer)
@@ -119,7 +119,7 @@ Namespace DataStores
 
             For Each TaxiNode As KeyValuePair(Of Integer, TTaxiNode) In TaxiNodes
                 If TaxiNode.Value.MapID = map Then
-                    tmp = GetDistance(x, TaxiNode.Value.x, y, TaxiNode.Value.y)
+                    tmp = _WS_Combat.GetDistance(x, TaxiNode.Value.x, y, TaxiNode.Value.y)
                     If tmp < minDistance Then
                         minDistance = tmp
                         selectedTaxiNode = TaxiNode.Key
@@ -329,7 +329,7 @@ Namespace DataStores
                     For Each row As DataRow In result.Rows
                         dbLvl = row.Item("lvl")
                         dbXp = row.Item("xp_for_next_level")
-                        XPTable(dbLvl) = dbXp
+                        _WS_Player_Initializator.XPTable(dbLvl) = dbXp
                     Next
                 End If
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Initalizing: XPTable initialized.")
@@ -573,16 +573,16 @@ Namespace DataStores
 
             InitializeLoadDBCs()
 
-            InitializeSpellDB()
+            _WS_Spells.InitializeSpellDB()
 
-            RegisterChatCommands()
+            _WS_Commands.RegisterChatCommands()
 
             Try
-                Regenerator = New WS_TimerBasedEvents.TRegenerator
-                AIManager = New TAIManager
-                SpellManager = New TSpellManager
-                CharacterSaver = New TCharacterSaver
-                WeatherChanger = New TWeatherChanger
+                _WS_TimerBasedEvents.Regenerator = New WS_TimerBasedEvents.TRegenerator
+                _WS_TimerBasedEvents.AIManager = New WS_TimerBasedEvents.TAIManager
+                _WS_TimerBasedEvents.SpellManager = New WS_TimerBasedEvents.TSpellManager
+                _WS_TimerBasedEvents.CharacterSaver = New WS_TimerBasedEvents.TCharacterSaver
+                _WS_TimerBasedEvents.WeatherChanger = New WS_TimerBasedEvents.TWeatherChanger
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: Loading Maps and Spawns....")
 
@@ -640,58 +640,58 @@ Namespace DataStores
         End Sub
 
         Public Sub InitializeLoadDBCs()
-            InitializeMaps()
+            _WS_Maps.InitializeMaps()
             InitializeXpTableFromDb()
-            InitializeEmotes()
-            InitializeEmotesText()
-            InitializeAreaTable()
-            InitializeFactions()
-            InitializeFactionTemplates()
-            InitializeCharRaces()
-            InitializeCharClasses()
-            InitializeSkillLines()
-            InitializeSkillLineAbility()
-            InitializeLocks()
+            _WS_DBCLoad.InitializeEmotes()
+            _WS_DBCLoad.InitializeEmotesText()
+            _WS_DBCLoad.InitializeAreaTable()
+            _WS_DBCLoad.InitializeFactions()
+            _WS_DBCLoad.InitializeFactionTemplates()
+            _WS_DBCLoad.InitializeCharRaces()
+            _WS_DBCLoad.InitializeCharClasses()
+            _WS_DBCLoad.InitializeSkillLines()
+            _WS_DBCLoad.InitializeSkillLineAbility()
+            _WS_DBCLoad.InitializeLocks()
             '_WorldServer.AllGraveYards.InitializeGraveyards()
-            InitializeTaxiNodes()
-            InitializeTaxiPaths()
-            InitializeTaxiPathNodes()
-            InitializeDurabilityCosts()
-            LoadSpellItemEnchantments()
-            LoadItemSet()
-            LoadItemDisplayInfoDbc()
-            LoadItemRandomPropertiesDbc()
-            LoadTalentDbc()
-            LoadTalentTabDbc()
-            LoadAuctionHouseDbc()
-            LoadLootStores()
-            LoadWeather()
+            _WS_DBCLoad.InitializeTaxiNodes()
+            _WS_DBCLoad.InitializeTaxiPaths()
+            _WS_DBCLoad.InitializeTaxiPathNodes()
+            _WS_DBCLoad.InitializeDurabilityCosts()
+            _WS_DBCLoad.LoadSpellItemEnchantments()
+            _WS_DBCLoad.LoadItemSet()
+            _WS_DBCLoad.LoadItemDisplayInfoDbc()
+            _WS_DBCLoad.LoadItemRandomPropertiesDbc()
+            _WS_DBCLoad.LoadTalentDbc()
+            _WS_DBCLoad.LoadTalentTabDbc()
+            _WS_DBCLoad.LoadAuctionHouseDbc()
+            _WS_DBCLoad.LoadLootStores()
+            _WS_DBCLoad.LoadWeather()
 
             InitializeBattlemasters()
             InitializeBattlegrounds()
             InitializeTeleportCoords()
             'InitializeMonsterSayCombat()
-            LoadCreatureFamilyDbc()
+            _WS_DBCLoad.LoadCreatureFamilyDbc()
 
-            InitializeSpellRadius()
-            InitializeSpellDuration()
-            InitializeSpellCastTime()
-            InitializeSpellRange()
-            InitializeSpellFocusObject()
-            InitializeSpells()
-            InitializeSpellShapeShift()
-            InitializeSpellChains()
+            _WS_DBCLoad.InitializeSpellRadius()
+            _WS_DBCLoad.InitializeSpellDuration()
+            _WS_DBCLoad.InitializeSpellCastTime()
+            _WS_DBCLoad.InitializeSpellRange()
+            _WS_DBCLoad.InitializeSpellFocusObject()
+            _WS_DBCLoad.InitializeSpells()
+            _WS_DBCLoad.InitializeSpellShapeShift()
+            _WS_DBCLoad.InitializeSpellChains()
 
-            LoadCreatureGossip()
-            LoadCreatureMovements()
-            LoadCreatureEquipTable()
-            LoadCreatureModelInfo()
-            LoadQuestStartersAndFinishers()
+            _WS_DBCLoad.LoadCreatureGossip()
+            _WS_DBCLoad.LoadCreatureMovements()
+            _WS_DBCLoad.LoadCreatureEquipTable()
+            _WS_DBCLoad.LoadCreatureModelInfo()
+            _WS_DBCLoad.LoadQuestStartersAndFinishers()
 
             'LoadTransports()
 
         End Sub
 
 #End Region
-    End Module
+    End Class
 End Namespace

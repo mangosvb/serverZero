@@ -24,7 +24,7 @@ Imports Mangos.World.Server
 
 Namespace Handlers
 
-    Public Module WS_Handlers_Gamemaster
+    Public Class WS_Handlers_Gamemaster
 
         Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", client.IP, client.Port)
@@ -44,5 +44,5 @@ Namespace Handlers
             End If
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

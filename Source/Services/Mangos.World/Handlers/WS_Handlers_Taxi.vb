@@ -30,7 +30,7 @@ Imports Mangos.World.Server
 
 Namespace Handlers
 
-    Public Module WS_Handlers_Taxi
+    Public Class WS_Handlers_Taxi
         ''' <summary>
         ''' Sends the activate taxi reply.
         ''' </summary>
@@ -56,13 +56,13 @@ Namespace Handlers
         Private Sub SendTaxiStatus(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGuid As ULong)
             If _WorldServer.WORLD_CREATUREs.ContainsKey(cGuid) = False Then Exit Sub
 
-            Dim currentTaxi As Integer = GetNearestTaxi(_WorldServer.WORLD_CREATUREs(cGuid).positionX, _WorldServer.WORLD_CREATUREs(cGuid).positionY, _WorldServer.WORLD_CREATUREs(cGuid).MapID)
+            Dim currentTaxi As Integer = _WS_DBCDatabase.GetNearestTaxi(_WorldServer.WORLD_CREATUREs(cGuid).positionX, _WorldServer.WORLD_CREATUREs(cGuid).positionY, _WorldServer.WORLD_CREATUREs(cGuid).MapID)
 
-            Dim SMSG_TAXINODE_STATUS As New PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
+            Dim SMSG_TAXINODE_STATUS As New Packets.PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
             Try
                 SMSG_TAXINODE_STATUS.AddUInt64(cGuid)
                 If objCharacter.TaxiZones.Item(currentTaxi) = False Then SMSG_TAXINODE_STATUS.AddInt8(0) Else SMSG_TAXINODE_STATUS.AddInt8(1)
-                objCharacter.Client.Send(SMSG_TAXINODE_STATUS)
+                objCharacter.client.Send(SMSG_TAXINODE_STATUS)
             Finally
                 SMSG_TAXINODE_STATUS.Dispose()
             End Try
@@ -74,39 +74,39 @@ Namespace Handlers
         ''' <param name="objCharacter">The objCharacter.</param>
         ''' <param name="cGuid">The objCharacter GUID.</param>
         ''' <returns></returns>
-        Public Sub SendTaxiMenu(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
+        Public Sub SendTaxiMenu(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGuid As ULong)
             If _WorldServer.WORLD_CREATUREs.ContainsKey(cGuid) = False Then Exit Sub
 
-            Dim currentTaxi As Integer = GetNearestTaxi(_WorldServer.WORLD_CREATUREs(cGuid).positionX, _WorldServer.WORLD_CREATUREs(cGuid).positionY, _WorldServer.WORLD_CREATUREs(cGuid).MapID)
+            Dim currentTaxi As Integer = _WS_DBCDatabase.GetNearestTaxi(_WorldServer.WORLD_CREATUREs(cGuid).positionX, _WorldServer.WORLD_CREATUREs(cGuid).positionY, _WorldServer.WORLD_CREATUREs(cGuid).MapID)
 
             If objCharacter.TaxiZones.Item(currentTaxi) = False Then
                 objCharacter.TaxiZones.Set(currentTaxi, True)
 
-                Dim SMSG_NEW_TAXI_PATH As New PacketClass(OPCODES.SMSG_NEW_TAXI_PATH)
+                Dim SMSG_NEW_TAXI_PATH As New Packets.PacketClass(OPCODES.SMSG_NEW_TAXI_PATH)
                 Try
-                    objCharacter.Client.Send(SMSG_NEW_TAXI_PATH)
+                    objCharacter.client.Send(SMSG_NEW_TAXI_PATH)
                 Finally
                     SMSG_NEW_TAXI_PATH.Dispose()
                 End Try
 
-                Dim SMSG_TAXINODE_STATUS As New PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
+                Dim SMSG_TAXINODE_STATUS As New Packets.PacketClass(OPCODES.SMSG_TAXINODE_STATUS)
                 Try
                     SMSG_TAXINODE_STATUS.AddUInt64(cGuid)
                     SMSG_TAXINODE_STATUS.AddInt8(1)
-                    objCharacter.Client.Send(SMSG_TAXINODE_STATUS)
+                    objCharacter.client.Send(SMSG_TAXINODE_STATUS)
                 Finally
                     SMSG_TAXINODE_STATUS.Dispose()
                 End Try
                 Exit Sub
             End If
 
-            Dim SMSG_SHOWTAXINODES As New PacketClass(OPCODES.SMSG_SHOWTAXINODES)
+            Dim SMSG_SHOWTAXINODES As New Packets.PacketClass(OPCODES.SMSG_SHOWTAXINODES)
             Try
                 SMSG_SHOWTAXINODES.AddInt32(1)
                 SMSG_SHOWTAXINODES.AddUInt64(cGuid)
                 SMSG_SHOWTAXINODES.AddInt32(currentTaxi)
                 SMSG_SHOWTAXINODES.AddBitArray(objCharacter.TaxiZones, 8 * 4)
-                objCharacter.Client.Send(SMSG_SHOWTAXINODES)
+                objCharacter.client.Send(SMSG_SHOWTAXINODES)
             Finally
                 SMSG_SHOWTAXINODES.Dispose()
             End Try
@@ -118,7 +118,7 @@ Namespace Handlers
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_TAXINODE_STATUS_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TAXINODE_STATUS_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong
@@ -135,7 +135,7 @@ Namespace Handlers
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_TAXIQUERYAVAILABLENODES(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TAXIQUERYAVAILABLENODES(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong
@@ -153,7 +153,7 @@ Namespace Handlers
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_ACTIVATETAXI(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_ACTIVATETAXI(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 21 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong
@@ -184,25 +184,25 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If TaxiNodes.ContainsKey(srcNode) = False OrElse TaxiNodes.ContainsKey(dstNode) = False Then
+            If _WS_DBCDatabase.TaxiNodes.ContainsKey(srcNode) = False OrElse _WS_DBCDatabase.TaxiNodes.ContainsKey(dstNode) = False Then
                 SendActivateTaxiReply(client, ActivateTaxiReplies.ERR_TAXINOSUCHPATH)
                 Exit Sub
             End If
 
             Dim mount As Integer '= 0
             If client.Character.IsHorde Then
-                If _WorldServer.CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).HordeMount) = False Then
-                    Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).HordeMount)
+                If _WorldServer.CREATURESDatabase.ContainsKey(_WS_DBCDatabase.TaxiNodes(srcNode).HordeMount) = False Then
+                    Dim tmpCr As CreatureInfo = New CreatureInfo(_WS_DBCDatabase.TaxiNodes(srcNode).HordeMount)
                     mount = tmpCr.GetFirstModel
                 Else
-                    mount = _WorldServer.CREATURESDatabase(TaxiNodes(srcNode).HordeMount).ModelA1
+                    mount = _WorldServer.CREATURESDatabase(_WS_DBCDatabase.TaxiNodes(srcNode).HordeMount).ModelA1
                 End If
             Else
-                If _WorldServer.CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).AllianceMount) = False Then
-                    Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).AllianceMount)
+                If _WorldServer.CREATURESDatabase.ContainsKey(_WS_DBCDatabase.TaxiNodes(srcNode).AllianceMount) = False Then
+                    Dim tmpCr As CreatureInfo = New CreatureInfo(_WS_DBCDatabase.TaxiNodes(srcNode).AllianceMount)
                     mount = tmpCr.GetFirstModel
                 Else
-                    mount = _WorldServer.CREATURESDatabase(TaxiNodes(srcNode).AllianceMount).ModelA2
+                    mount = _WorldServer.CREATURESDatabase(_WS_DBCDatabase.TaxiNodes(srcNode).AllianceMount).ModelA2
                 End If
             End If
             If mount = 0 Then
@@ -214,7 +214,7 @@ Namespace Handlers
             Dim discountMod As Single
             discountMod = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(guid).Faction)
             Dim totalCost As Integer
-            For Each taxiPath As KeyValuePair(Of Integer, WS_DBCDatabase.TTaxiPath) In TaxiPaths
+            For Each taxiPath As KeyValuePair(Of Integer, WS_DBCDatabase.TTaxiPath) In _WS_DBCDatabase.TaxiPaths
                 If taxiPath.Value.TFrom = srcNode AndAlso taxiPath.Value.TTo = dstNode Then
                     totalCost += taxiPath.Value.Price * discountMod
                     Exit For
@@ -245,7 +245,7 @@ Namespace Handlers
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_ACTIVATETAXI_FAR(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_ACTIVATETAXI_FAR(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 21 Then Exit Sub
             packet.GetInt16()
             Try
@@ -298,7 +298,7 @@ Namespace Handlers
                 Dim dstNode As Integer = nodes(1)
 
                 For Each node As Integer In client.Character.TaxiNodes
-                    If Not TaxiNodes.ContainsKey(node) Then
+                    If Not _WS_DBCDatabase.TaxiNodes.ContainsKey(node) Then
                         SendActivateTaxiReply(client, ActivateTaxiReplies.ERR_TAXINOSUCHPATH)
                         Exit Sub
                     End If
@@ -306,20 +306,20 @@ Namespace Handlers
 
                 Dim mount As Integer '= 0
                 If client.Character.IsHorde Then
-                    If _WorldServer.CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).HordeMount) = False Then
+                    If _WorldServer.CREATURESDatabase.ContainsKey(_WS_DBCDatabase.TaxiNodes(srcNode).HordeMount) = False Then
                         'TODO: This was here for a reason, i'm guessing to correct the line below.but it is never used
-                        Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).HordeMount)
+                        Dim tmpCr As CreatureInfo = New CreatureInfo(_WS_DBCDatabase.TaxiNodes(srcNode).HordeMount)
                         mount = tmpCr.GetFirstModel
                     Else
-                        mount = _WorldServer.CREATURESDatabase(TaxiNodes(srcNode).HordeMount).GetFirstModel
+                        mount = _WorldServer.CREATURESDatabase(_WS_DBCDatabase.TaxiNodes(srcNode).HordeMount).GetFirstModel
                     End If
                 Else
-                    If _WorldServer.CREATURESDatabase.ContainsKey(TaxiNodes(srcNode).AllianceMount) = False Then
+                    If _WorldServer.CREATURESDatabase.ContainsKey(_WS_DBCDatabase.TaxiNodes(srcNode).AllianceMount) = False Then
                         'TODO: This was here for a reason, i'm guessing to correct the line below.but it is never used
-                        Dim tmpCr As CreatureInfo = New CreatureInfo(TaxiNodes(srcNode).AllianceMount)
+                        Dim tmpCr As CreatureInfo = New CreatureInfo(_WS_DBCDatabase.TaxiNodes(srcNode).AllianceMount)
                         mount = tmpCr.GetFirstModel
                     Else
-                        mount = _WorldServer.CREATURESDatabase(TaxiNodes(srcNode).AllianceMount).GetFirstModel
+                        mount = _WorldServer.CREATURESDatabase(_WS_DBCDatabase.TaxiNodes(srcNode).AllianceMount).GetFirstModel
                     End If
                 End If
                 If mount = 0 Then
@@ -330,7 +330,7 @@ Namespace Handlers
                 'DONE: Reputation discount
                 Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(guid).Faction)
                 totalCost = 0
-                For Each taxiPath As KeyValuePair(Of Integer, TTaxiPath) In TaxiPaths
+                For Each taxiPath As KeyValuePair(Of Integer, WS_DBCDatabase.TTaxiPath) In _WS_DBCDatabase.TaxiPaths
                     If taxiPath.Value.TFrom = srcNode AndAlso taxiPath.Value.TTo = dstNode Then
                         totalCost += taxiPath.Value.Price * discountMod
                         Exit For
@@ -366,7 +366,7 @@ Namespace Handlers
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_MOVE_SPLINE_DONE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MOVE_SPLINE_DONE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_SPLINE_DONE", client.IP, client.Port)
         End Sub
 
@@ -375,7 +375,7 @@ Namespace Handlers
         ''' </summary>
         ''' <param name="character">The character.</param>
         ''' <returns></returns>
-        Private Sub TaxiLand(ByVal character As CharacterObject)
+        Private Sub TaxiLand(ByVal character As WS_PlayerData.CharacterObject)
             character.TaxiNodes.Clear()
             character.Mount = 0
             character.cUnitFlags = character.cUnitFlags And (Not UnitFlags.UNIT_FLAG_DISABLE_MOVE)
@@ -391,7 +391,7 @@ Namespace Handlers
         ''' <param name="character">The character.</param>
         ''' <param name="mount">The mount.</param>
         ''' <returns></returns>
-        Private Sub TaxiTake(ByVal character As CharacterObject, ByVal mount As Integer)
+        Private Sub TaxiTake(ByVal character As WS_PlayerData.CharacterObject, ByVal mount As Integer)
             character.Mount = mount
             character.cUnitFlags = character.cUnitFlags Or UnitFlags.UNIT_FLAG_DISABLE_MOVE
             character.cUnitFlags = character.cUnitFlags Or UnitFlags.UNIT_FLAG_TAXI_FLIGHT
@@ -407,7 +407,7 @@ Namespace Handlers
         ''' <param name="character">The character.</param>
         ''' <param name="discountMod">The discount mod.</param>
         ''' <returns></returns>
-        Private Sub TaxiMove(ByVal character As CharacterObject, ByVal discountMod As Single)
+        Private Sub TaxiMove(ByVal character As WS_PlayerData.CharacterObject, ByVal discountMod As Single)
             Dim flagFirstNode As Boolean
             flagFirstNode = True
             Dim lastX As Single
@@ -417,7 +417,7 @@ Namespace Handlers
             Dim totalDistance As Single
 
             Dim waypointPaths As New List(Of Integer)
-            Dim waypointNodes As New Dictionary(Of Integer, TTaxiPathNode)
+            Dim waypointNodes As New Dictionary(Of Integer, WS_DBCDatabase.TTaxiPathNode)
 
             Try
                 'DONE: Generate paths
@@ -427,7 +427,7 @@ Namespace Handlers
                     srcNode = dstNode
                     dstNode = character.TaxiNodes.Dequeue
 
-                    For Each taxiPath As KeyValuePair(Of Integer, TTaxiPath) In TaxiPaths
+                    For Each taxiPath As KeyValuePair(Of Integer, WS_DBCDatabase.TTaxiPath) In _WS_DBCDatabase.TaxiPaths
                         If taxiPath.Value.TFrom = srcNode AndAlso taxiPath.Value.TTo = dstNode Then
                             waypointPaths.Add(taxiPath.Key)
                             Exit For
@@ -442,7 +442,7 @@ Namespace Handlers
                         flagFirstNode = False
                     Else
                         'DONE: Remove the money for this flight
-                        Dim price As Integer = TaxiPaths(path).Price * discountMod
+                        Dim price As Integer = _WS_DBCDatabase.TaxiPaths(path).Price * discountMod
                         If character.Copper < price Then Exit For
                         character.Copper -= price
                         character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, character.Copper)
@@ -457,10 +457,10 @@ Namespace Handlers
 
                     'DONE: Get the waypoints
                     waypointNodes.Clear()
-                    For Each taxiPathNode As KeyValuePair(Of Integer, TTaxiPathNode) In TaxiPathNodes(path)
+                    For Each taxiPathNode As KeyValuePair(Of Integer, WS_DBCDatabase.TTaxiPathNode) In _WS_DBCDatabase.TaxiPathNodes(path)
                         waypointNodes.Add(taxiPathNode.Value.Seq, taxiPathNode.Value)
 
-                        totalDistance += GetDistance(lastX, taxiPathNode.Value.x, lastY, taxiPathNode.Value.y, lastZ, taxiPathNode.Value.z)
+                        totalDistance += _WS_Combat.GetDistance(lastX, taxiPathNode.Value.x, lastY, taxiPathNode.Value.y, lastZ, taxiPathNode.Value.z)
                         lastX = taxiPathNode.Value.x
                         lastY = taxiPathNode.Value.y
                         lastZ = taxiPathNode.Value.z
@@ -471,7 +471,7 @@ Namespace Handlers
                     lastZ = character.positionZ
 
                     'Send move packet for player
-                    Dim SMSG_MONSTER_MOVE As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
+                    Dim SMSG_MONSTER_MOVE As New Packets.PacketClass(OPCODES.SMSG_MONSTER_MOVE)
                     Try
                         SMSG_MONSTER_MOVE.AddPackGUID(character.GUID)
                         SMSG_MONSTER_MOVE.AddSingle(character.positionX)
@@ -493,14 +493,14 @@ Namespace Handlers
                     End Try
 
                     For i As Integer = 0 To waypointNodes.Count - 1
-                        moveDistance = GetDistance(lastX, waypointNodes(i).x, lastY, waypointNodes(i).y, lastZ, waypointNodes(i).z)
+                        moveDistance = _WS_Combat.GetDistance(lastX, waypointNodes(i).x, lastY, waypointNodes(i).y, lastZ, waypointNodes(i).z)
 
                         lastX = waypointNodes(i).x
                         lastY = waypointNodes(i).y
                         lastZ = waypointNodes(i).z
 
                         'Send move packet for other players
-                        Dim p As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
+                        Dim p As New Packets.PacketClass(OPCODES.SMSG_MONSTER_MOVE)
                         Try
                             p.AddPackGUID(character.GUID)
                             p.AddSingle(character.positionX)
@@ -529,8 +529,8 @@ Namespace Handlers
                         character.positionX = lastX
                         character.positionY = lastY
                         character.positionZ = lastZ
-                        MoveCell(character)
-                        UpdateCell(character)
+                        _WS_CharMovement.MoveCell(character)
+                        _WS_CharMovement.UpdateCell(character)
                     Next
 
                 Next
@@ -543,5 +543,5 @@ Namespace Handlers
             TaxiLand(character)
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

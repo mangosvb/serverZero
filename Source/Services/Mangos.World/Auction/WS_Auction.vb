@@ -29,7 +29,7 @@ Imports Mangos.World.Server
 
 Namespace Auction
 
-    Module WS_Auction
+    Public Class WS_Auction
 
 #Region "WS.Auction.Constants"
         Public AuctionID As Integer
@@ -96,14 +96,14 @@ Namespace Auction
 
 #Region "WS.Auction.Framework"
         Public Sub SendShowAuction(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal GUID As ULong)
-            Dim packet As New PacketClass(OPCODES.MSG_AUCTION_HELLO)
+            Dim packet As New Packets.PacketClass(OPCODES.MSG_AUCTION_HELLO)
             packet.AddUInt64(GUID)
             packet.AddInt32(GetAuctionSide(GUID))          'AuctionID (on this is based the fees shown in client side)
             objCharacter.client.Send(packet)
             packet.Dispose()
         End Sub
 
-        Public Sub AuctionListAddItem(ByRef packet As PacketClass, ByRef Row As DataRow)
+        Public Sub AuctionListAddItem(ByRef packet As Packets.PacketClass, ByRef Row As DataRow)
             packet.AddUInt32(Row.Item("auction_id"))
             Dim itemId As UInt32 = Row.Item("auction_itemId")
             packet.AddUInt32(itemId)
@@ -112,7 +112,7 @@ Namespace Auction
             If _WorldServer.ITEMDatabase.ContainsKey(itemId) Then
                 item = _WorldServer.ITEMDatabase(itemId)
             Else
-                item = New ItemInfo(itemId)
+                item = New WS_Items.ItemInfo(itemId)
             End If
 
             packet.AddUInt32(0)                                        ' PERM_ENCHANMENT_SLOT (Not sure if we have to do anything here)
@@ -132,7 +132,7 @@ Namespace Auction
         End Sub
 
         Public Sub SendAuctionCommandResult(ByRef client As WS_Network.ClientClass, ByVal AuctionID As Integer, ByVal AuctionAction As AuctionAction, ByVal AuctionError As AuctionError, ByVal BidError As Integer)
-            Dim response As New PacketClass(OPCODES.SMSG_AUCTION_COMMAND_RESULT)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_AUCTION_COMMAND_RESULT)
             response.AddInt32(AuctionID)
             response.AddInt32(AuctionAction)
             response.AddInt32(AuctionError)
@@ -142,10 +142,10 @@ Namespace Auction
             response.Dispose()
         End Sub
 
-        Public Sub SendAuctionBidderNotification(ByRef objCharacter As CharacterObject)
+        Public Sub SendAuctionBidderNotification(ByRef objCharacter As WS_PlayerData.CharacterObject)
             'Displays: "Outbid on <Item>."
 
-            Dim packet As New PacketClass(OPCODES.SMSG_AUCTION_BIDDER_NOTIFICATION)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_AUCTION_BIDDER_NOTIFICATION)
             packet.AddInt32(0)          'Location
             packet.AddInt32(0)          'AutionID
             packet.AddUInt64(0)         'BidderGUID
@@ -157,10 +157,10 @@ Namespace Auction
             packet.Dispose()
         End Sub
 
-        Public Sub SendAuctionOwnerNotification(ByRef objCharacter As CharacterObject)
+        Public Sub SendAuctionOwnerNotification(ByRef objCharacter As WS_PlayerData.CharacterObject)
             'Displays: "Your auction of <Item> sold."
 
-            Dim packet As New PacketClass(OPCODES.SMSG_AUCTION_OWNER_NOTIFICATION)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_AUCTION_OWNER_NOTIFICATION)
             packet.AddInt32(0)          'AutionID
             packet.AddInt32(0)          'Bid
             packet.AddInt32(0)
@@ -172,10 +172,10 @@ Namespace Auction
             packet.Dispose()
         End Sub
 
-        Public Sub SendAuctionRemovedNotification(ByRef objCharacter As CharacterObject)
+        Public Sub SendAuctionRemovedNotification(ByRef objCharacter As WS_PlayerData.CharacterObject)
             'Displays: "Auction of <Item> canceled by the seller."
 
-            Dim packet As New PacketClass(OPCODES.SMSG_AUCTION_REMOVED_NOTIFICATION)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_AUCTION_REMOVED_NOTIFICATION)
             packet.AddInt32(0)          'AutionID
             packet.AddInt32(0)          'ItemID
             packet.AddInt32(0)          'RandomProperyID
@@ -183,8 +183,8 @@ Namespace Auction
             packet.Dispose()
         End Sub
 
-        Public Sub SendAuctionListOwnerItems(ByRef client As ClientClass)
-            Dim response As New PacketClass(OPCODES.SMSG_AUCTION_OWNER_LIST_RESULT)
+        Public Sub SendAuctionListOwnerItems(ByRef client As WS_Network.ClientClass)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_AUCTION_OWNER_LIST_RESULT)
             Dim MySQLQuery As New DataTable
             _WorldServer.CharacterDatabase.Query("SELECT * FROM auctionhouse WHERE auction_owner = " & client.Character.GUID & ";", MySQLQuery)
             If MySQLQuery.Rows.Count > 50 Then
@@ -206,8 +206,8 @@ Namespace Auction
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_AUCTION_OWNER_LIST_RESULT", client.IP, client.Port)
         End Sub
 
-        Public Sub SendAuctionListBidderItems(ByRef client As ClientClass)
-            Dim response As New PacketClass(OPCODES.SMSG_AUCTION_BIDDER_LIST_RESULT)
+        Public Sub SendAuctionListBidderItems(ByRef client As WS_Network.ClientClass)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_AUCTION_BIDDER_LIST_RESULT)
             Dim MySQLQuery As New DataTable
             _WorldServer.CharacterDatabase.Query("SELECT * FROM auctionhouse WHERE auction_bidder = " & client.Character.GUID & ";", MySQLQuery)
             If MySQLQuery.Rows.Count > 50 Then
@@ -234,7 +234,7 @@ Namespace Auction
 
 #Region "WS.Auction.Handlers"
 
-        Public Sub On_MSG_AUCTION_HELLO(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_AUCTION_HELLO(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -244,7 +244,7 @@ Namespace Auction
             SendShowAuction(client.Character, guid)
         End Sub
 
-        Public Sub On_CMSG_AUCTION_SELL_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUCTION_SELL_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 33 Then Exit Sub
             packet.GetInt16()
             Dim cGUID As ULong = packet.GetUInt64
@@ -293,11 +293,11 @@ Namespace Auction
             'SendAuctionListOwnerItems(Client)
         End Sub
 
-        Public Sub On_CMSG_AUCTION_REMOVE_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUCTION_REMOVE_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
             Dim AuctionID As Integer = packet.GetInt32
-            Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30)
+            Dim MailTime As Integer = _Functions.GetTimestamp(Now) + (TimeConstant.DAY * 30)
 
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_REMOVE_ITEM [GUID={2} AuctionID={3}]", client.IP, client.Port, GUID, AuctionID)
 
@@ -331,12 +331,12 @@ Namespace Auction
             'SendAuctionListOwnerItems(Client)
         End Sub
 
-        Public Sub On_CMSG_AUCTION_PLACE_BID(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUCTION_PLACE_BID(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim cGUID As ULong = packet.GetUInt64
             Dim AuctionID As Integer = packet.GetInt32
             Dim Bid As Integer = packet.GetInt32
-            Dim MailTime As Integer = GetTimestamp(Now) + (TimeConstant.DAY * 30)
+            Dim MailTime As Integer = _Functions.GetTimestamp(Now) + (TimeConstant.DAY * 30)
 
 
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_PLACE_BID [AuctionID={2} Bid={3}]", client.IP, client.Port, AuctionID, Bid)
@@ -405,7 +405,7 @@ Namespace Auction
             'SendAuctionListBidderItems(Client)
         End Sub
 
-        Public Sub On_CMSG_AUCTION_LIST_ITEMS(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUCTION_LIST_ITEMS(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 18 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -424,7 +424,7 @@ Namespace Auction
 
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUCTION_LIST_ITEMS [{2} ({3}-{4})]", client.IP, client.Port, Name, LevelMIN, LevelMAX)
 
-            Dim response As New PacketClass(OPCODES.SMSG_AUCTION_LIST_RESULT)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_AUCTION_LIST_RESULT)
             Dim QueryString As String = "SELECT auctionhouse.* FROM " & _WorldServer.CharacterDatabase.SQLDBName & ".auctionhouse, " & _WorldServer.WorldDatabase.SQLDBName & ".item_template WHERE item_template.entry = auctionhouse.auction_itemId"
             If Name <> "" Then QueryString += " AND item_template.name LIKE '%" & Name & "%'"
             If LevelMIN <> 0 Then QueryString += " AND item_template.itemlevel > " & (LevelMIN - 1)
@@ -453,7 +453,7 @@ Namespace Auction
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_AUCTION_LIST_OWNER_ITEMS(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUCTION_LIST_OWNER_ITEMS(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -464,7 +464,7 @@ Namespace Auction
 
         End Sub
 
-        Public Sub On_CMSG_AUCTION_LIST_BIDDER_ITEMS(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUCTION_LIST_BIDDER_ITEMS(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 21 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -475,5 +475,5 @@ Namespace Auction
             SendAuctionListBidderItems(client)
         End Sub
 #End Region
-    End Module
-End NameSpace
+    End Class
+End Namespace

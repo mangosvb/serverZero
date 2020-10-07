@@ -34,7 +34,7 @@ Imports Mangos.World.Spells
 
 Namespace Objects
 
-    Public Module WS_GameObjects
+    Public Class WS_GameObjects
 
 #Region "WS.GameObjects.TypeDef"
 
@@ -105,7 +105,7 @@ Namespace Objects
         End Class
         'WARNING: Use only with _WorldServer.WORLD_GAMEOBJECTs()
         Public Class GameObjectObject
-            Inherits BaseObject
+            Inherits WS_Base.BaseObject
             Implements IDisposable
 
             Public ID As Integer = 0
@@ -291,7 +291,7 @@ Namespace Objects
                     ' TODO: set large fields to null.
                     RemoveFromWorld()
                     If Not Loot Is Nothing AndAlso Type <> GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then Loot.Dispose()
-                    If TypeOf Me Is TransportObject Then
+                    If TypeOf Me Is WS_Transports.TransportObject Then
                         _WorldServer.WORLD_TRANSPORTs_Lock.AcquireWriterLock(Timeout.Infinite)
                         _WorldServer.WORLD_TRANSPORTs.Remove(GUID)
                         _WorldServer.WORLD_TRANSPORTs_Lock.ReleaseWriterLock()
@@ -318,7 +318,7 @@ Namespace Objects
                 End If
 
                 ID = ID_
-                GUID = GetNewGUID()
+                GUID = _WS_GameObjects.GetNewGUID()
 
                 Flags = _WorldServer.GAMEOBJECTSDatabase(ID).Flags
                 Faction = _WorldServer.GAMEOBJECTSDatabase(ID).Faction
@@ -346,7 +346,7 @@ Namespace Objects
                 End If
 
                 ID = ID_
-                GUID = GetNewGUID()
+                GUID = _WS_GameObjects.GetNewGUID()
                 MapID = MapID_
                 positionX = PosX
                 positionY = PosY
@@ -418,8 +418,8 @@ Namespace Objects
                 _WorldServer.WORLD_GAMEOBJECTs.Add(GUID, Me)
 
                 'DONE: If there's a loottable open for this gameobject already then hook it to the gameobject
-                If LootTable.ContainsKey(GUID) Then
-                    Loot = LootTable(GUID)
+                If _WS_Loot.LootTable.ContainsKey(GUID) Then
+                    Loot = _WS_Loot.LootTable(GUID)
                 End If
 
                 'DONE: Calculate mines remaining
@@ -427,10 +427,10 @@ Namespace Objects
             End Sub
 
             Public Sub AddToWorld()
-                GetMapTile(positionX, positionY, CellX, CellY)
-                If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then _WS_CharMovement.MAP_Load(CellX, CellY, MapID)
                 Try
-                    WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Add(GUID)
+                    _WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Add(GUID)
                 Catch
                     Exit Sub
                 End Try
@@ -443,15 +443,15 @@ Namespace Objects
                 'DONE: Sending to players in nearby cells
                 For i As Short = -1 To 1
                     For j As Short = -1 To 1
-                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
-                            With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
+                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
+                            With _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                 list = .PlayersHere.ToArray
                                 For Each plGUID As ULong In list
                                     If _WorldServer.CHARACTERs.ContainsKey(plGUID) AndAlso _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
-                                        Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                                        Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                         packet.AddInt32(1)
                                         packet.AddInt8(0)
-                                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                                        Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                                         FillAllUpdateFlags(tmpUpdate, _WorldServer.CHARACTERs(plGUID))
                                         tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
                                         tmpUpdate.Dispose()
@@ -470,9 +470,9 @@ Namespace Objects
 
             End Sub
             Public Sub RemoveFromWorld()
-                If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then Exit Sub
-                GetMapTile(positionX, positionY, CellX, CellY)
-                WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Remove(GUID)
+                If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then Exit Sub
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                _WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Remove(GUID)
 
                 'DONE: Removing from players that can see the object
                 For Each plGUID As ULong In SeenBy.ToArray
@@ -487,10 +487,10 @@ Namespace Objects
             End Sub
 
             Public Sub SetState(ByVal State As GameObjectLootState)
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, State)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
                 tmpUpdate.Dispose()
@@ -505,10 +505,10 @@ Namespace Objects
                 _WorldServer.Log.WriteLine(LogType.DEBUG, "AutoCloseTime: {0}", AutoCloseTime)
                 If AutoCloseTime > 0 Then ThreadPool.RegisterWaitForSingleObject(New AutoResetEvent(False), New WaitOrTimerCallback(AddressOf CloseDoor), Nothing, AutoCloseTime, True)
 
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, State)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -521,10 +521,10 @@ Namespace Objects
                 Flags = Flags And (Not GameObjectFlags.GO_FLAG_IN_USE)
                 state = GameObjectLootState.DOOR_CLOSED
 
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, state)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -532,7 +532,7 @@ Namespace Objects
                 SendToNearPlayers(packet)
                 packet.Dispose()
             End Sub
-            Public Sub LootObject(ByRef Character As CharacterObject, ByVal LootingType As LootType)
+            Public Sub LootObject(ByRef Character As WS_PlayerData.CharacterObject, ByVal LootingType As LootType)
                 State = GameObjectLootState.LOOT_LOOTED
                 Select Case Type
                     Case GameObjectType.GAMEOBJECT_TYPE_BUTTON, GameObjectType.GAMEOBJECT_TYPE_DOOR
@@ -558,8 +558,8 @@ Namespace Objects
                 If LootID = 0 Then Return False
 
                 'DONE: Loot generation
-                Loot = New LootObject(GUID, LootType.LOOTTYPE_SKINNING)
-                Dim Template As LootTemplate = LootTemplates_Gameobject.GetLoot(LootID)
+                Loot = New WS_Loot.LootObject(GUID, LootType.LOOTTYPE_SKINNING)
+                Dim Template As WS_Loot.LootTemplate = _WS_Loot.LootTemplates_Gameobject.GetLoot(LootID)
                 If Template IsNot Nothing Then
                     Template.Process(Loot, 0)
                 End If
@@ -582,22 +582,22 @@ Namespace Objects
                 state = GameObjectLootState.DOOR_OPEN
                 Flags = GameObjectFlags.GO_FLAG_NODESPAWN
 
-                Loot = New LootObject(GUID, LootType.LOOTTYPE_FISHING) With {
+                Loot = New WS_Loot.LootObject(GUID, LootType.LOOTTYPE_FISHING) With {
                     .LootOwner = Owner
                     }
 
-                Dim AreaFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
-                Dim AreaID As Integer = AreaTable(AreaFlag).ID
+                Dim AreaFlag As Integer = _WS_Maps.GetAreaFlag(positionX, positionY, MapID)
+                Dim AreaID As Integer = _WS_Maps.AreaTable(AreaFlag).ID
 
-                Dim Template As LootTemplate = LootTemplates_Fishing.GetLoot(AreaID)
+                Dim Template As WS_Loot.LootTemplate = _WS_Loot.LootTemplates_Fishing.GetLoot(AreaID)
                 If Template IsNot Nothing Then
                     Template.Process(Loot, 0)
                 End If
 
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FLAGS, Flags)
                 tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, state)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -605,7 +605,7 @@ Namespace Objects
                 SendToNearPlayers(packet)
                 packet.Dispose()
 
-                Dim packetAnim As New PacketClass(OPCODES.SMSG_GAMEOBJECT_CUSTOM_ANIM)
+                Dim packetAnim As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_CUSTOM_ANIM)
                 packetAnim.AddUInt64(GUID)
                 packetAnim.AddInt32(0)
                 SendToNearPlayers(packetAnim)
@@ -627,7 +627,7 @@ Namespace Objects
                 End If
 
                 If Owner > 0 AndAlso _CommonGlobalFunctions.GuidIsPlayer(Owner) AndAlso _WorldServer.CHARACTERs.ContainsKey(Owner) Then
-                    Dim fishEscaped As New PacketClass(OPCODES.SMSG_FISH_ESCAPED)
+                    Dim fishEscaped As New Packets.PacketClass(OPCODES.SMSG_FISH_ESCAPED)
                     _WorldServer.CHARACTERs(Owner).client.Send(fishEscaped)
                     fishEscaped.Dispose()
 
@@ -637,10 +637,10 @@ Namespace Objects
 
             Public Sub CalculateMineRemaning(Optional ByVal Force As Boolean = False)
                 If Type <> GameObjectType.GAMEOBJECT_TYPE_CHEST Then Exit Sub
-                If Locks.ContainsKey(LockID) = False Then Exit Sub
+                If _WS_Loot.Locks.ContainsKey(LockID) = False Then Exit Sub
 
                 For i As Integer = 0 To 4
-                    If Locks(LockID).KeyType(i) = LockKeyType.LOCK_KEY_SKILL AndAlso (Locks(LockID).KeyType(i) = LockType.LOCKTYPE_MINING OrElse Locks(LockID).KeyType(i) = LockType.LOCKTYPE_HERBALISM) Then
+                    If _WS_Loot.Locks(LockID).KeyType(i) = LockKeyType.LOCK_KEY_SKILL AndAlso (_WS_Loot.Locks(LockID).KeyType(i) = LockType.LOCKTYPE_MINING OrElse _WS_Loot.Locks(LockID).KeyType(i) = LockType.LOCKTYPE_HERBALISM) Then
                         If Force OrElse MineRemaining = 0 Then
                             MineRemaining = _WorldServer.Rnd.Next(Sound(4), Sound(5) + 1)
                         End If
@@ -650,7 +650,7 @@ Namespace Objects
             End Sub
 
             Public Sub SpawnAnimation()
-                Dim packet As New PacketClass(OPCODES.SMSG_GAMEOBJECT_SPAWN_ANIM)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_SPAWN_ANIM)
                 packet.AddUInt64(GUID)
                 SendToNearPlayers(packet)
                 packet.Dispose()
@@ -678,7 +678,7 @@ Namespace Objects
                 If Delay = 0 Then
                     _WorldServer.Log.WriteLine(LogType.DEBUG, "Gameobject {0:X} despawning.", GUID)
 
-                    Dim packet As New PacketClass(OPCODES.SMSG_GAMEOBJECT_DESPAWN_ANIM)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_DESPAWN_ANIM)
                     packet.AddUInt64(GUID)
                     SendToNearPlayers(packet)
                     packet.Dispose()
@@ -716,13 +716,13 @@ Namespace Objects
 
                     _WorldServer.Log.WriteLine(LogType.DEBUG, "Gameobject {0:X} despawning.", GUID)
 
-                    Dim despawnPacket As New PacketClass(OPCODES.SMSG_GAMEOBJECT_DESPAWN_ANIM)
+                    Dim despawnPacket As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_DESPAWN_ANIM)
                     despawnPacket.AddUInt64(GUID)
                     SendToNearPlayers(despawnPacket)
                     despawnPacket.Dispose()
                 End If
 
-                Dim packet As New PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
                 packet.AddUInt64(GUID)
                 SendToNearPlayers(packet)
                 packet.Dispose()
@@ -730,21 +730,21 @@ Namespace Objects
                 Dispose()
             End Sub
 
-            Public Sub TurnTo(ByRef Target As BaseObject)
+            Public Sub TurnTo(ByRef Target As WS_Base.BaseObject)
                 TurnTo(Target.positionX, Target.positionY)
             End Sub
             Public Sub TurnTo(ByVal x As Single, ByVal y As Single)
-                orientation = GetOrientation(positionX, x, positionY, y)
+                orientation = _WS_Combat.GetOrientation(positionX, x, positionY, y)
                 Rotations(2) = Math.Sin(orientation / 2)
                 Rotations(3) = Math.Cos(orientation / 2)
 
                 If SeenBy.Count > 0 Then
 
                     'TODO: Rotation change is not visible with simple update
-                    Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     packet.AddInt32(2)
                     packet.AddInt8(0)
-                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                    Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                     tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_FACING, orientation)
                     tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION, Rotations(0))
                     tmpUpdate.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_ROTATION + 1, Rotations(1))
@@ -769,14 +769,14 @@ Namespace Objects
         End Function
 
 
-        Public Function GetClosestGameobject(ByRef unit As BaseUnit, Optional ByVal GameObjectEntry As Integer = 0) As GameObjectObject
+        Public Function GetClosestGameobject(ByRef unit As WS_Base.BaseUnit, Optional ByVal GameObjectEntry As Integer = 0) As GameObjectObject
             Dim minDistance As Single = Single.MaxValue
             Dim tmpDistance As Single
             Dim targetGameobject As GameObjectObject = Nothing
-            If TypeOf unit Is CharacterObject Then
-                For Each GUID As ULong In CType(unit, CharacterObject).gameObjectsNear.ToArray()
+            If TypeOf unit Is WS_PlayerData.CharacterObject Then
+                For Each GUID As ULong In CType(unit, WS_PlayerData.CharacterObject).gameObjectsNear.ToArray()
                     If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(GUID) AndAlso (GameObjectEntry = 0 OrElse _WorldServer.WORLD_GAMEOBJECTs(GUID).ID = GameObjectEntry) Then
-                        tmpDistance = GetDistance(_WorldServer.WORLD_GAMEOBJECTs(GUID), unit)
+                        tmpDistance = _WS_Combat.GetDistance(_WorldServer.WORLD_GAMEOBJECTs(GUID), unit)
                         If tmpDistance < minDistance Then
                             minDistance = tmpDistance
                             targetGameobject = _WorldServer.WORLD_GAMEOBJECTs(GUID)
@@ -786,17 +786,17 @@ Namespace Objects
                 Return targetGameobject
             Else
                 Dim cellX As Byte, cellY As Byte
-                GetMapTile(unit.positionX, unit.positionY, cellX, cellY)
+                _WS_Maps.GetMapTile(unit.positionX, unit.positionY, cellX, cellY)
 
                 'TODO: Do we really have to look in all of those tiles?
                 For x As Integer = -1 To 1
                     For y As Integer = -1 To 1
                         If x + cellX > -1 AndAlso x + cellX < 64 AndAlso y + cellY > -1 AndAlso y + cellY < 64 Then
-                            If WS_Maps.Maps(unit.MapID).Tiles(x + cellX, y + cellY) IsNot Nothing Then
-                                Dim gameobjects() As ULong = WS_Maps.Maps(unit.MapID).Tiles(x + cellX, y + cellY).GameObjectsHere.ToArray()
+                            If _WS_Maps.Maps(unit.MapID).Tiles(x + cellX, y + cellY) IsNot Nothing Then
+                                Dim gameobjects() As ULong = _WS_Maps.Maps(unit.MapID).Tiles(x + cellX, y + cellY).GameObjectsHere.ToArray()
                                 For Each GUID As ULong In gameobjects
                                     If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(GUID) AndAlso (GameObjectEntry = 0 OrElse _WorldServer.WORLD_GAMEOBJECTs(GUID).ID = GameObjectEntry) Then
-                                        tmpDistance = GetDistance(_WorldServer.WORLD_GAMEOBJECTs(GUID), unit)
+                                        tmpDistance = _WS_Combat.GetDistance(_WorldServer.WORLD_GAMEOBJECTs(GUID), unit)
                                         If tmpDistance < minDistance Then
                                             minDistance = tmpDistance
                                             targetGameobject = _WorldServer.WORLD_GAMEOBJECTs(GUID)
@@ -811,9 +811,9 @@ Namespace Objects
             End If
         End Function
 
-        Public Sub On_CMSG_GAMEOBJECT_QUERY(ByRef packet As PacketClass, ByRef client As WS_Network.ClientClass)
+        Public Sub On_CMSG_GAMEOBJECT_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
-            Dim response As New PacketClass(OPCODES.SMSG_GAMEOBJECT_QUERY_RESPONSE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_QUERY_RESPONSE)
 
             packet.GetInt16()
             Dim GameObjectID As Integer = packet.GetInt32
@@ -852,7 +852,7 @@ Namespace Objects
                 _WorldServer.Log.WriteLine(LogType.FAILED, "Unknown Error: Unable to find GameObjectID={0} in database.", GameObjectID)
             End Try
         End Sub
-        Public Sub On_CMSG_GAMEOBJ_USE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_GAMEOBJ_USE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GameObjectGUID As ULong = packet.GetUInt64
@@ -873,7 +873,7 @@ Namespace Objects
 
                 Case GameObjectType.GAMEOBJECT_TYPE_CHAIR
                     'DONE: Chair sitting again
-                    Dim StandState As New PacketClass(OPCODES.CMSG_STANDSTATECHANGE)
+                    Dim StandState As New Packets.PacketClass(OPCODES.CMSG_STANDSTATECHANGE)
                     Try
                         StandState.AddInt8(4 + _WorldServer.WORLD_GAMEOBJECTs(GameObjectGUID).Sound(1))
                         client.Character.Teleport(GO.positionX, GO.positionY, GO.positionZ, GO.orientation, GO.MapID)
@@ -882,7 +882,7 @@ Namespace Objects
                         StandState.Dispose()
                     End Try
 
-                    Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
+                    Dim packetACK As New Packets.PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
                     Try
                         packetACK.AddInt8(4 + GO.Sound(1))
                         client.Send(packetACK)
@@ -896,7 +896,7 @@ Namespace Objects
                     _WorldServer.ALLQUESTS.SendQuestMenu(client.Character, GameObjectGUID, , qm)
 
                 Case GameObjectType.GAMEOBJECT_TYPE_CAMERA
-                    Dim cinematicPacket As New PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
+                    Dim cinematicPacket As New Packets.PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
                     cinematicPacket.AddUInt32(GO.Sound(1))
                     client.Send(cinematicPacket)
                     cinematicPacket.Dispose()
@@ -937,12 +937,12 @@ Namespace Objects
                 Case GameObjectType.GAMEOBJECT_TYPE_MEETINGSTONE
                     If client.Character.Level < GO.Sound(0) Then 'Too low level
                         'TODO: Send the correct packet.
-                        SendCastResult(SpellFailedReason.SPELL_FAILED_LEVEL_REQUIREMENT, client, 23598)
+                        _WS_Spells.SendCastResult(SpellFailedReason.SPELL_FAILED_LEVEL_REQUIREMENT, client, 23598)
                         Exit Sub
                     End If
                     If client.Character.Level > _WorldServer.WORLD_GAMEOBJECTs(GameObjectGUID).Sound(1) Then 'Too high level
                         'TODO: Send the correct packet.
-                        SendCastResult(SpellFailedReason.SPELL_FAILED_LEVEL_REQUIREMENT, client, 23598)
+                        _WS_Spells.SendCastResult(SpellFailedReason.SPELL_FAILED_LEVEL_REQUIREMENT, client, 23598)
                         Exit Sub
                     End If
                     client.Character.CastOnSelf(23598)
@@ -953,20 +953,20 @@ Namespace Objects
                     If GO.Loot Is Nothing Then
                         If GO.State = GameObjectLootState.DOOR_CLOSED Then
                             GO.State = GameObjectLootState.DOOR_OPEN
-                            Dim fishNotHookedPacket As New PacketClass(OPCODES.SMSG_FISH_NOT_HOOKED)
+                            Dim fishNotHookedPacket As New Packets.PacketClass(OPCODES.SMSG_FISH_NOT_HOOKED)
                             client.Send(fishNotHookedPacket)
                             fishNotHookedPacket.Dispose()
                         End If
                     Else
                         'DONE: Check if we where able to loot it with our skill level
-                        Dim AreaFlag As Integer = GetAreaFlag(GO.positionX, GO.positionY, GO.MapID)
-                        Dim AreaID As Integer = AreaTable(AreaFlag).ID
+                        Dim AreaFlag As Integer = _WS_Maps.GetAreaFlag(GO.positionX, GO.positionY, GO.MapID)
+                        Dim AreaID As Integer = _WS_Maps.AreaTable(AreaFlag).ID
 
                         Dim MySQLQuery As New DataTable
                         _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM skill_fishing_base_level WHERE entry = {0};", AreaID), MySQLQuery)
 
                         If MySQLQuery.Rows.Count = 0 Then
-                            AreaID = AreaTable(AreaFlag).Zone
+                            AreaID = _WS_Maps.AreaTable(AreaFlag).Zone
                             MySQLQuery.Clear()
                             _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM skill_fishing_base_level WHERE entry = {0};", AreaID), MySQLQuery)
                         End If
@@ -975,7 +975,7 @@ Namespace Objects
                         If MySQLQuery.Rows.Count > 0 Then
                             zoneSkill = MySQLQuery.Rows(0).Item("skill")
                         Else
-                            _WorldServer.Log.WriteLine(LogType.CRITICAL, "No fishing entry in 'skill_fishing_base_level' for area [{0}] in zone [{1}]", AreaTable(AreaFlag).ID, AreaTable(AreaFlag).Zone)
+                            _WorldServer.Log.WriteLine(LogType.CRITICAL, "No fishing entry in 'skill_fishing_base_level' for area [{0}] in zone [{1}]", _WS_Maps.AreaTable(AreaFlag).ID, _WS_Maps.AreaTable(AreaFlag).Zone)
                         End If
 
                         Dim skill As Integer = client.Character.Skills(SKILL_IDs.SKILL_FISHING).CurrentWithBonus
@@ -991,7 +991,7 @@ Namespace Objects
                         Else
                             GO.State = GameObjectLootState.DOOR_CLOSED
 
-                            Dim fishEscaped As New PacketClass(OPCODES.SMSG_FISH_ESCAPED)
+                            Dim fishEscaped As New Packets.PacketClass(OPCODES.SMSG_FISH_ESCAPED)
                             client.Send(fishEscaped)
                             fishEscaped.Dispose()
                         End If
@@ -1005,5 +1005,5 @@ Namespace Objects
 
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

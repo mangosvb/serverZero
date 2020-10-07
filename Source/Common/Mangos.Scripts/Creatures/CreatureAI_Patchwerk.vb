@@ -71,7 +71,7 @@ Namespace Creatures
             aiCreature.SendChatMessage("LEAVING COMBAT!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         End Sub
 
-        Public Overrides Sub OnKill(ByRef Victim As BaseUnit)
+        Public Overrides Sub OnKill(ByRef Victim As WS_Base.BaseUnit)
             aiCreature.SendChatMessage("No more play?", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
             aiCreature.SendPlaySound(8912, True)
         End Sub
@@ -122,7 +122,7 @@ Namespace Creatures
 
         Public Sub CastBerserk()
             For i As Integer = 0 To 1
-                Dim Self As BaseUnit = aiCreature
+                Dim Self As WS_Base.BaseUnit = aiCreature
                 If Self Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpellOnSelf(BERSERK_SPELL)

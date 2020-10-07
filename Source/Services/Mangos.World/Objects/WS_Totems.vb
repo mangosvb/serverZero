@@ -25,12 +25,12 @@ Imports Mangos.World.Spells
 
 Namespace Objects
 
-    Public Module WS_Totems
+    Public Class WS_Totems
 
         Public Class TotemObject
-            Inherits CreatureObject
+            Inherits WS_Creatures.CreatureObject
 
-            Public Caster As BaseUnit = Nothing
+            Public Caster As WS_Base.BaseUnit = Nothing
             Public Duration As Integer = 0
 
             Private Type As TotemType = TotemType.TOTEM_PASSIVE
@@ -72,16 +72,16 @@ Namespace Objects
                         For j As Byte = 0 To 2
                             If ActiveSpells(i) IsNot Nothing AndAlso ActiveSpells(i).Aura_Info(j) IsNot Nothing Then
                                 If ActiveSpells(i).Aura_Info(j).ID = SpellEffects_Names.SPELL_EFFECT_APPLY_AREA_AURA Then
-                                    Dim Targets As New List(Of BaseUnit)
+                                    Dim Targets As New List(Of WS_Base.BaseUnit)
                                     If TypeOf Caster Is WS_PlayerData.CharacterObject Then
-                                        Targets = GetPartyMembersAtPoint(CType(Caster, CharacterObject), ActiveSpells(i).Aura_Info(j).GetRadius, positionX, positionY, positionZ)
+                                        Targets = _WS_Spells.GetPartyMembersAtPoint(CType(Caster, WS_PlayerData.CharacterObject), ActiveSpells(i).Aura_Info(j).GetRadius, positionX, positionY, positionZ)
                                     Else
-                                        Targets = GetFriendAroundMe(Me, ActiveSpells(i).Aura_Info(j).GetRadius)
+                                        Targets = _WS_Spells.GetFriendAroundMe(Me, ActiveSpells(i).Aura_Info(j).GetRadius)
                                     End If
 
-                                    For Each Unit As BaseUnit In Targets
+                                    For Each Unit As WS_Base.BaseUnit In Targets
                                         If Unit.HaveAura(ActiveSpells(i).SpellID) = False Then
-                                            ApplyAura(Unit, Me, ActiveSpells(i).Aura_Info(j), ActiveSpells(i).SpellID)
+                                            _WS_Spells.ApplyAura(Unit, Me, ActiveSpells(i).Aura_Info(j), ActiveSpells(i).SpellID)
                                         End If
                                     Next
                                 End If
@@ -93,5 +93,5 @@ Namespace Objects
 
             End Sub
         End Class
-    End Module
-End NameSpace
+    End Class
+End Namespace

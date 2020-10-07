@@ -43,7 +43,7 @@ Imports Mangos.World.Spells
 
 Namespace Player
 
-    Public Module WS_PlayerData
+    Public Class WS_PlayerData
 
         Public Class CharacterObject
             Inherits WS_Base.BaseUnit
@@ -176,25 +176,25 @@ Namespace Player
                 End Set
             End Property
 
-            Public Rage As New TStatBar(1, 1, 0)
-            Public Energy As New TStatBar(1, 1, 0)
-            Public Strength As New TStat
-            Public Agility As New TStat
-            Public Stamina As New TStat
-            Public Intellect As New TStat
-            Public Spirit As New TStat
+            Public Rage As New WS_PlayerHelper.TStatBar(1, 1, 0)
+            Public Energy As New WS_PlayerHelper.TStatBar(1, 1, 0)
+            Public Strength As New WS_PlayerHelper.TStat
+            Public Agility As New WS_PlayerHelper.TStat
+            Public Stamina As New WS_PlayerHelper.TStat
+            Public Intellect As New WS_PlayerHelper.TStat
+            Public Spirit As New WS_PlayerHelper.TStat
             Public Faction As Short = FactionTemplates.None
 
             'Combat related
-            Public attackState As WS_Combat.TAttackTimer = New TAttackTimer(Me)
-            Public attackSelection As BaseObject = Nothing
+            Public attackState As WS_Combat.TAttackTimer = New WS_Combat.TAttackTimer(Me)
+            Public attackSelection As WS_Base.BaseObject = Nothing
             Public attackSheathState As SHEATHE_SLOT = SHEATHE_SLOT.SHEATHE_NONE
             Public Disarmed As Boolean
 
             ' Miscellaneous Information
             Public MenuNumber As Integer = 0
 
-            Public ReadOnly Property GetTarget() As BaseUnit
+            Public ReadOnly Property GetTarget() As WS_Base.BaseUnit
                 Get
                     If _CommonGlobalFunctions.GuidIsCreature(TargetGUID) Then Return _WorldServer.WORLD_CREATUREs(TargetGUID)
                     If _CommonGlobalFunctions.GuidIsPlayer(TargetGUID) Then Return _WorldServer.CHARACTERs(TargetGUID)
@@ -257,8 +257,8 @@ Namespace Player
             Public spellCasted() As WS_Spells.CastSpellParameters = {Nothing, Nothing, Nothing, Nothing}
             Public spellCastManaRegeneration As Byte = 0
             Public spellCanDualWeild As Boolean = False
-            Public healing As New TDamageBonus
-            Public spellDamage(6) As TDamageBonus
+            Public healing As New WS_PlayerHelper.TDamageBonus
+            Public spellDamage(6) As WS_PlayerHelper.TDamageBonus
             Public spellCriticalRating As Integer = 0
             Public combatCanDualWield As Boolean = False
             Public combatBlock As Integer = 0
@@ -266,9 +266,9 @@ Namespace Player
             Public combatParry As Integer = 0
             Public combatCrit As Integer = 0
             Public combatDodge As Integer = 0
-            Public Damage As New TDamage
-            Public RangedDamage As New TDamage
-            Public OffHandDamage As New TDamage
+            Public Damage As New WS_Items.TDamage
+            Public RangedDamage As New WS_Items.TDamage
+            Public OffHandDamage As New WS_Items.TDamage
             Public ReadOnly Property BaseUnarmedDamage() As Integer
                 Get
                     Return (AttackPower + AttackPowerMods) * 0.071428571428571425
@@ -401,7 +401,7 @@ Namespace Player
             Public Spell_Language As LANGUAGES = -1
 
             'Pets
-            Public Pet As PetObject = Nothing
+            Public Pet As WS_Pets.PetObject = Nothing
 
             'Honor And Arena
             Public HonorPoints As Integer = 0
@@ -483,7 +483,7 @@ Namespace Player
             Public Copper As UInteger = 0
             Public Name As String = ""
 
-            Public ActionButtons As New Dictionary(Of Byte, TActionButton)
+            Public ActionButtons As New Dictionary(Of Byte, WS_PlayerHelper.TActionButton)
             Public TaxiZones As BitArray = New BitArray(8 * 32, False)
             Public TaxiNodes As New Queue(Of Integer)
             Public ZonesExplored() As UInteger = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -564,11 +564,11 @@ Namespace Player
             Public outsideMapID_ As Boolean = False
             Public antiHackSpeedChanged_ As Integer = 0
 
-            Public underWaterTimer As TDrowningTimer = Nothing
+            Public underWaterTimer As WS_PlayerHelper.TDrowningTimer = Nothing
             Public underWaterBreathing As Boolean = False
             Public lootGUID As ULong = 0
-            Public repopTimer As TRepopTimer = Nothing
-            Public tradeInfo As TTradeInfo = Nothing
+            Public repopTimer As WS_PlayerHelper.TRepopTimer = Nothing
+            Public tradeInfo As WS_Handlers_Trade.TTradeInfo = Nothing
             Public corpseGUID As ULong = 0
             Public corpseMapID As Integer = 0
             Public corpseCorpseType As CorpseType = CorpseType.CORPSE_BONES
@@ -593,7 +593,7 @@ Namespace Player
             Public inCombatWith As New List(Of ULong)
             Public lastPvpAction As Integer = 0
 
-            Public Overrides Function IsFriendlyTo(ByRef Unit As BaseUnit) As Boolean
+            Public Overrides Function IsFriendlyTo(ByRef Unit As WS_Base.BaseUnit) As Boolean
                 If Unit Is Me Then Return True
 
                 If TypeOf Unit Is CharacterObject Then
@@ -602,12 +602,12 @@ Namespace Player
                         If DuelPartner IsNot Nothing AndAlso DuelPartner Is Unit Then Return False
                         If .DuelPartner IsNot Nothing AndAlso .DuelPartner Is Me Then Return False
                         If IsInGroup AndAlso .IsInGroup AndAlso Group Is .Group Then Return True
-                        If HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) AndAlso HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) Then Return False
+                        If _Functions.HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) AndAlso _Functions.HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) Then Return False
                         If Team = .Team Then Return True
                         Return Not .isPvP
                     End With
-                ElseIf TypeOf Unit Is CreatureObject Then
-                    With CType(Unit, CreatureObject)
+                ElseIf TypeOf Unit Is WS_Creatures.CreatureObject Then
+                    With CType(Unit, WS_Creatures.CreatureObject)
                         If GetReputation(.Faction) < ReputationRank.Friendly Then Return False
                         If GetReaction(.Faction) < TReaction.NEUTRAL Then Return False
 
@@ -618,7 +618,7 @@ Namespace Player
                 Return True
             End Function
 
-            Public Overrides Function IsEnemyTo(ByRef Unit As BaseUnit) As Boolean
+            Public Overrides Function IsEnemyTo(ByRef Unit As WS_Base.BaseUnit) As Boolean
                 If Unit Is Me Then Return False
 
                 If TypeOf Unit Is CharacterObject Then
@@ -627,12 +627,12 @@ Namespace Player
                         If DuelPartner IsNot Nothing AndAlso DuelPartner Is Unit Then Return True
                         If .DuelPartner IsNot Nothing AndAlso .DuelPartner Is Me Then Return True
                         If IsInGroup AndAlso .IsInGroup AndAlso Group Is .Group Then Return False
-                        If HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) AndAlso HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) Then Return True
+                        If _Functions.HaveFlags(cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) AndAlso _Functions.HaveFlags(.cPlayerFlags, PlayerFlags.PLAYER_FLAGS_FFA_PVP) Then Return True
                         If Team = .Team Then Return False
                         Return .isPvP
                     End With
-                ElseIf TypeOf Unit Is CreatureObject Then
-                    With CType(Unit, CreatureObject)
+                ElseIf TypeOf Unit Is WS_Creatures.CreatureObject Then
+                    With CType(Unit, WS_Creatures.CreatureObject)
                         If GetReputation(.Faction) < ReputationRank.Neutral Then Return True
                         If GetReaction(.Faction) < TReaction.NEUTRAL Then Return True
 
@@ -649,7 +649,7 @@ Namespace Player
                 End Get
             End Property
 
-            Public Sub AddToCombat(ByVal Unit As BaseUnit)
+            Public Sub AddToCombat(ByVal Unit As WS_Base.BaseUnit)
                 If TypeOf Unit Is CharacterObject Then
                     lastPvpAction = _NativeMethods.timeGetTime("")
                 Else
@@ -660,7 +660,7 @@ Namespace Player
                 CheckCombat()
             End Sub
 
-            Public Sub RemoveFromCombat(ByVal Unit As BaseUnit)
+            Public Sub RemoveFromCombat(ByVal Unit As WS_Base.BaseUnit)
                 If Not inCombatWith.Contains(Unit.GUID) Then Exit Sub
 
                 inCombatWith.Remove(Unit.GUID)
@@ -672,28 +672,28 @@ Namespace Player
                 If (cUnitFlags And UnitFlags.UNIT_FLAG_IN_COMBAT) Then
                     If IsInCombat Then Exit Sub
 
-                    SetPlayerOutOfCombat(Me)
+                    _WS_Combat.SetPlayerOutOfCombat(Me)
                 Else
                     If Not IsInCombat Then Exit Sub
 
-                    SetPlayerInCombat(Me)
+                    _WS_Combat.SetPlayerInCombat(Me)
                 End If
             End Sub
 
-            Public Overrides Function CanSee(ByRef objCharacter As BaseObject) As Boolean
+            Public Overrides Function CanSee(ByRef objCharacter As WS_Base.BaseObject) As Boolean
                 If GUID = objCharacter.GUID Then Return False
                 If instance <> objCharacter.instance Then Return False
                 If objCharacter.MapID <> MapID Then Return False
 
-                If TypeOf objCharacter Is CreatureObject Then
-                    If Not CType(objCharacter, CreatureObject).aiScript Is Nothing Then
-                        If CType(objCharacter, CreatureObject).aiScript.State = AIState.AI_RESPAWN Then Return False
+                If TypeOf objCharacter Is WS_Creatures.CreatureObject Then
+                    If Not CType(objCharacter, WS_Creatures.CreatureObject).aiScript Is Nothing Then
+                        If CType(objCharacter, WS_Creatures.CreatureObject).aiScript.State = AIState.AI_RESPAWN Then Return False
                     End If
-                ElseIf TypeOf objCharacter Is GameObjectObject Then
-                    If CType(objCharacter, GameObjectObject).Despawned Then Return False
+                ElseIf TypeOf objCharacter Is WS_GameObjects.GameObjectObject Then
+                    If CType(objCharacter, WS_GameObjects.GameObjectObject).Despawned Then Return False
                 End If
 
-                Dim distance As Single = GetDistance(Me, objCharacter)
+                Dim distance As Single = _WS_Combat.GetDistance(Me, objCharacter)
 
                 'DONE: See party members
                 If (Group IsNot Nothing) AndAlso (TypeOf objCharacter Is CharacterObject) Then
@@ -706,7 +706,7 @@ Namespace Player
                 If DEAD AndAlso corpseGUID <> 0UL Then
                     'DONE: See only dead
                     If corpseGUID = objCharacter.GUID Then Return True
-                    If GetDistance(objCharacter, corpsePositionX, corpsePositionY, corpsePositionZ) < objCharacter.VisibleDistance Then
+                    If _WS_Combat.GetDistance(objCharacter, corpsePositionX, corpsePositionY, corpsePositionZ) < objCharacter.VisibleDistance Then
                         'DONE: GM and DEAD invisibility
                         If objCharacter.Invisibility > CanSeeInvisibility Then Return False
                         'DONE: Stealth Detection
@@ -782,7 +782,7 @@ Namespace Player
                 guidsForRemoving_Lock.ReleaseWriterLock()
 
                 If GUIDs.Length > 0 Then
-                    Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     Try
                         packet.AddInt32(1)      'Operations.Count
                         packet.AddInt8(0)
@@ -804,14 +804,14 @@ Namespace Player
                 Dim updateCount As Integer = 1 + Items.Count
                 If OnTransport IsNot Nothing Then updateCount += 1
 
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     packet.AddInt32(updateCount)
                     packet.AddInt8(0)
 
                     'DONE: If character is on a transport, create the transport right here
                     If OnTransport IsNot Nothing Then
-                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                        Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                         OnTransport.FillAllUpdateFlags(tmpUpdate, Me)
                         tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, OnTransport)
                         tmpUpdate.Dispose()
@@ -823,7 +823,7 @@ Namespace Player
                     PrepareUpdate(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF)
 
                     For Each tmpItem As KeyValuePair(Of Byte, ItemObject) In Items
-                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+                        Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                         tmpItem.Value.FillAllUpdateFlags(tmpUpdate)
                         tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, (tmpItem.Value))
                         tmpUpdate.Dispose()
@@ -840,18 +840,18 @@ Namespace Player
                     packet.Dispose()
                 End Try
                 'DONE: Create everyone on the transport if we are located on one
-                If (OnTransport IsNot Nothing) AndAlso (TypeOf OnTransport Is TransportObject) Then
-                    CType(OnTransport, TransportObject).CreateEveryoneOnTransport(Me)
+                If (OnTransport IsNot Nothing) AndAlso (TypeOf OnTransport Is WS_Transports.TransportObject) Then
+                    CType(OnTransport, WS_Transports.TransportObject).CreateEveryoneOnTransport(Me)
                 End If
             End Sub
 
             Public Sub SendItemUpdate(ByVal Item As ItemObject)
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     packet.AddInt32(1)      'Operations.Count
                     packet.AddInt8(0)
 
-                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+                    Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                     Item.FillAllUpdateFlags(tmpUpdate)
                     tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Item)
                     tmpUpdate.Dispose()
@@ -863,7 +863,7 @@ Namespace Player
             End Sub
 
             Public Sub SendInventoryUpdate()
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     packet.AddInt32(1)      'Operations.Count
                     packet.AddInt8(0)
@@ -900,8 +900,8 @@ Namespace Player
             End Sub
 
             Public Sub SendItemAndCharacterUpdate(ByVal Item As ItemObject, Optional ByVal UPDATETYPE As Integer = ObjectUpdateType.UPDATETYPE_VALUES)
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 Try
                     packet.AddInt32(2)      'Operations.Count
                     packet.AddInt8(0)
@@ -950,12 +950,12 @@ Namespace Player
 
                 'DONE: Send to near
                 If toNear AndAlso SeenBy.Count > 0 Then
-                    Dim forOthers As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER) With {
+                    Dim forOthers As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER) With {
                             .UpdateData = UpdateData.Clone,
                             .UpdateMask = UpdateMask.Clone
                             }
 
-                    Dim packetForOthers As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                    Dim packetForOthers As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     Try
                         packetForOthers.AddInt32(1)       'Operations.Count
                         packetForOthers.AddInt8(0)
@@ -969,7 +969,7 @@ Namespace Player
                 If client Is Nothing Then Exit Sub
 
                 'DONE: Send to me
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     packet.AddInt32(1)       'Operations.Count
                     packet.AddInt8(0)
@@ -999,10 +999,10 @@ Namespace Player
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGEDATTACKTIME, AttackTime(1))
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGEDATTACKTIME, AttackTime(2))
 
-                SetUpdateFlag(EPlayerFields.PLAYER_BLOCK_PERCENTAGE, GetBasePercentBlock(Me, 0))
-                SetUpdateFlag(EPlayerFields.PLAYER_DODGE_PERCENTAGE, GetBasePercentDodge(Me, 0))
-                SetUpdateFlag(EPlayerFields.PLAYER_PARRY_PERCENTAGE, GetBasePercentParry(Me, 0))
-                SetUpdateFlag(EPlayerFields.PLAYER_CRIT_PERCENTAGE, GetBasePercentCrit(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_BLOCK_PERCENTAGE, _WS_Combat.GetBasePercentBlock(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_DODGE_PERCENTAGE, _WS_Combat.GetBasePercentDodge(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_PARRY_PERCENTAGE, _WS_Combat.GetBasePercentParry(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_CRIT_PERCENTAGE, _WS_Combat.GetBasePercentCrit(Me, 0))
 
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Copper)
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_STAT0, Strength.Base)
@@ -1101,7 +1101,7 @@ Namespace Player
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_WATCHED_FACTION_INDEX, WatchedFactionIndex)
 
                 SetUpdateFlag(EPlayerFields.PLAYER_XP, XP)
-                SetUpdateFlag(EPlayerFields.PLAYER_NEXT_LEVEL_XP, XPTable(Level))
+                SetUpdateFlag(EPlayerFields.PLAYER_NEXT_LEVEL_XP, _WS_Player_Initializator.XPTable(Level))
                 SetUpdateFlag(EPlayerFields.PLAYER_REST_STATE_EXPERIENCE, RestBonus)
 
                 SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
@@ -1124,8 +1124,8 @@ Namespace Player
                 SetUpdateFlag(EUnitFields.UNIT_MOD_CAST_SPEED, 1.0F)
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_ATTACK_POWER, AttackPower)
                 SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER, AttackPowerRanged)
-                SetUpdateFlag(EPlayerFields.PLAYER_CRIT_PERCENTAGE, GetBasePercentCrit(Me, 0))
-                SetUpdateFlag(EPlayerFields.PLAYER_RANGED_CRIT_PERCENTAGE, GetBasePercentCrit(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_CRIT_PERCENTAGE, _WS_Combat.GetBasePercentCrit(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_RANGED_CRIT_PERCENTAGE, _WS_Combat.GetBasePercentCrit(Me, 0))
                 'SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_HEALING_DONE_POS, healing.PositiveBonus)
 
                 For i As Byte = 0 To 6
@@ -1161,7 +1161,7 @@ Namespace Player
 
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, Copper)
 
-                For Each Skill As KeyValuePair(Of Integer, TSkill) In Skills
+                For Each Skill As KeyValuePair(Of Integer, WS_PlayerHelper.TSkill) In Skills
                     SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + SkillsPositions(Skill.Key) * 3, Skill.Key)                                    'skill1.Id
                     SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + SkillsPositions(Skill.Key) * 3 + 1, Skill.Value.GetSkill)      'CType((skill1.CurrentVal(Me) + (skill1.Cap(Me) << 16)), Integer)
                     SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + SkillsPositions(Skill.Key) * 3 + 2, Skill.Value.Bonus)         'skill1.Bonus
@@ -1195,9 +1195,9 @@ Namespace Player
                     End If
                 Next i
 
-                SetUpdateFlag(EPlayerFields.PLAYER_BLOCK_PERCENTAGE, GetBasePercentBlock(Me, 0))
-                SetUpdateFlag(EPlayerFields.PLAYER_DODGE_PERCENTAGE, GetBasePercentDodge(Me, 0))
-                SetUpdateFlag(EPlayerFields.PLAYER_PARRY_PERCENTAGE, GetBasePercentParry(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_BLOCK_PERCENTAGE, _WS_Combat.GetBasePercentBlock(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_DODGE_PERCENTAGE, _WS_Combat.GetBasePercentDodge(Me, 0))
+                SetUpdateFlag(EPlayerFields.PLAYER_PARRY_PERCENTAGE, _WS_Combat.GetBasePercentParry(Me, 0))
 
                 For i As Byte = 0 To _Global_Constants.PLAYER_EXPLORED_ZONES_SIZE
                     SetUpdateFlag(EPlayerFields.PLAYER_EXPLORED_ZONES_1 + i, ZonesExplored(i))
@@ -1221,7 +1221,7 @@ Namespace Player
                             SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + (i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE), Items(i).ItemEntry)
 
                             'DONE: Include enchantment info
-                            For Each Enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Items(i).Enchantments
+                            For Each Enchant As KeyValuePair(Of Byte, WS_Items.TEnchantmentInfo) In Items(i).Enchantments
                                 SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 1 + Enchant.Key * 3 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.ID)
                                 SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 2 + Enchant.Key * 3 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.Charges) 'Correct?
                                 SetUpdateFlag(EPlayerFields.PLAYER_VISIBLE_ITEM_1_0 + 3 + Enchant.Key * 3 + i * _Global_Constants.PLAYER_VISIBLE_ITEM_SIZE, Enchant.Value.Duration) 'Correct?
@@ -1255,7 +1255,7 @@ Namespace Player
 
             End Sub                                       'Used for this player's update packets
 
-            Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)
+            Public Sub FillAllUpdateFlags(ByRef Update As Packets.UpdateClass)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Size)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, 25)
@@ -1334,7 +1334,7 @@ Namespace Player
 
             End Sub                                       'Used for other players' update packets
 
-            Public Sub PrepareUpdate(ByRef packet As PacketClass, Optional ByVal UPDATETYPE As Integer = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT)
+            Public Sub PrepareUpdate(ByRef packet As Packets.PacketClass, Optional ByVal UPDATETYPE As Integer = ObjectUpdateType.UPDATETYPE_CREATE_OBJECT)
                 packet.AddInt8(UPDATETYPE)
                 packet.AddPackGUID(GUID)
 
@@ -1350,7 +1350,7 @@ Namespace Player
 
                     packet.AddInt8(&H71) 'flags
                     packet.AddInt32(flags2) 'flags2
-                    packet.AddInt32(MsTime)
+                    packet.AddInt32(_WS_Network.MsTime)
                     packet.AddSingle(positionX)
                     packet.AddSingle(positionY)
                     packet.AddSingle(positionZ)
@@ -1452,7 +1452,7 @@ Namespace Player
 
             'Chat
             Public Sub SendChatMessage(ByRef Sender As CharacterObject, ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As Integer, Optional ByVal ChannelName As String = "Global", Optional ByVal SendToMe As Boolean = False)
-                Dim packet As PacketClass = BuildChatMessage(Sender.GUID, Message, msgType, msgLanguage, GetChatFlag(Sender), ChannelName)
+                Dim packet As Packets.PacketClass = _Functions.BuildChatMessage(Sender.GUID, Message, msgType, msgLanguage, _WS_Handlers_Chat.GetChatFlag(Sender), ChannelName)
 
                 SendToNearPlayers(packet, , SendToMe)
                 packet.Dispose()
@@ -1465,7 +1465,7 @@ Namespace Player
                     Messages(0) = Message
                 End If
                 For Each Msg As String In Messages
-                    Dim packet As PacketClass = BuildChatMessage(SystemGUID, Msg, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
+                    Dim packet As Packets.PacketClass = _Functions.BuildChatMessage(_WS_Commands.SystemGUID, Msg, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
                     client.Send(packet)
                     packet.Dispose()
                 Next
@@ -1473,47 +1473,47 @@ Namespace Player
             End Sub
 
             Public Sub SystemMessage(ByVal Message As String)
-                SendMessageSystem(client, Message)
+                _Functions.SendMessageSystem(client, Message)
             End Sub
 
-            'Spell/Skill/Talents System
+            'Spell/Skill/_WS_DBCDatabase.Talents System
             Public TalentPoints As Byte = 0
             Public AmmoID As Integer = 0
             Public AmmoDPS As Single = 0.0
             Public AmmoMod As Single = 1.0
             Public AutoShotSpell As Integer = 0
-            Public NonCombatPet As CreatureObject = Nothing
+            Public NonCombatPet As WS_Creatures.CreatureObject = Nothing
             Public TotemSlot(0 To 3) As ULong
-            Public Skills As New Dictionary(Of Integer, TSkill)
+            Public Skills As New Dictionary(Of Integer, WS_PlayerHelper.TSkill)
             Public SkillsPositions As New Dictionary(Of Integer, Short)
-            Public Spells As New Dictionary(Of Integer, CharacterSpell)
+            Public Spells As New Dictionary(Of Integer, WS_Spells.CharacterSpell)
 
-            Public MindControl As BaseUnit = Nothing
+            Public MindControl As WS_Base.BaseUnit = Nothing
             Public Sub CastOnSelf(ByVal SpellID As Integer)
-                If WS_Spells.SPELLs.ContainsKey(SpellID) = False Then Exit Sub
-                Dim Targets As New SpellTargets
+                If _WS_Spells.SPELLs.ContainsKey(SpellID) = False Then Exit Sub
+                Dim Targets As New WS_Spells.SpellTargets
                 Targets.SetTarget_UNIT(Me)
-                Dim castParams As New CastSpellParameters(Targets, Me, SpellID)
+                Dim castParams As New WS_Spells.CastSpellParameters(Targets, Me, SpellID)
                 castParams.Cast(Nothing)
             End Sub
 
             Public Sub ApplySpell(ByVal SpellID As Integer)
-                If WS_Spells.SPELLs.ContainsKey(SpellID) = False Then Exit Sub
-                Dim t As New SpellTargets
+                If _WS_Spells.SPELLs.ContainsKey(SpellID) = False Then Exit Sub
+                Dim t As New WS_Spells.SpellTargets
                 t.SetTarget_SELF(Me)
-                If WS_Spells.SPELLs(SpellID).CanCast(Me, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
-                    WS_Spells.SPELLs(SpellID).Apply(Me, t)
+                If _WS_Spells.SPELLs(SpellID).CanCast(Me, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
+                    _WS_Spells.SPELLs(SpellID).Apply(Me, t)
                 End If
             End Sub
 
             Public Sub ProhibitSpellSchool(ByVal School As Integer, ByVal Time As Integer)
-                Dim packet As New PacketClass(OPCODES.SMSG_SPELL_COOLDOWN)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELL_COOLDOWN)
                 Try
                     packet.AddInt32(GUID)
 
-                    Dim curTime As UInteger = GetTimestamp(Now)
-                    For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In Spells
-                        Dim SpellInfo As SpellInfo = WS_Spells.SPELLs(Spell.Key)
+                    Dim curTime As UInteger = _Functions.GetTimestamp(Now)
+                    For Each Spell As KeyValuePair(Of Integer, WS_Spells.CharacterSpell) In Spells
+                        Dim SpellInfo As WS_Spells.SpellInfo = _WS_Spells.SPELLs(Spell.Key)
 
                         If SpellInfo.School = School AndAlso (Spell.Value.Cooldown < curTime OrElse (Spell.Value.Cooldown - curTime) < Time) Then
                             packet.AddInt32(Spell.Key)
@@ -1540,7 +1540,7 @@ Namespace Player
 
             Public Function FinishSpell(ByVal SpellType As CurrentSpellTypes, Optional ByVal OK As Boolean = False) As Boolean
                 If SpellType = CurrentSpellTypes.CURRENT_CHANNELED_SPELL Then
-                    SendChannelUpdate(Me, 0)
+                    _WS_Spells.SendChannelUpdate(Me, 0)
                 End If
                 If client.Character.spellCasted(SpellType) Is Nothing Then Return False
                 If client.Character.spellCasted(SpellType).Finished Then Return False
@@ -1553,17 +1553,17 @@ Namespace Player
                     client.Character.attackState.AttackStop()
                 Else
                     Dim SpellID As Integer = spellCasted(SpellType).SpellID
-                    WS_Spells.SPELLs(SpellID).SendInterrupted(0, client.Character)
+                    _WS_Spells.SPELLs(SpellID).SendInterrupted(0, client.Character)
 
                     If Not OK Then
-                        SendCastResult(SpellFailedReason.SPELL_FAILED_INTERRUPTED, client, SpellID)
+                        _WS_Spells.SendCastResult(SpellFailedReason.SPELL_FAILED_INTERRUPTED, client, SpellID)
                     End If
 
                     client.Character.RemoveAuraBySpell(SpellID)
 
                     'DONE: Remove dynamic objects created with spell
-                    Dim DynamicObjects() As DynamicObjectObject = client.Character.dynamicObjects.ToArray()
-                    For Each tmpDO As DynamicObjectObject In DynamicObjects
+                    Dim DynamicObjects() As WS_DynamicObjects.DynamicObjectObject = client.Character.dynamicObjects.ToArray()
+                    For Each tmpDO As WS_DynamicObjects.DynamicObjectObject In DynamicObjects
                         If tmpDO.SpellID = SpellID Then
                             tmpDO.Delete()
                             client.Character.dynamicObjects.Remove(tmpDO)
@@ -1572,8 +1572,8 @@ Namespace Player
                     Next
 
                     'DONE: Remove game objects created with spell
-                    Dim GameObjects() As GameObjectObject = client.Character.gameObjects.ToArray()
-                    For Each tmpGO As GameObjectObject In GameObjects
+                    Dim GameObjects() As WS_GameObjects.GameObjectObject = client.Character.gameObjects.ToArray()
+                    For Each tmpGO As WS_GameObjects.GameObjectObject In GameObjects
                         If tmpGO.CreatedBySpell = SpellID Then
                             tmpGO.Destroy(tmpGO)
                             client.Character.gameObjects.Remove(tmpGO)
@@ -1587,14 +1587,14 @@ Namespace Player
 
             Public Sub LearnSpell(ByVal SpellID As Integer)
                 If Spells.ContainsKey(SpellID) Then Exit Sub
-                If Not WS_Spells.SPELLs.ContainsKey(SpellID) Then Exit Sub
-                Spells.Add(SpellID, New CharacterSpell(SpellID, 1, 0, 0))
+                If Not _WS_Spells.SPELLs.ContainsKey(SpellID) Then Exit Sub
+                Spells.Add(SpellID, New WS_Spells.CharacterSpell(SpellID, 1, 0, 0))
 
                 'DONE: Save it to the database
                 _WorldServer.CharacterDatabase.Update(String.Format("INSERT INTO characters_spells (guid, spellid, active, cooldown, cooldownitem) VALUES ({0},{1},{2},{3},{4});", GUID, SpellID, 1, 0, 0))
 
                 If client Is Nothing Then Exit Sub
-                Dim SMSG_LEARNED_SPELL As New PacketClass(OPCODES.SMSG_LEARNED_SPELL)
+                Dim SMSG_LEARNED_SPELL As New Packets.PacketClass(OPCODES.SMSG_LEARNED_SPELL)
                 Try
                     SMSG_LEARNED_SPELL.AddInt32(SpellID)
                     client.Send(SMSG_LEARNED_SPELL)
@@ -1602,28 +1602,28 @@ Namespace Player
                     SMSG_LEARNED_SPELL.Dispose()
                 End Try
 
-                Dim t As New SpellTargets
+                Dim t As New WS_Spells.SpellTargets
                 t.SetTarget_SELF(Me)
 
-                If WS_Spells.SPELLs(SpellID).IsPassive Then
+                If _WS_Spells.SPELLs(SpellID).IsPassive Then
                     'DONE: Apply passive spell we don't have
-                    If HavePassiveAura(SpellID) = False AndAlso WS_Spells.SPELLs(SpellID).CanCast(Me, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
-                        WS_Spells.SPELLs(SpellID).Apply(Me, t)
+                    If HavePassiveAura(SpellID) = False AndAlso _WS_Spells.SPELLs(SpellID).CanCast(Me, t, False) = SpellFailedReason.SPELL_NO_ERROR Then
+                        _WS_Spells.SPELLs(SpellID).Apply(Me, t)
                     End If
                 End If
 
                 'DONE: Deactivate old ranks
-                If Not WS_Spells.SPELLs(SpellID).CanStackSpellRank Then
-                    If SpellChains.ContainsKey(SpellID) Then
-                        If Spells.ContainsKey(SpellChains(SpellID)) Then
-                            Spells(SpellChains(SpellID)).Active = 0 'NOTE: Deactivate spell, don't remove it
+                If Not _WS_Spells.SPELLs(SpellID).CanStackSpellRank Then
+                    If _WS_Spells.SpellChains.ContainsKey(SpellID) Then
+                        If Spells.ContainsKey(_WS_Spells.SpellChains(SpellID)) Then
+                            Spells(_WS_Spells.SpellChains(SpellID)).Active = 0 'NOTE: Deactivate spell, don't remove it
 
                             'DONE: Save it to the database
                             _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_spells SET active = 0 WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
 
-                            Dim packet As New PacketClass(OPCODES.SMSG_SUPERCEDED_SPELL)
+                            Dim packet As New Packets.PacketClass(OPCODES.SMSG_SUPERCEDED_SPELL)
                             Try
-                                packet.AddInt32(SpellChains(SpellID))
+                                packet.AddInt32(_WS_Spells.SpellChains(SpellID))
                                 packet.AddInt32(SpellID)
                                 client.Send(packet)
                             Finally
@@ -1633,7 +1633,7 @@ Namespace Player
                     End If
                 End If
 
-                Dim maxSkill As Integer = If(Level > DEFAULT_MAX_LEVEL, DEFAULT_MAX_LEVEL * 5, Level * 5)
+                Dim maxSkill As Integer = If(Level > _WS_Player_Initializator.DEFAULT_MAX_LEVEL, _WS_Player_Initializator.DEFAULT_MAX_LEVEL * 5, Level * 5)
                 Select Case SpellID
                     Case 4036 ' SKILL_ENGINERING
                         LearnSpell(3918)
@@ -1763,7 +1763,7 @@ Namespace Player
                 'DONE: Save it to the database
                 _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_spells WHERE guid = {0} AND spellid = {1};", GUID, SpellID))
 
-                Dim SMSG_REMOVED_SPELL As New PacketClass(OPCODES.SMSG_REMOVED_SPELL)
+                Dim SMSG_REMOVED_SPELL As New Packets.PacketClass(OPCODES.SMSG_REMOVED_SPELL)
                 Try
                     SMSG_REMOVED_SPELL.AddInt32(SpellID)
                     client.Send(SMSG_REMOVED_SPELL)
@@ -1783,8 +1783,8 @@ Namespace Player
                 If Skills.ContainsKey(SkillID) Then
 
                     'DONE: Already know this skill, just increase value
-                    CType(Skills(SkillID), TSkill).Base = Maximum
-                    If Current <> 1 Then CType(Skills(SkillID), TSkill).Current = Current
+                    CType(Skills(SkillID), WS_PlayerHelper.TSkill).Base = Maximum
+                    If Current <> 1 Then CType(Skills(SkillID), WS_PlayerHelper.TSkill).Current = Current
 
                 Else
 
@@ -1800,7 +1800,7 @@ Namespace Player
                     If i > _Global_Constants.PLAYER_SKILL_INFO_SIZE Then Exit Sub
 
                     SkillsPositions.Add(SkillID, i)
-                    Skills.Add(SkillID, New TSkill(Current, Maximum))
+                    Skills.Add(SkillID, New WS_PlayerHelper.TSkill(Current, Maximum))
                 End If
 
                 If client Is Nothing Then Exit Sub
@@ -1839,7 +1839,7 @@ Namespace Player
                 If Level > SetToLevel Then Exit Sub
 
                 For i As Short = Level To SetToLevel - 1
-                    TotalXp += XPTable(i)
+                    TotalXp += _WS_Player_Initializator.XPTable(i)
                 Next
 
                 AddXP(TotalXp, 0, 0, False)
@@ -1848,7 +1848,7 @@ Namespace Player
             Public Sub AddXP(ByVal Ammount As Integer, ByVal RestedBonus As Integer, Optional ByVal VictimGUID As ULong = 0, Optional ByVal LogIt As Boolean = True)
                 If Ammount <= 0 Then Exit Sub
 
-                If Level < DEFAULT_MAX_LEVEL Then
+                If Level < _WS_Player_Initializator.DEFAULT_MAX_LEVEL Then
 
                     XP = XP + Ammount
                     If LogIt Then LogXPGain(Ammount, RestedBonus, VictimGUID, 1.0F)
@@ -1864,11 +1864,11 @@ Namespace Player
                     End If
 
 CheckXPAgain:
-                    If XP >= XPTable(Level) Then
-                        XP -= XPTable(Level)
+                    If XP >= _WS_Player_Initializator.XPTable(Level) Then
+                        XP -= _WS_Player_Initializator.XPTable(Level)
                         Level = Level + 1
 
-                        GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL
+                        GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL
 
                         'DONE: Send update to cluster
                         _WorldServer.ClsWorldServer.Cluster.ClientUpdate(client.Index, ZoneID, Level)
@@ -1880,8 +1880,8 @@ CheckXPAgain:
                         Dim oldStamina As Integer = Stamina.Base
                         Dim oldIntellect As Integer = Intellect.Base
                         Dim oldSpirit As Integer = Spirit.Base
-                        CalculateOnLevelUP(Me)
-                        Dim SMSG_LEVELUP_INFO As New PacketClass(OPCODES.SMSG_LEVELUP_INFO)
+                        _WS_Player_Initializator.CalculateOnLevelUP(Me)
+                        Dim SMSG_LEVELUP_INFO As New Packets.PacketClass(OPCODES.SMSG_LEVELUP_INFO)
                         Try
                             SMSG_LEVELUP_INFO.AddInt32(Level)
                             SMSG_LEVELUP_INFO.AddInt32(Life.Maximum - oldLife)
@@ -1908,7 +1908,7 @@ CheckXPAgain:
                         Resistances(DamageTypes.DMG_PHYSICAL).Base += (Agility.Base - oldAgility) * 2
 
                         SetUpdateFlag(EPlayerFields.PLAYER_XP, XP)
-                        SetUpdateFlag(EPlayerFields.PLAYER_NEXT_LEVEL_XP, XPTable(Level))
+                        SetUpdateFlag(EPlayerFields.PLAYER_NEXT_LEVEL_XP, _WS_Player_Initializator.XPTable(Level))
                         SetUpdateFlag(EPlayerFields.PLAYER_CHARACTER_POINTS1, TalentPoints)
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_LEVEL, Level)
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, Strength.Base)
@@ -1934,7 +1934,7 @@ CheckXPAgain:
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_MINRANGEDDAMAGE, RangedDamage.Minimum)
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXRANGEDDAMAGE, RangedDamage.Maximum + BaseRangedDamage)
 
-                        For Each Skill As KeyValuePair(Of Integer, TSkill) In Skills
+                        For Each Skill As KeyValuePair(Of Integer, WS_PlayerHelper.TSkill) In Skills
                             SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + SkillsPositions(Skill.Key) * 3 + 1, Skill.Value.GetSkill)       'CType((skill1.CurrentVal(Me) + (skill1.Cap(Me) << 16)), Integer)
                         Next
 
@@ -1944,10 +1944,10 @@ CheckXPAgain:
                     End If
 
                     'We just dinged more than one level
-                    If XP >= XPTable(Level) AndAlso Level < DEFAULT_MAX_LEVEL Then GoTo CheckXPAgain
+                    If XP >= _WS_Player_Initializator.XPTable(Level) AndAlso Level < _WS_Player_Initializator.DEFAULT_MAX_LEVEL Then GoTo CheckXPAgain
 
                     'Fix if we add very big number XP
-                    If XP > XPTable(Level) Then XP = XPTable(Level)
+                    If XP > _WS_Player_Initializator.XPTable(Level) Then XP = _WS_Player_Initializator.XPTable(Level)
 
                     If client IsNot Nothing Then SendCharacterUpdate()
                     SaveCharacter()
@@ -2062,7 +2062,7 @@ CheckXPAgain:
             Public Sub ItemADD_BuyBack(ByRef Item As ItemObject)
                 Dim i As Byte, Slot As Byte, eSlot As Byte, OldestTime As Integer, OldestSlot As Byte
                 Slot = _Global_Constants.ITEM_SLOT_NULL
-                OldestTime = GetTimestamp(Now)
+                OldestTime = _Functions.GetTimestamp(Now)
                 OldestSlot = _Global_Constants.ITEM_SLOT_NULL
                 For i = BuyBackSlots.BUYBACK_SLOT_START To BuyBackSlots.BUYBACK_SLOT_END - 1
                     If Items.ContainsKey(i) = False OrElse BuyBackTimeStamp(i - BuyBackSlots.BUYBACK_SLOT_START) = 0 Then 'Woho we found a empty slot to use!
@@ -2081,7 +2081,7 @@ CheckXPAgain:
                 End If
                 'Now we have a empty slow so let's just put our item there
                 eSlot = Slot - BuyBackSlots.BUYBACK_SLOT_START
-                BuyBackTimeStamp(eSlot) = GetTimestamp(Now)
+                BuyBackTimeStamp(eSlot) = _Functions.GetTimestamp(Now)
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eSlot, BuyBackTimeStamp(eSlot))
                 SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BUYBACK_PRICE_1 + eSlot, Item.ItemInfo.SellPrice * Item.StackCount)
                 ItemSETSLOT(Item, 0, Slot)
@@ -2245,7 +2245,7 @@ CheckXPAgain:
                 Next
 
                 'DONE: Send error, not free slot
-                SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL, 0, 0)
+                _WS_Items.SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL, 0, 0)
                 Return False
             End Function
 
@@ -2298,7 +2298,7 @@ CheckXPAgain:
                            (Items(dstBag).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_QUIVER AndAlso Items(dstBag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_QUIVER AndAlso Item.ItemInfo.BagFamily <> ITEM_BAG.ARROW) OrElse
                            (Items(dstBag).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_QUIVER AndAlso Items(dstBag).ItemInfo.SubClass = ITEM_SUBCLASS.ITEM_SUBCLASS_BULLET AndAlso Item.ItemInfo.BagFamily <> ITEM_BAG.BULLET) Then
                             _WorldServer.Log.WriteLine(LogType.DEBUG, "{0} - {1} - {2}", Items(dstBag).ItemInfo.ObjectClass, Items(dstBag).ItemInfo.SubClass, Item.ItemInfo.BagFamily)
-                            SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG, Item.GUID, 0)
+                            _WS_Items.SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG, Item.GUID, 0)
                             Return False
                         End If
 
@@ -2337,7 +2337,7 @@ CheckXPAgain:
                 End If
 
                 'DONE: Send error, not free slot
-                SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_BAG_FULL, Item.GUID, 0)
+                _WS_Items.SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_BAG_FULL, Item.GUID, 0)
                 Return False
             End Function
 
@@ -2510,7 +2510,7 @@ CheckXPAgain:
                 'DONE: if dead then EQUIP_ERR_YOU_ARE_DEAD
                 If DEAD Then Return InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD
 
-                Dim ItemInfo As ItemInfo = Item.ItemInfo
+                Dim ItemInfo As WS_Items.ItemInfo = Item.ItemInfo
 
                 Try
                     If dstBag = 0 Then
@@ -2521,10 +2521,10 @@ CheckXPAgain:
                                     Return InventoryChangeFailure.EQUIP_ERR_ITEM_CANT_BE_EQUIPPED
                                 End If
 
-                                If Not HaveFlag(ItemInfo.AvailableClasses, Classe - 1) Then
+                                If Not _Functions.HaveFlag(ItemInfo.AvailableClasses, Classe - 1) Then
                                     Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
                                 End If
-                                If Not HaveFlag(ItemInfo.AvailableRaces, Race - 1) Then
+                                If Not _Functions.HaveFlag(ItemInfo.AvailableRaces, Race - 1) Then
                                     Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM2
                                 End If
                                 If ItemInfo.ReqLevel > Level Then
@@ -2696,7 +2696,7 @@ CheckXPAgain:
                 'DONE: Get source item
                 If srcBag = 0 Then
                     If Not client.Character.Items.ContainsKey(srcSlot) Then
-                        Dim EQUIP_ERR_ITEM_NOT_FOUND As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                        Dim EQUIP_ERR_ITEM_NOT_FOUND As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                         Try
                             EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND)
                             EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
@@ -2711,7 +2711,7 @@ CheckXPAgain:
                     srcItem = Items(srcSlot)
                 Else
                     If Not client.Character.Items(srcBag).Items.ContainsKey(srcSlot) Then
-                        Dim EQUIP_ERR_ITEM_NOT_FOUND As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                        Dim EQUIP_ERR_ITEM_NOT_FOUND As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                         Try
                             EQUIP_ERR_ITEM_NOT_FOUND.AddInt8(InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND)
                             EQUIP_ERR_ITEM_NOT_FOUND.AddUInt64(0)
@@ -2734,7 +2734,7 @@ CheckXPAgain:
                 End If
 
                 If dstSlot = 255 Then
-                    Dim notHandledYet As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                    Dim notHandledYet As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                     Try
                         notHandledYet.AddInt8(InventoryChangeFailure.EQUIP_ERR_COULDNT_SPLIT_ITEMS)
                         notHandledYet.AddUInt64(srcItem.GUID)
@@ -2753,7 +2753,7 @@ CheckXPAgain:
                 End If
 
                 If Count > srcItem.StackCount Then
-                    Dim EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                    Dim EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                     Try
                         EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddInt8(InventoryChangeFailure.EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT)
                         EQUIP_ERR_TRIED_TO_SPLIT_MORE_THAN_COUNT.AddUInt64(srcItem.GUID)
@@ -2778,8 +2778,8 @@ CheckXPAgain:
                     tmpItem.Save()
                     ItemSETSLOT(tmpItem, dstBag, dstSlot)
 
-                    Dim SMSG_UPDATE_OBJECT As New UpdatePacketClass
-                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
+                    Dim SMSG_UPDATE_OBJECT As New Packets.UpdatePacketClass
+                    Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                     Try
                         tmpItem.FillAllUpdateFlags(tmpUpdate)
                         tmpUpdate.AddToPacket((SMSG_UPDATE_OBJECT), ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, tmpItem)
@@ -2822,7 +2822,7 @@ CheckXPAgain:
                         srcItem.Save(False)
                         dstItem.Save(False)
 
-                        Dim EQUIP_ERR_OK As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                        Dim EQUIP_ERR_OK As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                         Try
                             EQUIP_ERR_OK.AddInt8(InventoryChangeFailure.EQUIP_ERR_OK)
                             EQUIP_ERR_OK.AddUInt64(srcItem.GUID)
@@ -2836,7 +2836,7 @@ CheckXPAgain:
                     End If
                 End If
 
-                Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                 Try
                     response.AddInt8(InventoryChangeFailure.EQUIP_ERR_COULDNT_SPLIT_ITEMS)
                     response.AddUInt64(srcItem.GUID)
@@ -2851,7 +2851,7 @@ CheckXPAgain:
             Public Sub ItemSWAP(ByVal srcBag As Byte, ByVal srcSlot As Byte, ByVal dstBag As Byte, ByVal dstSlot As Byte)
                 'DONE: Disable when dead, attackTarget<>0
                 If DEAD Then
-                    SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, ItemGetGUID(srcBag, srcSlot), ItemGetGUID(dstBag, dstSlot))
+                    _WS_Items.SendInventoryChangeFailure(Me, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, ItemGetGUID(srcBag, srcSlot), ItemGetGUID(dstBag, dstSlot))
                     Exit Sub
                 End If
 
@@ -2859,7 +2859,7 @@ CheckXPAgain:
 
                 'Disable moving the bag into same bag
                 If (srcBag = 0 AndAlso srcSlot = dstBag AndAlso dstBag > 0) OrElse (dstBag = 0 AndAlso dstSlot = srcBag AndAlso srcBag > 0) Then
-                    SendInventoryChangeFailure(Me, errCode, Items(srcSlot).GUID, 0)
+                    _WS_Items.SendInventoryChangeFailure(Me, errCode, Items(srcSlot).GUID, 0)
                     Exit Sub
                 End If
 
@@ -3058,7 +3058,7 @@ CheckXPAgain:
                 Finally
 
                     If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
-                        SendInventoryChangeFailure(Me, errCode, ItemGetGUID(srcBag, srcSlot), ItemGetGUID(dstBag, dstSlot))
+                        _WS_Items.SendInventoryChangeFailure(Me, errCode, ItemGetGUID(srcBag, srcSlot), ItemGetGUID(dstBag, dstSlot))
                     End If
                 End Try
             End Sub
@@ -3163,13 +3163,13 @@ CheckXPAgain:
                 'DONE: Add the equip spells to the character
                 For i As Byte = 0 To 4
                     If Item.ItemInfo.Spells(i).SpellID > 0 Then
-                        If WS_Spells.SPELLs.ContainsKey(Item.ItemInfo.Spells(i).SpellID) Then
-                            Dim SpellInfo As SpellInfo = WS_Spells.SPELLs(Item.ItemInfo.Spells(i).SpellID)
+                        If _WS_Spells.SPELLs.ContainsKey(Item.ItemInfo.Spells(i).SpellID) Then
+                            Dim SpellInfo As WS_Spells.SpellInfo = _WS_Spells.SPELLs(Item.ItemInfo.Spells(i).SpellID)
                             If Item.ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.ON_EQUIP Then
                                 ApplySpell(Item.ItemInfo.Spells(i).SpellID)
                             ElseIf Item.ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE Then
                                 'DONE: Show item cooldown when equipped
-                                Dim cooldown As New PacketClass(OPCODES.SMSG_ITEM_COOLDOWN)
+                                Dim cooldown As New Packets.PacketClass(OPCODES.SMSG_ITEM_COOLDOWN)
                                 Try
                                     cooldown.AddUInt64(Item.GUID)
                                     cooldown.AddInt32(Item.ItemInfo.Spells(i).SpellID)
@@ -3188,13 +3188,13 @@ CheckXPAgain:
                 'DONE: Cancel any spells that are being casted while equipping an item
                 FinishAllSpells()
 
-                For Each Enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Item.Enchantments
+                For Each Enchant As KeyValuePair(Of Byte, WS_Items.TEnchantmentInfo) In Item.Enchantments
                     Item.AddEnchantBonus(Enchant.Key, Me)
                 Next
 
-                CalculateMinMaxDamage(Me, WeaponAttackType.BASE_ATTACK)
-                CalculateMinMaxDamage(Me, WeaponAttackType.OFF_ATTACK)
-                CalculateMinMaxDamage(Me, WeaponAttackType.RANGED_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(Me, WeaponAttackType.BASE_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(Me, WeaponAttackType.OFF_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(Me, WeaponAttackType.RANGED_ATTACK)
 
                 If ManaType = ManaTypes.TYPE_MANA OrElse Classe = Classes.CLASS_DRUID Then UpdateManaRegen()
                 FillStatsUpdateFlags()
@@ -3248,8 +3248,8 @@ CheckXPAgain:
                 'DONE: Remove the equip spells to the character
                 For i As Byte = 0 To 4
                     If Item.ItemInfo.Spells(i).SpellID > 0 Then
-                        If WS_Spells.SPELLs.ContainsKey(Item.ItemInfo.Spells(i).SpellID) Then
-                            Dim SpellInfo As SpellInfo = WS_Spells.SPELLs(Item.ItemInfo.Spells(i).SpellID)
+                        If _WS_Spells.SPELLs.ContainsKey(Item.ItemInfo.Spells(i).SpellID) Then
+                            Dim SpellInfo As WS_Spells.SpellInfo = _WS_Spells.SPELLs(Item.ItemInfo.Spells(i).SpellID)
                             If Item.ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.ON_EQUIP Then
                                 RemoveAuraBySpell(Item.ItemInfo.Spells(i).SpellID)
                             End If
@@ -3257,13 +3257,13 @@ CheckXPAgain:
                     End If
                 Next i
 
-                For Each Enchant As KeyValuePair(Of Byte, TEnchantmentInfo) In Item.Enchantments
+                For Each Enchant As KeyValuePair(Of Byte, WS_Items.TEnchantmentInfo) In Item.Enchantments
                     Item.RemoveEnchantBonus(Enchant.Key)
                 Next
 
-                CalculateMinMaxDamage(Me, WeaponAttackType.BASE_ATTACK)
-                CalculateMinMaxDamage(Me, WeaponAttackType.OFF_ATTACK)
-                CalculateMinMaxDamage(Me, WeaponAttackType.RANGED_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(Me, WeaponAttackType.BASE_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(Me, WeaponAttackType.OFF_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(Me, WeaponAttackType.RANGED_ATTACK)
 
                 If ManaType = ManaTypes.TYPE_MANA OrElse Classe = Classes.CLASS_DRUID Then UpdateManaRegen()
                 FillStatsUpdateFlags()
@@ -3271,7 +3271,7 @@ CheckXPAgain:
 
             'Creature Interactions
             Public Sub SendGossip(ByVal cGUID As ULong, ByVal cTextID As Integer, Optional ByRef Menu As GossipMenu = Nothing, Optional ByRef qMenu As QuestMenu = Nothing)
-                Dim SMSG_GOSSIP_MESSAGE As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_MESSAGE)
+                Dim SMSG_GOSSIP_MESSAGE As Packets.PacketClass = New Packets.PacketClass(OPCODES.SMSG_GOSSIP_MESSAGE)
                 Try
                     SMSG_GOSSIP_MESSAGE.AddUInt64(cGUID)
                     SMSG_GOSSIP_MESSAGE.AddInt32(cTextID)
@@ -3310,7 +3310,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub SendGossipComplete()
-                Dim SMSG_GOSSIP_COMPLETE As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_COMPLETE)
+                Dim SMSG_GOSSIP_COMPLETE As Packets.PacketClass = New Packets.PacketClass(OPCODES.SMSG_GOSSIP_COMPLETE)
                 Try
                     client.Send(SMSG_GOSSIP_COMPLETE)
                 Finally
@@ -3319,7 +3319,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub SendPointOfInterest(ByVal x As Single, ByVal y As Single, ByVal icon As Integer, ByVal flags As Integer, ByVal data As Integer, ByVal name As String)
-                Dim SMSG_GOSSIP_POI As PacketClass = New PacketClass(OPCODES.SMSG_GOSSIP_POI)
+                Dim SMSG_GOSSIP_POI As Packets.PacketClass = New Packets.PacketClass(OPCODES.SMSG_GOSSIP_POI)
                 Try
                     SMSG_GOSSIP_POI.AddInt32(flags)
                     SMSG_GOSSIP_POI.AddSingle(x)
@@ -3335,36 +3335,36 @@ CheckXPAgain:
 
             Public Sub SendTalking(ByVal TextID As Integer)
 
-                If NPCTexts.ContainsKey(TextID) = False Then
-                    Dim tmpText As New NPCText(TextID)
+                If _WS_Creatures.NPCTexts.ContainsKey(TextID) = False Then
+                    Dim tmpText As New WS_Creatures.NPCText(TextID)
                     'The New does a an add to the .Containskey collection above
                 End If
 
                 'DONE: Load TextID
-                Dim response As New PacketClass(OPCODES.SMSG_NPC_TEXT_UPDATE)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_NPC_TEXT_UPDATE)
                 Try
                     response.AddInt32(TextID)
 
-                    If NPCTexts(TextID).Count = 0 Then
+                    If _WS_Creatures.NPCTexts(TextID).Count = 0 Then
                         response.AddInt32(0)
-                        response.AddString(NPCTexts(TextID).TextLine1(0))
-                        response.AddString(NPCTexts(TextID).TextLine2(0))
+                        response.AddString(_WS_Creatures.NPCTexts(TextID).TextLine1(0))
+                        response.AddString(_WS_Creatures.NPCTexts(TextID).TextLine2(0))
                     Else
                         For i As Integer = 0 To 7
-                            response.AddSingle(NPCTexts(TextID).Probability(i))     'Probability
-                            response.AddString(NPCTexts(TextID).TextLine1(i))       'Text1
-                            If NPCTexts(TextID).TextLine2(i) = "" Then
-                                response.AddString(NPCTexts(TextID).TextLine1(i))   'Text2
+                            response.AddSingle(_WS_Creatures.NPCTexts(TextID).Probability(i))     'Probability
+                            response.AddString(_WS_Creatures.NPCTexts(TextID).TextLine1(i))       'Text1
+                            If _WS_Creatures.NPCTexts(TextID).TextLine2(i) = "" Then
+                                response.AddString(_WS_Creatures.NPCTexts(TextID).TextLine1(i))   'Text2
                             Else
-                                response.AddString(NPCTexts(TextID).TextLine2(i))   'Text2
+                                response.AddString(_WS_Creatures.NPCTexts(TextID).TextLine2(i))   'Text2
                             End If
-                            response.AddInt32(NPCTexts(TextID).Language(i))         'Language
-                            response.AddInt32(NPCTexts(TextID).EmoteDelay1(i))      'Emote1.Delay
-                            response.AddInt32(NPCTexts(TextID).Emote1(i))           'Emote1.Emote
-                            response.AddInt32(NPCTexts(TextID).EmoteDelay2(i))      'Emote2.Delay
-                            response.AddInt32(NPCTexts(TextID).Emote2(i))           'Emote2.Emote
-                            response.AddInt32(NPCTexts(TextID).EmoteDelay3(i))      'Emote3.Delay
-                            response.AddInt32(NPCTexts(TextID).Emote3(i))           'Emote3.Emote
+                            response.AddInt32(_WS_Creatures.NPCTexts(TextID).Language(i))         'Language
+                            response.AddInt32(_WS_Creatures.NPCTexts(TextID).EmoteDelay1(i))      'Emote1.Delay
+                            response.AddInt32(_WS_Creatures.NPCTexts(TextID).Emote1(i))           'Emote1.Emote
+                            response.AddInt32(_WS_Creatures.NPCTexts(TextID).EmoteDelay2(i))      'Emote2.Delay
+                            response.AddInt32(_WS_Creatures.NPCTexts(TextID).Emote2(i))           'Emote2.Emote
+                            response.AddInt32(_WS_Creatures.NPCTexts(TextID).EmoteDelay3(i))      'Emote3.Delay
+                            response.AddInt32(_WS_Creatures.NPCTexts(TextID).Emote3(i))           'Emote3.Emote
                         Next
                     End If
 
@@ -3382,7 +3382,7 @@ CheckXPAgain:
                 bindpoint_zone_id = ZoneID
                 SaveCharacter()
 
-                Dim SMSG_BINDPOINTUPDATE As New PacketClass(OPCODES.SMSG_BINDPOINTUPDATE)
+                Dim SMSG_BINDPOINTUPDATE As New Packets.PacketClass(OPCODES.SMSG_BINDPOINTUPDATE)
                 Try
                     SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionX)
                     SMSG_BINDPOINTUPDATE.AddSingle(bindpoint_positionY)
@@ -3394,7 +3394,7 @@ CheckXPAgain:
                     SMSG_BINDPOINTUPDATE.Dispose()
                 End Try
 
-                Dim SMSG_PLAYERBOUND As New PacketClass(OPCODES.SMSG_PLAYERBOUND)
+                Dim SMSG_PLAYERBOUND As New Packets.PacketClass(OPCODES.SMSG_PLAYERBOUND)
                 Try
                     SMSG_PLAYERBOUND.AddUInt64(cGUID)
                     SMSG_PLAYERBOUND.AddInt32(bindpoint_zone_id)
@@ -3415,12 +3415,12 @@ CheckXPAgain:
 
                 charMovementFlags = 0
 
-                Dim packet As New PacketClass(OPCODES.MSG_MOVE_TELEPORT_ACK)
+                Dim packet As New Packets.PacketClass(OPCODES.MSG_MOVE_TELEPORT_ACK)
                 Try
                     packet.AddPackGUID(GUID)
                     packet.AddInt32(0)              'Counter
                     packet.AddInt32(0)              'Movement flags
-                    packet.AddInt32(MsTime)
+                    packet.AddInt32(_WS_Network.MsTime)
                     packet.AddSingle(posX)
                     packet.AddSingle(posY)
                     packet.AddSingle(posZ)
@@ -3436,16 +3436,16 @@ CheckXPAgain:
                 positionZ = posZ
                 orientation = ori
 
-                MoveCell(Me)
-                UpdateCell(Me)
+                _WS_CharMovement.MoveCell(Me)
+                _WS_CharMovement.UpdateCell(Me)
 
-                client.Character.ZoneID = AreaTable(GetAreaFlag(posX, posY, client.Character.MapID)).Zone
+                client.Character.ZoneID = _WS_Maps.AreaTable(_WS_Maps.GetAreaFlag(posX, posY, client.Character.MapID)).Zone
             End Sub
 
             Public Sub Transfer(ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: Player Transfer: X[{0}], Y[{1}], Z[{2}], O[{3}], MAP[{4}]", posX, posY, posZ, ori, map)
 
-                Dim p As New PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
+                Dim p As New Packets.PacketClass(OPCODES.SMSG_TRANSFER_PENDING)
                 Try
                     p.AddInt32(map)
                     If OnTransport IsNot Nothing Then
@@ -3457,10 +3457,10 @@ CheckXPAgain:
                     p.Dispose()
                 End Try
                 'Actions Here
-                RemoveFromWorld(Me)
+                _WS_CharMovement.RemoveFromWorld(Me)
 
-                If (OnTransport IsNot Nothing) AndAlso (TypeOf OnTransport Is TransportObject) Then
-                    CType(OnTransport, TransportObject).RemovePassenger(Me)
+                If (OnTransport IsNot Nothing) AndAlso (TypeOf OnTransport Is WS_Transports.TransportObject) Then
+                    CType(OnTransport, WS_Transports.TransportObject).RemovePassenger(Me)
                 End If
 
                 client.Character.charMovementFlags = 0
@@ -3476,23 +3476,23 @@ CheckXPAgain:
             End Sub
 
             Public Sub ZoneCheck()
-                Dim ZoneFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
-                If AreaTable.ContainsKey(ZoneFlag) = False Then
+                Dim ZoneFlag As Integer = _WS_Maps.GetAreaFlag(positionX, positionY, MapID)
+                If _WS_Maps.AreaTable.ContainsKey(ZoneFlag) = False Then
                     _WorldServer.Log.WriteLine(LogType.WARNING, "Zone Flag {0} does not exist.", ZoneFlag)
                     Exit Sub
                 End If
-                AreaID = AreaTable(ZoneFlag).ID
-                If AreaTable(ZoneFlag).Zone = 0 Then
-                    ZoneID = AreaTable(ZoneFlag).ID
+                AreaID = _WS_Maps.AreaTable(ZoneFlag).ID
+                If _WS_Maps.AreaTable(ZoneFlag).Zone = 0 Then
+                    ZoneID = _WS_Maps.AreaTable(ZoneFlag).ID
                 Else
-                    ZoneID = AreaTable(ZoneFlag).Zone
+                    ZoneID = _WS_Maps.AreaTable(ZoneFlag).Zone
                 End If
 
-                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE
+                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE
 
                 'DONE: Set rested in citys
-                If AreaTable(ZoneFlag).IsCity Then
-                    If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) = 0 AndAlso Level < DEFAULT_MAX_LEVEL Then
+                If _WS_Maps.AreaTable(ZoneFlag).IsCity Then
+                    If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) = 0 AndAlso Level < _WS_Player_Initializator.DEFAULT_MAX_LEVEL Then
                         cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_RESTING
                         SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                         SendCharacterUpdate()
@@ -3505,7 +3505,7 @@ CheckXPAgain:
                     End If
                 End If
                 'DONE: Sanctuary turns players into blue and not attackable
-                If AreaTable(ZoneFlag).IsSanctuary Then
+                If _WS_Maps.AreaTable(ZoneFlag).IsSanctuary Then
                     If (cUnitFlags And UnitFlags.UNIT_FLAG_NON_PVP_PLAYER) < UnitFlags.UNIT_FLAG_NON_PVP_PLAYER Then
                         cUnitFlags = cUnitFlags Or UnitFlags.UNIT_FLAG_NON_PVP_PLAYER
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
@@ -3520,24 +3520,24 @@ CheckXPAgain:
                     End If
 
                     'DONE: Activate Arena PvP (Can attack people from your own faction)
-                    If AreaTable(ZoneFlag).IsArena Then
+                    If _WS_Maps.AreaTable(ZoneFlag).IsArena Then
                         If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_PVP_TIMER) = 0 Then
                             cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_PVP_TIMER
                             SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                             SendCharacterUpdate()
 
-                            GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                            GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
                         End If
                     Else
                         'DONE: Activate PvP
                         'TODO: Only for PvP realms
-                        If AreaTable(ZoneFlag).IsMyLand(Me) = False Then
+                        If _WS_Maps.AreaTable(ZoneFlag).IsMyLand(Me) = False Then
                             If (cUnitFlags And UnitFlags.UNIT_FLAG_PVP) = 0 Then
                                 cUnitFlags = cUnitFlags Or UnitFlags.UNIT_FLAG_PVP
                                 SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
                                 SendCharacterUpdate()
 
-                                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
                             End If
                         Else
                             'TODO: It takes 5 minutes before the PVP flag wears off
@@ -3546,7 +3546,7 @@ CheckXPAgain:
                                 SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
                                 SendCharacterUpdate()
 
-                                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
                             End If
                         End If
                     End If
@@ -3554,24 +3554,24 @@ CheckXPAgain:
             End Sub
 
             Public Sub ZoneCheckInstance()
-                Dim ZoneFlag As Integer = GetAreaFlag(positionX, positionY, MapID)
-                If AreaTable.ContainsKey(ZoneFlag) = False Then
+                Dim ZoneFlag As Integer = _WS_Maps.GetAreaFlag(positionX, positionY, MapID)
+                If _WS_Maps.AreaTable.ContainsKey(ZoneFlag) = False Then
                     _WorldServer.Log.WriteLine(LogType.WARNING, "Zone Flag {0} does not exist.", ZoneFlag)
                     Exit Sub
                 End If
-                AreaID = AreaTable(ZoneFlag).ID
-                If AreaTable(ZoneFlag).Zone = 0 Then
+                AreaID = _WS_Maps.AreaTable(ZoneFlag).ID
+                If _WS_Maps.AreaTable(ZoneFlag).Zone = 0 Then
                     If ZoneID = 0 Then
-                        ZoneID = AreaTable(ZoneFlag).ID
+                        ZoneID = _WS_Maps.AreaTable(ZoneFlag).ID
                     Else
-                        ZoneID = AreaTable(ZoneFlag).Zone
+                        ZoneID = _WS_Maps.AreaTable(ZoneFlag).Zone
                     End If
                 End If
-                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE
+                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE
 
                 'DONE: Set rested in citys
-                If AreaTable(ZoneFlag).IsCity Then
-                    If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) = 0 AndAlso Level < DEFAULT_MAX_LEVEL Then
+                If _WS_Maps.AreaTable(ZoneFlag).IsCity Then
+                    If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_RESTING) = 0 AndAlso Level < _WS_Player_Initializator.DEFAULT_MAX_LEVEL Then
                         cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_RESTING
                         SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                         SendCharacterUpdate()
@@ -3584,7 +3584,7 @@ CheckXPAgain:
                     End If
                 End If
                 'DONE: Sanctuary turns players into blue and not attackable
-                If AreaTable(ZoneFlag).IsSanctuary Then
+                If _WS_Maps.AreaTable(ZoneFlag).IsSanctuary Then
                     If (cUnitFlags And UnitFlags.UNIT_FLAG_NON_PVP_PLAYER) < UnitFlags.UNIT_FLAG_NON_PVP_PLAYER Then
                         cUnitFlags = cUnitFlags Or UnitFlags.UNIT_FLAG_NON_PVP_PLAYER
                         SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
@@ -3599,24 +3599,24 @@ CheckXPAgain:
                     End If
 
                     'DONE: Activate Arena PvP (Can attack people from your own faction)
-                    If AreaTable(ZoneFlag).IsArena Then
+                    If _WS_Maps.AreaTable(ZoneFlag).IsArena Then
                         If (cPlayerFlags And PlayerFlags.PLAYER_FLAGS_PVP_TIMER) = 0 Then
                             cPlayerFlags = cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_PVP_TIMER
                             SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, cPlayerFlags)
                             SendCharacterUpdate()
 
-                            GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                            GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
                         End If
                     Else
                         'DONE: Activate PvP
                         'TODO: Only for PvP realms
-                        If AreaTable(ZoneFlag).IsMyLand(Me) = False Then
+                        If _WS_Maps.AreaTable(ZoneFlag).IsMyLand(Me) = False Then
                             If (cUnitFlags And UnitFlags.UNIT_FLAG_PVP) = 0 Then
                                 cUnitFlags = cUnitFlags Or UnitFlags.UNIT_FLAG_PVP
                                 SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
                                 SendCharacterUpdate()
 
-                                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
                             End If
                         Else
                             'TODO: It takes 5 minutes before the PVP flag wears off
@@ -3625,7 +3625,7 @@ CheckXPAgain:
                                 SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
                                 SendCharacterUpdate()
 
-                                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
                             End If
                         End If
                     End If
@@ -3671,23 +3671,23 @@ CheckXPAgain:
 
             Public Sub ChangeSpeedForced(ByVal Type As ChangeSpeedType, ByVal NewSpeed As Single)
                 antiHackSpeedChanged_ += 1
-                Dim packet As PacketClass = Nothing
+                Dim packet As Packets.PacketClass = Nothing
                 Try
                     Select Case Type
                         Case ChangeSpeedType.RUN
-                            packet = New PacketClass(OPCODES.SMSG_FORCE_RUN_SPEED_CHANGE)
+                            packet = New Packets.PacketClass(OPCODES.SMSG_FORCE_RUN_SPEED_CHANGE)
                             RunSpeed = NewSpeed
                         Case ChangeSpeedType.RUNBACK
-                            packet = New PacketClass(OPCODES.SMSG_FORCE_RUN_BACK_SPEED_CHANGE)
+                            packet = New Packets.PacketClass(OPCODES.SMSG_FORCE_RUN_BACK_SPEED_CHANGE)
                             RunBackSpeed = NewSpeed
                         Case ChangeSpeedType.SWIM
-                            packet = New PacketClass(OPCODES.SMSG_FORCE_SWIM_SPEED_CHANGE)
+                            packet = New Packets.PacketClass(OPCODES.SMSG_FORCE_SWIM_SPEED_CHANGE)
                             SwimSpeed = NewSpeed
                         Case ChangeSpeedType.SWIMBACK
-                            packet = New PacketClass(OPCODES.SMSG_FORCE_SWIM_BACK_SPEED_CHANGE)
+                            packet = New Packets.PacketClass(OPCODES.SMSG_FORCE_SWIM_BACK_SPEED_CHANGE)
                             SwimBackSpeed = NewSpeed
                         Case ChangeSpeedType.TURNRATE
-                            packet = New PacketClass(OPCODES.SMSG_FORCE_TURN_RATE_CHANGE)
+                            packet = New Packets.PacketClass(OPCODES.SMSG_FORCE_TURN_RATE_CHANGE)
                             TurnRate = NewSpeed
                         Case Else
                             Exit Sub
@@ -3702,7 +3702,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub SetWaterWalk()
-                Dim SMSG_MOVE_WATER_WALK As New PacketClass(OPCODES.SMSG_MOVE_WATER_WALK)
+                Dim SMSG_MOVE_WATER_WALK As New Packets.PacketClass(OPCODES.SMSG_MOVE_WATER_WALK)
                 Try
                     SMSG_MOVE_WATER_WALK.AddPackGUID(GUID)
                     SMSG_MOVE_WATER_WALK.AddInt32(0)
@@ -3713,7 +3713,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub SetLandWalk()
-                Dim SMSG_MOVE_LAND_WALK As New PacketClass(OPCODES.SMSG_MOVE_LAND_WALK)
+                Dim SMSG_MOVE_LAND_WALK As New Packets.PacketClass(OPCODES.SMSG_MOVE_LAND_WALK)
                 Try
                     SMSG_MOVE_LAND_WALK.AddPackGUID(GUID)
                     SMSG_MOVE_LAND_WALK.AddInt32(0)
@@ -3724,7 +3724,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub SetMoveRoot()
-                Dim SMSG_FORCE_MOVE_ROOT As New PacketClass(OPCODES.SMSG_FORCE_MOVE_ROOT)
+                Dim SMSG_FORCE_MOVE_ROOT As New Packets.PacketClass(OPCODES.SMSG_FORCE_MOVE_ROOT)
                 Try
                     SMSG_FORCE_MOVE_ROOT.AddPackGUID(GUID)
                     SMSG_FORCE_MOVE_ROOT.AddInt32(0)
@@ -3736,7 +3736,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub SetMoveUnroot()
-                Dim SMSG_FORCE_MOVE_UNROOT As New PacketClass(OPCODES.SMSG_FORCE_MOVE_UNROOT)
+                Dim SMSG_FORCE_MOVE_UNROOT As New Packets.PacketClass(OPCODES.SMSG_FORCE_MOVE_UNROOT)
                 Try
                     SMSG_FORCE_MOVE_UNROOT.AddPackGUID(GUID)
                     SMSG_FORCE_MOVE_UNROOT.AddInt32(0)
@@ -3748,7 +3748,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub StartMirrorTimer(ByVal Type As MirrorTimer, ByVal MaxValue As Integer)
-                Dim SMSG_START_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
+                Dim SMSG_START_MIRROR_TIMER As New Packets.PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
                 Try
                     SMSG_START_MIRROR_TIMER.AddInt32(Type)
                     SMSG_START_MIRROR_TIMER.AddInt32(MaxValue)
@@ -3765,7 +3765,7 @@ CheckXPAgain:
 
             Public Sub ModifyMirrorTimer(ByVal Type As MirrorTimer, ByVal MaxValue As Integer, ByVal CurrentValue As Integer, ByVal Regen As Integer)
                 'TYPE: 0 = fartigua 1 = breath 2 = fire
-                Dim SMSG_START_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
+                Dim SMSG_START_MIRROR_TIMER As New Packets.PacketClass(OPCODES.SMSG_START_MIRROR_TIMER)
                 Try
                     SMSG_START_MIRROR_TIMER.AddInt32(Type)
                     SMSG_START_MIRROR_TIMER.AddInt32(CurrentValue)
@@ -3781,7 +3781,7 @@ CheckXPAgain:
             End Sub
 
             Public Sub StopMirrorTimer(ByVal Type As MirrorTimer)
-                Dim SMSG_STOP_MIRROR_TIMER As New PacketClass(OPCODES.SMSG_STOP_MIRROR_TIMER)
+                Dim SMSG_STOP_MIRROR_TIMER As New Packets.PacketClass(OPCODES.SMSG_STOP_MIRROR_TIMER)
                 Try
                     SMSG_STOP_MIRROR_TIMER.AddInt32(Type)
 
@@ -3797,7 +3797,7 @@ CheckXPAgain:
 
             Public Sub HandleDrowning(ByVal state As Object)
                 Try
-                    If positionZ > (GetWaterLevel(positionX, positionY, MapID) - 1.6) Then
+                    If positionZ > (_WS_Maps.GetWaterLevel(positionX, positionY, MapID) - 1.6) Then
                         underWaterTimer.DrowningValue += 2000
                         If underWaterTimer.DrowningValue > 70000 Then underWaterTimer.DrowningValue = 70000
                         ModifyMirrorTimer(MirrorTimer.DROWNING, 70000, underWaterTimer.DrowningValue, 2)
@@ -3824,48 +3824,48 @@ CheckXPAgain:
 
             'Reputation
             Public WatchedFactionIndex As Byte = &HFF
-            Public Reputation(63) As TReputation
+            Public Reputation(63) As WS_PlayerHelper.TReputation
             Public Sub InitializeReputation(ByVal FactionID As Integer)
-                If FactionInfo(FactionID).VisibleID > -1 Then
-                    Reputation(FactionInfo(FactionID).VisibleID).Value = 0
-                    If Reputation(FactionInfo(FactionID).VisibleID).Flags = 0 Then
-                        Reputation(FactionInfo(FactionID).VisibleID).Flags = 1
+                If _WS_DBCDatabase.FactionInfo(FactionID).VisibleID > -1 Then
+                    Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value = 0
+                    If Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags = 0 Then
+                        Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags = 1
                     End If
                 End If
             End Sub
 
             Public Function GetReaction(ByVal FactionID As Integer) As TReaction
-                If FactionTemplatesInfo.ContainsKey(FactionID) = False OrElse FactionTemplatesInfo.ContainsKey(Faction) = False Then Return TReaction.NEUTRAL
+                If _WS_DBCDatabase.FactionTemplatesInfo.ContainsKey(FactionID) = False OrElse _WS_DBCDatabase.FactionTemplatesInfo.ContainsKey(Faction) = False Then Return TReaction.NEUTRAL
 
                 'DONE: Neutral to everyone
-                If FactionTemplatesInfo(FactionID).enemyMask = 0 AndAlso FactionTemplatesInfo(FactionID).friendMask = 0 AndAlso
-                   FactionTemplatesInfo(FactionID).enemyFaction1 = 0 And FactionTemplatesInfo(FactionID).enemyFaction2 = 0 AndAlso
-                   FactionTemplatesInfo(FactionID).enemyFaction3 = 0 AndAlso FactionTemplatesInfo(FactionID).enemyFaction4 = 0 Then Return TReaction.NEUTRAL
+                If _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyMask = 0 AndAlso _WS_DBCDatabase.FactionTemplatesInfo(FactionID).friendMask = 0 AndAlso
+                   _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction1 = 0 And _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction2 = 0 AndAlso
+                   _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction3 = 0 AndAlso _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction4 = 0 Then Return TReaction.NEUTRAL
 
                 'DONE: Neutral to your faction
-                If FactionTemplatesInfo(FactionID).enemyMask = 0 AndAlso FactionTemplatesInfo(FactionID).friendMask = 0 AndAlso
-                   FactionTemplatesInfo(FactionID).enemyFaction1 <> Faction And FactionTemplatesInfo(FactionID).enemyFaction2 <> Faction AndAlso
-                   FactionTemplatesInfo(FactionID).enemyFaction3 <> Faction AndAlso FactionTemplatesInfo(FactionID).enemyFaction4 <> Faction Then Return TReaction.NEUTRAL
+                If _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyMask = 0 AndAlso _WS_DBCDatabase.FactionTemplatesInfo(FactionID).friendMask = 0 AndAlso
+                   _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction1 <> Faction And _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction2 <> Faction AndAlso
+                   _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction3 <> Faction AndAlso _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction4 <> Faction Then Return TReaction.NEUTRAL
 
                 'DONE: Hostile to any players
-                If FactionTemplatesInfo(FactionID).enemyMask And FactionMasks.FACTION_MASK_PLAYER Then Return TReaction.HOSTILE
+                If _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyMask And FactionMasks.FACTION_MASK_PLAYER Then Return TReaction.HOSTILE
 
                 'DONE: Friendly to your faction
-                If FactionTemplatesInfo(FactionID).friendFaction1 = Faction OrElse FactionTemplatesInfo(FactionID).friendFaction2 = Faction OrElse
-                   FactionTemplatesInfo(FactionID).friendFaction3 = Faction OrElse FactionTemplatesInfo(FactionID).friendFaction4 = Faction Then Return TReaction.FIGHT_SUPPORT
+                If _WS_DBCDatabase.FactionTemplatesInfo(FactionID).friendFaction1 = Faction OrElse _WS_DBCDatabase.FactionTemplatesInfo(FactionID).friendFaction2 = Faction OrElse
+                   _WS_DBCDatabase.FactionTemplatesInfo(FactionID).friendFaction3 = Faction OrElse _WS_DBCDatabase.FactionTemplatesInfo(FactionID).friendFaction4 = Faction Then Return TReaction.FIGHT_SUPPORT
 
                 'DONE: Friendly to your faction mask
-                If FactionTemplatesInfo(FactionID).friendMask And FactionTemplatesInfo(Faction).ourMask Then Return TReaction.FIGHT_SUPPORT
+                If _WS_DBCDatabase.FactionTemplatesInfo(FactionID).friendMask And _WS_DBCDatabase.FactionTemplatesInfo(Faction).ourMask Then Return TReaction.FIGHT_SUPPORT
 
                 'DONE: Hostile to your faction
-                If FactionTemplatesInfo(FactionID).enemyFaction1 = Faction OrElse FactionTemplatesInfo(FactionID).enemyFaction2 = Faction OrElse
-                   FactionTemplatesInfo(FactionID).enemyFaction3 = Faction OrElse FactionTemplatesInfo(FactionID).enemyFaction4 = Faction Then Return TReaction.HOSTILE
+                If _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction1 = Faction OrElse _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction2 = Faction OrElse
+                   _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction3 = Faction OrElse _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyFaction4 = Faction Then Return TReaction.HOSTILE
 
                 'DONE: Hostile to your faction mask
-                If FactionTemplatesInfo(FactionID).enemyMask And FactionTemplatesInfo(Faction).ourMask Then Return TReaction.HOSTILE
+                If _WS_DBCDatabase.FactionTemplatesInfo(FactionID).enemyMask And _WS_DBCDatabase.FactionTemplatesInfo(Faction).ourMask Then Return TReaction.HOSTILE
 
                 'DONE: Hostile by reputation
-                Dim Rank As ReputationRank = GetReputation(FactionTemplatesInfo(FactionID).FactionID)
+                Dim Rank As ReputationRank = GetReputation(_WS_DBCDatabase.FactionTemplatesInfo(FactionID).FactionID)
                 If Rank <= ReputationRank.Hostile Then
                     Return TReaction.HOSTILE
                 ElseIf Rank >= ReputationRank.Revered Then
@@ -3878,51 +3878,51 @@ CheckXPAgain:
             End Function
 
             Public Function GetReputationValue(ByVal FactionTemplateID As Integer) As Integer
-                If Not FactionTemplatesInfo.ContainsKey(FactionTemplateID) Then Return ReputationRank.Neutral
-                Dim FactionID As Integer = FactionTemplatesInfo(FactionTemplateID).FactionID
-                If Not FactionInfo.ContainsKey(FactionID) Then Return ReputationRank.Neutral
-                If FactionInfo(FactionID).VisibleID = -1 Then Return ReputationRank.Neutral
+                If Not _WS_DBCDatabase.FactionTemplatesInfo.ContainsKey(FactionTemplateID) Then Return ReputationRank.Neutral
+                Dim FactionID As Integer = _WS_DBCDatabase.FactionTemplatesInfo(FactionTemplateID).FactionID
+                If Not _WS_DBCDatabase.FactionInfo.ContainsKey(FactionID) Then Return ReputationRank.Neutral
+                If _WS_DBCDatabase.FactionInfo(FactionID).VisibleID = -1 Then Return ReputationRank.Neutral
 
                 Dim points As Integer
-                If HaveFlag(FactionInfo(FactionID).flags(0), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(0)
-                ElseIf HaveFlag(FactionInfo(FactionID).flags(1), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(1)
-                ElseIf HaveFlag(FactionInfo(FactionID).flags(2), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(2)
-                ElseIf HaveFlag(FactionInfo(FactionID).flags(3), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(3)
+                If _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(0), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(0)
+                ElseIf _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(1), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(1)
+                ElseIf _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(2), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(2)
+                ElseIf _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(3), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(3)
                 Else
                     points = 0
                 End If
 
-                If Reputation(FactionInfo(FactionID).VisibleID).Flags > 0 Then
-                    points = points + Reputation(FactionInfo(FactionID).VisibleID).Value
+                If Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags > 0 Then
+                    points = points + Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value
                 End If
                 Return points
             End Function
 
             Public Function GetReputation(ByVal FactionTemplateID As Integer) As ReputationRank
-                If Not FactionTemplatesInfo.ContainsKey(FactionTemplateID) Then Return ReputationRank.Neutral
-                Dim FactionID As Integer = FactionTemplatesInfo(FactionTemplateID).FactionID
-                If Not FactionInfo.ContainsKey(FactionID) Then Return ReputationRank.Neutral
-                If FactionInfo(FactionID).VisibleID = -1 Then Return ReputationRank.Neutral
+                If Not _WS_DBCDatabase.FactionTemplatesInfo.ContainsKey(FactionTemplateID) Then Return ReputationRank.Neutral
+                Dim FactionID As Integer = _WS_DBCDatabase.FactionTemplatesInfo(FactionTemplateID).FactionID
+                If Not _WS_DBCDatabase.FactionInfo.ContainsKey(FactionID) Then Return ReputationRank.Neutral
+                If _WS_DBCDatabase.FactionInfo(FactionID).VisibleID = -1 Then Return ReputationRank.Neutral
 
                 Dim points As Integer
-                If HaveFlag(FactionInfo(FactionID).flags(0), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(0)
-                ElseIf HaveFlag(FactionInfo(FactionID).flags(1), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(1)
-                ElseIf HaveFlag(FactionInfo(FactionID).flags(2), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(2)
-                ElseIf HaveFlag(FactionInfo(FactionID).flags(3), Race - 1) Then
-                    points = FactionInfo(FactionID).rep_stats(3)
+                If _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(0), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(0)
+                ElseIf _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(1), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(1)
+                ElseIf _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(2), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(2)
+                ElseIf _Functions.HaveFlag(_WS_DBCDatabase.FactionInfo(FactionID).flags(3), Race - 1) Then
+                    points = _WS_DBCDatabase.FactionInfo(FactionID).rep_stats(3)
                 Else
                     points = 0
                 End If
 
-                If Reputation(FactionInfo(FactionID).VisibleID).Flags > 0 Then
-                    points = points + Reputation(FactionInfo(FactionID).VisibleID).Value
+                If Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags > 0 Then
+                    points = points + Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value
                 End If
 
                 Select Case points
@@ -3946,20 +3946,20 @@ CheckXPAgain:
             End Function
 
             Public Sub SetReputation(ByVal FactionID As Integer, ByVal Value As Integer)
-                If FactionInfo(FactionID).VisibleID = -1 Then Exit Sub
+                If _WS_DBCDatabase.FactionInfo(FactionID).VisibleID = -1 Then Exit Sub
 
-                Reputation(FactionInfo(FactionID).VisibleID).Value += Value
+                Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value += Value
 
-                If (Reputation(FactionInfo(FactionID).VisibleID).Flags And 1) = 0 Then
-                    Reputation(FactionInfo(FactionID).VisibleID).Flags = Reputation(FactionInfo(FactionID).VisibleID).Flags Or 1
+                If (Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags And 1) = 0 Then
+                    Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags = Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags Or 1
                 End If
 
                 If Not client Is Nothing Then
-                    Dim packet As New PacketClass(OPCODES.SMSG_SET_FACTION_STANDING)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_SET_FACTION_STANDING)
                     Try
-                        packet.AddInt32(Reputation(FactionInfo(FactionID).VisibleID).Flags)
-                        packet.AddInt32(FactionInfo(FactionID).VisibleID)
-                        packet.AddInt32(Reputation(FactionInfo(FactionID).VisibleID).Value)
+                        packet.AddInt32(Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Flags)
+                        packet.AddInt32(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID)
+                        packet.AddInt32(Reputation(_WS_DBCDatabase.FactionInfo(FactionID).VisibleID).Value)
                         client.Send(packet)
                     Finally
                         packet.Dispose()
@@ -3974,16 +3974,16 @@ CheckXPAgain:
             End Function
 
             'Death
-            Public Overrides Sub Die(ByRef Attacker As BaseUnit)
+            Public Overrides Sub Die(ByRef Attacker As WS_Base.BaseUnit)
                 'NOTE: Do this first to prevent problems
                 DEAD = True
                 corpseGUID = 0UL
 
-                If Attacker IsNot Nothing AndAlso TypeOf Attacker Is CreatureObject Then
-                    If CType(Attacker, CreatureObject).aiScript IsNot Nothing Then CType(Attacker, CreatureObject).aiScript.OnKill(Me)
+                If Attacker IsNot Nothing AndAlso TypeOf Attacker Is WS_Creatures.CreatureObject Then
+                    If CType(Attacker, WS_Creatures.CreatureObject).aiScript IsNot Nothing Then CType(Attacker, WS_Creatures.CreatureObject).aiScript.OnKill(Me)
                 End If
 
-                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
+                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS
 
                 For Each uGuid As ULong In inCombatWith
                     If _CommonGlobalFunctions.GuidIsPlayer(uGuid) AndAlso _WorldServer.CHARACTERs.ContainsKey(uGuid) Then
@@ -3996,7 +3996,7 @@ CheckXPAgain:
                 'DONE: Check if player is in duel
                 If IsInDuel Then
                     DEAD = False
-                    DuelComplete(DuelPartner, Me)
+                    _WS_Spells.DuelComplete(DuelPartner, Me)
                     Exit Sub
                 End If
 
@@ -4009,7 +4009,7 @@ CheckXPAgain:
                 Next
 
                 'DONE: Save as DEAD (GHOST)!
-                repopTimer = New TRepopTimer(Me)
+                repopTimer = New WS_PlayerHelper.TRepopTimer(Me)
                 cDynamicFlags = DynamicFlags.UNIT_DYNFLAG_DEAD
                 cUnitFlags = 8          'player death animation, also can be used with cDynamicFlags
 
@@ -4019,11 +4019,11 @@ CheckXPAgain:
                 SendCharacterUpdate(True)
 
                 'DONE: 10% Durability lost, and only if the killer is a creature or you died by enviromental damage
-                If Attacker Is Nothing OrElse TypeOf Attacker Is CreatureObject Then
+                If Attacker Is Nothing OrElse TypeOf Attacker Is WS_Creatures.CreatureObject Then
                     For i As Byte = 0 To EquipmentSlots.EQUIPMENT_SLOT_END - 1
                         If Items.ContainsKey(i) Then Items(i).ModifyDurability(0.1F, client)
                     Next
-                    Dim SMSG_DURABILITY_DAMAGE_DEATH As New PacketClass(OPCODES.SMSG_DURABILITY_DAMAGE_DEATH)
+                    Dim SMSG_DURABILITY_DAMAGE_DEATH As New Packets.PacketClass(OPCODES.SMSG_DURABILITY_DAMAGE_DEATH)
                     Try
                         client.Send(SMSG_DURABILITY_DAMAGE_DEATH)
                     Finally
@@ -4037,7 +4037,7 @@ CheckXPAgain:
 
             Public Sub SendDeathReleaseLoc(ByVal x As Single, ByVal y As Single, ByVal z As Single, ByVal MapID As Integer)
                 'Show spirit healer position on minimap
-                Dim p As New PacketClass(OPCODES.CMSG_REPOP_REQUEST)
+                Dim p As New Packets.PacketClass(OPCODES.CMSG_REPOP_REQUEST)
                 Try
                     p.AddInt32(MapID)
                     p.AddSingle(x)
@@ -4050,7 +4050,7 @@ CheckXPAgain:
             End Sub
 
             'Combat
-            Public Overrides Sub DealDamage(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
+            Public Overrides Sub DealDamage(ByVal Damage As Integer, Optional ByRef Attacker As WS_Base.BaseUnit = Nothing)
                 'DONE: Check for dead
                 If DEAD Then Exit Sub
 
@@ -4092,7 +4092,7 @@ CheckXPAgain:
                         If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso _WorldServer.WORLD_CREATUREs(cGUID).isGuard Then
                             If _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
                                 If inCombatWith.Contains(cGUID) Then Continue For
-                                If GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) = TReaction.FIGHT_SUPPORT AndAlso GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), Me) <= _WorldServer.WORLD_CREATUREs(cGUID).AggroRange(Me) Then
+                                If GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) = TReaction.FIGHT_SUPPORT AndAlso _WS_Combat.GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), Me) <= _WorldServer.WORLD_CREATUREs(cGUID).AggroRange(Me) Then
                                     _WorldServer.WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(Attacker, Damage)
                                 End If
                             End If
@@ -4100,7 +4100,7 @@ CheckXPAgain:
                     Next
                 End If
 
-                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP
+                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP
                 If Not Invulnerable Then Life.Current -= Damage
 
                 If Life.Current = 0 Then
@@ -4120,10 +4120,10 @@ CheckXPAgain:
                 End If
             End Sub
 
-            Public Overrides Sub Heal(ByVal Damage As Integer, Optional ByRef Attacker As BaseUnit = Nothing)
+            Public Overrides Sub Heal(ByVal Damage As Integer, Optional ByRef Attacker As WS_Base.BaseUnit = Nothing)
                 If DEAD Then Exit Sub
 
-                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP
+                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP
 
                 'TODO: Healing generates thread on the NPCs that has this character in their combat array
 
@@ -4132,10 +4132,10 @@ CheckXPAgain:
                 SendCharacterUpdate()
             End Sub
 
-            Public Overrides Sub Energize(ByVal Damage As Integer, ByVal Power As ManaTypes, Optional ByRef Attacker As BaseUnit = Nothing)
+            Public Overrides Sub Energize(ByVal Damage As Integer, ByVal Power As ManaTypes, Optional ByRef Attacker As WS_Base.BaseUnit = Nothing)
                 If DEAD Then Exit Sub
 
-                GroupUpdateFlag = GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
+                GroupUpdateFlag = GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
 
                 Select Case Power
                     Case ManaTypes.TYPE_MANA
@@ -4169,7 +4169,7 @@ CheckXPAgain:
                     repopTimer.Dispose()
                     repopTimer = Nothing
                     'DONE: Spawn Corpse
-                    Dim myCorpse As New CorpseObject(Me)
+                    Dim myCorpse As New WS_Corpses.CorpseObject(Me)
                     myCorpse.AddToWorld()
                     myCorpse.Save()
                 End If
@@ -4184,21 +4184,21 @@ CheckXPAgain:
                 End If
 
                 'DONE: Leave transports
-                If (OnTransport IsNot Nothing) AndAlso (TypeOf OnTransport Is TransportObject) Then
-                    CType(OnTransport, TransportObject).RemovePassenger(Me)
+                If (OnTransport IsNot Nothing) AndAlso (TypeOf OnTransport Is WS_Transports.TransportObject) Then
+                    CType(OnTransport, WS_Transports.TransportObject).RemovePassenger(Me)
                 End If
 
                 'DONE: Cancel duels
                 If DuelPartner IsNot Nothing Then
                     If DuelPartner.DuelArbiter = DuelArbiter Then
-                        DuelComplete(DuelPartner, Me)
+                        _WS_Spells.DuelComplete(DuelPartner, Me)
                     ElseIf _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(DuelArbiter) Then
                         _WorldServer.WORLD_GAMEOBJECTs(DuelArbiter).Destroy(_WorldServer.WORLD_GAMEOBJECTs(DuelArbiter))
                     End If
                 End If
 
                 'DONE: Disconnect the client
-                Dim SMSG_LOGOUT_COMPLETE As New PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
+                Dim SMSG_LOGOUT_COMPLETE As New Packets.PacketClass(OPCODES.SMSG_LOGOUT_COMPLETE)
                 Try
                     client.Send(SMSG_LOGOUT_COMPLETE)
                     SMSG_LOGOUT_COMPLETE.Dispose()
@@ -4216,7 +4216,7 @@ CheckXPAgain:
 
             Public Sub Login()
                 'DONE: Setting instance ID
-                InstanceMapEnter(Me)
+                _WS_Handlers_Instance.InstanceMapEnter(Me)
 
                 'Set player to transport
                 SetOnTransport()
@@ -4229,21 +4229,21 @@ CheckXPAgain:
                 End If
 
                 'Loading map cell if not loaded
-                GetMapTile(positionX, positionY, CellX, CellY)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
                 Try
-                    If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
+                    If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then _WS_CharMovement.MAP_Load(CellX, CellY, MapID)
                 Catch ex As Exception
                     _WorldServer.Log.WriteLine(LogType.CRITICAL, "Failed loading maps at character logging in.{0}{1}", Environment.NewLine, ex.ToString())
                 End Try
 
                 'DONE: SMSG_BINDPOINTUPDATE
-                SendBindPointUpdate(client, Me)
+                _WS_PlayerHelper.SendBindPointUpdate(client, Me)
 
                 'TODO: SMSG_SET_REST_START
-                Send_SMSG_SET_REST_START(client, Me)
+                _WS_PlayerHelper.Send_SMSG_SET_REST_START(client, Me)
 
                 'DONE: SMSG_TUTORIAL_FLAGS
-                SendTutorialFlags(client, Me)
+                _WS_PlayerHelper.SendTutorialFlags(client, Me)
 
                 'DONE: SMSG_SET_PROFICIENCY
                 SendProficiencies()
@@ -4251,13 +4251,13 @@ CheckXPAgain:
                 'TODO: SMSG_UPDATE_AURA_DURATION
 
                 'DONE: SMSG_INITIAL_SPELLS
-                SendInitialSpells(client, Me)
+                _WS_PlayerHelper.SendInitialSpells(client, Me)
                 'DONE: SMSG_INITIALIZE_FACTIONS
-                SendFactions(client, Me)
+                _WS_PlayerHelper.SendFactions(client, Me)
                 'DONE: SMSG_ACTION_BUTTONS
-                SendActionButtons(client, Me)
+                _WS_PlayerHelper.SendActionButtons(client, Me)
                 'DONE: SMSG_INIT_WORLD_STATES
-                SendInitWorldStates(client, Me)
+                _WS_PlayerHelper.SendInitWorldStates(client, Me)
 
                 'DONE: SMSG_UPDATE_OBJECT for ourself
                 Life.Current = Life.Maximum
@@ -4266,10 +4266,10 @@ CheckXPAgain:
                 SendUpdate()
 
                 'DONE: Adding to World
-                AddToWorld(Me)
+                _WS_CharMovement.AddToWorld(Me)
 
                 'DONE: Enable client moving
-                SendTimeSyncReq(client)
+                _Functions.SendTimeSyncReq(client)
 
                 'DONE: Send update on aura durations
                 UpdateAuraDurations()
@@ -4281,7 +4281,7 @@ CheckXPAgain:
             Public Sub UpdateAuraDurations()
                 For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
-                        Dim SMSG_UPDATE_AURA_DURATION As New PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
+                        Dim SMSG_UPDATE_AURA_DURATION As New Packets.PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
                         Try
                             SMSG_UPDATE_AURA_DURATION.AddInt8(i)
                             SMSG_UPDATE_AURA_DURATION.AddInt32(ActiveSpells(i).SpellDuration)
@@ -4321,7 +4321,7 @@ CheckXPAgain:
                             positionZ = OnTransport.positionZ
                         Else
                             _WorldServer.Log.WriteLine(LogType.CRITICAL, "Spawning new transport!")
-                            Dim newGameobject As New GameObjectObject(TransportGUID - _Global_Constants.GUID_TRANSPORT)
+                            Dim newGameobject As New WS_GameObjects.GameObjectObject(TransportGUID - _Global_Constants.GUID_TRANSPORT)
                             newGameobject.AddToWorld()
                             OnTransport = newGameobject
                             transportX = positionX
@@ -4353,7 +4353,7 @@ CheckXPAgain:
                 If HaveSpell(27762) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_LIBRAM)
                 If HaveSpell(27763) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_TOTEM)
                 If HaveSpell(27764) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_IDOL)
-                SendProficiency(client, ITEM_CLASS.ITEM_CLASS_ARMOR, ProficiencyFlags)
+                _Functions.SendProficiency(client, ITEM_CLASS.ITEM_CLASS_ARMOR, ProficiencyFlags)
 
                 ProficiencyFlags = 0
                 If HaveSpell(196) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_AXE)
@@ -4377,7 +4377,7 @@ CheckXPAgain:
                 If HaveSpell(5011) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW)
                 If HaveSpell(5009) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_WAND)
                 If HaveSpell(7738) Then ProficiencyFlags += (1 << ITEM_SUBCLASS.ITEM_SUBCLASS_FISHING_POLE)
-                SendProficiency(client, ITEM_CLASS.ITEM_CLASS_WEAPON, ProficiencyFlags)
+                _Functions.SendProficiency(client, ITEM_CLASS.ITEM_CLASS_WEAPON, ProficiencyFlags)
             End Sub
 
 #Region "IDisposable Support"
@@ -4400,7 +4400,7 @@ CheckXPAgain:
                         repopTimer.Dispose()
                         repopTimer = Nothing
                         'DONE: Spawn Corpse
-                        Dim myCorpse As New CorpseObject(Me)
+                        Dim myCorpse As New WS_Corpses.CorpseObject(Me)
                         myCorpse.Save()
                         myCorpse.AddToWorld()
                     End If
@@ -4421,7 +4421,7 @@ CheckXPAgain:
                     _WorldServer.CHARACTERs.Remove(GUID)
                     _WorldServer.CHARACTERs_Lock.ReleaseWriterLock()
 
-                    If FullyLoggedIn Then RemoveFromWorld(Me)
+                    If FullyLoggedIn Then _WS_CharMovement.RemoveFromWorld(Me)
 
                     _WorldServer.Log.WriteLine(LogType.USER, "Character {0} disposed.", Name)
 
@@ -4454,9 +4454,9 @@ CheckXPAgain:
                 CanSeeInvisibility_Invisibility = 0
                 Model_Native = Model
 
-                If CreatureModel.ContainsKey(Model) Then
-                    BoundingRadius = CreatureModel(Model).BoundingRadius
-                    CombatReach = CreatureModel(Model).CombatReach
+                If _WS_DBCDatabase.CreatureModel.ContainsKey(Model) Then
+                    BoundingRadius = _WS_DBCDatabase.CreatureModel(Model).BoundingRadius
+                    CombatReach = _WS_DBCDatabase.CreatureModel(Model).CombatReach
                 End If
 
                 'If Classe = Classes.CLASS_WARRIOR Then Me.ShapeshiftForm = WS_Spells.ShapeshiftForm.FORM_BATTLESTANCE
@@ -4484,11 +4484,11 @@ CheckXPAgain:
                         If Items.ContainsKey(i) AndAlso Items(i).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_QUIVER Then
                             For Each slot As KeyValuePair(Of Byte, ItemObject) In Items(i).Items
                                 If slot.Value.ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_PROJECTILE AndAlso slot.Value.ItemInfo.SubClass = AmmoType Then
-                                    Dim CanUse As InventoryChangeFailure = CanUseAmmo(Me, slot.Value.ItemEntry)
+                                    Dim CanUse As InventoryChangeFailure = _CharManagementHandler.CanUseAmmo(Me, slot.Value.ItemEntry)
                                     If CanUse = InventoryChangeFailure.EQUIP_ERR_OK Then
                                         AmmoID = slot.Value.ItemEntry
                                         AmmoDPS = _WorldServer.ITEMDatabase(AmmoID).Damage(0).Minimum
-                                        CalculateMinMaxDamage(Me, WeaponAttackType.RANGED_ATTACK)
+                                        _WS_Combat.CalculateMinMaxDamage(Me, WeaponAttackType.RANGED_ATTACK)
 
                                         GoTo DoneAmmo
                                     End If
@@ -4506,13 +4506,13 @@ DoneAmmo:
                 UpdateMask.SetAll(False)
 
                 For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                    spellDamage(i) = New TDamageBonus
-                    Resistances(i) = New TStat
+                    spellDamage(i) = New WS_PlayerHelper.TDamageBonus
+                    Resistances(i) = New WS_PlayerHelper.TStat
                 Next
 
             End Sub
 
-            Public Sub New(ByRef ClientVal As ClientClass, ByVal GuidVal As ULong)
+            Public Sub New(ByRef ClientVal As WS_Network.ClientClass, ByVal GuidVal As ULong)
                 'DONE: Add space for passive auras
                 ReDim ActiveSpells(_Global_Constants.MAX_AURA_EFFECTs - 1)
 
@@ -4522,8 +4522,8 @@ DoneAmmo:
                 client.Character = Me
 
                 For i As Integer = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                    spellDamage(i) = New TDamageBonus
-                    Resistances(i) = New TStat
+                    spellDamage(i) = New WS_PlayerHelper.TDamageBonus
+                    Resistances(i) = New WS_PlayerHelper.TStat
                 Next
 
                 'DONE: Get character info from DB
@@ -4562,15 +4562,15 @@ DoneAmmo:
                 Energy.Current = Energy.Maximum
                 XP = MySQLQuery.Rows(0).Item("char_xp")
 
-                If CharRaces.ContainsKey(MySQLQuery.Rows(0).Item("char_race")) Then
-                    Faction = CharRaces(MySQLQuery.Rows(0).Item("char_race")).FactionID
+                If _WS_DBCDatabase.CharRaces.ContainsKey(MySQLQuery.Rows(0).Item("char_race")) Then
+                    Faction = _WS_DBCDatabase.CharRaces(MySQLQuery.Rows(0).Item("char_race")).FactionID
                     If Gender = Genders.GENDER_MALE Then
-                        Model = CharRaces(MySQLQuery.Rows(0).Item("char_race")).ModelMale
+                        Model = _WS_DBCDatabase.CharRaces(MySQLQuery.Rows(0).Item("char_race")).ModelMale
                     Else
-                        Model = CharRaces(MySQLQuery.Rows(0).Item("char_race")).ModelFemale
+                        Model = _WS_DBCDatabase.CharRaces(MySQLQuery.Rows(0).Item("char_race")).ModelFemale
                     End If
                 End If
-                If Model = 0 Then Model = GetRaceModel(Race, Gender)
+                If Model = 0 Then Model = _Functions.GetRaceModel(Race, Gender)
 
                 'DONE: Get Rested Bonus XP and Rest State
                 RestBonus = MySQLQuery.Rows(0).Item("char_xp_rested")
@@ -4609,12 +4609,12 @@ DoneAmmo:
                 'ToDo: Need better string to query the data correctly. An ugly method.
                 _WorldServer.CharacterDatabase.Query(String.Format("UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1}; 
                 SELECT * FROM characters_spells WHERE guid = {0}; 
-                UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1};", GUID, GetTimestamp(Now)), SpellQuery)
+                UPDATE characters_spells SET cooldown = 0, cooldownitem = 0 WHERE guid = {0} AND cooldown > 0 AND cooldown < {1};", GUID, _Functions.GetTimestamp(Now)), SpellQuery)
 
                 'DONE: Get SpellList
                 For Each Spell As DataRow In SpellQuery.Rows
                     Spells.Add(Spell.Item("spellid"),
-                               New CharacterSpell(Spell.Item("spellid"),
+                               New WS_Spells.CharacterSpell(Spell.Item("spellid"),
                                                   Spell.Item("active"),
                                                   Spell.Item("cooldown"),
                                                   Spell.Item("cooldownitem")))
@@ -4628,7 +4628,7 @@ DoneAmmo:
                         If Trim(tmp(i)) <> "" Then
                             Dim tmp2() As String = Split(tmp(i), ":")
                             If tmp2.Length = 3 Then
-                                Skills(tmp2(0)) = New TSkill(tmp2(1), tmp2(2))
+                                Skills(tmp2(0)) = New WS_PlayerHelper.TSkill(tmp2(1), tmp2(2))
                                 SkillsPositions(tmp2(0)) = i
                             End If
                         End If
@@ -4638,7 +4638,7 @@ DoneAmmo:
                 'DONE: Get AuraList
                 tmp = Split(CType(MySQLQuery.Rows(0).Item("char_auraList"), String), " ")
                 If tmp.Length > 0 Then
-                    Dim currentTimestamp As UInteger = GetTimestamp(Now)
+                    Dim currentTimestamp As UInteger = _Functions.GetTimestamp(Now)
                     For i As Integer = 0 To tmp.Length - 1
                         If Trim(tmp(i)) <> "" Then
                             Dim tmp2() As String = Split(tmp(i), ":")
@@ -4647,7 +4647,7 @@ DoneAmmo:
                                 Dim AuraSpellID As Integer = tmp2(1)
                                 Dim AuraExpire As Long = tmp2(2)
                                 If AuraSlot < 0 OrElse AuraSlot >= _Global_Constants.MAX_AURA_EFFECTs_VISIBLE Then Continue For 'Not acceptable slot
-                                If WS_Spells.SPELLs.ContainsKey(AuraSpellID) = False Then Continue For 'Non-existant spell
+                                If _WS_Spells.SPELLs.ContainsKey(AuraSpellID) = False Then Continue For 'Non-existant spell
 
                                 If ActiveSpells(AuraSlot) Is Nothing Then
                                     Dim duration As Integer = 0
@@ -4660,7 +4660,7 @@ DoneAmmo:
                                         duration = (AuraExpire - currentTimestamp) * 1000
                                     End If
 
-                                    ActiveSpells(AuraSlot) = New BaseActiveSpell(AuraSpellID, duration) With {
+                                    ActiveSpells(AuraSlot) = New WS_Base.BaseActiveSpell(AuraSpellID, duration) With {
                                         .SpellCaster = Nothing
                                         }
 
@@ -4708,7 +4708,7 @@ DoneAmmo:
                         If Trim(tmp(i)) <> "" Then
                             Dim tmp2() As String
                             tmp2 = Split(tmp(i), ":")
-                            ActionButtons(tmp2(0)) = New TActionButton(tmp2(1), tmp2(2), tmp2(3))
+                            ActionButtons(tmp2(0)) = New WS_PlayerHelper.TActionButton(tmp2(1), tmp2(2), tmp2(3))
                         End If
                     Next i
                 End If
@@ -4718,7 +4718,7 @@ DoneAmmo:
                 For i As Integer = 0 To 63
                     Dim tmp2() As String
                     tmp2 = Split(tmp(i), ":")
-                    Reputation(i) = New TReputation With {
+                    Reputation(i) = New WS_PlayerHelper.TReputation With {
                         .Flags = Trim(tmp2(0)),
                         .Value = Trim(tmp2(1))
                         }
@@ -4734,7 +4734,7 @@ DoneAmmo:
                 _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID), MySQLQuery)
                 For Each row As DataRow In MySQLQuery.Rows
                     If row.Item("item_slot") <> _Global_Constants.ITEM_SLOT_NULL Then
-                        Dim tmpItem As ItemObject = LoadItemByGUID(CType(row.Item("item_guid"), Long), Me, (CType(row.Item("item_slot"), Byte) < EquipmentSlots.EQUIPMENT_SLOT_END))
+                        Dim tmpItem As ItemObject = _WS_Items.LoadItemByGUID(CType(row.Item("item_guid"), Long), Me, (CType(row.Item("item_slot"), Byte) < EquipmentSlots.EQUIPMENT_SLOT_END))
                         Items(row.Item("item_slot")) = tmpItem
                         If CType(row.Item("item_slot"), Byte) < InventorySlots.INVENTORY_SLOT_BAG_END Then UpdateAddItemStats(tmpItem, row.Item("item_slot"))
                     End If
@@ -4750,7 +4750,7 @@ DoneAmmo:
                 Initialize()
 
                 'DONE: Load current pet if any
-                LoadPet(Me)
+                _WS_Pets.LoadPet(Me)
 
                 'DONE: Load corpse if present
                 MySQLQuery.Clear()
@@ -4870,7 +4870,7 @@ DoneAmmo:
 
                 'char_skillList
                 temp.Clear()
-                For Each Skill As KeyValuePair(Of Integer, TSkill) In Skills
+                For Each Skill As KeyValuePair(Of Integer, WS_PlayerHelper.TSkill) In Skills
                     temp.Add(String.Format("{0}:{1}:{2}", Skill.Key, Skill.Value.Current, Skill.Value.Maximum))
                 Next
                 tmpCMD = tmpCMD & ", char_skillList"
@@ -4897,7 +4897,7 @@ DoneAmmo:
 
                 'char_reputation
                 temp.Clear()
-                For Each Reputation_Point As TReputation In Reputation
+                For Each Reputation_Point As WS_PlayerHelper.TReputation In Reputation
                     temp.Add(Reputation_Point.Flags & ":" & Reputation_Point.Value)
                 Next
                 tmpCMD = tmpCMD & ", char_reputation"
@@ -4905,7 +4905,7 @@ DoneAmmo:
 
                 'char_actionBar
                 temp.Clear()
-                For Each ActionButton As KeyValuePair(Of Byte, TActionButton) In ActionButtons
+                For Each ActionButton As KeyValuePair(Of Byte, WS_PlayerHelper.TActionButton) In ActionButtons
                     temp.Add(String.Format("{0}:{1}:{2}:{3}", ActionButton.Key, ActionButton.Value.Action, ActionButton.Value.ActionType, ActionButton.Value.ActionMisc))
                 Next
                 tmpCMD = tmpCMD & ", char_actionBar"
@@ -5004,7 +5004,7 @@ DoneAmmo:
 
                 'char_skillList
                 temp.Clear()
-                For Each Skill As KeyValuePair(Of Integer, TSkill) In Skills
+                For Each Skill As KeyValuePair(Of Integer, WS_PlayerHelper.TSkill) In Skills
                     temp.Add(String.Format("{0}:{1}:{2}", Skill.Key, Skill.Value.Current, Skill.Value.Maximum))
                 Next
                 tmp = tmp & ", char_skillList=""" & Join(temp.ToArray, " ") & """"
@@ -5014,7 +5014,7 @@ DoneAmmo:
                 For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing AndAlso (ActiveSpells(i).SpellDuration = _Global_Constants.SPELL_DURATION_INFINITE OrElse ActiveSpells(i).SpellDuration > 10000) Then 'If the aura exists and if it's worth saving
                         Dim expire As Long = 0L
-                        If ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then expire = GetTimestamp(Now) + (ActiveSpells(i).SpellDuration \ 1000)
+                        If ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then expire = _Functions.GetTimestamp(Now) + (ActiveSpells(i).SpellDuration \ 1000)
                         'TODO: If Not_Tick_While_Offline Then expire = -ActiveSpells(i).SpellDuration
                         temp.Add(String.Format("{0}:{1}:{2}", i, ActiveSpells(i).SpellID, expire))
                     End If
@@ -5046,14 +5046,14 @@ DoneAmmo:
 
                 'char_reputation
                 temp.Clear()
-                For Each Reputation_Point As TReputation In Reputation
+                For Each Reputation_Point As WS_PlayerHelper.TReputation In Reputation
                     temp.Add(Reputation_Point.Flags & ":" & Reputation_Point.Value)
                 Next
                 tmp = tmp & ", char_reputation=""" & Join(temp.ToArray, " ") & """"
 
                 'char_actionBar
                 temp.Clear()
-                For Each ActionButton As KeyValuePair(Of Byte, TActionButton) In ActionButtons
+                For Each ActionButton As KeyValuePair(Of Byte, WS_PlayerHelper.TActionButton) In ActionButtons
                     temp.Add(String.Format("{0}:{1}:{2}:{3}", ActionButton.Key, ActionButton.Value.Action, ActionButton.Value.ActionType, ActionButton.Value.ActionMisc))
                 Next
                 tmp = tmp & ", char_actionBar=""" & Join(temp.ToArray, " ") & """"
@@ -5105,14 +5105,14 @@ DoneAmmo:
             Public Sub GroupUpdate()
                 If Group Is Nothing Then Exit Sub
                 If GroupUpdateFlag = 0 Then Exit Sub
-                Dim Packet As PacketClass = BuildPartyMemberStats(Me, GroupUpdateFlag)
+                Dim Packet As Packets.PacketClass = _WS_Group.BuildPartyMemberStats(Me, GroupUpdateFlag)
                 GroupUpdateFlag = 0
                 If Not Packet Is Nothing Then Group.Broadcast(Packet)
             End Sub
 
             Public Sub GroupUpdate(ByVal Flag As Integer)
                 If Group Is Nothing Then Exit Sub
-                Dim Packet As PacketClass = BuildPartyMemberStats(Me, Flag)
+                Dim Packet As Packets.PacketClass = _WS_Group.BuildPartyMemberStats(Me, Flag)
                 If Not Packet Is Nothing Then Group.Broadcast(Packet)
             End Sub
 
@@ -5130,7 +5130,7 @@ DoneAmmo:
             'Duel
             Public DuelArbiter As ULong = 0
             Public DuelPartner As CharacterObject = Nothing
-            Public DuelOutOfBounds As Byte = DUEL_COUNTER_DISABLED
+            Public DuelOutOfBounds As Byte = _WS_Spells.DUEL_COUNTER_DISABLED
             Public ReadOnly Property IsInDuel() As Boolean
                 Get
                     Return (Not (DuelPartner Is Nothing))
@@ -5138,7 +5138,7 @@ DoneAmmo:
             End Property
 
             Public Sub StartDuel()
-                Thread.Sleep(DUEL_COUNTDOWN)
+                Thread.Sleep(_WS_Spells.DUEL_COUNTDOWN)
                 If DuelArbiter = 0 Then Exit Sub
                 If DuelPartner Is Nothing Then Exit Sub
 
@@ -5234,7 +5234,7 @@ DoneAmmo:
                     Dim tmpState As Integer = TalkQuests(QuestSlot).GetState
                     Dim tmpProgress As Integer = TalkQuests(QuestSlot).GetProgress
                     Dim tmpTimer As Integer = 0
-                    If TalkQuests(QuestSlot).TimeEnd > 0 Then tmpTimer = TalkQuests(QuestSlot).TimeEnd - GetTimestamp(Now)
+                    If TalkQuests(QuestSlot).TimeEnd > 0 Then tmpTimer = TalkQuests(QuestSlot).TimeEnd - _Functions.GetTimestamp(Now)
                     _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_quests SET quest_status = {2} WHERE char_guid = {0} AND quest_id = {1};", GUID, TalkQuests(QuestSlot).ID, tmpProgress))
 
                     SetUpdateFlag(EPlayerFields.PLAYER_QUEST_LOG_1_2 + QuestSlot * 3, tmpProgress)
@@ -5253,7 +5253,7 @@ DoneAmmo:
                     Dim status As Integer = DBResult.Rows(0).Item("quest_status")
 
                     If status = -1 Then ' Quest is completed
-                        Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                        Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                         Try
                             packet.AddInt32(QuestInvalidError.INVALIDREASON_COMPLETED_QUEST)
                             client.Send(packet)
@@ -5261,7 +5261,7 @@ DoneAmmo:
                             packet.Dispose()
                         End Try
                     Else
-                        Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                        Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                         Try
                             packet.AddInt32(QuestInvalidError.INVALIDREASON_HAVE_QUEST)
                             client.Send(packet)
@@ -5273,7 +5273,7 @@ DoneAmmo:
                 End If
 
                 If Quest.RequiredRace <> 0 AndAlso (Quest.RequiredRace And (1 << (Race - 1))) = 0 Then
-                    Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                     Try
                         packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_RACE)
                         client.Send(packet)
@@ -5285,7 +5285,7 @@ DoneAmmo:
 
                 If Quest.RequiredClass <> 0 AndAlso (Quest.RequiredClass And (1 << (Classe - 1))) = 0 Then
                     'TODO: Find constant for INVALIDREASON_DONT_HAVE_CLASS if exists
-                    Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                     Try
                         packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ)
                         client.Send(packet)
@@ -5297,7 +5297,7 @@ DoneAmmo:
 
                 If Quest.RequiredTradeSkill <> 0 AndAlso Not Skills.ContainsKey(Quest.RequiredTradeSkill) Then
                     'TODO: Find constant for INVALIDREASON_DONT_HAVE_SKILL if exists
-                    Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                     Try
                         packet.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ)
                         client.Send(packet)
@@ -5332,7 +5332,7 @@ DoneAmmo:
 
             'Helper Funtions
             Public Sub LogXPGain(ByVal Ammount As Integer, ByVal Rested As Integer, ByVal VictimGUID As ULong, ByVal Group As Single)
-                Dim SMSG_LOG_XPGAIN As New PacketClass(OPCODES.SMSG_LOG_XPGAIN)
+                Dim SMSG_LOG_XPGAIN As New Packets.PacketClass(OPCODES.SMSG_LOG_XPGAIN)
                 Try
                     SMSG_LOG_XPGAIN.AddUInt64(VictimGUID)
 
@@ -5360,7 +5360,7 @@ DoneAmmo:
             End Sub
 
             Public Sub LogHonorGain(ByVal Ammount As Integer, Optional ByVal VictimGUID As ULong = 0, Optional ByVal VictimRANK As Byte = 0)
-                Dim SMSG_PVP_CREDIT As New PacketClass(OPCODES.SMSG_PVP_CREDIT)
+                Dim SMSG_PVP_CREDIT As New Packets.PacketClass(OPCODES.SMSG_PVP_CREDIT)
                 Try
                     SMSG_PVP_CREDIT.AddInt32(Ammount)
                     SMSG_PVP_CREDIT.AddUInt64(VictimGUID)
@@ -5372,7 +5372,7 @@ DoneAmmo:
             End Sub
 
             Public Sub LogLootItem(ByVal Item As ItemObject, ByVal ItemCount As Byte, ByVal Recieved As Boolean, ByVal Created As Boolean)
-                Dim response As New PacketClass(OPCODES.SMSG_ITEM_PUSH_RESULT)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_ITEM_PUSH_RESULT)
                 Try
                     response.AddUInt64(GUID)
                     response.AddInt32(Recieved) '0 = Looted, 1 = From NPC?
@@ -5397,7 +5397,7 @@ DoneAmmo:
             End Sub
 
             Public Sub LogEnvironmentalDamage(ByVal dmgType As DamageTypes, ByVal Damage As Integer)
-                Dim SMSG_ENVIRONMENTALDAMAGELOG As New PacketClass(OPCODES.SMSG_ENVIRONMENTALDAMAGELOG)
+                Dim SMSG_ENVIRONMENTALDAMAGELOG As New Packets.PacketClass(OPCODES.SMSG_ENVIRONMENTALDAMAGELOG)
                 Try
                     SMSG_ENVIRONMENTALDAMAGELOG.AddUInt64(GUID)
                     SMSG_ENVIRONMENTALDAMAGELOG.AddInt8(dmgType)
@@ -5433,7 +5433,7 @@ DoneAmmo:
                 End Get
             End Property
 
-            Public Function GetStealthDistance(ByRef objCharacter As BaseUnit) As Single
+            Public Function GetStealthDistance(ByRef objCharacter As WS_Base.BaseUnit) As Single
                 Dim VisibleDistance As Single = 10.5 - (Invisibility_Value / 100)
                 VisibleDistance += objCharacter.Level - CInt(Level)
                 VisibleDistance += (objCharacter.CanSeeInvisibility_Stealth - Invisibility_Bonus) / 5
@@ -5441,7 +5441,7 @@ DoneAmmo:
             End Function
 
             'Warden AntiCheat Engine
-            Public WardenData As New WardenData
+            Public WardenData As New WS_Handlers_Warden.WardenData
         End Class
-    End Module
-End NameSpace
+    End Class
+End Namespace

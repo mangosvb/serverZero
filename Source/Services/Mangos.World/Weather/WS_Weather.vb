@@ -26,7 +26,7 @@ Imports Mangos.World.Server
 
 Namespace Weather
 
-    Public Module WS_Weather
+    Public Class WS_Weather
 
         Public WeatherZones As New Dictionary(Of Integer, WeatherZone)
 
@@ -219,7 +219,7 @@ Namespace Weather
             If Not WeatherZones.ContainsKey(ZoneID) Then Exit Sub
             Dim Weather As WeatherZone = WeatherZones(ZoneID)
 
-            Dim SMSG_WEATHER As New PacketClass(OPCODES.SMSG_WEATHER)
+            Dim SMSG_WEATHER As New Packets.PacketClass(OPCODES.SMSG_WEATHER)
             SMSG_WEATHER.AddInt32(Weather.CurrentWeather)
             SMSG_WEATHER.AddSingle(Weather.Intensity)
             SMSG_WEATHER.AddInt32(Weather.GetSound())
@@ -227,5 +227,5 @@ Namespace Weather
             SMSG_WEATHER.Dispose()
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

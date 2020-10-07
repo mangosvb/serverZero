@@ -33,7 +33,7 @@ Imports Functions = Mangos.World.Globals.Functions
 
 Namespace Server
 
-    Public Module WS_TimerBasedEvents
+    Public Class WS_TimerBasedEvents
 
         Public Regenerator As TRegenerator
         Public AIManager As TAIManager
@@ -172,9 +172,9 @@ Namespace Server
                                 If _updateFlag Then .SendCharacterUpdate()
 
                                 'DONE: Duel counter
-                                If .DuelOutOfBounds <> DUEL_COUNTER_DISABLED Then
+                                If .DuelOutOfBounds <> _WS_Spells.DUEL_COUNTER_DISABLED Then
                                     .DuelOutOfBounds -= REGENERATION_TIMER
-                                    If .DuelOutOfBounds = 0 Then DuelComplete(.DuelPartner, .client.Character)
+                                    If .DuelOutOfBounds = 0 Then _WS_Spells.DuelComplete(.DuelPartner, .client.Character)
                                 End If
 
                                 'Check combat, incase of pvp action
@@ -258,7 +258,7 @@ Namespace Server
 
                 Try
                     _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                    For Each Character As KeyValuePair(Of ULong, CharacterObject) In _WorldServer.CHARACTERs
+                    For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In _WorldServer.CHARACTERs
                         If Character.Value IsNot Nothing Then UpdateSpells(Character.Value)
                     Next
                 Catch ex As Exception
@@ -270,7 +270,7 @@ Namespace Server
                 Dim DynamicObjectsToDelete As New List(Of WS_DynamicObjects.DynamicObjectObject)
                 Try
                     _WorldServer.WORLD_DYNAMICOBJECTs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                    For Each Dynamic As KeyValuePair(Of ULong, DynamicObjectObject) In _WorldServer.WORLD_DYNAMICOBJECTs
+                    For Each Dynamic As KeyValuePair(Of ULong, WS_DynamicObjects.DynamicObjectObject) In _WorldServer.WORLD_DYNAMICOBJECTs
                         If Dynamic.Value IsNot Nothing AndAlso Dynamic.Value.Update() Then
                             DynamicObjectsToDelete.Add(Dynamic.Value)
                         End If
@@ -281,7 +281,7 @@ Namespace Server
                     _WorldServer.WORLD_DYNAMICOBJECTs_Lock.ReleaseReaderLock()
                 End Try
 
-                For Each Dynamic As DynamicObjectObject In DynamicObjectsToDelete
+                For Each Dynamic As WS_DynamicObjects.DynamicObjectObject In DynamicObjectsToDelete
                     If Dynamic IsNot Nothing Then Dynamic.Delete()
                 Next
 
@@ -310,10 +310,10 @@ Namespace Server
             End Sub
 #End Region
 
-            Private Sub UpdateSpells(ByRef objCharacter As BaseUnit)
+            Private Sub UpdateSpells(ByRef objCharacter As WS_Base.BaseUnit)
 
-                If TypeOf objCharacter Is TotemObject Then
-                    CType(objCharacter, TotemObject).Update()
+                If TypeOf objCharacter Is WS_Totems.TotemObject Then
+                    CType(objCharacter, WS_Totems.TotemObject).Update()
                 Else
                     For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                         If objCharacter.ActiveSpells(i) IsNot Nothing Then
@@ -341,26 +341,26 @@ Namespace Server
                                     If objCharacter.ActiveSpells(i).Aura_Info(j).ID = SpellEffects_Names.SPELL_EFFECT_APPLY_AREA_AURA Then
                                         If objCharacter.ActiveSpells(i).SpellCaster Is objCharacter Then
                                             'DONE: Check if there are friendly targets around you that does not have your aura
-                                            Dim Targets As New List(Of BaseUnit)
-                                            If TypeOf objCharacter Is CharacterObject Then
-                                                Targets = GetPartyMembersAroundMe(CType(objCharacter, CharacterObject), objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius)
-                                            ElseIf (TypeOf objCharacter Is TotemObject) AndAlso CType(objCharacter, TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(objCharacter, TotemObject).Caster Is CharacterObject) Then
-                                                Targets = GetPartyMembersAtPoint(CType(objCharacter, TotemObject).Caster, objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ)
+                                            Dim Targets As New List(Of WS_Base.BaseUnit)
+                                            If TypeOf objCharacter Is WS_PlayerData.CharacterObject Then
+                                                Targets = _WS_Spells.GetPartyMembersAroundMe(CType(objCharacter, WS_PlayerData.CharacterObject), objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius)
+                                            ElseIf (TypeOf objCharacter Is WS_Totems.TotemObject) AndAlso CType(objCharacter, WS_Totems.TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(objCharacter, WS_Totems.TotemObject).Caster Is WS_PlayerData.CharacterObject) Then
+                                                Targets = _WS_Spells.GetPartyMembersAtPoint(CType(objCharacter, WS_Totems.TotemObject).Caster, objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius, objCharacter.positionX, objCharacter.positionY, objCharacter.positionZ)
                                             End If
 
-                                            For Each Unit As BaseUnit In Targets
+                                            For Each Unit As WS_Base.BaseUnit In Targets
                                                 If Unit.HaveAura(objCharacter.ActiveSpells(i).SpellID) = False Then
-                                                    ApplyAura(Unit, objCharacter, objCharacter.ActiveSpells(i).Aura_Info(j), objCharacter.ActiveSpells(i).SpellID)
+                                                    _WS_Spells.ApplyAura(Unit, objCharacter, objCharacter.ActiveSpells(i).Aura_Info(j), objCharacter.ActiveSpells(i).SpellID)
                                                 End If
                                             Next
                                         Else
                                             'DONE: Check if your aura source is too far away, has removed the aura or you / the source left the group
                                             If objCharacter.ActiveSpells(i).SpellCaster IsNot Nothing AndAlso objCharacter.ActiveSpells(i).SpellCaster.Exist Then
-                                                Dim caster As CharacterObject = Nothing
-                                                If TypeOf objCharacter.ActiveSpells(i).SpellCaster Is CharacterObject Then
-                                                    caster = CType(objCharacter.ActiveSpells(i).SpellCaster, CharacterObject)
-                                                ElseIf (TypeOf objCharacter.ActiveSpells(i).SpellCaster Is TotemObject) AndAlso CType(objCharacter.ActiveSpells(i).SpellCaster, TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(objCharacter.ActiveSpells(i).SpellCaster, TotemObject).Caster Is CharacterObject) Then
-                                                    caster = CType(CType(objCharacter.ActiveSpells(i).SpellCaster, TotemObject).Caster, CharacterObject)
+                                                Dim caster As WS_PlayerData.CharacterObject = Nothing
+                                                If TypeOf objCharacter.ActiveSpells(i).SpellCaster Is WS_PlayerData.CharacterObject Then
+                                                    caster = CType(objCharacter.ActiveSpells(i).SpellCaster, WS_PlayerData.CharacterObject)
+                                                ElseIf (TypeOf objCharacter.ActiveSpells(i).SpellCaster Is WS_Totems.TotemObject) AndAlso CType(objCharacter.ActiveSpells(i).SpellCaster, WS_Totems.TotemObject).Caster IsNot Nothing AndAlso (TypeOf CType(objCharacter.ActiveSpells(i).SpellCaster, WS_Totems.TotemObject).Caster Is WS_PlayerData.CharacterObject) Then
+                                                    caster = CType(CType(objCharacter.ActiveSpells(i).SpellCaster, WS_Totems.TotemObject).Caster, WS_PlayerData.CharacterObject)
                                                 End If
 
                                                 If caster Is Nothing OrElse caster.Group Is Nothing OrElse caster.Group.LocalMembers.Contains(objCharacter.GUID) = False Then
@@ -369,7 +369,7 @@ Namespace Server
                                                     If objCharacter.ActiveSpells(i).SpellCaster.HaveAura(objCharacter.ActiveSpells(i).SpellID) = False Then
                                                         objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster)
                                                     Else
-                                                        If GetDistance(objCharacter, objCharacter.ActiveSpells(i).SpellCaster) > objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius Then
+                                                        If _WS_Combat.GetDistance(objCharacter, objCharacter.ActiveSpells(i).SpellCaster) > objCharacter.ActiveSpells(i).Aura_Info(j).GetRadius Then
                                                             objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster)
                                                         End If
                                                     End If
@@ -413,7 +413,7 @@ Namespace Server
                 Try
                     _WorldServer.WORLD_TRANSPORTs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
-                    For Each Transport As KeyValuePair(Of ULong, TransportObject) In _WorldServer.WORLD_TRANSPORTs
+                    For Each Transport As KeyValuePair(Of ULong, WS_Transports.TransportObject) In _WorldServer.WORLD_TRANSPORTs
                         Transport.Value.Update()
                     Next
 
@@ -494,7 +494,7 @@ Namespace Server
                 CharacterSaverWorking = True
                 Try
                     _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                    For Each Character As KeyValuePair(Of ULong, CharacterObject) In _WorldServer.CHARACTERs
+                    For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In _WorldServer.CHARACTERs
                         Character.Value.SaveCharacter()
                     Next
                 Catch ex As Exception
@@ -504,7 +504,7 @@ Namespace Server
                 End Try
 
                 'Here we hook the instance expire checks too
-                InstanceMapUpdate()
+                _WS_Handlers_Instance.InstanceMapUpdate()
 
                 CharacterSaverWorking = False
             End Sub
@@ -552,7 +552,7 @@ Namespace Server
 
                 WeatherWorking = True
 
-                For Each Weather As KeyValuePair(Of Integer, WS_Weather.WeatherZone) In WeatherZones
+                For Each Weather As KeyValuePair(Of Integer, WS_Weather.WeatherZone) In _WS_Weather.WeatherZones
                     Weather.Value.Update()
                 Next
 
@@ -586,5 +586,5 @@ Namespace Server
         'TODO: Timer for auction items and mails
         'TODO: Timer for weather change
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

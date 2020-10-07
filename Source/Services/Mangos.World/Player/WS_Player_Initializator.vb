@@ -24,11 +24,11 @@ Imports Mangos.World.Globals
 
 Namespace Player
 
-    Public Module WS_Player_Initializator
+    Public Class WS_Player_Initializator
         Public DEFAULT_MAX_LEVEL As Integer = 60 'Max Player Level
         Public XPTable(DEFAULT_MAX_LEVEL) As Integer 'Max XPTable Level from Database
 
-        Public Function CalculateStartingLIFE(ByRef objCharacter As CharacterObject, ByVal baseLIFE As Integer) As Integer
+        Public Function CalculateStartingLIFE(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal baseLIFE As Integer) As Integer
             If (objCharacter.Stamina.Base < 20) Then
                 Return baseLIFE + (objCharacter.Stamina.Base - 20)
             Else
@@ -36,7 +36,7 @@ Namespace Player
             End If
         End Function
 
-        Public Function CalculateStartingMANA(ByRef objCharacter As CharacterObject, ByVal baseMANA As Integer) As Integer
+        Public Function CalculateStartingMANA(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal baseMANA As Integer) As Integer
             If (objCharacter.Intellect.Base < 20) Then
                 Return baseMANA + (objCharacter.Intellect.Base - 20)
             Else
@@ -49,7 +49,7 @@ Namespace Player
                    CType(Math.Round(a3 * (level - 1) * (level - 1) * (level - 1) + a2 * (level - 1) * (level - 1) + a1 * (level - 1) + a0), Integer)
         End Function
 
-        Public Sub CalculateOnLevelUP(ByRef objCharacter As CharacterObject)
+        Public Sub CalculateOnLevelUP(ByRef objCharacter As WS_PlayerData.CharacterObject)
             Dim baseInt As Integer = objCharacter.Intellect.Base
             'Dim baseStr As Integer = objCharacter.Strength.Base
             'Dim baseSta As Integer = objCharacter.Stamina.Base
@@ -215,9 +215,9 @@ Namespace Player
             objCharacter.RangedDamage.Maximum += 1
             If objCharacter.Level > 9 Then objCharacter.TalentPoints += 1
 
-            For Each Skill As KeyValuePair(Of Integer, TSkill) In objCharacter.Skills
-                If SkillLines(Skill.Key) = SKILL_LineCategory.WEAPON_SKILLS Then
-                    CType(Skill.Value, TSkill).Base += 5
+            For Each Skill As KeyValuePair(Of Integer, WS_PlayerHelper.TSkill) In objCharacter.Skills
+                If _WS_DBCDatabase.SkillLines(Skill.Key) = SKILL_LineCategory.WEAPON_SKILLS Then
+                    CType(Skill.Value, WS_PlayerHelper.TSkill).Base += 5
                 End If
             Next
         End Sub
@@ -235,17 +235,17 @@ Namespace Player
             End Select
         End Function
 
-        Public Sub InitializeReputations(ByRef objCharacter As CharacterObject)
+        Public Sub InitializeReputations(ByRef objCharacter As WS_PlayerData.CharacterObject)
             For i As Byte = 0 To 63
-                objCharacter.Reputation(i) = New TReputation With {
+                objCharacter.Reputation(i) = New WS_PlayerHelper.TReputation With {
                     .Value = 0,
                     .Flags = 0
                     }
 
-                For Each tmpFactionInfo As KeyValuePair(Of Integer, WS_DBCDatabase.TFaction) In FactionInfo
+                For Each tmpFactionInfo As KeyValuePair(Of Integer, WS_DBCDatabase.TFaction) In _WS_DBCDatabase.FactionInfo
                     If tmpFactionInfo.Value.VisibleID = i Then
                         For j As Byte = 0 To 3
-                            If HaveFlag(tmpFactionInfo.Value.flags(j), objCharacter.Race - 1) Then
+                            If _Functions.HaveFlag(tmpFactionInfo.Value.flags(j), objCharacter.Race - 1) Then
                                 objCharacter.Reputation(i).Flags = tmpFactionInfo.Value.rep_flags(j)
                                 objCharacter.Reputation(i).Value = tmpFactionInfo.Value.rep_stats(j)
                                 Exit For
@@ -256,5 +256,5 @@ Namespace Player
                 Next
             Next
         End Sub
-    End Module
-End NameSpace
+    End Class
+End Namespace

@@ -36,13 +36,14 @@ Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
 Imports Mangos.World.Loots
 Imports Mangos.World.Maps
+Imports Mangos.World.Objects.WS_Base
 Imports Mangos.World.Player
 Imports Mangos.World.Server
 Imports Mangos.World.Spells
 
 Namespace Objects
 
-    Public Module WS_Creatures
+    Public Class WS_Creatures
 
 #Region "WS.Cretures.Constants"
 
@@ -163,7 +164,7 @@ Namespace Objects
 
             Public ReadOnly Property NPCTextID() As Integer
                 Get
-                    If CreatureGossip.ContainsKey(GUID - _Global_Constants.GUID_UNIT) Then Return CreatureGossip(GUID - _Global_Constants.GUID_UNIT)
+                    If _WS_DBCDatabase.CreatureGossip.ContainsKey(GUID - _Global_Constants.GUID_UNIT) Then Return _WS_DBCDatabase.CreatureGossip(GUID - _Global_Constants.GUID_UNIT)
                     Return &HFFFFFF
                 End Get
             End Property
@@ -172,7 +173,7 @@ Namespace Objects
                 If Unit Is Me Then Return True
 
                 If TypeOf Unit Is WS_PlayerData.CharacterObject Then
-                    With CType(Unit, CharacterObject)
+                    With CType(Unit, WS_PlayerData.CharacterObject)
                         If .GM Then Return True
                         If .GetReputation(.Faction) < ReputationRank.Friendly Then Return False
                         If .GetReaction(.Faction) < TReaction.NEUTRAL Then Return False
@@ -191,8 +192,8 @@ Namespace Objects
             Public Overrides Function IsEnemyTo(ByRef Unit As BaseUnit) As Boolean
                 If Unit Is Me Then Return False
 
-                If TypeOf Unit Is CharacterObject Then
-                    With CType(Unit, CharacterObject)
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    With CType(Unit, WS_PlayerData.CharacterObject)
                         If .GM Then Return False
                         If .GetReputation(.Faction) < ReputationRank.Friendly Then Return True
                         If .GetReaction(.Faction) < TReaction.NEUTRAL Then Return True
@@ -208,7 +209,7 @@ Namespace Objects
                 Return False
             End Function
 
-            Public Function AggroRange(ByVal objCharacter As CharacterObject) As Single
+            Public Function AggroRange(ByVal objCharacter As WS_PlayerData.CharacterObject) As Single
                 Dim LevelDiff As Short = Level - CShort(objCharacter.Level)
                 Dim Range As Single = 20 + LevelDiff
                 If Range < 5 Then Range = 5
@@ -218,7 +219,7 @@ Namespace Objects
 
             Public Sub SendTargetUpdate(ByVal TargetGUID As ULong)
                 Dim packet As New Packets.UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, TargetGUID)
                 tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, Me)
                 tmpUpdate.Dispose()
@@ -238,7 +239,7 @@ Namespace Objects
                 Return Nothing
             End Function
 
-            Public Sub FillAllUpdateFlags(ByRef Update As UpdateClass)
+            Public Sub FillAllUpdateFlags(ByRef Update As Packets.UpdateClass)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Size)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, ObjectType.TYPE_OBJECT + ObjectType.TYPE_UNIT)
@@ -284,7 +285,7 @@ Namespace Objects
                 'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_ARCANE, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_ARCANE))
 
                 If EquipmentID > 0 Then
-                    Dim EquipmentInfo As WS_DBCDatabase.CreatureEquipInfo = CreatureEquip(EquipmentID)
+                    Dim EquipmentInfo As WS_DBCDatabase.CreatureEquipInfo = _WS_DBCDatabase.CreatureEquip(EquipmentID)
                     Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, EquipmentInfo.EquipModel(0))
                     Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO, EquipmentInfo.EquipInfo(0))
                     Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 1, EquipmentInfo.EquipSlot(0))
@@ -330,7 +331,7 @@ Namespace Objects
                 orientation = o
 
                 If SeenBy.Count > 0 Then
-                    Dim packet As New PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
+                    Dim packet As New Packets.PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
                     packet.AddPackGUID(GUID)
                     packet.AddInt32(0) 'Movementflags
                     packet.AddInt32(_NativeMethods.timeGetTime(""))
@@ -370,7 +371,7 @@ Namespace Objects
 
                     positionX = OldX + Math.Cos(orientation) * distance
                     positionY = OldY + Math.Sin(orientation) * distance
-                    positionZ = GetZCoord(positionX, positionY, positionZ, MapID)
+                    positionZ = _WS_Maps.GetZCoord(positionX, positionY, positionZ, MapID)
                 ElseIf PositionUpdated = False AndAlso timeDiff >= LastMove_Time Then
                     PositionUpdated = True
                     positionX = MoveX
@@ -399,13 +400,13 @@ Namespace Objects
 
                 Dim TimeToMove As Integer = 1
 
-                Dim SMSG_MONSTER_MOVE As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
+                Dim SMSG_MONSTER_MOVE As New Packets.PacketClass(OPCODES.SMSG_MONSTER_MOVE)
                 Try
                     SMSG_MONSTER_MOVE.AddPackGUID(GUID)
                     SMSG_MONSTER_MOVE.AddSingle(positionX)
                     SMSG_MONSTER_MOVE.AddSingle(positionY)
                     SMSG_MONSTER_MOVE.AddSingle(positionZ)
-                    SMSG_MONSTER_MOVE.AddInt32(MsTime)         'Sequence/MSTime?
+                    SMSG_MONSTER_MOVE.AddInt32(_WS_Network.MsTime)         'Sequence/MSTime?
 
                     If o = 0.0F Then
                         SMSG_MONSTER_MOVE.AddInt8(0)                    'Type [If type is 1 then the packet ends here]
@@ -414,7 +415,7 @@ Namespace Objects
                         SMSG_MONSTER_MOVE.AddSingle(o)
                     End If
 
-                    Dim moveDist As Single = GetDistance(positionX, x, positionY, y, positionZ, z)
+                    Dim moveDist As Single = _WS_Combat.GetDistance(positionX, x, positionY, y, positionZ, z)
                     If Flying Then
                         SMSG_MONSTER_MOVE.AddInt32(&H300)           'Flags [0x0 - Walk, 0x100 - Run, 0x200 - Waypoint, 0x300 - Fly]
                         TimeToMove = moveDist / (CreatureInfo.RunSpeed * SpeedMod) * 1000 + 0.5F
@@ -428,7 +429,7 @@ Namespace Objects
                         End If
                     End If
 
-                    orientation = GetOrientation(positionX, x, positionY, y)
+                    orientation = _WS_Combat.GetOrientation(positionX, x, positionY, y)
                     OldX = positionX
                     OldY = positionY
                     OldZ = positionZ
@@ -462,9 +463,9 @@ Namespace Objects
             End Function
 
             Public Function CanMoveTo(ByVal x As Single, ByVal y As Single, ByVal z As Single) As Boolean
-                If IsOutsideOfMap(Me) Then Return False
+                If _WS_Maps.IsOutsideOfMap(Me) Then Return False
 
-                If z < GetWaterLevel(x, y, MapID) Then
+                If z < _WS_Maps.GetWaterLevel(x, y, MapID) Then
                     If Not isAbleToWalkOnWater Then Return False
                 Else
                     If Not isAbleToWalkOnGround Then Return False
@@ -478,7 +479,7 @@ Namespace Objects
             End Sub
 
             Public Sub TurnTo(ByVal x As Single, ByVal y As Single)
-                orientation = GetOrientation(positionX, x, positionY, y)
+                orientation = _WS_Combat.GetOrientation(positionX, x, positionY, y)
                 TurnTo(orientation)
             End Sub
 
@@ -487,7 +488,7 @@ Namespace Objects
 
                 If SeenBy.Count > 0 Then
                     If aiScript Is Nothing OrElse aiScript.IsMoving() = False Then
-                        Dim packet As New PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
+                        Dim packet As New Packets.PacketClass(OPCODES.MSG_MOVE_HEARTBEAT)
                         Try
                             packet.AddPackGUID(GUID)
                             packet.AddInt32(0) 'Movementflags
@@ -530,8 +531,8 @@ Namespace Objects
                 End If
 
                 'DONE: Send the update
-                Dim packetForNear As New UpdatePacketClass
-                Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packetForNear As New Packets.UpdatePacketClass
+                Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
 
                 'DONE: Remove all spells when the creature die
                 For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
@@ -550,13 +551,13 @@ Namespace Objects
                 packetForNear.Dispose()
                 UpdateData.Dispose()
 
-                If TypeOf Attacker Is CharacterObject Then
-                    CType(Attacker, CharacterObject).RemoveFromCombat(Me)
+                If TypeOf Attacker Is WS_PlayerData.CharacterObject Then
+                    CType(Attacker, WS_PlayerData.CharacterObject).RemoveFromCombat(Me)
 
                     'DONE: Don't give xp or loot for guards, civilians or critters
                     If isCritter = False AndAlso isGuard = False AndAlso CreatureInfo.cNpcFlags = 0 Then
-                        GiveXP(CType(Attacker, CharacterObject))
-                        LootCorpse(CType(Attacker, CharacterObject))
+                        GiveXP(CType(Attacker, WS_PlayerData.CharacterObject))
+                        LootCorpse(CType(Attacker, WS_PlayerData.CharacterObject))
                     End If
 
                     'DONE: Fire quest event to check for if this monster is required for quest
@@ -589,8 +590,8 @@ Namespace Objects
 
                 'DONE: Do health update
                 If SeenBy.Count > 0 Then
-                    Dim packetForNear As New UpdatePacketClass
-                    Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                    Dim packetForNear As New Packets.UpdatePacketClass
+                    Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, Life.Current)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + MyBase.ManaType, Mana.Current)
                     UpdateData.AddToPacket((packetForNear), ObjectUpdateType.UPDATETYPE_VALUES, Me)
@@ -608,8 +609,8 @@ Namespace Objects
 
                 'DONE: Do health update
                 If SeenBy.Count > 0 Then
-                    Dim packetForNear As New UpdatePacketClass
-                    Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                    Dim packetForNear As New Packets.UpdatePacketClass
+                    Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, Life.Current)
                     UpdateData.AddToPacket((packetForNear), ObjectUpdateType.UPDATETYPE_VALUES, Me)
 
@@ -626,8 +627,8 @@ Namespace Objects
 
                 'DONE: Do health update
                 If SeenBy.Count > 0 Then
-                    Dim packetForNear As New UpdatePacketClass
-                    Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                    Dim packetForNear As New Packets.UpdatePacketClass
+                    Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + MyBase.ManaType, Mana.Current)
                     UpdateData.AddToPacket((packetForNear), ObjectUpdateType.UPDATETYPE_VALUES, Me)
 
@@ -637,7 +638,7 @@ Namespace Objects
                 End If
             End Sub
 
-            Public Sub LootCorpse(ByRef Character As CharacterObject)
+            Public Sub LootCorpse(ByRef Character As WS_PlayerData.CharacterObject)
                 If GenerateLoot(Character, LootType.LOOTTYPE_CORPSE) Then
                     cDynamicFlags = DynamicFlags.UNIT_DYNFLAG_LOOTABLE
                 ElseIf CreatureInfo.SkinLootID > 0 Then
@@ -648,52 +649,52 @@ Namespace Objects
                 End If
 
                 'DONE: Create packet
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, cDynamicFlags)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
                 UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
                 UpdateData.Dispose()
 
-                If LootTable.ContainsKey(GUID) = False AndAlso (cUnitFlags And UnitFlags.UNIT_FLAG_SKINNABLE) = UnitFlags.UNIT_FLAG_SKINNABLE Then
+                If _WS_Loot.LootTable.ContainsKey(GUID) = False AndAlso (cUnitFlags And UnitFlags.UNIT_FLAG_SKINNABLE) = UnitFlags.UNIT_FLAG_SKINNABLE Then
                     'DONE: There was no loot, so send the skinning update to every nearby player
                     SendToNearPlayers(packet)
                 Else
                     If Character.IsInGroup Then
                         'DONE: Group loot rules
-                        LootTable(GUID).LootOwner = 0
+                        _WS_Loot.LootTable(GUID).LootOwner = 0
 
                         Select Case Character.Group.LootMethod
                             Case GroupLootMethod.LOOT_FREE_FOR_ALL
                                 For Each objCharacter As ULong In Character.Group.LocalMembers
                                     If SeenBy.Contains(objCharacter) Then
-                                        LootTable(GUID).LootOwner = objCharacter
+                                        _WS_Loot.LootTable(GUID).LootOwner = objCharacter
                                         _WorldServer.CHARACTERs(objCharacter).client.Send(packet)
                                     End If
                                 Next
 
                             Case GroupLootMethod.LOOT_MASTER
                                 If Character.Group.LocalLootMaster Is Nothing Then
-                                    LootTable(GUID).LootOwner = Character.GUID
+                                    _WS_Loot.LootTable(GUID).LootOwner = Character.GUID
                                     Character.client.Send(packet)
                                 Else
-                                    LootTable(GUID).LootOwner = Character.Group.LocalLootMaster.GUID
+                                    _WS_Loot.LootTable(GUID).LootOwner = Character.Group.LocalLootMaster.GUID
                                     Character.Group.LocalLootMaster.client.Send(packet)
                                 End If
 
                             Case GroupLootMethod.LOOT_GROUP, GroupLootMethod.LOOT_NEED_BEFORE_GREED, GroupLootMethod.LOOT_ROUND_ROBIN
-                                Dim cLooter As CharacterObject = Character.Group.GetNextLooter()
+                                Dim cLooter As WS_PlayerData.CharacterObject = Character.Group.GetNextLooter()
                                 While Not SeenBy.Contains(cLooter.GUID) AndAlso (Not cLooter Is Character)
                                     cLooter = Character.Group.GetNextLooter()
                                 End While
 
-                                LootTable(GUID).LootOwner = cLooter.GUID
+                                _WS_Loot.LootTable(GUID).LootOwner = cLooter.GUID
                                 cLooter.client.Send(packet)
                         End Select
                     Else
-                        LootTable(GUID).LootOwner = Character.GUID
+                        _WS_Loot.LootTable(GUID).LootOwner = Character.GUID
                         Character.client.Send(packet)
                     End If
                 End If
@@ -702,12 +703,12 @@ Namespace Objects
                 packet.Dispose()
             End Sub
 
-            Public Function GenerateLoot(ByRef Character As CharacterObject, ByVal LootType As LootType) As Boolean
+            Public Function GenerateLoot(ByRef Character As WS_PlayerData.CharacterObject, ByVal LootType As LootType) As Boolean
                 If CreatureInfo.LootID = 0 Then Return False
 
                 'DONE: Loot generation
                 Dim Loot As New WS_Loot.LootObject(GUID, LootType)
-                Dim Template As LootTemplate = LootTemplates_Creature.GetLoot(CreatureInfo.LootID)
+                Dim Template As WS_Loot.LootTemplate = _WS_Loot.LootTemplates_Creature.GetLoot(CreatureInfo.LootID)
                 If Template IsNot Nothing Then
                     Template.Process(Loot, 0)
                 End If
@@ -722,7 +723,7 @@ Namespace Objects
                 Return True
             End Function
 
-            Public Sub GiveXP(ByRef Character As CharacterObject)
+            Public Sub GiveXP(ByRef Character As WS_PlayerData.CharacterObject)
                 'NOTE: Formulas taken from http://www.wowwiki.com/Formulas:Mob_XP
                 Dim XP As Integer = Level * 5 + 45
 
@@ -835,22 +836,22 @@ Namespace Objects
             Public Sub ApplySpell(ByVal SpellID As Integer)
                 'TODO: Check if the creature can cast the spell
 
-                If WS_Spells.SPELLs.ContainsKey(SpellID) = False Then Exit Sub
-                Dim t As New SpellTargets
+                If _WS_Spells.SPELLs.ContainsKey(SpellID) = False Then Exit Sub
+                Dim t As New WS_Spells.SpellTargets
                 t.SetTarget_SELF(Me)
-                WS_Spells.SPELLs(SpellID).Apply(Me, t)
+                _WS_Spells.SPELLs(SpellID).Apply(Me, t)
             End Sub
 
             Public Function CastSpellOnSelf(ByVal SpellID As Integer) As Integer
                 If Spell_Silenced Then Return -1
 
-                Dim Targets As New SpellTargets
+                Dim Targets As New WS_Spells.SpellTargets
                 Targets.SetTarget_SELF(Me)
-                Dim tmpSpell As New CastSpellParameters(Targets, Me, SpellID)
+                Dim tmpSpell As New WS_Spells.CastSpellParameters(Targets, Me, SpellID)
 
-                If WS_Spells.SPELLs(SpellID).GetDuration > 0 Then SpellCasted = tmpSpell
+                If _WS_Spells.SPELLs(SpellID).GetDuration > 0 Then SpellCasted = tmpSpell
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
-                Return WS_Spells.SPELLs(SpellID).GetCastTime
+                Return _WS_Spells.SPELLs(SpellID).GetCastTime
             End Function
 
             Public Function CastSpell(ByVal SpellID As Integer, ByVal Target As BaseUnit) As Integer
@@ -859,15 +860,15 @@ Namespace Objects
 
                 'DONE: Shouldn't be able to cast if we're out of range
                 'TODO: Is combatreach used here as well?
-                If GetDistance(Me, Target) > WS_Spells.SPELLs(SpellID).GetRange Then Return -1
+                If _WS_Combat.GetDistance(Me, Target) > _WS_Spells.SPELLs(SpellID).GetRange Then Return -1
 
-                Dim Targets As New SpellTargets
+                Dim Targets As New WS_Spells.SpellTargets
                 Targets.SetTarget_UNIT(Target)
-                Dim tmpSpell As New CastSpellParameters(Targets, Me, SpellID)
+                Dim tmpSpell As New WS_Spells.CastSpellParameters(Targets, Me, SpellID)
 
-                If WS_Spells.SPELLs(SpellID).GetDuration > 0 Then SpellCasted = tmpSpell
+                If _WS_Spells.SPELLs(SpellID).GetDuration > 0 Then SpellCasted = tmpSpell
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
-                Return WS_Spells.SPELLs(SpellID).GetCastTime
+                Return _WS_Spells.SPELLs(SpellID).GetCastTime
             End Function
 
             Public Function CastSpell(ByVal SpellID As Integer, ByVal x As Single, ByVal y As Single, ByVal z As Single) As Integer
@@ -875,15 +876,15 @@ Namespace Objects
 
                 'DONE: Shouldn't be able to cast if we're out of range
                 'TODO: Is combatreach used here as well?
-                If GetDistance(Me, x, y, z) > WS_Spells.SPELLs(SpellID).GetRange Then Return -1
+                If _WS_Combat.GetDistance(Me, x, y, z) > _WS_Spells.SPELLs(SpellID).GetRange Then Return -1
 
-                Dim Targets As New SpellTargets
+                Dim Targets As New WS_Spells.SpellTargets
                 Targets.SetTarget_DESTINATIONLOCATION(x, y, z)
-                Dim tmpSpell As New CastSpellParameters(Targets, Me, SpellID)
+                Dim tmpSpell As New WS_Spells.CastSpellParameters(Targets, Me, SpellID)
 
-                If WS_Spells.SPELLs(SpellID).GetDuration > 0 Then SpellCasted = tmpSpell
+                If _WS_Spells.SPELLs(SpellID).GetDuration > 0 Then SpellCasted = tmpSpell
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf tmpSpell.Cast))
-                Return WS_Spells.SPELLs(SpellID).GetCastTime
+                Return _WS_Spells.SPELLs(SpellID).GetCastTime
             End Function
 
             Public Sub SpawnCreature(ByVal Entry As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single)
@@ -894,7 +895,7 @@ Namespace Objects
                 tmpCreature.AddToWorld()
 
                 If tmpCreature.aiScript IsNot Nothing Then tmpCreature.aiScript.Dispose()
-                tmpCreature.aiScript = New DefaultAI(tmpCreature)
+                tmpCreature.aiScript = New WS_Creatures_AI.DefaultAI(tmpCreature)
                 tmpCreature.aiScript.aiHateTable = aiScript.aiHateTable
                 tmpCreature.aiScript.OnEnterCombat()
                 tmpCreature.aiScript.State = AIState.AI_ATTACKING
@@ -902,7 +903,7 @@ Namespace Objects
             End Sub
 
             Public Sub SendChatMessage(ByVal Message As String, ByVal msgType As ChatMsg, ByVal msgLanguage As LANGUAGES, Optional ByVal SecondGUID As ULong = 0)
-                Dim packet As New PacketClass(OPCODES.SMSG_MESSAGECHAT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_MESSAGECHAT)
                 Dim flag As Byte = 0
 
                 packet.AddInt8(msgType)
@@ -927,7 +928,7 @@ Namespace Objects
 
             Public Sub ResetAI()
                 aiScript.Dispose()
-                aiScript = New DefaultAI(Me)
+                aiScript = New WS_Creatures_AI.DefaultAI(Me)
                 MoveType = 1
             End Sub
 
@@ -952,9 +953,9 @@ Namespace Objects
                     EquipmentID = _WorldServer.CREATURESDatabase(ID).EquipmentID
                 End If
 
-                If CreatureModel.ContainsKey(Model) Then
-                    BoundingRadius = CreatureModel(Model).BoundingRadius
-                    CombatReach = CreatureModel(Model).CombatReach
+                If _WS_DBCDatabase.CreatureModel.ContainsKey(Model) Then
+                    BoundingRadius = _WS_DBCDatabase.CreatureModel(Model).BoundingRadius
+                    CombatReach = _WS_DBCDatabase.CreatureModel(Model).CombatReach
                 End If
 
                 MechanicImmunity = _WorldServer.CREATURESDatabase(ID).MechanicImmune
@@ -972,35 +973,35 @@ Namespace Objects
                 StandState = cStandState
                 cBytes2 = SHEATHE_SLOT.SHEATHE_WEAPON
 
-                If TypeOf Me Is PetObject Then
+                If TypeOf Me Is WS_Pets.PetObject Then
                     'DONE: Load pet AI
-                    aiScript = New PetAI(Me)
+                    aiScript = New WS_Pets.PetAI(Me)
                 Else
                     'DONE: Load scripted AI
                     If _WorldServer.CREATURESDatabase(ID).AIScriptSource <> "" Then
                         aiScript = _WorldServer.AI.InvokeConstructor(_WorldServer.CREATURESDatabase(ID).AIScriptSource, New Object() {Me})
-                    ElseIf IO.File.Exists("scripts\creatures\" & FixName(Name) & ".vb") Then
-                        Dim tmpScript As New ScriptedObject("scripts\creatures\" & FixName(Name) & ".vb", "", True)
-                        aiScript = tmpScript.InvokeConstructor("CreatureAI_" & FixName(Name).Replace(" ", "_"), New Object() {Me})
+                    ElseIf IO.File.Exists("scripts\creatures\" & _Functions.FixName(Name) & ".vb") Then
+                        Dim tmpScript As New ScriptedObject("scripts\creatures\" & _Functions.FixName(Name) & ".vb", "", True)
+                        aiScript = tmpScript.InvokeConstructor("CreatureAI_" & _Functions.FixName(Name).Replace(" ", "_"), New Object() {Me})
                         tmpScript.Dispose()
                     End If
 
                     'DONE: Load default AI
                     If aiScript Is Nothing Then
                         If isCritter Then
-                            aiScript = New CritterAI(Me)
+                            aiScript = New WS_Creatures_AI.CritterAI(Me)
                         ElseIf isGuard Then
                             If MoveType = 2 Then
-                                aiScript = New GuardWaypointAI(Me)
+                                aiScript = New WS_Creatures_AI.GuardWaypointAI(Me)
                             Else
-                                aiScript = New GuardAI(Me)
+                                aiScript = New WS_Creatures_AI.GuardAI(Me)
                             End If
                         ElseIf MoveType = 1 Then
-                            aiScript = New DefaultAI(Me)
+                            aiScript = New WS_Creatures_AI.DefaultAI(Me)
                         ElseIf MoveType = 2 Then
-                            aiScript = New WaypointAI(Me)
+                            aiScript = New WS_Creatures_AI.WaypointAI(Me)
                         Else
-                            aiScript = New StandStillAI(Me)
+                            aiScript = New WS_Creatures_AI.StandStillAI(Me)
                         End If
                     End If
                 End If
@@ -1127,7 +1128,7 @@ Namespace Objects
                 End If
 
                 ID = ID_
-                GUID = GetNewGUID()
+                GUID = _WS_Creatures.GetNewGUID()
 
                 Initialize()
 
@@ -1150,7 +1151,7 @@ Namespace Objects
                 End If
 
                 ID = ID_
-                GUID = GetNewGUID()
+                GUID = _WS_Creatures.GetNewGUID()
 
                 positionX = PosX
                 positionY = PosY
@@ -1223,7 +1224,7 @@ Namespace Objects
                     End If
                 End If
 
-                Dim packet As New PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
                 packet.AddUInt64(GUID)
                 SendToNearPlayers(packet)
                 packet.Dispose()
@@ -1234,8 +1235,8 @@ Namespace Objects
             Public Sub Despawn()
                 RemoveFromWorld()
 
-                If LootTable.ContainsKey(GUID) Then
-                    LootTable(GUID).Dispose()
+                If _WS_Loot.LootTable.ContainsKey(GUID) Then
+                    _WS_Loot.LootTable(GUID).Dispose()
                 End If
 
                 If SpawnTime > 0 Then
@@ -1265,8 +1266,8 @@ Namespace Objects
                 End If
 
                 If SeenBy.Count > 0 Then
-                    Dim packetForNear As New UpdatePacketClass
-                    Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                    Dim packetForNear As New Packets.UpdatePacketClass
+                    Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, Life.Current)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + MyBase.ManaType, Mana.Current)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
@@ -1284,10 +1285,10 @@ Namespace Objects
             End Sub
 
             Public Sub AddToWorld()
-                GetMapTile(positionX, positionY, CellX, CellY)
-                If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then _WS_CharMovement.MAP_Load(CellX, CellY, MapID)
                 Try
-                    WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Add(GUID)
+                    _WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Add(GUID)
                 Catch ex As Exception
                     _WorldServer.Log.WriteLine(LogType.WARNING, "WS_Creatures:AddToWorld failed - Guid: {1} ID: {2}  {0}", ex.Message)
                     Exit Sub
@@ -1298,16 +1299,16 @@ Namespace Objects
                 'DONE: Sending to players in nearby cells
                 For i As Short = -1 To 1
                     For j As Short = -1 To 1
-                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
-                            With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
+                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
+                            With _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                 list = .PlayersHere.ToArray
                                 For Each plGUID As ULong In list
                                     If _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
-                                        Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                                        Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                         Try
                                             packet.AddInt32(1)
                                             packet.AddInt8(0)
-                                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
+                                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
                                             FillAllUpdateFlags(tmpUpdate)
                                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
                                             tmpUpdate.Dispose()
@@ -1329,8 +1330,8 @@ Namespace Objects
             End Sub
 
             Public Sub RemoveFromWorld()
-                GetMapTile(positionX, positionY, CellX, CellY)
-                WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                _WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)
 
                 'DONE: Removing from players who can see the creature
                 For Each plGUID As ULong In SeenBy.ToArray
@@ -1348,18 +1349,18 @@ Namespace Objects
 
             Public Sub MoveCell()
                 Try
-                    If CellX <> GetMapTileX(positionX) OrElse CellY <> GetMapTileY(positionY) Then
-                        If IsNothing(WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)) = False Then
-                            WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)
+                    If CellX <> _WS_Maps.GetMapTileX(positionX) OrElse CellY <> _WS_Maps.GetMapTileY(positionY) Then
+                        If IsNothing(_WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)) = False Then
+                            _WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Remove(GUID)
                         End If
-                        GetMapTile(positionX, positionY, CellX, CellY)
+                        _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
 
                         'If creature changes cell then it's sent back to spawn, if the creature is a waypoint walker this won't be very good :/
-                        If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then
+                        If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then
                             aiScript.Reset()
                             Exit Sub
                         Else
-                            WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Add(GUID)
+                            _WS_Maps.Maps(MapID).Tiles(CellX, CellY).CreaturesHere.Add(GUID)
                         End If
                     End If
                 Catch e As Exception
@@ -1379,9 +1380,9 @@ Namespace Objects
 #Region "WS.Creatures.HelperSubs"
         Public CorpseDecay() As Integer = {30, 150, 150, 150, 1800}
 
-        Public Sub On_CMSG_CREATURE_QUERY(ByRef packet As PacketClass, ByRef client As WS_Network.ClientClass)
+        Public Sub On_CMSG_CREATURE_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
-            Dim response As New PacketClass(OPCODES.SMSG_CREATURE_QUERY_RESPONSE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_CREATURE_QUERY_RESPONSE)
 
             packet.GetInt16()
             Dim CreatureID As Integer = packet.GetInt32
@@ -1431,7 +1432,7 @@ Namespace Objects
             End Try
         End Sub
 
-        Public Sub On_CMSG_NPC_TEXT_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_NPC_TEXT_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim TextID As Long = packet.GetInt32
@@ -1441,7 +1442,7 @@ Namespace Objects
             client.Character.SendTalking(TextID)
         End Sub
 
-        Public Sub On_CMSG_GOSSIP_HELLO(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_GOSSIP_HELLO(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -1457,7 +1458,7 @@ Namespace Objects
 
             Try
                 If _WorldServer.CREATURESDatabase(_WorldServer.WORLD_CREATUREs(GUID).ID).TalkScript Is Nothing Then
-                    Dim test As New PacketClass(OPCODES.SMSG_NPC_WONT_TALK)
+                    Dim test As New Packets.PacketClass(OPCODES.SMSG_NPC_WONT_TALK)
                     test.AddUInt64(GUID)
                     test.AddInt8(1)
                     client.Send(test)
@@ -1477,7 +1478,7 @@ Namespace Objects
             End Try
         End Sub
 
-        Public Sub On_CMSG_GOSSIP_SELECT_OPTION(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_GOSSIP_SELECT_OPTION(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -1495,7 +1496,7 @@ Namespace Objects
             End If
         End Sub
 
-        Public Sub On_CMSG_SPIRIT_HEALER_ACTIVATE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SPIRIT_HEALER_ACTIVATE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -1509,7 +1510,7 @@ Namespace Objects
                 _WorldServer.Log.WriteLine(LogType.FAILED, "Error activating spirit healer: {0}", ex.ToString)
             End Try
 
-            CharacterResurrect(client.Character)
+            _WS_Handlers_Misc.CharacterResurrect(client.Character)
 
             client.Character.ApplySpell(15007)
         End Sub
@@ -1589,7 +1590,7 @@ Namespace Objects
                     Count = 0
                 End If
 
-                NPCTexts.Add(TextID, Me)
+                _WS_Creatures.NPCTexts.Add(TextID, Me)
             End Sub
 
             Public Sub New(ByVal _TextID As Integer, ByVal TextLine As String)
@@ -1598,7 +1599,7 @@ Namespace Objects
                 TextLine2(0) = TextLine
                 Count = 0
 
-                NPCTexts.Add(TextID, Me)
+                _WS_Creatures.NPCTexts.Add(TextID, Me)
             End Sub
         End Class
 #End Region
@@ -1634,7 +1635,7 @@ Namespace Objects
         '    End Class
         '#End Region
 
-    End Module
+    End Class
 
 #Region "WS.Creatures.Gossip"
 
