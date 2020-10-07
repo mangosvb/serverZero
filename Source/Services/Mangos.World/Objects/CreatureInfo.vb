@@ -36,7 +36,7 @@ Namespace Objects
 
             'DONE: Load Item Data from MySQL
             Dim MySQLQuery As New DataTable
-            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM creature_template WHERE entry = {0};", CreatureID), MySQLQuery)
 
             If MySQLQuery.Rows.Count = 0 Then
                 _WorldServer.Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
@@ -46,10 +46,10 @@ Namespace Objects
             End If
             found_ = True
 
-            ModelA1 = MySQLQuery.Rows(0).Item("modelid_A")
-            ModelA2 = MySQLQuery.Rows(0).Item("Modelid_A2")
-            ModelH1 = MySQLQuery.Rows(0).Item("modelid_H")
-            ModelH2 = MySQLQuery.Rows(0).Item("modelid_H2")
+            ModelA1 = MySQLQuery.Rows(0).Item("modelid1")
+            ModelA2 = MySQLQuery.Rows(0).Item("Modelid2")
+            ModelH1 = MySQLQuery.Rows(0).Item("modelid3")
+            ModelH2 = MySQLQuery.Rows(0).Item("modelid4")
             Name = MySQLQuery.Rows(0).Item("name")
             Try
                 SubName = MySQLQuery.Rows(0).Item("subname")
@@ -58,69 +58,69 @@ Namespace Objects
             End Try
             Size = MySQLQuery.Rows(0).Item("scale")
 
-            MinLife = MySQLQuery.Rows(0).Item("minhealth")
-            MaxLife = MySQLQuery.Rows(0).Item("maxhealth")
-            MinMana = MySQLQuery.Rows(0).Item("minmana")
-            MaxMana = MySQLQuery.Rows(0).Item("maxmana")
+            MinLife = MySQLQuery.Rows(0).Item("MinLevelHealth")
+            MaxLife = MySQLQuery.Rows(0).Item("MaxLevelHealth")
+            MinMana = MySQLQuery.Rows(0).Item("MinLevelMana")
+            MaxMana = MySQLQuery.Rows(0).Item("MaxLevelMana")
             ManaType = ManaTypes.TYPE_MANA
-            Faction = MySQLQuery.Rows(0).Item("faction_A")
-            'TODO: faction_H?
+            Faction = MySQLQuery.Rows(0).Item("factionAlliance")
+            'TODO: factionHorde?
             Elite = MySQLQuery.Rows(0).Item("rank")
-            Damage.Maximum = MySQLQuery.Rows(0).Item("maxdmg")
-            RangedDamage.Maximum = MySQLQuery.Rows(0).Item("maxrangedmg")
-            Damage.Minimum = MySQLQuery.Rows(0).Item("mindmg")
-            RangedDamage.Minimum = MySQLQuery.Rows(0).Item("minrangedmg")
+            Damage.Maximum = MySQLQuery.Rows(0).Item("MaxMeleeDmg")
+            RangedDamage.Maximum = MySQLQuery.Rows(0).Item("MaxRangedDmg")
+            Damage.Minimum = MySQLQuery.Rows(0).Item("MinMeleeDmg")
+            RangedDamage.Minimum = MySQLQuery.Rows(0).Item("MinRangedDmg")
 
-            AttackPower = MySQLQuery.Rows(0).Item("attackpower")
-            RangedAttackPower = MySQLQuery.Rows(0).Item("rangedattackpower")
+            AttackPower = MySQLQuery.Rows(0).Item("MeleeAttackPower")
+            RangedAttackPower = MySQLQuery.Rows(0).Item("RangedAttackPower")
 
             'TODO: What exactly is the speed column in the DB? It sure as hell wasn't runspeed :P
-            WalkSpeed = _Global_Constants.UNIT_NORMAL_WALK_SPEED
-            'RunSpeed = MySQLQuery.Rows(0).Item("speed")
-            RunSpeed = _Global_Constants.UNIT_NORMAL_RUN_SPEED
-            BaseAttackTime = MySQLQuery.Rows(0).Item("baseattacktime")
-            BaseRangedAttackTime = MySQLQuery.Rows(0).Item("rangeattacktime")
+            WalkSpeed = MySQLQuery.Rows(0).Item("SpeedWalk")
+            RunSpeed = MySQLQuery.Rows(0).Item("SpeedRun")
+            BaseAttackTime = MySQLQuery.Rows(0).Item("MeleeBaseAttackTime")
+            BaseRangedAttackTime = MySQLQuery.Rows(0).Item("RangedBaseAttackTime")
 
-            cNpcFlags = MySQLQuery.Rows(0).Item("npcflag")
-            DynFlags = MySQLQuery.Rows(0).Item("dynamicflags")
-            cFlags = MySQLQuery.Rows(0).Item("unit_flags")
+            cNpcFlags = MySQLQuery.Rows(0).Item("NpcFlags")
+            DynFlags = MySQLQuery.Rows(0).Item("DynamicFlags")
+            cFlags = MySQLQuery.Rows(0).Item("UnitFlags")
 
-            TypeFlags = MySQLQuery.Rows(0).Item("type_flags")
-            CreatureType = MySQLQuery.Rows(0).Item("type")
-            CreatureFamily = MySQLQuery.Rows(0).Item("family")
-            LevelMin = MySQLQuery.Rows(0).Item("minlevel")
-            LevelMax = MySQLQuery.Rows(0).Item("maxlevel")
+            TypeFlags = MySQLQuery.Rows(0).Item("CreatureTypeFlags")
+            CreatureType = MySQLQuery.Rows(0).Item("CreatureType")
+            CreatureFamily = MySQLQuery.Rows(0).Item("Family")
+            LevelMin = MySQLQuery.Rows(0).Item("MinLevel")
+            LevelMax = MySQLQuery.Rows(0).Item("MaxLevel")
 
-            TrainerType = MySQLQuery.Rows(0).Item("trainer_type")
-            TrainerSpell = MySQLQuery.Rows(0).Item("trainer_spell")
-            Classe = MySQLQuery.Rows(0).Item("class")
-            Race = MySQLQuery.Rows(0).Item("race")
+            TrainerType = MySQLQuery.Rows(0).Item("TrainerType")
+            TrainerSpell = MySQLQuery.Rows(0).Item("TrainerSpell")
+            Classe = MySQLQuery.Rows(0).Item("TrainerClass")
+            Race = MySQLQuery.Rows(0).Item("TrainerRace")
             Leader = MySQLQuery.Rows(0).Item("RacialLeader")
 
-            Spells(0) = MySQLQuery.Rows(0).Item("spell1")
-            Spells(1) = MySQLQuery.Rows(0).Item("spell2")
-            Spells(2) = MySQLQuery.Rows(0).Item("spell3")
-            Spells(3) = MySQLQuery.Rows(0).Item("spell4")
+            ' TODO: Rewire these up
+            'Spells(0) = MySQLQuery.Rows(0).Item("spell1")
+            'Spells(1) = MySQLQuery.Rows(0).Item("spell2")
+            'Spells(2) = MySQLQuery.Rows(0).Item("spell3")
+            'Spells(3) = MySQLQuery.Rows(0).Item("spell4")
             PetSpellDataID = MySQLQuery.Rows(0).Item("PetSpellDataId")
 
-            LootID = MySQLQuery.Rows(0).Item("lootid")
-            SkinLootID = MySQLQuery.Rows(0).Item("skinloot")
-            PocketLootID = MySQLQuery.Rows(0).Item("pickpocketloot")
-            MinGold = MySQLQuery.Rows(0).Item("mingold")
-            MaxGold = MySQLQuery.Rows(0).Item("maxgold")
+            LootID = MySQLQuery.Rows(0).Item("LootId")
+            SkinLootID = MySQLQuery.Rows(0).Item("SkinningLootId")
+            PocketLootID = MySQLQuery.Rows(0).Item("PickpocketLootId")
+            MinGold = MySQLQuery.Rows(0).Item("MinLootGold")
+            MaxGold = MySQLQuery.Rows(0).Item("MaxLootGold")
 
-            Resistances(0) = MySQLQuery.Rows(0).Item("armor")
-            Resistances(1) = MySQLQuery.Rows(0).Item("resistance1")
-            Resistances(2) = MySQLQuery.Rows(0).Item("resistance2")
-            Resistances(3) = MySQLQuery.Rows(0).Item("resistance3")
-            Resistances(4) = MySQLQuery.Rows(0).Item("resistance4")
-            Resistances(5) = MySQLQuery.Rows(0).Item("resistance5")
-            Resistances(6) = MySQLQuery.Rows(0).Item("resistance6")
+            Resistances(0) = MySQLQuery.Rows(0).Item("Armor")
+            Resistances(1) = MySQLQuery.Rows(0).Item("ResistanceHoly")
+            Resistances(2) = MySQLQuery.Rows(0).Item("ResistanceFire")
+            Resistances(3) = MySQLQuery.Rows(0).Item("ResistanceNature")
+            Resistances(4) = MySQLQuery.Rows(0).Item("ResistanceFrost")
+            Resistances(5) = MySQLQuery.Rows(0).Item("ResistanceShadow")
+            Resistances(6) = MySQLQuery.Rows(0).Item("ResistanceArcane")
 
             'InhabitType
             'RegenHealth
-            EquipmentID = MySQLQuery.Rows(0).Item("equipment_id")
-            MechanicImmune = MySQLQuery.Rows(0).Item("mechanic_immune_mask")
+            EquipmentID = MySQLQuery.Rows(0).Item("EquipmentTemplateId")
+            MechanicImmune = MySQLQuery.Rows(0).Item("SchoolImmuneMask")
             'flags_extra
 
             'AIScriptSource = MySQLQuery.Rows(0).Item("ScriptName")
