@@ -111,7 +111,7 @@ Public Class WC_Guild
 #End Region
 
     'Basic Guild Framework
-    Public Sub AddCharacterToGuild(ByRef objCharacter As CharacterObject, guildId As Integer, Optional ByVal guildRank As Integer = 4)
+    Public Sub AddCharacterToGuild(ByRef objCharacter As WcHandlerCharacter.CharacterObject, guildId As Integer, Optional ByVal guildRank As Integer = 4)
         _WorldCluster.CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, objCharacter.Guid, guildRank))
 
         If GUILDs.ContainsKey(guildId) = False Then
@@ -130,7 +130,7 @@ Public Class WC_Guild
         _WorldCluster.CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = {2}, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", guildId, guid, guildRank))
     End Sub
 
-    Public Sub RemoveCharacterFromGuild(ByRef objCharacter As CharacterObject)
+    Public Sub RemoveCharacterFromGuild(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
         _WorldCluster.CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, objCharacter.Guid))
 
         objCharacter.Guild.Members.Remove(objCharacter.Guid)
@@ -143,7 +143,7 @@ Public Class WC_Guild
         _WorldCluster.CharacterDatabase.Update(String.Format("UPDATE characters SET char_guildId = {0}, char_guildRank = 0, char_guildOffNote = '', char_guildPNote = '' WHERE char_guid = {1};", 0, guid))
     End Sub
 
-    Public Sub BroadcastChatMessageGuild(ByRef sender As CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
+    Public Sub BroadcastChatMessageGuild(ByRef sender As WcHandlerCharacter.CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
         'DONE: Check for guild member
         If Not sender.IsInGuild Then
             SendGuildResult(sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
@@ -172,7 +172,7 @@ Public Class WC_Guild
         packet.Dispose()
     End Sub
 
-    Public Sub BroadcastChatMessageOfficer(ByRef sender As CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
+    Public Sub BroadcastChatMessageOfficer(ByRef sender As WcHandlerCharacter.CharacterObject, message As String, language As LANGUAGES, guildId As Integer)
         'DONE: Check for guild member
         If Not sender.IsInGuild Then
             SendGuildResult(sender.Client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD)
@@ -227,7 +227,7 @@ Public Class WC_Guild
         response.Dispose()
     End Sub
 
-    Public Sub SendGuildRoster(ByRef objCharacter As CharacterObject)
+    Public Sub SendGuildRoster(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
         If Not objCharacter.IsInGuild Then Exit Sub
 
         'DONE: Count the ranks
@@ -301,7 +301,7 @@ Public Class WC_Guild
         response.Dispose()
     End Sub
 
-    Public Sub NotifyGuildStatus(ByRef objCharacter As CharacterObject, status As GuildEvent)
+    Public Sub NotifyGuildStatus(ByRef objCharacter As WcHandlerCharacter.CharacterObject, status As GuildEvent)
         If objCharacter.Guild Is Nothing Then Exit Sub
 
         Dim statuspacket As New Packets.PacketClass(OPCODES.SMSG_GUILD_EVENT)
@@ -326,7 +326,7 @@ Public Class WC_Guild
     End Sub
 
     'Members Options
-    Public Sub SendGuildMOTD(ByRef objCharacter As CharacterObject)
+    Public Sub SendGuildMOTD(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
         If objCharacter.IsInGuild Then
             If objCharacter.Guild.Motd <> "" Then
                 Dim response As New Packets.PacketClass(OPCODES.SMSG_GUILD_EVENT)

@@ -42,7 +42,7 @@ Public Class WorldCluster
     Public CLIENTs As New Dictionary(Of UInteger, WC_Network.ClientClass)
 
     Public CHARACTERs_Lock As New ReaderWriterLock
-    Public CHARACTERs As New Dictionary(Of ULong, CharacterObject)
+    Public CHARACTERs As New Dictionary(Of ULong, WcHandlerCharacter.CharacterObject)
     'Public CHARACTER_NAMEs As New Hashtable
 
     'System Things...

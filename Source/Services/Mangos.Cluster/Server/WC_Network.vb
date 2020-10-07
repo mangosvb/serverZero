@@ -271,7 +271,7 @@ Namespace Server
             Public Sub Broadcast(ByVal Data() As Byte) Implements ICluster.Broadcast
                 Dim b As Byte()
                 _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+                For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
 
                     If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Client IsNot Nothing Then
                         b = Data.Clone
@@ -471,7 +471,7 @@ Namespace Server
 
             Public Socket As Socket = Nothing
             Public Queue As New Queue
-            Public Character As CharacterObject = Nothing
+            Public Character As WcHandlerCharacter.CharacterObject = Nothing
 
             Public SS_Hash() As Byte
             Public Encryption As Boolean = False

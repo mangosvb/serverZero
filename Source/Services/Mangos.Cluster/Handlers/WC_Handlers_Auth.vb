@@ -560,11 +560,11 @@ Namespace Handlers
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PLAYER_LOGIN [0x{2:X}]", client.IP, client.Port, GUID)
 
             If client.Character Is Nothing Then
-                client.Character = New CharacterObject(GUID, client)
+                client.Character = New WcHandlerCharacter.CharacterObject(GUID, client)
             Else
                 If client.Character.Guid <> GUID Then
                     client.Character.Dispose()
-                    client.Character = New CharacterObject(GUID, client)
+                    client.Character = New WcHandlerCharacter.CharacterObject(GUID, client)
                 Else
                     client.Character.ReLoad()
                 End If

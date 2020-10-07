@@ -32,7 +32,7 @@ Namespace Handlers
 
 #Region "Framework"
 
-        Public Sub LoadIgnoreList(ByRef objCharacter As CharacterObject)
+        Public Sub LoadIgnoreList(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
             _WorldCluster.CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND flags = {1};", objCharacter.Guid, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Byte)), q)
@@ -43,7 +43,7 @@ Namespace Handlers
             Next
         End Sub
 
-        Public Sub SendFriendList(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
+        Public Sub SendFriendList(ByRef client As WC_Network.ClientClass, ByRef character As WcHandlerCharacter.CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
             _WorldCluster.CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND (flags & {1}) > 0;", character.Guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
@@ -81,7 +81,7 @@ Namespace Handlers
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_FRIEND_LIST", client.IP, client.Port)
         End Sub
 
-        Public Sub SendIgnoreList(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
+        Public Sub SendIgnoreList(ByRef client As WC_Network.ClientClass, ByRef character As WcHandlerCharacter.CharacterObject)
             'DONE: Query DB
             Dim q As New DataTable
             _WorldCluster.CharacterDatabase.Query(String.Format("SELECT * FROM character_social WHERE guid = {0} AND (flags & {1}) > 0;", character.Guid, CType(SocialFlag.SOCIAL_FLAG_IGNORED, Integer)), q)
@@ -104,7 +104,7 @@ Namespace Handlers
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_IGNORE_LIST", client.IP, client.Port)
         End Sub
 
-        Public Sub NotifyFriendStatus(ByRef objCharacter As CharacterObject, s As FriendStatus)
+        Public Sub NotifyFriendStatus(ByRef objCharacter As WcHandlerCharacter.CharacterObject, s As FriendStatus)
             Dim q As New DataTable
             _WorldCluster.CharacterDatabase.Query(String.Format("SELECT guid FROM character_social WHERE friend = {0} AND (flags & {1}) > 0;", objCharacter.Guid, CType(SocialFlag.SOCIAL_FLAG_FRIEND, Integer)), q)
 
@@ -151,7 +151,7 @@ Namespace Handlers
             'TODO: Don't show GMs?
             Dim results As New List(Of ULong)
             _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
                 If Not objCharacter.Value.IsInWorld Then Continue For
                 If (_Functions.GetCharacterSide(objCharacter.Value.Race) <> _Functions.GetCharacterSide(client.Character.Race)) AndAlso client.Character.Access < AccessLevel.GameMaster Then Continue For
                 If namePlayer <> "" AndAlso _CommonFunctions.UppercaseFirstLetter(objCharacter.Value.Name).IndexOf(_CommonFunctions.UppercaseFirstLetter(namePlayer), StringComparison.Ordinal) = -1 Then Continue For

@@ -90,7 +90,7 @@ Namespace Server
             Latency = 0
 
             _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
                 If objCharacter.Value.IsInWorld Then
                     CountPlayers += 1
 
@@ -238,7 +238,7 @@ Namespace Server
             _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
             f.WriteStartElement("users")
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
                 If objCharacter.Value.IsInWorld AndAlso objCharacter.Value.Access >= AccessLevel.GameMaster Then
                     f.WriteStartElement("gmplayer")
                     f.WriteStartElement("name")
@@ -253,7 +253,7 @@ Namespace Server
             f.WriteEndElement()
 
             f.WriteStartElement("sessions")
-            For Each objCharacter As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+            For Each objCharacter As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
                 If objCharacter.Value.IsInWorld Then
                     f.WriteStartElement("player")
                     f.WriteStartElement("name")
