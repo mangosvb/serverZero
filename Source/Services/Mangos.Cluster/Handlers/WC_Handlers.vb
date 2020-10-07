@@ -171,7 +171,7 @@ Namespace Handlers
             _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] {2} [Redirected Packet]", client.IP, client.Port, packet.OpCode)
 
             If client.Character Is Nothing OrElse client.Character.IsInWorld = False Then
-                _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", client.IP, client.Port, packet.OpCode, vbNewLine, packet.Length)
+                _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", client.IP, client.Port, packet.OpCode, vbCrLf, packet.Length)
                 _Packets.DumpPacket(packet.Data, client)
             Else
                 client.Character.GetWorld.ClientPacket(client.Index, packet.Data)

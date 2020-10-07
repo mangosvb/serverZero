@@ -29,31 +29,31 @@ Namespace Globals
             Dim buffer As String = ""
             Try
                 buffer = If(client Is Nothing,
-                    buffer + String.Format("DEBUG: Packet Dump{0}", vbNewLine),
-                    buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length, vbNewLine))
+                    buffer + String.Format("DEBUG: Packet Dump{0}", vbCrLf),
+                    buffer + String.Format("[{0}:{1}] DEBUG: Packet Dump - Length={2}{3}", client.IP, client.Port, data.Length, vbCrLf))
 
                 If data.Length Mod 16 = 0 Then
                     For j = 0 To data.Length - 1 Step 16
                         buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                        buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                        buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbCrLf
                     Next
                 Else
                     For j = 0 To data.Length - 1 - 16 Step 16
                         buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                        buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                        buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbCrLf
                     Next
 
                     buffer += "|  " & BitConverter.ToString(data, j, data.Length Mod 16).Replace("-", " ")
                     buffer += New String(" ", (16 - data.Length Mod 16) * 3)
                     buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, data.Length Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
                     buffer += New String(" ", 16 - data.Length Mod 16)
-                    buffer += " |" & vbNewLine
+                    buffer += " |" & vbCrLf
                 End If
 
                 _WorldCluster.Log.WriteLine(LogType.DEBUG, buffer, Nothing)
                 '#End If
             Catch e As Exception
-                _WorldCluster.Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", vbNewLine, e.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", vbCrLf, e.ToString)
             End Try
         End Sub
 
@@ -69,14 +69,14 @@ Namespace Globals
                 Dim TypeStr As String = "IN"
                 If Server Then TypeStr = "OUT"
                 If client Is Nothing Then
-                    buffer += String.Format("{4} Packet: (0x{0:X4}) {1} PacketSize = {2}{3}", CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
+                    buffer += String.Format("{4} Packet: (0x{0:X4}) {1} PacketSize = {2}{3}", CInt(opcode), opcode, data.Length - StartAt, vbCrLf, TypeStr)
                 Else
-                    buffer += String.Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", client.IP, client.Port, CInt(opcode), opcode, data.Length - StartAt, vbNewLine, TypeStr)
+                    buffer += String.Format("[{0}:{1}] {6} Packet: (0x{2:X4}) {3} PacketSize = {4}{5}", client.IP, client.Port, CInt(opcode), opcode, data.Length - StartAt, vbCrLf, TypeStr)
                 End If
 
-                buffer += "|------------------------------------------------|----------------|" & vbNewLine
-                buffer += "|00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F |0123456789ABCDEF|" & vbNewLine
-                buffer += "|------------------------------------------------|----------------|" & vbNewLine
+                buffer += "|------------------------------------------------|----------------|" & vbCrLf
+                buffer += "|00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F |0123456789ABCDEF|" & vbCrLf
+                buffer += "|------------------------------------------------|----------------|" & vbCrLf
                 For j = StartAt To data.Length - 1 Step 16
                     If (j + 16 > data.Length) Then
                         buffer += "|" & BitConverter.ToString(data, j, data.Length - j).Replace("-", " ")
@@ -87,9 +87,9 @@ Namespace Globals
                         buffer += "|" & BitConverter.ToString(data, j, 16).Replace("-", " ")
                         buffer += " |" & FormatPacketStr(Text.Encoding.ASCII.GetString(data, j, 16))
                     End If
-                    buffer += "|" & vbNewLine
+                    buffer += "|" & vbCrLf
                 Next
-                buffer += "-------------------------------------------------------------------" & vbNewLine & vbNewLine
+                buffer += "-------------------------------------------------------------------" & vbCrLf & vbCrLf
 
                 File.AppendAllText("packets.log", buffer)
             Catch e As Exception

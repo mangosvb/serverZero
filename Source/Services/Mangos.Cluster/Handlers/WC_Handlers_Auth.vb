@@ -153,7 +153,7 @@ Namespace Handlers
                 AddOnsHashes.Add(packet.GetUInt32)
                 packet.GetInt32() 'Unk7
                 packet.GetInt8() 'Unk6
-                'AddOnsConsoleWrite &= String.Format("{0}{1} AddOnName: [{2,-30}], AddOnHash: [{3:X}]", vbNewLine, vbTab, AddOnsNames(AddOnsNames.Count - 1), AddOnsHashes(AddOnsHashes.Count - 1))
+                'AddOnsConsoleWrite &= String.Format("{0}{1} AddOnName: [{2,-30}], AddOnHash: [{3:X}]", vbCrLf, vbTab, AddOnsNames(AddOnsNames.Count - 1), AddOnsHashes(AddOnsHashes.Count - 1))
             End While
             '_WorldCluster.Log.WriteLine(LogType.DEBUG, AddOnsConsoleWrite)
 
@@ -251,7 +251,7 @@ Namespace Handlers
                 '_WorldCluster.AccountDatabase.Update(String.Format("UPDATE `account_data` SET `account_data{0}`={2} WHERE `account_id`={1};", DataID, AccID, dataStr))
 
             Catch e As Exception
-                _WorldCluster.Log.WriteLine(LogType.FAILED, "Error while updating account data.{0}", vbNewLine & e.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "Error while updating account data.{0}", vbCrLf & e.ToString)
             End Try
         End Sub
 
@@ -543,7 +543,7 @@ Namespace Handlers
                 End If
             Catch ex As Exception
                 result = CharResponse.CHAR_CREATE_ERROR
-                _WorldCluster.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Character creation failed!{2}{3}", client.IP, client.Port, vbNewLine, ex.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Character creation failed!{2}{3}", client.IP, client.Port, vbCrLf, ex.ToString)
             End Try
 
             Dim response As New Packets.PacketClass(OPCODES.SMSG_CHAR_CREATE)

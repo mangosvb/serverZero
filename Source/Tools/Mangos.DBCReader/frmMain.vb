@@ -291,7 +291,7 @@ Public Class frmMain
             End If
         Next
 
-        MessageBox.Show("No result for that search was found!" & vbNewLine & vbNewLine & "Do note that the search starts from your current selection.", "No result found")
+        MessageBox.Show("No result for that search was found!" & vbCrLf & vbCrLf & "Do note that the search starts from your current selection.", "No result found")
     End Sub
 
     Private Sub txtQuery_KeyDown(ByVal sender As Object, ByVal e As KeyEventArgs) Handles txtQuery.KeyDown

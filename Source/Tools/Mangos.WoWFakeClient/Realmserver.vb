@@ -140,7 +140,7 @@ Module Realmserver
         Catch ex As ObjectDisposedException
             'Nothing
         Catch ex As Exception
-            Console.WriteLine("Error in realm socket.{0}{1}", vbNewLine, ex.ToString)
+            Console.WriteLine("Error in realm socket.{0}{1}", vbCrLf, ex.ToString)
         End Try
 
         Connection.Close()

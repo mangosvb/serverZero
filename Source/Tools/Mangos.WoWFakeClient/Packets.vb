@@ -24,31 +24,31 @@ Public Module Packets
         Dim j As Integer
         Dim buffer As String = ""
         Try
-            buffer += [String].Format("DEBUG: Packet Dump - Length={0}{1}", data.Length, vbNewLine)
+            buffer += [String].Format("DEBUG: Packet Dump - Length={0}{1}", data.Length, vbCrLf)
 
             If data.Length Mod 16 = 0 Then
                 For j = 0 To data.Length - 1 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbCrLf
                 Next
             Else
                 For j = 0 To data.Length - 1 - 16 Step 16
                     buffer += "|  " & BitConverter.ToString(data, j, 16).Replace("-", " ")
-                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbNewLine
+                    buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?") & " |" & vbCrLf
                 Next
 
                 buffer += "|  " & BitConverter.ToString(data, j, data.Length Mod 16).Replace("-", " ")
                 buffer += New String(" ", (16 - data.Length Mod 16) * 3)
                 buffer += " |  " & Text.Encoding.ASCII.GetString(data, j, data.Length Mod 16).Replace(vbTab, "?").Replace(vbBack, "?").Replace(vbCr, "?").Replace(vbFormFeed, "?").Replace(vbLf, "?")
                 buffer += New String(" ", 16 - data.Length Mod 16)
-                buffer += " |" & vbNewLine
+                buffer += " |" & vbCrLf
             End If
 
             Console.WriteLine(buffer)
             '#End If
         Catch e As Exception
             Console.ForegroundColor = System.ConsoleColor.Red
-            Console.WriteLine("Error dumping packet: {0}{1}", vbNewLine, e.ToString)
+            Console.WriteLine("Error dumping packet: {0}{1}", vbCrLf, e.ToString)
             Console.ForegroundColor = System.ConsoleColor.White
         End Try
     End Sub

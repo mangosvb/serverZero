@@ -30,7 +30,7 @@ Namespace DataStores
                 _WorldCluster.CharacterDatabase.Update("UPDATE characters SET char_online = 0;")
 
             Catch e As Exception
-                _WorldCluster.Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbNewLine, e.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, vbCrLf, e.ToString)
             End Try
         End Sub
 

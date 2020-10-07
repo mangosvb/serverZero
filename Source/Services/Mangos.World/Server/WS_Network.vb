@@ -260,6 +260,7 @@ Namespace Server
                     Case MapTypes.MAP_COMMON
                         Return _WorldServer.Config.CreateOther
                 End Select
+                Return False
             End Function
 
             Public Sub ClientSetGroup(ByVal ID As UInteger, ByVal GroupID As Long) Implements IWorld.ClientSetGroup

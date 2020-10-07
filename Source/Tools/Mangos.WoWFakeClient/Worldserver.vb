@@ -180,7 +180,7 @@ Public Module Worldserver
                 Try
                     PacketHandlers(Packet.OpCode).Invoke(Packet)
                 Catch e As Exception
-                    Console.WriteLine("Opcode handler {2}:{2:X} caused an error:{1}{0}", e.ToString, vbNewLine, Packet.OpCode)
+                    Console.WriteLine("Opcode handler {2}:{2:X} caused an error:{1}{0}", e.ToString, vbCrLf, Packet.OpCode)
                 End Try
             Else
                 'Console.WriteLine("[{0}][World] Unknown Opcode 0x{1:X} [{1}], DataLen={2}", Format(TimeOfDay, "HH:mm:ss"), Packet.OpCode, Packet.Length)

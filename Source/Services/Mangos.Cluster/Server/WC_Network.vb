@@ -602,13 +602,13 @@ Namespace Server
 
                                 If HandingPackets = False Then ThreadPool.QueueUserWorkItem(AddressOf OnPacket)
                             Catch ex As Exception
-                                _WorldCluster.Log.WriteLine(LogType.WARNING, "Packet Disconnect from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                                _WorldCluster.Log.WriteLine(LogType.WARNING, "Packet Disconnect from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbCrLf)
                             End Try
                         End If
                     End If
                 Catch Err As Exception
                     'NOTE: If it's a error here it means the connection is closed?
-                    _WorldCluster.Log.WriteLine(LogType.WARNING, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                    _WorldCluster.Log.WriteLine(LogType.WARNING, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbCrLf)
 
                     Dispose(SocketBuffer.Length)
                     Dispose(HandingPackets)
@@ -641,7 +641,7 @@ Namespace Server
                         If Character Is Nothing OrElse Character.IsInWorld = False Then
                             Socket.Dispose()
                             Socket.Close()
-                            _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", IP, Port, p.OpCode, vbNewLine, p.Length)
+                            _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [{2}], DataLen={4}", IP, Port, p.OpCode, vbCrLf, p.Length)
                             _Packets.DumpPacket(p.Data, Me)
                         Else
                             Try
@@ -655,7 +655,7 @@ Namespace Server
                         Try
                             _WorldCluster.PacketHandlers(p.OpCode).Invoke(p, Me)
                         Catch e As Exception
-                            _WorldCluster.Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error: {1}{0}", e.ToString, vbNewLine, p.OpCode)
+                            _WorldCluster.Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{2:X} caused an error: {1}{0}", e.ToString, vbCrLf, p.OpCode)
                         End Try
                     End If
                     Try
@@ -677,7 +677,7 @@ Namespace Server
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
                     'NOTE: If it's a error here it means the connection is closed?
-                    _WorldCluster.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                    _WorldCluster.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbCrLf)
                     Delete()
                 End Try
             End Sub
@@ -693,7 +693,7 @@ Namespace Server
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch err As Exception
                     'NOTE: If it's a error here it means the connection is closed?
-                    _WorldCluster.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, err.ToString, vbNewLine)
+                    _WorldCluster.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, err.ToString, vbCrLf)
                     Delete()
                 End Try
 
@@ -713,7 +713,7 @@ Namespace Server
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
                     'NOTE: If it's a error here it means the connection is closed?
-                    _WorldCluster.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbNewLine)
+                    _WorldCluster.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] caused an error {2}{3}", IP, Port, Err.ToString, vbCrLf)
                     Delete()
                 End Try
 

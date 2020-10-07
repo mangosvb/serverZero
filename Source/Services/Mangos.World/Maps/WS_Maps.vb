@@ -61,6 +61,7 @@ Namespace Maps
                 If Team = AreaTeam.AREATEAM_NONE Then Return False
                 If objCharacter.IsHorde = False Then Return Team = AreaTeam.AREATEAM_ALLY
                 If objCharacter.IsHorde = True Then Return Team = AreaTeam.AREATEAM_HORDE
+                Return False
             End Function
             Public Function IsCity() As Boolean
                 Return ZoneType = 312
@@ -351,9 +352,8 @@ Namespace Maps
                                 Case 409, 469, 531, 533 'Molten Core, Blackwing Lair, Temple of Ahn'Qiraj and Naxxramas
                                     Return _Functions.GetNextDay(DayOfWeek.Tuesday, 3).Subtract(Now).TotalSeconds
                             End Select
-
-                            Return _Global_Constants.DEFAULT_INSTANCE_EXPIRE_TIME
                     End Select
+                    Return _Global_Constants.DEFAULT_INSTANCE_EXPIRE_TIME
                 End Get
             End Property
 

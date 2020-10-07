@@ -493,6 +493,7 @@ Namespace Objects
                         Case Else
                             Return 0
                     End Select
+                    Return 0
                 End Get
             End Property
         End Class

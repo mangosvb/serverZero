@@ -581,7 +581,7 @@ Public Class WorldCluster
                     End If
                 Next
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "hh:mm:ss"), tmp, e.ToString, vbNewLine)
+                Log.WriteLine(LogType.FAILED, "Error executing command [{0}]. {2}{1}", Format(TimeOfDay, "hh:mm:ss"), tmp, e.ToString, vbCrLf)
             End Try
         End While
     End Sub
@@ -589,7 +589,7 @@ Public Class WorldCluster
     Private Sub GenericExceptionHandler(sender As Object, e As UnhandledExceptionEventArgs)
         Dim ex As Exception = e.ExceptionObject
 
-        Log.WriteLine(LogType.CRITICAL, ex.ToString & vbNewLine)
+        Log.WriteLine(LogType.CRITICAL, ex.ToString & vbCrLf)
         Log.WriteLine(LogType.FAILED, "Unexpected error has occured. An 'WorldCluster-Error-yyyy-mmm-d-h-mm.log' file has been created. Check your log folder for more information.")
 
         Dim tw As TextWriter

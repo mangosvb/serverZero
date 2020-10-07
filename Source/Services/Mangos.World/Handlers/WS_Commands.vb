@@ -319,15 +319,16 @@ Namespace Handlers
         Public Function cmdAIState(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal Message As String) As Boolean
             If objCharacter.TargetGUID = 0 Then
                 objCharacter.CommandResponse("Select target first!")
-                Exit Function
+                Return False
             End If
             If Not _WorldServer.WORLD_CREATUREs.ContainsKey(objCharacter.TargetGUID) Then
                 objCharacter.CommandResponse("Selected target is not creature!")
-                Exit Function
+                Return False
             End If
 
             If _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID).aiScript Is Nothing Then
                 objCharacter.CommandResponse("This creature doesn't have AI")
+                Return False
             Else
                 With _WorldServer.WORLD_CREATUREs(objCharacter.TargetGUID)
                     objCharacter.CommandResponse(String.Format("Information for creature [{0}]:{1}ai = {2}{1}state = {3}{1}maxdist = {4}", .Name, Environment.NewLine, .aiScript.ToString, .aiScript.State.ToString, .MaxDistance))

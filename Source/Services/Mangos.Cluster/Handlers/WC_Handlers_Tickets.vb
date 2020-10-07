@@ -38,7 +38,7 @@ Namespace Handlers
             Dim tString As String = _Functions.EscapeString(packet.GetString)
 
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUG [2]", client.IP, client.Port, suggestion)
-            _WorldCluster.Log.WriteLine(LogType.INFORMATION, "Bug report [{0}:{1} Lengths:{2}, {3}] " & cString & vbNewLine & tString, cLength.ToString(), tLength.ToString())
+            _WorldCluster.Log.WriteLine(LogType.INFORMATION, "Bug report [{0}:{1} Lengths:{2}, {3}] " & cString & vbCrLf & tString, cLength.ToString(), tLength.ToString())
         End Sub
 
         'ERR_TICKET_ALREADY_EXISTS

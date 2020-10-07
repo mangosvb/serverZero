@@ -93,7 +93,7 @@ Public Module Module_CacheExtract
         bw.Write(CByte(Asc(Lang(0))))
         bw.Write(Unk1)
         bw.Write(Unk2)
-        Console.WriteLine("Unk1: {0}{1}Unk2: {2}", Unk1, vbNewLine, Unk2)
+        Console.WriteLine("Unk1: {0}{1}Unk2: {2}", Unk1, vbCrLf, Unk2)
 
         Console.ForegroundColor = ConsoleColor.White
         bw.Write(1I) 'Count of modules?
