@@ -20,10 +20,11 @@ Imports System.IO
 Imports Mangos.Common.Globals
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace Globals
-    Public Module Packets
-        Public Sub DumpPacket(data() As Byte, Optional ByRef client As ClientClass = Nothing)
+    Public Class Packets
+        Public Sub DumpPacket(data() As Byte, Optional ByRef client As WC_Network.ClientClass = Nothing)
             '#If DEBUG Then
             Dim j As Integer
             Dim buffer As String = ""
@@ -50,14 +51,14 @@ Namespace Globals
                     buffer += " |" & vbNewLine
                 End If
 
-                Log.WriteLine(GlobalEnum.LogType.DEBUG, buffer, Nothing)
+                _WorldCluster.Log.WriteLine(LogType.DEBUG, buffer, Nothing)
                 '#End If
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", vbNewLine, e.ToString)
+                _WorldCluster.Log.WriteLine(LogType.FAILED, "Error dumping packet: {0}{1}", vbNewLine, e.ToString)
             End Try
         End Sub
 
-        Public Sub LogPacket(ByVal data() As Byte, ByVal Server As Boolean, Optional ByRef client As ClientClass = Nothing)
+        Public Sub LogPacket(ByVal data() As Byte, ByVal Server As Boolean, Optional ByRef client As WC_Network.ClientClass = Nothing)
             Dim j As Integer
             Dim buffer As String = ""
             Try
@@ -555,5 +556,5 @@ Namespace Globals
             End Sub
 #End Region
         End Class
-    End Module
+    End Class
 End Namespace

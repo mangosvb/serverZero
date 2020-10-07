@@ -17,6 +17,7 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace Logging
 
@@ -25,7 +26,7 @@ Namespace Logging
 
         Public L() As Char = {"N", "D", "I", "U", "S", "W", "F", "C", "DB"}
 
-        Public LogLevel As GlobalEnum.LogType = LogType.NETWORK
+        Public LogLevel As LogType = LogType.NETWORK
 
         Public Sub New()
         End Sub
@@ -101,20 +102,18 @@ Namespace Logging
         ''' <param name="logConfig">The log config.</param>
         ''' <param name="log">The log.</param>
         ''' <returns></returns>
-        Public Shared Sub CreateLog(logType As String, logConfig As String, ByRef log As BaseWriter)
-            Try
-                Select Case UppercaseFirstLetter(logType)
-                    Case "COLORCONSOLE"
-                        log = New ColoredConsoleWriter
-                    Case "CONSOLE"
-                        log = New ConsoleWriter
-                    Case "FILE"
-                        log = New FileWriter(logConfig)
-                End Select
-            Catch e As Exception
-                Console.WriteLine("[{0}] Error creating log output!" & vbNewLine & e.ToString, Format(TimeOfDay, "hh:mm:ss"))
-            End Try
-        End Sub
+        Public Shared Function CreateLog(logType As String, logConfig As String) As BaseWriter
+            Select Case logType.ToUpper()
+                Case "COLORCONSOLE"
+                    Return New ColoredConsoleWriter
+                Case "CONSOLE"
+                    Return New ConsoleWriter
+                Case "FILE"
+                    Return New FileWriter(logConfig)
+                Case Else
+                    Throw New ArgumentOutOfRangeException(NameOf(logType))
+            End Select
+        End Function
 
     End Class
 End Namespace

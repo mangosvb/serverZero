@@ -17,8 +17,8 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Globals
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
 Imports Mangos.World.Handlers
 Imports Mangos.World.Maps
 Imports Mangos.World.Player
@@ -324,7 +324,7 @@ Namespace DataStores
             Dim dbLvl As Integer
             Dim dbXp As Long
             Try
-                WorldDatabase.Query(String.Format("SELECT * FROM player_xp_for_level order by lvl;"), result)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM player_xp_for_level order by lvl;"), result)
                 If result.Rows.Count > 0 Then
                     For Each row As DataRow In result.Rows
                         dbLvl = row.Item("lvl")
@@ -332,9 +332,9 @@ Namespace DataStores
                         XPTable(dbLvl) = dbXp
                     Next
                 End If
-                Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Initalizing: XPTable initialized.")
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Initalizing: XPTable initialized.")
             Catch ex As Exception
-                Log.WriteLine(LogType.FAILED, "XPTable initialization failed.")
+                _WorldServer.Log.WriteLine(LogType.FAILED, "XPTable initialization failed.")
             End Try
         End Sub
 #End Region
@@ -344,13 +344,13 @@ Namespace DataStores
         Public Battlemasters As New Dictionary(Of Integer, Byte)
         Public Sub InitializeBattlemasters()
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM battlemaster_entry"), MySQLQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM battlemaster_entry"), MySQLQuery)
 
             For Each row As DataRow In MySQLQuery.Rows
                 Battlemasters.Add(row.Item("entry"), row.Item("bg_template"))
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "World: {0} Battlemasters Loaded.", MySQLQuery.Rows.Count)
+            _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: {0} Battlemasters Loaded.", MySQLQuery.Rows.Count)
         End Sub
 
 #End Region
@@ -362,7 +362,7 @@ Namespace DataStores
             Dim entry As Byte
 
             Dim mySqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), mySqlQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM battleground_template"), mySqlQuery)
 
             For Each row As DataRow In mySqlQuery.Rows
                 entry = row.Item("id")
@@ -379,7 +379,7 @@ Namespace DataStores
                 Battlegrounds(entry).HordeStartO = row.Item("HordeStartO")
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Loaded.", mySqlQuery.Rows.Count)
+            _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: {0} Battlegrounds Loaded.", mySqlQuery.Rows.Count)
         End Sub
 
         Public Class TBattleground
@@ -402,7 +402,7 @@ Namespace DataStores
             Dim SpellID As Integer
 
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM spells_teleport_coords"), MySQLQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM spells_teleport_coords"), MySQLQuery)
 
             For Each row As DataRow In MySQLQuery.Rows
                 SpellID = row.Item("id")
@@ -415,7 +415,7 @@ Namespace DataStores
                 TeleportCoords(SpellID).PosZ = row.Item("position_z")
             Next
 
-            Log.WriteLine(LogType.INFORMATION, "World: {0} Teleport Coords Loaded.", MySQLQuery.Rows.Count)
+            _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: {0} Teleport Coords Loaded.", MySQLQuery.Rows.Count)
         End Sub
 
         Public Class TTeleportCoords
@@ -444,7 +444,7 @@ Namespace DataStores
         '    Dim Count As Integer = 0
 
         '    Dim MySQLQuery As New DataTable
-        '    WorldDatabase.Query(String.Format("SELECT * FROM npc_monstersay"), MySQLQuery)
+        '    _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM npc_monstersay"), MySQLQuery)
         '    For Each MonsterRow As DataRow In MySQLQuery.Rows
         '        Count = Count + 1
         '        Entry = MonsterRow.Item("entry")
@@ -494,7 +494,7 @@ Namespace DataStores
 
         '    Next
 
-        '    Log.WriteLine(LogType.INFORMATION, "World: {0} Monster Say(s) Loaded.", Count)
+        '    _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: {0} Monster Say(s) Loaded.", Count)
 
         'End Sub
 #End Region
@@ -584,58 +584,58 @@ Namespace DataStores
                 CharacterSaver = New TCharacterSaver
                 WeatherChanger = New TWeatherChanger
 
-                Log.WriteLine(LogType.INFORMATION, "World: Loading Maps and Spawns....")
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "World: Loading Maps and Spawns....")
 
                 'DONE: Initializing Counters
                 Dim MySQLQuery As New DataTable
                 Try
-                    CharacterDatabase.Query(String.Format("SELECT MAX(item_guid) FROM characters_inventory;"), MySQLQuery)
+                    _WorldServer.CharacterDatabase.Query(String.Format("SELECT MAX(item_guid) FROM characters_inventory;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        itemGuidCounter = MySQLQuery.Rows(0).Item(0) + GUID_ITEM
+                        _WorldServer.itemGuidCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_ITEM
                     Else
-                        itemGuidCounter = 0 + GUID_ITEM
+                        _WorldServer.itemGuidCounter = 0 + _Global_Constants.GUID_ITEM
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "World: Failed loading characters_inventory....")
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "World: Failed loading characters_inventory....")
                 End Try
                 MySQLQuery = New DataTable
                 Try
-                    WorldDatabase.Query(String.Format("SELECT MAX(guid) FROM creature;"), MySQLQuery)
+                    _WorldServer.WorldDatabase.Query(String.Format("SELECT MAX(guid) FROM spawns_creatures;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_UNIT
+                        _WorldServer.CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_UNIT
                     Else
-                        CreatureGUIDCounter = 0 + GUID_UNIT
+                        _WorldServer.CreatureGUIDCounter = 0 + _Global_Constants.GUID_UNIT
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "World: Failed loading creature....")
-                End Try
-
-                MySQLQuery = New DataTable
-                Try
-                    WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_gameobjects;"), MySQLQuery)
-                    If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_GAMEOBJECT
-                    Else
-                        GameObjectsGUIDCounter = 0 + GUID_GAMEOBJECT
-                    End If
-                Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "World: Failed loading spawn_gameobjects....")
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "World: Failed loading creatures....")
                 End Try
 
                 MySQLQuery = New DataTable
                 Try
-                    CharacterDatabase.Query(String.Format("SELECT MAX(guid) FROM corpse"), MySQLQuery)
+                    _WorldServer.WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_gameobjects;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
-                        CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + GUID_CORPSE
+                        _WorldServer.GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_GAMEOBJECT
                     Else
-                        CorpseGUIDCounter = 0 + GUID_CORPSE
+                        _WorldServer.GameObjectsGUIDCounter = 0 + _Global_Constants.GUID_GAMEOBJECT
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "World: Failed loading corpse....")
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "World: Failed loading spawn_gameobjects....")
+                End Try
+
+                MySQLQuery = New DataTable
+                Try
+                    _WorldServer.CharacterDatabase.Query(String.Format("SELECT MAX(guid) FROM corpse"), MySQLQuery)
+                    If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
+                        _WorldServer.CorpseGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_CORPSE
+                    Else
+                        _WorldServer.CorpseGUIDCounter = 0 + _Global_Constants.GUID_CORPSE
+                    End If
+                Catch ex As Exception
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "World: Failed loading corpse....")
                 End Try
 
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, Environment.NewLine, e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Internal database initialization failed! [{0}]{1}{2}", e.Message, Environment.NewLine, e.ToString)
             End Try
         End Sub
 
@@ -652,7 +652,7 @@ Namespace DataStores
             InitializeSkillLines()
             InitializeSkillLineAbility()
             InitializeLocks()
-            'AllGraveYards.InitializeGraveyards()
+            '_WorldServer.AllGraveYards.InitializeGraveyards()
             InitializeTaxiNodes()
             InitializeTaxiPaths()
             InitializeTaxiPathNodes()
@@ -694,4 +694,4 @@ Namespace DataStores
 
 #End Region
     End Module
-End NameSpace
+End Namespace

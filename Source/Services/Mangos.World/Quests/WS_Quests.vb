@@ -18,7 +18,11 @@
 
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Quest
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Loots
@@ -41,8 +45,8 @@ Namespace Quests
             Dim cQuests As New DataTable
             Dim tmpQuest As WS_QuestInfo
 
-            Log.WriteLine(GlobalEnum.LogType.WARNING, "Loading Quests...")
-            WorldDatabase.Query(String.Format("SELECT entry FROM quests;"), cQuests)
+            _WorldServer.Log.WriteLine(LogType.WARNING, "Loading Quests...")
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT entry FROM quests;"), cQuests)
 
             For Each cRow As DataRow In cQuests.Rows
                 Dim questID As Integer = cRow.Item("entry")
@@ -50,7 +54,7 @@ Namespace Quests
 
                 _quests.Add(tmpQuest, questID)
             Next
-            Log.WriteLine(LogType.WARNING, "Loading Quests...Complete")
+            _WorldServer.Log.WriteLine(LogType.WARNING, "Loading Quests...Complete")
 
         End Sub
 
@@ -127,7 +131,7 @@ Namespace Quests
                     Return _quests.Item(questId.ToString())
                 End If
             Catch ex As Exception
-                Log.WriteLine(LogType.WARNING, "ReturnQuestInfoById returned error on QuestId {0}", questId)
+                _WorldServer.Log.WriteLine(LogType.WARNING, "ReturnQuestInfoById returned error on QuestId {0}", questId)
             End Try
             Return ret
         End Function
@@ -142,32 +146,32 @@ Namespace Quests
         ''' <returns></returns>
         Public Function GetQuestMenu(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal guid As ULong) As QuestMenu
             Dim questMenu As New QuestMenu
-            Dim creatureEntry As Integer = WORLD_CREATUREs(guid).ID
+            Dim creatureEntry As Integer = _WorldServer.WORLD_CREATUREs(guid).ID
 
             'DONE: Quests for completing
             Dim alreadyHave As New List(Of Integer)
-            If CreatureQuestFinishers.ContainsKey(creatureEntry) Then
+            If _WorldServer.CreatureQuestFinishers.ContainsKey(creatureEntry) Then
                 Try
                     For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                         If objCharacter.TalkQuests(i) IsNot Nothing Then
                             alreadyHave.Add(objCharacter.TalkQuests(i).ID)
-                            If CreatureQuestFinishers(creatureEntry).Contains(objCharacter.TalkQuests(i).ID) Then
+                            If _WorldServer.CreatureQuestFinishers(creatureEntry).Contains(objCharacter.TalkQuests(i).ID) Then
                                 questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
                             End If
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
                 End Try
             End If
 
 
             'DONE: Quests for taking
-            If CreatureQuestStarters.ContainsKey(creatureEntry) Then
+            If _WorldServer.CreatureQuestStarters.ContainsKey(creatureEntry) Then
                 Try
-                    For Each questID As Integer In CreatureQuestStarters(creatureEntry)
+                    For Each questID As Integer In _WorldServer.CreatureQuestStarters(creatureEntry)
                         If alreadyHave.Contains(questID) Then Continue For
-                        If Not ALLQUESTS.IsValidQuest(questID) Then
+                        If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                             Try 'Sometimes Initialising Questinfo triggers an exception
                                 Dim tmpQuest As New WS_QuestInfo(questID)
                                 If tmpQuest.CanSeeQuest(objCharacter) Then
@@ -176,18 +180,18 @@ Namespace Quests
                                     End If
                                 End If
                             Catch ex As Exception
-                                Log.WriteLine(LogType.WARNING, "GetQuestMenu returned error for QuestId {0}", questID)
+                                _WorldServer.Log.WriteLine(LogType.WARNING, "GetQuestMenu returned error for QuestId {0}", questID)
                             End Try
                         Else
-                            If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
-                                If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
-                                    questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                            If _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
+                                If _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
+                                    questMenu.AddMenu(_WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
                                 End If
                             End If
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
                 End Try
 
             End If
@@ -203,31 +207,31 @@ Namespace Quests
         ''' <returns></returns>
         Public Function GetQuestMenuGO(ByRef objCharacter As CharacterObject, ByVal guid As ULong) As QuestMenu
             Dim questMenu As New QuestMenu
-            Dim gOEntry As Integer = WORLD_GAMEOBJECTs(guid).ID
+            Dim gOEntry As Integer = _WorldServer.WORLD_GAMEOBJECTs(guid).ID
 
             'DONE: Quests for completing
             Dim alreadyHave As New List(Of Integer)
-            If GameobjectQuestFinishers.ContainsKey(gOEntry) Then
+            If _WorldServer.GameobjectQuestFinishers.ContainsKey(gOEntry) Then
                 Try
                     For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                         If objCharacter.TalkQuests(i) IsNot Nothing Then
                             alreadyHave.Add(objCharacter.TalkQuests(i).ID)
-                            If GameobjectQuestFinishers(gOEntry).Contains(objCharacter.TalkQuests(i).ID) Then
+                            If _WorldServer.GameobjectQuestFinishers(gOEntry).Contains(objCharacter.TalkQuests(i).ID) Then
                                 questMenu.AddMenu(objCharacter.TalkQuests(i).Title, objCharacter.TalkQuests(i).ID, 0, QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE)
                             End If
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "GetQuestMenuGO Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "GetQuestMenuGO Failed: ", ex.ToString())
                 End Try
             End If
 
             'DONE: Quests for taking
-            If GameobjectQuestStarters.ContainsKey(gOEntry) Then
+            If _WorldServer.GameobjectQuestStarters.ContainsKey(gOEntry) Then
                 Try
-                    For Each questID As Integer In GameobjectQuestStarters(gOEntry)
+                    For Each questID As Integer In _WorldServer.GameobjectQuestStarters(gOEntry)
                         If alreadyHave.Contains(questID) Then Continue For
-                        If Not ALLQUESTS.IsValidQuest(questID) Then
+                        If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                             Dim tmpQuest As New WS_QuestInfo(questID)
                             If tmpQuest.CanSeeQuest(objCharacter) Then
                                 If tmpQuest.SatisfyQuestLevel(objCharacter) Then
@@ -235,15 +239,15 @@ Namespace Quests
                                 End If
                             End If
                         Else
-                            If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
-                                If ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
-                                    questMenu.AddMenu(ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
+                            If _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) Then
+                                If _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).SatisfyQuestLevel(objCharacter) Then
+                                    questMenu.AddMenu(_WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).Title, questID, _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).Level_Normal, QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE)
                                 End If
                             End If
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "GetQuestMenuGO Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "GetQuestMenuGO Failed: ", ex.ToString())
                 End Try
             End If
 
@@ -277,7 +281,7 @@ Namespace Quests
                         packet.AddString(questMenu.Names(i))
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "GetQuestMenu Failed: ", ex.ToString())
                 End Try
                 objCharacter.client.Send(packet)
             Finally
@@ -311,7 +315,7 @@ Namespace Quests
                         If quest.RewardItems(i) <> 0 Then questRewardsCount += 1
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
                 End Try
 
                 packet.AddInt32(questRewardsCount)
@@ -319,14 +323,14 @@ Namespace Quests
                     For i As Integer = 0 To QuestInfo.QUEST_REWARD_CHOICES_COUNT
                         If quest.RewardItems(i) <> 0 Then
                             'Add item if not loaded into server
-                            If Not ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
+                            If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
                                 Dim tmpItem As New ItemInfo(quest.RewardItems(i))
                                 packet.AddInt32(tmpItem.Id)
                             Else
                                 packet.AddInt32(quest.RewardItems(i))
                             End If
                             packet.AddInt32(quest.RewardItems_Count(i))
-                            packet.AddInt32(ITEMDatabase(quest.RewardItems(i)).Model)
+                            packet.AddInt32(_WorldServer.ITEMDatabase(quest.RewardItems(i)).Model)
                         Else
                             packet.AddInt32(0)
                             packet.AddInt32(0)
@@ -334,7 +338,7 @@ Namespace Quests
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
                 End Try
                 'QuestRewards (Static)
                 questRewardsCount = 0
@@ -346,14 +350,14 @@ Namespace Quests
                     For i As Integer = 0 To QuestInfo.QUEST_REWARDS_COUNT
                         If quest.RewardStaticItems(i) <> 0 Then
                             'Add item if not loaded into server
-                            If Not ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
+                            If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
                                 Dim tmpItem As New ItemInfo(quest.RewardStaticItems(i))
                                 packet.AddInt32(tmpItem.Id)
                             Else
                                 packet.AddInt32(quest.RewardStaticItems(i))
                             End If
                             packet.AddInt32(quest.RewardStaticItems_Count(i))
-                            packet.AddInt32(ITEMDatabase(quest.RewardStaticItems(i)).Model)
+                            packet.AddInt32(_WorldServer.ITEMDatabase(quest.RewardStaticItems(i)).Model)
                         Else
                             packet.AddInt32(0)
                             packet.AddInt32(0)
@@ -361,7 +365,7 @@ Namespace Quests
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "SendQuestDetails Failed: ", ex.ToString())
                 End Try
 
                 packet.AddInt32(quest.RewardGold)
@@ -373,7 +377,7 @@ Namespace Quests
                 packet.AddInt32(questRewardsCount)
                 For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                     'Add item if not loaded into server
-                    If quest.ObjectivesItem(i) <> 0 AndAlso ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
+                    If quest.ObjectivesItem(i) <> 0 AndAlso _WorldServer.ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
                         Dim tmpItem As New ItemInfo(quest.ObjectivesItem(i))
                         packet.AddInt32(tmpItem.Id)
                     Else
@@ -392,7 +396,7 @@ Namespace Quests
                     packet.AddInt32(quest.ObjectivesKill_Count(i))
                 Next
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUESTGIVER_QUEST_DETAILS [GUID={2:X} Quest={3}]", client.IP, client.Port, guid, quest.ID)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUESTGIVER_QUEST_DETAILS [GUID={2:X} Quest={3}]", client.IP, client.Port, guid, quest.ID)
 
                 'Finishing
                 client.Send(packet)
@@ -448,7 +452,7 @@ Namespace Quests
                         packet.AddUInt32(quest.RewardStaticItems_Count(i))
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
                 End Try
 
                 Try
@@ -457,7 +461,7 @@ Namespace Quests
                         packet.AddUInt32(quest.RewardItems_Count(i))
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "SendQuest Failed: ", ex.ToString())
                 End Try
 
                 packet.AddUInt32(quest.PointMapID)       'Point MapID
@@ -486,12 +490,12 @@ Namespace Quests
                     packet.AddString(quest.ObjectivesText(i))
                 Next
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUEST_QUERY_RESPONSE [Quest={2}]", client.IP, client.Port, quest.ID)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_QUEST_QUERY_RESPONSE [Quest={2}]", client.IP, client.Port, quest.ID)
 
                 'Finishing
                 client.Send(packet)
             Catch ex As Exception
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SendQuest Failed [Quest={2}] {3}", client.IP, client.Port, quest.ID, ex.ToString())
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SendQuest Failed [Quest={2}] {3}", client.IP, client.Port, quest.ID, ex.ToString())
 
             Finally
                 packet.Dispose()
@@ -662,11 +666,11 @@ Namespace Quests
                         packet.AddInt32(quest.RewardItems_Count(i))
 
                         'Add item if not loaded into server
-                        If Not ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
+                        If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
                             Dim tmpItem As New ItemInfo(quest.RewardItems(i))
                             packet.AddInt32(tmpItem.Model)
                         Else
-                            packet.AddInt32(ITEMDatabase(quest.RewardItems(i)).Model)
+                            packet.AddInt32(_WorldServer.ITEMDatabase(quest.RewardItems(i)).Model)
                         End If
                     End If
                 Next
@@ -682,11 +686,11 @@ Namespace Quests
                         packet.AddInt32(quest.RewardStaticItems_Count(i))
 
                         'Add item if not loaded into server
-                        If Not ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
+                        If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
                             'TODO: Another one of these useless bits of code, needs to be implemented correctly
                             Dim tmpItem As New ItemInfo(quest.RewardStaticItems(i))
                         End If
-                        packet.AddInt32(ITEMDatabase(quest.RewardStaticItems(i)).Model)
+                        packet.AddInt32(_WorldServer.ITEMDatabase(quest.RewardStaticItems(i)).Model)
                     End If
                 Next
 
@@ -753,15 +757,15 @@ Namespace Quests
                 If requiredItemsCount > 0 Then
                     For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                         If quest.ObjectivesItem(i) <> 0 Then
-                            If ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
+                            If _WorldServer.ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
                                 Dim tmpItem As ItemInfo = New ItemInfo(quest.ObjectivesItem(i))
                                 packet.AddInt32(tmpItem.Id)
                             Else
                                 packet.AddInt32(quest.ObjectivesItem(i))
                             End If
                             packet.AddInt32(quest.ObjectivesItem_Count(i))
-                            If ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) Then
-                                packet.AddInt32(ITEMDatabase(quest.ObjectivesItem(i)).Model)
+                            If _WorldServer.ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) Then
+                                packet.AddInt32(_WorldServer.ITEMDatabase(quest.ObjectivesItem(i)).Model)
                             Else
                                 packet.AddInt32(0)
                             End If
@@ -793,7 +797,7 @@ Namespace Quests
         Public Sub LoadQuests(ByRef objCharacter As CharacterObject)
             Dim cQuests As New DataTable
             Dim i As Integer = 0
-            CharacterDatabase.Query(String.Format("SELECT quest_id, quest_status FROM characters_quests q WHERE q.char_guid = {0};", objCharacter.GUID), cQuests)
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT quest_id, quest_status FROM characters_quests q WHERE q.char_guid = {0};", objCharacter.GUID), cQuests)
 
             For Each cRow As DataRow In cQuests.Rows
                 Dim questID As Integer = cRow.Item("quest_id")
@@ -871,7 +875,7 @@ Namespace Quests
             For Each guid As ULong In objCharacter.Group.LocalMembers
                 If guid = objCharacter.GUID Then Continue For
 
-                With CHARACTERs(guid)
+                With _WorldServer.CHARACTERs(guid)
                     For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                         If (Not .TalkQuests(i) Is Nothing) AndAlso (.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_KILL) AndAlso (.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_CAST) = 0 Then
                             With .TalkQuests(i)
@@ -1002,7 +1006,7 @@ Namespace Quests
             isRaid = objCharacter.IsInRaid
             If objCharacter.IsInGroup Then
                 For Each guid As ULong In objCharacter.Group.LocalMembers
-                    With CHARACTERs(guid)
+                    With _WorldServer.CHARACTERs(guid)
                         For j As Integer = 0 To QuestInfo.QUEST_SLOTS
                             If (Not .TalkQuests(j) Is Nothing) AndAlso (.TalkQuests(j).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_ITEM) AndAlso isRaid = False Then
                                 With .TalkQuests(j)
@@ -1191,62 +1195,62 @@ Namespace Quests
 
             Dim alreadyHave As New List(Of Integer)
 
-            If GuidIsCreature(cGuid) = True Then    'Is the GUID a creature (or npc)
-                If WORLD_CREATUREs.ContainsKey(cGuid) = False Then
+            If _CommonGlobalFunctions.GuidIsCreature(cGuid) = True Then    'Is the GUID a creature (or npc)
+                If _WorldServer.WORLD_CREATUREs.ContainsKey(cGuid) = False Then
                     status = QuestgiverStatusFlag.DIALOG_STATUS_NONE
                     Return status
                 End If
 
-                Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} NPC Name: {1}", WORLD_CREATUREs(cGuid).ID, WORLD_CREATUREs(cGuid).Name)
-                '            Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} NPC Name: {1} Has Quest: {2}", WORLD_CREATUREs(cGuid).ID, WORLD_CREATUREs(cGuid).Name, IsNothing(WORLD_CREATUREs(cGuid).CreatureInfo.TalkScript))
-                ' Log.WriteLine(LogType.CRITICAL, "Status = {0} {1} {2}", WORLD_CREATUREs(cGUID).)
-                '     If IsNothing(WORLD_CREATUREs(cGUID).CreatureInfo.TalkScript) = False Then    'NPC is a questgiven
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} NPC Name: {1}", _WorldServer.WORLD_CREATUREs(cGuid).ID, _WorldServer.WORLD_CREATUREs(cGuid).Name)
+                '            _WorldServer.Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} NPC Name: {1} Has Quest: {2}", _WorldServer.WORLD_CREATUREs(cGuid).ID, _WorldServer.WORLD_CREATUREs(cGuid).Name, IsNothing(_WorldServer.WORLD_CREATUREs(cGuid).CreatureInfo.TalkScript))
+                ' _WorldServer.Log.WriteLine(LogType.CRITICAL, "Status = {0} {1} {2}", _WorldServer.WORLD_CREATUREs(cGUID).)
+                '     If IsNothing(_WorldServer.WORLD_CREATUREs(cGUID).CreatureInfo.TalkScript) = False Then    'NPC is a questgiven
                 Dim creatureQuestId As Integer
-                creatureQuestId = WORLD_CREATUREs(cGuid).ID
+                creatureQuestId = _WorldServer.WORLD_CREATUREs(cGuid).ID
                 If IsValidQuest(creatureQuestId) = True Then
-                    Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} Valid Quest: {1}", WORLD_CREATUREs(cGuid).ID, IsValidQuest(creatureQuestId))
-                    If CreatureQuestStarters.ContainsKey(creatureQuestId) = True Then
-                        For Each questID As Integer In CreatureQuestStarters(creatureQuestId)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "QuestStatus ID: {0} Valid Quest: {1}", _WorldServer.WORLD_CREATUREs(cGuid).ID, IsValidQuest(creatureQuestId))
+                    If _WorldServer.CreatureQuestStarters.ContainsKey(creatureQuestId) = True Then
+                        For Each questID As Integer In _WorldServer.CreatureQuestStarters(creatureQuestId)
                             Try
-                                If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
+                                If _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
                                     'If objCharacter.IsQuestInProgress(creatureQuestId) = False Then
-                                    '    Dim Prequest As Mangos.WorldServer.WS_QuestInfo = ALLQUESTS.ReturnQuestInfoById(creatureQuestId)
+                                    '    Dim Prequest As Mangos.WorldServer.WS_QuestInfo = _WorldServer.ALLQUESTS.ReturnQuestInfoById(creatureQuestId)
                                     '    Prequest.PreQuests.Contains()
-                                    'ALLQUESTS.DoesPreQuestExist(creatureQuestId,
+                                    '_WorldServer.ALLQUESTS.DoesPreQuestExist(creatureQuestId,
 
                                     status = QuestgiverStatusFlag.DIALOG_STATUS_AVAILABLE
                                     Return status
                                     'End If
                                 End If
                             Catch ex As Exception
-                                Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
+                                _WorldServer.Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
                             End Try
                         Next
 
-                        If CreatureQuestFinishers.ContainsKey(creatureQuestId) Then
-                            For Each questID As Integer In CreatureQuestFinishers(creatureQuestId)
+                        If _WorldServer.CreatureQuestFinishers.ContainsKey(creatureQuestId) Then
+                            For Each questID As Integer In _WorldServer.CreatureQuestFinishers(creatureQuestId)
                                 Try
-                                    If ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
+                                    If _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID).CanSeeQuest(objCharacter) = True Then
                                         If objCharacter.IsQuestInProgress(questID) = True Then
                                             status = QuestgiverStatusFlag.DIALOG_STATUS_REWARD
                                             Return status
                                         End If
                                     End If
                                 Catch ex As Exception
-                                    Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
+                                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "GetQuestGiverStatus Error")
                                 End Try
                             Next
                         End If
                     End If
                 End If
-                'If WORLD_CREATUREs(cGUID).CreatureInfo.Id
+                'If _WorldServer.WORLD_CREATUREs(cGUID).CreatureInfo.Id
                 'IF cannot see quest, run line below
-                status = WORLD_CREATUREs(cGuid).CreatureInfo.TalkScript.OnQuestStatus(objCharacter, cGuid)
+                status = _WorldServer.WORLD_CREATUREs(cGuid).CreatureInfo.TalkScript.OnQuestStatus(objCharacter, cGuid)
                 Return status
                 'End If
 
-            ElseIf GuidIsGameObject(cGuid) = True Then  'Or is it a worldobject
-                If WORLD_GAMEOBJECTs.ContainsKey(cGuid) = False Then
+            ElseIf _CommonGlobalFunctions.GuidIsGameObject(cGuid) = True Then  'Or is it a worldobject
+                If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(cGuid) = False Then
                     status = QuestgiverStatusFlag.DIALOG_STATUS_NONE
                     Return status
 
@@ -1260,8 +1264,8 @@ Namespace Quests
             For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If objCharacter.TalkQuests(i) IsNot Nothing Then
                     alreadyHave.Add(objCharacter.TalkQuests(i).ID)
-                    If GuidIsCreature(cGuid) Then
-                        If CreatureQuestFinishers.ContainsKey(WORLD_CREATUREs(cGuid).ID) AndAlso CreatureQuestFinishers(WORLD_CREATUREs(cGuid).ID).Contains(objCharacter.TalkQuests(i).ID) Then
+                    If _CommonGlobalFunctions.GuidIsCreature(cGuid) Then
+                        If _WorldServer.CreatureQuestFinishers.ContainsKey(_WorldServer.WORLD_CREATUREs(cGuid).ID) AndAlso _WorldServer.CreatureQuestFinishers(_WorldServer.WORLD_CREATUREs(cGuid).ID).Contains(objCharacter.TalkQuests(i).ID) Then
                             If objCharacter.TalkQuests(i).Complete Then
                                 status = QuestgiverStatusFlag.DIALOG_STATUS_REWARD
                                 Exit For
@@ -1269,7 +1273,7 @@ Namespace Quests
                             status = QuestgiverStatusFlag.DIALOG_STATUS_INCOMPLETE
                         End If
                     Else
-                        If GameobjectQuestFinishers.ContainsKey(WORLD_GAMEOBJECTs(cGuid).ID) AndAlso GameobjectQuestFinishers(WORLD_GAMEOBJECTs(cGuid).ID).Contains(objCharacter.TalkQuests(i).ID) Then
+                        If _WorldServer.GameobjectQuestFinishers.ContainsKey(_WorldServer.WORLD_GAMEOBJECTs(cGuid).ID) AndAlso _WorldServer.GameobjectQuestFinishers(_WorldServer.WORLD_GAMEOBJECTs(cGuid).ID).Contains(objCharacter.TalkQuests(i).ID) Then
                             If objCharacter.TalkQuests(i).Complete Then
                                 status = QuestgiverStatusFlag.DIALOG_STATUS_REWARD
                                 Exit For
@@ -1300,7 +1304,7 @@ Namespace Quests
                     response.Dispose()
                 End Try
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_STATUS_QUERY - Error in questgiver status query.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_STATUS_QUERY - Error in questgiver status query.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -1310,20 +1314,20 @@ Namespace Quests
                 packet.GetInt16()
                 Dim guid As ULong = packet.GetUInt64
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_HELLO [GUID={2:X}]", client.IP, client.Port, guid)
-                If WORLD_CREATUREs(guid).Evade Then Exit Sub
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_HELLO [GUID={2:X}]", client.IP, client.Port, guid)
+                If _WorldServer.WORLD_CREATUREs(guid).Evade Then Exit Sub
 
-                WORLD_CREATUREs(guid).StopMoving()
+                _WorldServer.WORLD_CREATUREs(guid).StopMoving()
                 client.Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TALK)
 
                 'TODO: There is something here not working all the time :/
-                If CREATURESDatabase(WORLD_CREATUREs(guid).ID).TalkScript Is Nothing Then
+                If _WorldServer.CREATURESDatabase(_WorldServer.WORLD_CREATUREs(guid).ID).TalkScript Is Nothing Then
                     SendQuestMenu(client.Character, guid, "I have some tasks for you, $N.")
                 Else
-                    CREATURESDatabase(WORLD_CREATUREs(guid).ID).TalkScript.OnGossipHello(client.Character, guid)
+                    _WorldServer.CREATURESDatabase(_WorldServer.WORLD_CREATUREs(guid).ID).TalkScript.OnGossipHello(client.Character, guid)
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_HELLO - Error when sending quest menu.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_HELLO - Error when sending quest menu.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -1333,22 +1337,22 @@ Namespace Quests
             Dim guid As ULong = packet.GetUInt64
             Dim questID As Integer = packet.GetInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_QUERY_QUEST [GUID={2:X} QuestID={3}]", client.IP, client.Port, guid, questID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_QUERY_QUEST [GUID={2:X} QuestID={3}]", client.IP, client.Port, guid, questID)
 
-            If Not ALLQUESTS.IsValidQuest(questID) Then
+            If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                 Dim tmpQuest As New WS_QuestInfo(questID)
                 Try
                     client.Character.TalkCurrentQuest = tmpQuest
                     SendQuestDetails(client, client.Character.TalkCurrentQuest, guid, True)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
             Else
                 Try
-                    client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                    client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
                     SendQuestDetails(client, client.Character.TalkCurrentQuest, guid, True)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_QUERY_QUEST - Error while querying a quest.{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
             End If
         End Sub
@@ -1359,26 +1363,26 @@ Namespace Quests
             Dim guid As ULong = packet.GetUInt64
             Dim questID As Integer = packet.GetInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_ACCEPT_QUEST [GUID={2:X} QuestID={3}]", client.IP, client.Port, guid, questID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_ACCEPT_QUEST [GUID={2:X} QuestID={3}]", client.IP, client.Port, guid, questID)
 
-            If Not ALLQUESTS.IsValidQuest(questID) Then
+            If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                 Dim tmpQuest As New WS_QuestInfo(questID)
                 'Load quest data
                 If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = tmpQuest
             Else
                 'Load quest data
-                If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
             End If
 
             If client.Character.TalkCanAccept(client.Character.TalkCurrentQuest) Then
                 If client.Character.TalkAddQuest(client.Character.TalkCurrentQuest) Then
-                    If GuidIsPlayer(guid) Then
+                    If _CommonGlobalFunctions.GuidIsPlayer(guid) Then
                         Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                         Try
                             response.AddUInt64(client.Character.GUID)
                             response.AddInt8(QuestPartyPushError.QUEST_PARTY_MSG_ACCEPT_QUEST)
                             response.AddInt32(0)
-                            CHARACTERs(guid).client.Send(response)
+                            _WorldServer.CHARACTERs(guid).client.Send(response)
                         Finally
                             response.Dispose()
                         End Try
@@ -1409,7 +1413,7 @@ Namespace Quests
             packet.GetInt16()
             Dim slot As Byte = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTLOG_REMOVE_QUEST [Slot={2}]", client.IP, client.Port, slot)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTLOG_REMOVE_QUEST [Slot={2}]", client.IP, client.Port, slot)
 
             client.Character.TalkDeleteQuest(slot)
         End Sub
@@ -1419,9 +1423,9 @@ Namespace Quests
             packet.GetInt16()
             Dim questID As Integer = packet.GetInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUEST_QUERY [QuestID={2}]", client.IP, client.Port, questID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUEST_QUERY [QuestID={2}]", client.IP, client.Port, questID)
 
-            If Not ALLQUESTS.IsValidQuest(questID) Then
+            If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                 Dim tmpQuest As New WS_QuestInfo(questID)
                 If client.Character.TalkCurrentQuest Is Nothing Then
                     SendQuest(client, tmpQuest)
@@ -1435,20 +1439,20 @@ Namespace Quests
                 End If
             Else
                 If client.Character.TalkCurrentQuest Is Nothing Then
-                    SendQuest(client, ALLQUESTS.ReturnQuestInfoById(questID))
+                    SendQuest(client, _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID))
                     Exit Sub
                 End If
 
                 If client.Character.TalkCurrentQuest.ID = questID Then
                     SendQuest(client, client.Character.TalkCurrentQuest)
                 Else
-                    SendQuest(client, ALLQUESTS.ReturnQuestInfoById(questID))
+                    SendQuest(client, _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID))
                 End If
             End If
         End Sub
 
         Public Sub CompleteQuest(ByRef objCharacter As CharacterObject, ByVal questID As Integer, ByVal questGiverGuid As ULong)
-            If Not ALLQUESTS.IsValidQuest(questID) Then
+            If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                 Dim tmpQuest As New WS_QuestInfo(questID)
                 For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                     If Not objCharacter.TalkQuests(i) Is Nothing Then
@@ -1481,8 +1485,8 @@ Namespace Quests
                         If objCharacter.TalkQuests(i).ID = questID Then
 
                             'Load quest data
-                            If objCharacter.TalkCurrentQuest Is Nothing Then objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                            If objCharacter.TalkCurrentQuest.ID <> questID Then objCharacter.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                            If objCharacter.TalkCurrentQuest Is Nothing Then objCharacter.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
+                            If objCharacter.TalkCurrentQuest.ID <> questID Then objCharacter.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
 
                             If objCharacter.TalkQuests(i).Complete Then
                                 'DONE: Show completion dialog
@@ -1511,7 +1515,7 @@ Namespace Quests
             Dim guid As ULong = packet.GetUInt64
             Dim questID As Integer = packet.GetInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_COMPLETE_QUEST [GUID={2:X} Quest={3}]", client.IP, client.Port, guid, questID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_COMPLETE_QUEST [GUID={2:X} Quest={3}]", client.IP, client.Port, guid, questID)
 
             CompleteQuest(client.Character, questID, guid)
         End Sub
@@ -1522,9 +1526,9 @@ Namespace Quests
             Dim guid As ULong = packet.GetUInt64
             Dim questID As Integer = packet.GetInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_REQUEST_REWARD [GUID={2:X} Quest={3}]", client.IP, client.Port, guid, questID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_REQUEST_REWARD [GUID={2:X} Quest={3}]", client.IP, client.Port, guid, questID)
 
-            If Not ALLQUESTS.IsValidQuest(questID) Then
+            If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                 Dim tmpQuest As New WS_QuestInfo(questID)
                 For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                     If client.Character.TalkQuests(i) IsNot Nothing AndAlso client.Character.TalkQuests(i).ID = questID AndAlso client.Character.TalkQuests(i).Complete Then
@@ -1541,7 +1545,7 @@ Namespace Quests
                     If client.Character.TalkQuests(i) IsNot Nothing AndAlso client.Character.TalkQuests(i).ID = questID AndAlso client.Character.TalkQuests(i).Complete Then
 
                         'Load quest data
-                        If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                        If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
                         SendQuestReward(client, client.Character.TalkCurrentQuest, guid, client.Character.TalkQuests(i))
 
                         Exit For
@@ -1558,14 +1562,14 @@ Namespace Quests
             Dim questID As Integer = packet.GetInt32
             Dim rewardIndex As Integer = packet.GetInt32
 
-            If Not ALLQUESTS.IsValidQuest(questID) Then
+            If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                 Try
-                    Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", client.IP, client.Port, guid, questID, rewardIndex)
-                    If WORLD_CREATUREs.ContainsKey(guid) = False Then Exit Sub
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", client.IP, client.Port, guid, questID, rewardIndex)
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(guid) = False Then Exit Sub
 
                     'Load quest data
-                    If client.Character.TalkCurrentQuest Is Nothing Then client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                    If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                    If client.Character.TalkCurrentQuest Is Nothing Then client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
+                    If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
 
                     'DONE: Removing required gold
                     If client.Character.TalkCurrentQuest.RewardGold < 0 Then
@@ -1634,7 +1638,7 @@ Namespace Quests
                         Dim spellTargets As New WS_Spells.SpellTargets
                         spellTargets.SetTarget_UNIT(client.Character)
 
-                        Dim castParams As New CastSpellParameters(spellTargets, WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
+                        Dim castParams As New CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
                         ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
                     End If
 
@@ -1705,27 +1709,27 @@ Namespace Quests
 
                     'DONE: Follow-up quests (no requirements checked?)
                     If client.Character.TalkCurrentQuest.NextQuest <> 0 Then
-                        If Not ALLQUESTS.IsValidQuest(client.Character.TalkCurrentQuest.NextQuest) Then
+                        If Not _WorldServer.ALLQUESTS.IsValidQuest(client.Character.TalkCurrentQuest.NextQuest) Then
                             Dim tmpQuest2 As New WS_QuestInfo(client.Character.TalkCurrentQuest.NextQuest)
                             client.Character.TalkCurrentQuest = tmpQuest2
                         Else
-                            client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(client.Character.TalkCurrentQuest.NextQuest)
+                            client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(client.Character.TalkCurrentQuest.NextQuest)
                         End If
                         SendQuestDetails(client, client.Character.TalkCurrentQuest, guid, True)
                     End If
 
                 Catch e As Exception
-                    Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", Environment.NewLine & e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", Environment.NewLine & e.ToString)
                 End Try
 
             Else
                 Try
-                    Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", client.IP, client.Port, guid, questID, rewardIndex)
-                    If WORLD_CREATUREs.ContainsKey(guid) = False Then Exit Sub
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_QUESTGIVER_CHOOSE_REWARD [GUID={2:X} Quest={3} Reward={4}]", client.IP, client.Port, guid, questID, rewardIndex)
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(guid) = False Then Exit Sub
 
                     'Load quest data
-                    If client.Character.TalkCurrentQuest Is Nothing Then client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
-                    If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                    If client.Character.TalkCurrentQuest Is Nothing Then client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
+                    If client.Character.TalkCurrentQuest.ID <> questID Then client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
 
                     'DONE: Removing required gold
                     If client.Character.TalkCurrentQuest.RewardGold < 0 Then
@@ -1794,7 +1798,7 @@ Namespace Quests
                         Dim spellTargets As New SpellTargets
                         spellTargets.SetTarget_UNIT(client.Character)
 
-                        Dim castParams As New CastSpellParameters(spellTargets, WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
+                        Dim castParams As New CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
                         ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
                     End If
 
@@ -1865,18 +1869,18 @@ Namespace Quests
 
                     'DONE: Follow-up quests (no requirements checked?)
                     If client.Character.TalkCurrentQuest.NextQuest <> 0 Then
-                        If Not ALLQUESTS.IsValidQuest(client.Character.TalkCurrentQuest.NextQuest) Then
+                        If Not _WorldServer.ALLQUESTS.IsValidQuest(client.Character.TalkCurrentQuest.NextQuest) Then
                             Dim tmpQuest3 As New WS_QuestInfo(client.Character.TalkCurrentQuest.NextQuest)
                             client.Character.TalkCurrentQuest = tmpQuest3
 
                         Else
-                            client.Character.TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(client.Character.TalkCurrentQuest.NextQuest)
+                            client.Character.TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(client.Character.TalkCurrentQuest.NextQuest)
                         End If
                         SendQuestDetails(client, client.Character.TalkCurrentQuest, guid, True)
                     End If
 
                 Catch e As Exception
-                    Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", Environment.NewLine & e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "On_CMSG_QUESTGIVER_CHOOSE_REWARD - Error while choosing reward.{0}", Environment.NewLine & e.ToString)
                 End Try
 
             End If
@@ -1888,15 +1892,15 @@ Namespace Quests
             packet.GetInt16()
             Dim questID As Integer = packet.GetInt32
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PUSHQUESTTOPARTY [{2}]", client.IP, client.Port, questID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PUSHQUESTTOPARTY [{2}]", client.IP, client.Port, questID)
 
             If client.Character.IsInGroup Then
-                If Not ALLQUESTS.IsValidQuest(questID) Then
+                If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                     Dim tmpQuest As New WS_QuestInfo(questID)
                     For Each guid As ULong In client.Character.Group.LocalMembers
                         If guid = client.Character.GUID Then Continue For
 
-                        With CHARACTERs(guid)
+                        With _WorldServer.CHARACTERs(guid)
 
                             Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                             response.AddUInt64(guid)
@@ -1939,7 +1943,7 @@ Namespace Quests
                     For Each guid As ULong In client.Character.Group.LocalMembers
                         If guid = client.Character.GUID Then Continue For
 
-                        With CHARACTERs(guid)
+                        With _WorldServer.CHARACTERs(guid)
 
                             Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                             response.AddUInt64(guid)
@@ -1958,7 +1962,7 @@ Namespace Quests
                             ElseIf .IsQuestCompleted(questID) Then
                                 message = QuestPartyPushError.QUEST_PARTY_MSG_FINISH_QUEST
                             Else
-                                If (.TalkCurrentQuest Is Nothing) OrElse (.TalkCurrentQuest.ID <> questID) Then .TalkCurrentQuest = ALLQUESTS.ReturnQuestInfoById(questID)
+                                If (.TalkCurrentQuest Is Nothing) OrElse (.TalkCurrentQuest.ID <> questID) Then .TalkCurrentQuest = _WorldServer.ALLQUESTS.ReturnQuestInfoById(questID)
                                 If .TalkCanAccept(.TalkCurrentQuest) Then
                                     SendQuestDetails(.client, .TalkCurrentQuest, client.Character.GUID, True)
                                 Else
@@ -1988,7 +1992,7 @@ Namespace Quests
             Dim guid As ULong = packet.GetUInt64
             Dim message As QuestPartyPushError = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_QUEST_PUSH_RESULT [{2:X} {3}]", client.IP, client.Port, guid, message)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_QUEST_PUSH_RESULT [{2:X} {3}]", client.IP, client.Port, guid, message)
 
             Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
             response.AddUInt64(guid)

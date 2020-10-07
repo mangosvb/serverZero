@@ -19,6 +19,7 @@
 Imports System.ComponentModel
 Imports System.IO
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace DataStores
     <Description("DBC wrapper class using optimizations for reading row by row.")> _
@@ -48,29 +49,29 @@ Namespace DataStores
             tmpRowRead = Row
         End Sub
 
-        <Description("Access to item by row and column.")> _
-        Public Overrides ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As GlobalEnum.DBCValueType = DBCValueType.DBC_INTEGER) As Object
+        <Description("Access to item by row and column.")>
+        Public Overrides ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As DBCValueType = DBCValueType.DBC_INTEGER) As Object
             Get
                 If row >= Rows Then Throw New ApplicationException("DBC: Row index outside file definition.")
                 If column >= Columns Then Throw New ApplicationException("DBC: Column index outside file definition.")
 
                 If TmpRowRead <> row Then ReadRow(row)
 
-                Array.Copy(TmpRow, column * 4, buffer, 0, 4)
+                Array.Copy(TmpRow, column * 4, Buffer, 0, 4)
 
-                Select Case ValueType
+                Select Case valueType
                     Case DBCValueType.DBC_INTEGER
-                        Return BitConverter.ToInt32(buffer, 0)
+                        Return BitConverter.ToInt32(Buffer, 0)
                     Case DBCValueType.DBC_FLOAT
-                        Return BitConverter.ToSingle(buffer, 0)
+                        Return BitConverter.ToSingle(Buffer, 0)
                     Case DBCValueType.DBC_STRING
-                        Dim offset As Integer = BitConverter.ToInt32(buffer, 0)
-                        fs.Seek(20 + Rows * RowLength + offset, SeekOrigin.Begin)
+                        Dim offset As Integer = BitConverter.ToInt32(Buffer, 0)
+                        Fs.Seek(20 + Rows * RowLength + offset, SeekOrigin.Begin)
 
                         Dim strByte As Byte = 0
                         Dim strResult As String = ""
                         Do
-                            strByte = fs.ReadByte()
+                            strByte = Fs.ReadByte()
                             strResult &= Chr(strByte)
                         Loop While strByte <> 0
 

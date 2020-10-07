@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -58,7 +60,7 @@ Namespace Creatures
             AllowedAttack = True
             Phase = 1
             'ReinitSpells()
-            aiCreature.SendChatMessage("Patchwerk want to play!", ChatEnum.ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+            aiCreature.SendChatMessage("Patchwerk want to play!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
             aiCreature.SendPlaySound(8909, True)
         End Sub
 

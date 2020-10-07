@@ -19,6 +19,8 @@
 Imports System.Data
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.GameObject
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -26,20 +28,21 @@ Imports Mangos.World.Handlers
 Imports Mangos.World.Maps
 Imports Mangos.World.Player
 Imports Mangos.World.Server
+Imports Mangos.Common
 
 Namespace Objects
 
     Public Module WS_Transports
         Private Function GetNewGUID() As ULong
-            TransportGUIDCounter += 1
-            GetNewGUID = TransportGUIDCounter
+            _WorldServer.TransportGUIDCounter += 1
+            GetNewGUID = _WorldServer.TransportGUIDCounter
         End Function
 
 #Region "Transports"
         Public Sub LoadTransports()
             Try
                 Dim TransportQuery As New DataTable
-                WorldDatabase.Query("SELECT * FROM transports", TransportQuery)
+                _WorldServer.WorldDatabase.Query("SELECT * FROM transports", TransportQuery)
 
                 For Each Transport As DataRow In TransportQuery.Rows
                     Dim TransportEntry As Integer = Transport.Item("entry")
@@ -49,7 +52,7 @@ Namespace Objects
                     Dim newTransport As New TransportObject(TransportEntry, TransportName, TransportPeriod)
                 Next
 
-                Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Database: {0} Transports initialized.", TransportQuery.Rows.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} Transports initialized.", TransportQuery.Rows.Count)
             Catch e As IO.DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : TransportQuery missing.")
@@ -156,9 +159,9 @@ Namespace Objects
                 TransportState = TransportStates.TRANSPORT_DOCKED
                 TimeToNextEvent = 60000
 
-                WORLD_TRANSPORTs_Lock.AcquireWriterLock(Timeout.Infinite)
-                WORLD_TRANSPORTs.Add(GUID, Me)
-                WORLD_TRANSPORTs_Lock.ReleaseWriterLock()
+                _WorldServer.WORLD_TRANSPORTs_Lock.AcquireWriterLock(Timeout.Infinite)
+                _WorldServer.WORLD_TRANSPORTs.Add(GUID, Me)
+                _WorldServer.WORLD_TRANSPORTs_Lock.ReleaseWriterLock()
 
                 'Update the transport so that we get it's current position
                 Update()
@@ -168,7 +171,7 @@ Namespace Objects
                 Dim PathID As Integer = Sound(0)
                 Dim ShipSpeed As Single = Sound(1)
                 If TaxiPaths.ContainsKey(PathID) = False Then
-                    Log.WriteLine(LogType.CRITICAL, "An transport [{0} - {1}] is created with an invalid TaxiPath.", ID, TransportName)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "An transport [{0} - {1}] is created with an invalid TaxiPath.", ID, TransportName)
                     Return False
                 End If
 
@@ -405,7 +408,7 @@ Namespace Objects
                 Dim mePacket As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 mePacket.AddInt32(1)
                 mePacket.AddInt8(0)
-                Dim meTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
+                Dim meTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 Character.FillAllUpdateFlags(meTmpUpdate)
                 meTmpUpdate.AddToPacket(mePacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Character)
                 meTmpUpdate.Dispose()
@@ -421,7 +424,7 @@ Namespace Objects
                             Try
                                 myPacket.AddInt32(1)
                                 myPacket.AddInt8(0)
-                                Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
+                                Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                 CType(tmpUnit, CharacterObject).FillAllUpdateFlags(myTmpUpdate)
                                 myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CharacterObject))
                                 myTmpUpdate.Dispose()
@@ -445,7 +448,7 @@ Namespace Objects
                             Try
                                 myPacket.AddInt32(1)
                                 myPacket.AddInt8(0)
-                                Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
+                                Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
                                 CType(tmpUnit, CreatureObject).FillAllUpdateFlags(myTmpUpdate)
                                 myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CreatureObject))
                                 myTmpUpdate.Dispose()
@@ -497,20 +500,20 @@ Namespace Objects
                             With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                 list = .PlayersHere.ToArray
                                 For Each plGUID As ULong In list
-                                    If CHARACTERs.ContainsKey(plGUID) AndAlso CHARACTERs(plGUID).CanSee(Me) Then
+                                    If _WorldServer.CHARACTERs.ContainsKey(plGUID) AndAlso _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
                                         Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                         Try
                                             packet.AddInt32(1)
                                             packet.AddInt8(0)
-                                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
+                                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                                             Try
-                                                FillAllUpdateFlags(tmpUpdate, CHARACTERs(plGUID))
+                                                FillAllUpdateFlags(tmpUpdate, _WorldServer.CHARACTERs(plGUID))
                                                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
                                             Finally
                                                 tmpUpdate.Dispose()
                                             End Try
-                                            CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
-                                            CHARACTERs(plGUID).gameObjectsNear.Add(GUID)
+                                            _WorldServer.CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                            _WorldServer.CHARACTERs(plGUID).gameObjectsNear.Add(GUID)
                                             SeenBy.Add(plGUID)
                                         Finally
                                             packet.Dispose()
@@ -526,12 +529,12 @@ Namespace Objects
             Public Sub NotifyLeave()
                 'DONE: Removing from players that can see the object
                 For Each plGUID As ULong In SeenBy.ToArray
-                    If CHARACTERs(plGUID).gameObjectsNear.Contains(GUID) Then
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                        CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
+                    If _WorldServer.CHARACTERs(plGUID).gameObjectsNear.Contains(GUID) Then
+                        _WorldServer.CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                        _WorldServer.CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
+                        _WorldServer.CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 
-                        CHARACTERs(plGUID).gameObjectsNear.Remove(GUID)
+                        _WorldServer.CHARACTERs(plGUID).gameObjectsNear.Remove(GUID)
                         SeenBy.Remove(plGUID)
                     End If
                 Next
@@ -576,7 +579,7 @@ Namespace Objects
                             'TODO: What more?
                         End If
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Failed to transfer player [0x{0:X}].{1}{2}", tmpUnit.GUID, Environment.NewLine, ex.ToString)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Failed to transfer player [0x{0:X}].{1}{2}", tmpUnit.GUID, Environment.NewLine, ex.ToString)
                     End Try
                 Next
 

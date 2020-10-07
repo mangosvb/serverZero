@@ -20,6 +20,7 @@ Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.World.Auction
 Imports Mangos.World.Loots
 Imports Mangos.World.Maps
@@ -41,13 +42,13 @@ Namespace DataStores
 
                 For i As Integer = 0 To tmpDBC.Rows - 1
                     radiusID = tmpDBC.Item(i, 0)
-                    radiusValue = tmpDBC.Item(i, 1, GlobalEnum.DBCValueType.DBC_FLOAT)
+                    radiusValue = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT)
                     '   radiusValue2 = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT) ' May be needed in the future
 
                     SpellRadius(radiusID) = radiusValue
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -69,7 +70,7 @@ Namespace DataStores
                     SpellCastTime(spellCastID) = spellCastTimeS
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -93,7 +94,7 @@ Namespace DataStores
                     SpellRange(spellRangeIndex) = spellRangeMax
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -120,7 +121,7 @@ Namespace DataStores
                 Next i
 
                 tmpDBC.Dispose()
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellShapeshiftForms initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellShapeshiftForms initialized.", tmpDBC.Rows - 1)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("DBC File : SpellShapeshiftForms missing.")
@@ -141,7 +142,7 @@ Namespace DataStores
                     SpellFocusObject(spellFocusIndex) = spellFocusObjectName
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -168,7 +169,7 @@ Namespace DataStores
                 Next i
 
                 tmpDBC.Dispose()
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellDurations initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellDurations initialized.", tmpDBC.Rows - 1)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("DBC File : SpellDurations missing.")
@@ -180,7 +181,7 @@ Namespace DataStores
             Try
                 Dim spellDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Spell.dbc")
                 'Console.WriteLine("[" & Format(TimeOfDay, "hh:mm:ss") & "] " & SpellDBC.GetFileInformation)
-                Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: Initializing Spells - This may take a few moments....")
 
                 Dim id As Integer
                 For i As Long = 0 To spellDBC.Rows - 1
@@ -347,12 +348,12 @@ Namespace DataStores
                         WS_Spells.SPELLs(id).InitCustomAttributes()
 
                     Catch e As Exception
-                        Log.WriteLine(LogType.FAILED, "Line {0} caused error: {1}", i, e.ToString)
+                        _WorldServer.Log.WriteLine(LogType.FAILED, "Line {0} caused error: {1}", i, e.ToString)
                     End Try
 
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Spells initialized.", spellDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Spells initialized.", spellDBC.Rows - 1)
                 spellDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -364,13 +365,13 @@ Namespace DataStores
         Public Sub InitializeSpellChains()
             Try
                 Dim spellChainQuery As New DataTable
-                WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", spellChainQuery)
+                _WorldServer.WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", spellChainQuery)
 
                 For Each spellChain As DataRow In spellChainQuery.Rows
                     SpellChains.Add(spellChain.Item("spell_id"), spellChain.Item("prev_spell"))
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "Database: {0} SpellChains initialized.", spellChainQuery.Rows.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} SpellChains initialized.", spellChainQuery.Rows.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : SpellChains missing.")
@@ -401,12 +402,12 @@ Namespace DataStores
                     taxiMountTypeHorde = tmpDBC.Item(i, 14)
                     taxiMountTypeAlliance = tmpDBC.Item(i, 15)
 
-                    If Config.Maps.Contains(taxiMapID.ToString) Then
+                    If _WorldServer.Config.Maps.Contains(taxiMapID.ToString) Then
                         TaxiNodes.Add(taxiNode, New TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountTypeHorde, taxiMountTypeAlliance))
                     End If
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiNodes initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiNodes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -434,7 +435,7 @@ Namespace DataStores
 
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPaths initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPaths initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -468,7 +469,7 @@ Namespace DataStores
                     taxiAction = tmpDBC.Item(i, 7)
                     taxiWait = tmpDBC.Item(i, 8)
 
-                    If Config.Maps.Contains(taxiMapID.ToString) Then
+                    If _WorldServer.Config.Maps.Contains(taxiMapID.ToString) Then
                         If TaxiPathNodes.ContainsKey(taxiPath) = False Then
                             TaxiPathNodes.Add(taxiPath, New Dictionary(Of Integer, TTaxiPathNode))
                         End If
@@ -476,7 +477,7 @@ Namespace DataStores
                     End If
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPathNodes initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPathNodes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -510,7 +511,7 @@ Namespace DataStores
                     SkillLines(skillID) = skillLine
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -542,7 +543,7 @@ Namespace DataStores
                     SkillLineAbility.Add(tmpSkillLineAbility.ID, tmpSkillLineAbility)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -582,7 +583,7 @@ Namespace DataStores
                     Locks(lockID) = New WS_Loot.TLock(keyType, key, reqMining, reqLockSkill)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -637,7 +638,7 @@ Namespace DataStores
                         }
                     'AreaTable(areaExploreFlag).Team = areaTeam
                 Next i
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", tmpDbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", tmpDbc.Rows - 1)
                 tmpDbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -661,7 +662,7 @@ Namespace DataStores
                     If emoteID <> 0 Then EmotesState(emoteID) = emoteState
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -693,7 +694,7 @@ Namespace DataStores
                     If emoteID <> 0 Then EmotesText(textEmoteID) = emoteID
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", tmpDbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", tmpDbc.Rows - 1)
                 tmpDbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -738,7 +739,7 @@ Namespace DataStores
                                                           reputationFlags(0), reputationFlags(1), reputationFlags(2), reputationFlags(3))
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Factions initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Factions initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -771,7 +772,7 @@ Namespace DataStores
                     FactionTemplatesInfo(templateID).friendFaction4 = tmpDBC.Item(i, 13)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -807,7 +808,7 @@ Namespace DataStores
                     CharRaces(CByte(raceID)) = New TCharRace(factionID, modelM, modelF, teamID, taxiMask, cinematicID, name)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -831,7 +832,7 @@ Namespace DataStores
                     CharClasses(CByte(classID)) = New TCharClass(cinematicID)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -860,7 +861,7 @@ Namespace DataStores
 
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} DurabilityCosts initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} DurabilityCosts initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -901,7 +902,7 @@ Namespace DataStores
                     Talents.Add(tmpInfo.TalentID, tmpInfo)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -926,7 +927,7 @@ Namespace DataStores
                     TalentsTab.Add(talentTab, talentMask)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -959,7 +960,7 @@ Namespace DataStores
 
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} AuctionHouses initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} AuctionHouses initialized.", dbc.Rows - 1)
                 dbc.Dispose()
 
             Catch e As DirectoryNotFoundException
@@ -1002,7 +1003,7 @@ Namespace DataStores
                     SpellItemEnchantments.Add(id, New TSpellItemEnchantment(type, amount, spellID, auraID, slot)) ', EnchantmentConditions))
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -1056,7 +1057,7 @@ Namespace DataStores
                     ItemSet.Add(id, New TItemSet(name, itemID, spellID, itemCount, requiredSkillID, requiredSkillValue))
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -1081,7 +1082,7 @@ Namespace DataStores
                     ItemDisplayInfo.Add(tmpItemDisplayInfo.ID, tmpItemDisplayInfo)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -1108,7 +1109,7 @@ Namespace DataStores
                     ItemRandomPropertiesInfo.Add(tmpInfo.ID, tmpInfo)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -1123,7 +1124,7 @@ Namespace DataStores
         Public Sub LoadCreatureGossip()
             Try
                 Dim gossipQuery As New DataTable
-                WorldDatabase.Query("SELECT * FROM npc_gossip;", gossipQuery)
+                _WorldServer.WorldDatabase.Query("SELECT * FROM npc_gossip;", gossipQuery)
 
                 Dim guid As ULong
                 For Each gossip As DataRow In gossipQuery.Rows
@@ -1133,7 +1134,7 @@ Namespace DataStores
                     End If
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "Database: {0} creature gossips initialized.", CreatureGossip.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature gossips initialized.", CreatureGossip.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : npc_gossip missing.")
@@ -1159,7 +1160,7 @@ Namespace DataStores
                     CreaturesFamily.Add(tmpInfo.ID, tmpInfo)
                 Next i
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", dbc.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -1171,7 +1172,7 @@ Namespace DataStores
         Public Sub LoadCreatureMovements()
             Try
                 Dim movementsQuery As New DataTable
-                WorldDatabase.Query("SELECT * FROM waypoint_data ORDER BY id, point;", movementsQuery)
+                _WorldServer.WorldDatabase.Query("SELECT * FROM waypoint_data ORDER BY id, point;", movementsQuery)
 
                 Dim id As Integer
                 For Each movement As DataRow In movementsQuery.Rows
@@ -1182,7 +1183,7 @@ Namespace DataStores
                     CreatureMovement(id).Add(movement.Item("point"), New CreatureMovePoint(movement.Item("position_x"), movement.Item("position_y"), movement.Item("position_z"), movement.Item("delay"), movement.Item("move_flag"), movement.Item("action"), movement.Item("action_chance")))
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "Database: {0} creature movements for {1} creatures initialized.", movementsQuery.Rows.Count, CreatureMovement.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature movements for {1} creatures initialized.", movementsQuery.Rows.Count, CreatureMovement.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : Waypoint_Data missing.")
@@ -1192,7 +1193,7 @@ Namespace DataStores
         Public Sub LoadCreatureEquipTable()
             Try
                 Dim equipQuery As New DataTable
-                WorldDatabase.Query("SELECT * FROM creature_equip_template_raw;", equipQuery)
+                _WorldServer.WorldDatabase.Query("SELECT * FROM creature_equip_template_raw;", equipQuery)
 
                 Dim entry As Integer
                 For Each equipInfo As DataRow In equipQuery.Rows
@@ -1201,7 +1202,7 @@ Namespace DataStores
                     CreatureEquip.Add(entry, New CreatureEquipInfo(equipInfo.Item("equipmodel1"), equipInfo.Item("equipmodel2"), equipInfo.Item("equipmodel3"), equipInfo.Item("equipinfo1"), equipInfo.Item("equipinfo2"), equipInfo.Item("equipinfo3"), equipInfo.Item("equipslot1"), equipInfo.Item("equipslot2"), equipInfo.Item("equipslot3")))
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", equipQuery.Rows.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", equipQuery.Rows.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : Creature_Equip_Template_raw missing.")
@@ -1211,7 +1212,7 @@ Namespace DataStores
         Public Sub LoadCreatureModelInfo()
             Try
                 Dim modelQuery As New DataTable
-                WorldDatabase.Query("SELECT * FROM creature_model_info;", modelQuery)
+                _WorldServer.WorldDatabase.Query("SELECT * FROM creature_model_info;", modelQuery)
 
                 Dim entry As Integer
                 For Each modelInfo As DataRow In modelQuery.Rows
@@ -1220,7 +1221,7 @@ Namespace DataStores
                     CreatureModel.Add(entry, New CreatureModelInfo(modelInfo.Item("bounding_radius"), modelInfo.Item("combat_reach"), modelInfo.Item("gender"), modelInfo.Item("modelid_other_gender")))
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "Database: {0} creature models initialized.", modelQuery.Rows.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature models initialized.", modelQuery.Rows.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : Creature_Model_Info missing.")
@@ -1232,51 +1233,51 @@ Namespace DataStores
 #Region "Quests"
         Public Sub LoadQuestStartersAndFinishers()
             Dim questStarters As New DataTable
-            WorldDatabase.Query("SELECT * FROM quest_relations where actor=0 and role =0;", questStarters)
+            _WorldServer.WorldDatabase.Query("SELECT * FROM quest_relations where actor=0 and role =0;", questStarters)
 
             For Each starter As DataRow In questStarters.Rows
                 Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
-                If CreatureQuestStarters.ContainsKey(entry) = False Then CreatureQuestStarters.Add(entry, New List(Of Integer))
-                CreatureQuestStarters(entry).Add(quest)
+                If _WorldServer.CreatureQuestStarters.ContainsKey(entry) = False Then _WorldServer.CreatureQuestStarters.Add(entry, New List(Of Integer))
+                _WorldServer.CreatureQuestStarters(entry).Add(quest)
             Next
 
             Dim questStartersAmount As Integer = questStarters.Rows.Count
             questStarters.Clear()
-            WorldDatabase.Query("SELECT * FROM quest_relations where actor=1 and role=0;", questStarters)
+            _WorldServer.WorldDatabase.Query("SELECT * FROM quest_relations where actor=1 and role=0;", questStarters)
             For Each starter As DataRow In questStarters.Rows
                 Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
-                If GameobjectQuestStarters.ContainsKey(entry) = False Then GameobjectQuestStarters.Add(entry, New List(Of Integer))
-                GameobjectQuestStarters(entry).Add(quest)
+                If _WorldServer.GameobjectQuestStarters.ContainsKey(entry) = False Then _WorldServer.GameobjectQuestStarters.Add(entry, New List(Of Integer))
+                _WorldServer.GameobjectQuestStarters(entry).Add(quest)
             Next
 
             questStartersAmount += questStarters.Rows.Count
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} queststarters initated for {1} creatures and {2} gameobjects.", questStartersAmount, CreatureQuestStarters.Count, GameobjectQuestStarters.Count)
+            _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} queststarters initated for {1} creatures and {2} gameobjects.", questStartersAmount, _WorldServer.CreatureQuestStarters.Count, _WorldServer.GameobjectQuestStarters.Count)
             questStarters.Clear()
 
             Dim questFinishers As New DataTable
-            WorldDatabase.Query("SELECT * FROM quest_relations where actor=0 and role=1;", questFinishers)
+            _WorldServer.WorldDatabase.Query("SELECT * FROM quest_relations where actor=0 and role=1;", questFinishers)
 
             For Each starter As DataRow In questFinishers.Rows
                 Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
-                If CreatureQuestFinishers.ContainsKey(entry) = False Then CreatureQuestFinishers.Add(entry, New List(Of Integer))
-                CreatureQuestFinishers(entry).Add(quest)
+                If _WorldServer.CreatureQuestFinishers.ContainsKey(entry) = False Then _WorldServer.CreatureQuestFinishers.Add(entry, New List(Of Integer))
+                _WorldServer.CreatureQuestFinishers(entry).Add(quest)
             Next
 
             Dim questFinishersAmount As Integer = questFinishers.Rows.Count
             questFinishers.Clear()
-            WorldDatabase.Query("SELECT * FROM quest_relations where actor=1 and role=1;", questFinishers)
+            _WorldServer.WorldDatabase.Query("SELECT * FROM quest_relations where actor=1 and role=1;", questFinishers)
             For Each starter As DataRow In questFinishers.Rows
                 Dim entry As Integer = starter.Item("entry")
                 Dim quest As Integer = starter.Item("quest")
-                If GameobjectQuestFinishers.ContainsKey(entry) = False Then GameobjectQuestFinishers.Add(entry, New List(Of Integer))
-                GameobjectQuestFinishers(entry).Add(quest)
+                If _WorldServer.GameobjectQuestFinishers.ContainsKey(entry) = False Then _WorldServer.GameobjectQuestFinishers.Add(entry, New List(Of Integer))
+                _WorldServer.GameobjectQuestFinishers(entry).Add(quest)
             Next
 
             questFinishersAmount += questFinishers.Rows.Count
-            Log.WriteLine(LogType.INFORMATION, "Database: {0} questfinishers initated for {1} creatures and {2} gameobjects.", questFinishersAmount, CreatureQuestFinishers.Count, GameobjectQuestFinishers.Count)
+            _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} questfinishers initated for {1} creatures and {2} gameobjects.", questFinishersAmount, _WorldServer.CreatureQuestFinishers.Count, _WorldServer.GameobjectQuestFinishers.Count)
             questFinishers.Clear()
         End Sub
 #End Region
@@ -1299,7 +1300,7 @@ Namespace DataStores
         Public Sub LoadWeather()
             Try
                 Dim weatherQuery As New DataTable
-                WorldDatabase.Query("SELECT * FROM game_weather;", weatherQuery)
+                _WorldServer.WorldDatabase.Query("SELECT * FROM game_weather;", weatherQuery)
 
                 For Each weather As DataRow In weatherQuery.Rows
                     Dim zone As Integer = weather.Item("zone")
@@ -1314,7 +1315,7 @@ Namespace DataStores
                     End If
                 Next
 
-                Log.WriteLine(LogType.INFORMATION, "Database: {0} Weather zones initialized.", weatherQuery.Rows.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} Weather zones initialized.", weatherQuery.Rows.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : TransportQuery missing.")

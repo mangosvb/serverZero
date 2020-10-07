@@ -20,6 +20,7 @@ Imports System.Data
 Imports System.IO
 Imports Mangos.Common.DataStores
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.Handlers
 Imports Mangos.World.Player
@@ -148,7 +149,7 @@ Namespace Maps
                 Dim locationMapID As Integer
                 Dim locationIndex As Integer
 
-                Log.WriteLine(GlobalEnum.LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Loading.... {0} Graveyard Locations", tmpDBC.Rows - 1)
                 For i As Integer = 0 To tmpDBC.Rows - 1
                     locationIndex = tmpDBC.Item(i, 0)
                     locationMapID = tmpDBC.Item(i, 1)
@@ -156,14 +157,14 @@ Namespace Maps
                     locationPosY = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT)
                     locationPosZ = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
 
-                    If Config.Maps.Contains(locationMapID.ToString) Then
+                    If _WorldServer.Config.Maps.Contains(locationMapID.ToString) Then
                         Graveyards.Add(locationIndex, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
-                        Log.WriteLine(LogType.DEBUG, "         : Map: {0}  X: {1}  Y: {2}  Z: {3}", locationMapID, locationPosX, locationPosY, locationPosZ)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "         : Map: {0}  X: {1}  Y: {2}  Z: {3}", locationMapID, locationPosX, locationPosY, locationPosZ)
                     End If
                 Next i
-                Log.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Finished loading Graveyard Locations", tmpDBC.Rows - 1)
 
-                Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", tmpDBC.Rows - 1)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As IO.DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
@@ -186,11 +187,11 @@ Namespace Maps
             If Maps(Character.MapID).IsDungeon = True Or Maps(Character.MapID).IsBattleGround = True Or Maps(Character.MapID).IsRaid = True Then   'In an instance
                 Character.ZoneCheckInstance()
                 Ghostzone = AreaTable(GetAreaIDByMapandParent(Character.MapID, AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone)).ID
-                WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0} and (faction = 0 or faction = {1}) ", Ghostzone, Character.Team), GraveQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0} and (faction = 0 or faction = {1}) ", Ghostzone, Character.Team), GraveQuery)
 
                 'AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone()
                 If GraveQuery.Rows.Count = 0 Then
-                    Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)
+                    _WorldServer.Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)
                     Exit Sub
                 End If
 
@@ -199,7 +200,7 @@ Namespace Maps
                         entryFar = Graveyards(GraveQuery.Rows(0).Item("id"))
                         entryNear = entryFar
                     Else
-                        Log.WriteLine(LogType.INFORMATION, "GraveYard: {0} is missing for map [{1}], zone [{2}]", GraveQuery.Rows(0).Item("id"), Character.MapID, Character.ZoneID)
+                        _WorldServer.Log.WriteLine(LogType.INFORMATION, "GraveYard: {0} is missing for map [{1}], zone [{2}]", GraveQuery.Rows(0).Item("id"), Character.MapID, Character.ZoneID)
                     End If
                 Else
 
@@ -207,7 +208,7 @@ Namespace Maps
                         Dim GraveyardID As Integer = GraveLink.Item("id")
                         Dim GraveyardFaction As Integer = GraveLink.Item("faction")
                         If Graveyards.ContainsKey(GraveyardID) = False Then
-                            Log.WriteLine(LogType.INFORMATION, "GraveYards: Graveyard link invalid [{0}]", GraveyardID)
+                            _WorldServer.Log.WriteLine(LogType.INFORMATION, "GraveYards: Graveyard link invalid [{0}]", GraveyardID)
                             Continue For
                         End If
 
@@ -247,7 +248,7 @@ Namespace Maps
                 'End If
                 'End If
 
-                Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z)
                 Character.Teleport(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, 0, selectedGraveyard.Map)
                 Character.SendDeathReleaseLoc(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, selectedGraveyard.Map)
                 'Else
@@ -259,11 +260,11 @@ Namespace Maps
             Else            'Non instanced Death
                 Character.ZoneCheck()
 
-                '            WorldDatabase.Query(String.Format("SELECT id, faction FROM world_graveyard_zone WHERE ghost_map = {0} AND ghost_zone = {1}", Character.MapID, Character.ZoneID), GraveQuery)
-                WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0}", Character.ZoneID), GraveQuery)
+                '            _WorldServer.WorldDatabase.Query(String.Format("SELECT id, faction FROM world_graveyard_zone WHERE ghost_map = {0} AND ghost_zone = {1}", Character.MapID, Character.ZoneID), GraveQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0}", Character.ZoneID), GraveQuery)
 
                 If GraveQuery.Rows.Count = 0 Then
-                    Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)
+                    _WorldServer.Log.WriteLine(LogType.INFORMATION, "GraveYards: No near graveyards for map [{0}], zone [{1}]", Character.MapID, Character.ZoneID)
                     Exit Sub
                 End If
 
@@ -271,7 +272,7 @@ Namespace Maps
                     Dim GraveyardID As Integer = GraveLink.Item("id")
                     Dim GraveyardFaction As Integer = GraveLink.Item("faction")
                     If Graveyards.ContainsKey(GraveyardID) = False Then
-                        Log.WriteLine(LogType.INFORMATION, "GraveYards: Graveyard link invalid [{0}]", GraveyardID)
+                        _WorldServer.Log.WriteLine(LogType.INFORMATION, "GraveYards: Graveyard link invalid [{0}]", GraveyardID)
                         Continue For
                     End If
 
@@ -311,7 +312,7 @@ Namespace Maps
                         End If
                     End If
 
-                    Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z)
+                    _WorldServer.Log.WriteLine(LogType.INFORMATION, "GraveYards: GraveYard.Map[{0}], GraveYard.X[{1}], GraveYard.Y[{2}], GraveYard.Z[{3}]", selectedGraveyard.Map, selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z)
                     Character.Teleport(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, 0, selectedGraveyard.Map)
                     Character.SendDeathReleaseLoc(selectedGraveyard.X, selectedGraveyard.Y, selectedGraveyard.Z, selectedGraveyard.Map)
                 Else

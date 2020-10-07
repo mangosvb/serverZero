@@ -17,8 +17,10 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Globals
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Faction
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.World.Globals
 Imports Mangos.World.Gossip
 
@@ -30,14 +32,14 @@ Namespace Objects
         Public Sub New(ByVal CreatureID As Integer)
             Me.New()
             Id = CreatureID
-            CREATURESDatabase.Add(Id, Me)
+            _WorldServer.CREATURESDatabase.Add(Id, Me)
 
             'DONE: Load Item Data from MySQL
             Dim MySQLQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM creatures WHERE entry = {0};", CreatureID), MySQLQuery)
 
             If MySQLQuery.Rows.Count = 0 Then
-                Log.WriteLine(GlobalEnum.LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
                 found_ = False
                 'Throw New ApplicationException(String.Format("CreatureID {0} not found in SQL database.", CreatureID))
                 Exit Sub
@@ -73,9 +75,9 @@ Namespace Objects
             RangedAttackPower = MySQLQuery.Rows(0).Item("rangedattackpower")
 
             'TODO: What exactly is the speed column in the DB? It sure as hell wasn't runspeed :P
-            WalkSpeed = UNIT_NORMAL_WALK_SPEED
+            WalkSpeed = _Global_Constants.UNIT_NORMAL_WALK_SPEED
             'RunSpeed = MySQLQuery.Rows(0).Item("speed")
-            RunSpeed = UNIT_NORMAL_RUN_SPEED
+            RunSpeed = _Global_Constants.UNIT_NORMAL_RUN_SPEED
             BaseAttackTime = MySQLQuery.Rows(0).Item("baseattacktime")
             BaseRangedAttackTime = MySQLQuery.Rows(0).Item("rangeattacktime")
 
@@ -155,7 +157,7 @@ Namespace Objects
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                CREATURESDatabase.Remove(Id)
+                _WorldServer.CREATURESDatabase.Remove(Id)
             End If
             _disposedValue = True
         End Sub
@@ -170,13 +172,13 @@ Namespace Objects
 
         Public ReadOnly Property Life() As Integer
             Get
-                Return Rnd.Next(MinLife, MaxLife)
+                Return _WorldServer.Rnd.Next(MinLife, MaxLife)
             End Get
         End Property
 
         Public ReadOnly Property Mana() As Integer
             Get
-                Return Rnd.Next(MinMana, MaxMana)
+                Return _WorldServer.Rnd.Next(MinMana, MaxMana)
             End Get
         End Property
 
@@ -201,7 +203,7 @@ Namespace Objects
                     current += 1
                 End If
                 If current = 0 Then Return 0
-                Return modelIDs(Rnd.Next(0, current))
+                Return modelIDs(_WorldServer.Rnd.Next(0, current))
             End Get
         End Property
 
@@ -247,8 +249,8 @@ Namespace Objects
         Public RangedAttackPower As Integer = 0
         Public Resistances() As Integer = {0, 0, 0, 0, 0, 0, 0}
 
-        Public WalkSpeed As Single = UNIT_NORMAL_WALK_SPEED
-        Public RunSpeed As Single = UNIT_NORMAL_RUN_SPEED
+        Public WalkSpeed As Single = _Global_Constants.UNIT_NORMAL_WALK_SPEED
+        Public RunSpeed As Single = _Global_Constants.UNIT_NORMAL_RUN_SPEED
         Public BaseAttackTime As Short = 2000
         Public BaseRangedAttackTime As Short = 2000
 

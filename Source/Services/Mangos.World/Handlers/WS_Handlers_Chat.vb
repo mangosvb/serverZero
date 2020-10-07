@@ -17,6 +17,9 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
@@ -28,7 +31,7 @@ Namespace Handlers
 
         Public Function GetChatFlag(ByVal objCharacter As WS_PlayerData.CharacterObject) As Byte
             If objCharacter.GM Then
-                Return ChatEnum.ChatFlag.FLAGS_GM
+                Return ChatFlag.FLAGS_GM
             ElseIf objCharacter.AFK Then
                 Return ChatFlag.FLAGS_AFK
             ElseIf objCharacter.DND Then
@@ -39,13 +42,13 @@ Namespace Handlers
         End Function
 
         Public Sub On_CMSG_MESSAGECHAT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT", client.IP, client.Port)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
 
             Dim msgType As ChatMsg = packet.GetInt32()
             Dim msgLanguage As LANGUAGES = packet.GetInt32()
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT [{2}:{3}]", client.IP, client.Port, msgType, msgLanguage)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MESSAGECHAT [{2}:{3}]", client.IP, client.Port, msgType, msgLanguage)
 
             'TODO: Check if we really are able to speak this language!
 
@@ -56,7 +59,7 @@ Namespace Handlers
                 Case ChatMsg.CHAT_MSG_SAY, ChatMsg.CHAT_MSG_YELL, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_WHISPER
                     Dim Message As String = packet.GetString()
                     'Handle admin/gm commands
-                    If Message.StartsWith(Config.CommandCharacter) AndAlso client.Character.Access > AccessLevel.Player Then
+                    If Message.StartsWith(_WorldServer.Config.CommandCharacter) AndAlso client.Character.Access > AccessLevel.Player Then
                         Message = Message.Remove(0, 1) ' Remove Command Start Character From Message
                         Dim toCommand As PacketClass = BuildChatMessage(SystemGUID, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
                         Try
@@ -96,11 +99,11 @@ Namespace Handlers
                     Exit Select
 
                 Case ChatMsg.CHAT_MSG_CHANNEL, ChatMsg.CHAT_MSG_PARTY, ChatMsg.CHAT_MSG_RAID, ChatMsg.CHAT_MSG_RAID_LEADER, ChatMsg.CHAT_MSG_RAID_WARNING
-                    Log.WriteLine(LogType.WARNING, "This chat message type should not be here!")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "This chat message type should not be here!")
                     Exit Select
 
                 Case Else
-                    Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unknown chat message [msgType={2}, msgLanguage={3}]", client.IP, client.Port, msgType, msgLanguage)
                     DumpPacket(packet.Data, client)
             End Select
 

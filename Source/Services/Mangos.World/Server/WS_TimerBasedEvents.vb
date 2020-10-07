@@ -19,6 +19,10 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Handlers
 Imports Mangos.World.Objects
@@ -61,15 +65,15 @@ Namespace Server
             End Sub
             Private Sub Regenerate(ByVal state As Object)
                 If RegenerationWorking Then
-                    Log.WriteLine(GlobalEnum.LogType.WARNING, "Update: Regenerator skipping update")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: Regenerator skipping update")
                     Exit Sub
                 End If
 
                 RegenerationWorking = True
                 NextGroupUpdate = Not NextGroupUpdate 'Group update = every 4 sec
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                    For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In CHARACTERs
+                    _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    For Each Character As KeyValuePair(Of ULong, WS_PlayerData.CharacterObject) In _WorldServer.CHARACTERs
                         'DONE: If all invalid check passed then regenerate
                         'DONE: If dead don't regenerate
                         If (Not Character.Value.DEAD) AndAlso (Character.Value.underWaterTimer Is Nothing) AndAlso (Character.Value.LogoutTimer Is Nothing) AndAlso (Character.Value.client IsNot Nothing) Then
@@ -184,10 +188,10 @@ Namespace Server
                             End With
                         End If
                     Next
-                    If CHARACTERs_Lock.IsReaderLockHeld = True Then CHARACTERs_Lock.ReleaseReaderLock()
+                    If _WorldServer.CHARACTERs_Lock.IsReaderLockHeld = True Then _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
 
                 Catch ex As Exception
-                    Log.WriteLine(LogType.WARNING, "Error at regenerate.{0}", Environment.NewLine & ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Error at regenerate.{0}", Environment.NewLine & ex.ToString)
                 End Try
                 RegenerationWorking = False
             End Sub
@@ -228,7 +232,7 @@ Namespace Server
             End Sub
             Private Sub Update(ByVal state As Object)
                 If SpellManagerWorking Then
-                    Log.WriteLine(LogType.WARNING, "Update: Spell Manager skipping update")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: Spell Manager skipping update")
                     Exit Sub
                 End If
 
@@ -236,45 +240,45 @@ Namespace Server
 
                 Try
 
-                    WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.WORLD_CREATUREs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
-                    For i As Long = 0 To WORLD_CREATUREsKeys.Count - 1
-                        If WORLD_CREATUREs(WORLD_CREATUREsKeys(i)) IsNot Nothing Then
-                            UpdateSpells(WORLD_CREATUREs(WORLD_CREATUREsKeys(i)))
+                    For i As Long = 0 To _WorldServer.WORLD_CREATUREsKeys.Count - 1
+                        If _WorldServer.WORLD_CREATUREs(_WorldServer.WORLD_CREATUREsKeys(i)) IsNot Nothing Then
+                            UpdateSpells(_WorldServer.WORLD_CREATUREs(_WorldServer.WORLD_CREATUREsKeys(i)))
                         End If
                     Next
 
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
                 Finally
-                    If WORLD_CREATUREs_Lock.IsReaderLockHeld = True Then
-                        WORLD_CREATUREs_Lock.ReleaseReaderLock()
+                    If _WorldServer.WORLD_CREATUREs_Lock.IsReaderLockHeld = True Then
+                        _WorldServer.WORLD_CREATUREs_Lock.ReleaseReaderLock()
                     End If
                 End Try
 
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                    For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                    _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    For Each Character As KeyValuePair(Of ULong, CharacterObject) In _WorldServer.CHARACTERs
                         If Character.Value IsNot Nothing Then UpdateSpells(Character.Value)
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
                 Finally
-                    CHARACTERs_Lock.ReleaseLock()
+                    _WorldServer.CHARACTERs_Lock.ReleaseLock()
                 End Try
 
                 Dim DynamicObjectsToDelete As New List(Of WS_DynamicObjects.DynamicObjectObject)
                 Try
-                    WORLD_DYNAMICOBJECTs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                    For Each Dynamic As KeyValuePair(Of ULong, DynamicObjectObject) In WORLD_DYNAMICOBJECTs
+                    _WorldServer.WORLD_DYNAMICOBJECTs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    For Each Dynamic As KeyValuePair(Of ULong, DynamicObjectObject) In _WorldServer.WORLD_DYNAMICOBJECTs
                         If Dynamic.Value IsNot Nothing AndAlso Dynamic.Value.Update() Then
                             DynamicObjectsToDelete.Add(Dynamic.Value)
                         End If
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
                 Finally
-                    WORLD_DYNAMICOBJECTs_Lock.ReleaseReaderLock()
+                    _WorldServer.WORLD_DYNAMICOBJECTs_Lock.ReleaseReaderLock()
                 End Try
 
                 For Each Dynamic As DynamicObjectObject In DynamicObjectsToDelete
@@ -311,11 +315,11 @@ Namespace Server
                 If TypeOf objCharacter Is TotemObject Then
                     CType(objCharacter, TotemObject).Update()
                 Else
-                    For i As Integer = 0 To MAX_AURA_EFFECTs - 1
+                    For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                         If objCharacter.ActiveSpells(i) IsNot Nothing Then
 
                             'DONE: Count aura duration
-                            If objCharacter.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then
+                            If objCharacter.ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then
                                 objCharacter.ActiveSpells(i).SpellDuration -= UPDATE_TIMER
 
                                 'DONE: Cast aura (check if: there is aura; aura is periodic; time for next activation)
@@ -328,7 +332,7 @@ Namespace Server
                                 Next j
 
                                 'DONE: Remove finished aura
-                                If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).SpellDuration <= 0 AndAlso objCharacter.ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster, True)
+                                If objCharacter.ActiveSpells(i) IsNot Nothing AndAlso objCharacter.ActiveSpells(i).SpellDuration <= 0 AndAlso objCharacter.ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then objCharacter.RemoveAura(i, objCharacter.ActiveSpells(i).SpellCaster, True)
                             End If
 
                             'DONE: Check if there are units that are out of range for the area aura
@@ -398,47 +402,47 @@ Namespace Server
             End Sub
             Private Sub Update(ByVal state As Object)
                 If AIManagerWorking Then
-                    Log.WriteLine(LogType.WARNING, "Update: AI Manager skipping update")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: AI Manager skipping update")
                     Exit Sub
                 End If
 
-                Dim StartTime As Integer = timeGetTime("")
+                Dim StartTime As Integer = _NativeMethods.timeGetTime("")
                 AIManagerWorking = True
 
                 'First transports
                 Try
-                    WORLD_TRANSPORTs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.WORLD_TRANSPORTs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
-                    For Each Transport As KeyValuePair(Of ULong, TransportObject) In WORLD_TRANSPORTs
+                    For Each Transport As KeyValuePair(Of ULong, TransportObject) In _WorldServer.WORLD_TRANSPORTs
                         Transport.Value.Update()
                     Next
 
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error updating transports.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error updating transports.{0}{1}", Environment.NewLine, ex.ToString)
                 Finally
-                    WORLD_TRANSPORTs_Lock.ReleaseReaderLock()
+                    _WorldServer.WORLD_TRANSPORTs_Lock.ReleaseReaderLock()
                 End Try
 
                 'Then creatures
                 Try
-                    WORLD_CREATUREs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.WORLD_CREATUREs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
 
                     Try
-                        For i As Long = 0 To WORLD_CREATUREsKeys.Count - 1
-                            If WORLD_CREATUREs(WORLD_CREATUREsKeys(i)) IsNot Nothing AndAlso WORLD_CREATUREs(WORLD_CREATUREsKeys(i)).aiScript IsNot Nothing Then
-                                WORLD_CREATUREs(WORLD_CREATUREsKeys(i)).aiScript.DoThink()
+                        For i As Long = 0 To _WorldServer.WORLD_CREATUREsKeys.Count - 1
+                            If _WorldServer.WORLD_CREATUREs(_WorldServer.WORLD_CREATUREsKeys(i)) IsNot Nothing AndAlso _WorldServer.WORLD_CREATUREs(_WorldServer.WORLD_CREATUREsKeys(i)).aiScript IsNot Nothing Then
+                                _WorldServer.WORLD_CREATUREs(_WorldServer.WORLD_CREATUREsKeys(i)).aiScript.DoThink()
                             End If
                         Next
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", Environment.NewLine, ex.ToString)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", Environment.NewLine, ex.ToString)
                     Finally
-                        WORLD_CREATUREs_Lock.ReleaseReaderLock()
+                        _WorldServer.WORLD_CREATUREs_Lock.ReleaseReaderLock()
                     End Try
 
                 Catch ex As ApplicationException
-                    Log.WriteLine(LogType.WARNING, "Update: AI Manager timed out")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: AI Manager timed out")
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error updating AI.{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
                 AIManagerWorking = False
             End Sub
@@ -477,26 +481,26 @@ Namespace Server
             Public CharacterSaverTimer As Timer = Nothing
             Private CharacterSaverWorking As Boolean = False
 
-            Public UPDATE_TIMER As Integer = Config.SaveTimer     'Timer period (ms)
+            Public UPDATE_TIMER As Integer = _WorldServer.Config.SaveTimer     'Timer period (ms)
             Public Sub New()
                 CharacterSaverTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
             End Sub
             Private Sub Update(ByVal state As Object)
                 If CharacterSaverWorking Then
-                    Log.WriteLine(LogType.WARNING, "Update: Character Saver skipping update")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: Character Saver skipping update")
                     Exit Sub
                 End If
 
                 CharacterSaverWorking = True
                 Try
-                    CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                    For Each Character As KeyValuePair(Of ULong, CharacterObject) In CHARACTERs
+                    _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    For Each Character As KeyValuePair(Of ULong, CharacterObject) In _WorldServer.CHARACTERs
                         Character.Value.SaveCharacter()
                     Next
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, ex.ToString, Nothing)
                 Finally
-                    CHARACTERs_Lock.ReleaseReaderLock()
+                    _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
                 End Try
 
                 'Here we hook the instance expire checks too
@@ -536,13 +540,13 @@ Namespace Server
             Public WeatherTimer As Timer = Nothing
             Private WeatherWorking As Boolean = False
 
-            Public UPDATE_TIMER As Integer = Config.WeatherTimer     'Timer period (ms)
+            Public UPDATE_TIMER As Integer = _WorldServer.Config.WeatherTimer     'Timer period (ms)
             Public Sub New()
                 WeatherTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
             End Sub
             Private Sub Update(ByVal state As Object)
                 If WeatherWorking Then
-                    Log.WriteLine(LogType.WARNING, "Update: Weather changer skipping update")
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: Weather changer skipping update")
                     Exit Sub
                 End If
 

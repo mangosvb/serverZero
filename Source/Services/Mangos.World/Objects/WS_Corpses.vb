@@ -18,7 +18,9 @@
 
 Imports System.Data
 Imports System.Runtime.CompilerServices
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -28,7 +30,7 @@ Imports Mangos.World.Player
 Namespace Objects
 
     Public Module WS_Corpses
-        'WARNING: Use only with WORLD_GAMEOBJECTs()
+        'WARNING: Use only with _WorldServer.WORLD_GAMEOBJECTs()
         Public Class CorpseObject
             Inherits BaseObject
             Implements IDisposable
@@ -40,7 +42,7 @@ Namespace Objects
             Public Bytes2 As Integer = 0
             Public Model As Integer = 0
             Public Guild As Integer = 0
-            Public Items(PlayerEnum.EquipmentSlots.EQUIPMENT_SLOT_END - 1) As Integer
+            Public Items(EquipmentSlots.EQUIPMENT_SLOT_END - 1) As Integer
 
             Public Sub FillAllUpdateFlags(ByRef Update As Packets.UpdateClass)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
@@ -69,7 +71,7 @@ Namespace Objects
 
             Public Sub ConvertToBones()
                 'DONE: Delete from database
-                CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Owner))
+                _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Owner))
 
                 Flags = 5
                 Owner = 0
@@ -81,7 +83,7 @@ Namespace Objects
                 Try
                     packet.AddInt32(1)
                     packet.AddInt8(0)
-                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
                     Try
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_OWNER, 0)
                         tmpUpdate.SetUpdateFlag(ECorpseFields.CORPSE_FIELD_FLAGS, 5)
@@ -102,7 +104,7 @@ Namespace Objects
             Public Sub Save()
                 'Only for creating New Character
                 Dim tmpCmd As String = "INSERT INTO corpse (guid"
-                Dim tmpValues As String = " VALUES (" & (GUID - GUID_CORPSE)
+                Dim tmpValues As String = " VALUES (" & (GUID - _Global_Constants.GUID_CORPSE)
 
                 tmpCmd = tmpCmd & ", player"
                 tmpValues = tmpValues & ", " & Owner
@@ -141,7 +143,7 @@ Namespace Objects
                 'tmpValues = tmpValues & ", """ & Join(temp, " ") & """"
 
                 tmpCmd = tmpCmd & ") " & tmpValues & ");"
-                CharacterDatabase.Update(tmpCmd)
+                _WorldServer.CharacterDatabase.Update(tmpCmd)
             End Sub
             Public Sub Destroy()
                 Dim packet As New PacketClass(OPCODES.SMSG_DESTROY_OBJECT)
@@ -163,7 +165,7 @@ Namespace Objects
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
                     RemoveFromWorld()
-                    WORLD_CORPSEOBJECTs.Remove(GUID)
+                    _WorldServer.WORLD_CORPSEOBJECTs.Remove(GUID)
                 End If
                 _disposedValue = True
             End Sub
@@ -214,18 +216,18 @@ Namespace Objects
 
                 Flags = 4
 
-                WORLD_CORPSEOBJECTs.Add(GUID, Me)
+                _WorldServer.WORLD_CORPSEOBJECTs.Add(GUID, Me)
             End Sub
 
             Public Sub New(ByVal cGUID As ULong, Optional ByRef Info As DataRow = Nothing)
                 'WARNING: Use only for loading from DB
                 If Info Is Nothing Then
                     Dim MySQLQuery As New DataTable
-                    CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE guid = {0};", cGUID), MySQLQuery)
+                    _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM corpse WHERE guid = {0};", cGUID), MySQLQuery)
                     If MySQLQuery.Rows.Count > 0 Then
                         Info = MySQLQuery.Rows(0)
                     Else
-                        Log.WriteLine(LogType.FAILED, "Corpse not found in database. [corpseGUID={0:X}]", cGUID)
+                        _WorldServer.Log.WriteLine(LogType.FAILED, "Corpse not found in database. [corpseGUID={0:X}]", cGUID)
                         Return
                     End If
                 End If
@@ -253,8 +255,8 @@ Namespace Objects
 
                 Flags = 4
 
-                GUID = cGUID + GUID_CORPSE
-                WORLD_CORPSEOBJECTs.Add(GUID, Me)
+                GUID = cGUID + _Global_Constants.GUID_CORPSE
+                _WorldServer.WORLD_CORPSEOBJECTs.Add(GUID, Me)
             End Sub
 
             Public Sub AddToWorld()
@@ -266,7 +268,7 @@ Namespace Objects
                 'DONE: Sending to players in nearby cells
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
-                    Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
+                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
                     Try
                         packet.AddInt32(1)
                         packet.AddInt8(0)
@@ -282,9 +284,9 @@ Namespace Objects
                                 With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                     list = .PlayersHere.ToArray
                                     For Each plGUID As ULong In list
-                                        If CHARACTERs.ContainsKey(plGUID) AndAlso CHARACTERs(plGUID).CanSee(Me) Then
-                                            CHARACTERs(plGUID).client.SendMultiplyPackets(packet)
-                                            CHARACTERs(plGUID).corpseObjectsNear.Add(GUID)
+                                        If _WorldServer.CHARACTERs.ContainsKey(plGUID) AndAlso _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
+                                            _WorldServer.CHARACTERs(plGUID).client.SendMultiplyPackets(packet)
+                                            _WorldServer.CHARACTERs(plGUID).corpseObjectsNear.Add(GUID)
                                             SeenBy.Add(plGUID)
                                         End If
                                     Next
@@ -308,12 +310,12 @@ Namespace Objects
                     With WS_Maps.Maps(MapID).Tiles(CellX, CellY)
                         list = .PlayersHere.ToArray
                         For Each plGUID As ULong In list
-                            If CHARACTERs(plGUID).corpseObjectsNear.Contains(GUID) Then
-                                CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                                CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
-                                CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
+                            If _WorldServer.CHARACTERs(plGUID).corpseObjectsNear.Contains(GUID) Then
+                                _WorldServer.CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                                _WorldServer.CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
+                                _WorldServer.CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 
-                                CHARACTERs(plGUID).corpseObjectsNear.Remove(GUID)
+                                _WorldServer.CHARACTERs(plGUID).corpseObjectsNear.Remove(GUID)
                             End If
                         Next
                     End With
@@ -323,8 +325,8 @@ Namespace Objects
 
         <MethodImpl(MethodImplOptions.Synchronized)>
         Private Function GetNewGUID() As ULong
-            CorpseGUIDCounter += 1
-            GetNewGUID = CorpseGUIDCounter
+            _WorldServer.CorpseGUIDCounter += 1
+            GetNewGUID = _WorldServer.CorpseGUIDCounter
         End Function
 
     End Module

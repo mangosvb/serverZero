@@ -20,6 +20,7 @@ Imports System.CodeDom.Compiler
 Imports System.IO
 Imports System.Reflection
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace Globals
 
@@ -53,7 +54,7 @@ Namespace Globals
                 Return
             End If
 
-            Log.WriteLine(GlobalEnum.LogType.SUCCESS, "Compiling: \Scripts\*.*")
+            _WorldServer.Log.WriteLine(LogType.SUCCESS, "Compiling: \Scripts\*.*")
 
             Try
                 Dim vBcp As New VBCodeProvider
@@ -62,7 +63,7 @@ Namespace Globals
                 Dim cParameters As New CompilerParameters
                 Dim cResults As CompilerResults
 
-                For Each include As String In Config.CompilerInclude
+                For Each include As String In _WorldServer.Config.CompilerInclude
                     cParameters.ReferencedAssemblies.Add(include)
                 Next
                 cParameters.OutputAssembly = AssemblyFile
@@ -79,13 +80,13 @@ Namespace Globals
 
                 If cResults.Errors.HasErrors = True Then
                     For Each err As CompilerError In cResults.Errors
-                        Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1} in {3}:{0}{2}", Environment.NewLine, err.Line, err.ErrorText, err.FileName)
+                        _WorldServer.Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1} in {3}:{0}{2}", Environment.NewLine, err.Line, err.ErrorText, err.FileName)
                     Next
                 Else
                     ass = cResults.CompiledAssembly
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Unable to compile scripts. {1}{0}", e.ToString, Environment.NewLine)
             End Try
         End Sub
 
@@ -97,7 +98,7 @@ Namespace Globals
                 Return
             End If
 
-            Log.WriteLine(LogType.SUCCESS, "Compiling: {0}", AssemblySourceFile)
+            _WorldServer.Log.WriteLine(LogType.SUCCESS, "Compiling: {0}", AssemblySourceFile)
 
             Try
                 Dim VBcp As New VBCodeProvider
@@ -107,7 +108,7 @@ Namespace Globals
                 Dim cResults As CompilerResults
 
                 If Not InMemory Then cParameters.OutputAssembly = AssemblyFile
-                For Each Include As String In Config.CompilerInclude
+                For Each Include As String In _WorldServer.Config.CompilerInclude
                     cParameters.ReferencedAssemblies.Add(Include)
                 Next
                 cParameters.ReferencedAssemblies.Add(AppDomain.CurrentDomain.FriendlyName)
@@ -124,19 +125,19 @@ Namespace Globals
                 ElseIf AssemblySourceFile.IndexOf(".vb") <> -1 Then
                     cResults = VBcp.CompileAssemblyFromFile(cParameters, AppDomain.CurrentDomain.BaseDirectory() & AssemblySourceFile)
                 Else
-                    Log.WriteLine(LogType.FAILED, "Compiling: Unsupported file type: {0}", AssemblySourceFile)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Compiling: Unsupported file type: {0}", AssemblySourceFile)
                     Return
                 End If
 
                 If cResults.Errors.HasErrors = True Then
                     For Each err As CodeDom.Compiler.CompilerError In cResults.Errors
-                        Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1}:{0}{2}", Environment.NewLine, err.Line, err.ErrorText)
+                        _WorldServer.Log.WriteLine(LogType.FAILED, "Compiling: Error on line {1}:{0}{2}", Environment.NewLine, err.Line, err.ErrorText)
                     Next
                 Else
                     ass = cResults.CompiledAssembly
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Unable to compile script [{0}]. {2}{1}", AssemblySourceFile, e.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Unable to compile script [{0}]. {2}{1}", AssemblySourceFile, e.ToString, Environment.NewLine)
             End Try
         End Sub
         Public Sub InvokeFunction(ByVal MyModule As String, ByVal MyMethod As String, Optional ByVal Parameters As Object = Nothing)
@@ -145,9 +146,9 @@ Namespace Globals
                 Dim mi As MethodInfo = ty.GetMethod(MyMethod)
                 mi.Invoke(Nothing, Parameters)
             Catch e As TargetInvocationException
-                Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Script Method [{0}] not found in [Scripts.{1}]!", MyMethod, MyModule)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Script Method [{0}] not found in [Scripts.{1}]!", MyMethod, MyModule)
             End Try
         End Sub
         Public Function InvokeConstructor(ByVal MyBaseClass As String, Optional ByVal Parameters As Object = Nothing) As Object
@@ -157,9 +158,9 @@ Namespace Globals
 
                 Return ci(0).Invoke(Parameters)
             Catch e As NullReferenceException
-                Log.WriteLine(LogType.FAILED, "Scripted Class [{0}] not found in [Scripts]!", MyBaseClass)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Scripted Class [{0}] not found in [Scripts]!", MyBaseClass)
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
             End Try
             Return Nothing
         End Function
@@ -170,9 +171,9 @@ Namespace Globals
 
                 Return pi.GetValue(Nothing, Nothing)
             Catch e As NullReferenceException
-                Log.WriteLine(LogType.FAILED, "Scripted Property [{1}] not found in [Scripts.{1}]!", MyModule, MyProperty)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Scripted Property [{1}] not found in [Scripts.{1}]!", MyModule, MyProperty)
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
             End Try
             Return Nothing
         End Function
@@ -183,9 +184,9 @@ Namespace Globals
 
                 Return fi.GetValue(Nothing)
             Catch e As NullReferenceException
-                Log.WriteLine(LogType.FAILED, "Scripted Field [{1}] not found in [Scripts.{0}]!", MyModule, MyField)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Scripted Field [{1}] not found in [Scripts.{0}]!", MyModule, MyField)
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Script execution error:{1}{0}", e.GetBaseException.ToString, Environment.NewLine)
             End Try
             Return Nothing
         End Function
@@ -200,11 +201,11 @@ Namespace Globals
             Try
                 ass = [Assembly].LoadFrom(dllLocation)
             Catch fnfe As FileNotFoundException
-                Log.WriteLine(LogType.FAILED, "DLL not found error:{1}{0}", fnfe.GetBaseException.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "DLL not found error:{1}{0}", fnfe.GetBaseException.ToString, Environment.NewLine)
             Catch ane As ArgumentNullException
-                Log.WriteLine(LogType.FAILED, "DLL NULL error:{1}{0}", ane.GetBaseException.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "DLL NULL error:{1}{0}", ane.GetBaseException.ToString, Environment.NewLine)
             Catch bife As BadImageFormatException
-                Log.WriteLine(LogType.FAILED, "DLL not a valid assembly error:{1}{0}", bife.GetBaseException.ToString, Environment.NewLine)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "DLL not a valid assembly error:{1}{0}", bife.GetBaseException.ToString, Environment.NewLine)
             End Try
         End Sub
 

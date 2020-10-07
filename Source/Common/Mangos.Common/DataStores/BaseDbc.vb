@@ -19,6 +19,7 @@
 Imports System.ComponentModel
 Imports System.IO
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 Namespace DataStores
     <Description("DBC wrapper class.")> _
@@ -93,31 +94,31 @@ Namespace DataStores
             End Try
         End Sub
 
-        <Description("Access to item by row and column.")> _
-        Public Overridable ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As GlobalEnum.DBCValueType = DBCValueType.DBC_INTEGER) As Object
+        <Description("Access to item by row and column.")>
+        Public Overridable ReadOnly Property Item(ByVal row As Integer, ByVal column As Integer, Optional ByVal valueType As DBCValueType = DBCValueType.DBC_INTEGER) As Object
             Get
                 If row >= Rows Then Throw New ApplicationException("DBC: Row index outside file definition.")
                 If column >= Columns Then Throw New ApplicationException("DBC: Column index outside file definition.")
 
-                tmpOffset = 20 + row * RowLength + column * 4
-                If fs.Position <> tmpOffset Then fs.Seek(tmpOffset, SeekOrigin.Begin)
-                fs.Read(buffer, 0, 4)
+                TmpOffset = 20 + row * RowLength + column * 4
+                If Fs.Position <> TmpOffset Then Fs.Seek(TmpOffset, SeekOrigin.Begin)
+                Fs.Read(Buffer, 0, 4)
 
                 Select Case valueType
                     Case DBCValueType.DBC_FLOAT
-                        Return BitConverter.ToSingle(buffer, 0)
+                        Return BitConverter.ToSingle(Buffer, 0)
                     Case DBCValueType.DBC_INTEGER
-                        Return BitConverter.ToInt32(buffer, 0)
+                        Return BitConverter.ToInt32(Buffer, 0)
                     Case DBCValueType.DBC_STRING
-                        Dim offset As Integer = BitConverter.ToInt32(buffer, 0)
-                        fs.Seek(20 + Rows * RowLength + offset, SeekOrigin.Begin)
+                        Dim offset As Integer = BitConverter.ToInt32(Buffer, 0)
+                        Fs.Seek(20 + Rows * RowLength + offset, SeekOrigin.Begin)
 
                         Dim strByte As Byte
                         Dim strResult As String
                         strByte = 0
                         strResult = ""
                         Do
-                            strByte = fs.ReadByte()
+                            strByte = Fs.ReadByte()
                             strResult &= Chr(strByte)
                         Loop While strByte <> 0
 
@@ -127,10 +128,10 @@ Namespace DataStores
                 End Select
             End Get
         End Property
-        <Description("Return formated DBC header information.")> _
-        Public ReadOnly Property GetFileInformation() As String
+        <Description("Return formated DBC header information.")>
+        Public ReadOnly Property GetFileInformation As String
             Get
-                Return String.Format("DBC: {0}:{1}x{2}:{3}:{4}", fType, Rows, Columns, RowLength, StringPartLength)
+                Return String.Format("DBC: {0}:{1}x{2}:{3}:{4}", FType, Rows, Columns, RowLength, StringPartLength)
             End Get
         End Property
     End Class

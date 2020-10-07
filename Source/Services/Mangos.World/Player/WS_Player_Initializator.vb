@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
 
@@ -57,7 +59,7 @@ Namespace Player
             Dim baseLife As Integer = objCharacter.Life.Maximum
 
             Select Case objCharacter.Classe
-                Case PlayerEnum.Classes.CLASS_DRUID
+                Case Classes.CLASS_DRUID
                     If objCharacter.Level <= 17 Then
                         objCharacter.Life.Base += 17
                     Else

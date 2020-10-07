@@ -19,6 +19,11 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Objects
@@ -45,7 +50,7 @@ Namespace Handlers
             packet.Dispose()
         End Sub
 
-        Public Function GetWeaponDmg(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AttackType As GlobalEnum.WeaponAttackType, ByVal MaxDmg As Boolean) As Single
+        Public Function GetWeaponDmg(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AttackType As WeaponAttackType, ByVal MaxDmg As Boolean) As Single
             Dim WepSlot As Byte
             Select Case AttackType
                 Case WeaponAttackType.BASE_ATTACK
@@ -264,7 +269,7 @@ Namespace Handlers
 
             'TODO: More aurastates!
             'DONE: Rolling the dice
-            Dim roll As Single = Rnd.Next(0, 10000) / 100
+            Dim roll As Single = _WorldServer.Rnd.Next(0, 10000) / 100
             Select Case roll
                 Case Is < chanceToMiss
                     'DONE: Miss attack
@@ -341,16 +346,16 @@ Namespace Handlers
             'TODO: Procs
 
 #If DEBUG Then
-            'Log.WriteLine(LogType.INFORMATION, "skillDiference = {0}", skillDiference)
-            'Log.WriteLine(LogType.INFORMATION, "chanceToMiss = {0}", chanceToMiss)
-            'Log.WriteLine(LogType.INFORMATION, "chanceToCrit = {0}", chanceToCrit)
-            'Log.WriteLine(LogType.INFORMATION, "chanceToParry = {0}", chanceToParry)
-            'Log.WriteLine(LogType.INFORMATION, "chanceToDodge = {0}", chanceToDodge)
-            'Log.WriteLine(LogType.INFORMATION, "chanceToBlock = {0}", chanceToBlock)
-            'Log.WriteLine(LogType.INFORMATION, "result.Damage = {0}", result.Damage)
-            'Log.WriteLine(LogType.INFORMATION, "result.Blocked = {0}", result.Blocked)
-            'Log.WriteLine(LogType.INFORMATION, "result.HitInfo = {0}", result.HitInfo)
-            'Log.WriteLine(LogType.INFORMATION, "result.victimState = {0}", result.victimState)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "skillDiference = {0}", skillDiference)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "chanceToMiss = {0}", chanceToMiss)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "chanceToCrit = {0}", chanceToCrit)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "chanceToParry = {0}", chanceToParry)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "chanceToDodge = {0}", chanceToDodge)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "chanceToBlock = {0}", chanceToBlock)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "result.Damage = {0}", result.Damage)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "result.Blocked = {0}", result.Blocked)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "result.HitInfo = {0}", result.HitInfo)
+            '_WorldServer.Log.WriteLine(LogType.INFORMATION, "result.victimState = {0}", result.victimState)
 #End If
 
             Return result
@@ -543,13 +548,13 @@ Namespace Handlers
                             tmpSkill = SKILL_IDs.SKILL_UNARMED
                         Case SHEATHE_SLOT.SHEATHE_WEAPON
                             If DualWield AndAlso .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) Then
-                                tmpSkill = ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemEntry).GetReqSkill
+                                tmpSkill = _WorldServer.ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemEntry).GetReqSkill
                             ElseIf .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
-                                tmpSkill = ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).ItemEntry).GetReqSkill
+                                tmpSkill = _WorldServer.ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).ItemEntry).GetReqSkill
                             End If
                         Case SHEATHE_SLOT.SHEATHE_RANGED
                             If .Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) Then
-                                tmpSkill = ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemEntry).GetReqSkill
+                                tmpSkill = _WorldServer.ITEMDatabase(.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemEntry).GetReqSkill
                             End If
                     End Select
 
@@ -598,28 +603,28 @@ Namespace Handlers
                         Case SHEATHE_SLOT.SHEATHE_NONE
                             result.HitInfo = AttackHitState.HITINFO_NORMALSWING
                             result.DamageType = DamageTypes.DMG_PHYSICAL
-                            result.Damage = Rnd.Next(.BaseUnarmedDamage, .BaseUnarmedDamage + 1)
+                            result.Damage = _WorldServer.Rnd.Next(.BaseUnarmedDamage, .BaseUnarmedDamage + 1)
                         Case SHEATHE_SLOT.SHEATHE_WEAPON
                             If DualWield Then
                                 result.HitInfo = AttackHitState.HITINFO_HITANIMATION + AttackHitState.HITINFO_LEFTSWING
                                 result.DamageType = DamageTypes.DMG_PHYSICAL
-                                result.Damage = Rnd.Next(.OffHandDamage.Minimum / 2, .OffHandDamage.Maximum / 2 + 1) + .BaseUnarmedDamage
+                                result.Damage = _WorldServer.Rnd.Next(.OffHandDamage.Minimum / 2, .OffHandDamage.Maximum / 2 + 1) + .BaseUnarmedDamage
                             Else
                                 result.HitInfo = AttackHitState.HITINFO_HITANIMATION
                                 result.DamageType = DamageTypes.DMG_PHYSICAL
-                                result.Damage = Rnd.Next(.Damage.Minimum, .Damage.Maximum + 1) + .BaseUnarmedDamage
+                                result.Damage = _WorldServer.Rnd.Next(.Damage.Minimum, .Damage.Maximum + 1) + .BaseUnarmedDamage
                             End If
                         Case SHEATHE_SLOT.SHEATHE_RANGED
                             result.HitInfo = AttackHitState.HITINFO_HITANIMATION + AttackHitState.HITINFO_RANGED
                             result.DamageType = DamageTypes.DMG_PHYSICAL
-                            result.Damage = Rnd.Next(.RangedDamage.Minimum, .RangedDamage.Maximum + 1) + .BaseRangedDamage
+                            result.Damage = _WorldServer.Rnd.Next(.RangedDamage.Minimum, .RangedDamage.Maximum + 1) + .BaseRangedDamage
                     End Select
                 End With
 
             Else
                 With CType(objCharacter, CreatureObject)
                     result.DamageType = DamageTypes.DMG_PHYSICAL
-                    result.Damage = Rnd.Next(CREATURESDatabase(.ID).Damage.Minimum, CREATURESDatabase(.ID).Damage.Maximum + 1) ' + (CType(CREATURESDatabase(.ID), CreatureInfo).AtackPower / 14 * (CType(CREATURESDatabase(.ID), CreatureInfo).BaseAttackTime / 1000))
+                    result.Damage = _WorldServer.Rnd.Next(_WorldServer.CREATURESDatabase(.ID).Damage.Minimum, _WorldServer.CREATURESDatabase(.ID).Damage.Maximum + 1) ' + (CType(_WorldServer.CREATURESDatabase(.ID), CreatureInfo).AtackPower / 14 * (CType(_WorldServer.CREATURESDatabase(.ID), CreatureInfo).BaseAttackTime / 1000))
                 End With
             End If
         End Sub
@@ -721,10 +726,10 @@ Namespace Handlers
                 End If
 
                 Dim AttackSpeed As Integer = GetAttackTime(Character, False)
-                If (timeGetTime("") - LastAttack) >= AttackSpeed Then
+                If (_NativeMethods.timeGetTime("") - LastAttack) >= AttackSpeed Then
                     DoAttack(Nothing)
                 Else
-                    NextAttackTimer.Change((timeGetTime("") - LastAttack), Timeout.Infinite)
+                    NextAttackTimer.Change((_NativeMethods.timeGetTime("") - LastAttack), Timeout.Infinite)
                 End If
             End Sub
 
@@ -736,7 +741,7 @@ Namespace Handlers
                     Exit Sub
                 End If
 
-                LastAttack = timeGetTime("")
+                LastAttack = _NativeMethods.timeGetTime("")
                 Character.RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_START_ATTACK)
                 Try
                     If Ranged Then
@@ -745,7 +750,7 @@ Namespace Handlers
                         DoMeleeAttack(False)
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error doing attack.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error doing attack.{0}{1}", Environment.NewLine, ex.ToString)
                 End Try
             End Sub
 
@@ -763,7 +768,7 @@ Namespace Handlers
                 Try
                     'DONE: If casting spell exit
                     If Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL) IsNot Nothing AndAlso Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL).Finished = False Then
-                        Log.WriteLine(LogType.DEBUG, "AttackStop: Casting Spell")
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "AttackStop: Casting Spell")
                         'AttackStop()
                         NextAttackTimer.Change(GetAttackTime(Character, False), Timeout.Infinite)
                         Exit Sub
@@ -887,7 +892,7 @@ Namespace Handlers
                         SMSG_ATTACKSWING_CANT_ATTACK.Dispose()
                     End If
                     AttackStop()
-                    Log.WriteLine(LogType.DEBUG, "Error while doing melee attack.{0}", Environment.NewLine & e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Error while doing melee attack.{0}", Environment.NewLine & e.ToString)
                 End Try
             End Sub
 
@@ -899,7 +904,7 @@ Namespace Handlers
                 Dim tmpPosZ As Single = Victim.positionZ
 
                 If Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL) IsNot Nothing AndAlso Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL).Finished = False Then
-                    Log.WriteLine(LogType.DEBUG, "AttackPause: Casting Spell")
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "AttackPause: Casting Spell")
                     NextAttackTimer.Change(GetAttackTime(Character, False), Timeout.Infinite)
                     Exit Sub
                 End If
@@ -971,7 +976,7 @@ Namespace Handlers
                 'TODO: If the victim has a spelltrigger on melee attacks
                 Dim Target As New SpellTargets
                 Target.SetTarget_UNIT(Character)
-                For i As Byte = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Byte = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If Victim.ActiveSpells(i) IsNot Nothing AndAlso (Victim.ActiveSpells(i).GetSpellInfo.procFlags And ProcFlags.PROC_FLAG_HIT_MELEE) Then
                         For j As Byte = 0 To 2
                             If Victim.ActiveSpells(i).Aura_Info(j) IsNot Nothing AndAlso Victim.ActiveSpells(i).Aura_Info(j).ApplyAuraIndex = AuraEffects_Names.SPELL_AURA_PROC_TRIGGER_SPELL Then
@@ -1084,7 +1089,7 @@ Namespace Handlers
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSWING [GUID={2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSWING [GUID={2:X}]", client.IP, client.Port, GUID)
 
             If client.Character.Spell_Pacifyed Then
                 Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
@@ -1094,10 +1099,10 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            If GuidIsCreature(GUID) Then
-                client.Character.attackState.AttackStart(WORLD_CREATUREs(GUID))
-            ElseIf GuidIsPlayer(GUID) Then
-                client.Character.attackState.AttackStart(CHARACTERs(GUID))
+            If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
+                client.Character.attackState.AttackStart(_WorldServer.WORLD_CREATUREs(GUID))
+            ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
+                client.Character.attackState.AttackStart(_WorldServer.CHARACTERs(GUID))
             Else
                 Dim SMSG_ATTACKSWING_CANT_ATTACK As New PacketClass(OPCODES.SMSG_ATTACKSWING_CANT_ATTACK)
                 client.Send(SMSG_ATTACKSWING_CANT_ATTACK)
@@ -1109,12 +1114,12 @@ Namespace Handlers
         Public Sub On_CMSG_ATTACKSTOP(ByRef packet As PacketClass, ByRef client As ClientClass)
             Try
                 packet.GetInt16()
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSTOP", client.IP, client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ATTACKSTOP", client.IP, client.Port)
 
                 SendAttackStop(client.Character.GUID, client.Character.TargetGUID, client)
                 client.Character.attackState.AttackStop()
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error stopping attack: {0}", e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error stopping attack: {0}", e.ToString)
             End Try
         End Sub
 
@@ -1122,7 +1127,7 @@ Namespace Handlers
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim AmmoID As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_AMMO [{2}]", client.IP, client.Port, AmmoID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_AMMO [{2}]", client.IP, client.Port, AmmoID)
 
             If client.Character.IsDead Then
                 SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD, 0, 0)
@@ -1131,7 +1136,7 @@ Namespace Handlers
 
             If AmmoID Then 'Set Ammo
                 client.Character.AmmoID = AmmoID
-                If ITEMDatabase.ContainsKey(AmmoID) = False Then
+                If _WorldServer.ITEMDatabase.ContainsKey(AmmoID) = False Then
                     'TODO: Another one of these useless bits of code, needs to be implemented correctly
                     Dim tmpItem As ItemInfo = New ItemInfo(AmmoID)
                 End If
@@ -1141,8 +1146,8 @@ Namespace Handlers
                     Exit Sub
                 End If
                 Dim currentDPS As Single = 0
-                If ITEMDatabase.ContainsKey(AmmoID) = True AndAlso ITEMDatabase(AmmoID).ObjectClass = ITEM_CLASS.ITEM_CLASS_PROJECTILE OrElse CheckAmmoCompatibility(client.Character, AmmoID) Then
-                    currentDPS = ITEMDatabase(AmmoID).Damage(0).Minimum
+                If _WorldServer.ITEMDatabase.ContainsKey(AmmoID) = True AndAlso _WorldServer.ITEMDatabase(AmmoID).ObjectClass = ITEM_CLASS.ITEM_CLASS_PROJECTILE OrElse CheckAmmoCompatibility(client.Character, AmmoID) Then
+                    currentDPS = _WorldServer.ITEMDatabase(AmmoID).Damage(0).Minimum
                 End If
                 If client.Character.AmmoDPS <> currentDPS Then
                     client.Character.AmmoDPS = currentDPS
@@ -1169,7 +1174,7 @@ Namespace Handlers
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim sheathed As SHEATHE_SLOT = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SETSHEATHED [{2}]", client.IP, client.Port, sheathed)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SETSHEATHED [{2}]", client.IP, client.Port, sheathed)
 
             SetSheath(client.Character, sheathed)
         End Sub
@@ -1197,8 +1202,8 @@ Namespace Handlers
                     If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND) AndAlso (Not objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).IsBroken) Then
                         SetVirtualItemInfo(objCharacter, 1, objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND))
                         'DONE: Must be applyed SPELL_EFFECT_DUAL_WIELD and weapon in offhand
-                        Log.WriteLine(LogType.DEBUG, "spellCanDualWeild = {0}", objCharacter.spellCanDualWeild)
-                        Log.WriteLine(LogType.DEBUG, "objectClass = {0}", objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "spellCanDualWeild = {0}", objCharacter.spellCanDualWeild)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "objectClass = {0}", objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass)
                         If objCharacter.spellCanDualWeild AndAlso objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_OFFHAND).ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then objCharacter.combatCanDualWield = True
                     Else
                         SetVirtualItemInfo(objCharacter, 1, Nothing)
@@ -1216,7 +1221,7 @@ Namespace Handlers
                     End If
 
                 Case Else
-                    Log.WriteLine(LogType.WARNING, "Unhandled sheathe state [{0}]", State)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "Unhandled sheathe state [{0}]", State)
                     SetVirtualItemInfo(objCharacter, 0, Nothing)
                     SetVirtualItemInfo(objCharacter, 1, Nothing)
                     SetVirtualItemInfo(objCharacter, 2, Nothing)

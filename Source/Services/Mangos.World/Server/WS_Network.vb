@@ -19,6 +19,9 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
+Imports Mangos.Common.Enums.Map
 Imports Mangos.Common.Globals
 Imports Mangos.SignalR
 Imports Mangos.World.Globals
@@ -36,8 +39,8 @@ Namespace Server
         Public WC_MsTime As Integer = 0
 
         Public Function MsTime() As Integer
-            'DONE: Calculate the clusters timeGetTime("")
-            Return WC_MsTime + (timeGetTime("") - LastPing)
+            'DONE: Calculate the clusters _NativeMethods.timeGetTime("")
+            Return WC_MsTime + (_NativeMethods.timeGetTime("") - LastPing)
         End Function
 
         Public Class WorldServerClass
@@ -57,12 +60,12 @@ Namespace Server
             Public Cluster As ICluster = Nothing
 
             Public Sub New()
-                m_RemoteURI = String.Format("http://{0}:{1}", Config.ClusterConnectHost, Config.ClusterConnectPort)
-                LocalURI = String.Format("http://{0}:{1}", Config.LocalConnectHost, Config.LocalConnectPort)
+                m_RemoteURI = String.Format("http://{0}:{1}", _WorldServer.Config.ClusterConnectHost, _WorldServer.Config.ClusterConnectPort)
+                LocalURI = String.Format("http://{0}:{1}", _WorldServer.Config.LocalConnectHost, _WorldServer.Config.LocalConnectPort)
                 Cluster = Nothing
 
                 'Creating connection timer
-                LastPing = timeGetTime("")
+                LastPing = _NativeMethods.timeGetTime("")
                 m_Connection = New Timer(AddressOf CheckConnection, Nothing, 10000, 10000)
 
                 'Creating CPU check timer
@@ -103,21 +106,21 @@ Namespace Server
                         'NOTE: Not protected remoting
                         'Cluster = RemotingServices.Connect(GetType(ICluster), m_RemoteURI)
                         If Not IsNothing(Cluster) Then
-                            If Cluster.Connect(LocalURI, Config.Maps.Select(Function(x) CType(x, UInteger)).ToList()) Then Exit While
-                            Cluster.Disconnect(LocalURI, Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
+                            If Cluster.Connect(LocalURI, _WorldServer.Config.Maps.Select(Function(x) CType(x, UInteger)).ToList()) Then Exit While
+                            Cluster.Disconnect(LocalURI, _WorldServer.Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
                         End If
                     Catch e As Exception
-                        Log.WriteLine(GlobalEnum.LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
+                        _WorldServer.Log.WriteLine(LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
                     End Try
                     Cluster = Nothing
                     Thread.Sleep(3000)
                 End While
 
-                Log.WriteLine(LogType.SUCCESS, "Contacted cluster [{0}]", m_RemoteURI)
+                _WorldServer.Log.WriteLine(LogType.SUCCESS, "Contacted cluster [{0}]", m_RemoteURI)
             End Sub
             Public Sub ClusterDisconnect()
                 Try
-                    Cluster.Disconnect(LocalURI, Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
+                    Cluster.Disconnect(LocalURI, _WorldServer.Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
                 Catch
                 Finally
                     Cluster = Nothing
@@ -126,46 +129,46 @@ Namespace Server
 
             Public Sub ClientTransfer(ByVal ID As UInteger, ByVal posX As Single, ByVal posY As Single, ByVal posZ As Single, ByVal ori As Single, ByVal map As Integer)
                 If Not WS_Maps.Maps.ContainsKey(map) Then
-                    WorldServer.CLIENTs(ID).Character.Dispose()
-                    WorldServer.CLIENTs(ID).Delete()
+                    _WorldServer.CLIENTs(ID).Character.Dispose()
+                    _WorldServer.CLIENTs(ID).Delete()
                 End If
 
                 Cluster.ClientTransfer(ID, posX, posY, posZ, ori, map)
             End Sub
 
             Public Sub ClientConnect(ByVal id As UInteger, ByVal client As ClientInfo) Implements IWorld.ClientConnect
-                Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", id)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client connected", id)
 
                 If client Is Nothing Then Throw New ApplicationException("Client doesn't exist!")
 
                 Dim objCharacter As New ClientClass(client)
 
-                If WorldServer.CLIENTs.ContainsKey(id) = True Then  'Ooops, the character is already loaded, remove it
-                    WorldServer.CLIENTs.Remove(id)
+                If _WorldServer.CLIENTs.ContainsKey(id) = True Then  'Ooops, the character is already loaded, remove it
+                    _WorldServer.CLIENTs.Remove(id)
                 End If
-                WorldServer.CLIENTs.Add(id, objCharacter)
+                _WorldServer.CLIENTs.Add(id, objCharacter)
             End Sub
 
             Public Sub ClientDisconnect(ByVal id As UInteger) Implements IWorld.ClientDisconnect
-                Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", id)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client disconnected", id)
 
-                If WorldServer.CLIENTs(id).Character IsNot Nothing Then
-                    WorldServer.CLIENTs(id).Character.Save()
+                If _WorldServer.CLIENTs(id).Character IsNot Nothing Then
+                    _WorldServer.CLIENTs(id).Character.Save()
                 End If
 
-                WorldServer.CLIENTs(id).Delete()
-                WorldServer.CLIENTs.Remove(id)
+                _WorldServer.CLIENTs(id).Delete()
+                _WorldServer.CLIENTs.Remove(id)
             End Sub
             Public Sub ClientLogin(ByVal id As UInteger, ByVal guid As ULong) Implements IWorld.ClientLogin
-                Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", id, guid)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client login [0x{1:X}]", id, guid)
 
                 Try
-                    Dim client As ClientClass = WorldServer.CLIENTs(id)
+                    Dim client As ClientClass = _WorldServer.CLIENTs(id)
                     Dim Character As New WS_PlayerData.CharacterObject(client, guid)
 
-                    CHARACTERs_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                    CHARACTERs(guid) = Character
-                    CHARACTERs_Lock.ReleaseWriterLock()
+                    _WorldServer.CHARACTERs_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.CHARACTERs(guid) = Character
+                    _WorldServer.CHARACTERs_Lock.ReleaseWriterLock()
 
                     'DONE: SMSG_CORPSE_RECLAIM_DELAY
                     SendCorpseReclaimDelay(client, Character)
@@ -175,52 +178,52 @@ Namespace Server
 
                     Character.Login()
 
-                    Log.WriteLine(LogType.USER, "[{0}:{1}] Player login complete [0x{2:X}]", client.IP, client.Port, guid)
+                    _WorldServer.Log.WriteLine(LogType.USER, "[{0}:{1}] Player login complete [0x{2:X}]", client.IP, client.Port, guid)
                 Catch e As Exception
-                    Log.WriteLine(LogType.FAILED, "Error on login: {0}", e.ToString)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Error on login: {0}", e.ToString)
                 End Try
             End Sub
             Public Sub ClientLogout(ByVal id As UInteger) Implements IWorld.ClientLogout
-                Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client logout", id)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client logout", id)
 
-                WorldServer.CLIENTs(id).Character.Logout(Nothing)
+                _WorldServer.CLIENTs(id).Character.Logout(Nothing)
             End Sub
             Public Sub ClientPacket(ByVal id As UInteger, ByVal data() As Byte) Implements IWorld.ClientPacket
                 If data Is Nothing Then Throw New ApplicationException("Packet doesn't contain data!")
                 Dim p As New Packets.PacketClass(data)
                 Try
-                    If WorldServer.CLIENTs.ContainsKey(id) = False Then Log.WriteLine(LogType.FAILED, "Client ID doesn't contain a key!: {0}", ToString)
-                    WorldServer.CLIENTs(id).Packets.Enqueue(p)
-                    ThreadPool.QueueUserWorkItem(AddressOf WorldServer.CLIENTs(id).OnPacket)
+                    If _WorldServer.CLIENTs.ContainsKey(id) = False Then _WorldServer.Log.WriteLine(LogType.FAILED, "Client ID doesn't contain a key!: {0}", ToString)
+                    _WorldServer.CLIENTs(id).Packets.Enqueue(p)
+                    ThreadPool.QueueUserWorkItem(AddressOf _WorldServer.CLIENTs(id).OnPacket)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "Error on Client OnPacket: {0}", ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Error on Client OnPacket: {0}", ex.ToString)
                 Finally
                     p.Dispose()
-                    'WorldServer.CLIENTs(id).Dispose()
+                    '_WorldServer.CLIENTs(id).Dispose()
                 End Try
             End Sub
 
             Public Function ClientCreateCharacter(ByVal account As String, ByVal name As String, ByVal race As Byte, ByVal classe As Byte, ByVal gender As Byte, ByVal skin As Byte, ByVal face As Byte, ByVal hairStyle As Byte, ByVal hairColor As Byte, ByVal facialHair As Byte, ByVal outfitId As Byte) As Integer Implements IWorld.ClientCreateCharacter
-                Log.WriteLine(LogType.INFORMATION, "Account {0} Created a character with Name {1}, Race {2}, Class {3}, Gender {4}, Skin {5}, Face {6}, HairStyle {7}, HairColor {8}, FacialHair {9}, outfitID {10}", account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Account {0} Created a character with Name {1}, Race {2}, Class {3}, Gender {4}, Skin {5}, Face {6}, HairStyle {7}, HairColor {8}, FacialHair {9}, outfitID {10}", account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
                 Return CreateCharacter(account, name, race, classe, gender, skin, face, hairStyle, hairColor, facialHair, outfitId)
             End Function
 
             Public Function Ping(ByVal timestamp As Integer, ByVal latency As Integer) As Integer Implements IWorld.Ping
-                Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", timeGetTime("") - timestamp)
-                LastPing = timeGetTime("")
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Cluster ping: [{0}ms]", _NativeMethods.timeGetTime("") - timestamp)
+                LastPing = _NativeMethods.timeGetTime("")
                 WC_MsTime = timestamp + latency
 
-                Return timeGetTime("")
+                Return _NativeMethods.timeGetTime("")
             End Function
 
             Public Sub CheckConnection(ByVal State As Object)
-                If (timeGetTime("") - LastPing) > 40000 Then
+                If (_NativeMethods.timeGetTime("") - LastPing) > 40000 Then
                     If Cluster IsNot Nothing Then
-                        Log.WriteLine(LogType.FAILED, "Cluster timed out. Reconnecting")
+                        _WorldServer.Log.WriteLine(LogType.FAILED, "Cluster timed out. Reconnecting")
                         ClusterDisconnect()
                     End If
                     ClusterConnect()
-                    LastPing = timeGetTime("")
+                    LastPing = _NativeMethods.timeGetTime("")
                 End If
             End Sub
 
@@ -250,26 +253,26 @@ Namespace Server
             Public Function InstanceCanCreate(ByVal Type As Integer) As Boolean Implements IWorld.InstanceCanCreate
                 Select Case Type
                     Case MapTypes.MAP_BATTLEGROUND
-                        Return Config.CreateBattlegrounds
+                        Return _WorldServer.Config.CreateBattlegrounds
                     Case MapTypes.MAP_INSTANCE
-                        Return Config.CreatePartyInstances
+                        Return _WorldServer.Config.CreatePartyInstances
                     Case MapTypes.MAP_RAID
-                        Return Config.CreateRaidInstances
+                        Return _WorldServer.Config.CreateRaidInstances
                     Case MapTypes.MAP_COMMON
-                        Return Config.CreateOther
+                        Return _WorldServer.Config.CreateOther
                 End Select
             End Function
 
             Public Sub ClientSetGroup(ByVal ID As UInteger, ByVal GroupID As Long) Implements IWorld.ClientSetGroup
-                If Not WorldServer.CLIENTs.ContainsKey(ID) Then Return
+                If Not _WorldServer.CLIENTs.ContainsKey(ID) Then Return
 
                 If GroupID = -1 Then
-                    Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G NULL]", ID)
+                    _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G NULL]", ID)
 
-                    WorldServer.CLIENTs(ID).Character.Group = Nothing
-                    InstanceMapLeave(WorldServer.CLIENTs(ID).Character)
+                    _WorldServer.CLIENTs(ID).Character.Group = Nothing
+                    InstanceMapLeave(_WorldServer.CLIENTs(ID).Character)
                 Else
-                    Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G{1:00000}]", ID, GroupID)
+                    _WorldServer.Log.WriteLine(LogType.NETWORK, "[{0:000000}] Client group set [G{1:00000}]", ID, GroupID)
 
                     If Not WS_Group.Groups.ContainsKey(GroupID) Then
                         Dim Group As New WS_Group.Group(GroupID)
@@ -278,8 +281,8 @@ Namespace Server
                         Cluster.GroupRequestUpdate(ID)
                     End If
 
-                    WorldServer.CLIENTs(ID).Character.Group = WS_Group.Groups(GroupID)
-                    InstanceMapEnter(WorldServer.CLIENTs(ID).Character)
+                    _WorldServer.CLIENTs(ID).Character.Group = WS_Group.Groups(GroupID)
+                    InstanceMapEnter(_WorldServer.CLIENTs(ID).Character)
                 End If
             End Sub
             Public Sub GroupUpdate(ByVal GroupID As Long, ByVal GroupType As Byte, ByVal GroupLeader As ULong, ByVal Members() As ULong) Implements IWorld.GroupUpdate
@@ -287,10 +290,10 @@ Namespace Server
 
                     Dim list As New List(Of ULong)
                     For Each GUID As ULong In Members
-                        If CHARACTERs.ContainsKey(GUID) Then list.Add(GUID)
+                        If _WorldServer.CHARACTERs.ContainsKey(GUID) Then list.Add(GUID)
                     Next
 
-                    Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update [{2}, {1} local members]", GroupID, list.Count, CType(GroupType, GroupType))
+                    _WorldServer.Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update [{2}, {1} local members]", GroupID, list.Count, CType(GroupType, GroupType))
 
                     If list.Count = 0 Then
                         WS_Group.Groups(GroupID).Dispose()
@@ -304,14 +307,14 @@ Namespace Server
             Public Sub GroupUpdateLoot(ByVal GroupID As Long, ByVal Difficulty As Byte, ByVal Method As Byte, ByVal Threshold As Byte, ByVal Master As ULong) Implements IWorld.GroupUpdateLoot
                 If WS_Group.Groups.ContainsKey(GroupID) Then
 
-                    Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
+                    _WorldServer.Log.WriteLine(LogType.NETWORK, "[G{0:00000}] Group update loot", GroupID)
 
                     WS_Group.Groups(GroupID).DungeonDifficulty = Difficulty
                     WS_Group.Groups(GroupID).LootMethod = Method
                     WS_Group.Groups(GroupID).LootThreshold = Threshold
 
-                    If CHARACTERs.ContainsKey(Master) Then
-                        WS_Group.Groups(GroupID).LocalLootMaster = CHARACTERs(Master)
+                    If _WorldServer.CHARACTERs.ContainsKey(Master) Then
+                        WS_Group.Groups(GroupID).LocalLootMaster = _WorldServer.CHARACTERs(Master)
                     Else
                         WS_Group.Groups(GroupID).LocalLootMaster = Nothing
                     End If
@@ -320,31 +323,31 @@ Namespace Server
 
             Public Function GroupMemberStats(ByVal GUID As ULong, ByVal Flag As Integer) As Byte() Implements IWorld.GroupMemberStats
                 If Flag = 0 Then Flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL
-                Dim p As PacketClass = BuildPartyMemberStats(CHARACTERs(GUID), Flag)
+                Dim p As PacketClass = BuildPartyMemberStats(_WorldServer.CHARACTERs(GUID), Flag)
                 p.UpdateLength()
                 Return p.Data
             End Function
 
             Public Sub GuildUpdate(ByVal GUID As ULong, ByVal GuildID As UInteger, ByVal GuildRank As Byte) Implements IWorld.GuildUpdate
-                CHARACTERs(GUID).GuildID = GuildID
-                CHARACTERs(GUID).GuildRank = GuildRank
+                _WorldServer.CHARACTERs(GUID).GuildID = GuildID
+                _WorldServer.CHARACTERs(GUID).GuildRank = GuildRank
 
-                CHARACTERs(GUID).SetUpdateFlag(EPlayerFields.PLAYER_GUILDID, GuildID)
-                CHARACTERs(GUID).SetUpdateFlag(EPlayerFields.PLAYER_GUILDRANK, GuildRank)
-                CHARACTERs(GUID).SendCharacterUpdate()
+                _WorldServer.CHARACTERs(GUID).SetUpdateFlag(EPlayerFields.PLAYER_GUILDID, GuildID)
+                _WorldServer.CHARACTERs(GUID).SetUpdateFlag(EPlayerFields.PLAYER_GUILDRANK, GuildRank)
+                _WorldServer.CHARACTERs(GUID).SendCharacterUpdate()
             End Sub
 
             Public Sub BattlefieldCreate(ByVal BattlefieldID As Integer, ByVal BattlefieldMapType As Byte, ByVal Map As UInteger) Implements IWorld.BattlefieldCreate
-                Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Battlefield created", BattlefieldID)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Battlefield created", BattlefieldID)
             End Sub
             Public Sub BattlefieldDelete(ByVal BattlefieldID As Integer) Implements IWorld.BattlefieldDelete
-                Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Battlefield deleted", BattlefieldID)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Battlefield deleted", BattlefieldID)
             End Sub
             Public Sub BattlefieldJoin(ByVal BattlefieldID As Integer, ByVal GUID As ULong) Implements IWorld.BattlefieldJoin
-                Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Character [0x{1:X}] joined battlefield", BattlefieldID, GUID)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Character [0x{1:X}] joined battlefield", BattlefieldID, GUID)
             End Sub
             Public Sub BattlefieldLeave(ByVal BattlefieldID As Integer, ByVal GUID As ULong) Implements IWorld.BattlefieldLeave
-                Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Character [0x{1:X}] left battlefield", BattlefieldID, GUID)
+                _WorldServer.Log.WriteLine(LogType.NETWORK, "[B{0:0000}] Character [0x{1:X}] left battlefield", BattlefieldID, GUID)
             End Sub
 
         End Class
@@ -367,46 +370,46 @@ Namespace Server
                 While Packets.Count >= 1
                     Try ' Trap a Packets.Dequeue issue when no packets are queued... possibly an error with the Packets.Count above'
                         Dim p As PacketClass = Packets.Dequeue
-                        Dim start As Integer = timeGetTime("")
+                        Dim start As Integer = _NativeMethods.timeGetTime("")
                         Try
                             If Not IsNothing(p) Then
-                                If PacketHandlers.ContainsKey(p.OpCode) = True Then
+                                If _WorldServer.PacketHandlers.ContainsKey(p.OpCode) = True Then
                                     Try
-                                        PacketHandlers(p.OpCode).Invoke(p, Me)
-                                        If timeGetTime("") - start > 100 Then
-                                            Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, timeGetTime("") - start)
+                                        _WorldServer.PacketHandlers(p.OpCode).Invoke(p, Me)
+                                        If _NativeMethods.timeGetTime("") - start > 100 Then
+                                            _WorldServer.Log.WriteLine(LogType.WARNING, "Packet processing took too long: {0}, {1}ms", p.OpCode, _NativeMethods.timeGetTime("") - start)
                                         End If
                                     Catch e As Exception 'TargetInvocationException
-                                        Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, Environment.NewLine, p.OpCode, p.OpCode)
+                                        _WorldServer.Log.WriteLine(LogType.FAILED, "Opcode handler {2}:{3} caused an error:{1}{0}", e.ToString, Environment.NewLine, p.OpCode, p.OpCode)
                                         If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                                     End Try
                                 Else
-                                    Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
+                                    _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] Unknown Opcode 0x{2:X} [DataLen={3} {4}]", IP, Port, CType(p.OpCode, Integer), p.Data.Length, p.OpCode)
                                     If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                                 End If
                             Else
-                                Log.WriteLine(LogType.WARNING, "[{0}:{1}] No Packet Information in Queue", IP, Port)
+                                _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] No Packet Information in Queue", IP, Port)
                                 If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                             End If
                         Catch err As Exception
-                            Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, Environment.NewLine)
+                            _WorldServer.Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, Environment.NewLine)
                             Delete()
                         Finally
                             Try
                             Catch ex As Exception
                                 If Packets.Count = 0 Then p.Dispose()
-                                Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
+                                _WorldServer.Log.WriteLine(LogType.WARNING, "Unable to dispose of packet: {0}", p.OpCode)
                                 If Not IsNothing(p) Then DumpPacket(p.Data, Me)
                             End Try
                         End Try
                     Catch err As Exception
-                        Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, Environment.NewLine)
+                        _WorldServer.Log.WriteLine(LogType.FAILED, "Connection from [{0}:{1}] cause error {2}{3}", IP, Port, err.ToString, Environment.NewLine)
                         Delete()
                     Finally
                         Try
                         Catch ex As Exception
                             'If Packets.Count = 0 Then p.Dispose()
-                            Log.WriteLine(LogType.WARNING, "Unable to dispose of packet")
+                            _WorldServer.Log.WriteLine(LogType.WARNING, "Unable to dispose of packet")
                             'DumpPacket(p.Data, Me)
                         End Try
                     End Try
@@ -416,11 +419,11 @@ Namespace Server
             Public Sub Send(ByRef data() As Byte)
                 SyncLock Me
                     Try
-                        ClsWorldServer.Cluster.ClientSend(Index, data)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSend(Index, data)
                     Catch Err As Exception
                         If DEBUG_CONNECTION Then Exit Sub
-                        Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
-                        ClsWorldServer.Cluster = Nothing
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
+                        _WorldServer.ClsWorldServer.Cluster = Nothing
                         Delete()
                     End Try
                 End SyncLock
@@ -432,12 +435,12 @@ Namespace Server
                         If packet.OpCode = OPCODES.SMSG_UPDATE_OBJECT Then packet.CompressUpdatePacket()
                         packet.UpdateLength()
 
-                        ClsWorldServer.Cluster.ClientSend(Index, packet.Data)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSend(Index, packet.Data)
                         packet.Dispose()
                     Catch Err As Exception
                         If DEBUG_CONNECTION Then Exit Sub
-                        Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
-                        ClsWorldServer.Cluster = Nothing
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
+                        _WorldServer.ClsWorldServer.Cluster = Nothing
                         Delete()
                     End Try
                 End SyncLock
@@ -450,12 +453,12 @@ Namespace Server
                         packet.UpdateLength()
 
                         Dim data() As Byte = packet.Data.Clone
-                        ClsWorldServer.Cluster.ClientSend(Index, data)
+                        _WorldServer.ClsWorldServer.Cluster.ClientSend(Index, data)
 
                     Catch Err As Exception
                         If DEBUG_CONNECTION Then Exit Sub
-                        Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
-                        ClsWorldServer.Cluster = Nothing
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)
+                        _WorldServer.ClsWorldServer.Cluster = Nothing
                         Delete()
                     End Try
                 End SyncLock
@@ -469,10 +472,10 @@ Namespace Server
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
+                    _WorldServer.Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
 
-                    ClsWorldServer.Cluster.ClientDrop(Index)
-                    WorldServer.CLIENTs.Remove(Index)
+                    _WorldServer.ClsWorldServer.Cluster.ClientDrop(Index)
+                    _WorldServer.CLIENTs.Remove(Index)
                     If Not Character Is Nothing Then
                         Character.client = Nothing
                         Character.Dispose()
@@ -492,7 +495,7 @@ Namespace Server
             Public Sub Delete()
                 On Error Resume Next
 
-                WorldServer.CLIENTs.Remove(Index)
+                _WorldServer.CLIENTs.Remove(Index)
                 If Not Character Is Nothing Then
                     Character.client = Nothing
                     Character.Dispose()
@@ -504,7 +507,7 @@ Namespace Server
             End Sub
 
             Public Sub New()
-                Log.WriteLine(LogType.WARNING, "Creating debug connection!", Nothing)
+                _WorldServer.Log.WriteLine(LogType.WARNING, "Creating debug connection!", Nothing)
                 DEBUG_CONNECTION = True
             End Sub
             Public Sub New(ByVal ci As ClientInfo)

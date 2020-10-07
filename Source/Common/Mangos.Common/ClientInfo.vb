@@ -17,12 +17,13 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Misc
 
 Public Class ClientInfo
     Property Index As UInteger
     Property IP As String
     Property Port As UInteger
     Property Account As String
-    Property Access As MiscEnum.AccessLevel = AccessLevel.Player
+    Property Access As AccessLevel = AccessLevel.Player
     Property Expansion As ExpansionLevel = ExpansionLevel.NORMAL
 End Class

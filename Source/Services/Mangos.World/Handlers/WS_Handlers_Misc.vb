@@ -17,7 +17,9 @@
 '
 
 Imports System.Data
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI
 Imports Mangos.World.DataStores
@@ -67,7 +69,7 @@ Namespace Handlers
                 If (packet.Data.Length - 1) < 13 Then Exit Sub
                 packet.GetInt16()
                 Dim GUID As ULong = packet.GetUInt64()
-                Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", client.IP, client.Port, GUID)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", client.IP, client.Port, GUID)
                 Dim SMSG_NAME_QUERY_RESPONSE As New PacketClass(OPCODES.SMSG_NAME_QUERY_RESPONSE)
 
                 'RESERVED For Warden Bot
@@ -86,14 +88,14 @@ Namespace Handlers
                 End If
 
                 'Asking for player name
-                If GuidIsPlayer(GUID) Then
-                    If CHARACTERs.ContainsKey(GUID) = True Then
+                If _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
+                    If _WorldServer.CHARACTERs.ContainsKey(GUID) = True Then
                         Try
                             SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                            SMSG_NAME_QUERY_RESPONSE.AddString(CHARACTERs(GUID).Name)
-                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Race)
-                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Gender)
-                            SMSG_NAME_QUERY_RESPONSE.AddInt32(CHARACTERs(GUID).Classe)
+                            SMSG_NAME_QUERY_RESPONSE.AddString(_WorldServer.CHARACTERs(GUID).Name)
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(_WorldServer.CHARACTERs(GUID).Race)
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(_WorldServer.CHARACTERs(GUID).Gender)
+                            SMSG_NAME_QUERY_RESPONSE.AddInt32(_WorldServer.CHARACTERs(GUID).Classe)
                             client.Send(SMSG_NAME_QUERY_RESPONSE)
                         Finally
                             SMSG_NAME_QUERY_RESPONSE.Dispose()
@@ -101,7 +103,7 @@ Namespace Handlers
                         Exit Sub
                     Else
                         Dim MySQLQuery As New DataTable
-                        CharacterDatabase.Query(String.Format("SELECT char_name, char_race, char_class, char_gender FROM characters WHERE char_guid = ""{0}"";", GUID), MySQLQuery)
+                        _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_name, char_race, char_class, char_gender FROM characters WHERE char_guid = ""{0}"";", GUID), MySQLQuery)
 
                         If MySQLQuery.Rows.Count > 0 Then
                             Try
@@ -115,7 +117,7 @@ Namespace Handlers
                                 SMSG_NAME_QUERY_RESPONSE.Dispose()
                             End Try
                         Else
-                            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_NAME_QUERY_RESPONSE [Character GUID={2:X} not found]", client.IP, client.Port, GUID)
+                            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_NAME_QUERY_RESPONSE [Character GUID={2:X} not found]", client.IP, client.Port, GUID)
                         End If
 
                         MySQLQuery.Dispose()
@@ -124,11 +126,11 @@ Namespace Handlers
                 End If
 
                 'Asking for creature name (only used in quests?)
-                If GuidIsCreature(GUID) Then
-                    If WORLD_CREATUREs.ContainsKey(GUID) Then
+                If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
                         Try
                             SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                            SMSG_NAME_QUERY_RESPONSE.AddString(WORLD_CREATUREs(GUID).Name)
+                            SMSG_NAME_QUERY_RESPONSE.AddString(_WorldServer.WORLD_CREATUREs(GUID).Name)
                             SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
                             SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
                             SMSG_NAME_QUERY_RESPONSE.AddInt32(0)
@@ -137,11 +139,11 @@ Namespace Handlers
                             SMSG_NAME_QUERY_RESPONSE.Dispose()
                         End Try
                     Else
-                        Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_NAME_QUERY_RESPONSE [Creature GUID={2:X} not found]", client.IP, client.Port, GUID)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_NAME_QUERY_RESPONSE [Creature GUID={2:X} not found]", client.IP, client.Port, GUID)
                     End If
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error at name query.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error at name query.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -149,14 +151,14 @@ Namespace Handlers
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim Flag As Integer = packet.GetInt32()
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_FLAG [flag={2}]", client.IP, client.Port, Flag)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_FLAG [flag={2}]", client.IP, client.Port, Flag)
 
             client.Character.TutorialFlags((Flag \ 8)) = client.Character.TutorialFlags((Flag \ 8)) + (1 << 7 - (Flag Mod 8))
             client.Character.SaveCharacter()
         End Sub
 
         Public Sub On_CMSG_TUTORIAL_CLEAR(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_CLEAR", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_CLEAR", client.IP, client.Port)
 
             For i As Integer = 0 To 31
                 client.Character.TutorialFlags(i) = 255
@@ -165,7 +167,7 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_TUTORIAL_RESET(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_RESET", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_RESET", client.IP, client.Port)
 
             For i As Integer = 0 To 31
                 client.Character.TutorialFlags(i) = 0
@@ -174,7 +176,7 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_TOGGLE_HELM(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_HELM", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_HELM", client.IP, client.Port)
 
             If (client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then
                 client.Character.cPlayerFlags = client.Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_HIDE_HELM)
@@ -187,7 +189,7 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_TOGGLE_CLOAK(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_CLOAK", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_CLOAK", client.IP, client.Port)
 
             If (client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then
                 client.Character.cPlayerFlags = client.Character.cPlayerFlags And (Not PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK)
@@ -203,20 +205,20 @@ Namespace Handlers
             packet.GetInt16()
             Dim ActionBar As Byte = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTIONBAR_TOGGLES [{2:X}]", client.IP, client.Port, ActionBar)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTIONBAR_TOGGLES [{2:X}]", client.IP, client.Port, ActionBar)
 
-            client.Character.cPlayerFieldBytes = (Client.Character.cPlayerFieldBytes And &HFFF0FFFF) Or (ActionBar << 16)
+            client.Character.cPlayerFieldBytes = (client.Character.cPlayerFieldBytes And &HFFF0FFFF) Or (ActionBar << 16)
 
             client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BYTES, client.Character.cPlayerFieldBytes)
             client.Character.SendCharacterUpdate(True)
         End Sub
 
         Public Sub On_CMSG_MOUNTSPECIAL_ANIM(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOUNTSPECIAL_ANIM", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOUNTSPECIAL_ANIM", client.IP, client.Port)
 
             Dim response As New PacketClass(OPCODES.SMSG_MOUNTSPECIAL_ANIM)
             Try
-                response.AddPackGUID(Client.Character.GUID)
+                response.AddPackGUID(client.Character.GUID)
                 client.Character.SendToNearPlayers(response)
             Finally
                 response.Dispose()
@@ -227,12 +229,12 @@ Namespace Handlers
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim emoteID As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_EMOTE [{2}]", client.IP, client.Port, emoteID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_EMOTE [{2}]", client.IP, client.Port, emoteID)
 
             Dim response As New PacketClass(OPCODES.SMSG_EMOTE)
             Try
                 response.AddInt32(emoteID)
-                response.AddUInt64(Client.Character.GUID)
+                response.AddUInt64(client.Character.GUID)
                 client.Character.SendToNearPlayers(response)
             Finally
                 response.Dispose()
@@ -246,15 +248,15 @@ Namespace Handlers
             Dim Unk As Integer = packet.GetInt32
             Dim GUID As ULong = packet.GetUInt64
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TEXT_EMOTE [TextEmote={2} Unk={3}]", client.IP, client.Port, TextEmote, Unk)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TEXT_EMOTE [TextEmote={2} Unk={3}]", client.IP, client.Port, TextEmote, Unk)
 
-            If GuidIsCreature(GUID) AndAlso WORLD_CREATUREs.ContainsKey(GUID) Then
+            If _CommonGlobalFunctions.GuidIsCreature(GUID) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
                 'DONE: Some quests needs emotes being done
-                ALLQUESTS.OnQuestDoEmote(Client.Character, WORLD_CREATUREs(GUID), TextEmote)
+                _WorldServer.ALLQUESTS.OnQuestDoEmote(client.Character, _WorldServer.WORLD_CREATUREs(GUID), TextEmote)
 
                 'DONE: Doing emotes to guards
-                If WORLD_CREATUREs(GUID).aiScript IsNot Nothing AndAlso (TypeOf WORLD_CREATUREs(GUID).aiScript Is WS_Creatures_AI.GuardAI) Then
-                    CType(WORLD_CREATUREs(GUID).aiScript, GuardAI).OnEmote(TextEmote)
+                If _WorldServer.WORLD_CREATUREs(GUID).aiScript IsNot Nothing AndAlso (TypeOf _WorldServer.WORLD_CREATUREs(GUID).aiScript Is WS_Creatures_AI.GuardAI) Then
+                    CType(_WorldServer.WORLD_CREATUREs(GUID).aiScript, GuardAI).OnEmote(TextEmote)
                 End If
             End If
 
@@ -272,10 +274,10 @@ Namespace Handlers
             'DONE: Find Creature/Player with the recv GUID
             Dim secondName As String = ""
             If GUID > 0 Then
-                If CHARACTERs.ContainsKey(GUID) Then
-                    secondName = CHARACTERs(GUID).Name
-                ElseIf WORLD_CREATUREs.ContainsKey(GUID) Then
-                    secondName = WORLD_CREATUREs(GUID).Name
+                If _WorldServer.CHARACTERs.ContainsKey(GUID) Then
+                    secondName = _WorldServer.CHARACTERs(GUID).Name
+                ElseIf _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
+                    secondName = _WorldServer.WORLD_CREATUREs(GUID).Name
                 End If
             End If
 
@@ -332,7 +334,7 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_REPOP_REQUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPOP_REQUEST [GUID={2:X}]", client.IP, client.Port, client.Character.GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPOP_REQUEST [GUID={2:X}]", client.IP, client.Port, client.Character.GUID)
             If client.Character.repopTimer IsNot Nothing Then
                 client.Character.repopTimer.Dispose()
                 client.Character.repopTimer = Nothing
@@ -344,7 +346,7 @@ Namespace Handlers
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_RECLAIM_CORPSE [GUID={2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_RECLAIM_CORPSE [GUID={2:X}]", client.IP, client.Port, GUID)
 
             CharacterResurrect(Client.Character)
         End Sub
@@ -383,7 +385,7 @@ Namespace Handlers
                 UpdateCell(Client.Character)
 
                 'DONE: Remove all auras
-                For i As Integer = 0 To MAX_AURA_EFFECTs - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                     If client.Character.ActiveSpells(i) IsNot Nothing Then client.Character.RemoveAura(i, client.Character.ActiveSpells(i).SpellCaster)
                 Next
 
@@ -406,9 +408,9 @@ Namespace Handlers
                 client.Character.SendCharacterUpdate()
 
                 'DONE: Get closest graveyard
-                AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
+                _WorldServer.AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
             Catch e As Exception
-                Log.WriteLine(LogType.FAILED, "Error on repop: {0}", e.ToString)
+                _WorldServer.Log.WriteLine(LogType.FAILED, "Error on repop: {0}", e.ToString)
             End Try
         End Sub
 
@@ -447,13 +449,13 @@ Namespace Handlers
 
             'DONE: Spawn Bones, Delete Corpse
             If Character.corpseGUID <> 0 Then
-                If WORLD_CORPSEOBJECTs.ContainsKey(Character.corpseGUID) Then
-                    WORLD_CORPSEOBJECTs(Character.corpseGUID).ConvertToBones()
+                If _WorldServer.WORLD_CORPSEOBJECTs.ContainsKey(Character.corpseGUID) Then
+                    _WorldServer.WORLD_CORPSEOBJECTs(Character.corpseGUID).ConvertToBones()
                 Else
-                    Log.WriteLine(LogType.DEBUG, "Corpse wasn't found [{0}]!", Character.corpseGUID - GUID_CORPSE)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Corpse wasn't found [{0}]!", Character.corpseGUID - _Global_Constants.GUID_CORPSE)
 
                     'DONE: Delete from database
-                    CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Character.GUID))
+                    _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM corpse WHERE player = ""{0}"";", Character.GUID))
 
                     'TODO: Turn the corpse into bones on the server it is located at!
                 End If
@@ -466,7 +468,7 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_TOGGLE_PVP(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_PVP", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_PVP", client.IP, client.Port)
 
             client.Character.isPvP = Not client.Character.isPvP
             client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, client.Character.cUnitFlags)
@@ -477,27 +479,27 @@ Namespace Handlers
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_INSPECT_HONOR_STATS [{2:X}]", client.IP, client.Port, GUID)
-            If CHARACTERs.ContainsKey(GUID) = False Then Exit Sub
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_INSPECT_HONOR_STATS [{2:X}]", client.IP, client.Port, GUID)
+            If _WorldServer.CHARACTERs.ContainsKey(GUID) = False Then Exit Sub
 
             Dim response As New PacketClass(OPCODES.MSG_INSPECT_HONOR_STATS)
             Try
                 response.AddUInt64(GUID)
 
-                CHARACTERs_Lock.AcquireReaderLock(DEFAULT_LOCK_TIMEOUT)
-                response.AddInt8(CHARACTERs(GUID).HonorRank)                                                            'Highest Rank
-                response.AddInt32(CHARACTERs(GUID).HonorKillsToday + CInt(CHARACTERs(GUID).DishonorKillsToday) << 16)   'PLAYER_FIELD_SESSION_KILLS                - Today Honorable and Dishonorable Kills
-                response.AddInt32(CHARACTERs(GUID).HonorKillsYesterday)                                                 'PLAYER_FIELD_YESTERDAY_KILLS              - Yesterday Honorable Kills
-                response.AddInt32(CHARACTERs(GUID).HonorKillsLastWeek)                                                  'PLAYER_FIELD_LAST_WEEK_KILLS              - Last Week Honorable Kills
-                response.AddInt32(CHARACTERs(GUID).HonorKillsThisWeek)                                                  'PLAYER_FIELD_THIS_WEEK_KILLS              - This Week Honorable kills
-                response.AddInt32(CHARACTERs(GUID).HonorKillsLifeTime)                                                  'PLAYER_FIELD_LIFETIME_HONORABLE_KILLS     - Lifetime Honorable Kills
-                response.AddInt32(CHARACTERs(GUID).DishonorKillsLifeTime)                                               'PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS  - Lifetime Dishonorable Kills
-                response.AddInt32(CHARACTERs(GUID).HonorPointsYesterday)                                                'PLAYER_FIELD_YESTERDAY_CONTRIBUTION       - Yesterday Honor
-                response.AddInt32(CHARACTERs(GUID).HonorPointsLastWeek)                                                 'PLAYER_FIELD_LAST_WEEK_CONTRIBUTION       - Last Week Honor
-                response.AddInt32(CHARACTERs(GUID).HonorPointsThisWeek)                                                 'PLAYER_FIELD_THIS_WEEK_CONTRIBUTION       - This Week Honor
-                response.AddInt32(CHARACTERs(GUID).StandingLastWeek)                                                    'PLAYER_FIELD_LAST_WEEK_RANK               - Last Week Standing
-                response.AddInt8(CHARACTERs(GUID).HonorHighestRank)                                                     '?!
-                CHARACTERs_Lock.ReleaseReaderLock()
+                _WorldServer.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                response.AddInt8(_WorldServer.CHARACTERs(GUID).HonorRank)                                                            'Highest Rank
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorKillsToday + CInt(_WorldServer.CHARACTERs(GUID).DishonorKillsToday) << 16)   'PLAYER_FIELD_SESSION_KILLS                - Today Honorable and Dishonorable Kills
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorKillsYesterday)                                                 'PLAYER_FIELD_YESTERDAY_KILLS              - Yesterday Honorable Kills
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorKillsLastWeek)                                                  'PLAYER_FIELD_LAST_WEEK_KILLS              - Last Week Honorable Kills
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorKillsThisWeek)                                                  'PLAYER_FIELD_THIS_WEEK_KILLS              - This Week Honorable kills
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorKillsLifeTime)                                                  'PLAYER_FIELD_LIFETIME_HONORABLE_KILLS     - Lifetime Honorable Kills
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).DishonorKillsLifeTime)                                               'PLAYER_FIELD_LIFETIME_DISHONORABLE_KILLS  - Lifetime Dishonorable Kills
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorPointsYesterday)                                                'PLAYER_FIELD_YESTERDAY_CONTRIBUTION       - Yesterday Honor
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorPointsLastWeek)                                                 'PLAYER_FIELD_LAST_WEEK_CONTRIBUTION       - Last Week Honor
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).HonorPointsThisWeek)                                                 'PLAYER_FIELD_THIS_WEEK_CONTRIBUTION       - This Week Honor
+                response.AddInt32(_WorldServer.CHARACTERs(GUID).StandingLastWeek)                                                    'PLAYER_FIELD_LAST_WEEK_RANK               - Last Week Standing
+                response.AddInt8(_WorldServer.CHARACTERs(GUID).HonorHighestRank)                                                     '?!
+                _WorldServer.CHARACTERs_Lock.ReleaseReaderLock()
 
                 client.Send(response)
             Finally
@@ -506,26 +508,26 @@ Namespace Handlers
         End Sub
 
         Public Sub On_CMSG_MOVE_FALL_RESET(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_FALL_RESET", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_FALL_RESET", client.IP, client.Port)
             DumpPacket(packet.Data)
         End Sub
         Public Sub On_CMSG_BATTLEFIELD_STATUS(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_STATUS", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_STATUS", client.IP, client.Port)
         End Sub
         Public Sub On_CMSG_SET_ACTIVE_MOVER(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTIVE_MOVER [GUID={2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTIVE_MOVER [GUID={2:X}]", client.IP, client.Port, GUID)
         End Sub
         Public Sub On_CMSG_MEETINGSTONE_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MEETINGSTONE_INFO", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MEETINGSTONE_INFO", client.IP, client.Port)
         End Sub
 
         Public Sub On_CMSG_SET_FACTION_ATWAR(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
             Dim faction As Integer = packet.GetInt32
             Dim enabled As Byte = packet.GetInt8
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_FACTION_ATWAR [faction={2:X} enabled={3}]", client.IP, client.Port, faction, enabled)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_FACTION_ATWAR [faction={2:X} enabled={3}]", client.IP, client.Port, faction, enabled)
             If enabled > 1 Then Exit Sub
 
             If enabled = 1 Then
@@ -548,13 +550,13 @@ Namespace Handlers
             packet.GetInt16()
             Dim faction As Integer = packet.GetInt32
             Dim enabled As Byte = packet.GetInt8
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_FACTION_INACTIVE [faction={2:X} enabled={3}]", client.IP, client.Port, faction, enabled)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_FACTION_INACTIVE [faction={2:X} enabled={3}]", client.IP, client.Port, faction, enabled)
             If enabled > 1 Then Exit Sub
         End Sub
         Public Sub On_CMSG_SET_WATCHED_FACTION(ByRef packet As PacketClass, ByRef client As ClientClass)
             packet.GetInt16()
             Dim faction As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_WATCHED_FACTION [faction={2:X}]", client.IP, client.Port, faction)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_WATCHED_FACTION [faction={2:X}]", client.IP, client.Port, faction)
             If faction = -1 Then faction = &HFF
             If faction < 0 OrElse faction > 255 Then Exit Sub
 

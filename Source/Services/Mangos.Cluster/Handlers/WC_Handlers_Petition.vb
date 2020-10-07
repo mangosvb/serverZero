@@ -17,7 +17,7 @@
 '
 
 Namespace Handlers
-    Public Module WC_Handlers_Petition
+    Public Class WC_Handlers_Petition
         'TODO: Need to code the petition handlers for guild creation
-    End Module
+    End Class
 End Namespace

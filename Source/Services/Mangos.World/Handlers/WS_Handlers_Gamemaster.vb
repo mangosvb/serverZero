@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.Globals
 Imports Mangos.World.Server
 
@@ -25,7 +27,7 @@ Namespace Handlers
     Public Module WS_Handlers_Gamemaster
 
         Public Sub On_CMSG_WORLD_TELEPORT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WORLD_TELEPORT", client.IP, client.Port)
 
             If client.Access >= AccessLevel.GameMaster Then
                 packet.GetInt16()

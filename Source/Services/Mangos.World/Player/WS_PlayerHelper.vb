@@ -18,6 +18,8 @@
 
 Imports System.Threading
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -196,7 +198,7 @@ Namespace Player
                 tmp = tmp & ", kills_honorableLifetime =" & KillsHonorableLifetime
 
                 tmp = tmp + String.Format(" WHERE char_guid = ""{0}"";", CharGUID)
-                CharacterDatabase.Update(tmp)
+                _WorldServer.CharacterDatabase.Update(tmp)
             End Sub
 
             '???
@@ -238,7 +240,7 @@ Namespace Player
 
             Public Sub New(ByRef Character As CharacterObject)
                 CharacterGUID = Character.GUID
-                Character.StartMirrorTimer(GlobalEnum.MirrorTimer.DROWNING, 70000)
+                Character.StartMirrorTimer(MirrorTimer.DROWNING, 70000)
                 DrowningTimer = New Timer(AddressOf Character.HandleDrowning, Nothing, 2000, 1000)
             End Sub
 
@@ -254,7 +256,7 @@ Namespace Player
                         DrowningTimer.Dispose()
                         DrowningTimer = Nothing
                     End If
-                    If CHARACTERs.ContainsKey(CharacterGUID) Then CHARACTERs(CharacterGUID).StopMirrorTimer(1)
+                    If _WorldServer.CHARACTERs.ContainsKey(CharacterGUID) Then _WorldServer.CHARACTERs(CharacterGUID).StopMirrorTimer(1)
                 End If
                 _disposedValue = True
             End Sub

@@ -16,7 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Group
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
@@ -31,7 +33,7 @@ Namespace Social
             Implements IDisposable
 
             Public ReadOnly ID As Long
-            Public Type As GroupEnum.GroupType = GroupType.PARTY
+            Public Type As GroupType = GroupType.PARTY
             Public DungeonDifficulty As GroupDungeonDifficulty = GroupDungeonDifficulty.DIFFICULTY_NORMAL
             Public LootMethod As GroupLootMethod = GroupLootMethod.LOOT_GROUP
             Public LootThreshold As GroupLootThreshold = GroupLootThreshold.Uncommon
@@ -73,7 +75,7 @@ Namespace Social
             ''' <returns></returns>
             Public Sub Broadcast(ByVal p As Packets.PacketClass)
                 p.UpdateLength()
-                ClsWorldServer.Cluster.BroadcastGroup(ID, p.Data)
+                _WorldServer.ClsWorldServer.Cluster.BroadcastGroup(ID, p.Data)
             End Sub
 
             ''' <summary>
@@ -98,7 +100,7 @@ Namespace Social
                     _lastLooter = LocalMembers.Item(0)
                 End If
 
-                Return CHARACTERs(_lastLooter)
+                Return _WorldServer.CHARACTERs(_lastLooter)
             End Function
 
             ''' <summary>
@@ -169,7 +171,7 @@ Namespace Social
                 Dim auraMask As ULong = 0
                 Dim auraPos As Integer = packet.Data.Length
                 packet.AddUInt64(0) 'AuraMask (is set after the loop)
-                For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If Not objCharacter.ActiveSpells(i) Is Nothing Then
                         auraMask = auraMask Or (CULng(1) << CULng(i))
                         packet.AddUInt16(objCharacter.ActiveSpells(i).SpellID)
@@ -248,7 +250,7 @@ Namespace Social
                     Dim auraMask As ULong = 0
                     Dim auraPos As Integer = packet.Data.Length
                     packet.AddUInt64(0) 'AuraMask (is set after the loop)
-                    For i As Integer = 0 To MAX_AURA_EFFECTs_VISIBLE - 1
+                    For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                         If Not objCharacter.Pet.ActiveSpells(i) Is Nothing Then
                             auraMask = auraMask Or (CULng(1) << CULng(i))
                             packet.AddUInt16(objCharacter.Pet.ActiveSpells(i).SpellID)

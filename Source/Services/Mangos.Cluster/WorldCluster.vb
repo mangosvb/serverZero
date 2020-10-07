@@ -31,14 +31,15 @@ Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
-Public Module WorldCluster
+Public Class WorldCluster
     Private Const ClusterPath As String = "configs/WorldCluster.ini"
 
     'Players' containers
     Public CLIETNIDs As Long = 0
 
-    Public CLIENTs As New Dictionary(Of UInteger, ClientClass)
+    Public CLIENTs As New Dictionary(Of UInteger, WC_Network.ClientClass)
 
     Public CHARACTERs_Lock As New ReaderWriterLock
     Public CHARACTERs As New Dictionary(Of ULong, CharacterObject)
@@ -47,7 +48,7 @@ Public Module WorldCluster
     'System Things...
     Public Log As New BaseWriter
     Public Rnd As New Random
-    Delegate Sub HandlePacket(ByRef packet As PacketClass, ByRef client As ClientClass)
+    Delegate Sub HandlePacket(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
 
     <XmlRoot(ElementName:="WorldCluster")>
     Public Class XMLConfigFile
@@ -93,7 +94,7 @@ Public Module WorldCluster
         Private _logType As String = "FILE"
 
         <XmlElement(ElementName:="LogLevel")>
-        Private _logLevel As LogType = GlobalEnum.LogType.NETWORK
+        Private _logLevel As LogType = [Global].LogType.NETWORK
 
         <XmlElement(ElementName:="LogConfig")>
         Private _logConfig As String = ""
@@ -347,7 +348,7 @@ Public Module WorldCluster
             End If
 
             'DONE: Creating logger
-            CreateLog(Config.LogType, Config.LogConfig, Log)
+            Log = CreateLog(Config.LogType, Config.LogConfig)
             Log.LogLevel = Config.LogLevel
 
             'DONE: Cleaning up the packet log
@@ -486,21 +487,10 @@ Public Module WorldCluster
         End If
         WorldDatabase.Update("SET NAMES 'utf8';")
 
-        InitializeInternalDatabase()
-        IntializePacketHandlers()
+        _WS_DBCLoad.InitializeInternalDatabase()
+        _WC_Handlers.IntializePacketHandlers()
 
-        If CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then         'Check the Database version, exit if its wrong
-
-            If True Then
-                Console.WriteLine("*************************")
-                Console.WriteLine("* Press any key to exit *")
-                Console.WriteLine("*************************")
-                Console.ReadKey()
-                End
-            End If
-        End If
-
-        If CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then         'Check the Database version, exit if its wrong
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(AccountDatabase, ServerDb.Realm) = False Then         'Check the Database version, exit if its wrong
 
             If True Then
                 Console.WriteLine("*************************")
@@ -511,7 +501,7 @@ Public Module WorldCluster
             End If
         End If
 
-        If CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then         'Check the Database version, exit if its wrong
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(CharacterDatabase, ServerDb.Character) = False Then         'Check the Database version, exit if its wrong
 
             If True Then
                 Console.WriteLine("*************************")
@@ -522,8 +512,19 @@ Public Module WorldCluster
             End If
         End If
 
-        WorldServer = New WorldServerClass
-        Dim server = New ProxyServer(Of WorldServerClass)(IPAddress.Parse(Config.ClusterListenAddress), Config.ClusterListenPort, WorldServer)
+        If _CommonGlobalFunctions.CheckRequiredDbVersion(WorldDatabase, ServerDb.World) = False Then         'Check the Database version, exit if its wrong
+
+            If True Then
+                Console.WriteLine("*************************")
+                Console.WriteLine("* Press any key to exit *")
+                Console.WriteLine("*************************")
+                Console.ReadKey()
+                End
+            End If
+        End If
+
+        _WC_Network.WorldServer = New WC_Network.WorldServerClass
+        Dim server = New ProxyServer(Of WC_Network.WorldServerClass)(IPAddress.Parse(Config.ClusterListenAddress), Config.ClusterListenPort, _WC_Network.WorldServer)
         Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}:{1}", Config.ClusterListenAddress, Config.ClusterListenPort)
 
         GC.Collect()
@@ -544,7 +545,7 @@ Public Module WorldCluster
         Dim tmp As String = "", CommandList() As String, cmds() As String
         Dim cmd() As String = {}
         Dim varList As Integer
-        While Not WorldServer.m_flagStopListen
+        While Not _WC_Network.WorldServer.m_flagStopListen
             Try
                 tmp = Log.ReadLine()
                 CommandList = tmp.Split(";")
@@ -556,7 +557,7 @@ Public Module WorldCluster
                         Select Case cmds(0).ToLower
                             Case "shutdown"
                                 Log.WriteLine(LogType.WARNING, "Server shutting down...")
-                                WorldServer.m_flagStopListen = True
+                                _WC_Network.WorldServer.m_flagStopListen = True
 
                             Case "info"
                                 Log.WriteLine(LogType.INFORMATION, "Used memory: {0}", Format(GC.GetTotalMemory(False), "### ### ##0 bytes"))
@@ -598,4 +599,4 @@ Public Module WorldCluster
         tw.Close()
     End Sub
 
-End Module
+End Class

@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -99,7 +101,7 @@ Namespace Creatures
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Armageddon) 'I think during this time he's supposed to have a kamakazie of sorts.
                 Catch ex As Exception
-                    aiCreature.SendChatMessage("I have failed to become invincible at 2% or less HP. this is a problem.", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
+                    aiCreature.SendChatMessage("I have failed to become invincible at 2% or less HP. this is a problem.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL)
                 End Try
             End If
         End Sub

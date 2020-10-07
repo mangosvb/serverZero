@@ -18,8 +18,12 @@
 
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Gossip
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.World.Objects
 Imports Mangos.World.Player
+Imports Mangos.Common
 
 Namespace Gossip
 
@@ -30,7 +34,7 @@ Namespace Gossip
 
 #Region "Gossip functions"
             Public Overrides Sub OnGossipHello(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
-                Dim Gossip As GossipEnum.Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
+                Dim Gossip As Gossips = GetGossip(_WorldServer.WORLD_CREATUREs(cGUID).ID)
 
                 Select Case Gossip
                     Case Gossips.Darnassus
@@ -58,12 +62,12 @@ Namespace Gossip
                     Case Gossips.Undercity
                         OnGossipHello_Undercity(objCharacter, cGUID)
                     Case Else
-                        Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
                 End Select
             End Sub
 
             Public Overrides Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
-                Dim Gossip As Gossips = GetGossip(WORLD_CREATUREs(cGUID).ID)
+                Dim Gossip As Gossips = GetGossip(_WorldServer.WORLD_CREATUREs(cGUID).ID)
 
                 Select Case Gossip
                     Case Gossips.Darnassus
@@ -91,7 +95,7 @@ Namespace Gossip
                     Case Gossips.Undercity
                         OnGossipSelect_Undercity(objCharacter, cGUID, selected)
                     Case Else
-                        Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Unknown gossip [{0}].", Gossip)
                 End Select
             End Sub
 
@@ -120,7 +124,7 @@ Namespace Gossip
                     Case Guards.Deathguard_Bartholomew, Guards.Deathguard_Burgess, Guards.Deathguard_Cyrus, Guards.Deathguard_Dillinger, Guards.Deathguard_Lawrence, Guards.Deathguard_Lundmark, Guards.Deathguard_Morris, Guards.Deathguard_Mort, Guards.Deathguard_Terrence
                         Return Gossips.Tirisfall
                     Case Else
-                        Log.WriteLine(LogType.DEBUG, "Creature Entry [{0}] was not found in guard table.", Entry)
+                        _WorldServer.Log.WriteLine(LogType.DEBUG, "Creature Entry [{0}] was not found in guard table.", Entry)
                         Return 0
                 End Select
             End Function
@@ -130,19 +134,19 @@ Namespace Gossip
             Private Sub OnGossipHello_Stormwind(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STORMWIND_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_DEEPRUNTRAM, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GRYPHON, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_OFFICERS, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STORMWIND_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DEEPRUNTRAM, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GRYPHON, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_OFFICERS, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 13
                     objCharacter.TalkMenuTypes.Add(i)
@@ -187,9 +191,9 @@ Namespace Gossip
                     Case 11 'Battlemasters
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
                         objCharacter.TalkMenuTypes.Add(14)
                         objCharacter.TalkMenuTypes.Add(15)
                         objCharacter.TalkMenuTypes.Add(16)
@@ -197,14 +201,14 @@ Namespace Gossip
                     Case 12 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 17 To 24
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -212,18 +216,18 @@ Namespace Gossip
                     Case 13 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 25 To 36
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -305,19 +309,19 @@ Namespace Gossip
             Private Sub OnGossipHello_Orgrimmar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_ZEPPLINMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_OFFICERS, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ZEPPLINMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_OFFICERS, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 13
                     objCharacter.TalkMenuTypes.Add(i)
@@ -362,9 +366,9 @@ Namespace Gossip
                     Case 11 'Battlemasters
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
                         objCharacter.TalkMenuTypes.Add(14)
                         objCharacter.TalkMenuTypes.Add(15)
                         objCharacter.TalkMenuTypes.Add(16)
@@ -372,13 +376,13 @@ Namespace Gossip
                     Case 12 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 17 To 23
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -386,18 +390,18 @@ Namespace Gossip
                     Case 13 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 24 To 35
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -476,17 +480,17 @@ Namespace Gossip
             Private Sub OnGossipHello_Thunderbluff(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 11
                     objCharacter.TalkMenuTypes.Add(i)
@@ -514,7 +518,7 @@ Namespace Gossip
                         objCharacter.SendPointOfInterest(-1263.59F, 44.36F, 6, 6, 0, "Thunder Bluff Mailbox")
                         objCharacter.SendGossip(cGUID, 3154)
                     Case 6 'Auction House
-                        objCharacter.SendPointOfInterest(1381.77F, -4371.16F, 6, 6, 0, GOSSIP_TEXT_AUCTIONHOUSE)
+                        objCharacter.SendPointOfInterest(1381.77F, -4371.16F, 6, 6, 0, _Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE)
                         objCharacter.SendGossip(cGUID, 3155)
                     Case 7 'Weapon Trainer
                         objCharacter.SendPointOfInterest(-1282.31F, 89.56F, 6, 6, 0, "Ansekhwa")
@@ -525,9 +529,9 @@ Namespace Gossip
                     Case 9 'Battlemasters
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
                         objCharacter.TalkMenuTypes.Add(12)
                         objCharacter.TalkMenuTypes.Add(13)
                         objCharacter.TalkMenuTypes.Add(14)
@@ -535,12 +539,12 @@ Namespace Gossip
                     Case 10 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 15 To 20
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -548,17 +552,17 @@ Namespace Gossip
                     Case 11 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 21 To 31
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -631,17 +635,17 @@ Namespace Gossip
             Private Sub OnGossipHello_Darnassus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_HIPPOGRYPH, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HIPPOGRYPH, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 11
                     objCharacter.TalkMenuTypes.Add(i)
@@ -680,9 +684,9 @@ Namespace Gossip
                     Case 9 'Battlemasters
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
                         objCharacter.TalkMenuTypes.Add(12)
                         objCharacter.TalkMenuTypes.Add(13)
                         objCharacter.TalkMenuTypes.Add(14)
@@ -690,11 +694,11 @@ Namespace Gossip
                     Case 10 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 15 To 19
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -702,15 +706,15 @@ Namespace Gossip
                     Case 11 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 20 To 28
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -774,18 +778,18 @@ Namespace Gossip
             Private Sub OnGossipHello_Ironforge(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_IRONFORGE_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_DEEPRUNTRAM, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GRYPHON, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_IRONFORGE_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DEEPRUNTRAM, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GRYPHON, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 12
                     objCharacter.TalkMenuTypes.Add(i)
@@ -827,9 +831,9 @@ Namespace Gossip
                     Case 10 'Battlemasters
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
                         objCharacter.TalkMenuTypes.Add(13)
                         objCharacter.TalkMenuTypes.Add(14)
                         objCharacter.TalkMenuTypes.Add(15)
@@ -837,13 +841,13 @@ Namespace Gossip
                     Case 11 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 16 To 22
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -851,18 +855,18 @@ Namespace Gossip
                     Case 12 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 23 To 34
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -941,18 +945,18 @@ Namespace Gossip
             Private Sub OnGossipHello_Undercity(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATHANDLER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_ZEPPLINMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATHANDLER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAILBOX, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ZEPPLINMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WEAPONMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATTLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 12
                     objCharacter.TalkMenuTypes.Add(i)
@@ -994,9 +998,9 @@ Namespace Gossip
                     Case 10 'Battlemasters
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALTERACVALLEY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ARATHIBASIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARSONGULCH, MenuIcon.MENUICON_GOSSIP)
                         objCharacter.TalkMenuTypes.Add(13)
                         objCharacter.TalkMenuTypes.Add(14)
                         objCharacter.TalkMenuTypes.Add(15)
@@ -1004,11 +1008,11 @@ Namespace Gossip
                     Case 11 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 16 To 20
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1016,18 +1020,18 @@ Namespace Gossip
                     Case 12 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 21 To 32
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1100,12 +1104,12 @@ Namespace Gossip
             Private Sub OnGossipHello_Mulgore(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 6
                     objCharacter.TalkMenuTypes.Add(i)
@@ -1130,10 +1134,10 @@ Namespace Gossip
                     Case 5 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 7 To 10
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1141,17 +1145,17 @@ Namespace Gossip
                     Case 6 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 11 To 21
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1203,12 +1207,12 @@ Namespace Gossip
             Private Sub OnGossipHello_Durotar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WINDRIDER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 6
                     objCharacter.TalkMenuTypes.Add(i)
@@ -1233,13 +1237,13 @@ Namespace Gossip
                     Case 5 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SHAMAN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 7 To 13
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1247,18 +1251,18 @@ Namespace Gossip
                     Case 6 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 14 To 25
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1323,13 +1327,13 @@ Namespace Gossip
             Private Sub OnGossipHello_ElwynnForest(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GRYPHON, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GRYPHON, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 7
                     objCharacter.TalkMenuTypes.Add(i)
@@ -1356,14 +1360,14 @@ Namespace Gossip
                     Case 6 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 8 To 15
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1371,18 +1375,18 @@ Namespace Gossip
                     Case 7 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 16 To 27
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1450,13 +1454,13 @@ Namespace Gossip
             Private Sub OnGossipHello_DunMorogh(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_HIPPOGRYPH, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HIPPOGRYPH, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 7
                     objCharacter.TalkMenuTypes.Add(i)
@@ -1483,13 +1487,13 @@ Namespace Gossip
                     Case 6 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PALADIN, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 8 To 14
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1497,18 +1501,18 @@ Namespace Gossip
                     Case 7 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 15 To 26
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1572,12 +1576,12 @@ Namespace Gossip
             Private Sub OnGossipHello_Tirisfall(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_BATHANDLER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BATHANDLER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 6
                     objCharacter.TalkMenuTypes.Add(i)
@@ -1602,11 +1606,11 @@ Namespace Gossip
                     Case 5 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MAGE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARLOCK, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 7 To 11
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1614,18 +1618,18 @@ Namespace Gossip
                     Case 6 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BLACKSMITHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENGINEERING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_MINING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 12 To 23
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1685,13 +1689,13 @@ Namespace Gossip
             Private Sub OnGossipHello_Teldrassil(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
-                npcMenu.AddMenu(GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_FERRY, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
-                npcMenu.AddMenu(GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FERRY, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_GUILDMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_INN, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_STABLEMASTER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_CLASSTRAINER, MenuIcon.MENUICON_GOSSIP)
+                npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PROFTRAINER, MenuIcon.MENUICON_GOSSIP)
 
                 For i As Integer = 1 To 7
                     objCharacter.TalkMenuTypes.Add(i)
@@ -1718,11 +1722,11 @@ Namespace Gossip
                     Case 6 'Class trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_DRUID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HUNTER, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_PRIEST, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ROGUE, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_WARRIOR, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 8 To 12
                             objCharacter.TalkMenuTypes.Add(i)
                         Next
@@ -1730,15 +1734,15 @@ Namespace Gossip
                     Case 7 'Profession trainers
                         Dim npcMenu As New GossipMenu
                         objCharacter.TalkMenuTypes.Clear()
-                        npcMenu.AddMenu(GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
-                        npcMenu.AddMenu(GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ALCHEMY, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_COOKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_ENCHANTING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FIRSTAID, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_FISHING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_HERBALISM, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_LEATHERWORKING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_SKINNING, MenuIcon.MENUICON_GOSSIP)
+                        npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_TAILORING, MenuIcon.MENUICON_GOSSIP)
                         For i As Integer = 13 To 21
                             objCharacter.TalkMenuTypes.Add(i)
                         Next

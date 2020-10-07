@@ -18,7 +18,12 @@
 
 Imports System.Data
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Loots
@@ -32,7 +37,7 @@ Namespace Objects
 
 #Region "WS.Items.Constants"
 
-        Private ReadOnly ItemWeaponSkills() As Integer = New Integer() {GlobalEnum.SKILL_IDs.SKILL_AXES,
+        Private ReadOnly ItemWeaponSkills() As Integer = New Integer() {SKILL_IDs.SKILL_AXES,
                                                                         SKILL_IDs.SKILL_TWO_HANDED_AXES,
                                                                         SKILL_IDs.SKILL_BOWS,
                                                                         SKILL_IDs.SKILL_GUNS,
@@ -58,7 +63,7 @@ Namespace Objects
 
 #Region "WS.Items.TypeDef"
 
-        'WARNING: Use only with ITEMDatabase()
+        'WARNING: Use only with _WorldServer.ITEMDatabase()
         Public Class ItemInfo
             Implements IDisposable
             Private _found As Boolean = False
@@ -79,13 +84,13 @@ Namespace Objects
             Public Sub New(ByVal itemId As Integer)
                 Me.New()
                 Id = itemId
-                ITEMDatabase.Add(Id, Me)
+                _WorldServer.ITEMDatabase.Add(Id, Me)
 
                 'DONE: Load Item Data from MySQL
                 Dim mySqlQuery As New DataTable
-                WorldDatabase.Query(String.Format("SELECT * FROM item_template WHERE entry = {0};", itemId), mySqlQuery)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM item_template WHERE entry = {0};", itemId), mySqlQuery)
                 If mySqlQuery.Rows.Count = 0 Then
-                    Log.WriteLine(LogType.FAILED,
+                    _WorldServer.Log.WriteLine(LogType.FAILED,
                                   "ItemID {0} not found in SQL database! Loading default ""Unknown Item"" info.", itemId)
                     _found = False
                     Exit Sub
@@ -255,7 +260,7 @@ Namespace Objects
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    ITEMDatabase.Remove(Id)
+                    _WorldServer.ITEMDatabase.Remove(Id)
                 End If
                 _disposedValue = True
             End Sub
@@ -528,8 +533,8 @@ Namespace Objects
 
         Public Function LoadItemByGUID(ByVal guid As ULong, Optional ByVal owner As WS_PlayerData.CharacterObject = Nothing,
                                        Optional ByVal equipped As Boolean = False) As ItemObject
-            If WORLD_ITEMs.ContainsKey(guid + GUID_ITEM) Then
-                Return WORLD_ITEMs(guid + GUID_ITEM)
+            If _WorldServer.WORLD_ITEMs.ContainsKey(guid + _Global_Constants.GUID_ITEM) Then
+                Return _WorldServer.WORLD_ITEMs(guid + _Global_Constants.GUID_ITEM)
             End If
 
             Dim tmpItem As New ItemObject(guid, owner, equipped)
@@ -541,10 +546,10 @@ Namespace Objects
 
             Dim item As ItemInfo
 
-            If ITEMDatabase.ContainsKey(itemID) = False Then
+            If _WorldServer.ITEMDatabase.ContainsKey(itemID) = False Then
                 item = New ItemInfo(itemID)
             Else
-                item = ITEMDatabase(itemID)
+                item = _WorldServer.ITEMDatabase(itemID)
             End If
 
             response.AddInt32(item.Id)
@@ -664,10 +669,10 @@ Namespace Objects
 
             Dim item As ItemInfo
 
-            If ITEMDatabase.ContainsKey(itemID) = False Then
+            If _WorldServer.ITEMDatabase.ContainsKey(itemID) = False Then
                 item = New ItemInfo(itemID)
             Else
-                item = ITEMDatabase(itemID)
+                item = _WorldServer.ITEMDatabase(itemID)
             End If
 
             Dim response As New PacketClass(OPCODES.SMSG_ITEM_NAME_QUERY_RESPONSE)
@@ -683,7 +688,7 @@ Namespace Objects
             packet.GetInt16()
             Dim srcSlot As Byte = packet.GetInt8
             Dim dstSlot As Byte = packet.GetInt8
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_INV_ITEM [srcSlot=0:{2}, dstSlot=0:{3}]", client.IP,
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_INV_ITEM [srcSlot=0:{2}, dstSlot=0:{3}]", client.IP,
                           client.Port, srcSlot, dstSlot)
 
             client.Character.ItemSWAP(0, srcSlot, 0, dstSlot)
@@ -696,7 +701,7 @@ Namespace Objects
                 Dim srcBag As Byte = packet.GetInt8
                 Dim srcSlot As Byte = packet.GetInt8
                 If srcBag = 255 Then srcBag = 0
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOEQUIP_ITEM [srcSlot={3}:{2}]", client.IP,
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOEQUIP_ITEM [srcSlot={3}:{2}]", client.IP,
                               client.Port, srcSlot, srcBag)
 
                 Dim errCode As Byte = InventoryChangeFailure.EQUIP_ERR_ITEM_CANT_BE_EQUIPPED
@@ -758,7 +763,7 @@ Namespace Objects
                     response.Dispose()
                 End If
             Catch err As Exception
-                Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", client.IP, client.Port,
+                _WorldServer.Log.WriteLine(LogType.FAILED, "[{0}:{1}] Unable to equip item. {2}{3}", client.IP, client.Port,
                               Environment.NewLine, err.ToString)
             End Try
         End Sub
@@ -771,10 +776,10 @@ Namespace Objects
             Dim dstBag As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
             If dstBag = 255 Then dstBag = 0
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BAG_ITEM [srcSlot={3}:{2}, dstBag={4}]",
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AUTOSTORE_BAG_ITEM [srcSlot={3}:{2}, dstBag={4}]",
                           client.IP, client.Port, srcSlot, srcBag, dstBag)
 
-            If client.Character.ItemADD_AutoBag(WORLD_ITEMs(client.Character.ItemGetGUID(srcBag, srcSlot)), dstBag) Then
+            If client.Character.ItemADD_AutoBag(_WorldServer.WORLD_ITEMs(client.Character.ItemGetGUID(srcBag, srcSlot)), dstBag) Then
                 client.Character.ItemREMOVE(srcBag, srcSlot, False, True)
                 SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_OK,
                                            client.Character.ItemGetGUID(srcBag, srcSlot), 0)
@@ -791,7 +796,7 @@ Namespace Objects
             If dstBag = 255 Then dstBag = 0
             If srcBag = 255 Then srcBag = 0
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_ITEM [srcSlot={4}:{2}, dstSlot={5}:{3}]", client.IP,
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SWAP_ITEM [srcSlot={4}:{2}, dstSlot={5}:{3}]", client.IP,
                           client.Port, srcSlot, dstSlot, srcBag, dstBag)
             client.Character.ItemSWAP(srcBag, srcSlot, dstBag, dstSlot)
         End Sub
@@ -807,7 +812,7 @@ Namespace Objects
             If dstBag = 255 Then dstBag = 0
             If srcBag = 255 Then srcBag = 0
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SPLIT_ITEM [srcSlot={3}:{2}, dstBag={5}:{4}, count={6}]",
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SPLIT_ITEM [srcSlot={3}:{2}, dstBag={5}:{4}, count={6}]",
                           client.IP, client.Port, srcSlot, srcBag, dstSlot, dstBag, count)
             If srcBag = dstBag AndAlso srcSlot = dstSlot Then Return
             If count > 0 Then client.Character.ItemSPLIT(srcBag, srcSlot, dstBag, dstSlot, count)
@@ -819,7 +824,7 @@ Namespace Objects
             Dim srcBag As Byte = packet.GetInt8
             Dim srcSlot As Byte = packet.GetInt8
             If srcBag = 255 Then srcBag = 0
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_READ_ITEM [srcSlot={3}:{2}]", client.IP, client.Port,
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_READ_ITEM [srcSlot={3}:{2}]", client.IP, client.Port,
                           srcSlot, srcBag)
 
             'TODO: If InCombat/Dead
@@ -855,11 +860,11 @@ Namespace Objects
             packet.GetInt16()
             Dim pageID As Integer = packet.GetInt32
             Dim itemGuid As ULong = packet.GetUInt64
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGuid={3:X}]", client.IP,
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_PAGE_TEXT_QUERY [pageID={2}, itemGuid={3:X}]", client.IP,
                           client.Port, pageID, itemGuid)
 
             Dim mySqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM page_text WHERE entry = ""{0}"";", pageID), mySqlQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM page_text WHERE entry = ""{0}"";", pageID), mySqlQuery)
 
             Dim response As New PacketClass(OPCODES.SMSG_PAGE_TEXT_QUERY_RESPONSE)
             response.AddInt32(pageID)
@@ -881,7 +886,7 @@ Namespace Objects
             If giftBag = 255 Then giftBag = 0
             If itemBag = 255 Then itemBag = 0
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WRAP_ITEM [{2}:{3} -> {4}{5}]", client.IP, client.Port,
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_WRAP_ITEM [{2}:{3} -> {4}{5}]", client.IP, client.Port,
                           giftBag, giftSlot, itemBag, itemSlot)
 
             Dim gift As ItemObject = client.Character.ItemGET(giftBag, giftSlot)
@@ -956,14 +961,14 @@ Namespace Objects
                 Dim srcSlot As Byte = packet.GetInt8
                 Dim count As Byte = packet.GetInt8
                 If srcBag = 255 Then srcBag = 0
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DESTROYITEM [srcSlot={3}:{2}  count={4}]", client.IP,
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_DESTROYITEM [srcSlot={3}:{2}  count={4}]", client.IP,
                               client.Port, srcSlot, srcBag, count)
 
                 If srcBag = 0 Then
                     If client.Character.Items.ContainsKey(srcSlot) = False Then Exit Sub
                     'DONE: Fire quest event to check for if this item is required for quest
                     'NOTE: Not only quest items are needed for quests
-                    ALLQUESTS.OnQuestItemRemove(client.Character, client.Character.Items(srcSlot).ItemEntry, count)
+                    _WorldServer.ALLQUESTS.OnQuestItemRemove(client.Character, client.Character.Items(srcSlot).ItemEntry, count)
 
                     If count = 0 Or count >= client.Character.Items(srcSlot).StackCount Then
                         If srcSlot < InventorySlots.INVENTORY_SLOT_BAG_END Then _
@@ -980,7 +985,7 @@ Namespace Objects
                     If client.Character.Items(srcBag).Items.ContainsKey(srcSlot) = False Then Exit Sub
                     'DONE: Fire quest event to check for if this item is required for quest
                     'NOTE: Not only quest items are needed for quests
-                    ALLQUESTS.OnQuestItemRemove(client.Character, client.Character.Items(srcBag).Items(srcSlot).ItemEntry,
+                    _WorldServer.ALLQUESTS.OnQuestItemRemove(client.Character, client.Character.Items(srcBag).Items(srcSlot).ItemEntry,
                                                 count)
 
                     If count = 0 Or count >= client.Character.Items(srcBag).Items(srcSlot).StackCount Then
@@ -993,7 +998,7 @@ Namespace Objects
                 End If
 
             Catch e As Exception
-                Log.WriteLine(LogType.DEBUG, "Error destroying item.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Error destroying item.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -1006,17 +1011,17 @@ Namespace Objects
                 Dim slot As Byte = packet.GetInt8
                 Dim tmp3 As Byte = packet.GetInt8
 
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_USE_ITEM [bag={2} slot={3} tmp3={4}]", client.IP,
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_USE_ITEM [bag={2} slot={3} tmp3={4}]", client.IP,
                               client.Port, bag, slot, tmp3)
                 If (client.Character.cUnitFlags And UnitFlags.UNIT_FLAG_TAXI_FLIGHT) Then Exit Sub _
                 'Don't allow item usage when on a taxi
 
                 Dim itemGuid As ULong = client.Character.ItemGetGUID(bag, slot)
-                If WORLD_ITEMs.ContainsKey(itemGuid) = False Then
+                If _WorldServer.WORLD_ITEMs.ContainsKey(itemGuid) = False Then
                     SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND, 0, 0)
                     Exit Sub
                 End If
-                Dim itemInfo As ItemInfo = WORLD_ITEMs(itemGuid).ItemInfo
+                Dim itemInfo As ItemInfo = _WorldServer.WORLD_ITEMs(itemGuid).ItemInfo
 
                 'DONE: Check if the item can be used in combat
                 Dim InstantCast As Boolean = False
@@ -1044,8 +1049,8 @@ Namespace Objects
                 If itemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_CONSUMABLE Then
                     'DONE: Bind item to player
                     If _
-                        WORLD_ITEMs(itemGuid).ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_WHEN_USED AndAlso
-                        WORLD_ITEMs(itemGuid).IsSoulBound = False Then WORLD_ITEMs(itemGuid).SoulbindItem(client)
+                        _WorldServer.WORLD_ITEMs(itemGuid).ItemInfo.Bonding = ITEM_BONDING_TYPE.BIND_WHEN_USED AndAlso
+                        _WorldServer.WORLD_ITEMs(itemGuid).IsSoulBound = False Then _WorldServer.WORLD_ITEMs(itemGuid).SoulbindItem(client)
                 End If
 
                 'DONE: Read spell targets
@@ -1059,7 +1064,7 @@ Namespace Objects
                          itemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE) Then
                         If WS_Spells.SPELLs.ContainsKey(itemInfo.Spells(i).SpellID) Then
                             'DONE: If there's no more charges
-                            If itemInfo.Spells(i).SpellCharges > 0 AndAlso WORLD_ITEMs(itemGuid).ChargesLeft = 0 Then
+                            If itemInfo.Spells(i).SpellCharges > 0 AndAlso _WorldServer.WORLD_ITEMs(itemGuid).ChargesLeft = 0 Then
                                 SendCastResult(SpellFailedReason.SPELL_FAILED_NO_CHARGES_REMAIN, client,
                                                itemInfo.Spells(i).SpellID)
                                 Exit Sub
@@ -1067,7 +1072,7 @@ Namespace Objects
 
                             Dim tmpSpell As _
                                     New CastSpellParameters(targets, client.Character, itemInfo.Spells(i).SpellID,
-                                                            WORLD_ITEMs(itemGuid), InstantCast)
+                                                            _WorldServer.WORLD_ITEMs(itemGuid), InstantCast)
 
                             Dim castResult As Byte = SpellFailedReason.SPELL_NO_ERROR
                             Try
@@ -1082,7 +1087,7 @@ Namespace Objects
                                 End If
 
                             Catch e As Exception
-                                Log.WriteLine(LogType.DEBUG, "Error casting spell {0}.{1}",
+                                _WorldServer.Log.WriteLine(LogType.DEBUG, "Error casting spell {0}.{1}",
                                               itemInfo.Spells(i).SpellID, Environment.NewLine & e.ToString)
                                 SendCastResult(castResult, client, itemInfo.Spells(i).SpellID)
                             End Try
@@ -1092,7 +1097,7 @@ Namespace Objects
                 Next
 
             Catch ex As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error while using a item.{0}", Environment.NewLine & ex.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error while using a item.{0}", Environment.NewLine & ex.ToString)
             End Try
         End Sub
 
@@ -1103,7 +1108,7 @@ Namespace Objects
             If bag = 255 Then bag = 0
             Dim slot As Byte = packet.GetInt8
 
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", client.IP, client.Port,
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_OPEN_ITEM [bag={2} slot={3}]", client.IP, client.Port,
                           bag, slot)
 
             Dim itemGuid As ULong = 0
@@ -1112,9 +1117,9 @@ Namespace Objects
             Else
                 itemGuid = client.Character.Items(bag).Items(slot).GUID
             End If
-            If itemGuid = 0 OrElse WORLD_ITEMs.ContainsKey(itemGuid) = False Then Exit Sub
+            If itemGuid = 0 OrElse _WorldServer.WORLD_ITEMs.ContainsKey(itemGuid) = False Then Exit Sub
 
-            If WORLD_ITEMs(itemGuid).GenerateLoot Then
+            If _WorldServer.WORLD_ITEMs(itemGuid).GenerateLoot Then
                 LootTable(itemGuid).SendLoot(client)
                 Exit Sub
             End If
@@ -1128,7 +1133,7 @@ Namespace Objects
             packet.AddInt8(errorCode)
 
             If errorCode = InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N Then
-                packet.AddInt32(WORLD_ITEMs(guid1).ItemInfo.ReqLevel)
+                packet.AddInt32(_WorldServer.WORLD_ITEMs(guid1).ItemInfo.ReqLevel)
             End If
 
             packet.AddUInt64(guid1)

@@ -17,7 +17,13 @@
 '
 
 Imports System.Threading
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Authentication
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Maps
@@ -38,20 +44,20 @@ Namespace Handlers
             Dim actionType As Byte = packet.GetInt8 '(10)
 
             If action = 0 Then
-                Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] MSG_SET_ACTION_BUTTON [Remove action from button {2}]", client.IP, client.Port, button)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_SET_ACTION_BUTTON [Remove action from button {2}]", client.IP, client.Port, button)
                 client.Character.ActionButtons.Remove(button)
             ElseIf actionType = 64 Then
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTION_BUTTON [Added Macro {2} into button {3}]", client.IP, client.Port, action, button)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTION_BUTTON [Added Macro {2} into button {3}]", client.IP, client.Port, action, button)
             ElseIf actionType = 128 Then
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTION_BUTTON [Added Item {2} into button {3}]", client.IP, client.Port, action, button)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTION_BUTTON [Added Item {2} into button {3}]", client.IP, client.Port, action, button)
             Else
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTION_BUTTON [Added Action {2}:{4}:{5} into button {3}]", client.IP, client.Port, action, button, actionType, actionMisc)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTION_BUTTON [Added Action {2}:{4}:{5} into button {3}]", client.IP, client.Port, action, button, actionType, actionMisc)
             End If
             client.Character.ActionButtons(button) = New WS_PlayerHelper.TActionButton(action, actionType, actionMisc)
         End Sub
 
         Public Sub On_CMSG_LOGOUT_REQUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_REQUEST", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_REQUEST", client.IP, client.Port)
             client.Character.Save()
 
             'TODO: Lose Invisibility
@@ -71,7 +77,7 @@ Namespace Handlers
 
             If Not client.Character.positionZ > (GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) + 10) Then
                 'DONE: Initialize packet
-                Dim UpdateData As New UpdateClass
+                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
@@ -110,7 +116,7 @@ Namespace Handlers
             Finally
                 SMSG_LOGOUT_RESPONSE.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_RESPONSE", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_RESPONSE", client.IP, client.Port)
 
             'DONE: While logout, the player can't move
             client.Character.SetMoveRoot()
@@ -126,7 +132,7 @@ Namespace Handlers
 
         Public Sub On_CMSG_LOGOUT_CANCEL(ByRef packet As PacketClass, ByRef client As ClientClass)
             Try
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_CANCEL", client.IP, client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOGOUT_CANCEL", client.IP, client.Port)
                 If client Is Nothing Then Exit Sub
                 If client.Character Is Nothing Then Exit Sub
                 If client.Character.LogoutTimer Is Nothing Then Exit Sub
@@ -137,7 +143,7 @@ Namespace Handlers
                 End Try
 
                 'DONE: Initialize packet
-                Dim UpdateData As New UpdateClass
+                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 Try
                     SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
@@ -173,12 +179,12 @@ Namespace Handlers
                 Finally
                     SMSG_LOGOUT_CANCEL_ACK.Dispose()
                 End Try
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_CANCEL_ACK", client.IP, client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_LOGOUT_CANCEL_ACK", client.IP, client.Port)
 
                 'DONE: Enable moving
                 client.Character.SetMoveUnroot()
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error while trying to cancel logout.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error while trying to cancel logout.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -203,39 +209,39 @@ Namespace Handlers
             Finally
                 packetACK.Dispose()
             End Try
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_STANDSTATECHANGE [{2}]", client.IP, client.Port, client.Character.StandState)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_STANDSTATECHANGE [{2}]", client.IP, client.Port, client.Character.StandState)
         End Sub
 
         Public Function CanUseAmmo(ByRef objCharacter As CharacterObject, ByVal AmmoID As Integer) As InventoryChangeFailure
             If objCharacter.DEAD Then Return InventoryChangeFailure.EQUIP_ERR_YOU_ARE_DEAD
-            If ITEMDatabase.ContainsKey(AmmoID) = False Then Return InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND
-            If ITEMDatabase(AmmoID).InventoryType <> INVENTORY_TYPES.INVTYPE_AMMO Then Return InventoryChangeFailure.EQUIP_ERR_ONLY_AMMO_CAN_GO_HERE
-            If ITEMDatabase(AmmoID).AvailableClasses <> 0 AndAlso (ITEMDatabase(AmmoID).AvailableClasses And objCharacter.ClassMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
-            If ITEMDatabase(AmmoID).AvailableRaces <> 0 AndAlso (ITEMDatabase(AmmoID).AvailableRaces And objCharacter.RaceMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
+            If _WorldServer.ITEMDatabase.ContainsKey(AmmoID) = False Then Return InventoryChangeFailure.EQUIP_ERR_ITEM_NOT_FOUND
+            If _WorldServer.ITEMDatabase(AmmoID).InventoryType <> INVENTORY_TYPES.INVTYPE_AMMO Then Return InventoryChangeFailure.EQUIP_ERR_ONLY_AMMO_CAN_GO_HERE
+            If _WorldServer.ITEMDatabase(AmmoID).AvailableClasses <> 0 AndAlso (_WorldServer.ITEMDatabase(AmmoID).AvailableClasses And objCharacter.ClassMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
+            If _WorldServer.ITEMDatabase(AmmoID).AvailableRaces <> 0 AndAlso (_WorldServer.ITEMDatabase(AmmoID).AvailableRaces And objCharacter.RaceMask) = 0 Then Return InventoryChangeFailure.EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM
 
-            If ITEMDatabase(AmmoID).ReqSkill <> 0 Then
-                If objCharacter.HaveSkill(ITEMDatabase(AmmoID).ReqSkill) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
-                If objCharacter.HaveSkill(ITEMDatabase(AmmoID).ReqSkill, ITEMDatabase(AmmoID).ReqSkillRank) = False Then Return InventoryChangeFailure.EQUIP_ERR_SKILL_ISNT_HIGH_ENOUGH
+            If _WorldServer.ITEMDatabase(AmmoID).ReqSkill <> 0 Then
+                If objCharacter.HaveSkill(_WorldServer.ITEMDatabase(AmmoID).ReqSkill) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
+                If objCharacter.HaveSkill(_WorldServer.ITEMDatabase(AmmoID).ReqSkill, _WorldServer.ITEMDatabase(AmmoID).ReqSkillRank) = False Then Return InventoryChangeFailure.EQUIP_ERR_SKILL_ISNT_HIGH_ENOUGH
             End If
-            If ITEMDatabase(AmmoID).ReqSpell <> 0 Then
-                If objCharacter.HaveSpell(ITEMDatabase(AmmoID).ReqSpell) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
+            If _WorldServer.ITEMDatabase(AmmoID).ReqSpell <> 0 Then
+                If objCharacter.HaveSpell(_WorldServer.ITEMDatabase(AmmoID).ReqSpell) = False Then Return InventoryChangeFailure.EQUIP_ERR_NO_REQUIRED_PROFICIENCY
             End If
-            If ITEMDatabase(AmmoID).ReqLevel > objCharacter.Level Then Return InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N
+            If _WorldServer.ITEMDatabase(AmmoID).ReqLevel > objCharacter.Level Then Return InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N
             If objCharacter.HavePassiveAura(46699) Then Return InventoryChangeFailure.EQUIP_ERR_BAG_FULL6 'Required no ammoe
 
             Return InventoryChangeFailure.EQUIP_ERR_OK
         End Function
 
         Public Function CheckAmmoCompatibility(ByRef objCharacter As CharacterObject, ByVal AmmoID As Integer) As Boolean
-            If ITEMDatabase.ContainsKey(AmmoID) = False Then Return False
+            If _WorldServer.ITEMDatabase.ContainsKey(AmmoID) = False Then Return False
             If objCharacter.Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_RANGED) = False OrElse objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).IsBroken Then Return False
             If objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.ObjectClass <> ITEM_CLASS.ITEM_CLASS_WEAPON Then Return False
 
             Select Case objCharacter.Items(EquipmentSlots.EQUIPMENT_SLOT_RANGED).ItemInfo.SubClass
                 Case ITEM_SUBCLASS.ITEM_SUBCLASS_BOW, ITEM_SUBCLASS.ITEM_SUBCLASS_CROSSBOW
-                    If ITEMDatabase(AmmoID).SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_ARROW Then Return False
+                    If _WorldServer.ITEMDatabase(AmmoID).SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_ARROW Then Return False
                 Case ITEM_SUBCLASS.ITEM_SUBCLASS_GUN
-                    If ITEMDatabase(AmmoID).SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_BULLET Then Return False
+                    If _WorldServer.ITEMDatabase(AmmoID).SubClass <> ITEM_SUBCLASS.ITEM_SUBCLASS_BULLET Then Return False
                 Case Else
                     Return False
             End Select

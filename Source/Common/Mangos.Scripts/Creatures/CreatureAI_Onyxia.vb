@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -67,7 +69,7 @@ Namespace Creatures
             AllowedAttack = True
             Phase = 1
             ReinitSpells()
-            aiCreature.SendChatMessage("How fortuitous, usually I must leave my lair to feed!", ChatEnum.ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
+            aiCreature.SendChatMessage("How fortuitous, usually I must leave my lair to feed!", ChatMsg.CHAT_MSG_MONSTER_YELL, LANGUAGES.LANG_UNIVERSAL)
         End Sub
 
         Public Overrides Sub OnLeaveCombat(Optional ByVal Reset As Boolean = True)

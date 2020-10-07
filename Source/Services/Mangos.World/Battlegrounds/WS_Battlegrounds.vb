@@ -17,6 +17,7 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.World.Globals
 Imports Mangos.World.Player
 
@@ -34,7 +35,7 @@ Namespace Battlegrounds
 
             Public ID As Integer
             Public Map As UInteger
-            Public MapType As GlobalEnum.BattlefieldMapType
+            Public MapType As BattlefieldMapType
 
             Public Sub New(ByVal rMapType As BattlefieldMapType, ByVal rMap As UInteger)
                 BATTLEFIELDs.Add(ID, Me)

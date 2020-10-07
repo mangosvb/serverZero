@@ -18,7 +18,12 @@
 
 Imports System.Data
 Imports System.Runtime.CompilerServices
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Faction
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.AI
 Imports Mangos.World.Globals
@@ -54,7 +59,7 @@ Namespace Handlers
 
             'DONE: If character is falling below the world
             If client.Character.positionZ < -500.0F Then
-                AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
+                _WorldServer.AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
                 Exit Sub
             End If
 
@@ -74,12 +79,12 @@ Namespace Handlers
 #If ENABLE_PPOINTS Then
         If (client.Character.charMovementFlags And groundFlagsMask) = 0 AndAlso _
            Math.Abs(GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.positionZ, client.Character.MapID) - client.Character.positionZ) > PPOINT_LIMIT Then
-            Log.WriteLine(LogType.DEBUG, "PPoints: {0} [MapZ = {1}]", client.Character.positionZ, GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.MapID))
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "PPoints: {0} [MapZ = {1}]", client.Character.positionZ, GetZCoord(client.Character.positionX, client.Character.positionY, client.Character.MapID))
             SetZCoord_PP(client.Character.positionX, client.Character.positionY, client.Character.MapID, client.Character.positionZ)
         End If
 #End If
 
-            If (client.Character.charMovementFlags And GlobalEnum.MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
+            If (client.Character.charMovementFlags And MovementFlags.MOVEMENTFLAG_ONTRANSPORT) Then
                 Dim transportGUID As ULong = packet.GetUInt64
                 Dim transportX As Single = packet.GetFloat
                 Dim transportY As Single = packet.GetFloat
@@ -93,15 +98,15 @@ Namespace Handlers
 
                 'DONE: Boarding transport
                 If client.Character.OnTransport Is Nothing Then
-                    If GuidIsMoTransport(transportGUID) AndAlso WORLD_TRANSPORTs.ContainsKey(transportGUID) Then
-                        client.Character.OnTransport = WORLD_TRANSPORTs(transportGUID)
+                    If _CommonGlobalFunctions.GuidIsMoTransport(transportGUID) AndAlso _WorldServer.WORLD_TRANSPORTs.ContainsKey(transportGUID) Then
+                        client.Character.OnTransport = _WorldServer.WORLD_TRANSPORTs(transportGUID)
 
                         'DONE: Unmount when boarding
                         client.Character.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOUNTED)
 
                         CType(client.Character.OnTransport, WS_Transports.TransportObject).AddPassenger(client.Character)
-                    ElseIf GuidIsTransport(transportGUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(transportGUID) Then
-                        client.Character.OnTransport = WORLD_GAMEOBJECTs(transportGUID)
+                    ElseIf _CommonGlobalFunctions.GuidIsTransport(transportGUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(transportGUID) Then
+                        client.Character.OnTransport = _WorldServer.WORLD_GAMEOBJECTs(transportGUID)
                     End If
                 End If
             ElseIf client.Character.OnTransport IsNot Nothing Then
@@ -159,7 +164,7 @@ Namespace Handlers
                         client.Character.AddXP(GainedXP, 0, 0, True)
 
                         'DONE: Fire quest event to check for if this area is used in explore area quest
-                        ALLQUESTS.OnQuestExplore(client.Character, exploreFlag)
+                        _WorldServer.ALLQUESTS.OnQuestExplore(client.Character, exploreFlag)
                     End If
                 End If
             End If
@@ -328,11 +333,11 @@ Namespace Handlers
                         client.Character.Logout(Nothing)
                         Exit Sub
                     Catch ex As Exception
-                        Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Possible speed hack detected!", client.IP, client.Port)
+                        _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] CHEAT: Possible speed hack detected!", client.IP, client.Port)
                     End Try
                 End If
             Catch ex As Exception
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] {3} [{2}]", client.IP, client.Port, newSpeed, packet.OpCode)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] {3} [{2}]", client.IP, client.Port, newSpeed, packet.OpCode)
             End Try
 
             'DONE: Update speed value and create packet
@@ -364,7 +369,7 @@ Namespace Handlers
                 If (packet.Data.Length - 1) < 9 Then Exit Sub
                 packet.GetInt16()
                 Dim triggerID As Integer = packet.GetInt32
-                Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AREATRIGGER [triggerID={2}]", client.IP, client.Port, triggerID)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_AREATRIGGER [triggerID={2}]", client.IP, client.Port, triggerID)
 
                 'TODO: Check if in combat?
 
@@ -372,15 +377,15 @@ Namespace Handlers
 
                 'DONE: Handling quest triggers
                 q.Clear()
-                WorldDatabase.Query(String.Format("SELECT entry, quest FROM quest_relations WHERE actor=2 and role=0 and entry = {0};", triggerID), q)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT entry, quest FROM quest_relations WHERE actor=2 and role=0 and entry = {0};", triggerID), q)
                 If q.Rows.Count > 0 Then
-                    ALLQUESTS.OnQuestExplore(client.Character, triggerID)
+                    _WorldServer.ALLQUESTS.OnQuestExplore(client.Character, triggerID)
                     Exit Sub
                 End If
 
                 'TODO: Handling tavern triggers
                 q.Clear()
-                WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_tavern WHERE id = {0};", triggerID), q)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_tavern WHERE id = {0};", triggerID), q)
                 If q.Rows.Count > 0 Then
                     client.Character.cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_RESTING
                     client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FLAGS, client.Character.cPlayerFlags)
@@ -390,7 +395,7 @@ Namespace Handlers
 
                 'DONE: Handling teleport triggers
                 q.Clear()
-                WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_teleport WHERE id = {0};", triggerID), q)
+                _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM areatrigger_teleport WHERE id = {0};", triggerID), q)
                 If q.Rows.Count > 0 Then
                     Dim posX As Single = q.Rows(0).Item("target_position_x")
                     Dim posY As Single = q.Rows(0).Item("target_position_y")
@@ -403,7 +408,7 @@ Namespace Handlers
                         If client.Character.corpseMapID = tMap Then
                             CharacterResurrect(client.Character)
                         Else
-                            AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
+                            _WorldServer.AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
                             Exit Sub
                         End If
                     End If
@@ -421,15 +426,15 @@ Namespace Handlers
                 End If
 
                 'DONE: Handling all other scripted triggers
-                If Not IsNothing(AreaTriggers) Then
-                    If AreaTriggers.ContainsMethod("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID)) Then
-                        AreaTriggers.InvokeFunction("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID), New Object() {client.Character.GUID})
+                If Not IsNothing(_WorldServer.AreaTriggers) Then
+                    If _WorldServer.AreaTriggers.ContainsMethod("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID)) Then
+                        _WorldServer.AreaTriggers.InvokeFunction("AreaTriggers", String.Format("HandleAreaTrigger_{0}", triggerID), New Object() {client.Character.GUID})
                     Else
-                        Log.WriteLine(LogType.WARNING, "[{0}:{1}] AreaTrigger [{2}] not found!", client.IP, client.Port, triggerID)
+                        _WorldServer.Log.WriteLine(LogType.WARNING, "[{0}:{1}] AreaTrigger [{2}] not found!", client.IP, client.Port, triggerID)
                     End If
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.CRITICAL, "Error when entering areatrigger.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error when entering areatrigger.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -442,7 +447,7 @@ Namespace Handlers
             'Dim ClientTimeDelay As Integer = MsTime - MsTime
             'Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 500 + MsTime
             'packet.AddInt32(MoveTime, 10)
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
         End Sub
         Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As PacketClass, ByRef client As ClientClass)
             Try
@@ -491,7 +496,7 @@ Namespace Handlers
                                 client.Character.DealDamage(FallDamage)
 
 #If DEBUG Then
-                                Log.WriteLine(LogType.USER, "[{0}:{1}] Client fall time: {2}  Damage: {3}", client.IP, client.Port, FallTime, FallDamage)
+                                _WorldServer.Log.WriteLine(LogType.USER, "[{0}:{1}] Client fall time: {2}  Damage: {3}", client.IP, client.Port, FallTime, FallDamage)
 #End If
                             End If
                         End If
@@ -505,7 +510,7 @@ Namespace Handlers
 
                 If Not client.Character.LogoutTimer Is Nothing Then
                     'DONE: Initialize packet
-                    Dim UpdateData As New UpdateClass
+                    Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                     Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     Try
                         SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
@@ -534,7 +539,7 @@ Namespace Handlers
                     End Try
                 End If
             Catch e As Exception
-                Log.WriteLine(LogType.DEBUG, "Error when falling.{0}", Environment.NewLine & e.ToString)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "Error when falling.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
 
@@ -542,14 +547,14 @@ Namespace Handlers
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim newZone As Integer = packet.GetInt32
-            Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ZONEUPDATE [newZone={2}]", client.IP, client.Port, newZone)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_ZONEUPDATE [newZone={2}]", client.IP, client.Port, newZone)
             client.Character.ZoneID = newZone
             client.Character.exploreCheckQueued_ = True
 
             client.Character.ZoneCheck()
 
             'DONE: Update zone on cluster
-            ClsWorldServer.Cluster.ClientUpdate(client.Index, client.Character.ZoneID, client.Character.Level)
+            _WorldServer.ClsWorldServer.Cluster.ClientUpdate(client.Index, client.Character.ZoneID, client.Character.Level)
 
             'DONE: Send weather
             If WeatherZones.ContainsKey(newZone) Then
@@ -587,14 +592,14 @@ Namespace Handlers
 
             'DONE: Aggro range
             For Each cGUID As ULong In client.Character.creaturesNear.ToArray
-                If WORLD_CREATUREs.ContainsKey(cGUID) AndAlso WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso ((TypeOf WORLD_CREATUREs(cGUID).aiScript Is WS_Creatures_AI.DefaultAI) OrElse (TypeOf WORLD_CREATUREs(cGUID).aiScript Is GuardAI)) Then
-                    If WORLD_CREATUREs(cGUID).IsDead = False AndAlso WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
+                If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso ((TypeOf _WorldServer.WORLD_CREATUREs(cGUID).aiScript Is WS_Creatures_AI.DefaultAI) OrElse (TypeOf _WorldServer.WORLD_CREATUREs(cGUID).aiScript Is GuardAI)) Then
+                    If _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
                         If client.Character.inCombatWith.Contains(cGUID) Then Continue For
-                        If client.Character.GetReaction(WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(WORLD_CREATUREs(cGUID), client.Character) <= WORLD_CREATUREs(cGUID).AggroRange(client.Character) Then
-                            WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(client.Character, 1)
-                            client.Character.AddToCombat(WORLD_CREATUREs(cGUID))
-                            WORLD_CREATUREs(cGUID).aiScript.State = AIState.AI_ATTACKING
-                            WORLD_CREATUREs(cGUID).aiScript.DoThink()
+                        If client.Character.GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), client.Character) <= _WorldServer.WORLD_CREATUREs(cGUID).AggroRange(client.Character) Then
+                            _WorldServer.WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(client.Character, 1)
+                            client.Character.AddToCombat(_WorldServer.WORLD_CREATUREs(cGUID))
+                            _WorldServer.WORLD_CREATUREs(cGUID).aiScript.State = AIState.AI_ATTACKING
+                            _WorldServer.WORLD_CREATUREs(cGUID).aiScript.DoThink()
                         End If
                     End If
                 End If
@@ -602,8 +607,8 @@ Namespace Handlers
 
             'DONE: Creatures that are following you will have a more smooth movement
             For Each CombatUnit As ULong In client.Character.inCombatWith.ToArray
-                If GuidIsCreature(CombatUnit) AndAlso WORLD_CREATUREs.ContainsKey(CombatUnit) AndAlso WORLD_CREATUREs(CombatUnit).aiScript IsNot Nothing Then
-                    With WORLD_CREATUREs(CombatUnit)
+                If _CommonGlobalFunctions.GuidIsCreature(CombatUnit) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(CombatUnit) AndAlso _WorldServer.WORLD_CREATUREs(CombatUnit).aiScript IsNot Nothing Then
+                    With _WorldServer.WORLD_CREATUREs(CombatUnit)
                         If (Not .aiScript.aiTarget Is Nothing) AndAlso .aiScript.aiTarget Is client.Character Then
                             .SetToRealPosition() 'Make sure it moves from it's location and not from where it was already heading before this
                             .aiScript.State = AIState.AI_MOVE_FOR_ATTACK
@@ -623,7 +628,7 @@ Namespace Handlers
                 For j As Short = -1 To 1
                     If x + i > -1 AndAlso x + i < 64 AndAlso y + j > -1 AndAlso y + j < 64 Then
                         If WS_Maps.Maps(Map).TileUsed(x + i, y + j) = False Then
-                            Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x + i, y + j, Map)
+                            _WorldServer.Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x + i, y + j, Map)
                             WS_Maps.Maps(Map).TileUsed(x + i, y + j) = True
                             WS_Maps.Maps(Map).Tiles(x + i, y + j) = New WS_Maps.TMapTile(x + i, y + j, Map)
                             'DONE: Load spawns
@@ -637,7 +642,7 @@ Namespace Handlers
 
         Public Sub MAP_UnLoad(ByVal x As Byte, ByVal y As Byte, ByVal Map As Integer)
             If WS_Maps.Maps(Map).Tiles(x, y).PlayersHere.Count = 0 Then
-                Log.WriteLine(LogType.INFORMATION, "Unloading map [{2}: {0},{1}]...", x, y, Map)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Unloading map [{2}: {0},{1}]...", x, y, Map)
                 WS_Maps.Maps(Map).Tiles(x, y).Dispose()
                 WS_Maps.Maps(Map).Tiles(x, y) = Nothing
             End If
@@ -671,7 +676,7 @@ Namespace Handlers
                     GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
                     WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Remove(Character.GUID)
                 Catch ex As Exception
-                    Log.WriteLine(LogType.FAILED, "Error removing character {0} from map", Character.Name)
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "Error removing character {0} from map", Character.Name)
                 End Try
             End If
 
@@ -681,15 +686,15 @@ Namespace Handlers
             list = Character.SeenBy.ToArray
             For Each GUID As ULong In list
 
-                If CHARACTERs(GUID).playersNear.Contains(Character.GUID) Then
-                    CHARACTERs(GUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                    CHARACTERs(GUID).guidsForRemoving.Add(Character.GUID)
-                    CHARACTERs(GUID).guidsForRemoving_Lock.ReleaseWriterLock()
+                If _WorldServer.CHARACTERs(GUID).playersNear.Contains(Character.GUID) Then
+                    _WorldServer.CHARACTERs(GUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.CHARACTERs(GUID).guidsForRemoving.Add(Character.GUID)
+                    _WorldServer.CHARACTERs(GUID).guidsForRemoving_Lock.ReleaseWriterLock()
 
-                    CHARACTERs(GUID).playersNear.Remove(Character.GUID)
+                    _WorldServer.CHARACTERs(GUID).playersNear.Remove(Character.GUID)
                 End If
                 'DONE: Fully clean
-                CHARACTERs(GUID).SeenBy.Remove(Character.GUID)
+                _WorldServer.CHARACTERs(GUID).SeenBy.Remove(Character.GUID)
 
             Next
             Character.playersNear.Clear()
@@ -699,8 +704,8 @@ Namespace Handlers
             list = Character.creaturesNear.ToArray
             For Each GUID As ULong In list
 
-                If WORLD_CREATUREs(GUID).SeenBy.Contains(Character.GUID) Then
-                    WORLD_CREATUREs(GUID).SeenBy.Remove(Character.GUID)
+                If _WorldServer.WORLD_CREATUREs(GUID).SeenBy.Contains(Character.GUID) Then
+                    _WorldServer.WORLD_CREATUREs(GUID).SeenBy.Remove(Character.GUID)
                 End If
             Next
             Character.creaturesNear.Clear()
@@ -708,13 +713,13 @@ Namespace Handlers
             'DONE: Removing from gameObjects wich can see it
             list = Character.gameObjectsNear.ToArray
             For Each GUID As ULong In list
-                If GuidIsMoTransport(GUID) Then
-                    If WORLD_TRANSPORTs(GUID).SeenBy.Contains(Character.GUID) Then
-                        WORLD_TRANSPORTs(GUID).SeenBy.Remove(Character.GUID)
+                If _CommonGlobalFunctions.GuidIsMoTransport(GUID) Then
+                    If _WorldServer.WORLD_TRANSPORTs(GUID).SeenBy.Contains(Character.GUID) Then
+                        _WorldServer.WORLD_TRANSPORTs(GUID).SeenBy.Remove(Character.GUID)
                     End If
                 Else
-                    If WORLD_GAMEOBJECTs(GUID).SeenBy.Contains(Character.GUID) Then
-                        WORLD_GAMEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
+                    If _WorldServer.WORLD_GAMEOBJECTs(GUID).SeenBy.Contains(Character.GUID) Then
+                        _WorldServer.WORLD_GAMEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
                     End If
                 End If
             Next
@@ -724,8 +729,8 @@ Namespace Handlers
             list = Character.corpseObjectsNear.ToArray
             For Each GUID As ULong In list
 
-                If WORLD_CORPSEOBJECTs(GUID).SeenBy.Contains(Character.GUID) Then
-                    WORLD_CORPSEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
+                If _WorldServer.WORLD_CORPSEOBJECTs(GUID).SeenBy.Contains(Character.GUID) Then
+                    _WorldServer.WORLD_CORPSEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
                 End If
             Next
             Character.corpseObjectsNear.Clear()
@@ -754,61 +759,61 @@ Namespace Handlers
         End Sub
 
         Public Sub UpdateCell(ByRef Character As CharacterObject)
-            'Dim start As Integer = timeGetTime("")
+            'Dim start As Integer = _NativeMethods.timeGetTime("")
             Dim list() As ULong
 
             'DONE: Remove players,creatures,objects if dist is >
             list = Character.playersNear.ToArray
             For Each GUID As ULong In list
-                If Not Character.CanSee(CHARACTERs(GUID)) Then
-                    Character.guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                If Not Character.CanSee(_WorldServer.CHARACTERs(GUID)) Then
+                    Character.guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     Character.guidsForRemoving.Add(GUID)
                     Character.guidsForRemoving_Lock.ReleaseWriterLock()
 
-                    CHARACTERs(GUID).SeenBy.Remove(Character.GUID)
+                    _WorldServer.CHARACTERs(GUID).SeenBy.Remove(Character.GUID)
                     Character.playersNear.Remove(GUID)
                 End If
                 'Remove me for him
-                If (Not CHARACTERs(GUID).CanSee(Character)) AndAlso Character.SeenBy.Contains(GUID) Then
-                    CHARACTERs(GUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                    CHARACTERs(GUID).guidsForRemoving.Add(Character.GUID)
-                    CHARACTERs(GUID).guidsForRemoving_Lock.ReleaseWriterLock()
+                If (Not _WorldServer.CHARACTERs(GUID).CanSee(Character)) AndAlso Character.SeenBy.Contains(GUID) Then
+                    _WorldServer.CHARACTERs(GUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                    _WorldServer.CHARACTERs(GUID).guidsForRemoving.Add(Character.GUID)
+                    _WorldServer.CHARACTERs(GUID).guidsForRemoving_Lock.ReleaseWriterLock()
 
                     Character.SeenBy.Remove(GUID)
-                    CHARACTERs(GUID).playersNear.Remove(Character.GUID)
+                    _WorldServer.CHARACTERs(GUID).playersNear.Remove(Character.GUID)
                 End If
             Next
 
             list = Character.creaturesNear.ToArray
             For Each GUID As ULong In list
-                If WORLD_CREATUREs.ContainsKey(GUID) = False OrElse Character.CanSee(WORLD_CREATUREs(GUID)) = False Then
-                    Character.guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) = False OrElse Character.CanSee(_WorldServer.WORLD_CREATUREs(GUID)) = False Then
+                    Character.guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     Character.guidsForRemoving.Add(GUID)
                     Character.guidsForRemoving_Lock.ReleaseWriterLock()
 
-                    WORLD_CREATUREs(GUID).SeenBy.Remove(Character.GUID)
+                    _WorldServer.WORLD_CREATUREs(GUID).SeenBy.Remove(Character.GUID)
                     Character.creaturesNear.Remove(GUID)
                 End If
             Next
 
             list = Character.gameObjectsNear.ToArray
             For Each GUID As ULong In list
-                If GuidIsMoTransport(GUID) Then
-                    If Not Character.CanSee(WORLD_TRANSPORTs(GUID)) Then
-                        Character.guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                If _CommonGlobalFunctions.GuidIsMoTransport(GUID) Then
+                    If Not Character.CanSee(_WorldServer.WORLD_TRANSPORTs(GUID)) Then
+                        Character.guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                         Character.guidsForRemoving.Add(GUID)
                         Character.guidsForRemoving_Lock.ReleaseWriterLock()
 
-                        WORLD_TRANSPORTs(GUID).SeenBy.Remove(Character.GUID)
+                        _WorldServer.WORLD_TRANSPORTs(GUID).SeenBy.Remove(Character.GUID)
                         Character.gameObjectsNear.Remove(GUID)
                     End If
                 Else
-                    If Not Character.CanSee(WORLD_GAMEOBJECTs(GUID)) Then
-                        Character.guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                    If Not Character.CanSee(_WorldServer.WORLD_GAMEOBJECTs(GUID)) Then
+                        Character.guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                         Character.guidsForRemoving.Add(GUID)
                         Character.guidsForRemoving_Lock.ReleaseWriterLock()
 
-                        WORLD_GAMEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
+                        _WorldServer.WORLD_GAMEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
                         Character.gameObjectsNear.Remove(GUID)
                     End If
                 End If
@@ -816,12 +821,12 @@ Namespace Handlers
 
             list = Character.dynamicObjectsNear.ToArray
             For Each GUID As ULong In list
-                If Not Character.CanSee(WORLD_DYNAMICOBJECTs(GUID)) Then
-                    Character.guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                If Not Character.CanSee(_WorldServer.WORLD_DYNAMICOBJECTs(GUID)) Then
+                    Character.guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     Character.guidsForRemoving.Add(GUID)
                     Character.guidsForRemoving_Lock.ReleaseWriterLock()
 
-                    WORLD_DYNAMICOBJECTs(GUID).SeenBy.Remove(Character.GUID)
+                    _WorldServer.WORLD_DYNAMICOBJECTs(GUID).SeenBy.Remove(Character.GUID)
                     Character.dynamicObjectsNear.Remove(GUID)
                 End If
             Next
@@ -829,12 +834,12 @@ Namespace Handlers
             list = Character.corpseObjectsNear.ToArray
             For Each GUID As ULong In list
 
-                If Not Character.CanSee(WORLD_CORPSEOBJECTs(GUID)) Then
-                    Character.guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
+                If Not Character.CanSee(_WorldServer.WORLD_CORPSEOBJECTs(GUID)) Then
+                    Character.guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
                     Character.guidsForRemoving.Add(GUID)
                     Character.guidsForRemoving_Lock.ReleaseWriterLock()
 
-                    WORLD_CORPSEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
+                    _WorldServer.WORLD_CORPSEOBJECTs(GUID).SeenBy.Remove(Character.GUID)
                     Character.corpseObjectsNear.Remove(GUID)
                 End If
             Next
@@ -922,7 +927,7 @@ Namespace Handlers
             End If
 
             Character.SendOutOfRangeUpdate()
-            'Log.WriteLine(LogType.DEBUG, "Update: {0}ms", timeGetTime("") - start)
+            '_WorldServer.Log.WriteLine(LogType.DEBUG, "Update: {0}ms", _NativeMethods.timeGetTime("") - start)
         End Sub
 
         <MethodImpl(MethodImplOptions.Synchronized)>
@@ -934,37 +939,37 @@ Namespace Handlers
                 For Each GUID As ULong In list
 
                     'DONE: Send to me
-                    If Not CHARACTERs(GUID).SeenBy.Contains(Character.GUID) Then
-                        If Character.CanSee(CHARACTERs(GUID)) Then
+                    If Not _WorldServer.CHARACTERs(GUID).SeenBy.Contains(Character.GUID) Then
+                        If Character.CanSee(_WorldServer.CHARACTERs(GUID)) Then
                             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
-                            CHARACTERs(GUID).FillAllUpdateFlags(tmpUpdate)
-                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CHARACTERs(GUID))
+                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                            _WorldServer.CHARACTERs(GUID).FillAllUpdateFlags(tmpUpdate)
+                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.CHARACTERs(GUID))
                             tmpUpdate.Dispose()
                             Character.client.Send(packet)
                             packet.Dispose()
 
-                            CHARACTERs(GUID).SeenBy.Add(Character.GUID)
+                            _WorldServer.CHARACTERs(GUID).SeenBy.Add(Character.GUID)
                             Character.playersNear.Add(GUID)
                         End If
                     End If
                     'DONE: Send to him
                     If Not Character.SeenBy.Contains(GUID) Then
-                        If CHARACTERs(GUID).CanSee(Character) Then
+                        If _WorldServer.CHARACTERs(GUID).CanSee(Character) Then
                             Dim myPacket As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             myPacket.AddInt32(1)
                             myPacket.AddInt8(0)
-                            Dim myTmpUpdate As New UpdateClass(FIELD_MASK_SIZE_PLAYER)
+                            Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                             Character.FillAllUpdateFlags(myTmpUpdate)
                             myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Character)
                             myTmpUpdate.Dispose()
-                            CHARACTERs(GUID).client.Send(myPacket)
+                            _WorldServer.CHARACTERs(GUID).client.Send(myPacket)
                             myPacket.Dispose()
 
                             Character.SeenBy.Add(GUID)
-                            CHARACTERs(GUID).playersNear.Add(Character.GUID)
+                            _WorldServer.CHARACTERs(GUID).playersNear.Add(Character.GUID)
                         End If
                     End If
                 Next
@@ -978,15 +983,15 @@ Namespace Handlers
             With MapTile
                 list = .CreaturesHere.ToArray
                 For Each GUID As ULong In list
-                    If Not Character.creaturesNear.Contains(GUID) AndAlso WORLD_CREATUREs.ContainsKey(GUID) Then
-                        If Character.CanSee(WORLD_CREATUREs(GUID)) Then
-                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
-                            WORLD_CREATUREs(GUID).FillAllUpdateFlags(tmpUpdate)
-                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_CREATUREs(GUID))
+                    If Not Character.creaturesNear.Contains(GUID) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
+                        If Character.CanSee(_WorldServer.WORLD_CREATUREs(GUID)) Then
+                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
+                            _WorldServer.WORLD_CREATUREs(GUID).FillAllUpdateFlags(tmpUpdate)
+                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_CREATUREs(GUID))
                             tmpUpdate.Dispose()
 
                             Character.creaturesNear.Add(GUID)
-                            WORLD_CREATUREs(GUID).SeenBy.Add(Character.GUID)
+                            _WorldServer.WORLD_CREATUREs(GUID).SeenBy.Add(Character.GUID)
                         End If
                     End If
                 Next
@@ -994,26 +999,26 @@ Namespace Handlers
                 list = .GameObjectsHere.ToArray
                 For Each GUID As ULong In list
                     If Not Character.gameObjectsNear.Contains(GUID) Then
-                        If GuidIsMoTransport(GUID) Then
-                            If Character.CanSee(WORLD_TRANSPORTs(GUID)) Then
-                                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
-                                WORLD_TRANSPORTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
-                                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_TRANSPORTs(GUID))
+                        If _CommonGlobalFunctions.GuidIsMoTransport(GUID) Then
+                            If Character.CanSee(_WorldServer.WORLD_TRANSPORTs(GUID)) Then
+                                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                                _WorldServer.WORLD_TRANSPORTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
+                                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_TRANSPORTs(GUID))
                                 tmpUpdate.Dispose()
 
                                 Character.gameObjectsNear.Add(GUID)
-                                WORLD_TRANSPORTs(GUID).SeenBy.Add(Character.GUID)
+                                _WorldServer.WORLD_TRANSPORTs(GUID).SeenBy.Add(Character.GUID)
                             End If
                         Else
-                            If Character.CanSee(WORLD_GAMEOBJECTs(GUID)) Then
-                                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
-                                WORLD_GAMEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
-                                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_GAMEOBJECTs(GUID))
+                            If Character.CanSee(_WorldServer.WORLD_GAMEOBJECTs(GUID)) Then
+                                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                                _WorldServer.WORLD_GAMEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
+                                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_GAMEOBJECTs(GUID))
                                 tmpUpdate.Dispose()
 
                                 Character.gameObjectsNear.Add(GUID)
 
-                                WORLD_GAMEOBJECTs(GUID).SeenBy.Add(Character.GUID)
+                                _WorldServer.WORLD_GAMEOBJECTs(GUID).SeenBy.Add(Character.GUID)
                             End If
                         End If
                     End If
@@ -1022,15 +1027,15 @@ Namespace Handlers
                 list = .DynamicObjectsHere.ToArray
                 For Each GUID As ULong In list
                     If Not Character.dynamicObjectsNear.Contains(GUID) Then
-                        If Character.CanSee(WORLD_DYNAMICOBJECTs(GUID)) Then
-                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_DYNAMICOBJECT)
-                            WORLD_DYNAMICOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate)
-                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF, WORLD_DYNAMICOBJECTs(GUID))
+                        If Character.CanSee(_WorldServer.WORLD_DYNAMICOBJECTs(GUID)) Then
+                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_DYNAMICOBJECT)
+                            _WorldServer.WORLD_DYNAMICOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate)
+                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF, _WorldServer.WORLD_DYNAMICOBJECTs(GUID))
                             tmpUpdate.Dispose()
 
                             Character.dynamicObjectsNear.Add(GUID)
 
-                            WORLD_DYNAMICOBJECTs(GUID).SeenBy.Add(Character.GUID)
+                            _WorldServer.WORLD_DYNAMICOBJECTs(GUID).SeenBy.Add(Character.GUID)
                         End If
                     End If
                 Next
@@ -1052,19 +1057,19 @@ Namespace Handlers
                 For Each GUID As ULong In list
 
                     If Not Character.creaturesNear.Contains(GUID) Then
-                        If Character.CanSee(WORLD_CREATUREs(GUID)) Then
+                        If Character.CanSee(_WorldServer.WORLD_CREATUREs(GUID)) Then
                             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_UNIT)
-                            WORLD_CREATUREs(GUID).FillAllUpdateFlags(tmpUpdate)
-                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_CREATUREs(GUID))
+                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
+                            _WorldServer.WORLD_CREATUREs(GUID).FillAllUpdateFlags(tmpUpdate)
+                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_CREATUREs(GUID))
                             tmpUpdate.Dispose()
                             Character.client.Send(packet)
                             packet.Dispose()
 
                             Character.creaturesNear.Add(GUID)
-                            WORLD_CREATUREs(GUID).SeenBy.Add(Character.GUID)
+                            _WorldServer.WORLD_CREATUREs(GUID).SeenBy.Add(Character.GUID)
                         End If
                     End If
                 Next
@@ -1080,20 +1085,20 @@ Namespace Handlers
                 For Each GUID As ULong In list
 
                     If Not Character.gameObjectsNear.Contains(GUID) Then
-                        If GuidIsGameObject(GUID) AndAlso WORLD_GAMEOBJECTs.ContainsKey(GUID) AndAlso Character.CanSee(WORLD_GAMEOBJECTs(GUID)) Then
+                        If _CommonGlobalFunctions.GuidIsGameObject(GUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(GUID) AndAlso Character.CanSee(_WorldServer.WORLD_GAMEOBJECTs(GUID)) Then
                             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_GAMEOBJECT)
-                            WORLD_GAMEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
-                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_GAMEOBJECTs(GUID))
+                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                            _WorldServer.WORLD_GAMEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
+                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_GAMEOBJECTs(GUID))
                             tmpUpdate.Dispose()
                             Character.client.Send(packet)
                             packet.Dispose()
 
                             Character.gameObjectsNear.Add(GUID)
 
-                            WORLD_GAMEOBJECTs(GUID).SeenBy.Add(Character.GUID)
+                            _WorldServer.WORLD_GAMEOBJECTs(GUID).SeenBy.Add(Character.GUID)
                         End If
                     End If
                 Next
@@ -1110,19 +1115,19 @@ Namespace Handlers
                 For Each GUID As ULong In list
 
                     If Not Character.corpseObjectsNear.Contains(GUID) Then
-                        If Character.CanSee(WORLD_CORPSEOBJECTs(GUID)) Then
+                        If Character.CanSee(_WorldServer.WORLD_CORPSEOBJECTs(GUID)) Then
                             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_CORPSE)
-                            WORLD_CORPSEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate)
-                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, WORLD_CORPSEOBJECTs(GUID))
+                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
+                            _WorldServer.WORLD_CORPSEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate)
+                            tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_CORPSEOBJECTs(GUID))
                             tmpUpdate.Dispose()
                             Character.client.Send(packet)
                             packet.Dispose()
 
                             Character.corpseObjectsNear.Add(GUID)
-                            WORLD_CORPSEOBJECTs(GUID).SeenBy.Add(Character.GUID)
+                            _WorldServer.WORLD_CORPSEOBJECTs(GUID).SeenBy.Add(Character.GUID)
                         End If
                     End If
                 Next

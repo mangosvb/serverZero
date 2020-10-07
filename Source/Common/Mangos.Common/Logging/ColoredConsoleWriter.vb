@@ -18,6 +18,7 @@
 
 Imports System.Runtime.CompilerServices
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 
 'Using this logging type, all logs are displayed in console.
 'Writting commands is done trought console.
@@ -27,7 +28,7 @@ Namespace Logging
         Inherits BaseWriter
 
         <MethodImpl(MethodImplOptions.Synchronized)>
-        Public Overrides Sub Write(type As GlobalEnum.LogType, formatStr As String, ByVal ParamArray arg() As Object)
+        Public Overrides Sub Write(type As LogType, formatStr As String, ByVal ParamArray arg() As Object)
             If LogLevel > type Then Return
 
             Select Case type

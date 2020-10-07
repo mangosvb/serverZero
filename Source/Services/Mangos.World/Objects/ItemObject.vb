@@ -19,7 +19,11 @@
 'WARNING: Use only with ITEMs()
 Imports System.Data
 Imports System.Runtime.CompilerServices
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Item
+Imports Mangos.Common.Enums.Player
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -35,7 +39,7 @@ Namespace Objects
 
         Public ReadOnly Property ItemInfo() As ItemInfo
             Get
-                Return ITEMDatabase(ItemEntry)
+                Return _WorldServer.ITEMDatabase(ItemEntry)
             End Get
         End Property
 
@@ -61,8 +65,8 @@ Namespace Objects
 
         <MethodImpl(MethodImplOptions.Synchronized)>
         Private Function GetNewGUID() As ULong
-            itemGuidCounter += 1
-            GetNewGUID = itemGuidCounter
+            _WorldServer.itemGuidCounter += 1
+            GetNewGUID = _WorldServer.itemGuidCounter
         End Function
 
 
@@ -105,7 +109,7 @@ Namespace Objects
                 'Update.SetUpdateFlag(EItemFields.ITEM_FIELD_DURATION, 0)
                 For i As Integer = 0 To 4
                     If _
-                        ItemInfo.Spells(i).SpellTrigger = ItemEnum.ITEM_SPELLTRIGGER_TYPE.USE OrElse
+                        ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
                         ItemInfo.Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE Then
                         update.SetUpdateFlag(EItemFields.ITEM_FIELD_SPELL_CHARGES + i, ChargesLeft)
                     Else
@@ -125,7 +129,7 @@ Namespace Objects
 
                 update.SetUpdateFlag(EItemFields.ITEM_FIELD_ITEM_TEXT_ID, ItemText)
                 update.SetUpdateFlag(EItemFields.ITEM_FIELD_DURABILITY, Durability)
-                update.SetUpdateFlag(EItemFields.ITEM_FIELD_MAXDURABILITY, ITEMDatabase(ItemEntry).Durability)
+                update.SetUpdateFlag(EItemFields.ITEM_FIELD_MAXDURABILITY, _WorldServer.ITEMDatabase(ItemEntry).Durability)
             End If
         End Sub
 
@@ -137,7 +141,7 @@ Namespace Objects
             packet.AddInt8(0)
 
             For Each item As KeyValuePair(Of Byte, ItemObject) In Items
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 item.Value.FillAllUpdateFlags(tmpUpdate)
                 tmpUpdate.AddToPacket(packet, updatetype, item.Value)
                 tmpUpdate.Dispose()
@@ -147,7 +151,7 @@ Namespace Objects
         End Sub
 
         Private Sub InitializeBag()
-            If ITEMDatabase(ItemEntry).IsContainer Then
+            If _WorldServer.ITEMDatabase(ItemEntry).IsContainer Then
                 Items = New Dictionary(Of Byte, ItemObject)
             Else
                 Items = Nothing
@@ -161,7 +165,7 @@ Namespace Objects
         End Property
         'Public ReadOnly Property IsFull() As Boolean
         '    Get
-        '        If Items.Count = ITEMDatabase(ItemEntry).ContainerSlots Then Return True Else Return False
+        '        If Items.Count = _WorldServer.ITEMDatabase(ItemEntry).ContainerSlots Then Return True Else Return False
         '    End Get
         'End Property
         'Public ReadOnly Property IsEquipped() As Boolean
@@ -184,9 +188,9 @@ Namespace Objects
 
         Public ReadOnly Property GetBagSlot() As Byte
             Get
-                If CHARACTERs.ContainsKey(OwnerGUID) = False Then Return 255
+                If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) = False Then Return 255
 
-                With CHARACTERs(OwnerGUID)
+                With _WorldServer.CHARACTERs(OwnerGUID)
                     For i As Byte = InventorySlots.INVENTORY_SLOT_BAG_1 To InventorySlots.INVENTORY_SLOT_BAG_END - 1
                         If .Items.ContainsKey(i) Then
                             For j As Byte = 0 To .Items(i).ItemInfo.ContainerSlots - 1
@@ -204,9 +208,9 @@ Namespace Objects
 
         Public ReadOnly Property GetSlot() As Integer
             Get
-                If CHARACTERs.ContainsKey(OwnerGUID) = False Then Return -1
+                If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) = False Then Return -1
 
-                With CHARACTERs(OwnerGUID)
+                With _WorldServer.CHARACTERs(OwnerGUID)
                     For i As Byte = EquipmentSlots.EQUIPMENT_SLOT_START To InventoryPackSlots.INVENTORY_SLOT_ITEM_END - 1
                         If .Items.ContainsKey(i) Then
                             If .Items(i) Is Me Then Return i
@@ -245,7 +249,7 @@ Namespace Objects
 
             'DONE: Loot generation
             Dim mySqlQuery As New DataTable
-            WorldDatabase.Query(String.Format("SELECT * FROM item_loot WHERE entry = {0};", ItemEntry), mySqlQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM item_loot WHERE entry = {0};", ItemEntry), mySqlQuery)
             If mySqlQuery.Rows.Count = 0 Then Return False
 
             _loot = New LootObject(GUID, LootType.LOOTTYPE_CORPSE)
@@ -263,12 +267,12 @@ Namespace Objects
                        Optional ByVal equipped As Boolean = False)
             'DONE: Get from SQLDB
             Dim mySqlQuery As New DataTable
-            CharacterDatabase.Query(
+            _WorldServer.CharacterDatabase.Query(
                 String.Format("SELECT * FROM characters_inventory WHERE item_guid = ""{0}"";", guidVal), mySqlQuery)
             If mySqlQuery.Rows.Count = 0 Then _
                 Err.Raise(1, "ItemObject.New", String.Format("itemGuid {0} not found in SQL database!", guidVal))
 
-            GUID = mySqlQuery.Rows(0).Item("item_guid") + GUID_ITEM
+            GUID = mySqlQuery.Rows(0).Item("item_guid") + _Global_Constants.GUID_ITEM
             CreatorGUID = mySqlQuery.Rows(0).Item("item_creator")
             OwnerGUID = mySqlQuery.Rows(0).Item("item_owner")
             GiftCreatorGUID = mySqlQuery.Rows(0).Item("item_giftCreator")
@@ -296,7 +300,7 @@ Namespace Objects
             End If
 
             'DONE: Load ItemID in cashe if not loaded
-            If ITEMDatabase.ContainsKey(ItemEntry) = False Then
+            If _WorldServer.ITEMDatabase.ContainsKey(ItemEntry) = False Then
                 'TODO: This needs to actually do something
                 Dim tmpItem As New ItemInfo(ItemEntry)
             End If
@@ -305,35 +309,35 @@ Namespace Objects
 
             'DONE: Get Items
             mySqlQuery.Clear()
-            CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID),
+            _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_inventory WHERE item_bag = {0};", GUID),
                                     mySqlQuery)
             For Each row As DataRow In mySqlQuery.Rows
-                If row.Item("item_slot") <> ITEM_SLOT_NULL Then
+                If row.Item("item_slot") <> _Global_Constants.ITEM_SLOT_NULL Then
                     Dim tmpItem As New ItemObject(CType(row.Item("item_guid"), Long))
                     Items(row.Item("item_slot")) = tmpItem
                 End If
             Next
 
-            WORLD_ITEMs.Add(GUID, Me)
+            _WorldServer.WORLD_ITEMs.Add(GUID, Me)
         End Sub
 
         Public Sub New(ByVal itemId As Integer, ByVal owner As ULong)
             'DONE: Load ItemID in cashe if not loaded
             Try
-                If ITEMDatabase.ContainsKey(itemId) = False Then
+                If _WorldServer.ITEMDatabase.ContainsKey(itemId) = False Then
                     'TODO: This needs to actually do something
                     Dim tmpItem As New ItemInfo(itemId)
                 End If
                 ItemEntry = itemId
                 OwnerGUID = owner
-                Durability = ITEMDatabase(ItemEntry).Durability
+                Durability = _WorldServer.ITEMDatabase(ItemEntry).Durability
 
                 For i As Integer = 0 To 4
                     If _
-                        ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
-                        ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE Then
-                        If ITEMDatabase(ItemEntry).Spells(i).SpellCharges <> 0 Then
-                            ChargesLeft = ITEMDatabase(ItemEntry).Spells(i).SpellCharges
+                        _WorldServer.ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.USE OrElse
+                        _WorldServer.ITEMDatabase(ItemEntry).Spells(i).SpellTrigger = ITEM_SPELLTRIGGER_TYPE.NO_DELAY_USE Then
+                        If _WorldServer.ITEMDatabase(ItemEntry).Spells(i).SpellCharges <> 0 Then
+                            ChargesLeft = _WorldServer.ITEMDatabase(ItemEntry).Spells(i).SpellCharges
                             Exit For
                         End If
                     End If
@@ -344,16 +348,16 @@ Namespace Objects
                 InitializeBag()
                 SaveAsNew()
 
-                WORLD_ITEMs.Add(GUID, Me)
+                _WorldServer.WORLD_ITEMs.Add(GUID, Me)
             Catch Ex As Exception
-                Log.WriteLine(LogType.WARNING, "Duplicate Key Warning ITEMID:{0} OWNERGUID:{1}", itemId, owner)
+                _WorldServer.Log.WriteLine(LogType.WARNING, "Duplicate Key Warning ITEMID:{0} OWNERGUID:{1}", itemId, owner)
             End Try
         End Sub
 
         Private Sub SaveAsNew()
             'DONE: Save to SQL
             Dim tmpCmd As String = "INSERT INTO characters_inventory (item_guid"
-            Dim tmpValues As String = " VALUES (" & GUID - GUID_ITEM
+            Dim tmpValues As String = " VALUES (" & GUID - _Global_Constants.GUID_ITEM
             tmpCmd = tmpCmd & ", item_owner"
             tmpValues = tmpValues & ", """ & OwnerGUID & """"
             tmpCmd = tmpCmd & ", item_creator"
@@ -385,7 +389,7 @@ Namespace Objects
             tmpValues = tmpValues & ", " & ItemText
 
             tmpCmd = tmpCmd & ") " & tmpValues & ");"
-            CharacterDatabase.Update(tmpCmd)
+            _WorldServer.CharacterDatabase.Update(tmpCmd)
         End Sub
 
         Public Sub Save(Optional ByVal saveAll As Boolean = True)
@@ -409,11 +413,11 @@ Namespace Objects
             tmp = tmp & ", item_enchantment=""" & Join(temp.ToArray, " ") & """"
             tmp = tmp & ", item_textId=" & ItemText
 
-            tmp = tmp & " WHERE item_guid = """ & (GUID - GUID_ITEM) & """;"
+            tmp = tmp & " WHERE item_guid = """ & (GUID - _Global_Constants.GUID_ITEM) & """;"
 
-            CharacterDatabase.Update(tmp)
+            _WorldServer.CharacterDatabase.Update(tmp)
 
-            If ITEMDatabase(ItemEntry).IsContainer() AndAlso saveAll Then
+            If _WorldServer.ITEMDatabase(ItemEntry).IsContainer() AndAlso saveAll Then
                 For Each item As KeyValuePair(Of Byte, ItemObject) In Items
                     item.Value.Save()
                 Next
@@ -423,11 +427,11 @@ Namespace Objects
         Public Sub Delete()
             'DONE: Check if item is petition
             If _
-                ItemEntry = PETITION_GUILD Then _
-                CharacterDatabase.Update("DELETE FROM petitions WHERE petition_itemGuid = " & GUID - GUID_ITEM & ";")
-            CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = {0}", GUID - GUID_ITEM))
+                ItemEntry = _Global_Constants.PETITION_GUILD Then _
+                _WorldServer.CharacterDatabase.Update("DELETE FROM petitions WHERE petition_itemGuid = " & GUID - _Global_Constants.GUID_ITEM & ";")
+            _WorldServer.CharacterDatabase.Update(String.Format("DELETE FROM characters_inventory WHERE item_guid = {0}", GUID - _Global_Constants.GUID_ITEM))
 
-            If ITEMDatabase(ItemEntry).IsContainer() Then
+            If _WorldServer.ITEMDatabase(ItemEntry).IsContainer() Then
                 For Each item As KeyValuePair(Of Byte, ItemObject) In Items
                     item.Value.Delete()
                 Next
@@ -444,9 +448,9 @@ Namespace Objects
             If Not _disposedValue Then
                 ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                 ' TODO: set large fields to null.
-                WORLD_ITEMs.Remove(GUID)
+                _WorldServer.WORLD_ITEMs.Remove(GUID)
 
-                If ITEMDatabase(ItemEntry).IsContainer() Then
+                If _WorldServer.ITEMDatabase(ItemEntry).IsContainer() Then
                     For Each item As KeyValuePair(Of Byte, ItemObject) In Items
                         item.Value.Dispose()
                     Next
@@ -470,19 +474,19 @@ Namespace Objects
         End Function
 
         Public Sub ModifyDurability(ByVal percent As Single, ByRef client As ClientClass)
-            If ITEMDatabase(ItemEntry).Durability > 0 Then
-                Durability -= Fix(ITEMDatabase(ItemEntry).Durability * percent)
+            If _WorldServer.ITEMDatabase(ItemEntry).Durability > 0 Then
+                Durability -= Fix(_WorldServer.ITEMDatabase(ItemEntry).Durability * percent)
                 If Durability < 0 Then Durability = 0
-                If Durability > ITEMDatabase(ItemEntry).Durability Then Durability = ITEMDatabase(ItemEntry).Durability
+                If Durability > _WorldServer.ITEMDatabase(ItemEntry).Durability Then Durability = _WorldServer.ITEMDatabase(ItemEntry).Durability
                 UpdateDurability(client)
             End If
         End Sub
 
         Public Sub ModifyToDurability(ByVal percent As Single, ByRef client As ClientClass)
-            If ITEMDatabase(ItemEntry).Durability > 0 Then
-                Durability = Fix(ITEMDatabase(ItemEntry).Durability * percent)
+            If _WorldServer.ITEMDatabase(ItemEntry).Durability > 0 Then
+                Durability = Fix(_WorldServer.ITEMDatabase(ItemEntry).Durability * percent)
                 If Durability < 0 Then Durability = 0
-                If Durability > ITEMDatabase(ItemEntry).Durability Then Durability = ITEMDatabase(ItemEntry).Durability
+                If Durability > _WorldServer.ITEMDatabase(ItemEntry).Durability Then Durability = _WorldServer.ITEMDatabase(ItemEntry).Durability
                 UpdateDurability(client)
             End If
         End Sub
@@ -491,7 +495,7 @@ Namespace Objects
             Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
             packet.AddInt32(1)      'Operations.Count
             packet.AddInt8(0)
-            Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
             tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_DURABILITY, Durability)
             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
             tmpUpdate.Dispose()
@@ -501,14 +505,14 @@ Namespace Objects
         Public ReadOnly Property GetDurabulityCost() As UInteger
             Get
                 Try
-                    Dim lostDurability As Integer = ITEMDatabase(ItemEntry).Durability - Durability
+                    Dim lostDurability As Integer = _WorldServer.ITEMDatabase(ItemEntry).Durability - Durability
                     If lostDurability > DurabilityCosts_MAX Then lostDurability = DurabilityCosts_MAX
                     Dim subClass As Integer = 0
                     If ItemInfo.ObjectClass = ITEM_CLASS.ITEM_CLASS_WEAPON Then subClass = ItemInfo.SubClass Else _
                         subClass = ItemInfo.SubClass + 21
                     Dim durabilityCost As UInteger =
                             (lostDurability * ((DurabilityCosts(ItemInfo.Level, subClass) / 40) * 100))
-                    Log.WriteLine(LogType.DEBUG, "Durability cost: {0}", durabilityCost)
+                    _WorldServer.Log.WriteLine(LogType.DEBUG, "Durability cost: {0}", durabilityCost)
                     Return durabilityCost
                 Catch
                     Return 0
@@ -528,8 +532,8 @@ Namespace Objects
 
         Public Sub AddEnchantBonus(ByVal slot As Byte, Optional ByRef objCharacter As CharacterObject = Nothing)
             If objCharacter Is Nothing Then
-                If CHARACTERs.ContainsKey(OwnerGUID) = False Then Exit Sub
-                objCharacter = CHARACTERs(OwnerGUID)
+                If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) = False Then Exit Sub
+                objCharacter = _WorldServer.CHARACTERs(OwnerGUID)
             End If
             If objCharacter IsNot Nothing AndAlso SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
                 For i As Byte = 0 To 2
@@ -556,7 +560,7 @@ Namespace Objects
         End Sub
 
         Public Sub RemoveEnchantBonus(ByVal slot As Byte)
-            If CHARACTERs.ContainsKey(OwnerGUID) AndAlso SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
+            If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) AndAlso SpellItemEnchantments.ContainsKey(Enchantments(slot).ID) Then
                 For i As Byte = 0 To 2
                     If SpellItemEnchantments(Enchantments(slot).ID).SpellID(i) <> 0 Then
                         If WS_Spells.SPELLs.ContainsKey(SpellItemEnchantments(Enchantments(slot).ID).SpellID(i)) Then
@@ -566,8 +570,8 @@ Namespace Objects
                                 If Not (spellInfo.SpellEffects(j) Is Nothing) Then
                                     Select Case spellInfo.SpellEffects(j).ID
                                         Case SpellEffects_Names.SPELL_EFFECT_APPLY_AURA
-                                            AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(CHARACTERs(OwnerGUID),
-                                                                                                   CHARACTERs(OwnerGUID),
+                                            AURAs(spellInfo.SpellEffects(j).ApplyAuraIndex).Invoke(_WorldServer.CHARACTERs(OwnerGUID),
+                                                                                                   _WorldServer.CHARACTERs(OwnerGUID),
                                                                                                    spellInfo.
                                                                                                       SpellEffects(j),
                                                                                                    spellInfo.ID, 1,
@@ -589,18 +593,18 @@ Namespace Objects
             'DONE: Remove the enchant
             Enchantments.Remove(slot)
             'DONE: Send the update to the client about it
-            If CHARACTERs.ContainsKey(OwnerGUID) Then
+            If _WorldServer.CHARACTERs.ContainsKey(OwnerGUID) Then
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3), 0)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 1, 0)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_ENCHANTMENT + (slot * 3) + 2, 0)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
 
-                CHARACTERs(OwnerGUID).client.Send(packet)
+                _WorldServer.CHARACTERs(OwnerGUID).client.Send(packet)
                 packet.Dispose()
                 tmpUpdate.Dispose()
             End If
@@ -619,7 +623,7 @@ Namespace Objects
                 packet.AddInt32(1)      'Operations.Count
                 packet.AddInt8(0)
 
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_ITEM)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_ITEM)
                 tmpUpdate.SetUpdateFlag(EItemFields.ITEM_FIELD_FLAGS, _flags)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, Me)
 

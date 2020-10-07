@@ -19,6 +19,9 @@
 Imports System.Threading
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.DataStores
 Imports Mangos.World.Handlers
 Imports Mangos.World.Loots
@@ -36,7 +39,7 @@ Namespace AI
         Public Class TBaseAI
             Implements IDisposable
 
-            Public State As GlobalEnum.AIState = AIState.AI_DO_NOTHING
+            Public State As AIState = AIState.AI_DO_NOTHING
             Public aiTarget As WS_Base.BaseUnit = Nothing
             Public aiHateTable As New Dictionary(Of BaseUnit, Integer)
             Public aiHateTableRemove As New List(Of BaseUnit)
@@ -155,7 +158,7 @@ Namespace AI
                 aiTarget = Nothing
             End Sub
             Public Overrides Function IsMoving() As Boolean
-                If (timeGetTime("") - aiCreature.LastMove) < aiTimer Then
+                If (_NativeMethods.timeGetTime("") - aiCreature.LastMove) < aiTimer Then
                     Select Case State
                         Case AIState.AI_MOVE_FOR_ATTACK
                             Return True
@@ -301,7 +304,7 @@ Namespace AI
                         State = AIState.AI_ATTACKING
                     End If
                 Catch ex As Exception
-                    Log.WriteLine(LogType.CRITICAL, "Error selecting target.{0}{1}", Environment.NewLine, ex.ToString)
+                    _WorldServer.Log.WriteLine(LogType.CRITICAL, "Error selecting target.{0}{1}", Environment.NewLine, ex.ToString)
                     Reset()
                 End Try
 
@@ -386,7 +389,7 @@ Namespace AI
                         DoMove()
                     Case AIState.AI_WANDERING
                         If Not AllowedMove Then State = AIState.AI_DO_NOTHING : Exit Sub
-                        If IsWaypoint OrElse Rnd.NextDouble > 0.2F Then
+                        If IsWaypoint OrElse _WorldServer.Rnd.NextDouble > 0.2F Then
                             DoMove()
                         End If
                     Case AIState.AI_MOVING_TO_SPAWN
@@ -458,10 +461,10 @@ Namespace AI
                         aiTarget.DealDamage(damageInfo.GetDamage, aiCreature)
 
                         'TODO: Do in another way, since 1001-2000 = 2 secs, and for creatures with like 1.05 sec attack time attacks ALOT slower
-                        nextAttack = CREATURESDatabase(aiCreature.ID).BaseAttackTime
+                        nextAttack = _WorldServer.CREATURESDatabase(aiCreature.ID).BaseAttackTime
                         aiTimer = 1000
                     Catch ex As Exception
-                        Log.WriteLine(LogType.WARNING, "WS_Creatures:DoAttack failed - Guid: {1} ID: {2}  {0}", ex.Message)
+                        _WorldServer.Log.WriteLine(LogType.WARNING, "WS_Creatures:DoAttack failed - Guid: {1} ID: {2}  {0}", ex.Message)
                         Reset()
                     End Try
                 End If
@@ -502,7 +505,7 @@ Namespace AI
                         End If
 
                         Dim distance As Single = AI_INTERVAL_MOVE / 1000 * aiCreature.CreatureInfo.WalkSpeed
-                        Dim angle As Single = Rnd.NextDouble * PIx2
+                        Dim angle As Single = _WorldServer.Rnd.NextDouble * PIx2
 
                         aiCreature.SetToRealPosition()
                         aiCreature.orientation = angle
@@ -652,7 +655,7 @@ Namespace AI
                 aiTarget = Nothing
             End Sub
             Public Overrides Function IsMoving() As Boolean
-                If (timeGetTime("") - aiCreature.LastMove) < aiTimer Then
+                If (_NativeMethods.timeGetTime("") - aiCreature.LastMove) < aiTimer Then
                     Select Case State
                         Case AIState.AI_MOVE_FOR_ATTACK
                             Return True
@@ -731,7 +734,7 @@ Namespace AI
                         State = AIState.AI_ATTACKING
                         DoMove()
                     Case AIState.AI_WANDERING
-                        If Rnd.NextDouble > 0.2F Then
+                        If _WorldServer.Rnd.NextDouble > 0.2F Then
                             DoMove()
                         End If
                     Case AIState.AI_MOVING_TO_SPAWN
@@ -784,7 +787,7 @@ Namespace AI
                     distance = AI_INTERVAL_MOVE / 1000 * aiCreature.CreatureInfo.WalkSpeed
                 End If
 
-                Dim angle As Single = Rnd.NextDouble * PIx2
+                Dim angle As Single = _WorldServer.Rnd.NextDouble * PIx2
 
                 aiCreature.SetToRealPosition()
                 aiCreature.orientation = angle
@@ -854,7 +857,7 @@ Namespace AI
 
                 If aiTarget Is Nothing Then
                     If CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
-                        Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - GUID_UNIT)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - _Global_Constants.GUID_UNIT)
                         aiCreature.ResetAI()
                         Exit Sub
                     End If
@@ -865,7 +868,7 @@ Namespace AI
                         Dim MovementPoint As WS_DBCDatabase.CreatureMovePoint = CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
                         aiTimer = aiCreature.MoveTo(MovementPoint.x, MovementPoint.y, MovementPoint.z, , False) + MovementPoint.waittime
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - GUID_UNIT)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged.", aiCreature.GUID - _Global_Constants.GUID_UNIT)
                         aiCreature.ResetAI()
                         Exit Sub
                     End Try
@@ -900,7 +903,7 @@ Namespace AI
 
                 If aiTarget Is Nothing Then
                     If CreatureMovement.ContainsKey(aiCreature.WaypointID) = False Then
-                        Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - GUID_UNIT)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] is missing waypoints.", aiCreature.GUID - _Global_Constants.GUID_UNIT)
                         aiCreature.ResetAI()
                         Exit Sub
                     End If
@@ -911,7 +914,7 @@ Namespace AI
                         Dim MovementPoint As CreatureMovePoint = CreatureMovement(aiCreature.WaypointID)(CurrentWaypoint)
                         aiTimer = aiCreature.MoveTo(MovementPoint.x, MovementPoint.y, MovementPoint.z, , False) + MovementPoint.waittime
                     Catch ex As Exception
-                        Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged. {1}", aiCreature.GUID - GUID_UNIT, ex.Message)
+                        _WorldServer.Log.WriteLine(LogType.CRITICAL, "Creature [{0:X}] waypoints are damaged. {1}", aiCreature.GUID - _Global_Constants.GUID_UNIT, ex.Message)
                         aiCreature.ResetAI()
                         Exit Sub
                     End Try
@@ -944,8 +947,8 @@ Namespace AI
                             If .IsInGroup Then
                                 Dim localMembers() As ULong = .Group.LocalMembers.ToArray()
                                 For Each member As ULong In localMembers
-                                    If CHARACTERs.ContainsKey(member) AndAlso CHARACTERs(member).MapID = .MapID AndAlso CHARACTERs(member).instance = .instance Then
-                                        aiHateTable.Add(CHARACTERs(member), 0)
+                                    If _WorldServer.CHARACTERs.ContainsKey(member) AndAlso _WorldServer.CHARACTERs(member).MapID = .MapID AndAlso _WorldServer.CHARACTERs(member).instance = .instance Then
+                                        aiHateTable.Add(_WorldServer.CHARACTERs(member), 0)
                                     End If
                                 Next
                                 Exit For

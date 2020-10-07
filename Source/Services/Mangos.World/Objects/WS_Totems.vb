@@ -16,8 +16,9 @@
 ' Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '
 
-Imports Mangos.Common.Globals
-Imports Mangos.Common.Enums
+Imports Mangos.Common
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Spell
 Imports Mangos.World.Player
 Imports Mangos.World.Server
 Imports Mangos.World.Spells
@@ -32,7 +33,7 @@ Namespace Objects
             Public Caster As BaseUnit = Nothing
             Public Duration As Integer = 0
 
-            Private Type As GlobalEnum.TotemType = TotemType.TOTEM_PASSIVE
+            Private Type As TotemType = TotemType.TOTEM_PASSIVE
 
             Public Sub New(ByVal Entry As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Orientation As Single, ByVal Map As Integer, Optional ByVal Duration_ As Integer = 0)
                 MyBase.New(Entry, PosX, PosY, PosZ, Orientation, Map, Duration_)
@@ -47,12 +48,12 @@ Namespace Objects
 
             Public Sub Update()
 
-                For i As Integer = 0 To MAX_AURA_EFFECTs - 1
+                For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
                     If Not ActiveSpells(i) Is Nothing Then
-                        If ActiveSpells(i).SpellDuration = SPELL_DURATION_INFINITE Then ActiveSpells(i).SpellDuration = Duration
+                        If ActiveSpells(i).SpellDuration = _Global_Constants.SPELL_DURATION_INFINITE Then ActiveSpells(i).SpellDuration = Duration
 
                         'DONE: Count aura duration
-                        If ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then
+                        If ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then
                             ActiveSpells(i).SpellDuration -= WS_TimerBasedEvents.TSpellManager.UPDATE_TIMER
 
                             'DONE: Cast aura (check if: there is aura; aura is periodic; time for next activation)
@@ -65,7 +66,7 @@ Namespace Objects
                             Next
 
                             'DONE: Remove finished aura
-                            If Not ActiveSpells(i) Is Nothing AndAlso ActiveSpells(i).SpellDuration <= 0 AndAlso ActiveSpells(i).SpellDuration <> SPELL_DURATION_INFINITE Then RemoveAura(i, ActiveSpells(i).SpellCaster, True)
+                            If Not ActiveSpells(i) Is Nothing AndAlso ActiveSpells(i).SpellDuration <= 0 AndAlso ActiveSpells(i).SpellDuration <> _Global_Constants.SPELL_DURATION_INFINITE Then RemoveAura(i, ActiveSpells(i).SpellCaster, True)
                         End If
 
                         For j As Byte = 0 To 2

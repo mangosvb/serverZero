@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Chat
+Imports Mangos.Common.Enums.Misc
 Imports Mangos.World.AI
 Imports Mangos.World.Objects
 
@@ -63,7 +65,7 @@ Namespace Examples
 
         Public Overrides Sub OnEnterCombat() 'Override sub is self explanatory. This is on the AIs entering of combat. Put anything here, for this we'll put a self buff.
             MyBase.OnEnterCombat()
-            aiCreature.SendChatMessage("I have been pulled, so I send this message if I am inserted within the entercombat sub.", ChatEnum.ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'ChatMsg refers to the chat type, this can be changed to say, bg or anything else. Lang_Global is a global langauge that ALL can understand, this can be changed to any language. (Draenei, gnomish, etc.)
+            aiCreature.SendChatMessage("I have been pulled, so I send this message if I am inserted within the entercombat sub.", ChatMsg.CHAT_MSG_YELL, LANGUAGES.LANG_GLOBAL) 'ChatMsg refers to the chat type, this can be changed to say, bg or anything else. Lang_Global is a global langauge that ALL can understand, this can be changed to any language. (Draenei, gnomish, etc.)
             aiCreature.CastSpellOnSelf(Frost_Armor) 'Casts frost armor upon self when entering combat.
         End Sub
 

@@ -17,6 +17,8 @@
 '
 
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
+Imports Mangos.Common.Enums.Unit
 Imports Mangos.Common.Globals
 Imports Mangos.World.DataStores
 Imports Mangos.World.Globals
@@ -30,13 +32,13 @@ Namespace Handlers
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
 
-            Log.WriteLine(GlobalEnum.LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_HELLO [{2:X}]", client.IP, client.Port, GUID)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEMASTER_HELLO [{2:X}]", client.IP, client.Port, GUID)
 
-            If WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
-            If (WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BATTLEFIELDPERSON) = 0 Then Exit Sub
-            If Battlemasters.ContainsKey(WORLD_CREATUREs(GUID).ID) = False Then Exit Sub
+            If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
+            If (_WorldServer.WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BATTLEFIELDPERSON) = 0 Then Exit Sub
+            If Battlemasters.ContainsKey(_WorldServer.WORLD_CREATUREs(GUID).ID) = False Then Exit Sub
 
-            Dim BGType As Byte = Battlemasters(WORLD_CREATUREs(GUID).ID)
+            Dim BGType As Byte = Battlemasters(_WorldServer.WORLD_CREATUREs(GUID).ID)
             If WS_DBCDatabase.Battlegrounds.ContainsKey(BGType) = False Then Exit Sub
 
             If WS_DBCDatabase.Battlegrounds(BGType).MinLevel > client.Character.Level OrElse WS_DBCDatabase.Battlegrounds(BGType).MaxLevel < client.Character.Level Then
@@ -54,7 +56,7 @@ Namespace Handlers
                 'response.AddInt8(5)     'Unk
                 'response.AddInt32(0)    'Unk
                 'Else
-                Dim Battlegrounds As List(Of Integer) = ClsWorldServer.Cluster.BattlefieldList(BGType)
+                Dim Battlegrounds As List(Of Integer) = _WorldServer.ClsWorldServer.Cluster.BattlefieldList(BGType)
                 response.AddInt8(0)                     'Unk
                 response.AddInt32(Battlegrounds.Count)  'Number of BG Instances
 

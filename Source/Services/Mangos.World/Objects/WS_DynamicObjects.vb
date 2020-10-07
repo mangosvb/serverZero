@@ -18,6 +18,7 @@
 
 Imports Mangos.Common
 Imports Mangos.Common.Enums
+Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Globals
 Imports Mangos.World.Globals
 Imports Mangos.World.Handlers
@@ -29,8 +30,8 @@ Namespace Objects
 
     Public Module WS_DynamicObjects
         Private Function GetNewGUID() As ULong
-            DynamicObjectsGUIDCounter += 1
-            GetNewGUID = DynamicObjectsGUIDCounter
+            _WorldServer.DynamicObjectsGUIDCounter += 1
+            GetNewGUID = _WorldServer.DynamicObjectsGUIDCounter
         End Function
 
         Public Class DynamicObjectObject
@@ -53,7 +54,7 @@ Namespace Objects
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    WORLD_DYNAMICOBJECTs.Remove(GUID)
+                    _WorldServer.WORLD_DYNAMICOBJECTs.Remove(GUID)
                 End If
                 _disposedValue = True
             End Sub
@@ -68,7 +69,7 @@ Namespace Objects
 
             Public Sub New(ByRef Caster_ As BaseUnit, ByVal SpellID_ As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Duration_ As Integer, ByVal Radius_ As Single)
                 GUID = GetNewGUID()
-                WORLD_DYNAMICOBJECTs.Add(GUID, Me)
+                _WorldServer.WORLD_DYNAMICOBJECTs.Add(GUID, Me)
 
                 Caster = Caster_
                 SpellID = SpellID_
@@ -81,7 +82,7 @@ Namespace Objects
                 Duration = Duration_
                 Radius = Radius_
 
-                CastTime = timeGetTime("")
+                CastTime = _NativeMethods.timeGetTime("")
             End Sub
 
             Public Sub FillAllUpdateFlags(ByRef Update As Packets.UpdateClass)
@@ -106,7 +107,7 @@ Namespace Objects
                 Try
                     WS_Maps.Maps(MapID).Tiles(CellX, CellY).DynamicObjectsHere.Add(GUID)
                 Catch
-                    Log.WriteLine(GlobalEnum.LogType.WARNING, "AddToWorld failed MapId: {0} Tile XY: {1} {2} GUID: {3}", MapID, CellX, CellY, GUID)
+                    _WorldServer.Log.WriteLine(LogType.WARNING, "AddToWorld failed MapId: {0} Tile XY: {1} {2} GUID: {3}", MapID, CellX, CellY, GUID)
                     Exit Sub
                 End Try
 
@@ -115,7 +116,7 @@ Namespace Objects
                 Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(FIELD_MASK_SIZE_DYNAMICOBJECT)
+                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_DYNAMICOBJECT)
                 FillAllUpdateFlags(tmpUpdate)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF, Me)
                 tmpUpdate.Dispose()
@@ -126,9 +127,9 @@ Namespace Objects
                             With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                 list = .PlayersHere.ToArray
                                 For Each plGUID As ULong In list
-                                    If CHARACTERs.ContainsKey(plGUID) AndAlso CHARACTERs(plGUID).CanSee(Me) Then
-                                        CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
-                                        CHARACTERs(plGUID).dynamicObjectsNear.Add(GUID)
+                                    If _WorldServer.CHARACTERs.ContainsKey(plGUID) AndAlso _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
+                                        _WorldServer.CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                        _WorldServer.CHARACTERs(plGUID).dynamicObjectsNear.Add(GUID)
                                         SeenBy.Add(plGUID)
                                     End If
                                 Next
@@ -146,12 +147,12 @@ Namespace Objects
 
                 'DONE: Remove the dynamic object from players that can see the object
                 For Each plGUID As ULong In SeenBy.ToArray
-                    If CHARACTERs(plGUID).dynamicObjectsNear.Contains(GUID) Then
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(DEFAULT_LOCK_TIMEOUT)
-                        CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
-                        CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
+                    If _WorldServer.CHARACTERs(plGUID).dynamicObjectsNear.Contains(GUID) Then
+                        _WorldServer.CHARACTERs(plGUID).guidsForRemoving_Lock.AcquireWriterLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
+                        _WorldServer.CHARACTERs(plGUID).guidsForRemoving.Add(GUID)
+                        _WorldServer.CHARACTERs(plGUID).guidsForRemoving_Lock.ReleaseWriterLock()
 
-                        CHARACTERs(plGUID).dynamicObjectsNear.Remove(GUID)
+                        _WorldServer.CHARACTERs(plGUID).dynamicObjectsNear.Remove(GUID)
                     End If
                 Next
             End Sub
