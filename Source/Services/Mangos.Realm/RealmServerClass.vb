@@ -7,7 +7,7 @@ Public Class RealmServerClass
 
     Public Sub New()
         Try
-            Dim tcpListener As TcpListener = New TcpListener(LstHost, RealmServiceLocator._RealmServer.Config.RealmServerPort)
+            Dim tcpListener As TcpListener = New TcpListener(LstHost, _RealmServer.Config.RealmServerPort)
             LstConnection = tcpListener
             LstConnection.Start()
 
@@ -18,7 +18,7 @@ Public Class RealmServerClass
             rsListenThread = thread
             rsListenThread.Start()
 
-            Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), LstHost, RealmServiceLocator._RealmServer.Config.RealmServerPort)
+            Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), LstHost, _RealmServer.Config.RealmServerPort)
         Catch e As Exception
             Console.WriteLine()
             Console.ForegroundColor = ConsoleColor.Red
@@ -46,7 +46,7 @@ Public Class RealmServerClass
 
     Public Property FlagStopListen As Boolean = False
     Public ReadOnly Property LstConnection As TcpListener
-    Public ReadOnly Property LstHost As IPAddress = IPAddress.Parse(RealmServiceLocator._RealmServer.Config.RealmServerAddress)
+    Public ReadOnly Property LstHost As IPAddress = IPAddress.Parse(_RealmServer.Config.RealmServerAddress)
 
     ' IDisposable
     'Default Functions
