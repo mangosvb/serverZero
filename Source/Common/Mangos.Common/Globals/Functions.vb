@@ -23,6 +23,12 @@ Imports Mangos.Common.Enums.Player
 
 Namespace Globals
     Public Class Functions
+        Private ReadOnly _Global_Constants As Global_Constants
+
+        Sub New(globalConstants As Global_Constants)
+            _Global_Constants = globalConstants
+        End Sub
+
         Public Function GuidIsCreature(ByVal guid As ULong) As Boolean
             If GuidHigh2(guid) = _Global_Constants.GUID_UNIT Then Return True
             Return False
