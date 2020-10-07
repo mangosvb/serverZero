@@ -36,7 +36,7 @@ Namespace Objects
 
             'DONE: Load Item Data from MySQL
             Dim MySQLQuery As New DataTable
-            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM creature_template WHERE entry = {0};", CreatureID), MySQLQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM creature_template LEFT JOIN creature_template_spells ON creature_template.entry = creature_template_spells.`entry` WHERE creature_template.entry = {0};", CreatureID), MySQLQuery)
 
             If MySQLQuery.Rows.Count = 0 Then
                 _WorldServer.Log.WriteLine(LogType.FAILED, "CreatureID {0} not found in SQL database.", CreatureID)
@@ -97,10 +97,10 @@ Namespace Objects
             Leader = MySQLQuery.Rows(0).Item("RacialLeader")
 
             ' TODO: Rewire these up
-            'Spells(0) = MySQLQuery.Rows(0).Item("spell1")
-            'Spells(1) = MySQLQuery.Rows(0).Item("spell2")
-            'Spells(2) = MySQLQuery.Rows(0).Item("spell3")
-            'Spells(3) = MySQLQuery.Rows(0).Item("spell4")
+            Spells(0) = MySQLQuery.Rows(0).Item("spell1")
+            Spells(1) = MySQLQuery.Rows(0).Item("spell2")
+            Spells(2) = MySQLQuery.Rows(0).Item("spell3")
+            Spells(3) = MySQLQuery.Rows(0).Item("spell4")
             PetSpellDataID = MySQLQuery.Rows(0).Item("PetSpellDataId")
 
             LootID = MySQLQuery.Rows(0).Item("LootId")
