@@ -7,6 +7,14 @@ Imports Mangos.Common.Enums.Misc
 Public NotInheritable Class ClientClass
     Implements IDisposable
 
+    Private ReadOnly _Global_Constants As Global_Constants
+    Private ReadOnly _RealmServer As RealmServer
+
+    Sub New(globalConstants As Global_Constants, realmServer As RealmServer)
+        _Global_Constants = globalConstants
+        _RealmServer = realmServer
+    End Sub
+
     Public Socket As Socket
     Public Ip As IPAddress = IPAddress.Parse("127.0.0.1")
     Public Port As Integer = 0
@@ -62,13 +70,13 @@ Public NotInheritable Class ClientClass
 
         'DONE: Connection spam protection
         Dim ipInt As UInteger
-        ipInt = RealmServiceLocator._RealmServer.Ip2Int(Ip.ToString)
+        ipInt = _RealmServer.Ip2Int(Ip.ToString)
 
-        If Not RealmServiceLocator._RealmServer.LastSocketConnection.ContainsKey(ipInt) Then
-            RealmServiceLocator._RealmServer.LastSocketConnection.Add(ipInt, Now.AddSeconds(5))
+        If Not _RealmServer.LastSocketConnection.ContainsKey(ipInt) Then
+            _RealmServer.LastSocketConnection.Add(ipInt, Now.AddSeconds(5))
         Else
-            If Now > RealmServiceLocator._RealmServer.LastSocketConnection(ipInt) Then
-                RealmServiceLocator._RealmServer.LastSocketConnection(ipInt) = Now.AddSeconds(5)
+            If Now > _RealmServer.LastSocketConnection(ipInt) Then
+                _RealmServer.LastSocketConnection(ipInt) = Now.AddSeconds(5)
             Else
                 Socket.Close()
                 Dispose()
@@ -80,9 +88,9 @@ Public NotInheritable Class ClientClass
         Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
         Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
         Console.ForegroundColor = ConsoleColor.Gray
-        If Not RealmServiceLocator._RealmServer.AccountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
+        If Not _RealmServer.AccountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
 
-            While Not RealmServiceLocator._RealmServer.RealmServer.FlagStopListen
+            While Not _RealmServer.RealmServer.FlagStopListen
                 Thread.Sleep(_Global_Constants.ConnectionSleepTime)
                 If Socket.Available > 0 Then
                     If Socket.Available > 100 Then 'DONE: Data flood protection
@@ -136,7 +144,9 @@ Public NotInheritable Class ClientClass
 
 #Region "IDisposable Support"
 
-    Private _disposedValue As Boolean ' To detect redundant calls
+    Private _disposedValue As Boolean
+
+    ' To detect redundant calls
 
     ' IDisposable
     Private Sub Dispose(ByVal disposing As Boolean)
