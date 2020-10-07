@@ -96,11 +96,30 @@ Namespace Objects
             Race = MySQLQuery.Rows(0).Item("TrainerRace")
             Leader = MySQLQuery.Rows(0).Item("RacialLeader")
 
-            ' TODO: Rewire these up
-            Spells(0) = MySQLQuery.Rows(0).Item("spell1")
-            Spells(1) = MySQLQuery.Rows(0).Item("spell2")
-            Spells(2) = MySQLQuery.Rows(0).Item("spell3")
-            Spells(3) = MySQLQuery.Rows(0).Item("spell4")
+            If (Not IsDBNull(MySQLQuery.Rows(0).Item("spell1"))) Then
+                Spells(0) = MySQLQuery.Rows(0).Item("spell1")
+            Else
+                Spells(0) = 0
+            End If
+
+            If (Not IsDBNull(MySQLQuery.Rows(0).Item("spell2"))) Then
+                Spells(1) = MySQLQuery.Rows(0).Item("spell2")
+            Else
+                Spells(1) = 0
+            End If
+
+            If (Not IsDBNull(MySQLQuery.Rows(0).Item("spell3"))) Then
+                Spells(2) = MySQLQuery.Rows(0).Item("spell3")
+            Else
+                Spells(2) = 0
+            End If
+
+            If (Not IsDBNull(MySQLQuery.Rows(0).Item("spell4"))) Then
+                Spells(3) = MySQLQuery.Rows(0).Item("spell4")
+            Else
+                Spells(3) = 0
+            End If
+
             PetSpellDataID = MySQLQuery.Rows(0).Item("PetSpellDataId")
 
             LootID = MySQLQuery.Rows(0).Item("LootId")
