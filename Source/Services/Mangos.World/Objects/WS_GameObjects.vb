@@ -78,7 +78,8 @@ Namespace Objects
                     Fields(i) = MySQLQuery.Rows(0).Item("data" & i)
                 Next
 
-                ScriptName = MySQLQuery.Rows(0).Item("ScriptName")
+                ' TODO: Need to load the scriptname of script_bindings
+                'ScriptName = MySQLQuery.Rows(0).Item("ScriptName")
             End Sub
 
 #Region "IDisposable Support"
@@ -368,7 +369,7 @@ Namespace Objects
                 'WARNING: Use only for loading from DB
                 If Info Is Nothing Then
                     Dim MySQLQuery As New DataTable
-                    _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM gameobjects LEFT OUTER JOIN game_event_gameobject ON gameobjects.guid = game_event_gameobject.guid WHERE gameobjects.guid = {0};", cGUID), MySQLQuery)
+                    _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid WHERE gameobject.guid = {0};", cGUID), MySQLQuery)
                     If MySQLQuery.Rows.Count > 0 Then
                         Info = MySQLQuery.Rows(0)
                     Else

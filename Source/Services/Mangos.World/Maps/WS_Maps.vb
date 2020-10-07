@@ -1032,7 +1032,7 @@ Namespace Maps
 
             'DONE: Gameobjects
             MysqlQuery.Clear()
-            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM gameobjects LEFT OUTER JOIN game_event_gameobject ON gameobjects.guid = game_event_gameobject.guid WHERE map={0} AND spawntimesecs>=0 AND position_X BETWEEN '{1}' AND '{2}' AND position_Y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
+            _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid WHERE map={0} AND spawntimesecs>=0 AND position_X BETWEEN '{1}' AND '{2}' AND position_Y BETWEEN '{3}' AND '{4}';", TileMap, MinX, MaxX, MinY, MaxY), MysqlQuery)
             For Each InfoRow As DataRow In MysqlQuery.Rows
                 If Not _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + _Global_Constants.GUID_GAMEOBJECT) AndAlso
                    Not _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + _Global_Constants.GUID_TRANSPORT) Then
