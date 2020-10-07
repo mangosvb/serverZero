@@ -473,7 +473,9 @@ Namespace Server
                     ' TODO: set large fields to null.
                     _WorldServer.Log.WriteLine(LogType.NETWORK, "Connection from [{0}:{1}] disposed", IP, Port)
 
-                    _WorldServer.ClsWorldServer.Cluster.ClientDrop(Index)
+                    If Not IsNothing(_WorldServer.ClsWorldServer.Cluster) Then
+                        _WorldServer.ClsWorldServer.Cluster.ClientDrop(Index)
+                    End If
                     _WorldServer.CLIENTs.Remove(Index)
                     If Not Character Is Nothing Then
                         Character.client = Nothing
