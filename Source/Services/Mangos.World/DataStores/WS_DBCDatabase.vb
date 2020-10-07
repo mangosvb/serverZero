@@ -600,7 +600,7 @@ Namespace DataStores
                 End Try
                 MySQLQuery = New DataTable
                 Try
-                    _WorldServer.WorldDatabase.Query(String.Format("SELECT MAX(guid) FROM spawns_creatures;"), MySQLQuery)
+                    _WorldServer.WorldDatabase.Query(String.Format("SELECT MAX(guid) FROM creature;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                         _WorldServer.CreatureGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_UNIT
                     Else
@@ -612,14 +612,14 @@ Namespace DataStores
 
                 MySQLQuery = New DataTable
                 Try
-                    _WorldServer.WorldDatabase.Query(String.Format("SELECT MAX(spawn_id) FROM spawns_gameobjects;"), MySQLQuery)
+                    _WorldServer.WorldDatabase.Query(String.Format("SELECT MAX(guid) FROM gameobject;"), MySQLQuery)
                     If Not MySQLQuery.Rows(0).Item(0) Is DBNull.Value Then
                         _WorldServer.GameObjectsGUIDCounter = MySQLQuery.Rows(0).Item(0) + _Global_Constants.GUID_GAMEOBJECT
                     Else
                         _WorldServer.GameObjectsGUIDCounter = 0 + _Global_Constants.GUID_GAMEOBJECT
                     End If
                 Catch ex As Exception
-                    _WorldServer.Log.WriteLine(LogType.FAILED, "World: Failed loading spawn_gameobjects....")
+                    _WorldServer.Log.WriteLine(LogType.FAILED, "World: Failed loading gameobjects....")
                 End Try
 
                 MySQLQuery = New DataTable

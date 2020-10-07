@@ -27,7 +27,7 @@ Namespace Global
         Public ReadOnly RevisionDbCharactersContent As Integer = 0
 
         Public ReadOnly RevisionDbMangosVersion As Integer = 21
-        Public ReadOnly RevisionDbMangosStructure As Integer = 2
+        Public ReadOnly RevisionDbMangosStructure As Integer = 4
         Public ReadOnly RevisionDbMangosContent As Integer = 1
 
         Public ReadOnly RevisionDbRealmVersion As Integer = 21

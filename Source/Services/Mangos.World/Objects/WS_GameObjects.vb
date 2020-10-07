@@ -368,7 +368,7 @@ Namespace Objects
                 'WARNING: Use only for loading from DB
                 If Info Is Nothing Then
                     Dim MySQLQuery As New DataTable
-                    _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM spawns_gameobjects LEFT OUTER JOIN game_event_gameobject ON spawns_gameobjects.spawn_id = game_event_gameobject.guid WHERE spawn_id = {0};", cGUID), MySQLQuery)
+                    _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM gameobjects LEFT OUTER JOIN game_event_gameobject ON gameobjects.guid = game_event_gameobject.guid WHERE gameobjects.guid = {0};", cGUID), MySQLQuery)
                     If MySQLQuery.Rows.Count > 0 Then
                         Info = MySQLQuery.Rows(0)
                     Else
@@ -377,27 +377,27 @@ Namespace Objects
                     End If
                 End If
 
-                positionX = Info.Item("spawn_positionX")
-                positionY = Info.Item("spawn_positionY")
-                positionZ = Info.Item("spawn_positionZ")
-                orientation = Info.Item("spawn_orientation")
-                MapID = Info.Item("spawn_map")
+                positionX = Info.Item("position_X")
+                positionY = Info.Item("position_Y")
+                positionZ = Info.Item("position_Z")
+                orientation = Info.Item("orientation")
+                MapID = Info.Item("map")
 
-                Rotations(0) = Info.Item("spawn_rotation0")
-                Rotations(1) = Info.Item("spawn_rotation1")
-                Rotations(2) = Info.Item("spawn_rotation2")
-                Rotations(3) = Info.Item("spawn_rotation3")
+                Rotations(0) = Info.Item("rotation0")
+                Rotations(1) = Info.Item("rotation1")
+                Rotations(2) = Info.Item("rotation2")
+                Rotations(3) = Info.Item("rotation3")
 
-                ID = Info.Item("spawn_entry")
-                AnimProgress = Info.Item("spawn_animprogress")
-                SpawnTime = Info.Item("spawn_spawntime")
-                State = Info.Item("spawn_state")
+                ID = Info.Item("id")
+                AnimProgress = Info.Item("animprogress")
+                SpawnTime = Info.Item("spawntimesecs")
+                State = Info.Item("state")
 
-                If Not Info.Item("event") Is DBNull.Value Then
-                    GameEvent = Info.Item("event")
-                Else
-                    GameEvent = 0
-                End If
+                'If Not Info.Item("event") Is DBNull.Value Then
+                '    GameEvent = Info.Item("event")
+                'Else
+                '    GameEvent = 0
+                'End If
 
                 If Not _WorldServer.GAMEOBJECTSDatabase.ContainsKey(ID) Then
                     Dim baseGameObject As New GameObjectInfo(ID)
