@@ -26,7 +26,7 @@ Imports Mangos.World.Server
 
 Namespace Globals
 
-    Public Module Packets
+    Public Class Packets
         ''' <summary>
         ''' Dumps the packet.
         ''' </summary>
@@ -179,7 +179,7 @@ Namespace Globals
 
                     packet.AddInt8(&H70)
                     packet.AddInt32(&H800000)  'movementflags
-                    packet.AddInt32(MsTime)
+                    packet.AddInt32(_WS_Network.MsTime)
                     packet.AddSingle(updateObject.positionX)
                     packet.AddSingle(updateObject.positionY)
                     packet.AddSingle(updateObject.positionZ)
@@ -245,7 +245,7 @@ Namespace Globals
 
                     packet.AddInt8(&H70)        'flags
                     packet.AddInt32(flags2)     'flags 2
-                    packet.AddInt32(MsTime)
+                    packet.AddInt32(_WS_Network.MsTime)
                     packet.AddSingle(updateObject.positionX)
                     packet.AddSingle(updateObject.positionY)
                     packet.AddSingle(updateObject.positionZ)
@@ -351,7 +351,7 @@ Namespace Globals
             ''' <param name="updateType">Type of the update.</param>
             ''' <param name="updateObject">The update object.</param>
             ''' <returns></returns>
-            Public Sub AddToPacket(ByRef packet As PacketClass, ByVal updateType As ObjectUpdateType, ByRef updateObject As GameObjectObject)
+            Public Sub AddToPacket(ByRef packet As PacketClass, ByVal updateType As ObjectUpdateType, ByRef updateObject As WS_GameObjects.GameObjectObject)
                 packet.AddInt8(updateType)
                 packet.AddPackGUID(updateObject.GUID)
 
@@ -386,7 +386,7 @@ Namespace Globals
                     packet.AddUInt32(_CommonGlobalFunctions.GuidHigh(updateObject.GUID))
 
                     If updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_TRANSPORT OrElse updateObject.Type = GameObjectType.GAMEOBJECT_TYPE_MO_TRANSPORT Then
-                        packet.AddInt32(MsTime)
+                        packet.AddInt32(_WS_Network.MsTime)
                     End If
                 End If
 
@@ -423,7 +423,7 @@ Namespace Globals
             ''' <param name="updateType">Type of the update.</param>
             ''' <param name="updateObject">The update object.</param>
             ''' <returns></returns>
-            Public Sub AddToPacket(ByRef packet As PacketClass, ByVal updateType As ObjectUpdateType, ByRef updateObject As DynamicObjectObject)
+            Public Sub AddToPacket(ByRef packet As PacketClass, ByVal updateType As ObjectUpdateType, ByRef updateObject As WS_DynamicObjects.DynamicObjectObject)
                 packet.AddInt8(updateType)
                 packet.AddPackGUID(updateObject.GUID)
 
@@ -471,7 +471,7 @@ Namespace Globals
             ''' <param name="updateType">Type of the update.</param>
             ''' <param name="updateObject">The update object.</param>
             ''' <returns></returns>
-            Public Sub AddToPacket(ByRef packet As PacketClass, ByVal updateType As ObjectUpdateType, ByRef updateObject As CorpseObject)
+            Public Sub AddToPacket(ByRef packet As PacketClass, ByVal updateType As ObjectUpdateType, ByRef updateObject As WS_Corpses.CorpseObject)
                 packet.AddInt8(updateType)
                 packet.AddPackGUID(updateObject.GUID)
 
@@ -888,7 +888,7 @@ Namespace Globals
                 End While
                 Offset = Offset + 1
 
-                Return EscapeString(Text.Encoding.UTF8.GetString(Data, start, i))
+                Return _Functions.EscapeString(Text.Encoding.UTF8.GetString(Data, start, i))
             End Function
 
             ''' <summary>
@@ -900,7 +900,7 @@ Namespace Globals
                 Dim start As Integer = Offset + 1
                 Offset += thisLength + 1
 
-                Return EscapeString(Text.Encoding.UTF8.GetString(Data, start, thisLength))
+                Return _Functions.EscapeString(Text.Encoding.UTF8.GetString(Data, start, thisLength))
             End Function
 
             ''' <summary>
@@ -1413,5 +1413,5 @@ Namespace Globals
         '        'End Sub
         '    End Class
 #End Region
-    End Module
-End NameSpace
+    End Class
+End Namespace

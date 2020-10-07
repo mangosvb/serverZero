@@ -26,7 +26,7 @@ Imports Mangos.World.Server
 
 Namespace Handlers
 
-    Public Module WS_Handlers_Battleground
+    Public Class WS_Handlers_Battleground
         Public Sub On_CMSG_BATTLEMASTER_HELLO(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
@@ -36,20 +36,20 @@ Namespace Handlers
 
             If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) = False Then Exit Sub
             If (_WorldServer.WORLD_CREATUREs(GUID).CreatureInfo.cNpcFlags And NPCFlags.UNIT_NPC_FLAG_BATTLEFIELDPERSON) = 0 Then Exit Sub
-            If Battlemasters.ContainsKey(_WorldServer.WORLD_CREATUREs(GUID).ID) = False Then Exit Sub
+            If _WS_DBCDatabase.Battlemasters.ContainsKey(_WorldServer.WORLD_CREATUREs(GUID).ID) = False Then Exit Sub
 
-            Dim BGType As Byte = Battlemasters(_WorldServer.WORLD_CREATUREs(GUID).ID)
-            If WS_DBCDatabase.Battlegrounds.ContainsKey(BGType) = False Then Exit Sub
+            Dim BGType As Byte = _WS_DBCDatabase.Battlemasters(_WorldServer.WORLD_CREATUREs(GUID).ID)
+            If _WS_DBCDatabase.Battlegrounds.ContainsKey(BGType) = False Then Exit Sub
 
-            If WS_DBCDatabase.Battlegrounds(BGType).MinLevel > client.Character.Level OrElse WS_DBCDatabase.Battlegrounds(BGType).MaxLevel < client.Character.Level Then
-                SendMessageNotification(Client, "You don't meet Battleground level requirements")
+            If _WS_DBCDatabase.Battlegrounds(BGType).MinLevel > client.Character.Level OrElse _WS_DBCDatabase.Battlegrounds(BGType).MaxLevel < client.Character.Level Then
+                _Functions.SendMessageNotification(client, "You don't meet Battleground level requirements")
                 Exit Sub
             End If
 
             'DONE: Send list
-            Dim response As New PacketClass(OPCODES.SMSG_BATTLEFIELD_LIST)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_BATTLEFIELD_LIST)
             Try
-                response.AddUInt64(Client.Character.GUID)
+                response.AddUInt64(client.Character.GUID)
                 response.AddInt32(BGType)
 
                 'If BGType = 6 Then          'Arenas
@@ -71,7 +71,7 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_MSG_BATTLEGROUND_PLAYER_POSITIONS(ByRef packet As PacketClass, ByRef client As ClientClass) 'Not finished yet.. long ways to go!
+        Public Sub On_MSG_BATTLEGROUND_PLAYER_POSITIONS(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass) 'Not finished yet.. long ways to go!
             packet.GetUInt32()
         End Sub
 
@@ -82,5 +82,5 @@ Namespace Handlers
         'CMSG_AREA_SPIRIT_HEALER_QUEUE
         'CMSG_REPORT_PVP_AFK
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

@@ -68,7 +68,7 @@ Namespace Creatures
             Phase = 0
         End Sub
 
-        Public Overrides Sub OnKill(ByRef Victim As BaseUnit)
+        Public Overrides Sub OnKill(ByRef Victim As WS_Base.BaseUnit)
             'This is only here for if something is needed when a target is killed, Golemagg doesn't have a yell.
         End Sub
 
@@ -106,7 +106,7 @@ Namespace Creatures
 
         Public Sub CastEarthQuake()
             For i As Integer = 0 To 2
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(EARTHQUAKE_SPELL, aiTarget)
@@ -118,7 +118,7 @@ Namespace Creatures
 
         Public Sub CastMagmaSplash()
             For i As Integer = 1 To 2
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(MAGMASPLASH_SPELL, aiTarget)
@@ -130,7 +130,7 @@ Namespace Creatures
 
         Public Sub CastPyroBlast()
             For i As Integer = 2 To 2
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(PYROBLAST_SPELL, aiTarget)

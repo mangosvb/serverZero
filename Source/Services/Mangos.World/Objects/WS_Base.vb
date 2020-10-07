@@ -28,7 +28,7 @@ Imports Mangos.World.Spells
 
 Namespace Objects
 
-    Public Module WS_Base
+    Public Class WS_Base
         Public Class BaseObject
             Public GUID As ULong = 0
             Public CellX As Byte = 0
@@ -84,7 +84,7 @@ Namespace Objects
                     packet.AddInt32(SoundID)
                     packet.AddUInt64(GUID)
                     If OnlyToSelf AndAlso (TypeOf Me Is WS_PlayerData.CharacterObject) Then
-                        CType(Me, CharacterObject).client.Send(packet)
+                        CType(Me, WS_PlayerData.CharacterObject).client.Send(packet)
                     Else
                         SendToNearPlayers(packet)
                     End If
@@ -93,8 +93,8 @@ Namespace Objects
                 End Try
             End Sub
 
-            Public Sub SendToNearPlayers(ByRef packet As PacketClass, Optional ByVal NotTo As ULong = 0, Optional ByVal ToSelf As Boolean = True)
-                If ToSelf AndAlso (TypeOf Me Is CharacterObject) AndAlso CType(Me, CharacterObject).client IsNot Nothing Then CType(Me, CharacterObject).client.SendMultiplyPackets(packet)
+            Public Sub SendToNearPlayers(ByRef packet As Packets.PacketClass, Optional ByVal NotTo As ULong = 0, Optional ByVal ToSelf As Boolean = True)
+                If ToSelf AndAlso (TypeOf Me Is WS_PlayerData.CharacterObject) AndAlso CType(Me, WS_PlayerData.CharacterObject).client IsNot Nothing Then CType(Me, WS_PlayerData.CharacterObject).client.SendMultiplyPackets(packet)
                 For Each objCharacter As ULong In SeenBy.ToArray
                     If objCharacter <> NotTo AndAlso _WorldServer.CHARACTERs.ContainsKey(objCharacter) AndAlso _WorldServer.CHARACTERs(objCharacter).client IsNot Nothing Then _WorldServer.CHARACTERs(objCharacter).client.SendMultiplyPackets(packet)
                 Next
@@ -106,7 +106,7 @@ Namespace Objects
 
             Public Const CombatReach_Base As Single = 2.0F
 
-            Public OnTransport As GameObjectObject = Nothing
+            Public OnTransport As WS_GameObjects.GameObjectObject = Nothing
             Public transportX As Single = 0.0F
             Public transportY As Single = 0.0F
             Public transportZ As Single = 0.0F
@@ -162,10 +162,10 @@ Namespace Objects
 
             Public ReadOnly Property UnitName() As String
                 Get
-                    If TypeOf Me Is CharacterObject Then
-                        Return CType(Me, CharacterObject).Name
-                    ElseIf TypeOf Me Is CreatureObject Then
-                        Return CType(Me, CreatureObject).Name
+                    If TypeOf Me Is WS_PlayerData.CharacterObject Then
+                        Return CType(Me, WS_PlayerData.CharacterObject).Name
+                    ElseIf TypeOf Me Is WS_Creatures.CreatureObject Then
+                        Return CType(Me, WS_Creatures.CreatureObject).Name
                     Else
                         Return ""
                     End If
@@ -203,10 +203,10 @@ Namespace Objects
             Public Level As Byte = 0
             Public Model As Integer = 0
             Public Mount As Integer = 0
-            Public Life As New TStatBar(1, 1, 0)
-            Public Mana As New TStatBar(1, 1, 0)
+            Public Life As New WS_PlayerHelper.TStatBar(1, 1, 0)
+            Public Mana As New WS_PlayerHelper.TStatBar(1, 1, 0)
             Public Size As Single = 1.0
-            Public Resistances(6) As TStat
+            Public Resistances(6) As WS_PlayerHelper.TStat
             Public SchoolImmunity As Byte = 0
             Public MechanicImmunity As UInteger = 0UI
             Public DispellImmunity As UInteger = 0UI
@@ -227,8 +227,8 @@ Namespace Objects
             Public Spell_ThreatModifier As Single = 1.0F
             Public AttackPowerMods As Integer = 0
             Public AttackPowerModsRanged As Integer = 0
-            Public dynamicObjects As New List(Of DynamicObjectObject)
-            Public gameObjects As New List(Of GameObjectObject)
+            Public dynamicObjects As New List(Of WS_DynamicObjects.DynamicObjectObject)
+            Public gameObjects As New List(Of WS_GameObjects.GameObjectObject)
 
             Public Overridable Sub Die(ByRef Attacker As BaseUnit)
                 _WorldServer.Log.WriteLine(LogType.WARNING, "BaseUnit can't die.")
@@ -254,9 +254,9 @@ Namespace Objects
 
             Public Overridable ReadOnly Property Exist() As Boolean
                 Get
-                    If TypeOf Me Is CharacterObject Then
+                    If TypeOf Me Is WS_PlayerData.CharacterObject Then
                         Return _WorldServer.CHARACTERs.ContainsKey(GUID)
-                    ElseIf TypeOf Me Is CreatureObject Then
+                    ElseIf TypeOf Me Is WS_Creatures.CreatureObject Then
                         Return _WorldServer.WORLD_CREATUREs.ContainsKey(GUID)
                     End If
                     Return False
@@ -283,7 +283,7 @@ Namespace Objects
 
             Public ReadOnly Property IsPlayer() As Boolean
                 Get
-                    Return (TypeOf Me Is CharacterObject)
+                    Return (TypeOf Me Is WS_PlayerData.CharacterObject)
                 End Get
             End Property
 
@@ -303,7 +303,7 @@ Namespace Objects
             Public Sub SetAura(ByVal SpellID As Integer, ByVal Slot As Integer, ByVal Duration As Integer, Optional ByVal SendUpdate As Boolean = True)
                 If ActiveSpells(Slot) Is Nothing Then Exit Sub
                 'DONE: Passive auras are not displayed
-                If SpellID AndAlso WS_Spells.SPELLs.ContainsKey(SpellID) AndAlso WS_Spells.SPELLs(SpellID).IsPassive Then Exit Sub
+                If SpellID AndAlso _WS_Spells.SPELLs.ContainsKey(SpellID) AndAlso _WS_Spells.SPELLs(SpellID).IsPassive Then Exit Sub
 
                 'DONE: Calculating slots
                 Dim AuraLevel_Slot As Integer = Slot \ 4
@@ -317,36 +317,36 @@ Namespace Objects
                 End If
 
                 Dim tmpLevel As Byte = 0
-                If SpellID Then tmpLevel = WS_Spells.SPELLs(SpellID).spellLevel
+                If SpellID Then tmpLevel = _WS_Spells.SPELLs(SpellID).spellLevel
                 SetAuraStackCount(Slot, 0)
                 SetAuraSlotLevel(Slot, tmpLevel)
 
                 'DONE: Sending updates
                 If SendUpdate Then
-                    If TypeOf Me Is CharacterObject Then
-                        CType(Me, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + Slot, SpellID)
-                        CType(Me, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + AuraFlag_Slot, ActiveSpells_Flags(AuraFlag_Slot))
-                        CType(Me, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraLevel_Slot, ActiveSpells_Count(AuraLevel_Slot))
-                        CType(Me, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + AuraLevel_Slot, ActiveSpells_Level(AuraLevel_Slot))
-                        CType(Me, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Me Is WS_PlayerData.CharacterObject Then
+                        CType(Me, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + Slot, SpellID)
+                        CType(Me, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + AuraFlag_Slot, ActiveSpells_Flags(AuraFlag_Slot))
+                        CType(Me, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraLevel_Slot, ActiveSpells_Count(AuraLevel_Slot))
+                        CType(Me, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + AuraLevel_Slot, ActiveSpells_Level(AuraLevel_Slot))
+                        CType(Me, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
 
-                        Dim SMSG_UPDATE_AURA_DURATION As New PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
+                        Dim SMSG_UPDATE_AURA_DURATION As New Packets.PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
                         Try
                             SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
                             SMSG_UPDATE_AURA_DURATION.AddInt32(Duration)
-                            CType(Me, CharacterObject).client.Send(SMSG_UPDATE_AURA_DURATION)
+                            CType(Me, WS_PlayerData.CharacterObject).client.Send(SMSG_UPDATE_AURA_DURATION)
                         Finally
                             SMSG_UPDATE_AURA_DURATION.Dispose()
                         End Try
                     Else
-                        Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                        Dim tmpPacket As New UpdatePacketClass
+                        Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                        Dim tmpPacket As New Packets.UpdatePacketClass
                         Try
                             tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURA + Slot, SpellID)
                             tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAFLAGS + AuraFlag_Slot, ActiveSpells_Flags(AuraFlag_Slot))
                             tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraLevel_Slot, ActiveSpells_Count(AuraLevel_Slot))
                             tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURALEVELS + AuraLevel_Slot, ActiveSpells_Level(AuraLevel_Slot))
-                            tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, CreatureObject))
+                            tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, WS_Creatures.CreatureObject))
                             SendToNearPlayers(tmpPacket)
                         Finally
                             tmpPacket.Dispose()
@@ -429,10 +429,10 @@ Namespace Objects
                         RemoveAura(i, ActiveSpells(i).SpellCaster)
 
                         'DONE: Removing additional spell auras (Mind Vision)
-                        If (TypeOf Me Is CharacterObject) AndAlso
-                           (CType(Me, CharacterObject).DuelArbiter <> 0) AndAlso (CType(Me, CharacterObject).DuelPartner Is Nothing) Then
-                            _WorldServer.WORLD_CREATUREs(CType(Me, CharacterObject).DuelArbiter).RemoveAuraBySpell(SpellID)
-                            CType(Me, CharacterObject).DuelArbiter = 0
+                        If (TypeOf Me Is WS_PlayerData.CharacterObject) AndAlso
+                           (CType(Me, WS_PlayerData.CharacterObject).DuelArbiter <> 0) AndAlso (CType(Me, WS_PlayerData.CharacterObject).DuelPartner Is Nothing) Then
+                            _WorldServer.WORLD_CREATUREs(CType(Me, WS_PlayerData.CharacterObject).DuelArbiter).RemoveAuraBySpell(SpellID)
+                            CType(Me, WS_PlayerData.CharacterObject).DuelArbiter = 0
                         End If
                         Exit Sub
                     End If
@@ -456,7 +456,7 @@ Namespace Objects
             Public Sub RemoveAurasByMechanic(ByVal Mechanic As Integer)
                 'DONE: Removing SpellAuras of a certain mechanic
                 For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
-                    If ActiveSpells(i) IsNot Nothing AndAlso WS_Spells.SPELLs(ActiveSpells(i).SpellID).Mechanic = Mechanic Then
+                    If ActiveSpells(i) IsNot Nothing AndAlso _WS_Spells.SPELLs(ActiveSpells(i).SpellID).Mechanic = Mechanic Then
                         RemoveAura(i, ActiveSpells(i).SpellCaster)
                     End If
                 Next
@@ -465,7 +465,7 @@ Namespace Objects
             Public Sub RemoveAurasByDispellType(ByVal DispellType As Integer, ByVal Amount As Integer)
                 'DONE: Removing SpellAuras of a certain dispelltype
                 For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
-                    If ActiveSpells(i) IsNot Nothing AndAlso WS_Spells.SPELLs(ActiveSpells(i).SpellID).DispellType = DispellType Then
+                    If ActiveSpells(i) IsNot Nothing AndAlso _WS_Spells.SPELLs(ActiveSpells(i).SpellID).DispellType = DispellType Then
                         RemoveAura(i, ActiveSpells(i).SpellCaster)
                         Amount -= 1
                         If Amount <= 0 Then Exit For
@@ -477,8 +477,8 @@ Namespace Objects
                 'DONE: Removing SpellAuras with a certain interruptflag
                 For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                     If ActiveSpells(i) IsNot Nothing Then
-                        If WS_Spells.SPELLs.ContainsKey(ActiveSpells(i).SpellID) AndAlso (WS_Spells.SPELLs(ActiveSpells(i).SpellID).auraInterruptFlags And AuraInterruptFlag) Then
-                            If (WS_Spells.SPELLs(ActiveSpells(i).SpellID).procFlags And SpellAuraProcFlags.AURA_PROC_REMOVEONUSE) = 0 Then
+                        If _WS_Spells.SPELLs.ContainsKey(ActiveSpells(i).SpellID) AndAlso (_WS_Spells.SPELLs(ActiveSpells(i).SpellID).auraInterruptFlags And AuraInterruptFlag) Then
+                            If (_WS_Spells.SPELLs(ActiveSpells(i).SpellID).procFlags And SpellAuraProcFlags.AURA_PROC_REMOVEONUSE) = 0 Then
                                 RemoveAura(i, ActiveSpells(i).SpellCaster)
                             End If
                         End If
@@ -486,14 +486,14 @@ Namespace Objects
                 Next
 
                 'DONE: Interrupt channeled spells
-                If TypeOf Me Is CharacterObject Then
-                    With CType(Me, CharacterObject)
+                If TypeOf Me Is WS_PlayerData.CharacterObject Then
+                    With CType(Me, WS_PlayerData.CharacterObject)
                         If .spellCasted(CurrentSpellTypes.CURRENT_CHANNELED_SPELL) IsNot Nothing AndAlso .spellCasted(CurrentSpellTypes.CURRENT_CHANNELED_SPELL).Finished = False AndAlso (.spellCasted(CurrentSpellTypes.CURRENT_CHANNELED_SPELL).SpellInfo.channelInterruptFlags And AuraInterruptFlag) <> 0 Then
                             .FinishSpell(CurrentSpellTypes.CURRENT_CHANNELED_SPELL)
                         End If
                     End With
-                ElseIf TypeOf Me Is CreatureObject Then
-                    With CType(Me, CreatureObject)
+                ElseIf TypeOf Me Is WS_Creatures.CreatureObject Then
+                    With CType(Me, WS_Creatures.CreatureObject)
                         If .SpellCasted IsNot Nothing AndAlso (.SpellCasted.SpellInfo.channelInterruptFlags And AuraInterruptFlag) <> 0 Then
                             .StopCasting()
                         End If
@@ -532,18 +532,18 @@ Namespace Objects
             Public Sub AddAura(ByVal SpellID As Integer, ByVal Duration As Integer, ByRef Caster As BaseUnit)
                 Dim AuraStart As Integer = 0
                 Dim AuraEnd As Integer = _Global_Constants.MAX_POSITIVE_AURA_EFFECTs - 1
-                If WS_Spells.SPELLs(SpellID).IsPassive Then
+                If _WS_Spells.SPELLs(SpellID).IsPassive Then
                     AuraStart = _Global_Constants.MAX_AURA_EFFECTs_VISIBLE
                     AuraEnd = _Global_Constants.MAX_AURA_EFFECTs
-                ElseIf WS_Spells.SPELLs(SpellID).IsNegative Then
+                ElseIf _WS_Spells.SPELLs(SpellID).IsNegative Then
                     AuraStart = _Global_Constants.MAX_POSITIVE_AURA_EFFECTs
                     AuraEnd = _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                 End If
 
                 'Try to remove spells that can't be used at the same time as this one
                 Try
-                    If Not WS_Spells.SPELLs(SpellID).IsPassive Then
-                        Dim SpellInfo As WS_Spells.SpellInfo = WS_Spells.SPELLs(SpellID)
+                    If Not _WS_Spells.SPELLs(SpellID).IsPassive Then
+                        Dim SpellInfo As WS_Spells.SpellInfo = _WS_Spells.SPELLs(SpellID)
                         For slot As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
                             If ActiveSpells(slot) IsNot Nothing AndAlso ActiveSpells(slot).GetSpellInfo.Target = SpellInfo.Target AndAlso
                                ActiveSpells(slot).GetSpellInfo.Category = SpellInfo.Category AndAlso ActiveSpells(slot).GetSpellInfo.SpellIconID = SpellInfo.SpellIconID AndAlso
@@ -569,10 +569,10 @@ Namespace Objects
                     End If
                 Next
 
-                If TypeOf Me Is CharacterObject Then
-                    CType(Me, CharacterObject).GroupUpdateFlag = CType(Me, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS
-                ElseIf (TypeOf Me Is PetObject) AndAlso (TypeOf CType(Me, PetObject).Owner Is CharacterObject) Then
-                    CType(CType(Me, PetObject).Owner, CharacterObject).GroupUpdateFlag = CType(CType(Me, PetObject).Owner, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS
+                If TypeOf Me Is WS_PlayerData.CharacterObject Then
+                    CType(Me, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Me, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS
+                ElseIf (TypeOf Me Is WS_Pets.PetObject) AndAlso (TypeOf CType(Me, WS_Pets.PetObject).Owner Is WS_PlayerData.CharacterObject) Then
+                    CType(CType(Me, WS_Pets.PetObject).Owner, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(CType(Me, WS_Pets.PetObject).Owner, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS
                 End If
             End Sub
 
@@ -584,24 +584,24 @@ Namespace Objects
                 Dim AuraFlag_SubSlot As Integer = (Slot Mod 4) * 8
                 SetAuraStackCount(Slot, ActiveSpells(Slot).StackCount)
 
-                If TypeOf Me Is CharacterObject Then
-                    CType(Me, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraFlag_Slot, ActiveSpells_Count(AuraFlag_Slot))
-                    CType(Me, CharacterObject).SendCharacterUpdate(True)
+                If TypeOf Me Is WS_PlayerData.CharacterObject Then
+                    CType(Me, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraFlag_Slot, ActiveSpells_Count(AuraFlag_Slot))
+                    CType(Me, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
 
-                    Dim SMSG_UPDATE_AURA_DURATION As New PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
+                    Dim SMSG_UPDATE_AURA_DURATION As New Packets.PacketClass(OPCODES.SMSG_UPDATE_AURA_DURATION)
                     Try
                         SMSG_UPDATE_AURA_DURATION.AddInt8(Slot)
                         SMSG_UPDATE_AURA_DURATION.AddInt32(ActiveSpells(Slot).SpellDuration)
-                        CType(Me, CharacterObject).client.Send(SMSG_UPDATE_AURA_DURATION)
+                        CType(Me, WS_PlayerData.CharacterObject).client.Send(SMSG_UPDATE_AURA_DURATION)
                     Finally
                         SMSG_UPDATE_AURA_DURATION.Dispose()
                     End Try
                 Else
-                    Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                    Dim tmpPacket As New UpdatePacketClass
+                    Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                    Dim tmpPacket As New Packets.UpdatePacketClass
                     Try
                         tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_AURAAPPLICATIONS + AuraFlag_Slot, ActiveSpells_Count(AuraFlag_Slot))
-                        tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, CreatureObject))
+                        tmpUpdate.AddToPacket(tmpPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Me, WS_Creatures.CreatureObject))
                         SendToNearPlayers(tmpPacket)
                     Finally
                         tmpPacket.Dispose()
@@ -611,7 +611,7 @@ Namespace Objects
             End Sub
 
             Public Sub DoEmote(ByVal EmoteID As Integer)
-                Dim packet As New PacketClass(OPCODES.SMSG_EMOTE)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_EMOTE)
                 Try
                     packet.AddInt32(EmoteID)
                     packet.AddUInt64(GUID)
@@ -621,7 +621,7 @@ Namespace Objects
                 End Try
             End Sub
 
-            Public Sub DealSpellDamage(ByRef Caster As BaseUnit, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal DamageType As DamageTypes, ByVal SpellType As SpellType)
+            Public Sub DealSpellDamage(ByRef Caster As BaseUnit, ByRef EffectInfo As WS_Spells.SpellEffect, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal DamageType As DamageTypes, ByVal SpellType As SpellType)
                 Dim IsHeal As Boolean = False
                 Dim IsDot As Boolean = False
 
@@ -642,33 +642,33 @@ Namespace Objects
                 'End If
 
                 Dim SpellDamageBenefit As Integer = 0
-                If TypeOf Caster Is CharacterObject Then
-                    With CType(Caster, CharacterObject)
+                If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                    With CType(Caster, WS_PlayerData.CharacterObject)
                         Dim PenaltyFactor As Integer = 0
                         Dim EffectCount As Integer = 0
                         For i As Integer = 0 To 2
-                            If WS_Spells.SPELLs(SpellID).SpellEffects(i) IsNot Nothing Then EffectCount += 1
+                            If _WS_Spells.SPELLs(SpellID).SpellEffects(i) IsNot Nothing Then EffectCount += 1
                         Next
                         If EffectCount > 1 Then PenaltyFactor = 5
 
                         Dim SpellDamage As Integer = 0
                         If IsHeal Then
-                            SpellDamage = CType(Caster, CharacterObject).healing.Value
+                            SpellDamage = CType(Caster, WS_PlayerData.CharacterObject).healing.Value
                         Else
-                            SpellDamage = CType(Caster, CharacterObject).spellDamage(DamageType).Value
+                            SpellDamage = CType(Caster, WS_PlayerData.CharacterObject).spellDamage(DamageType).Value
                         End If
 
                         If IsDot Then
-                            Dim TickAmount As Integer = WS_Spells.SPELLs(SpellID).GetDuration / EffectInfo.Amplitude
+                            Dim TickAmount As Integer = _WS_Spells.SPELLs(SpellID).GetDuration / EffectInfo.Amplitude
                             If TickAmount < 5 Then TickAmount = 5
                             SpellDamageBenefit = SpellDamage \ TickAmount
                         Else
-                            Dim CastTime As Integer = WS_Spells.SPELLs(SpellID).GetCastTime
+                            Dim CastTime As Integer = _WS_Spells.SPELLs(SpellID).GetCastTime
                             If CastTime < 1500 Then CastTime = 1500
                             If CastTime > 3500 Then CastTime = 3500
                             SpellDamageBenefit = Fix(SpellDamage * (CastTime / 1000.0F) * ((100 - PenaltyFactor) / 100) / 3.5F)
                         End If
-                        If WS_Spells.SPELLs(SpellID).IsAOE Then SpellDamageBenefit \= 3
+                        If _WS_Spells.SPELLs(SpellID).IsAOE Then SpellDamageBenefit \= 3
                     End With
                 End If
                 Damage += SpellDamageBenefit
@@ -676,9 +676,9 @@ Namespace Objects
                 'TODO: Crit
                 Dim IsCrit As Boolean = False
                 If Not IsDot Then
-                    If TypeOf Caster Is CharacterObject Then
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
                         'TODO: Get crit with only the same spell school
-                        If RollChance(CType(Caster, CharacterObject).GetCriticalWithSpells) Then
+                        If _Functions.RollChance(CType(Caster, WS_PlayerData.CharacterObject).GetCriticalWithSpells) Then
                             Damage = Fix(1.5F * Damage)
                             IsCrit = True
                         End If
@@ -712,20 +712,20 @@ Namespace Objects
                 'DONE: Send log
                 Select Case SpellType
                     Case SpellType.SPELL_TYPE_NONMELEE
-                        SendNonMeleeDamageLog(Caster, Me, SpellID, DamageType, Damage, Resist, Absorb, IsCrit)
+                        _WS_Spells.SendNonMeleeDamageLog(Caster, Me, SpellID, DamageType, Damage, Resist, Absorb, IsCrit)
                     Case SpellType.SPELL_TYPE_DOT
-                        SendPeriodicAuraLog(Caster, Me, SpellID, DamageType, Damage, EffectInfo.ApplyAuraIndex)
+                        _WS_Spells.SendPeriodicAuraLog(Caster, Me, SpellID, DamageType, Damage, EffectInfo.ApplyAuraIndex)
                     Case SpellType.SPELL_TYPE_HEAL
-                        SendHealSpellLog(Caster, Me, SpellID, Damage, IsCrit)
+                        _WS_Spells.SendHealSpellLog(Caster, Me, SpellID, Damage, IsCrit)
                     Case SpellType.SPELL_TYPE_HEALDOT
-                        SendPeriodicAuraLog(Caster, Me, SpellID, DamageType, Damage, EffectInfo.ApplyAuraIndex)
+                        _WS_Spells.SendPeriodicAuraLog(Caster, Me, SpellID, DamageType, Damage, EffectInfo.ApplyAuraIndex)
                 End Select
             End Sub
 
-            Public Function GetMagicSpellHitResult(ByRef Caster As BaseUnit, ByVal Spell As SpellInfo) As SpellMissInfo
+            Public Function GetMagicSpellHitResult(ByRef Caster As BaseUnit, ByVal Spell As WS_Spells.SpellInfo) As SpellMissInfo
                 If IsDead Then Return SpellMissInfo.SPELL_MISS_NONE 'Can't miss dead target
 
-                Dim lchance As Integer = If((TypeOf Me Is CharacterObject), 7, 11)
+                Dim lchance As Integer = If((TypeOf Me Is WS_PlayerData.CharacterObject), 7, 11)
                 Dim leveldiff As Integer = Level - CInt(Caster.Level)
                 Dim modHitChance As Integer = 0
                 If leveldiff < 3 Then
@@ -780,7 +780,7 @@ Namespace Objects
                 Return SpellMissInfo.SPELL_MISS_NONE
             End Function
 
-            Public Function GetMeleeSpellHitResult(ByRef Caster As BaseUnit, ByVal Spell As SpellInfo) As SpellMissInfo
+            Public Function GetMeleeSpellHitResult(ByRef Caster As BaseUnit, ByVal Spell As WS_Spells.SpellInfo) As SpellMissInfo
                 Dim attType As WeaponAttackType = WeaponAttackType.BASE_ATTACK
                 If Spell.DamageType = SpellDamageType.SPELL_DMG_TYPE_RANGED Then attType = WeaponAttackType.RANGED_ATTACK
 
@@ -819,10 +819,10 @@ Namespace Objects
             End Function
 
             Public Function GetDefenceSkill(ByRef Attacker As BaseUnit) As Integer
-                If TypeOf Me Is CharacterObject Then
+                If TypeOf Me Is WS_PlayerData.CharacterObject Then
                     Dim value As Integer = 0
 
-                    With CType(Me, CharacterObject)
+                    With CType(Me, WS_PlayerData.CharacterObject)
                         'in PvP use full skill instead current skill value
                         If Attacker.IsPlayer Then
                             value = .Skills(SKILL_IDs.SKILL_DEFENSE).MaximumWithBonus
@@ -838,10 +838,10 @@ Namespace Objects
             End Function
 
             Public Function GetWeaponSkill(ByVal attType As WeaponAttackType, ByRef Victim As BaseUnit) As Integer
-                If TypeOf Me Is CharacterObject Then
+                If TypeOf Me Is WS_PlayerData.CharacterObject Then
                     Dim value As Integer = 0
 
-                    With CType(Me, CharacterObject)
+                    With CType(Me, WS_PlayerData.CharacterObject)
                         Dim item As ItemObject = Nothing
                         Select Case attType
                             Case WeaponAttackType.BASE_ATTACK
@@ -943,7 +943,7 @@ Namespace Objects
 
                     _WorldServer.Log.WriteLine(LogType.DEBUG, "Spell: {0} [{1}]", AbsorbDamage, Schools)
 
-                    If HaveFlag(Schools, School) Then
+                    If _Functions.HaveFlag(Schools, School) Then
                         _WorldServer.Log.WriteLine(LogType.DEBUG, "Apmongo, yes?!")
                         If Damage = AbsorbDamage Then
                             ListChange.Add(tmpSpell.Key, 0)
@@ -984,7 +984,7 @@ Namespace Objects
 
             Public Sub New()
                 For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                    Resistances(i) = New TStat
+                    Resistances(i) = New WS_PlayerHelper.TStat
                 Next
             End Sub
         End Class
@@ -1000,18 +1000,18 @@ Namespace Objects
 
             Public Values() As Integer = {0, 0, 0}
 
-            Public Aura() As ApplyAuraHandler = {Nothing, Nothing, Nothing}
-            Public Aura_Info() As SpellEffect = {Nothing, Nothing, Nothing}
+            Public Aura() As WS_Spells.ApplyAuraHandler = {Nothing, Nothing, Nothing}
+            Public Aura_Info() As WS_Spells.SpellEffect = {Nothing, Nothing, Nothing}
 
             Public Sub New(ByVal ID As Integer, ByVal Duration As Integer)
                 SpellID = ID
                 SpellDuration = Duration
             End Sub
-            Public ReadOnly Property GetSpellInfo() As SpellInfo
+            Public ReadOnly Property GetSpellInfo() As WS_Spells.SpellInfo
                 Get
-                    Return WS_Spells.SPELLs(SpellID)
+                    Return _WS_Spells.SPELLs(SpellID)
                 End Get
             End Property
         End Class
-    End Module
-End NameSpace
+    End Class
+End Namespace

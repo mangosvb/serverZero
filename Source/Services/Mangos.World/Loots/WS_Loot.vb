@@ -34,7 +34,7 @@ Imports Mangos.World.Spells
 
 Namespace Loots
 
-    Public Module WS_Loot
+    Public Class WS_Loot
 
         Public LootTemplates_Creature As LootStore 'DONE!
         Public LootTemplates_Disenchant As LootStore
@@ -142,7 +142,7 @@ Namespace Loots
 
             Public Function Roll() As Boolean
                 If Chance >= 100.0F Then Return True
-                Return RollChance(Chance)
+                Return _Functions.RollChance(Chance)
             End Function
 
         End Class
@@ -200,14 +200,14 @@ Namespace Loots
             Public GroupLootInfo As New Dictionary(Of Integer, GroupLootInfo)(0)
 
             Public Sub New(ByVal GUID_ As ULong, ByVal LootType_ As LootType)
-                LootTable(GUID_) = Me
+                _WS_Loot.LootTable(GUID_) = Me
                 LootType = LootType_
                 GUID = GUID_
             End Sub
 
             Public Sub SendLoot(ByRef client As WS_Network.ClientClass)
                 If Items.Count = 0 Then
-                    SendEmptyLoot(GUID, LootType, client)
+                    _WS_Loot.SendEmptyLoot(GUID, LootType, client)
                     Exit Sub
                 End If
                 If LootOwner <> 0 AndAlso client.Character.GUID <> LootOwner Then
@@ -222,7 +222,7 @@ Namespace Loots
                     Exit Sub
                 End If
 
-                Dim response As New PacketClass(OPCODES.SMSG_LOOT_RESPONSE)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_LOOT_RESPONSE)
                 response.AddUInt64(GUID)
                 response.AddInt8(LootType)
                 response.AddInt32(Money)
@@ -268,7 +268,7 @@ Namespace Loots
 
                                     CType(GroupLootInfo(i), GroupLootInfo).Item = Items(i)
 
-                                    StartRoll(GUID, i, client.Character)
+                                    _WS_Loot.StartRoll(GUID, i, client.Character)
                                     Exit Sub
                                 End If
                             End If
@@ -278,10 +278,10 @@ Namespace Loots
                 End If
             End Sub
 
-            Public Sub GetLoot(ByRef client As ClientClass, ByVal Slot As Byte)
+            Public Sub GetLoot(ByRef client As WS_Network.ClientClass, ByVal Slot As Byte)
                 Try
                     If Items(Slot) Is Nothing Then
-                        Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                        Dim response As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                         response.AddInt8(InventoryChangeFailure.EQUIP_ERR_ALREADY_LOOTED)
                         response.AddUInt64(0)
                         response.AddUInt64(0)
@@ -291,7 +291,7 @@ Namespace Loots
                         Exit Sub
                     End If
                     If GroupLootInfo.ContainsKey(Slot) Then
-                        Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                        Dim response As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                         response.AddInt8(InventoryChangeFailure.EQUIP_ERR_OBJECT_IS_BUSY)
                         response.AddUInt64(0)
                         response.AddUInt64(0)
@@ -311,7 +311,7 @@ Namespace Loots
 
                         'TODO: If other players is looting the same object remove it for them as well.
 
-                        Dim response As New PacketClass(OPCODES.SMSG_LOOT_REMOVED)
+                        Dim response As New Packets.PacketClass(OPCODES.SMSG_LOOT_REMOVED)
                         response.AddInt8(Slot)
                         client.Send(response)
                         response.Dispose()
@@ -328,7 +328,7 @@ Namespace Loots
                     Else
                         tmpItem.Delete()
 
-                        Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                        Dim response As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                         response.AddInt8(InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL)
                         response.AddUInt64(0)
                         response.AddUInt64(0)
@@ -341,8 +341,8 @@ Namespace Loots
                 End Try
             End Sub
 
-            Public Sub SendRelease(ByRef client As ClientClass)
-                Dim responseRelease As New PacketClass(OPCODES.SMSG_LOOT_RELEASE_RESPONSE)
+            Public Sub SendRelease(ByRef client As WS_Network.ClientClass)
+                Dim responseRelease As New Packets.PacketClass(OPCODES.SMSG_LOOT_RELEASE_RESPONSE)
                 responseRelease.AddUInt64(GUID)
                 responseRelease.AddInt8(1)
                 client.Send(responseRelease)
@@ -368,7 +368,7 @@ Namespace Loots
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    LootTable.Remove(GUID)
+                    _WS_Loot.LootTable.Remove(GUID)
                     _WorldServer.Log.WriteLine(LogType.DEBUG, "Loot destroyed.")
                 End If
                 _disposedValue = True
@@ -414,7 +414,7 @@ Namespace Loots
                     If Items(i).Roll = False Then Continue For 'Bad luck
 
                     If Items(i).MinCountOrRef < 0 Then 'Loot Template ID
-                        Dim Referenced As LootTemplate = LootTemplates_Reference.GetLoot(-Items(i).MinCountOrRef)
+                        Dim Referenced As LootTemplate = _WS_Loot.LootTemplates_Reference.GetLoot(-Items(i).MinCountOrRef)
                         If Referenced Is Nothing Then Continue For
 
                         For j As Integer = 1 To Items(i).MaxCount
@@ -487,7 +487,7 @@ Namespace Loots
 
             Public Item As LootItem
             Public Rolls As New List(Of WS_PlayerData.CharacterObject)
-            Public Looters As New Dictionary(Of CharacterObject, Integer)(5)
+            Public Looters As New Dictionary(Of WS_PlayerData.CharacterObject, Integer)(5)
 
             Public RollTimeoutTimer As Timer = Nothing
 
@@ -495,13 +495,13 @@ Namespace Loots
                 If Looters.Count = Rolls.Count Then
                     'DONE: End loot
                     Dim maxRollType As Byte = 0
-                    For Each looter As KeyValuePair(Of CharacterObject, Integer) In Looters
+                    For Each looter As KeyValuePair(Of WS_PlayerData.CharacterObject, Integer) In Looters
                         If looter.Value = 1 Then maxRollType = 1
                         If looter.Value = 2 AndAlso maxRollType <> 1 Then maxRollType = 2
                     Next
                     If maxRollType = 0 Then
                         LootObject.GroupLootInfo.Remove(LootSlot)
-                        Dim response As New PacketClass(OPCODES.SMSG_LOOT_ALL_PASSED)
+                        Dim response As New Packets.PacketClass(OPCODES.SMSG_LOOT_ALL_PASSED)
                         response.AddUInt64(LootObject.GUID)
                         response.AddInt32(LootSlot)
                         response.AddInt32(Item.ItemID)
@@ -513,8 +513,8 @@ Namespace Loots
                     End If
 
                     Dim maxRoll As Integer = -1
-                    Dim looterCharacter As CharacterObject = Nothing
-                    For Each looter As KeyValuePair(Of CharacterObject, Integer) In Looters
+                    Dim looterCharacter As WS_PlayerData.CharacterObject = Nothing
+                    For Each looter As KeyValuePair(Of WS_PlayerData.CharacterObject, Integer) In Looters
                         If looter.Value = maxRollType Then
                             Dim rollValue As Byte = _WorldServer.Rnd.Next(0, 100)
 
@@ -523,7 +523,7 @@ Namespace Loots
                                 looterCharacter = looter.Key
                             End If
 
-                            Dim response As New PacketClass(OPCODES.SMSG_LOOT_ROLL)
+                            Dim response As New Packets.PacketClass(OPCODES.SMSG_LOOT_ROLL)
                             response.AddUInt64(LootObject.GUID)
                             response.AddInt32(LootSlot)
                             response.AddUInt64(looter.Key.GUID)
@@ -541,7 +541,7 @@ Namespace Loots
                             .StackCount = Item.ItemCount
                             }
 
-                    Dim wonItem As New PacketClass(OPCODES.SMSG_LOOT_ROLL_WON)
+                    Dim wonItem As New Packets.PacketClass(OPCODES.SMSG_LOOT_ROLL_WON)
                     wonItem.AddUInt64(LootObject.GUID)
                     wonItem.AddInt32(LootSlot)
                     wonItem.AddInt32(Item.ItemID)
@@ -563,18 +563,18 @@ Namespace Loots
                     End If
                 End If
             End Sub
-            Public Sub Broadcast(ByRef packet As PacketClass)
-                For Each objCharacter As CharacterObject In Rolls
+            Public Sub Broadcast(ByRef packet As Packets.PacketClass)
+                For Each objCharacter As WS_PlayerData.CharacterObject In Rolls
                     objCharacter.client.SendMultiplyPackets(packet)
                 Next
             End Sub
             Public Sub EndRoll(ByVal state As Object)
-                For Each objCharacter As CharacterObject In Rolls
+                For Each objCharacter As WS_PlayerData.CharacterObject In Rolls
                     If Not Looters.ContainsKey(objCharacter) Then
                         Looters(objCharacter) = 0
 
                         'DONE: Send roll info
-                        Dim response As New PacketClass(OPCODES.SMSG_LOOT_ROLL)
+                        Dim response As New Packets.PacketClass(OPCODES.SMSG_LOOT_ROLL)
                         response.AddUInt64(LootObject.GUID)
                         response.AddInt32(LootSlot)
                         response.AddUInt64(objCharacter.GUID)
@@ -595,7 +595,7 @@ Namespace Loots
 #End Region
 
 #Region "Handlers"
-        Public Sub On_CMSG_AUTOSTORE_LOOT_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUTOSTORE_LOOT_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             Try
                 packet.GetInt16()
@@ -605,7 +605,7 @@ Namespace Loots
                 If LootTable.ContainsKey(client.Character.lootGUID) Then
                     LootTable(client.Character.lootGUID).GetLoot(client, slot)
                 Else
-                    Dim response As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                     response.AddInt8(InventoryChangeFailure.EQUIP_ERR_ALREADY_LOOTED)
                     response.AddUInt64(0)
                     response.AddUInt64(0)
@@ -617,20 +617,20 @@ Namespace Loots
                 _WorldServer.Log.WriteLine(LogType.DEBUG, "Error looting item.{0}", Environment.NewLine & e.ToString)
             End Try
         End Sub
-        Public Sub On_CMSG_LOOT_MONEY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LOOT_MONEY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_LOOT_MONEY", client.IP, client.Port)
 
             If Not LootTable.ContainsKey(client.Character.lootGUID) Then Exit Sub
 
             If client.Character.IsInGroup Then
                 'DONE: Party share
-                Dim members As List(Of BaseUnit) = GetPartyMembersAroundMe(client.Character, 100)
+                Dim members As List(Of WS_Base.BaseUnit) = _WS_Spells.GetPartyMembersAroundMe(client.Character, 100)
                 Dim copper As Integer = (LootTable(client.Character.lootGUID).Money \ members.Count) + 1
                 CType(LootTable(client.Character.lootGUID), LootObject).Money = 0
 
-                Dim sharePcket As New PacketClass(OPCODES.SMSG_LOOT_MONEY_NOTIFY)
+                Dim sharePcket As New Packets.PacketClass(OPCODES.SMSG_LOOT_MONEY_NOTIFY)
                 sharePcket.AddInt32(copper)
-                For Each character As CharacterObject In members
+                For Each character As WS_PlayerData.CharacterObject In members
                     character.client.SendMultiplyPackets(sharePcket)
 
                     character.Copper += copper
@@ -647,7 +647,7 @@ Namespace Loots
                 client.Character.Copper += copper
                 CType(LootTable(client.Character.lootGUID), LootObject).Money = 0
 
-                Dim lootPacket As New PacketClass(OPCODES.SMSG_LOOT_MONEY_NOTIFY)
+                Dim lootPacket As New Packets.PacketClass(OPCODES.SMSG_LOOT_MONEY_NOTIFY)
                 lootPacket.AddInt32(copper)
                 client.Send(lootPacket)
                 lootPacket.Dispose()
@@ -657,12 +657,12 @@ Namespace Loots
             client.Character.SaveCharacter()
 
             'TODO: Send to party loooters
-            Dim response2 As New PacketClass(OPCODES.SMSG_LOOT_CLEAR_MONEY)
+            Dim response2 As New Packets.PacketClass(OPCODES.SMSG_LOOT_CLEAR_MONEY)
             client.SendMultiplyPackets(response2)
             'Client.Character.SendToNearPlayers(response2)
             response2.Dispose()
         End Sub
-        Public Sub On_CMSG_LOOT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LOOT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -679,7 +679,7 @@ Namespace Loots
                 SendEmptyLoot(GUID, LootType.LOOTTYPE_CORPSE, client)
             End If
         End Sub
-        Public Sub On_CMSG_LOOT_RELEASE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LOOT_RELEASE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -715,10 +715,10 @@ Namespace Loots
 
                             _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags = 0
 
-                            Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim response As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             response.AddInt32(1)
                             response.AddInt8(0)
-                            Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                            Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                             UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags)
                             UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags)
                             UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
@@ -752,10 +752,10 @@ Namespace Loots
                             Else
                                 _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags = DynamicFlags.UNIT_DYNFLAG_LOOTABLE
 
-                                Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                                Dim response As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                 response.AddInt32(1)
                                 response.AddInt8(0)
-                                Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                                Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags)
                                 UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
                                 _WorldServer.WORLD_CREATUREs(GUID).SendToNearPlayers(response)
@@ -771,10 +771,10 @@ Namespace Loots
                         Else
                             _WorldServer.WORLD_GAMEOBJECTs(GUID).State = GameObjectLootState.LOOT_UNLOOTED
 
-                            Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim response As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             response.AddInt32(1)
                             response.AddInt8(0)
-                            Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                            Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                             UpdateData.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_STATE, 0, _WorldServer.WORLD_GAMEOBJECTs(GUID).State)
                             UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_GAMEOBJECTs(GUID))
 
@@ -793,7 +793,7 @@ Namespace Loots
 
                 End If
             Else
-                Dim responseRelease As New PacketClass(OPCODES.SMSG_LOOT_RELEASE_RESPONSE)
+                Dim responseRelease As New Packets.PacketClass(OPCODES.SMSG_LOOT_RELEASE_RESPONSE)
                 responseRelease.AddUInt64(GUID)
                 responseRelease.AddInt8(1)
                 client.Send(responseRelease)
@@ -807,10 +807,10 @@ Namespace Loots
 
                     _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags = 0
 
-                    Dim response As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     response.AddInt32(1)
                     response.AddInt8(0)
-                    Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                    Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cDynamicFlags)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, _WorldServer.WORLD_CREATUREs(GUID).cUnitFlags)
                     UpdateData.AddToPacket(response, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
@@ -823,8 +823,8 @@ Namespace Loots
             client.Character.lootGUID = 0
         End Sub
 
-        Public Sub SendEmptyLoot(ByVal GUID As ULong, ByVal LootType As LootType, ByRef client As ClientClass)
-            Dim response As New PacketClass(OPCODES.SMSG_LOOT_RESPONSE)
+        Public Sub SendEmptyLoot(ByVal GUID As ULong, ByVal LootType As LootType, ByRef client As WS_Network.ClientClass)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_LOOT_RESPONSE)
             response.AddUInt64(GUID)
             response.AddInt8(LootType)
             response.AddInt32(0)
@@ -836,8 +836,8 @@ Namespace Loots
 #End If
         End Sub
 
-        Public Sub StartRoll(ByVal LootGUID As ULong, ByVal Slot As Byte, ByRef Character As CharacterObject)
-            Dim rollCharacters As New List(Of CharacterObject) From {
+        Public Sub StartRoll(ByVal LootGUID As ULong, ByVal Slot As Byte, ByRef Character As WS_PlayerData.CharacterObject)
+            Dim rollCharacters As New List(Of WS_PlayerData.CharacterObject) From {
                     Character
                     }
 
@@ -845,7 +845,7 @@ Namespace Loots
                 If Character.playersNear.Contains(GUID) Then rollCharacters.Add(_WorldServer.CHARACTERs(GUID))
             Next
 
-            Dim startRoll As New PacketClass(OPCODES.SMSG_LOOT_START_ROLL)
+            Dim startRoll As New Packets.PacketClass(OPCODES.SMSG_LOOT_START_ROLL)
             startRoll.AddUInt64(LootGUID)
             startRoll.AddInt32(Slot)
 
@@ -854,7 +854,7 @@ Namespace Loots
             startRoll.AddInt32(0)
             startRoll.AddInt32(60000)
 
-            For Each objCharacter As CharacterObject In rollCharacters
+            For Each objCharacter As WS_PlayerData.CharacterObject In rollCharacters
                 objCharacter.client.SendMultiplyPackets(startRoll)
             Next
             startRoll.Dispose()
@@ -862,7 +862,7 @@ Namespace Loots
             CType(LootTable(LootGUID).GroupLootInfo(Slot), GroupLootInfo).Rolls = rollCharacters
             CType(LootTable(LootGUID).GroupLootInfo(Slot), GroupLootInfo).RollTimeoutTimer = New Timer(AddressOf LootTable(LootGUID).GroupLootInfo(Slot).EndRoll, 0, 60000, Timeout.Infinite)
         End Sub
-        Public Sub On_CMSG_LOOT_ROLL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LOOT_ROLL(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 18 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -876,7 +876,7 @@ Namespace Loots
             '2 - Greed
 
             'DONE: Send roll info
-            Dim response As New PacketClass(OPCODES.SMSG_LOOT_ROLL)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_LOOT_ROLL)
             response.AddUInt64(GUID)
             response.AddInt32(Slot)
             response.AddUInt64(client.Character.GUID)
@@ -906,5 +906,5 @@ Namespace Loots
         End Sub
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

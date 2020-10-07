@@ -82,12 +82,12 @@ Namespace Handlers
         Public Class Battlefield
             Implements IDisposable
 
-            Private ReadOnly _queueTeam1 As New List(Of CharacterObject)
-            Private ReadOnly _queueTeam2 As New List(Of CharacterObject)
-            Private ReadOnly _invitedTeam1 As New List(Of CharacterObject)
-            Private ReadOnly _invitedTeam2 As New List(Of CharacterObject)
-            Private ReadOnly _membersTeam1 As New List(Of CharacterObject)
-            Private ReadOnly _membersTeam2 As New List(Of CharacterObject)
+            Private ReadOnly _queueTeam1 As New List(Of WcHandlerCharacter.CharacterObject)
+            Private ReadOnly _queueTeam2 As New List(Of WcHandlerCharacter.CharacterObject)
+            Private ReadOnly _invitedTeam1 As New List(Of WcHandlerCharacter.CharacterObject)
+            Private ReadOnly _invitedTeam2 As New List(Of WcHandlerCharacter.CharacterObject)
+            Private ReadOnly _membersTeam1 As New List(Of WcHandlerCharacter.CharacterObject)
+            Private ReadOnly _membersTeam2 As New List(Of WcHandlerCharacter.CharacterObject)
 
             Public ReadOnly ID As Integer
             Private ReadOnly _map As UInteger
@@ -149,13 +149,13 @@ Namespace Handlers
 
                 'DONE: Adding members from queue
                 If (_membersTeam1.Count + _invitedTeam1.Count) < _maxPlayersPerTeam AndAlso _queueTeam1.Count > 0 Then
-                    Dim objCharacter As CharacterObject = _queueTeam1.Item(0)
+                    Dim objCharacter As WcHandlerCharacter.CharacterObject = _queueTeam1.Item(0)
                     _queueTeam1.RemoveAt(0)
                     _invitedTeam1.Add(objCharacter)
                     SendBattlegroundStatus(objCharacter, 0)
                 End If
                 If (_membersTeam2.Count + _invitedTeam2.Count) < _maxPlayersPerTeam AndAlso _queueTeam2.Count > 0 Then
-                    Dim objCharacter As CharacterObject = _queueTeam2.Item(0)
+                    Dim objCharacter As WcHandlerCharacter.CharacterObject = _queueTeam2.Item(0)
                     _queueTeam2.RemoveAt(0)
                     _invitedTeam2.Add(objCharacter)
                     SendBattlegroundStatus(objCharacter, 0)
@@ -169,7 +169,7 @@ Namespace Handlers
             ''' </summary>
             ''' <param name="objCharacter">The obj char.</param>
             ''' <returns></returns>
-            Public Sub Enqueue(ByVal objCharacter As CharacterObject)
+            Public Sub Enqueue(ByVal objCharacter As WcHandlerCharacter.CharacterObject)
                 If _Functions.GetCharacterSide(objCharacter.Race) Then
                     _queueTeam1.Add(objCharacter)
                 Else
@@ -184,7 +184,7 @@ Namespace Handlers
             ''' </summary>
             ''' <param name="objCharacter">The obj char.</param>
             ''' <returns></returns>
-            Public Sub Join(ByVal objCharacter As CharacterObject)
+            Public Sub Join(ByVal objCharacter As WcHandlerCharacter.CharacterObject)
                 If _invitedTeam1.Contains(objCharacter) OrElse _invitedTeam2.Contains(objCharacter) Then
                     If _invitedTeam1.Contains(objCharacter) Then
                         _membersTeam1.Add(objCharacter)
@@ -216,7 +216,7 @@ Namespace Handlers
             ''' </summary>
             ''' <param name="objCharacter">The obj char.</param>
             ''' <returns></returns>
-            Public Sub Leave(ByVal objCharacter As CharacterObject)
+            Public Sub Leave(ByVal objCharacter As WcHandlerCharacter.CharacterObject)
                 If _queueTeam1.Contains(objCharacter) OrElse _queueTeam2.Contains(objCharacter) Then
                     _queueTeam1.Remove(objCharacter)
                     _queueTeam2.Remove(objCharacter)
@@ -244,7 +244,7 @@ Namespace Handlers
             ''' <param name="objCharacter">The obj char.</param>
             ''' <param name="slot">The slot.</param>
             ''' <returns></returns>
-            Private Sub SendBattlegroundStatus(ByVal objCharacter As CharacterObject, ByVal slot As Byte)
+            Private Sub SendBattlegroundStatus(ByVal objCharacter As WcHandlerCharacter.CharacterObject, ByVal slot As Byte)
                 Dim status As BattlegroundStatus = BattlegroundStatus.STATUS_CLEAR
                 If _queueTeam1.Contains(objCharacter) Or _queueTeam2.Contains(objCharacter) Then
                     status = BattlegroundStatus.STATUS_WAIT_QUEUE
@@ -363,7 +363,7 @@ Namespace Handlers
         ''' </summary>
         ''' <param name="objCharacter">The objCharacter.</param>
         ''' <returns></returns>
-        Public Sub SendBattlegroundGroupJoined(ByVal objCharacter As CharacterObject)
+        Public Sub SendBattlegroundGroupJoined(ByVal objCharacter As WcHandlerCharacter.CharacterObject)
             '0 - Your group has joined a battleground queue, but you are not eligible
             '1 - Your group has joined the queue for AV
             '2 - Your group has joined the queue for WS

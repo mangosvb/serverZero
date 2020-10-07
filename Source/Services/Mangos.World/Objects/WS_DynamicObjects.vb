@@ -28,21 +28,21 @@ Imports Mangos.World.Spells
 
 Namespace Objects
 
-    Public Module WS_DynamicObjects
+    Public Class WS_DynamicObjects
         Private Function GetNewGUID() As ULong
             _WorldServer.DynamicObjectsGUIDCounter += 1
             GetNewGUID = _WorldServer.DynamicObjectsGUIDCounter
         End Function
 
         Public Class DynamicObjectObject
-            Inherits BaseObject
+            Inherits WS_Base.BaseObject
             Implements IDisposable
 
             Public SpellID As Integer = 0
             Public Effects As New List(Of WS_Spells.SpellEffect)
             Public Duration As Integer = 0
             Public Radius As Single = 0
-            Public Caster As BaseUnit
+            Public Caster As WS_Base.BaseUnit
             Public CastTime As Integer = 0
             Public Bytes As Integer = 1
 
@@ -67,8 +67,8 @@ Namespace Objects
             End Sub
 #End Region
 
-            Public Sub New(ByRef Caster_ As BaseUnit, ByVal SpellID_ As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Duration_ As Integer, ByVal Radius_ As Single)
-                GUID = GetNewGUID()
+            Public Sub New(ByRef Caster_ As WS_Base.BaseUnit, ByVal SpellID_ As Integer, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Duration_ As Integer, ByVal Radius_ As Single)
+                GUID = _WS_DynamicObjects.GetNewGUID()
                 _WorldServer.WORLD_DYNAMICOBJECTs.Add(GUID, Me)
 
                 Caster = Caster_
@@ -102,10 +102,10 @@ Namespace Objects
             End Sub
 
             Public Sub AddToWorld()
-                GetMapTile(positionX, positionY, CellX, CellY)
-                If WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then MAP_Load(CellX, CellY, MapID)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) Is Nothing Then _WS_CharMovement.MAP_Load(CellX, CellY, MapID)
                 Try
-                    WS_Maps.Maps(MapID).Tiles(CellX, CellY).DynamicObjectsHere.Add(GUID)
+                    _WS_Maps.Maps(MapID).Tiles(CellX, CellY).DynamicObjectsHere.Add(GUID)
                 Catch
                     _WorldServer.Log.WriteLine(LogType.WARNING, "AddToWorld failed MapId: {0} Tile XY: {1} {2} GUID: {3}", MapID, CellX, CellY, GUID)
                     Exit Sub
@@ -113,22 +113,22 @@ Namespace Objects
 
                 Dim list() As ULong
                 'DONE: Sending to players in nearby cells
-                Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 packet.AddInt32(1)
                 packet.AddInt8(0)
-                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_DYNAMICOBJECT)
+                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_DYNAMICOBJECT)
                 FillAllUpdateFlags(tmpUpdate)
                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF, Me)
                 tmpUpdate.Dispose()
 
                 For i As Short = -1 To 1
                     For j As Short = -1 To 1
-                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
-                            With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
+                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
+                            With _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                 list = .PlayersHere.ToArray
                                 For Each plGUID As ULong In list
                                     If _WorldServer.CHARACTERs.ContainsKey(plGUID) AndAlso _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
-                                        _WorldServer.CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                        _WorldServer.CHARACTERs(plGUID).client.SendMultiplyPackets(packet)
                                         _WorldServer.CHARACTERs(plGUID).dynamicObjectsNear.Add(GUID)
                                         SeenBy.Add(plGUID)
                                     End If
@@ -142,8 +142,8 @@ Namespace Objects
 
             End Sub
             Public Sub RemoveFromWorld()
-                GetMapTile(positionX, positionY, CellX, CellY)
-                WS_Maps.Maps(MapID).Tiles(CellX, CellY).DynamicObjectsHere.Remove(GUID)
+                _WS_Maps.GetMapTile(positionX, positionY, CellX, CellY)
+                _WS_Maps.Maps(MapID).Tiles(CellX, CellY).DynamicObjectsHere.Remove(GUID)
 
                 'DONE: Remove the dynamic object from players that can see the object
                 For Each plGUID As ULong In SeenBy.ToArray
@@ -157,11 +157,11 @@ Namespace Objects
                 Next
             End Sub
 
-            Public Sub AddEffect(ByVal EffectInfo As SpellEffect)
+            Public Sub AddEffect(ByVal EffectInfo As WS_Spells.SpellEffect)
                 Effects.Add(EffectInfo)
             End Sub
 
-            Public Sub RemoveEffect(ByVal EffectInfo As SpellEffect)
+            Public Sub RemoveEffect(ByVal EffectInfo As WS_Spells.SpellEffect)
                 Effects.Remove(EffectInfo)
             End Sub
 
@@ -174,22 +174,22 @@ Namespace Objects
                 'DONE: Tick down
                 Dim DeleteThis As Boolean = False
                 If Duration > WS_TimerBasedEvents.TSpellManager.UPDATE_TIMER Then
-                    Duration -= TSpellManager.UPDATE_TIMER
+                    Duration -= WS_TimerBasedEvents.TSpellManager.UPDATE_TIMER
                 Else
                     DeleteThis = True
                 End If
 
                 'DONE: Do the spell
-                For Each Effect As SpellEffect In Effects
+                For Each Effect As WS_Spells.SpellEffect In Effects
                     If Effect.GetRadius = 0 Then
-                        If Effect.Amplitude = 0 OrElse ((WS_Spells.SPELLs(SpellID).GetDuration - Duration) Mod Effect.Amplitude) = 0 Then
-                            AURAs(Effect.ApplyAuraIndex).Invoke(Caster, Me, Effect, SpellID, 1, AuraAction.AURA_UPDATE)
+                        If Effect.Amplitude = 0 OrElse ((_WS_Spells.SPELLs(SpellID).GetDuration - Duration) Mod Effect.Amplitude) = 0 Then
+                            _WS_Spells.AURAs(Effect.ApplyAuraIndex).Invoke(Caster, Me, Effect, SpellID, 1, AuraAction.AURA_UPDATE)
                         End If
                     Else
-                        Dim Targets As List(Of BaseUnit) = GetEnemyAtPoint(Caster, positionX, positionY, positionZ, Effect.GetRadius)
-                        For Each Target As BaseUnit In Targets
-                            If Effect.Amplitude = 0 OrElse ((WS_Spells.SPELLs(SpellID).GetDuration - Duration) Mod Effect.Amplitude) = 0 Then
-                                AURAs(Effect.ApplyAuraIndex).Invoke(Target, Me, Effect, SpellID, 1, AuraAction.AURA_UPDATE)
+                        Dim Targets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetEnemyAtPoint(Caster, positionX, positionY, positionZ, Effect.GetRadius)
+                        For Each Target As WS_Base.BaseUnit In Targets
+                            If Effect.Amplitude = 0 OrElse ((_WS_Spells.SPELLs(SpellID).GetDuration - Duration) Mod Effect.Amplitude) = 0 Then
+                                _WS_Spells.AURAs(Effect.ApplyAuraIndex).Invoke(Target, Me, Effect, SpellID, 1, AuraAction.AURA_UPDATE)
                             End If
                         Next
                     End If
@@ -208,7 +208,7 @@ Namespace Objects
                 AddToWorld()
 
                 'DONE: Send spawn animation
-                Dim packet As New PacketClass(OPCODES.SMSG_GAMEOBJECT_SPAWN_ANIM)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_SPAWN_ANIM)
                 packet.AddUInt64(GUID)
                 SendToNearPlayers(packet)
                 packet.Dispose()
@@ -219,7 +219,7 @@ Namespace Objects
                 If Caster IsNot Nothing AndAlso Caster.dynamicObjects.Contains(Me) Then Caster.dynamicObjects.Remove(Me)
 
                 'DONE: Send despawn animation
-                Dim packet As New PacketClass(OPCODES.SMSG_GAMEOBJECT_DESPAWN_ANIM)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_DESPAWN_ANIM)
                 packet.AddUInt64(GUID)
                 SendToNearPlayers(packet)
                 packet.Dispose()
@@ -228,5 +228,5 @@ Namespace Objects
                 Dispose()
             End Sub
         End Class
-    End Module
-End NameSpace
+    End Class
+End Namespace

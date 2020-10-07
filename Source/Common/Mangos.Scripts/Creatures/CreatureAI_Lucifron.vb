@@ -64,7 +64,7 @@ Namespace Creatures
             Phase = 0
         End Sub
 
-        Public Overrides Sub OnKill(ByRef Victim As BaseUnit)
+        Public Overrides Sub OnKill(ByRef Victim As WS_Base.BaseUnit)
             'Does he cast a dummy spell on target death?
         End Sub
 
@@ -106,7 +106,7 @@ Namespace Creatures
 
         Public Sub Cast_Lucirons_Curse()
             For i As Integer = 0 To 2
-                Dim theTarget As BaseUnit = aiCreature
+                Dim theTarget As WS_Base.BaseUnit = aiCreature
                 If theTarget Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(Lucifrons_Curse, aiTarget)
@@ -118,7 +118,7 @@ Namespace Creatures
 
         Public Sub Cast_Impending_Doom()
             For i As Integer = 1 To 2
-                Dim theTarget As BaseUnit = aiCreature
+                Dim theTarget As WS_Base.BaseUnit = aiCreature
                 If theTarget Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(Impending_Doom, aiTarget)
@@ -130,7 +130,7 @@ Namespace Creatures
 
         Public Sub Cast_Shadow_Shock()
             For i As Integer = 2 To 2
-                Dim theTarget As BaseUnit = aiCreature.GetRandomTarget
+                Dim theTarget As WS_Base.BaseUnit = aiCreature.GetRandomTarget
                 If theTarget Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(Shadow_Shock, theTarget.positionX, theTarget.positionY, theTarget.positionZ)

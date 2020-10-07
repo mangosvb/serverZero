@@ -40,7 +40,7 @@ Imports Mangos.World.Spells
 
 Namespace Objects
 
-    Public Module WS_NPCs
+    Public Class WS_NPCs
         Private Const DbcBankBagSlotsMax As Integer = 12
         Private ReadOnly DbcBankBagSlotPrices(DbcBankBagSlotsMax) As Integer
 
@@ -68,7 +68,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_TRAINER_BUY_SPELL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TRAINER_BUY_SPELL(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim cGuid As ULong
@@ -84,8 +84,8 @@ Namespace Objects
             If mySqlQuery.Rows.Count = 0 Then Exit Sub
 
             Dim spellInfo As WS_Spells.SpellInfo
-            spellInfo = WS_Spells.SPELLs(spellID)
-            If spellInfo.SpellEffects(0) IsNot Nothing AndAlso spellInfo.SpellEffects(0).TriggerSpell > 0 Then spellInfo = WS_Spells.SPELLs(spellInfo.SpellEffects(0).TriggerSpell)
+            spellInfo = _WS_Spells.SPELLs(spellID)
+            If spellInfo.SpellEffects(0) IsNot Nothing AndAlso spellInfo.SpellEffects(0).TriggerSpell > 0 Then spellInfo = _WS_Spells.SPELLs(spellInfo.SpellEffects(0).TriggerSpell)
 
             'DONE: Check requirements
             Dim reqLevel As Byte
@@ -95,8 +95,8 @@ Namespace Objects
             spellCost = mySqlQuery.Rows(0).Item("spellcost")
             Dim reqSpell As Integer
             reqSpell = 0
-            If SpellChains.ContainsKey(spellInfo.ID) Then
-                reqSpell = SpellChains(spellInfo.ID)
+            If _WS_Spells.SpellChains.ContainsKey(spellInfo.ID) Then
+                reqSpell = _WS_Spells.SpellChains(spellInfo.ID)
             End If
 
             If client.Character.HaveSpell(spellInfo.ID) Then Exit Sub
@@ -113,17 +113,17 @@ Namespace Objects
                 client.Character.SendCharacterUpdate(False)
 
                 'DONE: Cast the spell
-                Dim spellTargets As New SpellTargets
+                Dim spellTargets As New WS_Spells.SpellTargets
                 spellTargets.SetTarget_UNIT(client.Character)
 
-                Dim tmpCaster As BaseUnit
+                Dim tmpCaster As WS_Base.BaseUnit
                 If spellInfo.SpellVisual = 222 Then
                     tmpCaster = client.Character
                 Else
                     tmpCaster = _WorldServer.WORLD_CREATUREs(cGuid)
                 End If
 
-                Dim castParams As New CastSpellParameters(spellTargets, tmpCaster, spellID, True)
+                Dim castParams As New WS_Spells.CastSpellParameters(spellTargets, tmpCaster, spellID, True)
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
 
                 _WorldServer.WORLD_CREATUREs(cGuid).MoveToInstant(_WorldServer.WORLD_CREATUREs(cGuid).positionX, _WorldServer.WORLD_CREATUREs(cGuid).positionY, _WorldServer.WORLD_CREATUREs(cGuid).positionZ, _WorldServer.WORLD_CREATUREs(cGuid).SpawnO)
@@ -140,8 +140,8 @@ Namespace Objects
             End Try
 
             'DONE: Send response
-            Dim response As PacketClass
-            response = New PacketClass(OPCODES.SMSG_TRAINER_BUY_SUCCEEDED)
+            Dim response As Packets.PacketClass
+            response = New Packets.PacketClass(OPCODES.SMSG_TRAINER_BUY_SUCCEEDED)
             Try
                 response.AddUInt64(cGuid)
                 response.AddInt32(spellID)
@@ -178,7 +178,7 @@ Namespace Objects
             End If
 
             'DONE: Build the packet
-            Dim packet As New PacketClass(OPCODES.SMSG_TRAINER_LIST)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_TRAINER_LIST)
 
             packet.AddUInt64(cGuid)
             packet.AddInt32(creatureInfo.TrainerType)
@@ -190,13 +190,13 @@ Namespace Objects
             Dim spellID As Integer
             For Each sellRow As DataRow In spellsList
                 spellID = sellRow.Item("spell")
-                If WS_Spells.SPELLs.ContainsKey(spellID) = False Then Continue For
-                Dim spellInfo As SpellInfo = WS_Spells.SPELLs(spellID)
-                If spellInfo.SpellEffects(0) IsNot Nothing AndAlso spellInfo.SpellEffects(0).TriggerSpell > 0 Then spellInfo = WS_Spells.SPELLs(spellInfo.SpellEffects(0).TriggerSpell)
+                If _WS_Spells.SPELLs.ContainsKey(spellID) = False Then Continue For
+                Dim spellInfo As WS_Spells.SpellInfo = _WS_Spells.SPELLs(spellID)
+                If spellInfo.SpellEffects(0) IsNot Nothing AndAlso spellInfo.SpellEffects(0).TriggerSpell > 0 Then spellInfo = _WS_Spells.SPELLs(spellInfo.SpellEffects(0).TriggerSpell)
 
                 Dim reqSpell As Integer = 0
-                If SpellChains.ContainsKey(spellInfo.ID) Then
-                    reqSpell = SpellChains(spellInfo.ID)
+                If _WS_Spells.SpellChains.ContainsKey(spellInfo.ID) Then
+                    reqSpell = _WS_Spells.SpellChains(spellInfo.ID)
                 End If
 
                 Dim spellLevel As Byte = sellRow.Item("reqlevel")
@@ -259,7 +259,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_LIST_INVENTORY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LIST_INVENTORY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong
@@ -278,7 +278,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_SELL_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SELL_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 22 Then Exit Sub
             packet.GetInt16()
             Dim vendorGuid As ULong
@@ -290,7 +290,7 @@ Namespace Objects
 
             Try
                 If itemGuid = 0 OrElse _WorldServer.WORLD_ITEMs.ContainsKey(itemGuid) = False Then
-                    Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                    Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
                         okPckt.AddUInt64(itemGuid)
@@ -303,7 +303,7 @@ Namespace Objects
                 End If
                 'DONE: You can't sell someone else's items
                 If _WorldServer.WORLD_ITEMs(itemGuid).OwnerGUID <> client.Character.GUID Then
-                    Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                    Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
                         okPckt.AddUInt64(itemGuid)
@@ -315,7 +315,7 @@ Namespace Objects
                     Exit Sub
                 End If
                 If Not _WorldServer.WORLD_CREATUREs.ContainsKey(vendorGuid) Then
-                    Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                    Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
                         okPckt.AddUInt64(itemGuid)
@@ -328,7 +328,7 @@ Namespace Objects
                 End If
                 'DONE: Can't sell quest items
                 If (_WorldServer.ITEMDatabase(_WorldServer.WORLD_ITEMs(itemGuid).ItemEntry).SellPrice = 0) Or (_WorldServer.ITEMDatabase(_WorldServer.WORLD_ITEMs(itemGuid).ItemEntry).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST) Then
-                    Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                    Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_SELL_ITEM)
                     Try
                         okPckt.AddUInt64(vendorGuid)
                         okPckt.AddUInt64(itemGuid)
@@ -342,7 +342,7 @@ Namespace Objects
                 'DONE: Can't cheat and sell items that are located in the buyback
                 For i As Byte = BuyBackSlots.BUYBACK_SLOT_START To BuyBackSlots.BUYBACK_SLOT_END - 1
                     If client.Character.Items.ContainsKey(i) AndAlso client.Character.Items(i).GUID = itemGuid Then
-                        Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                        Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_SELL_ITEM)
                         okPckt.AddUInt64(vendorGuid)
                         okPckt.AddUInt64(itemGuid)
                         okPckt.AddInt8(SELL_ERROR.SELL_ERR_CANT_FIND_ITEM)
@@ -355,7 +355,7 @@ Namespace Objects
                 If count < 1 Then count = _WorldServer.WORLD_ITEMs(itemGuid).StackCount
                 If _WorldServer.WORLD_ITEMs(itemGuid).StackCount > count Then
                     _WorldServer.WORLD_ITEMs(itemGuid).StackCount -= count
-                    Dim tmpItem As ItemObject = LoadItemByGUID(itemGuid) 'Lets create a new stack to place in the buyback
+                    Dim tmpItem As ItemObject = _WS_Items.LoadItemByGUID(itemGuid) 'Lets create a new stack to place in the buyback
                     _WorldServer.itemGuidCounter += 1 'Get a new GUID for our new stack
                     tmpItem.GUID = _WorldServer.itemGuidCounter
                     tmpItem.StackCount = count
@@ -379,7 +379,7 @@ Namespace Objects
                             client.Character.ItemREMOVE(item.Value.GUID, False, True)
                             client.Character.ItemADD_BuyBack(item.Value)
 
-                            Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                            Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_SELL_ITEM)
                             okPckt.AddUInt64(vendorGuid)
                             okPckt.AddUInt64(itemGuid)
                             okPckt.AddInt8(0)
@@ -399,7 +399,7 @@ Namespace Objects
                                     client.Character.ItemREMOVE(item.Value.GUID, False, True)
                                     client.Character.ItemADD_BuyBack(item.Value)
 
-                                    Dim okPckt As New PacketClass(OPCODES.SMSG_SELL_ITEM)
+                                    Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_SELL_ITEM)
                                     okPckt.AddUInt64(vendorGuid)
                                     okPckt.AddUInt64(itemGuid)
                                     okPckt.AddInt8(0)
@@ -423,7 +423,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_BUY_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BUY_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 19 Then Exit Sub
             packet.GetInt16()
             Dim vendorGuid As ULong = packet.GetUInt64
@@ -442,7 +442,7 @@ Namespace Objects
 
             'DONE: Can't buy quest items
             If _WorldServer.ITEMDatabase(itemID).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST Then
-                Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
                     errorPckt.AddUInt64(vendorGuid)
                     errorPckt.AddInt32(itemID)
@@ -461,7 +461,7 @@ Namespace Objects
             Dim discountMod As Single = client.Character.GetDiscountMod(_WorldServer.WORLD_CREATUREs(vendorGuid).Faction)
             itemPrice = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
             If client.Character.Copper < (itemPrice * count) Then
-                Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
                     errorPckt.AddUInt64(vendorGuid)
                     errorPckt.AddInt32(itemID)
@@ -489,7 +489,7 @@ Namespace Objects
                 client.Character.Copper += itemPrice
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
             Else
-                Dim okPckt As New PacketClass(OPCODES.SMSG_BUY_ITEM)
+                Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_ITEM)
                 okPckt.AddUInt64(vendorGuid)
                 okPckt.AddInt32(itemID)
                 okPckt.AddInt32(count)
@@ -504,7 +504,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_BUY_ITEM_IN_SLOT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BUY_ITEM_IN_SLOT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 27 Then Exit Sub
             packet.GetInt16()
             Dim vendorGuid As ULong = packet.GetUInt64
@@ -521,7 +521,7 @@ Namespace Objects
 
             'DONE: Can't buy quest items
             If _WorldServer.ITEMDatabase(itemID).ObjectClass = ITEM_CLASS.ITEM_CLASS_QUEST Then
-                Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 errorPckt.AddUInt64(vendorGuid)
                 errorPckt.AddInt32(itemID)
                 errorPckt.AddInt8(BUY_ERROR.BUY_ERR_SELLER_DONT_LIKE_YOU)
@@ -537,7 +537,7 @@ Namespace Objects
             itemPrice = _WorldServer.ITEMDatabase(itemID).BuyPrice * discountMod
 
             If client.Character.Copper < (itemPrice * count) Then
-                Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 errorPckt.AddUInt64(vendorGuid)
                 errorPckt.AddInt32(itemID)
                 errorPckt.AddInt8(BUY_ERROR.BUY_ERR_NOT_ENOUGHT_MONEY)
@@ -553,7 +553,7 @@ Namespace Objects
                 'Store in inventory
                 bag = 0
                 If client.Character.Items.ContainsKey(slot) Then
-                    Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                    Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                     errorPckt.AddUInt64(vendorGuid)
                     errorPckt.AddInt32(itemID)
                     errorPckt.AddInt8(BUY_ERROR.BUY_ERR_CANT_CARRY_MORE)
@@ -571,7 +571,7 @@ Namespace Objects
                     End If
                 Next
                 If bag = 0 Then
-                    Dim okPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                    Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                     okPckt.AddUInt64(vendorGuid)
                     okPckt.AddInt32(itemID)
                     okPckt.AddInt8(BUY_ERROR.BUY_ERR_CANT_FIND_ITEM)
@@ -580,7 +580,7 @@ Namespace Objects
                     Exit Sub
                 End If
                 If client.Character.Items(bag).Items.ContainsKey(slot) Then
-                    Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                    Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                     errorPckt.AddUInt64(vendorGuid)
                     errorPckt.AddInt32(itemID)
                     errorPckt.AddInt8(BUY_ERROR.BUY_ERR_CANT_CARRY_MORE)
@@ -597,7 +597,7 @@ Namespace Objects
             errCode = client.Character.ItemCANEQUIP(tmpItem, bag, slot)
             If errCode <> InventoryChangeFailure.EQUIP_ERR_OK Then
                 If errCode <> InventoryChangeFailure.EQUIP_ERR_YOU_MUST_REACH_LEVEL_N Then
-                    Dim errorPckt As New PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
+                    Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_INVENTORY_CHANGE_FAILURE)
                     errorPckt.AddInt8(errCode)
                     errorPckt.AddUInt64(0)
                     errorPckt.AddUInt64(0)
@@ -616,7 +616,7 @@ Namespace Objects
                     client.Character.Copper += itemPrice
                     client.Character.SetUpdateFlag(EPlayerFields.PLAYER_FIELD_COINAGE, client.Character.Copper)
                 Else
-                    Dim okPckt As New PacketClass(OPCODES.SMSG_BUY_ITEM)
+                    Dim okPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_ITEM)
                     okPckt.AddUInt64(vendorGuid)
                     okPckt.AddInt32(itemID)
                     okPckt.AddInt32(count)
@@ -633,7 +633,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_BUYBACK_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BUYBACK_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim vendorGuid As ULong = packet.GetUInt64
@@ -642,7 +642,7 @@ Namespace Objects
 
             'TODO: If item is not located in your buyback you can't buy it back (this checking below doesn't work)
             If slot < BuyBackSlots.BUYBACK_SLOT_START OrElse slot >= BuyBackSlots.BUYBACK_SLOT_END OrElse client.Character.Items.ContainsKey(slot) = False Then
-                Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
                     errorPckt.AddUInt64(vendorGuid)
                     errorPckt.AddInt32(0)
@@ -656,7 +656,7 @@ Namespace Objects
             'DONE: Check if you can afford it
             Dim tmpItem As ItemObject = client.Character.Items(slot)
             If client.Character.Copper < (tmpItem.ItemInfo.SellPrice * tmpItem.StackCount) Then
-                Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
                     errorPckt.AddUInt64(vendorGuid)
                     errorPckt.AddInt32(tmpItem.ItemEntry)
@@ -680,7 +680,7 @@ Namespace Objects
 
                 client.Character.SendCharacterUpdate()
             Else
-                SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL, 0, 0)
+                _WS_Items.SendInventoryChangeFailure(client.Character, InventoryChangeFailure.EQUIP_ERR_INVENTORY_FULL, 0, 0)
                 client.Character.ItemSETSLOT(tmpItem, 0, slot)
             End If
         End Sub
@@ -691,7 +691,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_REPAIR_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_REPAIR_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 21 Then Exit Sub
             packet.GetInt16()
             Dim vendorGuid As ULong = packet.GetUInt64
@@ -737,9 +737,9 @@ Namespace Objects
         ''' <param name="objCharacter">The obj char.</param>
         ''' <param name="guid">The GUID.</param>
         ''' <returns></returns>
-        Private Sub SendListInventory(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
+        Private Sub SendListInventory(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal guid As ULong)
             Try
-                Dim packet As New PacketClass(OPCODES.SMSG_LIST_INVENTORY)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_LIST_INVENTORY)
                 packet.AddUInt64(guid)
 
                 Dim mySqlQuery As New DataTable
@@ -753,7 +753,7 @@ Namespace Objects
                     itemID = sellRow.Item("item")
                     'DONE: You will now only see items for your class
                     If _WorldServer.ITEMDatabase.ContainsKey(itemID) = False Then
-                        Dim tmpItem As New ItemInfo(itemID)
+                        Dim tmpItem As New WS_Items.ItemInfo(itemID)
                         'The New does a an add to the .Containskey collection above
                     End If
 
@@ -794,7 +794,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_AUTOBANK_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUTOBANK_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 7 Then Exit Sub
             packet.GetInt16()
             Dim srcBag As Byte = packet.GetInt8
@@ -833,7 +833,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_AUTOSTORE_BANK_ITEM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AUTOSTORE_BANK_ITEM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 7 Then Exit Sub
             packet.GetInt16()
             Dim srcBag As Byte = packet.GetInt8
@@ -872,7 +872,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_BUY_BANK_SLOT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BUY_BANK_SLOT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BUY_BANK_SLOT", client.IP, client.Port)
 
             If client.Character.Items_AvailableBankSlots < DbcBankBagSlotsMax AndAlso
@@ -886,7 +886,7 @@ Namespace Objects
                 client.Character.SetUpdateFlag(EPlayerFields.PLAYER_BYTES_2, client.Character.cPlayerBytes2)
                 client.Character.SendCharacterUpdate(False)
             Else
-                Dim errorPckt As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim errorPckt As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 Try
                     errorPckt.AddUInt64(0)
                     errorPckt.AddInt32(0)
@@ -904,7 +904,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_BANKER_ACTIVATE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BANKER_ACTIVATE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -920,8 +920,8 @@ Namespace Objects
         ''' <param name="objCharacter">The objCharacter.</param>
         ''' <param name="guid">The GUID.</param>
         ''' <returns></returns>
-        Private Sub SendShowBank(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
-            Dim packet As New PacketClass(OPCODES.SMSG_SHOW_BANK)
+        Private Sub SendShowBank(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal guid As ULong)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_SHOW_BANK)
             Try
                 packet.AddUInt64(guid)
                 objCharacter.client.Send(packet)
@@ -938,10 +938,10 @@ Namespace Objects
         ''' <param name="objCharacter">The obj char.</param>
         ''' <param name="guid">The GUID.</param>
         ''' <returns></returns>
-        Private Sub SendBindPointConfirm(ByRef objCharacter As CharacterObject, ByVal guid As ULong)
+        Private Sub SendBindPointConfirm(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal guid As ULong)
             objCharacter.SendGossipComplete()
             objCharacter.ZoneCheck()
-            Dim packet As New PacketClass(OPCODES.SMSG_BINDER_CONFIRM)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_BINDER_CONFIRM)
             Try
                 packet.AddUInt64(guid)
                 packet.AddInt32(objCharacter.ZoneID)
@@ -957,7 +957,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_CMSG_BINDER_ACTIVATE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BINDER_ACTIVATE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -968,9 +968,9 @@ Namespace Objects
 
             client.Character.SendGossipComplete()
 
-            Dim spellTargets As New SpellTargets
+            Dim spellTargets As New WS_Spells.SpellTargets
             spellTargets.SetTarget_UNIT(client.Character)
-            Dim castParams As New CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), 3286, True)
+            Dim castParams As New WS_Spells.CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), 3286, True)
             ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
         End Sub
 
@@ -980,8 +980,8 @@ Namespace Objects
         ''' <param name="objCharacter">The obj char.</param>
         ''' <param name="cost">The cost.</param>
         ''' <returns></returns>
-        Private Sub SendTalentWipeConfirm(ByRef objCharacter As CharacterObject, ByVal cost As Integer)
-            Dim packet As New PacketClass(OPCODES.MSG_TALENT_WIPE_CONFIRM)
+        Private Sub SendTalentWipeConfirm(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cost As Integer)
+            Dim packet As New Packets.PacketClass(OPCODES.MSG_TALENT_WIPE_CONFIRM)
             Try
                 packet.AddUInt64(objCharacter.GUID)
                 packet.AddInt32(cost)
@@ -997,7 +997,7 @@ Namespace Objects
         ''' <param name="packet">The packet.</param>
         ''' <param name="client">The client.</param>
         ''' <returns></returns>
-        Public Sub On_MSG_TALENT_WIPE_CONFIRM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_TALENT_WIPE_CONFIRM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 packet.GetInt16()
                 Dim guid As ULong = packet.GetPackGuid
@@ -1006,7 +1006,7 @@ Namespace Objects
                 If client.Character.Level < 10 Then Exit Sub
 
                 'DONE: Removing all talents
-                For Each talentInfo As KeyValuePair(Of Integer, WS_DBCDatabase.TalentInfo) In Talents
+                For Each talentInfo As KeyValuePair(Of Integer, WS_DBCDatabase.TalentInfo) In _WS_DBCDatabase.Talents
                     For i As Integer = 0 To 4
                         If talentInfo.Value.RankID(i) <> 0 Then
                             If client.Character.HaveSpell(talentInfo.Value.RankID(i)) Then
@@ -1022,7 +1022,7 @@ Namespace Objects
                 client.Character.SendCharacterUpdate(True)
 
                 'DONE: Use spell 14867
-                Dim SMSG_SPELL_START As New PacketClass(OPCODES.SMSG_SPELL_START)
+                Dim SMSG_SPELL_START As New Packets.PacketClass(OPCODES.SMSG_SPELL_START)
                 Try
                     SMSG_SPELL_START.AddPackGUID(client.Character.GUID)
                     SMSG_SPELL_START.AddPackGUID(guid)
@@ -1036,7 +1036,7 @@ Namespace Objects
                     SMSG_SPELL_START.Dispose()
                 End Try
 
-                Dim SMSG_SPELL_GO As New PacketClass(OPCODES.SMSG_SPELL_GO)
+                Dim SMSG_SPELL_GO As New Packets.PacketClass(OPCODES.SMSG_SPELL_GO)
                 Try
                     SMSG_SPELL_GO.AddPackGUID(client.Character.GUID)
                     SMSG_SPELL_GO.AddPackGUID(guid)
@@ -1070,7 +1070,7 @@ Namespace Objects
             ''' <param name="objCharacter">The obj char.</param>
             ''' <param name="cGuid">The objCharacter GUID.</param>
             ''' <returns></returns>
-            Public Overrides Sub OnGossipHello(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong)
+            Public Overrides Sub OnGossipHello(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGuid As ULong)
                 Dim textID As Integer = 0
 
                 Dim npcMenu As New GossipMenu
@@ -1114,7 +1114,7 @@ Namespace Objects
                                 objCharacter.SendGossip(cGuid, textID)
                                 Exit Sub
                             Else
-                                npcMenu.AddMenu("I am interested in " & GetClassName(objCharacter.Classe) & " training.", MenuIcon.MENUICON_TRAINER)
+                                npcMenu.AddMenu("I am interested in " & _Functions.GetClassName(objCharacter.Classe) & " training.", MenuIcon.MENUICON_TRAINER)
                                 objCharacter.TalkMenuTypes.Add(Gossip_Option.GOSSIP_OPTION_TRAINER)
                                 If objCharacter.Level >= 10 Then
                                     npcMenu.AddMenu("I want to unlearn all my talents.", MenuIcon.MENUICON_GOSSIP)
@@ -1252,11 +1252,11 @@ Namespace Objects
             ''' <param name="cGUID">The objCharacter GUID.</param>
             ''' <param name="selected">The selected.</param>
             ''' <returns></returns>
-            Public Overrides Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
+            Public Overrides Sub OnGossipSelect(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
                 Select Case objCharacter.TalkMenuTypes(selected)
                     Case Gossip_Option.GOSSIP_OPTION_SPIRITHEALER
                         If objCharacter.DEAD = True Then
-                            Dim response As New PacketClass(OPCODES.SMSG_SPIRIT_HEALER_CONFIRM)
+                            Dim response As New Packets.PacketClass(OPCODES.SMSG_SPIRIT_HEALER_CONFIRM)
                             Try
                                 response.AddUInt64(cGUID)
                                 objCharacter.client.Send(response)
@@ -1268,23 +1268,23 @@ Namespace Objects
                         End If
 
                     Case Gossip_Option.GOSSIP_OPTION_VENDOR, Gossip_Option.GOSSIP_OPTION_ARMORER, Gossip_Option.GOSSIP_OPTION_STABLEPET
-                        SendListInventory(objCharacter, cGUID)
+                        _WS_NPCs.SendListInventory(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_TRAINER
-                        SendTrainerList(objCharacter, cGUID)
+                        _WS_NPCs.SendTrainerList(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_TAXIVENDOR
-                        SendTaxiMenu(objCharacter, cGUID)
+                        _WS_Handlers_Taxi.SendTaxiMenu(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_INNKEEPER
-                        SendBindPointConfirm(objCharacter, cGUID)
+                        _WS_NPCs.SendBindPointConfirm(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_BANKER
-                        SendShowBank(objCharacter, cGUID)
+                        _WS_NPCs.SendShowBank(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_ARENACHARTER
-                        SendPetitionActivate(objCharacter, cGUID)
+                        _WS_Guilds.SendPetitionActivate(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_TABARDVENDOR
-                        SendTabardActivate(objCharacter, cGUID)
+                        _WS_Guilds.SendTabardActivate(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_AUCTIONEER
-                        SendShowAuction(objCharacter, cGUID)
+                        _WS_Auction.SendShowAuction(objCharacter, cGUID)
                     Case Gossip_Option.GOSSIP_OPTION_TALENTWIPE
-                        SendTalentWipeConfirm(objCharacter, 0)
+                        _WS_NPCs.SendTalentWipeConfirm(objCharacter, 0)
                     Case Gossip_Option.GOSSIP_OPTION_GOSSIP
                         objCharacter.SendTalking(_WorldServer.WORLD_CREATUREs(cGUID).NPCTextID)
                     Case Gossip_Option.GOSSIP_OPTION_QUESTGIVER
@@ -1296,5 +1296,5 @@ Namespace Objects
             End Sub
         End Class
 #End Region
-    End Module
-End NameSpace
+    End Class
+End Namespace

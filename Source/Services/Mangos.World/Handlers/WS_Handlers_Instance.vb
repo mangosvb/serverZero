@@ -27,15 +27,15 @@ Imports Mangos.World.Server
 
 Namespace Handlers
 
-    Public Module WS_Handlers_Instance
+    Public Class WS_Handlers_Instance
 
         Public Sub InstanceMapUpdate()
             Dim q As New DataTable
-            Dim t As UInteger = GetTimestamp(Now)
+            Dim t As UInteger = _Functions.GetTimestamp(Now)
             _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE expire < {0};", t), q)
 
             For Each r As DataRow In q.Rows
-                If WS_Maps.Maps.ContainsKey(r.Item("map")) Then InstanceMapExpire(r.Item("map"), r.Item("instance"))
+                If _WS_Maps.Maps.ContainsKey(r.Item("map")) Then InstanceMapExpire(r.Item("map"), r.Item("instance"))
             Next
         End Sub
         Public Function InstanceMapCreate(ByVal Map As UInteger) As UInteger
@@ -53,15 +53,15 @@ Namespace Handlers
             'DONE: Load map data
             For x As Short = 0 To 63
                 For y As Short = 0 To 63
-                    If WS_Maps.Maps(Map).TileUsed(x, y) = False AndAlso IO.File.Exists(String.Format("maps\{0}{1}{2}.map", Format(Map, "000"), Format(x, "00"), Format(y, "00"))) Then
+                    If _WS_Maps.Maps(Map).TileUsed(x, y) = False AndAlso IO.File.Exists(String.Format("maps\{0}{1}{2}.map", Format(Map, "000"), Format(x, "00"), Format(y, "00"))) Then
                         _WorldServer.Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x, y, Map)
-                        WS_Maps.Maps(Map).TileUsed(x, y) = True
-                        WS_Maps.Maps(Map).Tiles(x, y) = New WS_Maps.TMapTile(x, y, Map)
+                        _WS_Maps.Maps(Map).TileUsed(x, y) = True
+                        _WS_Maps.Maps(Map).Tiles(x, y) = New WS_Maps.TMapTile(x, y, Map)
                     End If
 
-                    If (WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing) Then
+                    If (_WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing) Then
                         'DONE: Spawn the instance
-                        LoadSpawns(x, y, Map, Instance)
+                        _WS_Maps.LoadSpawns(x, y, Map, Instance)
                     End If
                 Next
             Next
@@ -73,8 +73,8 @@ Namespace Handlers
                 'DONE: Check for players
                 For x As Short = 0 To 63
                     For y As Short = 0 To 63
-                        If WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
-                            For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).PlayersHere.ToArray
+                        If _WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
+                            For Each GUID As ULong In _WS_Maps.Maps(Map).Tiles(x, y).PlayersHere.ToArray
                                 If _WorldServer.CHARACTERs(GUID).instance = Instance Then
                                     empty = False
                                     Exit For
@@ -94,17 +94,17 @@ Namespace Handlers
                     'DONE: Delete spawned things
                     For x As Short = 0 To 63
                         For y As Short = 0 To 63
-                            If WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
-                                For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).CreaturesHere.ToArray
+                            If _WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
+                                For Each GUID As ULong In _WS_Maps.Maps(Map).Tiles(x, y).CreaturesHere.ToArray
                                     If _WorldServer.WORLD_CREATUREs(GUID).instance = Instance Then _WorldServer.WORLD_CREATUREs(GUID).Destroy()
                                 Next
-                                For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
+                                For Each GUID As ULong In _WS_Maps.Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
                                     If _WorldServer.WORLD_GAMEOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_GAMEOBJECTs(GUID).Destroy(_WorldServer.WORLD_GAMEOBJECTs(GUID))
                                 Next
-                                For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).CorpseObjectsHere.ToArray
+                                For Each GUID As ULong In _WS_Maps.Maps(Map).Tiles(x, y).CorpseObjectsHere.ToArray
                                     If _WorldServer.WORLD_CORPSEOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_CORPSEOBJECTs(GUID).Destroy()
                                 Next
-                                For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).DynamicObjectsHere.ToArray
+                                For Each GUID As ULong In _WS_Maps.Maps(Map).Tiles(x, y).DynamicObjectsHere.ToArray
                                     If _WorldServer.WORLD_DYNAMICOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_DYNAMICOBJECTs(GUID).Delete()
                                 Next
                             End If
@@ -113,17 +113,17 @@ Namespace Handlers
                     Next
                 Else
                     'DONE: Extend the expire time
-                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_instances SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, GetTimestamp(Now) + WS_Maps.Maps(Map).ResetTime()))
-                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_instances_group SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, GetTimestamp(Now) + WS_Maps.Maps(Map).ResetTime()))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_instances SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, _Functions.GetTimestamp(Now) + _WS_Maps.Maps(Map).ResetTime()))
+                    _WorldServer.CharacterDatabase.Update(String.Format("UPDATE characters_instances_group SET expire = {2} WHERE instance = {0} AND map = {1};", Instance, Map, _Functions.GetTimestamp(Now) + _WS_Maps.Maps(Map).ResetTime()))
 
                     'DONE: Respawn the instance if there are players
                     For x As Short = 0 To 63
                         For y As Short = 0 To 63
-                            If WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
-                                For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).CreaturesHere.ToArray
+                            If _WS_Maps.Maps(Map).Tiles(x, y) IsNot Nothing Then
+                                For Each GUID As ULong In _WS_Maps.Maps(Map).Tiles(x, y).CreaturesHere.ToArray
                                     If _WorldServer.WORLD_CREATUREs(GUID).instance = Instance Then _WorldServer.WORLD_CREATUREs(GUID).Respawn()
                                 Next
-                                For Each GUID As ULong In WS_Maps.Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
+                                For Each GUID As ULong In _WS_Maps.Maps(Map).Tiles(x, y).GameObjectsHere.ToArray
                                     If _WorldServer.WORLD_GAMEOBJECTs(GUID).instance = Instance Then _WorldServer.WORLD_GAMEOBJECTs(GUID).Respawn(_WorldServer.WORLD_GAMEOBJECTs(GUID))
                                 Next
                             End If
@@ -137,11 +137,11 @@ Namespace Handlers
         End Sub
 
         Public Sub InstanceMapEnter(ByVal objCharacter As WS_PlayerData.CharacterObject)
-            If WS_Maps.Maps(objCharacter.MapID).Type = MapTypes.MAP_COMMON Then
+            If _WS_Maps.Maps(objCharacter.MapID).Type = MapTypes.MAP_COMMON Then
                 objCharacter.instance = 0
 
 #If DEBUG Then
-                objCharacter.SystemMessage(SetColor("You are not in instance.", 0, 0, 255))
+                objCharacter.SystemMessage(_Functions.SetColor("You are not in instance.", 0, 0, 255))
 #End If
             Else
                 'DONE: Instances expire check
@@ -155,9 +155,9 @@ Namespace Handlers
                     'Character is saved to instance
                     objCharacter.instance = q.Rows(0).Item("instance")
 #If DEBUG Then
-                    objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
+                    objCharacter.SystemMessage(_Functions.SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-                    SendInstanceMessage(objCharacter.client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
+                    SendInstanceMessage(objCharacter.client, objCharacter.MapID, q.Rows(0).Item("expire") - _Functions.GetTimestamp(Now))
                     Exit Sub
                 End If
 
@@ -169,16 +169,16 @@ Namespace Handlers
                         'Group is saved to instance
                         objCharacter.instance = q.Rows(0).Item("instance")
 #If DEBUG Then
-                        objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
+                        objCharacter.SystemMessage(_Functions.SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-                        SendInstanceMessage(objCharacter.client, objCharacter.MapID, q.Rows(0).Item("expire") - GetTimestamp(Now))
+                        SendInstanceMessage(objCharacter.client, objCharacter.MapID, q.Rows(0).Item("expire") - _Functions.GetTimestamp(Now))
                         Exit Sub
                     End If
                 End If
 
                 'DONE Create new instance
                 Dim instanceNewID As Integer = InstanceMapCreate(objCharacter.MapID)
-                Dim instanceNewResetTime As Integer = GetTimestamp(Now) + WS_Maps.Maps(objCharacter.MapID).ResetTime()
+                Dim instanceNewResetTime As Integer = _Functions.GetTimestamp(Now) + _WS_Maps.Maps(objCharacter.MapID).ResetTime()
 
                 'Set instance
                 objCharacter.instance = instanceNewID
@@ -191,9 +191,9 @@ Namespace Handlers
                 InstanceMapSpawn(objCharacter.MapID, instanceNewID)
 
 #If DEBUG Then
-                objCharacter.SystemMessage(SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
+                objCharacter.SystemMessage(_Functions.SetColor(String.Format("You are in instance #{0}, map {1}", objCharacter.instance, objCharacter.MapID), 0, 0, 255))
 #End If
-                SendInstanceMessage(objCharacter.client, objCharacter.MapID, GetTimestamp(Now) - instanceNewResetTime)
+                SendInstanceMessage(objCharacter.client, objCharacter.MapID, _Functions.GetTimestamp(Now) - instanceNewResetTime)
             End If
         End Sub
         Public Sub InstanceUpdate(ByVal Map As UInteger, ByVal Instance As UInteger, ByVal Cleared As UInteger)
@@ -201,7 +201,7 @@ Namespace Handlers
             'TODO: Save everybody to the instance at the first kill
             'TODO: Save the instance to the database
         End Sub
-        Public Sub InstanceMapLeave(ByVal objChar As CharacterObject)
+        Public Sub InstanceMapLeave(ByVal objChar As WS_PlayerData.CharacterObject)
             'TODO: Start teleport timer
         End Sub
 
@@ -212,21 +212,21 @@ Namespace Handlers
             'Client.Send(p)
             'p.Dispose()
         End Sub
-        Public Sub SendResetInstanceFailed(ByRef client As ClientClass, ByVal Map As UInteger, ByVal Reason As ResetFailedReason)
+        Public Sub SendResetInstanceFailed(ByRef client As WS_Network.ClientClass, ByVal Map As UInteger, ByVal Reason As ResetFailedReason)
             'Dim p As New PacketClass(OPCODES.SMSG_INSTANCE_RESET)
             'p.AddUInt32(Reason)
             'p.AddUInt32(Map)
             'Client.Send(p)
             'p.Dispose()
         End Sub
-        Public Sub SendResetInstanceFailedNotify(ByRef client As ClientClass, ByVal Map As UInteger)
+        Public Sub SendResetInstanceFailedNotify(ByRef client As WS_Network.ClientClass, ByVal Map As UInteger)
             'Dim p As New PacketClass(OPCODES.SMSG_RESET_FAILED_NOTIFY)
             'p.AddUInt32(Map)
             'Client.Send(p)
             'p.Dispose()
         End Sub
 
-        Private Sub SendUpdateInstanceOwnership(ByRef client As ClientClass, ByVal Saved As UInteger)
+        Private Sub SendUpdateInstanceOwnership(ByRef client As WS_Network.ClientClass, ByVal Saved As UInteger)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_INSTANCE_OWNERSHIP", client.IP, client.Port)
 
             'Dim p As New PacketClass(OPCODES.SMSG_UPDATE_INSTANCE_OWNERSHIP)
@@ -234,7 +234,7 @@ Namespace Handlers
             'Client.Send(p)
             'p.Dispose()
         End Sub
-        Private Sub SendUpdateLastInstance(ByRef client As ClientClass, ByVal Map As UInteger)
+        Private Sub SendUpdateLastInstance(ByRef client As WS_Network.ClientClass, ByVal Map As UInteger)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_UPDATE_LAST_INSTANCE", client.IP, client.Port)
 
             'Dim p As New PacketClass(OPCODES.SMSG_UPDATE_LAST_INSTANCE)
@@ -242,7 +242,7 @@ Namespace Handlers
             'Client.Send(p)
             'p.Dispose()
         End Sub
-        Public Sub SendInstanceSaved(ByVal Character As CharacterObject)
+        Public Sub SendInstanceSaved(ByVal Character As WS_PlayerData.CharacterObject)
             Dim q As New DataTable
             _WorldServer.CharacterDatabase.Query(String.Format("SELECT * FROM characters_instances WHERE char_guid = {0};", Character.GUID), q)
 
@@ -253,7 +253,7 @@ Namespace Handlers
             Next
         End Sub
 
-        Public Sub SendInstanceMessage(ByRef client As ClientClass, ByVal Map As UInteger, ByVal Time As Integer)
+        Public Sub SendInstanceMessage(ByRef client As WS_Network.ClientClass, ByVal Map As UInteger, ByVal Time As Integer)
             Dim Type As RaidInstanceMessage
 
             If Time < 0 Then
@@ -275,5 +275,5 @@ Namespace Handlers
             'p.Dispose()
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

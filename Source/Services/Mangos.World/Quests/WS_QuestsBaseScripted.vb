@@ -24,22 +24,22 @@ Namespace Quests
         Inherits WS_QuestsBase
         Public Overridable Sub OnQuestStart(ByRef objCharacter As WS_PlayerData.CharacterObject)
         End Sub
-        Public Overridable Sub OnQuestComplete(ByRef objCharacter As CharacterObject)
+        Public Overridable Sub OnQuestComplete(ByRef objCharacter As WS_PlayerData.CharacterObject)
         End Sub
-        Public Overridable Sub OnQuestCancel(ByRef objCharacter As CharacterObject)
+        Public Overridable Sub OnQuestCancel(ByRef objCharacter As WS_PlayerData.CharacterObject)
         End Sub
 
-        Public Overridable Sub OnQuestItem(ByRef objCharacter As CharacterObject, ByVal ItemID As Integer, ByVal ItemCount As Integer)
+        Public Overridable Sub OnQuestItem(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal ItemID As Integer, ByVal ItemCount As Integer)
         End Sub
-        Public Overridable Sub OnQuestKill(ByRef objCharacter As CharacterObject, ByRef Creature As WS_Creatures.CreatureObject)
+        Public Overridable Sub OnQuestKill(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef Creature As WS_Creatures.CreatureObject)
         End Sub
-        Public Overridable Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef Creature As CreatureObject, ByVal SpellID As Integer)
+        Public Overridable Sub OnQuestCastSpell(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef Creature As WS_Creatures.CreatureObject, ByVal SpellID As Integer)
         End Sub
-        Public Overridable Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef GameObject As GameObjectObject, ByVal SpellID As Integer)
+        Public Overridable Sub OnQuestCastSpell(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef GameObject As WS_GameObjects.GameObjectObject, ByVal SpellID As Integer)
         End Sub
-        Public Overridable Sub OnQuestExplore(ByRef objCharacter As CharacterObject, ByVal AreaID As Integer)
+        Public Overridable Sub OnQuestExplore(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal AreaID As Integer)
         End Sub
-        Public Overridable Sub OnQuestEmote(ByRef objCharacter As CharacterObject, ByRef Creature As CreatureObject, ByVal EmoteID As Integer)
+        Public Overridable Sub OnQuestEmote(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef Creature As WS_Creatures.CreatureObject, ByVal EmoteID As Integer)
         End Sub
     End Class
-End NameSpace
+End Namespace

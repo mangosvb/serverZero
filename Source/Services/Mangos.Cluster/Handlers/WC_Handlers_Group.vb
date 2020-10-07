@@ -47,10 +47,10 @@ Namespace Handlers
             Public LootThreshold As GroupLootThreshold = GroupLootThreshold.Uncommon
 
             Public Leader As Byte
-            Public Members(_Global_Constants.GROUP_SIZE) As CharacterObject
+            Public Members(_Global_Constants.GROUP_SIZE) As WcHandlerCharacter.CharacterObject
             Public TargetIcons(7) As ULong
 
-            Public Sub New(ByRef objCharacter As CharacterObject)
+            Public Sub New(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
                 Id = Interlocked.Increment(_WC_Handlers_Group.GroupCounter)
                 _WC_Handlers_Group.GROUPs.Add(Id, Me)
 
@@ -113,7 +113,7 @@ Namespace Handlers
             End Sub
 #End Region
 
-            Public Sub Join(ByRef objCharacter As CharacterObject)
+            Public Sub Join(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
                 For i As Byte = 0 To Members.Length - 1
                     If Members(i) Is Nothing Then
                         Members(i) = objCharacter
@@ -130,7 +130,7 @@ Namespace Handlers
                 SendGroupList()
             End Sub
 
-            Public Sub Leave(ByRef objCharacter As CharacterObject)
+            Public Sub Leave(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
                 If GetMembersCount() = 2 Then
                     Dispose()
                     Exit Sub
@@ -171,7 +171,7 @@ Namespace Handlers
                 If GetMembersCount() < 2 Then Dispose() Else SendGroupList()
             End Sub
 
-            Public Sub NewLeader(Optional ByVal Leaver As CharacterObject = Nothing)
+            Public Sub NewLeader(Optional ByVal Leaver As WcHandlerCharacter.CharacterObject = Nothing)
                 Dim ChosenMember As Byte = 255
                 Dim NewLootMaster As Boolean = False
                 For i As Byte = 0 To Members.Length - 1
@@ -219,7 +219,7 @@ Namespace Handlers
                 Type = GroupType.RAID
             End Sub
 
-            Public Sub SetLeader(ByRef objCharacter As CharacterObject)
+            Public Sub SetLeader(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
                 For i As Byte = 0 To Members.Length
                     If Members(i) Is objCharacter Then
                         Leader = i
@@ -237,7 +237,7 @@ Namespace Handlers
                 SendGroupList()
             End Sub
 
-            Public Sub SetLootMaster(ByRef objCharacter As CharacterObject)
+            Public Sub SetLootMaster(ByRef objCharacter As WcHandlerCharacter.CharacterObject)
                 LootMaster = Leader
                 For i As Byte = 0 To Members.Length - 1
                     If Members(i) Is objCharacter Then
@@ -259,11 +259,11 @@ Namespace Handlers
                 SendGroupList()
             End Sub
 
-            Public Function GetLeader() As CharacterObject
+            Public Function GetLeader() As WcHandlerCharacter.CharacterObject
                 Return Members(Leader)
             End Function
 
-            Public Function GetLootMaster() As CharacterObject
+            Public Function GetLootMaster() As WcHandlerCharacter.CharacterObject
                 Return Members(Leader)
             End Function
 
@@ -290,13 +290,13 @@ Namespace Handlers
                 Next
             End Sub
 
-            Public Sub BroadcastToOther(ByRef packet As Packets.PacketClass, ByRef objCharacter As CharacterObject)
+            Public Sub BroadcastToOther(ByRef packet As Packets.PacketClass, ByRef objCharacter As WcHandlerCharacter.CharacterObject)
                 For i As Byte = 0 To Members.Length - 1
                     If (Not Members(i) Is Nothing) AndAlso (Members(i) IsNot objCharacter) AndAlso (Members(i).Client IsNot Nothing) Then Members(i).Client.SendMultiplyPackets(packet)
                 Next
             End Sub
 
-            Public Sub BroadcastToOutOfRange(ByRef packet As Packets.PacketClass, ByRef objCharacter As CharacterObject)
+            Public Sub BroadcastToOutOfRange(ByRef packet As Packets.PacketClass, ByRef objCharacter As WcHandlerCharacter.CharacterObject)
                 For i As Byte = 0 To Members.Length - 1
                     If Members(i) IsNot Nothing AndAlso Members(i) IsNot objCharacter AndAlso Members(i).Client IsNot Nothing Then
                         If objCharacter.Map <> Members(i).Map OrElse Math.Sqrt((objCharacter.PositionX - Members(i).PositionX) ^ 2 + (objCharacter.PositionY - Members(i).PositionY) ^ 2) > _Global_Constants.DEFAULT_DISTANCE_VISIBLE Then
@@ -347,14 +347,14 @@ Namespace Handlers
                 Next
             End Sub
 
-            Public Sub SendChatMessage(ByRef sender As CharacterObject, ByVal message As String, ByVal language As LANGUAGES, ByVal thisType As ChatMsg)
+            Public Sub SendChatMessage(ByRef sender As WcHandlerCharacter.CharacterObject, ByVal message As String, ByVal language As LANGUAGES, ByVal thisType As ChatMsg)
                 Dim packet As Packets.PacketClass = _Functions.BuildChatMessage(sender.Guid, message, thisType, language, sender.ChatFlag)
 
                 Broadcast(packet)
                 packet.Dispose()
             End Sub
 
-            Public Sub SendChatMessage(ByRef sender As CharacterObject, ByVal message As String, ByVal language As LANGUAGES)
+            Public Sub SendChatMessage(ByRef sender As WcHandlerCharacter.CharacterObject, ByVal message As String, ByVal language As LANGUAGES)
                 Dim packet As Packets.PacketClass = _Functions.BuildChatMessage(sender.Guid, message, Type, language, sender.ChatFlag)
 
                 Broadcast(packet)
@@ -404,7 +404,7 @@ Namespace Handlers
 
             Dim GUID As ULong = 0
             _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each Character As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+            For Each Character As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
                 If _CommonFunctions.UppercaseFirstLetter(Character.Value.Name) = _CommonFunctions.UppercaseFirstLetter(Name) Then
                     GUID = Character.Value.Guid
                     Exit For
@@ -511,7 +511,7 @@ Namespace Handlers
 
             Dim GUID As ULong = 0
             _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each Character As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+            For Each Character As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
                 If _CommonFunctions.UppercaseFirstLetter(Character.Value.Name) = _CommonFunctions.UppercaseFirstLetter(Name) Then
                     GUID = Character.Value.Guid
                     Exit For
@@ -556,7 +556,7 @@ Namespace Handlers
 
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_GROUP_SET_LEADER [Name={2}]", client.IP, client.Port, Name)
 
-            Dim GUID As ULong = GetCharacterGUIDByName(Name)
+            Dim GUID As ULong = _WcHandlerCharacter.GetCharacterGUIDByName(Name)
             If GUID = 0 Then
                 SendPartyResult(client, "", PartyCommand.PARTY_OP_INVITE, PartyCommandResult.INVITE_NOT_FOUND)
             ElseIf _WorldCluster.CHARACTERs.ContainsKey(GUID) = False Then
@@ -631,7 +631,7 @@ Namespace Handlers
 
                 For i As Integer = 0 To client.Character.Group.Members.Length - 1
                     If (Not client.Character.Group.Members(i) Is Nothing) AndAlso client.Character.Group.Members(i).Name = name1 Then
-                        Dim tmpPlayer As CharacterObject = client.Character.Group.Members(j)
+                        Dim tmpPlayer As WcHandlerCharacter.CharacterObject = client.Character.Group.Members(j)
                         client.Character.Group.Members(j) = client.Character.Group.Members(i)
                         client.Character.Group.Members(i) = tmpPlayer
                         tmpPlayer = Nothing

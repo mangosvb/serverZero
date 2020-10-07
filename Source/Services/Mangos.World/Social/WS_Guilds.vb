@@ -30,7 +30,7 @@ Imports Mangos.World.Server
 
 Namespace Social
 
-    Public Module WS_Guilds
+    Public Class WS_Guilds
 
 #Region "WS.Guilds.Petition"
         Public Sub SendPetitionActivate(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
@@ -57,7 +57,7 @@ Namespace Social
             packet.Dispose()
         End Sub
 
-        Public Sub On_CMSG_PETITION_SHOWLIST(ByRef packet As PacketClass, ByRef client As WS_Network.ClientClass)
+        Public Sub On_CMSG_PETITION_SHOWLIST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -67,7 +67,7 @@ Namespace Social
             SendPetitionActivate(client.Character, GUID)
         End Sub
 
-        Public Sub On_CMSG_PETITION_BUY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PETITION_BUY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 26 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -100,12 +100,12 @@ Namespace Social
                 SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_NAME_EXISTS, Name)
             End If
             q.Clear()
-            If ValidateGuildName(Name) = False Then
+            If _Functions.ValidateGuildName(Name) = False Then
                 SendGuildResult(client, GuildCommand.GUILD_CREATE_S, GuildError.GUILD_NAME_INVALID, Name)
             End If
 
             If _WorldServer.ITEMDatabase.ContainsKey(CharterID) = False Then
-                Dim response As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 response.AddUInt64(GUID)
                 response.AddInt32(CharterID)
                 response.AddInt8(BUY_ERROR.BUY_ERR_CANT_FIND_ITEM)
@@ -115,7 +115,7 @@ Namespace Social
             End If
 
             If client.Character.Copper < CharterPrice Then
-                Dim response As New PacketClass(OPCODES.SMSG_BUY_FAILED)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_BUY_FAILED)
                 response.AddUInt64(GUID)
                 response.AddInt32(CharterID)
                 response.AddInt8(BUY_ERROR.BUY_ERR_NOT_ENOUGHT_MONEY)
@@ -143,12 +143,12 @@ Namespace Social
             End If
         End Sub
 
-        Public Sub SendPetitionSignatures(ByRef objCharacter As CharacterObject, ByVal iGUID As ULong)
+        Public Sub SendPetitionSignatures(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal iGUID As ULong)
             Dim MySQLQuery As New DataTable
             _WorldServer.CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & iGUID - _Global_Constants.GUID_ITEM & ";", MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-            Dim response As New PacketClass(OPCODES.SMSG_PETITION_SHOW_SIGNATURES)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_PETITION_SHOW_SIGNATURES)
             response.AddUInt64(iGUID)                                                        'itemGuid
             response.AddUInt64(MySQLQuery.Rows(0).Item("petition_owner"))                    'GuildOwner
             response.AddInt32(MySQLQuery.Rows(0).Item("petition_id"))                        'PetitionGUID
@@ -163,7 +163,7 @@ Namespace Social
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_PETITION_SHOW_SIGNATURES(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PETITION_SHOW_SIGNATURES(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -173,7 +173,7 @@ Namespace Social
             SendPetitionSignatures(client.Character, GUID)
         End Sub
 
-        Public Sub On_CMSG_PETITION_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PETITION_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim PetitionGUID As Integer = packet.GetInt32
@@ -185,7 +185,7 @@ Namespace Social
             _WorldServer.CharacterDatabase.Query("SELECT * FROM petitions WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & ";", MySQLQuery)
             If MySQLQuery.Rows.Count = 0 Then Exit Sub
 
-            Dim response As New PacketClass(OPCODES.SMSG_PETITION_QUERY_RESPONSE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_PETITION_QUERY_RESPONSE)
             response.AddInt32(MySQLQuery.Rows(0).Item("petition_id"))               'PetitionGUID
             response.AddUInt64(MySQLQuery.Rows(0).Item("petition_owner"))           'GuildOwner
             response.AddString(MySQLQuery.Rows(0).Item("petition_name"))            'GuildName
@@ -218,7 +218,7 @@ Namespace Social
             response.Dispose()
         End Sub
 
-        Public Sub On_MSG_PETITION_RENAME(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_PETITION_RENAME(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
             Dim itemGuid As ULong = packet.GetUInt64
@@ -229,7 +229,7 @@ Namespace Social
             _WorldServer.CharacterDatabase.Update("UPDATE petitions SET petition_name = '" & NewName & "' WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & ";")
 
             'DONE: Update client-side name information
-            Dim response As New PacketClass(OPCODES.MSG_PETITION_RENAME)
+            Dim response As New Packets.PacketClass(OPCODES.MSG_PETITION_RENAME)
             response.AddUInt64(itemGuid)
             response.AddString(NewName)
             response.AddInt32(itemGuid - _Global_Constants.GUID_ITEM)
@@ -237,7 +237,7 @@ Namespace Social
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_OFFER_PETITION(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_OFFER_PETITION(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 21 Then Exit Sub
             packet.GetInt16()
             Dim PetitionType As Integer = packet.GetInt32
@@ -252,7 +252,7 @@ Namespace Social
             SendPetitionSignatures(_WorldServer.CHARACTERs(GUID), itemGuid)
         End Sub
 
-        Public Sub On_CMSG_PETITION_SIGN(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PETITION_SIGN(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
             Dim itemGuid As ULong = packet.GetUInt64
@@ -269,7 +269,7 @@ Namespace Social
             _WorldServer.CharacterDatabase.Update("UPDATE petitions SET petition_signedMembers = petition_signedMembers + 1, petition_signedMember" & (MySQLQuery.Rows(0).Item("petition_signedMembers") + 1) & " = " & client.Character.GUID & " WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & ";")
 
             'DONE: Send result to both players
-            Dim response As New PacketClass(OPCODES.SMSG_PETITION_SIGN_RESULTS)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_PETITION_SIGN_RESULTS)
             response.AddUInt64(itemGuid)
             response.AddUInt64(client.Character.GUID)
             response.AddInt32(PetitionSignError.PETITIONSIGN_OK)
@@ -278,7 +278,7 @@ Namespace Social
             response.Dispose()
         End Sub
 
-        Public Sub On_MSG_PETITION_DECLINE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_PETITION_DECLINE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim itemGuid As ULong = packet.GetUInt64
@@ -290,13 +290,13 @@ Namespace Social
             _WorldServer.CharacterDatabase.Query("SELECT petition_owner FROM petitions WHERE petition_itemGuid = " & itemGuid - _Global_Constants.GUID_ITEM & " LIMIT 1;", q)
 
             'DONE: Send message to player
-            Dim response As New PacketClass(OPCODES.MSG_PETITION_DECLINE)
+            Dim response As New Packets.PacketClass(OPCODES.MSG_PETITION_DECLINE)
             response.AddUInt64(client.Character.GUID)
             If q.Rows.Count > 0 AndAlso _WorldServer.CHARACTERs.ContainsKey(q.Rows(0).Item("petition_owner")) Then _WorldServer.CHARACTERs(q.Rows(0).Item("petition_owner")).client.SendMultiplyPackets(response)
             response.Dispose()
         End Sub
 
-        Public Sub On_CMSG_TURN_IN_PETITION(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TURN_IN_PETITION(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim itemGuid As ULong = packet.GetUInt64
@@ -311,14 +311,14 @@ Namespace Social
 #Region "WS.Guilds.Handlers"
 
         'Basic Tabard Framework
-        Public Sub SendTabardActivate(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
-            Dim packet As New PacketClass(OPCODES.MSG_TABARDVENDOR_ACTIVATE)
+        Public Sub SendTabardActivate(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
+            Dim packet As New Packets.PacketClass(OPCODES.MSG_TABARDVENDOR_ACTIVATE)
             packet.AddUInt64(cGUID)
             objCharacter.client.Send(packet)
             packet.Dispose()
         End Sub
 
-        Public Sub On_MSG_TABARDVENDOR_ACTIVATE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_TABARDVENDOR_ACTIVATE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -347,8 +347,8 @@ Namespace Social
             End Select
         End Function
 
-        Public Sub SendGuildResult(ByRef client As ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
-            Dim response As New PacketClass(OPCODES.SMSG_GUILD_COMMAND_RESULT)
+        Public Sub SendGuildResult(ByRef client As WS_Network.ClientClass, ByVal Command As GuildCommand, ByVal Result As GuildError, Optional ByVal Text As String = "")
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_GUILD_COMMAND_RESULT)
             response.AddInt32(Command)
             response.AddString(Text)
             response.AddInt32(Result)
@@ -358,5 +358,5 @@ Namespace Social
 
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

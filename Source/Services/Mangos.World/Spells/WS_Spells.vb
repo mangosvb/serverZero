@@ -37,7 +37,7 @@ Imports Mangos.World.Server
 
 Namespace Spells
 
-    Public Module WS_Spells
+    Public Class WS_Spells
 
 #Region "WS.Spells.Framework"
 
@@ -131,28 +131,28 @@ Namespace Spells
 
             Public ReadOnly Property GetDuration() As Integer
                 Get
-                    If SpellDuration.ContainsKey(DurationIndex) Then Return SpellDuration(DurationIndex)
+                    If _WS_Spells.SpellDuration.ContainsKey(DurationIndex) Then Return _WS_Spells.SpellDuration(DurationIndex)
                     Return 0
                 End Get
             End Property
 
             Public ReadOnly Property GetRange() As Integer
                 Get
-                    If SpellRange.ContainsKey(rangeIndex) Then Return SpellRange(rangeIndex)
+                    If _WS_Spells.SpellRange.ContainsKey(rangeIndex) Then Return _WS_Spells.SpellRange(rangeIndex)
                     Return 0
                 End Get
             End Property
 
             Public ReadOnly Property GetFocusObject() As String
                 Get
-                    If SpellFocusObject.ContainsKey(FocusObjectIndex) Then Return SpellFocusObject(FocusObjectIndex)
+                    If _WS_Spells.SpellFocusObject.ContainsKey(FocusObjectIndex) Then Return _WS_Spells.SpellFocusObject(FocusObjectIndex)
                     Return 0
                 End Get
             End Property
 
             Public ReadOnly Property GetCastTime() As Integer
                 Get
-                    If SpellCastTime.ContainsKey(SpellCastTimeIndex) Then Return SpellCastTime(SpellCastTimeIndex)
+                    If _WS_Spells.SpellCastTime.ContainsKey(SpellCastTimeIndex) Then Return _WS_Spells.SpellCastTime(SpellCastTimeIndex)
                     Return 0
                 End Get
             End Property
@@ -225,7 +225,7 @@ Namespace Spells
 
             Public ReadOnly Property CanStackSpellRank() As Boolean
                 Get
-                    If Not SpellChains.ContainsKey(ID) OrElse SpellChains(ID) = 0 Then Return True
+                    If Not _WS_Spells.SpellChains.ContainsKey(ID) OrElse _WS_Spells.SpellChains(ID) = 0 Then Return True
 
                     If powerType = ManaTypes.TYPE_MANA Then
                         If manaCost > 0 Then Return True
@@ -238,11 +238,11 @@ Namespace Spells
                 End Get
             End Property
 
-            Public Function GetTargets(ByRef Caster As WS_Base.BaseObject, ByVal Targets As SpellTargets, ByVal Index As Byte) As Dictionary(Of BaseObject, SpellMissInfo)
-                Dim TargetsInfected As New List(Of BaseObject)
+            Public Function GetTargets(ByRef Caster As WS_Base.BaseObject, ByVal Targets As SpellTargets, ByVal Index As Byte) As Dictionary(Of WS_Base.BaseObject, SpellMissInfo)
+                Dim TargetsInfected As New List(Of WS_Base.BaseObject)
 
-                Dim Ref As BaseUnit = Nothing
-                If TypeOf Caster Is TotemObject Then Ref = CType(Caster, TotemObject).Caster
+                Dim Ref As WS_Base.BaseUnit = Nothing
+                If TypeOf Caster Is WS_Totems.TotemObject Then Ref = CType(Caster, WS_Totems.TotemObject).Caster
                 If SpellEffects(Index) IsNot Nothing Then
                     For j As Byte = 0 To 1
                         Dim ImplicitTarget As SpellImplicitTargets = SpellEffects(Index).implicitTargetA
@@ -251,53 +251,53 @@ Namespace Spells
                         If ImplicitTarget = SpellImplicitTargets.TARGET_NOTHING Then Continue For
                         Select Case ImplicitTarget
                             Case SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA, SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT
-                                Dim EnemyTargets As List(Of BaseUnit) = Nothing
+                                Dim EnemyTargets As List(Of WS_Base.BaseUnit) = Nothing
                                 If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
-                                    EnemyTargets = GetEnemyAtPoint(Caster, Targets.dstX, Targets.dstY, Targets.dstZ, SpellEffects(Index).GetRadius)
+                                    EnemyTargets = _WS_Spells.GetEnemyAtPoint(Caster, Targets.dstX, Targets.dstY, Targets.dstZ, SpellEffects(Index).GetRadius)
                                 Else
-                                    If TypeOf Caster Is DynamicObjectObject Then
-                                        EnemyTargets = GetEnemyAtPoint(CType(Caster, DynamicObjectObject).Caster, Caster.positionX, Caster.positionY, Caster.positionZ, SpellEffects(Index).GetRadius)
+                                    If TypeOf Caster Is WS_DynamicObjects.DynamicObjectObject Then
+                                        EnemyTargets = _WS_Spells.GetEnemyAtPoint(CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster, Caster.positionX, Caster.positionY, Caster.positionZ, SpellEffects(Index).GetRadius)
                                     Else
-                                        EnemyTargets = GetEnemyAtPoint(Caster, Caster.positionX, Caster.positionY, Caster.positionZ, SpellEffects(Index).GetRadius)
+                                        EnemyTargets = _WS_Spells.GetEnemyAtPoint(Caster, Caster.positionX, Caster.positionY, Caster.positionZ, SpellEffects(Index).GetRadius)
                                     End If
                                 End If
-                                For Each EnemyTarget As BaseUnit In EnemyTargets
+                                For Each EnemyTarget As WS_Base.BaseUnit In EnemyTargets
                                     If Not TargetsInfected.Contains(EnemyTarget) Then TargetsInfected.Add(EnemyTarget)
                                 Next
                             Case SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER
-                                Dim EnemyTargets As List(Of BaseUnit) = GetEnemyAroundMe(Caster, SpellEffects(Index).GetRadius, Ref)
-                                For Each EnemyTarget As BaseUnit In EnemyTargets
+                                Dim EnemyTargets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetEnemyAroundMe(Caster, SpellEffects(Index).GetRadius, Ref)
+                                For Each EnemyTarget As WS_Base.BaseUnit In EnemyTargets
                                     If Not TargetsInfected.Contains(EnemyTarget) Then TargetsInfected.Add(EnemyTarget)
                                 Next
                             Case SpellImplicitTargets.TARGET_ALL_PARTY
-                                Dim PartyTargets As List(Of BaseUnit) = GetPartyMembersAroundMe(Caster, 9999999)
-                                For Each PartyTarget As BaseUnit In PartyTargets
+                                Dim PartyTargets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetPartyMembersAroundMe(Caster, 9999999)
+                                For Each PartyTarget As WS_Base.BaseUnit In PartyTargets
                                     If Not TargetsInfected.Contains(PartyTarget) Then TargetsInfected.Add(PartyTarget)
                                 Next
                             Case SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2, SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY, SpellImplicitTargets.TARGET_AREAEFFECT_PARTY
-                                Dim PartyTargets As List(Of BaseUnit)
-                                If TypeOf Caster Is TotemObject Then
-                                    PartyTargets = GetPartyMembersAtPoint(CType(Caster, TotemObject).Caster, SpellEffects(Index).GetRadius, Caster.positionX, Caster.positionY, Caster.positionZ)
+                                Dim PartyTargets As List(Of WS_Base.BaseUnit)
+                                If TypeOf Caster Is WS_Totems.TotemObject Then
+                                    PartyTargets = _WS_Spells.GetPartyMembersAtPoint(CType(Caster, WS_Totems.TotemObject).Caster, SpellEffects(Index).GetRadius, Caster.positionX, Caster.positionY, Caster.positionZ)
                                 Else
-                                    PartyTargets = GetPartyMembersAroundMe(Caster, SpellEffects(Index).GetRadius)
+                                    PartyTargets = _WS_Spells.GetPartyMembersAroundMe(Caster, SpellEffects(Index).GetRadius)
                                 End If
-                                For Each PartyTarget As BaseUnit In PartyTargets
+                                For Each PartyTarget As WS_Base.BaseUnit In PartyTargets
                                     If Not TargetsInfected.Contains(PartyTarget) Then TargetsInfected.Add(PartyTarget)
                                 Next
                             Case SpellImplicitTargets.TARGET_CHAIN_DAMAGE, SpellImplicitTargets.TARGET_CHAIN_HEAL
-                                Dim UsedTargets As New List(Of BaseUnit)
-                                Dim TargetUnit As BaseUnit = Nothing
+                                Dim UsedTargets As New List(Of WS_Base.BaseUnit)
+                                Dim TargetUnit As WS_Base.BaseUnit = Nothing
                                 If Not TargetsInfected.Contains(Targets.unitTarget) Then TargetsInfected.Add(Targets.unitTarget)
                                 UsedTargets.Add(Targets.unitTarget)
                                 TargetUnit = Targets.unitTarget
 
                                 If SpellEffects(Index).ChainTarget > 1 Then
                                     For k As Byte = 2 To SpellEffects(Index).ChainTarget
-                                        Dim EnemyTargets As List(Of BaseUnit) = GetEnemyAroundMe(TargetUnit, 10, Caster)
+                                        Dim EnemyTargets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetEnemyAroundMe(TargetUnit, 10, Caster)
                                         TargetUnit = Nothing
                                         Dim LowHealth As Single = 1.01
                                         Dim TmpLife As Single = 0
-                                        For Each tmpUnit As BaseUnit In EnemyTargets
+                                        For Each tmpUnit As WS_Base.BaseUnit In EnemyTargets
                                             If UsedTargets.Contains(tmpUnit) = False Then
                                                 TmpLife = (tmpUnit.Life.Current / tmpUnit.Life.Maximum)
                                                 If TmpLife < LowHealth Then
@@ -315,23 +315,23 @@ Namespace Spells
                                     Next
                                 End If
                             Case SpellImplicitTargets.TARGET_AROUND_CASTER_ENEMY
-                                Dim EnemyTargets As List(Of BaseUnit) = GetEnemyAroundMe(Caster, SpellEffects(Index).GetRadius, Ref)
-                                For Each EnemyTarget As BaseUnit In EnemyTargets
+                                Dim EnemyTargets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetEnemyAroundMe(Caster, SpellEffects(Index).GetRadius, Ref)
+                                For Each EnemyTarget As WS_Base.BaseUnit In EnemyTargets
                                     If Not TargetsInfected.Contains(EnemyTarget) Then TargetsInfected.Add(EnemyTarget)
                                 Next
                             Case SpellImplicitTargets.TARGET_DYNAMIC_OBJECT
                                 If Targets.goTarget IsNot Nothing Then TargetsInfected.Add(Targets.goTarget)
                             Case SpellImplicitTargets.TARGET_INFRONT
                                 If (CustomAttributs And SpellAttributesCustom.SPELL_ATTR_CU_CONE_BACK) Then
-                                    Dim EnemyTargets As List(Of BaseUnit) = GetEnemyInBehindMe(Caster, SpellEffects(Index).GetRadius)
-                                    For Each EnemyTarget As BaseUnit In EnemyTargets
+                                    Dim EnemyTargets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetEnemyInBehindMe(Caster, SpellEffects(Index).GetRadius)
+                                    For Each EnemyTarget As WS_Base.BaseUnit In EnemyTargets
                                         If Not TargetsInfected.Contains(EnemyTarget) Then TargetsInfected.Add(EnemyTarget)
                                     Next
                                 ElseIf (CustomAttributs And SpellAttributesCustom.SPELL_ATTR_CU_CONE_LINE) Then
                                     'TODO!
                                 Else
-                                    Dim EnemyTargets As List(Of BaseUnit) = GetEnemyInFrontOfMe(Caster, SpellEffects(Index).GetRadius)
-                                    For Each EnemyTarget As BaseUnit In EnemyTargets
+                                    Dim EnemyTargets As List(Of WS_Base.BaseUnit) = _WS_Spells.GetEnemyInFrontOfMe(Caster, SpellEffects(Index).GetRadius)
+                                    For Each EnemyTarget As WS_Base.BaseUnit In EnemyTargets
                                         If Not TargetsInfected.Contains(EnemyTarget) Then TargetsInfected.Add(EnemyTarget)
                                     Next
                                 End If
@@ -346,7 +346,7 @@ Namespace Spells
                             Case SpellImplicitTargets.TARGET_PET, SpellImplicitTargets.TARGET_MINION
                                 'TODO
                             Case SpellImplicitTargets.TARGET_NONCOMBAT_PET
-                                If TypeOf Caster Is WS_PlayerData.CharacterObject AndAlso CType(Caster, CharacterObject).NonCombatPet IsNot Nothing Then TargetsInfected.Add(CType(Caster, CharacterObject).NonCombatPet)
+                                If TypeOf Caster Is WS_PlayerData.CharacterObject AndAlso CType(Caster, WS_PlayerData.CharacterObject).NonCombatPet IsNot Nothing Then TargetsInfected.Add(CType(Caster, WS_PlayerData.CharacterObject).NonCombatPet)
                             Case SpellImplicitTargets.TARGET_SINGLE_ENEMY, SpellImplicitTargets.TARGET_SINGLE_FRIEND_2, SpellImplicitTargets.TARGET_SELECTED_FRIEND, SpellImplicitTargets.TARGET_SINGLE_PARTY
                                 If Not TargetsInfected.Contains(Targets.unitTarget) Then TargetsInfected.Add(Targets.unitTarget)
                             Case SpellImplicitTargets.TARGET_EFFECT_SELECT
@@ -373,25 +373,25 @@ Namespace Spells
 
                     Return CalculateMisses(Caster, TargetsInfected, SpellEffects(Index))
                 Else
-                    Return New Dictionary(Of BaseObject, SpellMissInfo)
+                    Return New Dictionary(Of WS_Base.BaseObject, SpellMissInfo)
                 End If
             End Function
 
-            Public Function CalculateMisses(ByRef Caster As BaseObject, ByRef Targets As List(Of BaseObject), ByRef SpellEffect As SpellEffect) As Dictionary(Of BaseObject, SpellMissInfo)
-                Dim newTargets As New Dictionary(Of BaseObject, SpellMissInfo)
+            Public Function CalculateMisses(ByRef Caster As WS_Base.BaseObject, ByRef Targets As List(Of WS_Base.BaseObject), ByRef SpellEffect As SpellEffect) As Dictionary(Of WS_Base.BaseObject, SpellMissInfo)
+                Dim newTargets As New Dictionary(Of WS_Base.BaseObject, SpellMissInfo)
 
-                For Each Target As BaseObject In Targets
-                    If (Not Target Is Caster) AndAlso (TypeOf Caster Is BaseUnit) AndAlso (TypeOf Target Is BaseUnit) Then
-                        With CType(Target, BaseUnit)
+                For Each Target As WS_Base.BaseObject In Targets
+                    If (Not Target Is Caster) AndAlso (TypeOf Caster Is WS_Base.BaseUnit) AndAlso (TypeOf Target Is WS_Base.BaseUnit) Then
+                        With CType(Target, WS_Base.BaseUnit)
                             If SpellEffect.Mechanic > 0 AndAlso (.MechanicImmunity And (1 << (SpellEffect.Mechanic - 1))) Then 'Immune to mechanic
                                 newTargets.Add(Target, SpellMissInfo.SPELL_MISS_IMMUNE2)
                             ElseIf Not IsNegative Then 'Positive spells can't miss
                                 newTargets.Add(Target, SpellMissInfo.SPELL_MISS_NONE)
                             ElseIf (AttributesEx And SpellAttributesEx.SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) = 0 AndAlso (.SchoolImmunity And (1 << School)) Then 'Immune to school
                                 newTargets.Add(Target, SpellMissInfo.SPELL_MISS_IMMUNE2)
-                            ElseIf (TypeOf Target Is CreatureObject) AndAlso CType(Target, CreatureObject).Evade Then 'Creature is evading
+                            ElseIf (TypeOf Target Is WS_Creatures.CreatureObject) AndAlso CType(Target, WS_Creatures.CreatureObject).Evade Then 'Creature is evading
                                 newTargets.Add(Target, SpellMissInfo.SPELL_MISS_EVADE)
-                            ElseIf (TypeOf Caster Is CharacterObject) AndAlso CType(Caster, CharacterObject).GM Then 'Only GM itself can cast on himself when in GM mode
+                            ElseIf (TypeOf Caster Is WS_PlayerData.CharacterObject) AndAlso CType(Caster, WS_PlayerData.CharacterObject).GM Then 'Only GM itself can cast on himself when in GM mode
                                 'Don't even show up in misses
                             Else
                                 Select Case DamageType
@@ -413,9 +413,9 @@ Namespace Spells
                 Return newTargets
             End Function
 
-            Public Function GetHits(ByRef Targets As Dictionary(Of BaseObject, SpellMissInfo)) As List(Of BaseObject)
-                Dim targetHits As New List(Of BaseObject)
-                For Each Target As KeyValuePair(Of BaseObject, SpellMissInfo) In Targets
+            Public Function GetHits(ByRef Targets As Dictionary(Of WS_Base.BaseObject, SpellMissInfo)) As List(Of WS_Base.BaseObject)
+                Dim targetHits As New List(Of WS_Base.BaseObject)
+                For Each Target As KeyValuePair(Of WS_Base.BaseObject, SpellMissInfo) In Targets
                     If Target.Value = SpellMissInfo.SPELL_MISS_NONE Then
                         targetHits.Add(Target.Key)
                     End If
@@ -490,7 +490,7 @@ Namespace Spells
 
             Public Sub Cast(ByRef castParams As CastSpellParameters)
                 Try
-                    Dim Caster As BaseObject = castParams.Caster
+                    Dim Caster As WS_Base.BaseObject = castParams.Caster
                     Dim Targets As SpellTargets = castParams.Targets
 
                     Dim CastFlags As Short = 2
@@ -525,11 +525,11 @@ Namespace Spells
                     'PREPEARING SPELL
                     castParams.State = SpellCastState.SPELL_STATE_PREPARING
                     castParams.Stopped = False
-                    If TypeOf Caster Is CreatureObject Then
+                    If TypeOf Caster Is WS_Creatures.CreatureObject Then
                         If Targets.unitTarget IsNot Nothing Then
-                            CType(Caster, CreatureObject).TurnTo((Targets.unitTarget))
+                            CType(Caster, WS_Creatures.CreatureObject).TurnTo((Targets.unitTarget))
                         ElseIf (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
-                            CType(Caster, CreatureObject).TurnTo(Targets.dstX, Targets.dstY)
+                            CType(Caster, WS_Creatures.CreatureObject).TurnTo(Targets.dstX, Targets.dstY)
                         End If
                     End If
 
@@ -566,18 +566,18 @@ Namespace Spells
                     Dim SpellTime As Integer = 0
                     Dim SpellDistance As Single = 0
                     If Speed > 0 Then
-                        If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) AndAlso Targets.unitTarget IsNot Nothing Then SpellDistance = GetDistance(Caster, Targets.unitTarget)
-                        If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) AndAlso (Targets.dstX <> 0 OrElse Targets.dstY <> 0 OrElse Targets.dstZ <> 0) Then SpellDistance = GetDistance(Caster, Targets.dstX, Targets.dstY, Targets.dstZ)
-                        If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_OBJECT) AndAlso Targets.goTarget IsNot Nothing Then SpellDistance = GetDistance(Caster, Targets.goTarget)
+                        If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) AndAlso Targets.unitTarget IsNot Nothing Then SpellDistance = _WS_Combat.GetDistance(Caster, Targets.unitTarget)
+                        If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) AndAlso (Targets.dstX <> 0 OrElse Targets.dstY <> 0 OrElse Targets.dstZ <> 0) Then SpellDistance = _WS_Combat.GetDistance(Caster, Targets.dstX, Targets.dstY, Targets.dstZ)
+                        If (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_OBJECT) AndAlso Targets.goTarget IsNot Nothing Then SpellDistance = _WS_Combat.GetDistance(Caster, Targets.goTarget)
                         If SpellDistance > 0 Then SpellTime = Fix(SpellDistance / Speed * 1000)
                     End If
 
                     'DONE: Do one more control to see if you still can cast the spell (only if it's not instant)
                     Dim SpellCastError As SpellFailedReason = SpellFailedReason.SPELL_NO_ERROR
-                    If (castParams.InstantCast = False OrElse GetCastTime = 0) AndAlso TypeOf Caster Is CharacterObject Then
-                        SpellCastError = CanCast(CType(Caster, CharacterObject), Targets, False)
+                    If (castParams.InstantCast = False OrElse GetCastTime = 0) AndAlso TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        SpellCastError = CanCast(CType(Caster, WS_PlayerData.CharacterObject), Targets, False)
                         If SpellCastError <> SpellFailedReason.SPELL_NO_ERROR Then
-                            SendCastResult(SpellCastError, CType(Caster, CharacterObject).client, ID)
+                            _WS_Spells.SendCastResult(SpellCastError, CType(Caster, WS_PlayerData.CharacterObject).client, ID)
                             castParams.State = SpellCastState.SPELL_STATE_IDLE
                             castParams.Dispose() 'Clean up when we don't need it anymore
                             Exit Sub
@@ -585,30 +585,30 @@ Namespace Spells
                     End If
 
                     'DONE: Get the targets
-                    Dim TargetsInfected(0 To 2) As Dictionary(Of BaseObject, SpellMissInfo)
+                    Dim TargetsInfected(0 To 2) As Dictionary(Of WS_Base.BaseObject, SpellMissInfo)
                     TargetsInfected(0) = GetTargets(Caster, Targets, 0)
                     TargetsInfected(1) = GetTargets(Caster, Targets, 1)
                     TargetsInfected(2) = GetTargets(Caster, Targets, 2)
 
                     'DONE: On next attack
                     If (Attributes And SpellAttributes.SPELL_ATTR_NEXT_ATTACK) OrElse (Attributes And SpellAttributes.SPELL_ATTR_NEXT_ATTACK2) Then
-                        If TypeOf Caster Is CharacterObject Then
-                            If CType(Caster, CharacterObject).attackState.combatNextAttackSpell Then
-                                SendCastResult(SpellFailedReason.SPELL_FAILED_SPELL_IN_PROGRESS, CType(Caster, CharacterObject).client, ID)
+                        If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                            If CType(Caster, WS_PlayerData.CharacterObject).attackState.combatNextAttackSpell Then
+                                _WS_Spells.SendCastResult(SpellFailedReason.SPELL_FAILED_SPELL_IN_PROGRESS, CType(Caster, WS_PlayerData.CharacterObject).client, ID)
                                 castParams.Dispose() 'Clean up when we don't need it anymore
                                 Exit Sub
                             End If
 
-                            CType(Caster, CharacterObject).attackState.combatNextAttackSpell = True
-                            CType(Caster, CharacterObject).attackState.combatNextAttack.WaitOne()
+                            CType(Caster, WS_PlayerData.CharacterObject).attackState.combatNextAttackSpell = True
+                            CType(Caster, WS_PlayerData.CharacterObject).attackState.combatNextAttack.WaitOne()
                         End If
                     End If
 
                     'Send cooldown, Drain power and reagents
-                    If TypeOf Caster Is CharacterObject Then
-                        With CType(Caster, CharacterObject)
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        With CType(Caster, WS_PlayerData.CharacterObject)
                             'DONE: Spell cooldown
-                            SendSpellCooldown(CType(Caster, CharacterObject))
+                            SendSpellCooldown(CType(Caster, WS_PlayerData.CharacterObject))
 
                             'DONE: Get reagents
                             For i As Byte = 0 To 7
@@ -638,7 +638,7 @@ Namespace Spells
                                     If ManaCost > 0 Then
                                         .spellCastManaRegeneration = 5
                                         .SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, .Mana.Current)
-                                        .GroupUpdateFlag = .GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
+                                        .GroupUpdateFlag = .GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
                                         .SendCharacterUpdate()
                                     End If
 
@@ -650,7 +650,7 @@ Namespace Spells
                                         .Rage.Current -= GetManaCost(.Level, .Rage.Base)
                                     End If
                                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER2, .Rage.Current)
-                                    .GroupUpdateFlag = .GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
+                                    .GroupUpdateFlag = .GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
                                     .SendCharacterUpdate()
 
                                 Case ManaTypes.TYPE_HEALTH
@@ -662,7 +662,7 @@ Namespace Spells
                                         .Life.Current -= GetManaCost(.Level, .Life.Base)
                                     End If
                                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, .Life.Current)
-                                    .GroupUpdateFlag = .GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP
+                                    .GroupUpdateFlag = .GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP
                                     .SendCharacterUpdate()
 
                                 Case ManaTypes.TYPE_ENERGY
@@ -673,7 +673,7 @@ Namespace Spells
                                         .Energy.Current -= GetManaCost(.Level, .Energy.Base)
                                     End If
                                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER4, .Energy.Current)
-                                    .GroupUpdateFlag = .GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
+                                    .GroupUpdateFlag = .GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
                                     .SendCharacterUpdate()
 
                             End Select
@@ -682,26 +682,26 @@ Namespace Spells
                             .RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST_SPELL)
 
                             'DONE: Check if the spell was needed for a quest
-                            If Not (Targets.unitTarget Is Nothing) AndAlso TypeOf Targets.unitTarget Is CreatureObject Then
-                                _WorldServer.ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.unitTarget, CreatureObject), ID)
+                            If Not (Targets.unitTarget Is Nothing) AndAlso TypeOf Targets.unitTarget Is WS_Creatures.CreatureObject Then
+                                _WorldServer.ALLQUESTS.OnQuestCastSpell(CType(Caster, WS_PlayerData.CharacterObject), CType(Targets.unitTarget, WS_Creatures.CreatureObject), ID)
                             End If
                             If Not (Targets.goTarget Is Nothing) Then
-                                _WorldServer.ALLQUESTS.OnQuestCastSpell(CType(Caster, CharacterObject), CType(Targets.goTarget, GameObjectObject), ID)
+                                _WorldServer.ALLQUESTS.OnQuestCastSpell(CType(Caster, WS_PlayerData.CharacterObject), CType(Targets.goTarget, WS_GameObjects.GameObjectObject), ID)
                             End If
                         End With
 
-                    ElseIf TypeOf Caster Is CreatureObject Then
-                        With CType(Caster, CreatureObject)
+                    ElseIf TypeOf Caster Is WS_Creatures.CreatureObject Then
+                        With CType(Caster, WS_Creatures.CreatureObject)
                             'DONE: Get mana from creatures
                             Select Case powerType
                                 Case ManaTypes.TYPE_MANA
                                     .Mana.Current -= GetManaCost(.Level, .Mana.Base)
 
                                     'DONE: Send the update
-                                    Dim updatePacket As New UpdatePacketClass
-                                    Dim powerUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                                    Dim updatePacket As New Packets.UpdatePacketClass
+                                    Dim powerUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                     powerUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, .Mana.Current)
-                                    powerUpdate.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
+                                    powerUpdate.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_Creatures.CreatureObject))
                                     .SendToNearPlayers(updatePacket)
                                     powerUpdate.Dispose()
 
@@ -709,10 +709,10 @@ Namespace Spells
                                     .Life.Current -= GetManaCost(.Level, .Life.Base)
 
                                     'DONE: Send the update
-                                    Dim updatePacket As New UpdatePacketClass
-                                    Dim powerUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                                    Dim updatePacket As New Packets.UpdatePacketClass
+                                    Dim powerUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                                     powerUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, .Life.Current)
-                                    powerUpdate.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
+                                    powerUpdate.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_Creatures.CreatureObject))
                                     .SendToNearPlayers(updatePacket)
                                     powerUpdate.Dispose()
                             End Select
@@ -722,12 +722,12 @@ Namespace Spells
                     castParams.State = SpellCastState.SPELL_STATE_FINISHED
 
                     'DONE: Send the cast result
-                    If TypeOf Caster Is CharacterObject Then SendCastResult(SpellFailedReason.SPELL_NO_ERROR, CType(Caster, CharacterObject).client, ID)
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then _WS_Spells.SendCastResult(SpellFailedReason.SPELL_NO_ERROR, CType(Caster, WS_PlayerData.CharacterObject).client, ID)
 
                     'DONE: Send the GO message
                     Dim tmpTargets As New Dictionary(Of ULong, SpellMissInfo)
                     For i As Byte = 0 To 2
-                        For Each tmpTarget As KeyValuePair(Of BaseObject, SpellMissInfo) In TargetsInfected(i)
+                        For Each tmpTarget As KeyValuePair(Of WS_Base.BaseObject, SpellMissInfo) In TargetsInfected(i)
                             If Not tmpTargets.ContainsKey(tmpTarget.Key.GUID) Then tmpTargets.Add(tmpTarget.Key.GUID, tmpTarget.Value)
                         Next
                     Next
@@ -740,12 +740,12 @@ Namespace Spells
                         StartChannel(Caster, GetDuration, Targets)
                     End If
 
-                    If TypeOf Caster Is CharacterObject Then
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
                         If castParams.Item IsNot Nothing Then
                             'DONE: If this spell use charges then reduce by one when we cast this spell
                             If castParams.Item.ChargesLeft > 0 Then
                                 castParams.Item.ChargesLeft -= 1
-                                CType(Caster, CharacterObject).SendItemUpdate(castParams.Item)
+                                CType(Caster, WS_PlayerData.CharacterObject).SendItemUpdate(castParams.Item)
                             End If
 
                             'DONE: Consume the item
@@ -753,12 +753,12 @@ Namespace Spells
                                 castParams.Item.StackCount -= 1
                                 If castParams.Item.StackCount <= 0 Then
                                     Dim bag As Byte, slot As Byte
-                                    slot = CType(Caster, CharacterObject).ItemGetSLOTBAG(castParams.Item.GUID, bag)
+                                    slot = CType(Caster, WS_PlayerData.CharacterObject).ItemGetSLOTBAG(castParams.Item.GUID, bag)
                                     If bag <> _Global_Constants.ITEM_SLOT_NULL And slot <> _Global_Constants.ITEM_SLOT_NULL Then
-                                        CType(Caster, CharacterObject).ItemREMOVE(bag, slot, True, True)
+                                        CType(Caster, WS_PlayerData.CharacterObject).ItemREMOVE(bag, slot, True, True)
                                     End If
                                 Else
-                                    CType(Caster, CharacterObject).SendItemUpdate(castParams.Item)
+                                    CType(Caster, WS_PlayerData.CharacterObject).SendItemUpdate(castParams.Item)
                                 End If
                             End If
                         End If
@@ -768,7 +768,7 @@ Namespace Spells
                     If SpellTime > 0 Then Thread.Sleep(SpellTime)
 
                     'APPLYING EFFECTS
-                    Dim TargetHits(2) As List(Of BaseObject)
+                    Dim TargetHits(2) As List(Of WS_Base.BaseObject)
                     TargetHits(0) = GetHits(TargetsInfected(0))
                     TargetHits(1) = GetHits(TargetsInfected(1))
                     TargetHits(2) = GetHits(TargetsInfected(2))
@@ -778,14 +778,14 @@ Namespace Spells
                             _WorldServer.Log.WriteLine(LogType.DEBUG, "DEBUG: Casting effect: {0}", SpellEffects(i).ID)
 #End If
 
-                            SpellCastError = SPELL_EFFECTs(SpellEffects(i).ID).Invoke(Targets, Caster, SpellEffects(i), ID, TargetHits(i), castParams.Item)
+                            SpellCastError = _WS_Spells.SPELL_EFFECTs(SpellEffects(i).ID).Invoke(Targets, Caster, SpellEffects(i), ID, TargetHits(i), castParams.Item)
                             If SpellCastError <> SpellFailedReason.SPELL_NO_ERROR Then Exit For
                         End If
                     Next
 
                     If SpellCastError <> SpellFailedReason.SPELL_NO_ERROR Then
-                        If TypeOf Caster Is CharacterObject Then
-                            SendCastResult(SpellCastError, CType(Caster, CharacterObject).client, ID)
+                        If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                            _WS_Spells.SendCastResult(SpellCastError, CType(Caster, WS_PlayerData.CharacterObject).client, ID)
                             SendInterrupted(0, Caster)
                             castParams.Dispose() 'Clean up when we don't need it anymore
                             Exit Sub
@@ -814,30 +814,30 @@ Namespace Spells
                 End If
             End Sub
 
-            Public Sub Apply(ByRef caster As BaseObject, ByVal Targets As SpellTargets)
-                Dim TargetsInfected(0 To 2) As List(Of BaseObject)
+            Public Sub Apply(ByRef caster As WS_Base.BaseObject, ByVal Targets As SpellTargets)
+                Dim TargetsInfected(0 To 2) As List(Of WS_Base.BaseObject)
                 TargetsInfected(0) = GetHits(GetTargets(caster, Targets, 0))
                 TargetsInfected(1) = GetHits(GetTargets(caster, Targets, 1))
                 TargetsInfected(2) = GetHits(GetTargets(caster, Targets, 2))
 
-                If SpellEffects(0) IsNot Nothing Then SPELL_EFFECTs(SpellEffects(0).ID).Invoke(Targets, caster, SpellEffects(0), ID, TargetsInfected(0), Nothing)
-                If SpellEffects(1) IsNot Nothing Then SPELL_EFFECTs(SpellEffects(1).ID).Invoke(Targets, caster, SpellEffects(1), ID, TargetsInfected(1), Nothing)
-                If SpellEffects(2) IsNot Nothing Then SPELL_EFFECTs(SpellEffects(2).ID).Invoke(Targets, caster, SpellEffects(2), ID, TargetsInfected(2), Nothing)
+                If SpellEffects(0) IsNot Nothing Then _WS_Spells.SPELL_EFFECTs(SpellEffects(0).ID).Invoke(Targets, caster, SpellEffects(0), ID, TargetsInfected(0), Nothing)
+                If SpellEffects(1) IsNot Nothing Then _WS_Spells.SPELL_EFFECTs(SpellEffects(1).ID).Invoke(Targets, caster, SpellEffects(1), ID, TargetsInfected(1), Nothing)
+                If SpellEffects(2) IsNot Nothing Then _WS_Spells.SPELL_EFFECTs(SpellEffects(2).ID).Invoke(Targets, caster, SpellEffects(2), ID, TargetsInfected(2), Nothing)
             End Sub
 
-            Public Function CanCast(ByRef Character As CharacterObject, ByVal Targets As SpellTargets, ByVal FirstCheck As Boolean) As SpellFailedReason
+            Public Function CanCast(ByRef Character As WS_PlayerData.CharacterObject, ByVal Targets As SpellTargets, ByVal FirstCheck As Boolean) As SpellFailedReason
                 If Character.Spell_Silenced Then Return SpellFailedReason.SPELL_FAILED_SILENCED
                 If (Character.cUnitFlags And UnitFlags.UNIT_FLAG_TAXI_FLIGHT) Then Return SpellFailedReason.SPELL_FAILED_ERROR
                 If (Targets.unitTarget IsNot Nothing) AndAlso (Not Targets.unitTarget Is Character) Then
                     If (FacingCasterFlags And 1) Then
-                        If IsInFrontOf(Character, (Targets.unitTarget)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_INFRONT
+                        If _WS_Combat.IsInFrontOf(Character, (Targets.unitTarget)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_INFRONT
                     End If
                     If (FacingCasterFlags And 2) Then
-                        If IsInBackOf(Character, (Targets.unitTarget)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_BEHIND
+                        If _WS_Combat.IsInBackOf(Character, (Targets.unitTarget)) = False Then Return SpellFailedReason.SPELL_FAILED_NOT_BEHIND
                     End If
                 End If
 
-                If Targets.unitTarget IsNot Nothing AndAlso (Not Targets.unitTarget Is Character) AndAlso (TypeOf Targets.unitTarget Is CharacterObject) AndAlso CType(Targets.unitTarget, CharacterObject).GM Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
+                If Targets.unitTarget IsNot Nothing AndAlso (Not Targets.unitTarget Is Character) AndAlso (TypeOf Targets.unitTarget Is WS_PlayerData.CharacterObject) AndAlso CType(Targets.unitTarget, WS_PlayerData.CharacterObject).GM Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
 
                 If (Attributes And SpellAttributes.SPELL_ATTR_WHILE_DEAD) = 0 AndAlso Character.IsDead Then Return SpellFailedReason.SPELL_FAILED_CASTER_DEAD
                 If (Attributes And SpellAttributes.SPELL_ATTR_NOT_WHILE_COMBAT) Then
@@ -850,7 +850,7 @@ Namespace Spells
                 If (StanceMask And RequredCasterStance) = 0 Then
                     Dim actAsShifted As Boolean = False
                     If Character.ShapeshiftForm > ShapeshiftForm.FORM_NORMAL Then
-                        Dim ShapeShift As WS_DBCDatabase.TSpellShapeshiftForm = FindShapeshiftForm(Character.ShapeshiftForm)
+                        Dim ShapeShift As WS_DBCDatabase.TSpellShapeshiftForm = _WS_DBCDatabase.FindShapeshiftForm(Character.ShapeshiftForm)
                         If ShapeShift IsNot Nothing Then
                             If (ShapeShift.Flags1 And 1) = 0 Then
                                 actAsShifted = True
@@ -874,7 +874,7 @@ Namespace Spells
                     End If
                 End If
 
-                SkipShapeShift:
+SkipShapeShift:
                 If (Attributes And SpellAttributes.SPELL_ATTR_REQ_STEALTH) And Character.Invisibility <> InvisibilityLevel.STEALTH Then
                     Return SpellFailedReason.SPELL_FAILED_ONLY_STEALTHED
                 End If
@@ -960,7 +960,7 @@ Namespace Spells
                                         selectedX = Character.positionX + Math.Cos(Character.orientation) * GetRange
                                         selectedY = Character.positionY + Math.Sin(Character.orientation) * GetRange
                                     End If
-                                    If GetZCoord(selectedX, selectedY, Character.MapID) > GetWaterLevel(selectedX, selectedY, Character.MapID) Then Return SpellFailedReason.SPELL_FAILED_NOT_FISHABLE
+                                    If _WS_Maps.GetZCoord(selectedX, selectedY, Character.MapID) > _WS_Maps.GetWaterLevel(selectedX, selectedY, Character.MapID) Then Return SpellFailedReason.SPELL_FAILED_NOT_FISHABLE
                                 End If
                             Case SpellEffects_Names.SPELL_EFFECT_OPEN_LOCK
                                 'TODO: Fix this :P
@@ -990,11 +990,11 @@ Namespace Spells
 
                 'DONE: Check if the target is out of line of sight
                 If Targets.unitTarget IsNot Nothing Then
-                    If IsInLineOfSight(Character, Targets.unitTarget) = False Then
+                    If _WS_Maps.IsInLineOfSight(Character, Targets.unitTarget) = False Then
                         Return SpellFailedReason.SPELL_FAILED_LINE_OF_SIGHT
                     End If
                 ElseIf (Targets.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
-                    If IsInLineOfSight(Character, Targets.dstX, Targets.dstY, Targets.dstZ) = False Then
+                    If _WS_Maps.IsInLineOfSight(Character, Targets.dstX, Targets.dstY, Targets.dstZ) = False Then
                         Return SpellFailedReason.SPELL_FAILED_LINE_OF_SIGHT
                     End If
                 End If
@@ -1002,19 +1002,19 @@ Namespace Spells
                 Return SpellFailedReason.SPELL_NO_ERROR
             End Function
 
-            Public Sub StartChannel(ByRef Caster As BaseUnit, ByVal Duration As Integer, ByRef Targets As SpellTargets)
-                If TypeOf Caster Is CharacterObject Then
-                    Dim packet As New PacketClass(OPCODES.MSG_CHANNEL_START)
+            Public Sub StartChannel(ByRef Caster As WS_Base.BaseUnit, ByVal Duration As Integer, ByRef Targets As SpellTargets)
+                If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                    Dim packet As New Packets.PacketClass(OPCODES.MSG_CHANNEL_START)
                     packet.AddInt32(ID)
                     packet.AddInt32(Duration)
-                    CType(Caster, CharacterObject).client.Send(packet)
+                    CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet)
                     packet.Dispose()
-                ElseIf Not TypeOf Caster Is CreatureObject Then 'Only characters and creatures can channel spells
+                ElseIf Not TypeOf Caster Is WS_Creatures.CreatureObject Then 'Only characters and creatures can channel spells
                     Exit Sub
                 End If
 
-                Dim updatePacket As New UpdatePacketClass()
-                Dim updateBlock As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                Dim updatePacket As New Packets.UpdatePacketClass()
+                Dim updateBlock As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 updateBlock.SetUpdateFlag(EUnitFields.UNIT_CHANNEL_SPELL, ID)
 
                 'DONE: Let others know what target we channel against
@@ -1022,21 +1022,21 @@ Namespace Spells
                     updateBlock.SetUpdateFlag(EUnitFields.UNIT_FIELD_CHANNEL_OBJECT, Targets.unitTarget.GUID)
                 End If
 
-                If TypeOf Caster Is CreatureObject Then
-                    updateBlock.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CharacterObject))
-                ElseIf TypeOf Caster Is CreatureObject Then
-                    updateBlock.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
+                If TypeOf Caster Is WS_Creatures.CreatureObject Then
+                    updateBlock.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_PlayerData.CharacterObject))
+                ElseIf TypeOf Caster Is WS_Creatures.CreatureObject Then
+                    updateBlock.AddToPacket(updatePacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_Creatures.CreatureObject))
                 End If
 
                 Caster.SendToNearPlayers(updatePacket)
                 updatePacket.Dispose()
             End Sub
 
-            Public Sub WriteAmmoToPacket(ByRef Packet As PacketClass, ByRef Caster As BaseUnit)
-                Dim ItemInfo As ItemInfo = Nothing
+            Public Sub WriteAmmoToPacket(ByRef Packet As Packets.PacketClass, ByRef Caster As WS_Base.BaseUnit)
+                Dim ItemInfo As WS_Items.ItemInfo = Nothing
 
-                If TypeOf Caster Is CharacterObject Then
-                    With CType(Caster, CharacterObject)
+                If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                    With CType(Caster, WS_PlayerData.CharacterObject)
 
                         Dim RangedItem As ItemObject = .ItemGET(0, EquipmentSlots.EQUIPMENT_SLOT_RANGED)
                         If RangedItem IsNot Nothing Then
@@ -1054,7 +1054,7 @@ Namespace Spells
 
                 If ItemInfo Is Nothing Then
                     If _WorldServer.ITEMDatabase.ContainsKey(2512) = False Then
-                        Dim tmpInfo As New ItemInfo(2512)
+                        Dim tmpInfo As New WS_Items.ItemInfo(2512)
                         _WorldServer.ITEMDatabase.Add(2512, tmpInfo)
                     End If
                     ItemInfo = _WorldServer.ITEMDatabase(2512)
@@ -1065,24 +1065,24 @@ Namespace Spells
                 Packet.AddInt32(ItemInfo.InventoryType) 'Ammo Inventory Type
             End Sub
 
-            Public Sub SendInterrupted(ByVal result As Byte, ByRef Caster As BaseUnit)
-                If TypeOf Caster Is CharacterObject Then
-                    Dim packet As New PacketClass(OPCODES.SMSG_SPELL_FAILURE)
+            Public Sub SendInterrupted(ByVal result As Byte, ByRef Caster As WS_Base.BaseUnit)
+                If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELL_FAILURE)
                     packet.AddUInt64(Caster.GUID) 'PackGuid?
                     packet.AddInt32(ID)
                     packet.AddInt8(result)
-                    CType(Caster, CharacterObject).client.Send(packet)
+                    CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet)
                     packet.Dispose()
                 End If
 
-                Dim packet2 As New PacketClass(OPCODES.SMSG_SPELL_FAILED_OTHER)
+                Dim packet2 As New Packets.PacketClass(OPCODES.SMSG_SPELL_FAILED_OTHER)
                 packet2.AddUInt64(Caster.GUID) 'PackGuid?
                 packet2.AddInt32(ID)
                 Caster.SendToNearPlayers(packet2)
                 packet2.Dispose()
             End Sub
 
-            Public Sub SendSpellGO(ByRef Caster As BaseObject, ByRef Targets As SpellTargets, ByRef InfectedTargets As Dictionary(Of ULong, SpellMissInfo), ByRef Item As ItemObject)
+            Public Sub SendSpellGO(ByRef Caster As WS_Base.BaseObject, ByRef Targets As SpellTargets, ByRef InfectedTargets As Dictionary(Of ULong, SpellMissInfo), ByRef Item As ItemObject)
                 Dim castFlags As Short = 256
                 If IsRanged Then castFlags = castFlags Or SpellCastFlags.CAST_FLAG_RANGED
                 If Item IsNot Nothing Then castFlags = castFlags Or SpellCastFlags.CAST_FLAG_ITEM_CASTER
@@ -1098,7 +1098,7 @@ Namespace Spells
                     End If
                 Next
 
-                Dim packet As New PacketClass(OPCODES.SMSG_SPELL_GO)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELL_GO)
                 'SpellCaster (If the spell is casted by a item, then it's the item guid here, else caster guid)
                 If Item IsNot Nothing Then
                     packet.AddPackGUID(Item.GUID)
@@ -1132,8 +1132,8 @@ Namespace Spells
                 packet.Dispose()
             End Sub
 
-            Public Sub SendSpellMiss(ByRef Caster As BaseObject, ByRef Target As BaseUnit, ByVal MissInfo As SpellMissInfo)
-                Dim packet As New PacketClass(OPCODES.SMSG_SPELLLOGMISS)
+            Public Sub SendSpellMiss(ByRef Caster As WS_Base.BaseObject, ByRef Target As WS_Base.BaseUnit, ByVal MissInfo As SpellMissInfo)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELLLOGMISS)
                 packet.AddInt32(ID)
                 packet.AddUInt64(Caster.GUID)
                 packet.AddInt8(0) '0 or 1?
@@ -1144,10 +1144,10 @@ Namespace Spells
                 packet.Dispose()
             End Sub
 
-            Public Sub SendSpellLog(ByRef Caster As BaseObject, ByRef Targets As SpellTargets)
-                Dim packet As New PacketClass(OPCODES.SMSG_SPELLLOGEXECUTE)
+            Public Sub SendSpellLog(ByRef Caster As WS_Base.BaseObject, ByRef Targets As SpellTargets)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELLLOGEXECUTE)
 
-                If TypeOf Caster Is CharacterObject Then
+                If TypeOf Caster Is WS_PlayerData.CharacterObject Then
                     packet.AddPackGUID(Caster.GUID)
                 Else
                     If Targets.unitTarget IsNot Nothing Then
@@ -1221,7 +1221,7 @@ Namespace Spells
                 packet.Dispose()
             End Sub
 
-            Public Sub SendSpellCooldown(ByRef objCharacter As CharacterObject, Optional ByRef castItem As ItemObject = Nothing)
+            Public Sub SendSpellCooldown(ByRef objCharacter As WS_PlayerData.CharacterObject, Optional ByRef castItem As ItemObject = Nothing)
                 If Not objCharacter.Spells.ContainsKey(ID) Then Return 'This is a trigger spell or something, exit
                 Dim Recovery As Integer = SpellCooldown
                 Dim CatRecovery As Integer = CategoryCooldown
@@ -1249,7 +1249,7 @@ Namespace Spells
 
                 If CatRecovery = 0 AndAlso Recovery = 0 Then Exit Sub 'There is no cooldown
 
-                objCharacter.Spells(ID).Cooldown = GetTimestamp(Now) + (Recovery \ 1000)
+                objCharacter.Spells(ID).Cooldown = _Functions.GetTimestamp(Now) + (Recovery \ 1000)
                 If castItem IsNot Nothing Then objCharacter.Spells(ID).CooldownItem = castItem.ItemEntry
 
                 'DONE: Save the cooldown, but only if it's really worth saving
@@ -1258,12 +1258,12 @@ Namespace Spells
                 End If
 
                 'DONE: Send the cooldown
-                Dim packet As New PacketClass(OPCODES.SMSG_SPELL_COOLDOWN)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELL_COOLDOWN)
                 packet.AddUInt64(objCharacter.GUID)
 
                 If CatRecovery > 0 Then
                     For Each Spell As KeyValuePair(Of Integer, CharacterSpell) In objCharacter.Spells
-                        If SPELLs(Spell.Key).Category = Category Then
+                        If _WS_Spells.SPELLs(Spell.Key).Category = Category Then
                             packet.AddInt32(Spell.Key)
                             If Spell.Key <> ID OrElse Recovery = 0 Then
                                 packet.AddInt32(CatRecovery)
@@ -1282,7 +1282,7 @@ Namespace Spells
 
                 'DONE: Send item cooldown
                 If castItem IsNot Nothing Then
-                    packet = New PacketClass(OPCODES.SMSG_ITEM_COOLDOWN)
+                    packet = New Packets.PacketClass(OPCODES.SMSG_ITEM_COOLDOWN)
                     packet.AddUInt64(castItem.GUID)
                     packet.AddInt32(ID)
                     objCharacter.client.Send(packet)
@@ -1323,7 +1323,7 @@ Namespace Spells
 
             Public ReadOnly Property GetRadius() As Single
                 Get
-                    If SpellRadius.ContainsKey(RadiusIndex) Then Return SpellRadius(RadiusIndex)
+                    If _WS_Spells.SpellRadius.ContainsKey(RadiusIndex) Then Return _WS_Spells.SpellRadius(RadiusIndex)
                     Return 0
                 End Get
             End Property
@@ -1387,9 +1387,9 @@ Namespace Spells
         End Class
 
         Public Class SpellTargets
-            Public unitTarget As BaseUnit = Nothing
-            Public goTarget As BaseObject = Nothing
-            Public corpseTarget As CorpseObject = Nothing
+            Public unitTarget As WS_Base.BaseUnit = Nothing
+            Public goTarget As WS_Base.BaseObject = Nothing
+            Public corpseTarget As WS_Corpses.CorpseObject = Nothing
             Public itemTarget As ItemObject = Nothing
             Public srcX As Single = 0
             Public srcY As Single = 0
@@ -1401,7 +1401,7 @@ Namespace Spells
 
             Public targetMask As Integer = 0
 
-            Public Sub ReadTargets(ByRef packet As PacketClass, ByRef Caster As BaseObject)
+            Public Sub ReadTargets(ByRef packet As Packets.PacketClass, ByRef Caster As WS_Base.BaseObject)
                 targetMask = packet.GetInt16
 
                 If targetMask = SpellCastTargetFlags.TARGET_FLAG_SELF Then
@@ -1456,7 +1456,7 @@ Namespace Spells
                 End If
             End Sub
 
-            Public Sub WriteTargets(ByRef packet As PacketClass)
+            Public Sub WriteTargets(ByRef packet As Packets.PacketClass)
                 packet.AddInt16(targetMask)
 
                 If (targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) Then packet.AddPackGUID(unitTarget.GUID)
@@ -1482,17 +1482,17 @@ Namespace Spells
                 End If
             End Sub
 
-            Public Sub SetTarget_SELF(ByRef objCharacter As BaseUnit)
+            Public Sub SetTarget_SELF(ByRef objCharacter As WS_Base.BaseUnit)
                 unitTarget = objCharacter
                 targetMask += SpellCastTargetFlags.TARGET_FLAG_SELF
             End Sub
 
-            Public Sub SetTarget_UNIT(ByRef objCharacter As BaseUnit)
+            Public Sub SetTarget_UNIT(ByRef objCharacter As WS_Base.BaseUnit)
                 unitTarget = objCharacter
                 targetMask += SpellCastTargetFlags.TARGET_FLAG_UNIT
             End Sub
 
-            Public Sub SetTarget_OBJECT(ByRef o As BaseObject)
+            Public Sub SetTarget_OBJECT(ByRef o As WS_Base.BaseObject)
                 goTarget = o
                 targetMask += SpellCastTargetFlags.TARGET_FLAG_OBJECT
             End Sub
@@ -1526,7 +1526,7 @@ Namespace Spells
             Implements IDisposable
 
             Public Targets As SpellTargets
-            Public Caster As BaseObject
+            Public Caster As WS_Base.BaseObject
             Public SpellID As Integer
             Public Item As ItemObject = Nothing
             Public InstantCast As Boolean = False
@@ -1535,7 +1535,7 @@ Namespace Spells
             Public Stopped As Boolean = False
             Public State As SpellCastState = SpellCastState.SPELL_STATE_IDLE
 
-            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As BaseObject, ByVal SpellID As Integer)
+            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByVal SpellID As Integer)
                 Me.Targets = Targets
                 Me.Caster = Caster
                 Me.SpellID = SpellID
@@ -1543,7 +1543,7 @@ Namespace Spells
                 InstantCast = False
             End Sub
 
-            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As BaseObject, ByVal SpellID As Integer, ByVal Instant As Boolean)
+            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByVal SpellID As Integer, ByVal Instant As Boolean)
                 Me.Targets = Targets
                 Me.Caster = Caster
                 Me.SpellID = SpellID
@@ -1551,7 +1551,7 @@ Namespace Spells
                 InstantCast = Instant
             End Sub
 
-            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As BaseObject, ByVal SpellID As Integer, ByRef Item As ItemObject)
+            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByVal SpellID As Integer, ByRef Item As ItemObject)
                 Me.Targets = Targets
                 Me.Caster = Caster
                 Me.SpellID = SpellID
@@ -1559,7 +1559,7 @@ Namespace Spells
                 InstantCast = False
             End Sub
 
-            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As BaseObject, ByVal SpellID As Integer, ByRef Item As ItemObject, ByVal Instant As Boolean)
+            Public Sub New(ByRef Targets As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByVal SpellID As Integer, ByRef Item As ItemObject, ByVal Instant As Boolean)
                 Me.Targets = Targets
                 Me.Caster = Caster
                 Me.SpellID = SpellID
@@ -1569,7 +1569,7 @@ Namespace Spells
 
             Public ReadOnly Property SpellInfo() As SpellInfo
                 Get
-                    Return SPELLs(SpellID)
+                    Return _WS_Spells.SPELLs(SpellID)
                 End Get
             End Property
 
@@ -1582,7 +1582,7 @@ Namespace Spells
             Public Sub Cast(ByVal status As Object)
                 Try
                     Stopped = False
-                    SPELLs(SpellID).Cast(Me)
+                    _WS_Spells.SPELLs(SpellID).Cast(Me)
                 Catch ex As Exception
                     _WorldServer.Log.WriteLine(LogType.WARNING, "Cast Exception {0} : Interrupted {1}", SpellID, Stopped)
                 End Try
@@ -1600,7 +1600,7 @@ Namespace Spells
                 If Caster Is Nothing OrElse Finished Then Exit Sub
 
                 'Calculate resist chance
-                Dim resistChance As Integer = CType(Caster, BaseUnit).GetAuraModifier(AuraEffects_Names.SPELL_AURA_RESIST_PUSHBACK)
+                Dim resistChance As Integer = CType(Caster, WS_Base.BaseUnit).GetAuraModifier(AuraEffects_Names.SPELL_AURA_RESIST_PUSHBACK)
                 If resistChance > 0 AndAlso resistChance > _WorldServer.Rnd.Next(0, 100) Then Exit Sub 'Resisted pushback
 
                 'TODO: Calculate delay time?
@@ -1608,7 +1608,7 @@ Namespace Spells
 
                 Delayed += delaytime
 
-                Dim packet As New PacketClass(OPCODES.SMSG_SPELL_DELAYED)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELL_DELAYED)
                 packet.AddPackGUID(Caster.GUID)
                 packet.AddInt32(delaytime)
                 Caster.SendToNearPlayers(packet)
@@ -1652,7 +1652,7 @@ Namespace Spells
         End Class
 
         Public Sub SendCastResult(ByVal result As SpellFailedReason, ByRef client As WS_Network.ClientClass, ByVal id As Integer)
-            Dim packet As New PacketClass(OPCODES.SMSG_CAST_RESULT)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_CAST_RESULT)
             packet.AddInt32(id)
             If result <> SpellFailedReason.SPELL_NO_ERROR Then
                 packet.AddInt8(2)
@@ -1665,8 +1665,8 @@ Namespace Spells
             packet.Dispose()
         End Sub
 
-        Public Sub SendNonMeleeDamageLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal SchoolType As Integer, ByVal Damage As Integer, ByVal Resist As Integer, ByVal Absorbed As Integer, ByVal CriticalHit As Boolean)
-            Dim packet As New PacketClass(OPCODES.SMSG_SPELLNONMELEEDAMAGELOG)
+        Public Sub SendNonMeleeDamageLog(ByRef Caster As WS_Base.BaseUnit, ByRef Target As WS_Base.BaseUnit, ByVal SpellID As Integer, ByVal SchoolType As Integer, ByVal Damage As Integer, ByVal Resist As Integer, ByVal Absorbed As Integer, ByVal CriticalHit As Boolean)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_SPELLNONMELEEDAMAGELOG)
             packet.AddPackGUID(Target.GUID)
             packet.AddPackGUID(Caster.GUID)
             packet.AddInt32(SpellID)
@@ -1686,8 +1686,8 @@ Namespace Spells
             Caster.SendToNearPlayers(packet)
         End Sub
 
-        Public Sub SendHealSpellLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal CriticalHit As Boolean)
-            Dim packet As New PacketClass(OPCODES.SMSG_HEALSPELL_ON_PLAYER_OBSOLETE)
+        Public Sub SendHealSpellLog(ByRef Caster As WS_Base.BaseUnit, ByRef Target As WS_Base.BaseUnit, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal CriticalHit As Boolean)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_HEALSPELL_ON_PLAYER_OBSOLETE)
             packet.AddPackGUID(Target.GUID)
             packet.AddPackGUID(Caster.GUID)
             packet.AddInt32(SpellID)
@@ -1700,7 +1700,7 @@ Namespace Spells
             Caster.SendToNearPlayers(packet)
         End Sub
 
-        Public Sub SendEnergizeSpellLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal PowerType As Integer)
+        Public Sub SendEnergizeSpellLog(ByRef Caster As WS_Base.BaseUnit, ByRef Target As WS_Base.BaseUnit, ByVal SpellID As Integer, ByVal Damage As Integer, ByVal PowerType As Integer)
             'Dim packet As New PacketClass(OPCODES.SMSG_SPELLENERGIZELOG)
             'packet.AddPackGUID(Target.GUID)
             'packet.AddPackGUID(Caster.GUID)
@@ -1711,8 +1711,8 @@ Namespace Spells
             'packet.Dispose()
         End Sub
 
-        Public Sub SendPeriodicAuraLog(ByRef Caster As BaseUnit, ByRef Target As BaseUnit, ByVal SpellID As Integer, ByVal School As Integer, ByVal Damage As Integer, ByVal AuraIndex As Integer)
-            Dim packet As New PacketClass(OPCODES.SMSG_PERIODICAURALOG)
+        Public Sub SendPeriodicAuraLog(ByRef Caster As WS_Base.BaseUnit, ByRef Target As WS_Base.BaseUnit, ByVal SpellID As Integer, ByVal School As Integer, ByVal Damage As Integer, ByVal AuraIndex As Integer)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_PERIODICAURALOG)
             packet.AddPackGUID(Target.GUID)
             packet.AddPackGUID(Caster.GUID)
             packet.AddInt32(SpellID)
@@ -1725,17 +1725,17 @@ Namespace Spells
             packet.Dispose()
         End Sub
 
-        Public Sub SendPlaySpellVisual(ByRef Caster As BaseUnit, ByVal SpellId As Integer)
-            Dim packet As New PacketClass(OPCODES.SMSG_PLAY_SPELL_VISUAL)
+        Public Sub SendPlaySpellVisual(ByRef Caster As WS_Base.BaseUnit, ByVal SpellId As Integer)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_PLAY_SPELL_VISUAL)
             packet.AddUInt64(Caster.GUID)
             packet.AddInt32(SpellId)
             Caster.SendToNearPlayers(packet)
             packet.Dispose()
         End Sub
 
-        Public Sub SendChannelUpdate(ByRef Caster As CharacterObject, ByVal Time As Integer)
+        Public Sub SendChannelUpdate(ByRef Caster As WS_PlayerData.CharacterObject, ByVal Time As Integer)
             'DONE: Update time for self
-            Dim packet As New PacketClass(OPCODES.MSG_CHANNEL_UPDATE)
+            Dim packet As New Packets.PacketClass(OPCODES.MSG_CHANNEL_UPDATE)
             packet.AddInt32(Time)
             Caster.client.Send(packet)
             packet.Dispose()
@@ -2177,55 +2177,55 @@ Namespace Spells
 
 #Region "WS.Spells.SpellEffects"
 
-        Delegate Function SpellEffectHandler(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Delegate Function SpellEffectHandler(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
         Public Const SPELL_EFFECT_COUNT As Integer = 153
         Public SPELL_EFFECTs(SPELL_EFFECT_COUNT) As SpellEffectHandler
 
-        Public Function SPELL_EFFECT_NOTHING(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_NOTHING(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_BIND(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_BIND(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).BindPlayer(Caster.GUID)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).BindPlayer(Caster.GUID)
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_DUMMY(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_DUMMY(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_INSTAKILL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            For Each Unit As BaseUnit In Infected
+        Public Function SPELL_EFFECT_INSTAKILL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            For Each Unit As WS_Base.BaseUnit In Infected
                 Unit.Die(Caster)
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_SCHOOL_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_SCHOOL_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             Dim Damage As Integer = 0
             Dim Current As Integer = 0
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Caster Is DynamicObjectObject Then
-                    Damage = SpellInfo.GetValue(CType(Caster, DynamicObjectObject).Caster.Level)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Caster Is WS_DynamicObjects.DynamicObjectObject Then
+                    Damage = SpellInfo.GetValue(CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster.Level)
                 Else
-                    Damage = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Damage = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                 End If
 
                 If Current > 0 Then Damage *= (SpellInfo.DamageMultiplier ^ Current)
 
-                Dim realCaster As BaseUnit = Nothing
-                If TypeOf Caster Is BaseUnit Then
+                Dim realCaster As WS_Base.BaseUnit = Nothing
+                If TypeOf Caster Is WS_Base.BaseUnit Then
                     realCaster = Caster
-                ElseIf TypeOf Caster Is DynamicObjectObject Then
-                    realCaster = CType(Caster, DynamicObjectObject).Caster
+                ElseIf TypeOf Caster Is WS_DynamicObjects.DynamicObjectObject Then
+                    realCaster = CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster
                 End If
 
                 If realCaster IsNot Nothing Then Unit.DealSpellDamage(realCaster, SpellInfo, SpellID, Damage, SPELLs(SpellID).School, SpellType.SPELL_TYPE_NONMELEE)
@@ -2235,18 +2235,18 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_ENVIRONMENTAL_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+        Public Function SPELL_EFFECT_ENVIRONMENTAL_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
-            For Each Unit As BaseUnit In Infected
+            For Each Unit As WS_Base.BaseUnit In Infected
                 Unit.DealDamage(Damage, Caster)
-                If TypeOf Unit Is CharacterObject Then CType(Unit, CharacterObject).LogEnvironmentalDamage(SPELLs(SpellID).School, Damage)
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then CType(Unit, WS_PlayerData.CharacterObject).LogEnvironmentalDamage(SPELLs(SpellID).School, Damage)
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_TRIGGER_SPELL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_TRIGGER_SPELL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             'NOTE: Trigger spell shouldn't add a cast error?
             If SPELLs.ContainsKey(SpellInfo.TriggerSpell) = False Then Return SpellFailedReason.SPELL_NO_ERROR
             If Target.unitTarget Is Nothing Then Return SpellFailedReason.SPELL_NO_ERROR
@@ -2270,7 +2270,7 @@ Namespace Spells
                     Next
             End Select
 
-            If SPELLs(SpellInfo.TriggerSpell).EquippedItemClass >= 0 And (TypeOf Caster Is CharacterObject) Then
+            If SPELLs(SpellInfo.TriggerSpell).EquippedItemClass >= 0 And (TypeOf Caster Is WS_PlayerData.CharacterObject) Then
                 'If (SPELLs(SpellInfo.TriggerSpell).AttributesEx3 And SpellAttributesEx3.SPELL_ATTR_EX3_MAIN_HAND) Then
                 '    If CType(Caster, CharacterObject).Items.ContainsKey(EQUIPMENT_SLOT_MAINHAND) = False Then Return SpellFailedReason.SPELL_NO_ERROR
                 '    If CType(Caster, CharacterObject).Items(EQUIPMENT_SLOT_MAINHAND).IsBroken Then Return SpellFailedReason.SPELL_NO_ERROR
@@ -2287,17 +2287,17 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_TELEPORT_UNITS(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_TELEPORT_UNITS(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    With CType(Unit, CharacterObject)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    With CType(Unit, WS_PlayerData.CharacterObject)
                         Select Case SpellID
                             Case 8690 'Hearthstone
                                 .Teleport(.bindpoint_positionX, .bindpoint_positionY, .bindpoint_positionZ, .orientation, .bindpoint_map_id)
                             Case Else
-                                If TeleportCoords.ContainsKey(SpellID) Then
-                                    .Teleport(TeleportCoords(SpellID).PosX, TeleportCoords(SpellID).PosY, TeleportCoords(SpellID).PosZ, .orientation, TeleportCoords(SpellID).MapID)
+                                If _WS_DBCDatabase.TeleportCoords.ContainsKey(SpellID) Then
+                                    .Teleport(_WS_DBCDatabase.TeleportCoords(SpellID).PosX, _WS_DBCDatabase.TeleportCoords(SpellID).PosY, _WS_DBCDatabase.TeleportCoords(SpellID).PosZ, .orientation, _WS_DBCDatabase.TeleportCoords(SpellID).MapID)
                                 Else
                                     _WorldServer.Log.WriteLine(LogType.WARNING, "WARNING: Spell {0} did not have any teleport coordinates.", SpellID)
                                 End If
@@ -2309,13 +2309,13 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_MANA_DRAIN(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_MANA_DRAIN(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             Dim Damage As Integer = 0
             Dim TargetPower As Integer = 0
-            For Each Unit As BaseUnit In Infected
-                Damage = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
-                If TypeOf Caster Is CharacterObject Then Damage += SpellInfo.valuePerLevel * CType(Caster, CharacterObject).Level
+            For Each Unit As WS_Base.BaseUnit In Infected
+                Damage = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                If TypeOf Caster Is WS_PlayerData.CharacterObject Then Damage += SpellInfo.valuePerLevel * CType(Caster, WS_PlayerData.CharacterObject).Level
 
                 'DONE: Take the power from the target and give to the caster
                 'TODO: Rune power?
@@ -2324,40 +2324,40 @@ Namespace Spells
                     Case ManaTypes.TYPE_MANA
                         If Damage > Unit.Mana.Current Then Damage = Unit.Mana.Current
                         Unit.Mana.Current -= Damage
-                        CType(Caster, BaseUnit).Mana.Current += Damage
+                        CType(Caster, WS_Base.BaseUnit).Mana.Current += Damage
                         TargetPower = Unit.Mana.Current
                     Case ManaTypes.TYPE_RAGE
-                        If (TypeOf Unit Is CharacterObject) AndAlso (TypeOf Caster Is CharacterObject) Then
-                            If Damage > CType(Unit, CharacterObject).Rage.Current Then Damage = CType(Unit, CharacterObject).Rage.Current
-                            CType(Unit, CharacterObject).Rage.Current -= Damage
-                            CType(Caster, CharacterObject).Rage.Current += Damage
-                            TargetPower = CType(Unit, CharacterObject).Rage.Current
+                        If (TypeOf Unit Is WS_PlayerData.CharacterObject) AndAlso (TypeOf Caster Is WS_PlayerData.CharacterObject) Then
+                            If Damage > CType(Unit, WS_PlayerData.CharacterObject).Rage.Current Then Damage = CType(Unit, WS_PlayerData.CharacterObject).Rage.Current
+                            CType(Unit, WS_PlayerData.CharacterObject).Rage.Current -= Damage
+                            CType(Caster, WS_PlayerData.CharacterObject).Rage.Current += Damage
+                            TargetPower = CType(Unit, WS_PlayerData.CharacterObject).Rage.Current
                         End If
                     Case ManaTypes.TYPE_ENERGY
-                        If (TypeOf Unit Is CharacterObject) AndAlso (TypeOf Caster Is CharacterObject) Then
-                            If Damage > CType(Unit, CharacterObject).Energy.Current Then Damage = CType(Unit, CharacterObject).Energy.Current
-                            CType(Unit, CharacterObject).Energy.Current -= Damage
-                            CType(Caster, CharacterObject).Energy.Current += Damage
-                            TargetPower = CType(Unit, CharacterObject).Energy.Current
+                        If (TypeOf Unit Is WS_PlayerData.CharacterObject) AndAlso (TypeOf Caster Is WS_PlayerData.CharacterObject) Then
+                            If Damage > CType(Unit, WS_PlayerData.CharacterObject).Energy.Current Then Damage = CType(Unit, WS_PlayerData.CharacterObject).Energy.Current
+                            CType(Unit, WS_PlayerData.CharacterObject).Energy.Current -= Damage
+                            CType(Caster, WS_PlayerData.CharacterObject).Energy.Current += Damage
+                            TargetPower = CType(Unit, WS_PlayerData.CharacterObject).Energy.Current
                         End If
                     Case Else
                         Unit.Mana.Current -= Damage
-                        CType(Caster, BaseUnit).Mana.Current += Damage
+                        CType(Caster, WS_Base.BaseUnit).Mana.Current += Damage
                         TargetPower = Unit.Mana.Current
                 End Select
 
                 'DONE: Send victim mana update, for near
-                If TypeOf Unit Is CreatureObject Then
-                    Dim myTmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
-                    Dim myPacket As New UpdatePacketClass
+                If TypeOf Unit Is WS_Creatures.CreatureObject Then
+                    Dim myTmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
+                    Dim myPacket As New Packets.UpdatePacketClass
                     myTmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + SpellInfo.MiscValue, TargetPower)
-                    myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Unit, CreatureObject))
+                    myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_VALUES, CType(Unit, WS_Creatures.CreatureObject))
                     Unit.SendToNearPlayers(myPacket)
                     myPacket.Dispose()
                     myTmpUpdate.Dispose()
-                ElseIf TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + SpellInfo.MiscValue, TargetPower)
-                    CType(Unit, CharacterObject).SendCharacterUpdate()
+                ElseIf TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + SpellInfo.MiscValue, TargetPower)
+                    CType(Unit, WS_PlayerData.CharacterObject).SendCharacterUpdate()
                 End If
             Next
 
@@ -2366,36 +2366,36 @@ Namespace Spells
             Dim CasterPower As Integer = 0
             Select Case SpellInfo.MiscValue
                 Case ManaTypes.TYPE_MANA
-                    CasterPower = CType(Caster, BaseUnit).Mana.Current
+                    CasterPower = CType(Caster, WS_Base.BaseUnit).Mana.Current
                 Case ManaTypes.TYPE_RAGE
-                    If TypeOf Caster Is CharacterObject Then CasterPower = CType(Caster, CharacterObject).Rage.Current
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then CasterPower = CType(Caster, WS_PlayerData.CharacterObject).Rage.Current
                 Case ManaTypes.TYPE_ENERGY
-                    If TypeOf Caster Is CharacterObject Then CasterPower = CType(Caster, CharacterObject).Energy.Current
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then CasterPower = CType(Caster, WS_PlayerData.CharacterObject).Energy.Current
                 Case Else
-                    CasterPower = CType(Caster, BaseUnit).Mana.Current
+                    CasterPower = CType(Caster, WS_Base.BaseUnit).Mana.Current
             End Select
-            If TypeOf Caster Is CreatureObject Then
-                Dim TmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
-                Dim Packet As New UpdatePacketClass
+            If TypeOf Caster Is WS_Creatures.CreatureObject Then
+                Dim TmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
+                Dim Packet As New Packets.UpdatePacketClass
                 TmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + SpellInfo.MiscValue, CasterPower)
-                TmpUpdate.AddToPacket(Packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
+                TmpUpdate.AddToPacket(Packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_Creatures.CreatureObject))
                 Target.unitTarget.SendToNearPlayers(Packet)
                 Packet.Dispose()
                 TmpUpdate.Dispose()
-            ElseIf TypeOf Caster Is CharacterObject Then
-                CType(Caster, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + SpellInfo.MiscValue, CasterPower)
-                CType(Caster, CharacterObject).SendCharacterUpdate()
+            ElseIf TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1 + SpellInfo.MiscValue, CasterPower)
+                CType(Caster, WS_PlayerData.CharacterObject).SendCharacterUpdate()
             End If
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_HEAL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_HEAL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             Dim Damage As Integer = 0
             Dim Current As Integer = 0
-            For Each Unit As BaseUnit In Infected
-                Damage = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                Damage = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                 If Current > 0 Then Damage *= (SpellInfo.DamageMultiplier ^ Current)
 
                 'NOTE: This function heals as well
@@ -2406,12 +2406,12 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_HEAL_MAX_HEALTH(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_HEAL_MAX_HEALTH(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             Dim Damage As Integer = 0
             Dim Current As Integer = 0
-            For Each Unit As BaseUnit In Infected
-                Damage = CType(Caster, BaseUnit).Life.Maximum
+            For Each Unit As WS_Base.BaseUnit In Infected
+                Damage = CType(Caster, WS_Base.BaseUnit).Life.Maximum
                 If Current > 0 AndAlso SpellInfo.DamageMultiplier < 1 Then Damage *= (SpellInfo.DamageMultiplier ^ Current)
 
                 'NOTE: This function heals as well
@@ -2422,10 +2422,10 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_ENERGIZE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+        Public Function SPELL_EFFECT_ENERGIZE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            Dim Damage As Integer = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
-            For Each Unit As BaseUnit In Infected
+            For Each Unit As WS_Base.BaseUnit In Infected
                 SendEnergizeSpellLog(Caster, Target.unitTarget, SpellID, Damage, SpellInfo.MiscValue)
                 Unit.Energize(Damage, SpellInfo.MiscValue, Caster)
             Next
@@ -2433,13 +2433,13 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_ENERGIZE_PCT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_ENERGIZE_PCT(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             Dim Damage As Integer = 0
 
-            For Each Unit As BaseUnit In Infected
+            For Each Unit As WS_Base.BaseUnit In Infected
                 Select Case SpellInfo.MiscValue
                     Case ManaTypes.TYPE_MANA
-                        Damage = (SpellInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) * Unit.Mana.Maximum
+                        Damage = (SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) * Unit.Mana.Maximum
                 End Select
                 SendEnergizeSpellLog(Caster, Target.unitTarget, SpellID, Damage, SpellInfo.MiscValue)
                 Unit.Energize(Damage, SpellInfo.MiscValue, Caster)
@@ -2448,15 +2448,15 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_OPEN_LOCK(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            If Not TypeOf Caster Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
+        Public Function SPELL_EFFECT_OPEN_LOCK(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            If Not TypeOf Caster Is WS_PlayerData.CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
 
             Dim LootType As LootType = LootType.LOOTTYPE_CORPSE
 
             Dim targetGUID As ULong, lockID As Integer
             If Not Target.goTarget Is Nothing Then 'GO Target
                 targetGUID = Target.goTarget.GUID
-                lockID = CType(Target.goTarget, GameObjectObject).LockID
+                lockID = CType(Target.goTarget, WS_GameObjects.GameObjectObject).LockID
             ElseIf Not Target.itemTarget Is Nothing Then 'Item Target
                 targetGUID = Target.itemTarget.GUID
                 lockID = Target.itemTarget.ItemInfo.LockID
@@ -2469,22 +2469,22 @@ Namespace Spells
             If lockID = 0 Then
                 'TODO: Send loot for items
                 If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
-                    _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
+                    _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, WS_PlayerData.CharacterObject), LootType)
                 End If
 
                 Return SpellFailedReason.SPELL_NO_ERROR
             End If
 
-            If Locks.ContainsKey(lockID) = False Then
+            If _WS_Loot.Locks.ContainsKey(lockID) = False Then
                 _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Lock {0} did not exist.", lockID)
                 Return SpellFailedReason.SPELL_FAILED_ERROR
             End If
 
             For i As Byte = 0 To 4
-                If Item IsNot Nothing AndAlso Locks(lockID).KeyType(i) = LockKeyType.LOCK_KEY_ITEM AndAlso Locks(lockID).Keys(i) = Item.ItemEntry Then
+                If Item IsNot Nothing AndAlso _WS_Loot.Locks(lockID).KeyType(i) = LockKeyType.LOCK_KEY_ITEM AndAlso _WS_Loot.Locks(lockID).Keys(i) = Item.ItemEntry Then
                     'TODO: Send loot for items
                     If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
-                        _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
+                        _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, WS_PlayerData.CharacterObject), LootType)
                     End If
 
                     Return SpellFailedReason.SPELL_NO_ERROR
@@ -2498,19 +2498,19 @@ Namespace Spells
                 SkillID = SKILL_IDs.SKILL_LOCKPICKING
             End If
 
-            Dim ReqSkillValue As Short = Locks(lockID).RequiredMiningSkill
-            If Locks(lockID).RequiredLockingSkill > 0 Then
+            Dim ReqSkillValue As Short = _WS_Loot.Locks(lockID).RequiredMiningSkill
+            If _WS_Loot.Locks(lockID).RequiredLockingSkill > 0 Then
                 If SkillID <> SKILL_IDs.SKILL_LOCKPICKING Then 'Cheat attempt?
                     Return SpellFailedReason.SPELL_FAILED_FIZZLE
                 End If
-                ReqSkillValue = Locks(lockID).RequiredLockingSkill
+                ReqSkillValue = _WS_Loot.Locks(lockID).RequiredLockingSkill
             ElseIf SkillID = SKILL_IDs.SKILL_LOCKPICKING Then 'Apply picklock skill to wrong target
                 Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
             End If
 
             If SkillID Then
                 LootType = LootType.LOOTTYPE_SKINNING
-                If CType(Caster, CharacterObject).Skills.ContainsKey(SkillID) = False OrElse CType(Caster, CharacterObject).Skills(SkillID).Current < ReqSkillValue Then
+                If CType(Caster, WS_PlayerData.CharacterObject).Skills.ContainsKey(SkillID) = False OrElse CType(Caster, WS_PlayerData.CharacterObject).Skills(SkillID).Current < ReqSkillValue Then
                     Return SpellFailedReason.SPELL_FAILED_LOW_CASTLEVEL
                 End If
 
@@ -2519,21 +2519,21 @@ Namespace Spells
 
             'TODO: Send loot for items
             If _CommonGlobalFunctions.GuidIsGameObject(targetGUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(targetGUID) Then
-                _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, CharacterObject), LootType)
+                _WorldServer.WORLD_GAMEOBJECTs(targetGUID).LootObject(CType(Caster, WS_PlayerData.CharacterObject), LootType)
             End If
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_PICKPOCKET(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            If Not TypeOf Caster Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
+        Public Function SPELL_EFFECT_PICKPOCKET(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            If Not TypeOf Caster Is WS_PlayerData.CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
 
             'DONE: Pickpocket the creature!
-            If (TypeOf Target.unitTarget Is CreatureObject) AndAlso CType(Caster, BaseUnit).IsFriendlyTo(Target.unitTarget) = False Then
-                With CType(Target.unitTarget, CreatureObject)
+            If (TypeOf Target.unitTarget Is WS_Creatures.CreatureObject) AndAlso CType(Caster, WS_Base.BaseUnit).IsFriendlyTo(Target.unitTarget) = False Then
+                With CType(Target.unitTarget, WS_Creatures.CreatureObject)
                     If .CreatureInfo.CreatureType = UNIT_TYPE.HUMANOID OrElse .CreatureInfo.CreatureType = UNIT_TYPE.UNDEAD Then
                         If .IsDead = False Then
-                            Dim chance As Integer = 10 + CType(Caster, BaseUnit).Level - .Level
+                            Dim chance As Integer = 10 + CType(Caster, WS_Base.BaseUnit).Level - .Level
 
                             If chance > _WorldServer.Rnd.Next(0, 20) Then
                                 'Successful pickpocket
@@ -2542,20 +2542,20 @@ Namespace Spells
                                             .LootOwner = Caster.GUID
                                             }
 
-                                    Dim Template As LootTemplate = LootTemplates_Pickpocketing.GetLoot(.CreatureInfo.PocketLootID)
+                                    Dim Template As WS_Loot.LootTemplate = _WS_Loot.LootTemplates_Pickpocketing.GetLoot(.CreatureInfo.PocketLootID)
                                     If Template IsNot Nothing Then
                                         Template.Process(Loot, 0)
                                     End If
 
-                                    Loot.SendLoot(CType(Caster, CharacterObject).client)
+                                    Loot.SendLoot(CType(Caster, WS_PlayerData.CharacterObject).client)
                                 Else
-                                    SendEmptyLoot(.GUID, LootType.LOOTTYPE_PICKPOCKETING, CType(Caster, CharacterObject).client)
+                                    _WS_Loot.SendEmptyLoot(.GUID, LootType.LOOTTYPE_PICKPOCKETING, CType(Caster, WS_PlayerData.CharacterObject).client)
                                 End If
                             Else
                                 'Failed pickpocket
-                                CType(Caster, BaseUnit).RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TALK)
+                                CType(Caster, WS_Base.BaseUnit).RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TALK)
                                 If .aiScript IsNot Nothing Then
-                                    .aiScript.OnGenerateHate(CType(Caster, BaseUnit), 100)
+                                    .aiScript.OnGenerateHate(CType(Caster, WS_Base.BaseUnit), 100)
                                 End If
                             End If
                             Return SpellFailedReason.SPELL_NO_ERROR
@@ -2569,36 +2569,36 @@ Namespace Spells
             Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
         End Function
 
-        Public Function SPELL_EFFECT_SKINNING(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            If Not TypeOf Caster Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
+        Public Function SPELL_EFFECT_SKINNING(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            If Not TypeOf Caster Is WS_PlayerData.CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
 
             'DONE: Skin the creature!
-            If (TypeOf Target.unitTarget Is CreatureObject) Then
-                With CType(Target.unitTarget, CreatureObject)
-                    If .IsDead AndAlso HaveFlags(.cUnitFlags, UnitFlags.UNIT_FLAG_SKINNABLE) Then
+            If (TypeOf Target.unitTarget Is WS_Creatures.CreatureObject) Then
+                With CType(Target.unitTarget, WS_Creatures.CreatureObject)
+                    If .IsDead AndAlso _Functions.HaveFlags(.cUnitFlags, UnitFlags.UNIT_FLAG_SKINNABLE) Then
                         .cUnitFlags = .cUnitFlags And (Not UnitFlags.UNIT_FLAG_SKINNABLE)
                         'TODO: Is skinning skill requirement met?
                         'TODO: Update skinning skill!
 
                         If .CreatureInfo.SkinLootID > 0 Then
-                            Dim Loot As New LootObject(.GUID, LootType.LOOTTYPE_SKINNING) With {
+                            Dim Loot As New WS_Loot.LootObject(.GUID, LootType.LOOTTYPE_SKINNING) With {
                                     .LootOwner = Caster.GUID
                                     }
 
-                            Dim Template As LootTemplate = LootTemplates_Skinning.GetLoot(.CreatureInfo.SkinLootID)
+                            Dim Template As WS_Loot.LootTemplate = _WS_Loot.LootTemplates_Skinning.GetLoot(.CreatureInfo.SkinLootID)
                             If Template IsNot Nothing Then
                                 Template.Process(Loot, 0)
                             End If
 
-                            Loot.SendLoot(CType(Caster, CharacterObject).client)
+                            Loot.SendLoot(CType(Caster, WS_PlayerData.CharacterObject).client)
                         Else
-                            SendEmptyLoot(.GUID, LootType.LOOTTYPE_SKINNING, CType(Caster, CharacterObject).client)
+                            _WS_Loot.SendEmptyLoot(.GUID, LootType.LOOTTYPE_SKINNING, CType(Caster, WS_PlayerData.CharacterObject).client)
                         End If
 
-                        Dim TmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
-                        Dim Packet As New UpdatePacketClass
+                        Dim TmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
+                        Dim Packet As New Packets.UpdatePacketClass
                         TmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, .cUnitFlags)
-                        TmpUpdate.AddToPacket(Packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target.unitTarget, CreatureObject))
+                        TmpUpdate.AddToPacket(Packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target.unitTarget, WS_Creatures.CreatureObject))
                         Target.unitTarget.SendToNearPlayers(Packet)
                         Packet.Dispose()
                         TmpUpdate.Dispose()
@@ -2610,28 +2610,28 @@ Namespace Spells
             Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
         End Function
 
-        Public Function SPELL_EFFECT_DISENCHANT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            If Not TypeOf Caster Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
+        Public Function SPELL_EFFECT_DISENCHANT(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            If Not TypeOf Caster Is WS_PlayerData.CharacterObject Then Return SpellFailedReason.SPELL_FAILED_ERROR
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_PROFICIENCY(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).SendProficiencies()
+        Public Function SPELL_EFFECT_PROFICIENCY(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).SendProficiencies()
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_LEARN_SPELL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_LEARN_SPELL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             If SpellInfo.TriggerSpell <> 0 Then
-                For Each Unit As BaseUnit In Infected
-                    If TypeOf Unit Is CharacterObject Then
-                        CType(Unit, CharacterObject).LearnSpell(SpellInfo.TriggerSpell)
+                For Each Unit As WS_Base.BaseUnit In Infected
+                    If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                        CType(Unit, WS_PlayerData.CharacterObject).LearnSpell(SpellInfo.TriggerSpell)
                     End If
                 Next
             End If
@@ -2639,13 +2639,13 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_SKILL_STEP(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_SKILL_STEP(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             If SpellInfo.MiscValue <> 0 Then
-                For Each Unit As BaseUnit In Infected
-                    If TypeOf Unit Is CharacterObject Then
-                        CType(Unit, CharacterObject).LearnSkill(SpellInfo.MiscValue, , (SpellInfo.valueBase + 1) * 75)
-                        CType(Unit, CharacterObject).SendCharacterUpdate(False)
+                For Each Unit As WS_Base.BaseUnit In Infected
+                    If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                        CType(Unit, WS_PlayerData.CharacterObject).LearnSkill(SpellInfo.MiscValue, , (SpellInfo.valueBase + 1) * 75)
+                        CType(Unit, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
                     End If
                 Next
             End If
@@ -2653,71 +2653,71 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_DISPEL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            For Each Unit As BaseUnit In Infected
+        Public Function SPELL_EFFECT_DISPEL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            For Each Unit As WS_Base.BaseUnit In Infected
                 'TODO: Remove friendly or enemy spells depending on the reaction?
                 If (Unit.DispellImmunity And (1 << SpellInfo.MiscValue)) = 0 Then
-                    Unit.RemoveAurasByDispellType(SpellInfo.MiscValue, SpellInfo.GetValue(CType(Caster, BaseUnit).Level))
+                    Unit.RemoveAurasByDispellType(SpellInfo.MiscValue, SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level))
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_EVADE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_EVADE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
+            For Each Unit As WS_Base.BaseUnit In Infected
                 'TODO: Evade
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_DODGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_DODGE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).combatDodge += SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).combatDodge += SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_PARRY(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_PARRY(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).combatParry += SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).combatParry += SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_BLOCK(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_BLOCK(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).combatBlock += SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).combatBlock += SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_DUAL_WIELD(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_DUAL_WIELD(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).spellCanDualWeild = True
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).spellCanDualWeild = True
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_WEAPON_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_WEAPON_DAMAGE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             Dim damageInfo As WS_Combat.DamageInfo
             Dim Ranged As Boolean = False
@@ -2726,8 +2726,8 @@ Namespace Spells
                 Ranged = True
             End If
 
-            For Each Unit As BaseUnit In Infected
-                damageInfo = CalculateDamage(Caster, Unit, Offhand, Ranged, SPELLs(SpellID), SpellInfo)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                damageInfo = _WS_Combat.CalculateDamage(Caster, Unit, Offhand, Ranged, SPELLs(SpellID), SpellInfo)
                 If (damageInfo.HitInfo And AttackHitState.HIT_RESIST) Then
                     SPELLs(SpellID).SendSpellMiss(Caster, Unit, SpellMissInfo.SPELL_MISS_RESIST)
                 ElseIf (damageInfo.HitInfo And AttackHitState.HIT_MISS) Then
@@ -2745,28 +2745,28 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Caster Is CharacterObject Then
-                    CType(Caster, CharacterObject).attackState.DoMeleeDamageBySpell(Caster, Unit, SpellInfo.GetValue(CType(Caster, BaseUnit).Level), SpellID)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                    CType(Caster, WS_PlayerData.CharacterObject).attackState.DoMeleeDamageBySpell(Caster, Unit, SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level), SpellID)
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_ADICIONAL_DMG(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_ADICIONAL_DMG(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            Dim damageInfo As DamageInfo
+            Dim damageInfo As WS_Combat.DamageInfo
             Dim Ranged As Boolean = False
             Dim Offhand As Boolean = False
             If SPELLs(SpellID).IsRanged Then
                 Ranged = True
             End If
 
-            For Each Unit As BaseUnit In Infected
-                damageInfo = CalculateDamage(Caster, Unit, Offhand, Ranged, SPELLs(SpellID), SpellInfo)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                damageInfo = _WS_Combat.CalculateDamage(Caster, Unit, Offhand, Ranged, SPELLs(SpellID), SpellInfo)
                 SendNonMeleeDamageLog(Caster, Unit, SpellID, damageInfo.DamageType, damageInfo.GetDamage, damageInfo.Resist, damageInfo.Absorbed, (damageInfo.HitInfo And AttackHitState.HITINFO_CRITICALHIT))
                 Unit.DealDamage(damageInfo.GetDamage, Caster)
             Next
@@ -2774,13 +2774,13 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_HONOR(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_HONOR(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    CType(Unit, CharacterObject).HonorPoints += SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
-                    If CType(Unit, CharacterObject).HonorPoints > 75000 Then CType(Unit, CharacterObject).HonorPoints = 75000
-                    CType(Unit, CharacterObject).HonorSave()
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    CType(Unit, WS_PlayerData.CharacterObject).HonorPoints += SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                    If CType(Unit, WS_PlayerData.CharacterObject).HonorPoints > 75000 Then CType(Unit, WS_PlayerData.CharacterObject).HonorPoints = 75000
+                    CType(Unit, WS_PlayerData.CharacterObject).HonorSave()
                     'CType(Unit, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_HONOR_CURRENCY, CType(Unit, CharacterObject).HonorCurrency)
                     'CType(Unit, CharacterObject).SendCharacterUpdate(False)
                 End If
@@ -2792,7 +2792,7 @@ Namespace Spells
         Private Const SLOT_NOT_FOUND As Integer = -1
         Private Const SLOT_CREATE_NEW As Integer = -2
         Private Const SLOT_NO_SPACE As Integer = Integer.MaxValue
-        Public Function ApplyAura(ByRef auraTarget As BaseUnit, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer) As SpellFailedReason
+        Public Function ApplyAura(ByRef auraTarget As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer) As SpellFailedReason
             Try
                 Dim spellCasted As Integer = SLOT_NOT_FOUND
                 Do
@@ -2835,10 +2835,10 @@ Namespace Spells
                                         auraTarget.ActiveSpells(i).StackCount += 1
                                         AURAs(SpellInfo.ApplyAuraIndex).Invoke(auraTarget, Caster, SpellInfo, SpellID, 1, AuraAction.AURA_ADD)
 
-                                        If TypeOf auraTarget Is CharacterObject Then
-                                            CType(auraTarget, CharacterObject).GroupUpdateFlag = CType(auraTarget, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS
-                                        ElseIf (TypeOf auraTarget Is PetObject) AndAlso (TypeOf CType(auraTarget, PetObject).Owner Is CharacterObject) Then
-                                            CType(CType(auraTarget, PetObject).Owner, CharacterObject).GroupUpdateFlag = CType(CType(auraTarget, PetObject).Owner, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS
+                                        If TypeOf auraTarget Is WS_PlayerData.CharacterObject Then
+                                            CType(auraTarget, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(auraTarget, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS
+                                        ElseIf (TypeOf auraTarget Is WS_Pets.PetObject) AndAlso (TypeOf CType(auraTarget, WS_Pets.PetObject).Owner Is WS_PlayerData.CharacterObject) Then
+                                            CType(CType(auraTarget, WS_Pets.PetObject).Owner, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(CType(auraTarget, WS_Pets.PetObject).Owner, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS
                                         End If
                                     End If
                                     auraTarget.UpdateAura(i)
@@ -2886,32 +2886,32 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_APPLY_AURA(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_APPLY_AURA(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             If ((Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) OrElse Target.targetMask = SpellCastTargetFlags.TARGET_FLAG_SELF) AndAlso Target.unitTarget Is Nothing Then Return SpellFailedReason.SPELL_FAILED_BAD_IMPLICIT_TARGETS
 
             Dim result As SpellFailedReason = SpellFailedReason.SPELL_NO_ERROR
 
             'DONE: Sit down on some spells
-            If TypeOf Caster Is CharacterObject AndAlso (SPELLs(SpellID).auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED) Then
-                CType(Caster, BaseUnit).StandState = StandStates.STANDSTATE_SIT
-                CType(Caster, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, CType(Caster, BaseUnit).cBytes1)
-                CType(Caster, CharacterObject).SendCharacterUpdate(True)
-                Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
-                packetACK.AddInt8(CType(Caster, BaseUnit).StandState)
-                CType(Caster, CharacterObject).client.Send(packetACK)
+            If TypeOf Caster Is WS_PlayerData.CharacterObject AndAlso (SPELLs(SpellID).auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED) Then
+                CType(Caster, WS_Base.BaseUnit).StandState = StandStates.STANDSTATE_SIT
+                CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_1, CType(Caster, WS_Base.BaseUnit).cBytes1)
+                CType(Caster, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
+                Dim packetACK As New Packets.PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
+                packetACK.AddInt8(CType(Caster, WS_Base.BaseUnit).StandState)
+                CType(Caster, WS_PlayerData.CharacterObject).client.Send(packetACK)
                 packetACK.Dispose()
             End If
 
             If (Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_UNIT) OrElse Target.targetMask = SpellCastTargetFlags.TARGET_FLAG_SELF Then
                 Dim count As Integer = SPELLs(SpellID).MaxTargets
-                For Each u As BaseUnit In Infected
+                For Each u As WS_Base.BaseUnit In Infected
                     ApplyAura(u, Caster, SpellInfo, SpellID)
                     count -= 1
                     If count <= 0 AndAlso SPELLs(SpellID).MaxTargets > 0 Then Exit For
                 Next
 
             ElseIf (Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) Then
-                For Each dynamic As DynamicObjectObject In CType(Caster, BaseUnit).dynamicObjects.ToArray
+                For Each dynamic As WS_DynamicObjects.DynamicObjectObject In CType(Caster, WS_Base.BaseUnit).dynamicObjects.ToArray
                     If dynamic.SpellID = SpellID Then
                         dynamic.AddEffect(SpellInfo)
                         Exit For
@@ -2922,48 +2922,48 @@ Namespace Spells
             Return result
         End Function
 
-        Public Function SPELL_EFFECT_APPLY_AREA_AURA(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            For Each u As BaseUnit In Infected
+        Public Function SPELL_EFFECT_APPLY_AREA_AURA(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            For Each u As WS_Base.BaseUnit In Infected
                 ApplyAura(u, Caster, SpellInfo, SpellID)
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_PERSISTENT_AREA_AURA(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_PERSISTENT_AREA_AURA(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             If (Target.targetMask And SpellCastTargetFlags.TARGET_FLAG_DEST_LOCATION) = 0 Then Return SpellFailedReason.SPELL_FAILED_BAD_IMPLICIT_TARGETS
 
             _WorldServer.Log.WriteLine(LogType.DEBUG, "Amplitude: {0}", SpellInfo.Amplitude)
-            Dim tmpDO As New DynamicObjectObject(Caster, SpellID, Target.dstX, Target.dstY, Target.dstZ, SPELLs(SpellID).GetDuration, SpellInfo.GetRadius)
+            Dim tmpDO As New WS_DynamicObjects.DynamicObjectObject(Caster, SpellID, Target.dstX, Target.dstY, Target.dstZ, SPELLs(SpellID).GetDuration, SpellInfo.GetRadius)
             tmpDO.AddEffect(SpellInfo)
             tmpDO.Bytes = &H1EEEEEE
-            CType(Caster, BaseUnit).dynamicObjects.Add(tmpDO)
+            CType(Caster, WS_Base.BaseUnit).dynamicObjects.Add(tmpDO)
             tmpDO.Spawn()
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_CREATE_ITEM(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            If Not TypeOf Target.unitTarget Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
-            Dim Amount As Integer = SpellInfo.GetValue(CType(Caster, BaseUnit).Level - SPELLs(SpellID).spellLevel)
+        Public Function SPELL_EFFECT_CREATE_ITEM(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            If Not TypeOf Target.unitTarget Is WS_PlayerData.CharacterObject Then Return SpellFailedReason.SPELL_FAILED_BAD_TARGETS
+            Dim Amount As Integer = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level - SPELLs(SpellID).spellLevel)
             If Amount < 0 Then Return SpellFailedReason.SPELL_FAILED_ERROR
             If _WorldServer.ITEMDatabase.ContainsKey(SpellInfo.ItemType) = False Then
-                Dim tmpInfo As New ItemInfo(SpellInfo.ItemType)
+                Dim tmpInfo As New WS_Items.ItemInfo(SpellInfo.ItemType)
                 _WorldServer.ITEMDatabase.Add(SpellInfo.ItemType, tmpInfo)
             End If
             If Amount > _WorldServer.ITEMDatabase(SpellInfo.ItemType).Stackable Then Amount = _WorldServer.ITEMDatabase(SpellInfo.ItemType).Stackable
 
-            Dim Targets As List(Of BaseUnit) = GetFriendPlayersAroundMe(Caster, SpellInfo.GetRadius)
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
+            Dim Targets As List(Of WS_Base.BaseUnit) = GetFriendPlayersAroundMe(Caster, SpellInfo.GetRadius)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
                     Dim tmpItem As New ItemObject(SpellInfo.ItemType, Unit.GUID) With {
                             .StackCount = Amount
                             }
 
-                    If Not CType(Unit, CharacterObject).ItemADD(tmpItem) Then
+                    If Not CType(Unit, WS_PlayerData.CharacterObject).ItemADD(tmpItem) Then
                         tmpItem.Delete()
                     Else
-                        CType(Target.unitTarget, CharacterObject).LogLootItem(tmpItem, tmpItem.StackCount, False, True)
+                        CType(Target.unitTarget, WS_PlayerData.CharacterObject).LogLootItem(tmpItem, tmpItem.StackCount, False, True)
                     End If
                 End If
             Next
@@ -2971,55 +2971,55 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_RESURRECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_RESURRECT(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseObject In Infected
-                If TypeOf Unit Is CharacterObject Then
+            For Each Unit As WS_Base.BaseObject In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
                     'DONE: Character has already been requested a resurrect
-                    If CType(Unit, CharacterObject).resurrectGUID <> 0 Then
-                        If TypeOf Caster Is CharacterObject Then
-                            Dim RessurectFailed As New PacketClass(OPCODES.SMSG_RESURRECT_FAILED)
-                            CType(Caster, CharacterObject).client.Send(RessurectFailed)
+                    If CType(Unit, WS_PlayerData.CharacterObject).resurrectGUID <> 0 Then
+                        If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                            Dim RessurectFailed As New Packets.PacketClass(OPCODES.SMSG_RESURRECT_FAILED)
+                            CType(Caster, WS_PlayerData.CharacterObject).client.Send(RessurectFailed)
                             RessurectFailed.Dispose()
                         End If
                         Return SpellFailedReason.SPELL_NO_ERROR
                     End If
 
                     'DONE: Save resurrection data
-                    CType(Unit, CharacterObject).resurrectGUID = Caster.GUID
-                    CType(Unit, CharacterObject).resurrectMapID = Caster.MapID
-                    CType(Unit, CharacterObject).resurrectPositionX = Caster.positionX
-                    CType(Unit, CharacterObject).resurrectPositionY = Caster.positionY
-                    CType(Unit, CharacterObject).resurrectPositionZ = Caster.positionZ
-                    CType(Unit, CharacterObject).resurrectHealth = CType(Unit, CharacterObject).Life.Maximum * SpellInfo.GetValue(CType(Caster, BaseUnit).Level) \ 100
-                    CType(Unit, CharacterObject).resurrectMana = CType(Unit, CharacterObject).Mana.Maximum * SpellInfo.MiscValue \ 100
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectGUID = Caster.GUID
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectMapID = Caster.MapID
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectPositionX = Caster.positionX
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectPositionY = Caster.positionY
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectPositionZ = Caster.positionZ
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectHealth = CType(Unit, WS_PlayerData.CharacterObject).Life.Maximum * SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) \ 100
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectMana = CType(Unit, WS_PlayerData.CharacterObject).Mana.Maximum * SpellInfo.MiscValue \ 100
 
                     'DONE: Send a resurrection request
-                    Dim RessurectRequest As New PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
+                    Dim RessurectRequest As New Packets.PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
                     RessurectRequest.AddUInt64(Caster.GUID)
                     RessurectRequest.AddUInt32(1)
                     RessurectRequest.AddUInt16(0)
                     RessurectRequest.AddUInt32(1)
-                    CType(Unit, CharacterObject).client.Send(RessurectRequest)
+                    CType(Unit, WS_PlayerData.CharacterObject).client.Send(RessurectRequest)
                     RessurectRequest.Dispose()
-                ElseIf TypeOf Unit Is CreatureObject Then
+                ElseIf TypeOf Unit Is WS_Creatures.CreatureObject Then
                     'DONE: Ressurect pets
-                    Target.unitTarget.Life.Current = CType(Unit, CreatureObject).Life.Maximum * SpellInfo.valueBase \ 100
+                    Target.unitTarget.Life.Current = CType(Unit, WS_Creatures.CreatureObject).Life.Maximum * SpellInfo.valueBase \ 100
                     Target.unitTarget.cUnitFlags = Target.unitTarget.cUnitFlags And (Not UnitFlags.UNIT_FLAG_DEAD)
-                    Dim packetForNear As New UpdatePacketClass
-                    Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
-                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Unit, CreatureObject).Life.Current)
+                    Dim packetForNear As New Packets.UpdatePacketClass
+                    Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Unit, WS_Creatures.CreatureObject).Life.Current)
                     UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.unitTarget.cUnitFlags)
-                    UpdateData.AddToPacket(packetForNear, ObjectUpdateType.UPDATETYPE_VALUES, CType(Unit, CreatureObject))
-                    CType(Unit, CreatureObject).SendToNearPlayers(packetForNear)
+                    UpdateData.AddToPacket(packetForNear, ObjectUpdateType.UPDATETYPE_VALUES, CType(Unit, WS_Creatures.CreatureObject))
+                    CType(Unit, WS_Creatures.CreatureObject).SendToNearPlayers(packetForNear)
                     packetForNear.Dispose()
                     UpdateData.Dispose()
 
-                    CType(Target.unitTarget, CreatureObject).MoveToInstant(Caster.positionX, Caster.positionY, Caster.positionZ, Caster.orientation)
-                ElseIf TypeOf Unit Is CorpseObject Then
-                    If _WorldServer.CHARACTERs.ContainsKey(CType(Unit, CorpseObject).Owner) Then
+                    CType(Target.unitTarget, WS_Creatures.CreatureObject).MoveToInstant(Caster.positionX, Caster.positionY, Caster.positionZ, Caster.orientation)
+                ElseIf TypeOf Unit Is WS_Corpses.CorpseObject Then
+                    If _WorldServer.CHARACTERs.ContainsKey(CType(Unit, WS_Corpses.CorpseObject).Owner) Then
                         'DONE: Save resurrection data
-                        With _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner)
+                        With _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner)
                             .resurrectGUID = Caster.GUID
                             .resurrectMapID = Caster.MapID
                             .resurrectPositionX = Caster.positionX
@@ -3029,7 +3029,7 @@ Namespace Spells
                             .resurrectMana = .Mana.Maximum * SpellInfo.MiscValue \ 100
 
                             'DONE: Send request to corpse owner
-                            Dim RessurectRequest As New PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
+                            Dim RessurectRequest As New Packets.PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
                             RessurectRequest.AddUInt64(Caster.GUID)
                             RessurectRequest.AddUInt32(1)
                             RessurectRequest.AddUInt16(0)
@@ -3044,67 +3044,67 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_RESURRECT_NEW(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_RESURRECT_NEW(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseObject In Infected
-                If TypeOf Unit Is CharacterObject Then
+            For Each Unit As WS_Base.BaseObject In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
                     'DONE: Character has already been requested a resurrect
-                    If CType(Unit, CharacterObject).resurrectGUID <> 0 Then
-                        If TypeOf Caster Is CharacterObject Then
-                            Dim RessurectFailed As New PacketClass(OPCODES.SMSG_RESURRECT_FAILED)
-                            CType(Caster, CharacterObject).client.Send(RessurectFailed)
+                    If CType(Unit, WS_PlayerData.CharacterObject).resurrectGUID <> 0 Then
+                        If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                            Dim RessurectFailed As New Packets.PacketClass(OPCODES.SMSG_RESURRECT_FAILED)
+                            CType(Caster, WS_PlayerData.CharacterObject).client.Send(RessurectFailed)
                             RessurectFailed.Dispose()
                         End If
                         Return SpellFailedReason.SPELL_NO_ERROR
                     End If
 
                     'DONE: Save resurrection data
-                    CType(Unit, CharacterObject).resurrectGUID = Caster.GUID
-                    CType(Unit, CharacterObject).resurrectMapID = Caster.MapID
-                    CType(Unit, CharacterObject).resurrectPositionX = Caster.positionX
-                    CType(Unit, CharacterObject).resurrectPositionY = Caster.positionY
-                    CType(Unit, CharacterObject).resurrectPositionZ = Caster.positionZ
-                    CType(Unit, CharacterObject).resurrectHealth = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
-                    CType(Unit, CharacterObject).resurrectMana = SpellInfo.MiscValue
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectGUID = Caster.GUID
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectMapID = Caster.MapID
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectPositionX = Caster.positionX
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectPositionY = Caster.positionY
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectPositionZ = Caster.positionZ
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectHealth = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                    CType(Unit, WS_PlayerData.CharacterObject).resurrectMana = SpellInfo.MiscValue
 
                     'DONE: Send a resurrection request
-                    Dim RessurectRequest As New PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
+                    Dim RessurectRequest As New Packets.PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
                     RessurectRequest.AddUInt64(Caster.GUID)
                     RessurectRequest.AddUInt32(1)
                     RessurectRequest.AddUInt16(0)
                     RessurectRequest.AddUInt32(1)
-                    CType(Unit, CharacterObject).client.Send(RessurectRequest)
+                    CType(Unit, WS_PlayerData.CharacterObject).client.Send(RessurectRequest)
                     RessurectRequest.Dispose()
-                ElseIf TypeOf Unit Is CreatureObject Then
+                ElseIf TypeOf Unit Is WS_Creatures.CreatureObject Then
                     'DONE: Ressurect pets
-                    CType(Unit, CreatureObject).Life.Current = CType(Unit, CreatureObject).Life.Maximum * SpellInfo.valueBase \ 100
-                    Dim packetForNear As New UpdatePacketClass
-                    Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
-                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Unit, CreatureObject).Life.Current)
-                    UpdateData.AddToPacket(packetForNear, ObjectUpdateType.UPDATETYPE_VALUES, CType(Unit, CreatureObject))
-                    CType(Unit, CreatureObject).SendToNearPlayers(packetForNear)
+                    CType(Unit, WS_Creatures.CreatureObject).Life.Current = CType(Unit, WS_Creatures.CreatureObject).Life.Maximum * SpellInfo.valueBase \ 100
+                    Dim packetForNear As New Packets.UpdatePacketClass
+                    Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
+                    UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Unit, WS_Creatures.CreatureObject).Life.Current)
+                    UpdateData.AddToPacket(packetForNear, ObjectUpdateType.UPDATETYPE_VALUES, CType(Unit, WS_Creatures.CreatureObject))
+                    CType(Unit, WS_Creatures.CreatureObject).SendToNearPlayers(packetForNear)
                     packetForNear.Dispose()
                     UpdateData.Dispose()
 
-                    CType(Target.unitTarget, CreatureObject).MoveToInstant(Caster.positionX, Caster.positionY, Caster.positionZ, Caster.orientation)
-                ElseIf TypeOf Unit Is CorpseObject Then
-                    If _WorldServer.CHARACTERs.ContainsKey(CType(Unit, CorpseObject).Owner) Then
+                    CType(Target.unitTarget, WS_Creatures.CreatureObject).MoveToInstant(Caster.positionX, Caster.positionY, Caster.positionZ, Caster.orientation)
+                ElseIf TypeOf Unit Is WS_Corpses.CorpseObject Then
+                    If _WorldServer.CHARACTERs.ContainsKey(CType(Unit, WS_Corpses.CorpseObject).Owner) Then
                         'DONE: Save resurrection data
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectGUID = Caster.GUID
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectMapID = Caster.MapID
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionX = Caster.positionX
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionY = Caster.positionY
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectPositionZ = Caster.positionZ
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectHealth = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).resurrectMana = SpellInfo.MiscValue
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).resurrectGUID = Caster.GUID
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).resurrectMapID = Caster.MapID
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).resurrectPositionX = Caster.positionX
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).resurrectPositionY = Caster.positionY
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).resurrectPositionZ = Caster.positionZ
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).resurrectHealth = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).resurrectMana = SpellInfo.MiscValue
 
                         'DONE: Send request to corpse owner
-                        Dim RessurectRequest As New PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
+                        Dim RessurectRequest As New Packets.PacketClass(OPCODES.SMSG_RESURRECT_REQUEST)
                         RessurectRequest.AddUInt64(Caster.GUID)
                         RessurectRequest.AddUInt32(1)
                         RessurectRequest.AddUInt16(0)
                         RessurectRequest.AddUInt32(1)
-                        _WorldServer.CHARACTERs(CType(Unit, CorpseObject).Owner).client.Send(RessurectRequest)
+                        _WorldServer.CHARACTERs(CType(Unit, WS_Corpses.CorpseObject).Owner).client.Send(RessurectRequest)
                         RessurectRequest.Dispose()
                     End If
                 End If
@@ -3113,26 +3113,26 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_TELEPORT_GRAVEYARD(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_TELEPORT_GRAVEYARD(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    _WorldServer.AllGraveYards.GoToNearestGraveyard(CType(Unit, CharacterObject), False, True)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    _WorldServer.AllGraveYards.GoToNearestGraveyard(CType(Unit, WS_PlayerData.CharacterObject), False, True)
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_INTERRUPT_CAST(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_INTERRUPT_CAST(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    If CType(Unit, CharacterObject).FinishAllSpells(False) Then
-                        CType(Unit, CharacterObject).ProhibitSpellSchool(SPELLs(SpellID).School, SPELLs(SpellID).GetDuration)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    If CType(Unit, WS_PlayerData.CharacterObject).FinishAllSpells(False) Then
+                        CType(Unit, WS_PlayerData.CharacterObject).ProhibitSpellSchool(SPELLs(SpellID).School, SPELLs(SpellID).GetDuration)
                     End If
-                ElseIf TypeOf Unit Is CreatureObject Then
-                    CType(Unit, CreatureObject).StopCasting()
+                ElseIf TypeOf Unit Is WS_Creatures.CreatureObject Then
+                    CType(Unit, WS_Creatures.CreatureObject).StopCasting()
                     'TODO: Prohibit spell school as with creatures
                 End If
             Next
@@ -3140,33 +3140,33 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_STEALTH(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_STEALTH(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                SetFlag(Unit.cBytes1, 25, True)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                _Functions.SetFlag(Unit.cBytes1, 25, True)
                 Unit.Invisibility = InvisibilityLevel.INIVISIBILITY
-                Unit.Invisibility_Value = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
-                If TypeOf Unit Is CharacterObject Then UpdateCell(CType(Unit, CharacterObject))
+                Unit.Invisibility_Value = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then _WS_CharMovement.UpdateCell(CType(Unit, WS_PlayerData.CharacterObject))
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_DETECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_DETECT(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
+            For Each Unit As WS_Base.BaseUnit In Infected
                 Unit.CanSeeInvisibility = InvisibilityLevel.INIVISIBILITY
-                Unit.CanSeeInvisibility_Stealth = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
-                If TypeOf Unit Is CharacterObject Then UpdateCell(CType(Unit, CharacterObject))
+                Unit.CanSeeInvisibility_Stealth = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then _WS_CharMovement.UpdateCell(CType(Unit, WS_PlayerData.CharacterObject))
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_LEAP(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_LEAP(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             Dim selectedX As Single = Caster.positionX + Math.Cos(Caster.orientation) * SpellInfo.GetRadius
             Dim selectedY As Single = Caster.positionY + Math.Sin(Caster.orientation) * SpellInfo.GetRadius
-            Dim selectedZ As Single = GetZCoord(selectedX, selectedY, Caster.positionZ, Caster.MapID)
+            Dim selectedZ As Single = _WS_Maps.GetZCoord(selectedX, selectedY, Caster.positionZ, Caster.MapID)
             If Math.Abs(Caster.positionZ - selectedZ) > SpellInfo.GetRadius Then
                 'DONE: Special case if caster is above the ground
                 selectedX = Caster.positionX
@@ -3176,22 +3176,22 @@ Namespace Spells
 
             'DONE: Check if we hit something
             Dim hitX As Single, hitY As Single, hitZ As Single
-            If GetObjectHitPos(Caster, selectedX, selectedY, selectedZ + 2.0F, hitX, hitY, hitZ, -1.0F) Then
+            If _WS_Maps.GetObjectHitPos(Caster, selectedX, selectedY, selectedZ + 2.0F, hitX, hitY, hitZ, -1.0F) Then
                 selectedX = hitX
                 selectedY = hitY
                 selectedZ = hitZ + 0.2F
             End If
 
-            If TypeOf Caster Is CharacterObject Then
-                CType(Caster, CharacterObject).Teleport(selectedX, selectedY, selectedZ, Caster.orientation, Caster.MapID)
+            If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                CType(Caster, WS_PlayerData.CharacterObject).Teleport(selectedX, selectedY, selectedZ, Caster.orientation, Caster.MapID)
             Else
-                CType(Caster, CreatureObject).MoveToInstant(selectedX, selectedY, selectedZ, Caster.orientation)
+                CType(Caster, WS_Creatures.CreatureObject).MoveToInstant(selectedX, selectedY, selectedZ, Caster.orientation)
             End If
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_SUMMON(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_SUMMON(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             'Select Case SpellInfo.MiscValueB
             '    Case SummonType.SUMMON_TYPE_GUARDIAN, SummonType.SUMMON_TYPE_POSESSED, SummonType.SUMMON_TYPE_POSESSED2
             '        _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Summon Guardian")
@@ -3358,7 +3358,7 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_SUMMON_WILD(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_SUMMON_WILD(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             Dim Duration As Integer = SPELLs(SpellID).GetDuration
             Dim Type As TempSummonType = TempSummonType.TEMPSUMMON_TIMED_OR_DEAD_DESPAWN
             If Duration = 0 Then Type = TempSummonType.TEMPSUMMON_DEAD_DESPAWN
@@ -3375,8 +3375,8 @@ Namespace Spells
             End If
 
             'TODO: Level by engineering skill level
-            Dim tmpCreature As New CreatureObject(SpellInfo.MiscValue, SelectedX, SelectedY, SelectedZ, Caster.orientation, Caster.MapID, Duration) With {
-                    .Level = CType(Caster, BaseUnit).Level,
+            Dim tmpCreature As New WS_Creatures.CreatureObject(SpellInfo.MiscValue, SelectedX, SelectedY, SelectedZ, Caster.orientation, Caster.MapID, Duration) With {
+                    .Level = CType(Caster, WS_Base.BaseUnit).Level,
                     .CreatedBy = Caster.GUID,
                     .CreatedBySpell = SpellID
                     }
@@ -3385,7 +3385,7 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_SUMMON_TOTEM(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_SUMMON_TOTEM(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             Dim Slot As Byte = 0
             Select Case SpellInfo.ID
                 Case SpellEffects_Names.SPELL_EFFECT_SUMMON_TOTEM_SLOT1
@@ -3404,7 +3404,7 @@ Namespace Spells
 
             'Normal shaman totem
             If Slot < 4 Then
-                Dim GUID As ULong = CType(Caster, CharacterObject).TotemSlot(Slot)
+                Dim GUID As ULong = CType(Caster, WS_PlayerData.CharacterObject).TotemSlot(Slot)
                 If GUID <> 0 Then
                     If _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
                         _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Destroyed old totem.")
@@ -3418,20 +3418,20 @@ Namespace Spells
 
             Dim selectedX As Single = Caster.positionX + Math.Cos(Caster.orientation) * 2
             Dim selectedY As Single = Caster.positionY + Math.Sin(Caster.orientation) * 2
-            Dim selectedZ As Single = GetZCoord(selectedX, selectedY, Caster.positionZ, Caster.MapID)
+            Dim selectedZ As Single = _WS_Maps.GetZCoord(selectedX, selectedY, Caster.positionZ, Caster.MapID)
 
-            Dim NewTotem As New TotemObject(SpellInfo.MiscValue, selectedX, selectedY, selectedZ, angle, Caster.MapID, SPELLs(SpellID).GetDuration)
-            NewTotem.Life.Base = SpellInfo.GetValue(CType(Caster, BaseUnit).Level)
+            Dim NewTotem As New WS_Totems.TotemObject(SpellInfo.MiscValue, selectedX, selectedY, selectedZ, angle, Caster.MapID, SPELLs(SpellID).GetDuration)
+            NewTotem.Life.Base = SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
             NewTotem.Life.Current = NewTotem.Life.Maximum
             NewTotem.Caster = Caster
-            NewTotem.Level = CType(Caster, BaseUnit).Level
+            NewTotem.Level = CType(Caster, WS_Base.BaseUnit).Level
             NewTotem.SummonedBy = Caster.GUID
             NewTotem.CreatedBy = Caster.GUID
             NewTotem.CreatedBySpell = SpellID
-            If TypeOf Caster Is CharacterObject Then
-                NewTotem.Faction = CType(Caster, CharacterObject).Faction
-            ElseIf TypeOf Caster Is CreatureObject Then
-                NewTotem.Faction = CType(Caster, CreatureObject).Faction
+            If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                NewTotem.Faction = CType(Caster, WS_PlayerData.CharacterObject).Faction
+            ElseIf TypeOf Caster Is WS_Creatures.CreatureObject Then
+                NewTotem.Faction = CType(Caster, WS_Creatures.CreatureObject).Faction
             End If
 
             If _WorldServer.CREATURESDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
@@ -3442,8 +3442,8 @@ Namespace Spells
             NewTotem.AddToWorld()
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Totem spawned [{0:X}].", NewTotem.GUID)
 
-            If Slot < 4 AndAlso TypeOf Caster Is CharacterObject Then
-                CType(Caster, CharacterObject).TotemSlot(Slot) = NewTotem.GUID
+            If Slot < 4 AndAlso TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                CType(Caster, WS_PlayerData.CharacterObject).TotemSlot(Slot) = NewTotem.GUID
 
                 'Dim TotemCreated As New PacketClass(OPCODES.SMSG_TOTEM_CREATED)
                 'TotemCreated.AddInt8(Slot)
@@ -3457,8 +3457,8 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_SUMMON_OBJECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            If Not TypeOf Caster Is BaseUnit Then Return SpellFailedReason.SPELL_FAILED_CASTER_DEAD
+        Public Function SPELL_EFFECT_SUMMON_OBJECT(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            If Not TypeOf Caster Is WS_Base.BaseUnit Then Return SpellFailedReason.SPELL_FAILED_CASTER_DEAD
 
             Dim selectedX As Single = 0.0F
             Dim selectedY As Single = 0.0F
@@ -3472,25 +3472,25 @@ Namespace Spells
                 selectedY = Caster.positionY + Math.Sin(Caster.orientation) * SPELLs(SpellID).GetRange
             End If
 
-            Dim GameobjectInfo As GameObjectInfo
+            Dim GameobjectInfo As WS_GameObjects.GameObjectInfo
             If _WorldServer.GAMEOBJECTSDatabase.ContainsKey(SpellInfo.MiscValue) = False Then
-                GameobjectInfo = New GameObjectInfo(SpellInfo.MiscValue)
+                GameobjectInfo = New WS_GameObjects.GameObjectInfo(SpellInfo.MiscValue)
             Else
                 GameobjectInfo = _WorldServer.GAMEOBJECTSDatabase(SpellInfo.MiscValue)
             End If
 
             If GameobjectInfo.Type = GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then
-                selectedZ = GetWaterLevel(selectedX, selectedY, Caster.MapID)
+                selectedZ = _WS_Maps.GetWaterLevel(selectedX, selectedY, Caster.MapID)
             Else
-                selectedZ = GetZCoord(selectedX, selectedY, Caster.positionZ, Caster.MapID)
+                selectedZ = _WS_Maps.GetZCoord(selectedX, selectedY, Caster.positionZ, Caster.MapID)
             End If
 
-            Dim tmpGO As New GameObjectObject(SpellInfo.MiscValue, Caster.MapID, selectedX, selectedY, selectedZ, Caster.orientation, Caster.GUID) With {
+            Dim tmpGO As New WS_GameObjects.GameObjectObject(SpellInfo.MiscValue, Caster.MapID, selectedX, selectedY, selectedZ, Caster.orientation, Caster.GUID) With {
                     .CreatedBySpell = SpellID,
-                    .Level = CType(Caster, BaseUnit).Level,
+                    .Level = CType(Caster, WS_Base.BaseUnit).Level,
                     .instance = Caster.instance
                     }
-            CType(Caster, BaseUnit).gameObjects.Add(tmpGO)
+            CType(Caster, WS_Base.BaseUnit).gameObjects.Add(tmpGO)
 
             If GameobjectInfo.Type = GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then
                 tmpGO.SetupFishingNode()
@@ -3498,15 +3498,15 @@ Namespace Spells
 
             tmpGO.AddToWorld()
 
-            Dim packet As New PacketClass(OPCODES.SMSG_GAMEOBJECT_SPAWN_ANIM)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_GAMEOBJECT_SPAWN_ANIM)
             packet.AddUInt64(tmpGO.GUID)
             tmpGO.SendToNearPlayers(packet)
             packet.Dispose()
 
             If GameobjectInfo.Type = GameObjectType.GAMEOBJECT_TYPE_FISHINGNODE Then
-                CType(Caster, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_CHANNEL_SPELL, SpellID)
-                CType(Caster, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_CHANNEL_OBJECT, tmpGO.GUID)
-                CType(Caster, CharacterObject).SendCharacterUpdate()
+                CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_CHANNEL_SPELL, SpellID)
+                CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_CHANNEL_OBJECT, tmpGO.GUID)
+                CType(Caster, WS_PlayerData.CharacterObject).SendCharacterUpdate()
             End If
 
             'DONE: Despawn the object after the duration
@@ -3517,7 +3517,7 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_ENCHANT_ITEM(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_ENCHANT_ITEM(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             If Target.itemTarget Is Nothing Then Return SpellFailedReason.SPELL_FAILED_ITEM_NOT_FOUND
 
             'TODO: If there already is an enchantment here, ask for permission?
@@ -3526,7 +3526,7 @@ Namespace Spells
             If _WorldServer.CHARACTERs.ContainsKey(Target.itemTarget.OwnerGUID) Then
                 _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).SendItemUpdate(Target.itemTarget)
 
-                Dim EnchantLog As New PacketClass(OPCODES.SMSG_ENCHANTMENTLOG)
+                Dim EnchantLog As New Packets.PacketClass(OPCODES.SMSG_ENCHANTMENTLOG)
                 EnchantLog.AddUInt64(Target.itemTarget.OwnerGUID)
                 EnchantLog.AddUInt64(Caster.GUID)
                 EnchantLog.AddInt32(Target.itemTarget.ItemEntry)
@@ -3547,7 +3547,7 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             If Target.itemTarget Is Nothing Then Return SpellFailedReason.SPELL_FAILED_ITEM_NOT_FOUND
 
             'TODO: If there already is an enchantment here, ask for permission?
@@ -3577,7 +3577,7 @@ Namespace Spells
             If _WorldServer.CHARACTERs.ContainsKey(Target.itemTarget.OwnerGUID) Then
                 _WorldServer.CHARACTERs(Target.itemTarget.OwnerGUID).SendItemUpdate(Target.itemTarget)
 
-                Dim EnchantLog As New PacketClass(OPCODES.SMSG_ENCHANTMENTLOG)
+                Dim EnchantLog As New Packets.PacketClass(OPCODES.SMSG_ENCHANTMENTLOG)
                 EnchantLog.AddUInt64(Target.itemTarget.OwnerGUID)
                 EnchantLog.AddUInt64(Caster.GUID)
                 EnchantLog.AddInt32(Target.itemTarget.ItemEntry)
@@ -3590,7 +3590,7 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_ENCHANT_HELD_ITEM(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_ENCHANT_HELD_ITEM(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             'TODO: If there already is an enchantment here, ask for permission?
 
             Dim Duration As Integer = SPELLs(SpellID).GetDuration
@@ -3598,11 +3598,11 @@ Namespace Spells
             If Duration = 0 Then Duration = 10000
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Enchant duration [{0}]({1})", Duration, SpellInfo.valueBase)
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject AndAlso CType(Unit, CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
-                    If CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_TEMP) AndAlso CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).Enchantments(EnchantSlots.ENCHANTMENT_TEMP).ID = SpellInfo.MiscValue Then
-                        CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).AddEnchantment(SpellInfo.MiscValue, EnchantSlots.ENCHANTMENT_TEMP, Duration)
-                        CType(Unit, CharacterObject).SendItemUpdate(CType(Unit, CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND))
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject AndAlso CType(Unit, WS_PlayerData.CharacterObject).Items.ContainsKey(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND) Then
+                    If CType(Unit, WS_PlayerData.CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).Enchantments.ContainsKey(EnchantSlots.ENCHANTMENT_TEMP) AndAlso CType(Unit, WS_PlayerData.CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).Enchantments(EnchantSlots.ENCHANTMENT_TEMP).ID = SpellInfo.MiscValue Then
+                        CType(Unit, WS_PlayerData.CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND).AddEnchantment(SpellInfo.MiscValue, EnchantSlots.ENCHANTMENT_TEMP, Duration)
+                        CType(Unit, WS_PlayerData.CharacterObject).SendItemUpdate(CType(Unit, WS_PlayerData.CharacterObject).Items(EquipmentSlots.EQUIPMENT_SLOT_MAINHAND))
                     End If
                 End If
             Next
@@ -3610,22 +3610,22 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_CHARGE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            If TypeOf Caster Is CreatureObject Then
-                CType(Caster, CreatureObject).SetToRealPosition()
+        Public Function SPELL_EFFECT_CHARGE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            If TypeOf Caster Is WS_Creatures.CreatureObject Then
+                CType(Caster, WS_Creatures.CreatureObject).SetToRealPosition()
             End If
 
             Dim NearX As Single = Target.unitTarget.positionX
             If Target.unitTarget.positionX > Caster.positionX Then NearX -= 1.0F Else NearX += 1.0F
             Dim NearY As Single = Target.unitTarget.positionY
             If Target.unitTarget.positionY > Caster.positionY Then NearY -= 1.0F Else NearY += 1.0F
-            Dim NearZ As Single = GetZCoord(NearX, NearY, Caster.positionZ, Caster.MapID)
+            Dim NearZ As Single = _WS_Maps.GetZCoord(NearX, NearY, Caster.positionZ, Caster.MapID)
             If NearZ > (Target.unitTarget.positionZ + 2) Or NearZ < (Target.unitTarget.positionZ - 2) Then NearZ = Target.unitTarget.positionZ
 
-            Dim moveDist As Single = GetDistance(Caster, NearX, NearY, NearZ)
+            Dim moveDist As Single = _WS_Combat.GetDistance(Caster, NearX, NearY, NearZ)
             Dim TimeToMove As Integer = moveDist / SPELLs(SpellID).Speed * 1000.0F
 
-            Dim SMSG_MONSTER_MOVE As New PacketClass(OPCODES.SMSG_MONSTER_MOVE)
+            Dim SMSG_MONSTER_MOVE As New Packets.PacketClass(OPCODES.SMSG_MONSTER_MOVE)
             SMSG_MONSTER_MOVE.AddPackGUID(Caster.GUID)
             SMSG_MONSTER_MOVE.AddSingle(Caster.positionX)
             SMSG_MONSTER_MOVE.AddSingle(Caster.positionY)
@@ -3642,29 +3642,29 @@ Namespace Spells
             Caster.SendToNearPlayers(SMSG_MONSTER_MOVE)
             SMSG_MONSTER_MOVE.Dispose()
 
-            If TypeOf Caster Is CharacterObject Then
-                SendAttackStart(Caster.GUID, Target.unitTarget.GUID, CType(Caster, CharacterObject).client)
-                CType(Caster, CharacterObject).attackState.AttackStart(Target.unitTarget)
+            If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                _WS_Combat.SendAttackStart(Caster.GUID, Target.unitTarget.GUID, CType(Caster, WS_PlayerData.CharacterObject).client)
+                CType(Caster, WS_PlayerData.CharacterObject).attackState.AttackStart(Target.unitTarget)
             End If
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_KNOCK_BACK(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
-            For Each Unit As BaseUnit In Infected
-                Dim Direction As Single = GetOrientation(Caster.positionX, Unit.positionX, Caster.positionY, Unit.positionY)
+        Public Function SPELL_EFFECT_KNOCK_BACK(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+            For Each Unit As WS_Base.BaseUnit In Infected
+                Dim Direction As Single = _WS_Combat.GetOrientation(Caster.positionX, Unit.positionX, Caster.positionY, Unit.positionY)
 
-                Dim packet As New PacketClass(OPCODES.SMSG_MOVE_KNOCK_BACK)
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_KNOCK_BACK)
                 packet.AddPackGUID(Unit.GUID)
                 packet.AddInt32(0)
                 packet.AddSingle(Math.Cos(Direction)) 'X-direction
                 packet.AddSingle(Math.Sin(Direction)) 'Y-direction
-                packet.AddSingle(SpellInfo.GetValue(CType(Caster, BaseUnit).Level) / 10.0F) 'horizontal speed
+                packet.AddSingle(SpellInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 10.0F) 'horizontal speed
                 packet.AddSingle(SpellInfo.MiscValue / -10.0F) 'Z-speed
                 Unit.SendToNearPlayers(packet)
                 packet.Dispose()
 
-                If TypeOf Unit Is CreatureObject Then
+                If TypeOf Unit Is WS_Creatures.CreatureObject Then
                     'TODO: Calculate were the creature would fall, and pause the AI until it lands
                 End If
             Next
@@ -3672,7 +3672,7 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_SCRIPT_EFFECT(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_SCRIPT_EFFECT(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
             If SPELLs(SpellID).SpellFamilyName = SpellFamilyNames.SPELLFAMILY_PALADIN Then
                 If SPELLs(SpellID).SpellIconID = 70 OrElse SPELLs(SpellID).SpellIconID = 242 Then
                     Return SPELL_EFFECT_HEAL(Target, Caster, SpellInfo, SpellID, Infected, Item)
@@ -3681,9 +3681,9 @@ Namespace Spells
 
                     Dim SpellID2 As Integer = 0
                     For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs_VISIBLE - 1
-                        If CType(Caster, BaseUnit).ActiveSpells(i) IsNot Nothing AndAlso CType(Caster, BaseUnit).ActiveSpells(i).GetSpellInfo.SpellVisual = 5622 AndAlso CType(Caster, BaseUnit).ActiveSpells(i).GetSpellInfo.SpellFamilyName = SpellFamilyNames.SPELLFAMILY_PALADIN Then
-                            If CType(Caster, BaseUnit).ActiveSpells(i).Aura_Info(2) IsNot Nothing Then
-                                SpellID2 = CType(Caster, BaseUnit).ActiveSpells(i).Aura_Info(2).valueBase + 1
+                        If CType(Caster, WS_Base.BaseUnit).ActiveSpells(i) IsNot Nothing AndAlso CType(Caster, WS_Base.BaseUnit).ActiveSpells(i).GetSpellInfo.SpellVisual = 5622 AndAlso CType(Caster, WS_Base.BaseUnit).ActiveSpells(i).GetSpellInfo.SpellFamilyName = SpellFamilyNames.SPELLFAMILY_PALADIN Then
+                            If CType(Caster, WS_Base.BaseUnit).ActiveSpells(i).Aura_Info(2) IsNot Nothing Then
+                                SpellID2 = CType(Caster, WS_Base.BaseUnit).ActiveSpells(i).Aura_Info(2).valueBase + 1
                                 Exit For
                             End If
                         End If
@@ -3699,17 +3699,17 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_DUEL(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_DUEL(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
             Select Case SpellInfo.implicitTargetA
                 Case SpellImplicitTargets.TARGET_DUEL_VS_PLAYER
-                    If Not TypeOf Target.unitTarget Is CharacterObject Then Return SpellFailedReason.SPELL_FAILED_TARGET_NOT_PLAYER
-                    If Not TypeOf Caster Is CharacterObject Then Exit Function
+                    If Not TypeOf Target.unitTarget Is WS_PlayerData.CharacterObject Then Return SpellFailedReason.SPELL_FAILED_TARGET_NOT_PLAYER
+                    If Not TypeOf Caster Is WS_PlayerData.CharacterObject Then Exit Function
 
                     'TODO: Some more checks
-                    If CType(Caster, CharacterObject).DuelArbiter <> 0 Then Return SpellFailedReason.SPELL_FAILED_SPELL_IN_PROGRESS
-                    If CType(Target.unitTarget, CharacterObject).IsInDuel Then Return SpellFailedReason.SPELL_FAILED_TARGET_DUELING
-                    If CType(Target.unitTarget, CharacterObject).inCombatWith.Count > 0 Then Return SpellFailedReason.SPELL_FAILED_TARGET_IN_COMBAT
+                    If CType(Caster, WS_PlayerData.CharacterObject).DuelArbiter <> 0 Then Return SpellFailedReason.SPELL_FAILED_SPELL_IN_PROGRESS
+                    If CType(Target.unitTarget, WS_PlayerData.CharacterObject).IsInDuel Then Return SpellFailedReason.SPELL_FAILED_TARGET_DUELING
+                    If CType(Target.unitTarget, WS_PlayerData.CharacterObject).inCombatWith.Count > 0 Then Return SpellFailedReason.SPELL_FAILED_TARGET_IN_COMBAT
                     If Caster.Invisibility <> InvisibilityLevel.VISIBLE Then Return SpellFailedReason.SPELL_FAILED_CANT_DUEL_WHILE_INVISIBLE
                     'CAST_FAIL_CANT_START_DUEL_STEALTHED
                     'CAST_FAIL_NO_DUELING_HERE
@@ -3717,24 +3717,24 @@ Namespace Spells
                     'DONE: Get middle coordinate
                     Dim flagX As Single = Caster.positionX + (Target.unitTarget.positionX - Caster.positionX) / 2
                     Dim flagY As Single = Caster.positionY + (Target.unitTarget.positionY - Caster.positionY) / 2
-                    Dim flagZ As Single = GetZCoord(flagX, flagY, Caster.positionZ + 3.0F, Caster.MapID)
+                    Dim flagZ As Single = _WS_Maps.GetZCoord(flagX, flagY, Caster.positionZ + 3.0F, Caster.MapID)
 
                     'DONE: Spawn duel flag (GO Entry in SpellInfo.MiscValue) in middle of the 2 players
-                    Dim tmpGO As GameObjectObject = New GameObjectObject(SpellInfo.MiscValue, Caster.MapID, flagX, flagY, flagZ, 0, Caster.GUID)
+                    Dim tmpGO As WS_GameObjects.GameObjectObject = New WS_GameObjects.GameObjectObject(SpellInfo.MiscValue, Caster.MapID, flagX, flagY, flagZ, 0, Caster.GUID)
                     tmpGO.AddToWorld()
 
                     'DONE: Set duel arbiter and parner
                     'CType(Caster, CharacterObject).DuelArbiter = tmpGO.GUID        Commented to fix 2 packets for duel accept
-                    CType(Target.unitTarget, CharacterObject).DuelArbiter = tmpGO.GUID
-                    CType(Caster, CharacterObject).DuelPartner = CType(Target.unitTarget, CharacterObject)
-                    CType(Target.unitTarget, CharacterObject).DuelPartner = CType(Caster, CharacterObject)
+                    CType(Target.unitTarget, WS_PlayerData.CharacterObject).DuelArbiter = tmpGO.GUID
+                    CType(Caster, WS_PlayerData.CharacterObject).DuelPartner = CType(Target.unitTarget, WS_PlayerData.CharacterObject)
+                    CType(Target.unitTarget, WS_PlayerData.CharacterObject).DuelPartner = CType(Caster, WS_PlayerData.CharacterObject)
 
                     'DONE: Send duel request packet
-                    Dim packet As New PacketClass(OPCODES.SMSG_DUEL_REQUESTED)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_DUEL_REQUESTED)
                     packet.AddUInt64(tmpGO.GUID)
                     packet.AddUInt64(Caster.GUID)
-                    CType(Target.unitTarget, CharacterObject).client.SendMultiplyPackets(packet)
-                    CType(Caster, CharacterObject).client.SendMultiplyPackets(packet)
+                    CType(Target.unitTarget, WS_PlayerData.CharacterObject).client.SendMultiplyPackets(packet)
+                    CType(Caster, WS_PlayerData.CharacterObject).client.SendMultiplyPackets(packet)
                     packet.Dispose()
                 Case Else
                     Return SpellFailedReason.SPELL_FAILED_BAD_IMPLICIT_TARGETS
@@ -3743,37 +3743,37 @@ Namespace Spells
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function SPELL_EFFECT_QUEST_COMPLETE(ByRef Target As SpellTargets, ByRef Caster As BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of BaseObject), ByRef Item As ItemObject) As SpellFailedReason
+        Public Function SPELL_EFFECT_QUEST_COMPLETE(ByRef Target As SpellTargets, ByRef Caster As WS_Base.BaseObject, ByRef SpellInfo As SpellEffect, ByVal SpellID As Integer, ByRef Infected As List(Of WS_Base.BaseObject), ByRef Item As ItemObject) As SpellFailedReason
 
-            For Each Unit As BaseUnit In Infected
-                If TypeOf Unit Is CharacterObject Then
-                    _WorldServer.ALLQUESTS.CompleteQuest(CType(Unit, CharacterObject), SpellInfo.MiscValue, Caster.GUID)
+            For Each Unit As WS_Base.BaseUnit In Infected
+                If TypeOf Unit Is WS_PlayerData.CharacterObject Then
+                    _WorldServer.ALLQUESTS.CompleteQuest(CType(Unit, WS_PlayerData.CharacterObject), SpellInfo.MiscValue, Caster.GUID)
                 End If
             Next
 
             Return SpellFailedReason.SPELL_NO_ERROR
         End Function
 
-        Public Function GetEnemyAtPoint(ByRef objCharacter As BaseUnit, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Distance As Single) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit)
+        Public Function GetEnemyAtPoint(ByRef objCharacter As WS_Base.BaseUnit, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single, ByVal Distance As Single) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit)
 
-            If TypeOf objCharacter Is CharacterObject Then
-                For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso (CType(objCharacter, CharacterObject).IsHorde <> _WorldServer.CHARACTERs(pGUID).IsHorde OrElse (CType(objCharacter, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(objCharacter, CharacterObject).DuelPartner Is _WorldServer.CHARACTERs(pGUID))) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+            If TypeOf objCharacter Is WS_PlayerData.CharacterObject Then
+                For Each pGUID As ULong In CType(objCharacter, WS_PlayerData.CharacterObject).playersNear.ToArray
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso (CType(objCharacter, WS_PlayerData.CharacterObject).IsHorde <> _WorldServer.CHARACTERs(pGUID).IsHorde OrElse (CType(objCharacter, WS_PlayerData.CharacterObject).DuelPartner IsNot Nothing AndAlso CType(objCharacter, WS_PlayerData.CharacterObject).DuelPartner Is _WorldServer.CHARACTERs(pGUID))) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
-                For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
-                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
+                For Each cGUID As ULong In CType(objCharacter, WS_PlayerData.CharacterObject).creaturesNear.ToArray
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is WS_Totems.TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, WS_PlayerData.CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
+                        If _WS_Combat.GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
                     End If
                 Next
 
-            ElseIf TypeOf objCharacter Is CreatureObject Then
+            ElseIf TypeOf objCharacter Is WS_Creatures.CreatureObject Then
                 For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, WS_Creatures.CreatureObject).Faction) <= TReaction.NEUTRAL Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3781,27 +3781,27 @@ Namespace Spells
             Return result
         End Function
 
-        Public Function GetEnemyAroundMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single, Optional ByRef r As BaseUnit = Nothing) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit)
+        Public Function GetEnemyAroundMe(ByRef objCharacter As WS_Base.BaseUnit, ByVal Distance As Single, Optional ByRef r As WS_Base.BaseUnit = Nothing) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit)
 
             If r Is Nothing Then r = objCharacter
-            If TypeOf r Is CharacterObject Then
-                For Each pGUID As ULong In CType(r, CharacterObject).playersNear.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, CharacterObject).IsHorde <> _WorldServer.CHARACTERs(pGUID).IsHorde OrElse (CType(r, CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, CharacterObject).DuelPartner Is _WorldServer.CHARACTERs(pGUID))) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+            If TypeOf r Is WS_PlayerData.CharacterObject Then
+                For Each pGUID As ULong In CType(r, WS_PlayerData.CharacterObject).playersNear.ToArray
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso (CType(r, WS_PlayerData.CharacterObject).IsHorde <> _WorldServer.CHARACTERs(pGUID).IsHorde OrElse (CType(r, WS_PlayerData.CharacterObject).DuelPartner IsNot Nothing AndAlso CType(r, WS_PlayerData.CharacterObject).DuelPartner Is _WorldServer.CHARACTERs(pGUID))) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
-                For Each cGUID As ULong In CType(r, CharacterObject).creaturesNear.ToArray
-                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(r, CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
+                For Each cGUID As ULong In CType(r, WS_PlayerData.CharacterObject).creaturesNear.ToArray
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is WS_Totems.TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(r, WS_PlayerData.CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) <= TReaction.NEUTRAL Then
+                        If _WS_Combat.GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
                     End If
                 Next
 
-            ElseIf TypeOf r Is CreatureObject Then
+            ElseIf TypeOf r Is WS_Creatures.CreatureObject Then
                 For Each pGUID As ULong In r.SeenBy.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(r, CreatureObject).Faction) <= TReaction.NEUTRAL Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(r, WS_Creatures.CreatureObject).Faction) <= TReaction.NEUTRAL Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3809,26 +3809,26 @@ Namespace Spells
             Return result
         End Function
 
-        Public Function GetFriendAroundMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit)
+        Public Function GetFriendAroundMe(ByRef objCharacter As WS_Base.BaseUnit, ByVal Distance As Single) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit)
 
-            If TypeOf objCharacter Is CharacterObject Then
-                For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = _WorldServer.CHARACTERs(pGUID).IsHorde AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+            If TypeOf objCharacter Is WS_PlayerData.CharacterObject Then
+                For Each pGUID As ULong In CType(objCharacter, WS_PlayerData.CharacterObject).playersNear.ToArray
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, WS_PlayerData.CharacterObject).IsHorde = _WorldServer.CHARACTERs(pGUID).IsHorde AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
-                For Each cGUID As ULong In CType(objCharacter, CharacterObject).creaturesNear.ToArray
-                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
-                        If GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
+                For Each cGUID As ULong In CType(objCharacter, WS_PlayerData.CharacterObject).creaturesNear.ToArray
+                    If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso (Not TypeOf _WorldServer.WORLD_CREATUREs(cGUID) Is WS_Totems.TotemObject) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso CType(objCharacter, WS_PlayerData.CharacterObject).GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) > TReaction.NEUTRAL Then
+                        If _WS_Combat.GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), objCharacter) < Distance Then result.Add(_WorldServer.WORLD_CREATUREs(cGUID))
                     End If
                 Next
 
-            ElseIf TypeOf objCharacter Is CreatureObject Then
+            ElseIf TypeOf objCharacter Is WS_Creatures.CreatureObject Then
                 For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, WS_Creatures.CreatureObject).Faction) > TReaction.NEUTRAL Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3836,20 +3836,20 @@ Namespace Spells
             Return result
         End Function
 
-        Public Function GetFriendPlayersAroundMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit)
+        Public Function GetFriendPlayersAroundMe(ByRef objCharacter As WS_Base.BaseUnit, ByVal Distance As Single) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit)
 
-            If TypeOf objCharacter Is CharacterObject Then
-                For Each pGUID As ULong In CType(objCharacter, CharacterObject).playersNear.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, CharacterObject).IsHorde = _WorldServer.CHARACTERs(pGUID).IsHorde AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+            If TypeOf objCharacter Is WS_PlayerData.CharacterObject Then
+                For Each pGUID As ULong In CType(objCharacter, WS_PlayerData.CharacterObject).playersNear.ToArray
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso CType(objCharacter, WS_PlayerData.CharacterObject).IsHorde = _WorldServer.CHARACTERs(pGUID).IsHorde AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
 
-            ElseIf TypeOf objCharacter Is CreatureObject Then
+            ElseIf TypeOf objCharacter Is WS_Creatures.CreatureObject Then
                 For Each pGUID As ULong In objCharacter.SeenBy.ToArray
-                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, CreatureObject).Faction) > TReaction.NEUTRAL Then
-                        If GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
+                    If _WorldServer.CHARACTERs.ContainsKey(pGUID) AndAlso _WorldServer.CHARACTERs(pGUID).IsDead = False AndAlso _WorldServer.CHARACTERs(pGUID).GetReaction(CType(objCharacter, WS_Creatures.CreatureObject).Faction) > TReaction.NEUTRAL Then
+                        If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(pGUID), objCharacter) < Distance Then result.Add(_WorldServer.CHARACTERs(pGUID))
                     End If
                 Next
             End If
@@ -3857,53 +3857,53 @@ Namespace Spells
             Return result
         End Function
 
-        Public Function GetPartyMembersAroundMe(ByRef objCharacter As CharacterObject, ByVal distance As Single) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit) From {
+        Public Function GetPartyMembersAroundMe(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal distance As Single) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit) From {
                     objCharacter
                     }
             If Not objCharacter.IsInGroup Then Return result
 
             For Each GUID As ULong In objCharacter.Group.LocalMembers.ToArray
                 If objCharacter.playersNear.Contains(GUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(GUID) Then
-                    If GetDistance(objCharacter, _WorldServer.CHARACTERs(GUID)) < distance Then result.Add(_WorldServer.CHARACTERs(GUID))
+                    If _WS_Combat.GetDistance(objCharacter, _WorldServer.CHARACTERs(GUID)) < distance Then result.Add(_WorldServer.CHARACTERs(GUID))
                 End If
             Next
 
             Return result
         End Function
 
-        Public Function GetPartyMembersAtPoint(ByRef objCharacter As CharacterObject, ByVal Distance As Single, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit)
+        Public Function GetPartyMembersAtPoint(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal Distance As Single, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit)
 
-            If GetDistance(objCharacter, PosX, PosY, PosZ) < Distance Then result.Add(objCharacter)
+            If _WS_Combat.GetDistance(objCharacter, PosX, PosY, PosZ) < Distance Then result.Add(objCharacter)
             If Not objCharacter.IsInGroup Then Return result
 
             For Each GUID As ULong In objCharacter.Group.LocalMembers.ToArray
                 If objCharacter.playersNear.Contains(GUID) AndAlso _WorldServer.CHARACTERs.ContainsKey(GUID) Then
-                    If GetDistance(_WorldServer.CHARACTERs(GUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(GUID))
+                    If _WS_Combat.GetDistance(_WorldServer.CHARACTERs(GUID), PosX, PosY, PosZ) < Distance Then result.Add(_WorldServer.CHARACTERs(GUID))
                 End If
             Next
 
             Return result
         End Function
 
-        Public Function GetEnemyInFrontOfMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit)
+        Public Function GetEnemyInFrontOfMe(ByRef objCharacter As WS_Base.BaseUnit, ByVal Distance As Single) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit)
 
-            Dim tmp As List(Of BaseUnit) = GetEnemyAroundMe(objCharacter, Distance)
-            For Each unit As BaseUnit In tmp
-                If IsInFrontOf(objCharacter, unit) Then result.Add(unit)
+            Dim tmp As List(Of WS_Base.BaseUnit) = GetEnemyAroundMe(objCharacter, Distance)
+            For Each unit As WS_Base.BaseUnit In tmp
+                If _WS_Combat.IsInFrontOf(objCharacter, unit) Then result.Add(unit)
             Next
 
             Return result
         End Function
 
-        Public Function GetEnemyInBehindMe(ByRef objCharacter As BaseUnit, ByVal Distance As Single) As List(Of BaseUnit)
-            Dim result As New List(Of BaseUnit)
+        Public Function GetEnemyInBehindMe(ByRef objCharacter As WS_Base.BaseUnit, ByVal Distance As Single) As List(Of WS_Base.BaseUnit)
+            Dim result As New List(Of WS_Base.BaseUnit)
 
-            Dim tmp As List(Of BaseUnit) = GetEnemyAroundMe(objCharacter, Distance)
-            For Each unit As BaseUnit In tmp
-                If IsInBackOf(objCharacter, unit) Then result.Add(unit)
+            Dim tmp As List(Of WS_Base.BaseUnit) = GetEnemyAroundMe(objCharacter, Distance)
+            For Each unit As WS_Base.BaseUnit In tmp
+                If _WS_Combat.IsInBackOf(objCharacter, unit) Then result.Add(unit)
             Next
 
             Return result
@@ -3912,15 +3912,15 @@ Namespace Spells
 #End Region
 #Region "WS.Spells.SpellAuraEffects"
 
-        Delegate Sub ApplyAuraHandler(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Delegate Sub ApplyAuraHandler(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
         Public Const AURAs_COUNT As Integer = 261
         Public AURAs(AURAs_COUNT) As ApplyAuraHandler
 
-        Public Sub SPELL_AURA_NONE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_NONE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
         End Sub
 
-        Public Sub SPELL_AURA_DUMMY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_DUMMY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[DEBUG] Aura Dummy for spell {0}.", SpellID)
             Select Case Action
                 Case AuraAction.AURA_REMOVEBYDURATION
@@ -3928,58 +3928,58 @@ Namespace Spells
                         Case 33763
                             'HACK: Lifebloom
                             'TODO: Can lifebloom crit (the end damage)?
-                            Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                            Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                             SendHealSpellLog(Caster, Target, SpellID, Damage, False)
                             Target.Heal(Damage)
                     End Select
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_BIND_SIGHT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_BIND_SIGHT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If TypeOf Caster Is CharacterObject Then
-                        CType(Caster, CharacterObject).DuelArbiter = Target.GUID
-                        CType(Caster, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, Target.GUID)
-                        CType(Caster, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        CType(Caster, WS_PlayerData.CharacterObject).DuelArbiter = Target.GUID
+                        CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, Target.GUID)
+                        CType(Caster, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Caster Is CharacterObject Then
-                        CType(Caster, CharacterObject).DuelArbiter = 0
-                        CType(Caster, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, CType(0, Long))
-                        CType(Caster, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        CType(Caster, WS_PlayerData.CharacterObject).DuelArbiter = 0
+                        CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, CType(0, Long))
+                        CType(Caster, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_FAR_SIGHT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_FAR_SIGHT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, EffectInfo.MiscValue)
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, EffectInfo.MiscValue)
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, 0)
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, 0)
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_SCHOOL_IMMUNITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_SCHOOL_IMMUNITY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -3994,7 +3994,7 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MECHANIC_IMMUNITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MECHANIC_IMMUNITY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -4010,7 +4010,7 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_DISPEL_IMMUNITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_DISPEL_IMMUNITY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -4025,68 +4025,68 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_TRACK_CREATURES(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_TRACK_CREATURES(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_CREATURES, 1 << (EffectInfo.MiscValue - 1))
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_CREATURES, 1 << (EffectInfo.MiscValue - 1))
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_CREATURES, 0)
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_CREATURES, 0)
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_TRACK_RESOURCES(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_TRACK_RESOURCES(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_RESOURCES, 1 << (EffectInfo.MiscValue - 1))
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_RESOURCES, 1 << (EffectInfo.MiscValue - 1))
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_RESOURCES, 0)
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_TRACK_RESOURCES, 0)
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_SCALE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_SCALE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
                 Case AuraAction.AURA_ADD
-                    Target.Size *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                    Target.Size *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Target.Size /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                    Target.Size /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
             End Select
 
             'DONE: Send update
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Target.Size)
-                CType(Target, CharacterObject).SendCharacterUpdate(True)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Target.Size)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
             Else
-                Dim packet As New UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EObjectFields.OBJECT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim tmpUpdate As New Packets.UpdateClass(EObjectFields.OBJECT_END)
                 tmpUpdate.SetUpdateFlag(EObjectFields.OBJECT_FIELD_SCALE_X, Target.Size)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                 Target.SendToNearPlayers(packet)
                 tmpUpdate.Dispose()
                 packet.Dispose()
@@ -4094,25 +4094,25 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_SKILL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_SKILL(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject AndAlso CType(Target, CharacterObject).Skills.ContainsKey(EffectInfo.MiscValue) Then
-                        With CType(Target, CharacterObject)
-                            .Skills(EffectInfo.MiscValue).Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject AndAlso CType(Target, WS_PlayerData.CharacterObject).Skills.ContainsKey(EffectInfo.MiscValue) Then
+                        With CType(Target, WS_PlayerData.CharacterObject)
+                            .Skills(EffectInfo.MiscValue).Bonus += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                             Call .SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + .SkillsPositions(EffectInfo.MiscValue) * 3 + 2, .Skills(EffectInfo.MiscValue).Bonus)                      'skill1.Bonus
                             Call .SendCharacterUpdate(True)
                         End With
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject AndAlso CType(Target, CharacterObject).Skills.ContainsKey(EffectInfo.MiscValue) Then
-                        With CType(Target, CharacterObject)
-                            .Skills(EffectInfo.MiscValue).Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject AndAlso CType(Target, WS_PlayerData.CharacterObject).Skills.ContainsKey(EffectInfo.MiscValue) Then
+                        With CType(Target, WS_PlayerData.CharacterObject)
+                            .Skills(EffectInfo.MiscValue).Bonus -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                             Call .SetUpdateFlag(EPlayerFields.PLAYER_SKILL_INFO_1_1 + .SkillsPositions(EffectInfo.MiscValue) * 3 + 2, .Skills(EffectInfo.MiscValue).Bonus)                      'skill1.Bonus
                             Call .SendCharacterUpdate(True)
                         End With
@@ -4120,45 +4120,45 @@ Namespace Spells
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_DUMMY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_DUMMY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    If Not TypeOf Target Is CharacterObject Then Exit Sub
+                    If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
                     Select Case SpellID
                         Case 430, 431, 432, 1133, 1135, 1137, 10250, 22734, 27089, 34291, 43706, 46755
                             'HACK: Drink
-                            Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
-                            CType(Target, CharacterObject).ManaRegenBonus += Damage
-                            CType(Target, CharacterObject).UpdateManaRegen()
+                            Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
+                            CType(Target, WS_PlayerData.CharacterObject).ManaRegenBonus += Damage
+                            CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
                     End Select
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If Not TypeOf Caster Is CharacterObject Then Exit Sub
+                    If Not TypeOf Caster Is WS_PlayerData.CharacterObject Then Exit Sub
                     Select Case SpellID
                         Case 430, 431, 432, 1133, 1135, 1137, 10250, 22734, 27089, 34291, 43706, 46755
                             'HACK: Drink
-                            Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
-                            CType(Target, CharacterObject).ManaRegenBonus -= Damage
-                            CType(Target, CharacterObject).UpdateManaRegen()
+                            Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
+                            CType(Target, WS_PlayerData.CharacterObject).ManaRegenBonus -= Damage
+                            CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
                     End Select
                 Case AuraAction.AURA_UPDATE
                     Select Case SpellID
                         Case 43265, 49936, 49937, 49938
                             'HACK: Death and Decay
                             Dim Damage As Integer
-                            If TypeOf Caster Is DynamicObjectObject Then
-                                Damage = EffectInfo.GetValue(CType(Caster, DynamicObjectObject).Caster.Level) * StackCount
-                                Target.DealDamage(Damage, CType(Caster, DynamicObjectObject).Caster)
+                            If TypeOf Caster Is WS_DynamicObjects.DynamicObjectObject Then
+                                Damage = EffectInfo.GetValue(CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster.Level) * StackCount
+                                Target.DealDamage(Damage, CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster)
                             Else
-                                Damage = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
-                                Target.DealDamage(Damage, CType(Caster, BaseUnit))
+                                Damage = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
+                                Target.DealDamage(Damage, CType(Caster, WS_Base.BaseUnit))
                             End If
                     End Select
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_DAMAGE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_DAMAGE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4166,18 +4166,18 @@ Namespace Spells
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Exit Sub
                 Case AuraAction.AURA_UPDATE
-                    If TypeOf Caster Is DynamicObjectObject Then
-                        Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, DynamicObjectObject).Caster.Level) * StackCount
-                        Target.DealSpellDamage(CType(Caster, DynamicObjectObject).Caster, EffectInfo, SpellID, Damage, SPELLs(SpellID).School, SpellType.SPELL_TYPE_DOT)
+                    If TypeOf Caster Is WS_DynamicObjects.DynamicObjectObject Then
+                        Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster.Level) * StackCount
+                        Target.DealSpellDamage(CType(Caster, WS_DynamicObjects.DynamicObjectObject).Caster, EffectInfo, SpellID, Damage, SPELLs(SpellID).School, SpellType.SPELL_TYPE_DOT)
                     Else
-                        Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                        Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
                         Target.DealSpellDamage(Caster, EffectInfo, SpellID, Damage, SPELLs(SpellID).School, SpellType.SPELL_TYPE_DOT)
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_HEAL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_HEAL(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4185,7 +4185,7 @@ Namespace Spells
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Exit Sub
                 Case AuraAction.AURA_UPDATE
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
 
                     'NOTE: This function heals as well
                     Target.DealSpellDamage(Caster, EffectInfo, SpellID, Damage, SPELLs(SpellID).School, SpellType.SPELL_TYPE_HEALDOT)
@@ -4193,7 +4193,7 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_ENERGIZE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_ENERGIZE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4202,14 +4202,14 @@ Namespace Spells
                     Exit Sub
                 Case AuraAction.AURA_UPDATE
                     Dim Power As ManaTypes = EffectInfo.MiscValue
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
                     SendPeriodicAuraLog(Caster, Target, SpellID, Power, Damage, EffectInfo.ApplyAuraIndex)
                     Target.Energize(Damage, Power, Caster)
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_LEECH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_LEECH(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4217,16 +4217,16 @@ Namespace Spells
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Exit Sub
                 Case AuraAction.AURA_UPDATE
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
                     SendPeriodicAuraLog(Caster, Target, SpellID, SPELLs(SpellID).School, Damage, EffectInfo.ApplyAuraIndex)
                     SendPeriodicAuraLog(Target, Caster, SpellID, SPELLs(SpellID).School, Damage, EffectInfo.ApplyAuraIndex)
                     Target.DealDamage(Damage, Caster)
-                    CType(Caster, BaseUnit).Heal(Damage, Target)
+                    CType(Caster, WS_Base.BaseUnit).Heal(Damage, Target)
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_MANA_LEECH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_MANA_LEECH(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4235,15 +4235,15 @@ Namespace Spells
                     Exit Sub
                 Case AuraAction.AURA_UPDATE
                     Dim Power As ManaTypes = EffectInfo.MiscValue
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
                     SendPeriodicAuraLog(Target, Caster, SpellID, Power, Damage, EffectInfo.ApplyAuraIndex)
                     Target.Energize(-Damage, Power, Caster)
-                    CType(Caster, BaseUnit).Energize(Damage, Power, Target)
+                    CType(Caster, WS_Base.BaseUnit).Energize(Damage, Power, Target)
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_TRIGGER_SPELL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_TRIGGER_SPELL(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4256,14 +4256,14 @@ Namespace Spells
                     Targets.SetTarget_UNIT(Target)
                     Dim castParams As New CastSpellParameters(Targets, Caster, EffectInfo.TriggerSpell)
                     ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
-                    If TypeOf Caster Is BaseUnit Then
+                    If TypeOf Caster Is WS_Base.BaseUnit Then
                         SendPeriodicAuraLog(Caster, Target, SpellID, SPELLs(SpellID).School, 0, EffectInfo.ApplyAuraIndex)
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_DAMAGE_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_DAMAGE_PERCENT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4271,17 +4271,17 @@ Namespace Spells
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Exit Sub
                 Case AuraAction.AURA_UPDATE
-                    Dim Damage As Integer = (Target.Life.Maximum * EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) * StackCount
+                    Dim Damage As Integer = (Target.Life.Maximum * EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) * StackCount
                     Target.DealSpellDamage(Caster, EffectInfo, SpellID, Damage, SPELLs(SpellID).School, SpellType.SPELL_TYPE_DOT)
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_HEAL_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_HEAL_PERCENT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
-                    Dim Damage As Integer = (Target.Life.Maximum * EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) * StackCount
+                    Dim Damage As Integer = (Target.Life.Maximum * EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) * StackCount
 
                     'NOTE: This function heals as well
                     Target.DealSpellDamage(Caster, EffectInfo, SpellID, Damage, SPELLs(SpellID).School, SpellType.SPELL_TYPE_HEALDOT)
@@ -4294,12 +4294,12 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_PERIODIC_ENERGIZE_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PERIODIC_ENERGIZE_PERCENT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Dim Power As ManaTypes = EffectInfo.MiscValue
-                    Dim Damage As Integer = (Target.Mana.Maximum * EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) * StackCount
+                    Dim Damage As Integer = (Target.Mana.Maximum * EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) * StackCount
                     SendPeriodicAuraLog(Caster, Target, SpellID, Power, Damage, EffectInfo.ApplyAuraIndex)
                     Target.Energize(Damage, Power, Caster)
 
@@ -4311,15 +4311,15 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_REGEN(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_REGEN(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
                 Case AuraAction.AURA_ADD
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
-                    CType(Target, CharacterObject).LifeRegenBonus += Damage
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
+                    CType(Target, WS_PlayerData.CharacterObject).LifeRegenBonus += Damage
 
                     'TODO: Increase threat (gain * 0.5)
 
@@ -4331,25 +4331,25 @@ Namespace Spells
                         Target.DoEmote(Emotes.STATE_CANNIBALIZE)
                     End If
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
-                    CType(Target, CharacterObject).LifeRegenBonus -= Damage
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
+                    CType(Target, WS_PlayerData.CharacterObject).LifeRegenBonus -= Damage
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_POWER_REGEN(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_POWER_REGEN(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
                 Case AuraAction.AURA_ADD
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
                     If EffectInfo.MiscValue = ManaTypes.TYPE_MANA Then
-                        CType(Target, CharacterObject).ManaRegenBonus += Damage
-                        CType(Target, CharacterObject).UpdateManaRegen()
+                        CType(Target, WS_PlayerData.CharacterObject).ManaRegenBonus += Damage
+                        CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
                     ElseIf EffectInfo.MiscValue = ManaTypes.TYPE_RAGE Then
-                        CType(Target, CharacterObject).RageRegenBonus += ((Damage / 17) * 10)
+                        CType(Target, WS_PlayerData.CharacterObject).RageRegenBonus += ((Damage / 17) * 10)
                     End If
 
                     If (SPELLs(SpellID).auraInterruptFlags And SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_SEATED) Then
@@ -4361,39 +4361,39 @@ Namespace Spells
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
                     If EffectInfo.MiscValue = ManaTypes.TYPE_MANA Then
-                        CType(Target, CharacterObject).ManaRegenBonus -= Damage
-                        CType(Target, CharacterObject).UpdateManaRegen()
+                        CType(Target, WS_PlayerData.CharacterObject).ManaRegenBonus -= Damage
+                        CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
                     ElseIf EffectInfo.MiscValue = ManaTypes.TYPE_RAGE Then
-                        CType(Target, CharacterObject).RageRegenBonus -= (Damage / 17) * 10
+                        CType(Target, WS_PlayerData.CharacterObject).RageRegenBonus -= (Damage / 17) * 10
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_POWER_REGEN_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_POWER_REGEN_PERCENT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
                 Case AuraAction.AURA_ADD
                     If EffectInfo.MiscValue = ManaTypes.TYPE_MANA Then
-                        Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount / 100
-                        CType(Target, CharacterObject).ManaRegenerationModifier += Damage
-                        CType(Target, CharacterObject).UpdateManaRegen()
+                        Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount / 100
+                        CType(Target, WS_PlayerData.CharacterObject).ManaRegenerationModifier += Damage
+                        CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount / 100
-                    CType(Target, CharacterObject).ManaRegenerationModifier -= Damage
-                    CType(Target, CharacterObject).UpdateManaRegen()
+                    Dim Damage As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount / 100
+                    CType(Target, WS_PlayerData.CharacterObject).ManaRegenerationModifier -= Damage
+                    CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_TRANSFORM(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_TRANSFORM(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4404,10 +4404,10 @@ Namespace Spells
                     Target.Model = _WorldServer.CREATURESDatabase(EffectInfo.MiscValue).GetFirstModel
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
-                        Target.Model = GetRaceModel(CType(Target, CharacterObject).Race, CType(Target, CharacterObject).Gender)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Target.Model = _Functions.GetRaceModel(CType(Target, WS_PlayerData.CharacterObject).Race, CType(Target, WS_PlayerData.CharacterObject).Gender)
                     Else
-                        Target.Model = CType(Target, CreatureObject).CreatureInfo.GetRandomModel()
+                        Target.Model = CType(Target, WS_Creatures.CreatureObject).CreatureInfo.GetRandomModel()
                     End If
 
                 Case AuraAction.AURA_UPDATE
@@ -4415,14 +4415,14 @@ Namespace Spells
             End Select
 
             'DONE: Model update
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_DISPLAYID, Target.Model)
-                CType(Target, CharacterObject).SendCharacterUpdate(True)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_DISPLAYID, Target.Model)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
             Else
-                Dim packet As New UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_DISPLAYID, Target.Model)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                 Target.SendToNearPlayers(packet)
                 tmpUpdate.Dispose()
                 packet.Dispose()
@@ -4430,8 +4430,8 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_GHOST(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_GHOST(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -4440,47 +4440,47 @@ Namespace Spells
                 Case AuraAction.AURA_ADD
                     Target.Invisibility = InvisibilityLevel.DEAD
                     Target.CanSeeInvisibility = InvisibilityLevel.DEAD
-                    UpdateCell(Target)
+                    _WS_CharMovement.UpdateCell(Target)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Target.Invisibility = InvisibilityLevel.VISIBLE
                     Target.CanSeeInvisibility = InvisibilityLevel.INIVISIBILITY
-                    UpdateCell(Target)
+                    _WS_CharMovement.UpdateCell(Target)
 
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INVISIBILITY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_INVISIBILITY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    CType(Target, CharacterObject).cPlayerFieldBytes2 = CType(Target, CharacterObject).cPlayerFieldBytes2 Or &H4000
+                    CType(Target, WS_PlayerData.CharacterObject).cPlayerFieldBytes2 = CType(Target, WS_PlayerData.CharacterObject).cPlayerFieldBytes2 Or &H4000
                     Target.Invisibility = InvisibilityLevel.INIVISIBILITY
-                    Target.Invisibility_Value += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Invisibility_Value += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    CType(Target, CharacterObject).cPlayerFieldBytes2 = CType(Target, CharacterObject).cPlayerFieldBytes2 And (Not &H4000)
+                    CType(Target, WS_PlayerData.CharacterObject).cPlayerFieldBytes2 = CType(Target, WS_PlayerData.CharacterObject).cPlayerFieldBytes2 And (Not &H4000)
                     Target.Invisibility = InvisibilityLevel.VISIBLE
-                    Target.Invisibility_Value -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Invisibility_Value -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
             End Select
 
             'DONE: Send update
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BYTES2, CType(Target, CharacterObject).cPlayerFieldBytes2)
-                CType(Target, CharacterObject).SendCharacterUpdate(True)
-                UpdateCell(CType(Target, CharacterObject))
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_BYTES2, CType(Target, WS_PlayerData.CharacterObject).cPlayerFieldBytes2)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
+                _WS_CharMovement.UpdateCell(CType(Target, WS_PlayerData.CharacterObject))
             Else
                 'TODO: Still not done for creatures
             End If
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_STEALTH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_STEALTH(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -4488,73 +4488,73 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     Target.Invisibility = InvisibilityLevel.STEALTH
-                    Target.Invisibility_Value += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Invisibility_Value += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Target.Invisibility = InvisibilityLevel.VISIBLE
-                    Target.Invisibility_Value -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Invisibility_Value -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
             End Select
 
             'DONE: Update the cell
-            UpdateCell(CType(Target, CharacterObject))
+            _WS_CharMovement.UpdateCell(CType(Target, WS_PlayerData.CharacterObject))
         End Sub
 
-        Public Sub SPELL_AURA_MOD_STEALTH_LEVEL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_STEALTH_LEVEL(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Target.Invisibility_Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Invisibility_Bonus += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Target.Invisibility_Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Invisibility_Bonus -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INVISIBILITY_DETECTION(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_INVISIBILITY_DETECTION(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Target.CanSeeInvisibility_Invisibility += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.CanSeeInvisibility_Invisibility += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Target.CanSeeInvisibility_Invisibility -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.CanSeeInvisibility_Invisibility -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                UpdateCell(CType(Target, CharacterObject))
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                _WS_CharMovement.UpdateCell(CType(Target, WS_PlayerData.CharacterObject))
             End If
         End Sub
 
-        Public Sub SPELL_AURA_MOD_DETECT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_DETECT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Target.CanSeeInvisibility_Stealth += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.CanSeeInvisibility_Stealth += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Target.CanSeeInvisibility_Stealth -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.CanSeeInvisibility_Stealth -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                UpdateCell(CType(Target, CharacterObject))
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                _WS_CharMovement.UpdateCell(CType(Target, WS_PlayerData.CharacterObject))
             End If
         End Sub
 
-        Public Sub SPELL_AURA_DETECT_STEALTH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_DETECT_STEALTH(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -4568,42 +4568,42 @@ Namespace Spells
 
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                UpdateCell(CType(Target, CharacterObject))
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                _WS_CharMovement.UpdateCell(CType(Target, WS_PlayerData.CharacterObject))
             End If
         End Sub
 
-        Public Sub SPELL_AURA_MOD_DISARM(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_DISARM(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).Disarmed = True
-                        CType(Target, CharacterObject).cUnitFlags = UnitFlags.UNIT_FLAG_DISARMED
-                        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Target, CharacterObject).cUnitFlags)
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).Disarmed = True
+                        CType(Target, WS_PlayerData.CharacterObject).cUnitFlags = UnitFlags.UNIT_FLAG_DISARMED
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Target, WS_PlayerData.CharacterObject).cUnitFlags)
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).Disarmed = False
-                        CType(Target, CharacterObject).cUnitFlags = CType(Target, CharacterObject).cUnitFlags And (Not UnitFlags.UNIT_FLAG_DISARMED)
-                        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Target, CharacterObject).cUnitFlags)
-                        CType(Target, CharacterObject).SendCharacterUpdate(True)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).Disarmed = False
+                        CType(Target, WS_PlayerData.CharacterObject).cUnitFlags = CType(Target, WS_PlayerData.CharacterObject).cUnitFlags And (Not UnitFlags.UNIT_FLAG_DISARMED)
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Target, WS_PlayerData.CharacterObject).cUnitFlags)
+                        CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
                     End If
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_SCHOOL_ABSORB(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Caster Is BaseUnit Then Exit Sub
+        Public Sub SPELL_AURA_SCHOOL_ABSORB(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Caster Is WS_Base.BaseUnit Then Exit Sub
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
                 Case AuraAction.AURA_ADD
                     If Target.AbsorbSpellLeft.ContainsKey(SpellID) Then Exit Sub
 
-                    Target.AbsorbSpellLeft.Add(SpellID, CUInt(EffectInfo.GetValue(CType(Caster, BaseUnit).Level)) + (CUInt(EffectInfo.MiscValue) << 23UI))
+                    Target.AbsorbSpellLeft.Add(SpellID, CUInt(EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)) + (CUInt(EffectInfo.MiscValue) << 23UI))
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     If Not Target.AbsorbSpellLeft.ContainsKey(SpellID) Then Exit Sub
 
@@ -4611,7 +4611,7 @@ Namespace Spells
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_SHAPESHIFT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_SHAPESHIFT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4619,7 +4619,7 @@ Namespace Spells
                     Target.RemoveAurasOfType(AuraEffects_Names.SPELL_AURA_MOUNTED)                  'Remove mounted spells
 
                     'Druid
-                    If TypeOf Target Is CharacterObject AndAlso CType(Target, CharacterObject).Classe = Classes.CLASS_DRUID Then
+                    If TypeOf Target Is WS_PlayerData.CharacterObject AndAlso CType(Target, WS_PlayerData.CharacterObject).Classe = Classes.CLASS_DRUID Then
                         If EffectInfo.MiscValue = ShapeshiftForm.FORM_AQUA OrElse EffectInfo.MiscValue = ShapeshiftForm.FORM_CAT OrElse EffectInfo.MiscValue = ShapeshiftForm.FORM_BEAR OrElse EffectInfo.MiscValue = ShapeshiftForm.FORM_DIREBEAR OrElse EffectInfo.MiscValue = ShapeshiftForm.FORM_TRAVEL OrElse EffectInfo.MiscValue = ShapeshiftForm.FORM_FLIGHT OrElse EffectInfo.MiscValue = ShapeshiftForm.FORM_SWIFT OrElse EffectInfo.MiscValue = ShapeshiftForm.FORM_MOONKIN Then
                             Target.RemoveAurasOfType(26) 'Remove Root
                             Target.RemoveAurasOfType(33) 'Remove Slow
@@ -4628,8 +4628,8 @@ Namespace Spells
 
                     Target.ShapeshiftForm = EffectInfo.MiscValue
                     Target.ManaType = _CommonGlobalFunctions.GetShapeshiftManaType(EffectInfo.MiscValue, Target.ManaType)
-                    If TypeOf Target Is CharacterObject Then
-                        Target.Model = _CommonGlobalFunctions.GetShapeshiftModel(EffectInfo.MiscValue, CType(Target, CharacterObject).Race, Target.Model)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Target.Model = _CommonGlobalFunctions.GetShapeshiftModel(EffectInfo.MiscValue, CType(Target, WS_PlayerData.CharacterObject).Race, Target.Model)
                     Else
                         Target.Model = _CommonGlobalFunctions.GetShapeshiftModel(EffectInfo.MiscValue, 0, Target.Model)
                     End If
@@ -4637,12 +4637,12 @@ Namespace Spells
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Target.ShapeshiftForm = ShapeshiftForm.FORM_NORMAL
 
-                    If TypeOf Target Is CharacterObject Then
-                        Target.ManaType = GetClassManaType(CType(Target, CharacterObject).Classe)
-                        Target.Model = GetRaceModel(CType(Target, CharacterObject).Race, CType(Target, CharacterObject).Gender)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Target.ManaType = _WS_Player_Initializator.GetClassManaType(CType(Target, WS_PlayerData.CharacterObject).Classe)
+                        Target.Model = _Functions.GetRaceModel(CType(Target, WS_PlayerData.CharacterObject).Race, CType(Target, WS_PlayerData.CharacterObject).Gender)
                     Else
-                        Target.ManaType = CType(Target, CreatureObject).CreatureInfo.ManaType
-                        Target.Model = CType(Target, CreatureObject).CreatureInfo.GetRandomModel
+                        Target.ManaType = CType(Target, WS_Creatures.CreatureObject).CreatureInfo.ManaType
+                        Target.Model = CType(Target, WS_Creatures.CreatureObject).CreatureInfo.GetRandomModel
                     End If
 
                 Case AuraAction.AURA_UPDATE
@@ -4650,8 +4650,8 @@ Namespace Spells
             End Select
 
             'DONE: Send update
-            If TypeOf Target Is CharacterObject Then
-                With CType(Target, CharacterObject)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                With CType(Target, WS_PlayerData.CharacterObject)
                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_2, .cBytes2)
                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_DISPLAYID, .Model)
                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_0, .cBytes0)
@@ -4665,46 +4665,46 @@ Namespace Spells
                         .SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER4, .Energy.Current)
                         .SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER4, .Energy.Maximum)
                     End If
-                    CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.BASE_ATTACK)
+                    _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.BASE_ATTACK)
                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_MINDAMAGE, .Damage.Minimum)
                     .SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXDAMAGE, .Damage.Maximum)
                     .SendCharacterUpdate(True)
-                    .GroupUpdateFlag = .GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE
-                    .GroupUpdateFlag = .GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
-                    .GroupUpdateFlag = .GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
-                    InitializeTalentSpells(CType(Target, CharacterObject))
+                    .GroupUpdateFlag = .GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE
+                    .GroupUpdateFlag = .GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER
+                    .GroupUpdateFlag = .GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
+                    _WS_PlayerHelper.InitializeTalentSpells(CType(Target, WS_PlayerData.CharacterObject))
                 End With
             Else
-                Dim packet As New UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_BYTES_2, Target.cBytes2)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_DISPLAYID, Target.Model)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                 Target.SendToNearPlayers(packet)
                 tmpUpdate.Dispose()
                 packet.Dispose()
             End If
 
             'TODO: The running emote is fucked up
-            If TypeOf Target Is CharacterObject Then
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
                 If Action = AuraAction.AURA_ADD Then
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_TRAVEL Then CType(Target, CharacterObject).ApplySpell(5419)
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_CAT Then CType(Target, CharacterObject).ApplySpell(3025)
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_BEAR Then CType(Target, CharacterObject).ApplySpell(1178)
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_DIREBEAR Then CType(Target, CharacterObject).ApplySpell(9635)
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_AQUA Then CType(Target, CharacterObject).ApplySpell(5421)
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_MOONKIN Then CType(Target, CharacterObject).ApplySpell(24905)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_TRAVEL Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(5419)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_CAT Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(3025)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_BEAR Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(1178)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_DIREBEAR Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(9635)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_AQUA Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(5421)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_MOONKIN Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(24905)
                     If EffectInfo.MiscValue = ShapeshiftForm.FORM_FLIGHT Then
-                        CType(Target, CharacterObject).ApplySpell(33948)
-                        CType(Target, CharacterObject).ApplySpell(34764)
+                        CType(Target, WS_PlayerData.CharacterObject).ApplySpell(33948)
+                        CType(Target, WS_PlayerData.CharacterObject).ApplySpell(34764)
                     End If
                     If EffectInfo.MiscValue = ShapeshiftForm.FORM_SWIFT Then
-                        CType(Target, CharacterObject).ApplySpell(40121)
-                        CType(Target, CharacterObject).ApplySpell(40122)
+                        CType(Target, WS_PlayerData.CharacterObject).ApplySpell(40121)
+                        CType(Target, WS_PlayerData.CharacterObject).ApplySpell(40122)
                     End If
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_BATTLESTANCE Then CType(Target, CharacterObject).ApplySpell(21156)
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_BERSERKERSTANCE Then CType(Target, CharacterObject).ApplySpell(7381)
-                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_DEFENSIVESTANCE Then CType(Target, CharacterObject).ApplySpell(7376)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_BATTLESTANCE Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(21156)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_BERSERKERSTANCE Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(7381)
+                    If EffectInfo.MiscValue = ShapeshiftForm.FORM_DEFENSIVESTANCE Then CType(Target, WS_PlayerData.CharacterObject).ApplySpell(7376)
                 Else
                     If EffectInfo.MiscValue = ShapeshiftForm.FORM_TRAVEL Then Target.RemoveAuraBySpell(5419)
                     If EffectInfo.MiscValue = ShapeshiftForm.FORM_CAT Then Target.RemoveAuraBySpell(3025)
@@ -4728,7 +4728,7 @@ Namespace Spells
             End If
         End Sub
 
-        Public Sub SPELL_AURA_PROC_TRIGGER_SPELL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_PROC_TRIGGER_SPELL(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             Select Case Action
                 Case AuraAction.AURA_ADD
                     Exit Sub
@@ -4739,30 +4739,30 @@ Namespace Spells
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_SPEED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_INCREASE_SPEED(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject Then
-                        Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                        newSpeed *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                        CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).SetToRealPosition()
-                        CType(Target, CreatureObject).SpeedMod *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                        newSpeed *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                        CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).SetToRealPosition()
+                        CType(Target, WS_Creatures.CreatureObject).SpeedMod *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
-                        Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
                         If Caster Is Nothing Then
                             ' do nothing?
                         Else
-                            newSpeed /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                            newSpeed /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         End If
-                        CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).SetToRealPosition()
-                        CType(Target, CreatureObject).SpeedMod /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).SetToRealPosition()
+                        CType(Target, WS_Creatures.CreatureObject).SpeedMod /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     End If
 
                 Case AuraAction.AURA_UPDATE
@@ -4770,48 +4770,48 @@ Namespace Spells
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_DECREASE_SPEED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_DECREASE_SPEED(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             'NOTE: Some values of EffectInfo.GetValue are in old format, new format uses (-) values
 
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject Then
-                        Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                        If EffectInfo.GetValue(CType(Caster, BaseUnit).Level) < 0 Then
-                            newSpeed /= Math.Abs(EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                        If EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) < 0 Then
+                            newSpeed /= Math.Abs(EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         Else
-                            newSpeed /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                            newSpeed /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         End If
 
-                        CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                        CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
 
                         'DONE: Remove some auras when slowed
-                        CType(Target, CharacterObject).RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_SLOWED)
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).SetToRealPosition()
-                        If EffectInfo.GetValue(CType(Caster, BaseUnit).Level) < 0 Then
-                            CType(Target, CreatureObject).SpeedMod /= Math.Abs(EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        CType(Target, WS_PlayerData.CharacterObject).RemoveAurasByInterruptFlag(SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_SLOWED)
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).SetToRealPosition()
+                        If EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) < 0 Then
+                            CType(Target, WS_Creatures.CreatureObject).SpeedMod /= Math.Abs(EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         Else
-                            CType(Target, CreatureObject).SpeedMod /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                            CType(Target, WS_Creatures.CreatureObject).SpeedMod /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         End If
 
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
-                        Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                        If EffectInfo.GetValue(CType(Caster, BaseUnit).Level) < 0 Then
-                            newSpeed *= Math.Abs(EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                        If EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) < 0 Then
+                            newSpeed *= Math.Abs(EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         Else
-                            newSpeed *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                            newSpeed *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         End If
-                        CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).SetToRealPosition()
-                        If EffectInfo.GetValue(CType(Caster, BaseUnit).Level) < 0 Then
-                            CType(Target, CreatureObject).SpeedMod *= Math.Abs(EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).SetToRealPosition()
+                        If EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) < 0 Then
+                            CType(Target, WS_Creatures.CreatureObject).SpeedMod *= Math.Abs(EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         Else
-                            CType(Target, CreatureObject).SpeedMod *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                            CType(Target, WS_Creatures.CreatureObject).SpeedMod *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                         End If
                     End If
 
@@ -4820,89 +4820,89 @@ Namespace Spells
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_SPEED_ALWAYS(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_INCREASE_SPEED_ALWAYS(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                    newSpeed *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                    newSpeed *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                    newSpeed /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                    newSpeed /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
 
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                    newSpeed *= ((EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1)
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                    newSpeed *= ((EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1)
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                    newSpeed /= ((EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1)
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                    newSpeed /= ((EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1)
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
 
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED_ALWAYS(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED_ALWAYS(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                    newSpeed *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                    newSpeed *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim newSpeed As Single = CType(Target, CharacterObject).RunSpeed
-                    newSpeed /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).RunSpeed
+                    newSpeed /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.RUN, newSpeed)
 
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_SWIM_SPEED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_INCREASE_SWIM_SPEED(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_ADD
-                    Dim newSpeed As Single = CType(Target, CharacterObject).SwimSpeed
-                    newSpeed *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                    CType(Target, CharacterObject).SwimSpeed = newSpeed
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.SWIM, newSpeed)
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).SwimSpeed
+                    newSpeed *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                    CType(Target, WS_PlayerData.CharacterObject).SwimSpeed = newSpeed
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.SWIM, newSpeed)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim newSpeed As Single = CType(Target, CharacterObject).SwimSpeed
+                    Dim newSpeed As Single = CType(Target, WS_PlayerData.CharacterObject).SwimSpeed
                     If Caster Is Nothing Then
                         'do nothing?
                     Else
-                        newSpeed /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        newSpeed /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     End If
-                    CType(Target, CharacterObject).SwimSpeed = newSpeed
-                    CType(Target, CharacterObject).ChangeSpeedForced(ChangeSpeedType.SWIM, newSpeed)
+                    CType(Target, WS_PlayerData.CharacterObject).SwimSpeed = newSpeed
+                    CType(Target, WS_PlayerData.CharacterObject).ChangeSpeedForced(ChangeSpeedType.SWIM, newSpeed)
 
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOUNTED(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOUNTED(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
@@ -4929,14 +4929,14 @@ Namespace Spells
             End Select
 
             'DONE: Model update
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MOUNTDISPLAYID, Target.Mount)
-                CType(Target, CharacterObject).SendCharacterUpdate(True)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MOUNTDISPLAYID, Target.Mount)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
             Else
-                Dim packet As New UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_MOUNTDISPLAYID, Target.Mount)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                 Target.SendToNearPlayers(packet)
                 tmpUpdate.Dispose()
                 packet.Dispose()
@@ -4944,17 +4944,17 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_HASTE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_HASTE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
-            With CType(Target, CharacterObject)
+            With CType(Target, WS_PlayerData.CharacterObject)
                 Select Case Action
                     Case AuraAction.AURA_ADD
-                        .AttackTimeMods(0) /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                        .AttackTimeMods(1) /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        .AttackTimeMods(0) /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                        .AttackTimeMods(1) /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                        .AttackTimeMods(0) *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
-                        .AttackTimeMods(1) *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        .AttackTimeMods(0) *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
+                        .AttackTimeMods(1) *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     Case AuraAction.AURA_UPDATE
                         Exit Sub
                 End Select
@@ -4965,15 +4965,15 @@ Namespace Spells
             End With
         End Sub
 
-        Public Sub SPELL_AURA_MOD_RANGED_HASTE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_RANGED_HASTE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
-            With CType(Target, CharacterObject)
+            With CType(Target, WS_PlayerData.CharacterObject)
                 Select Case Action
                     Case AuraAction.AURA_ADD
-                        .AttackTimeMods(2) /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        .AttackTimeMods(2) /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                        .AttackTimeMods(2) *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        .AttackTimeMods(2) *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     Case AuraAction.AURA_UPDATE
                         Exit Sub
                 End Select
@@ -4983,44 +4983,44 @@ Namespace Spells
             End With
         End Sub
 
-        Public Sub SPELL_AURA_MOD_RANGED_AMMO_HASTE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_RANGED_AMMO_HASTE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
-            With CType(Target, CharacterObject)
+            With CType(Target, WS_PlayerData.CharacterObject)
                 Select Case Action
                     Case AuraAction.AURA_ADD
-                        .AmmoMod *= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        .AmmoMod *= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                        .AmmoMod /= (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100) + 1
+                        .AmmoMod /= (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100) + 1
                     Case AuraAction.AURA_UPDATE
                         Exit Sub
                 End Select
 
-                CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.RANGED_ATTACK)
                 .SendCharacterUpdate(False)
             End With
         End Sub
 
-        Public Sub SPELL_AURA_MOD_ROOT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_ROOT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
                     'Target.cUnitFlags = Target.cUnitFlags Or UnitFlags.UNIT_FLAG_ROOTED
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetMoveRoot()
-                        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, CType(0, Long))
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        If CType(Target, CreatureObject).aiScript IsNot Nothing Then CType(Target, CreatureObject).aiScript.OnGenerateHate(CType(Caster, BaseUnit), 1)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetMoveRoot()
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, CType(0, Long))
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        If CType(Target, WS_Creatures.CreatureObject).aiScript IsNot Nothing Then CType(Target, WS_Creatures.CreatureObject).aiScript.OnGenerateHate(CType(Caster, WS_Base.BaseUnit), 1)
 
-                        CType(Target, CreatureObject).StopMoving()
+                        CType(Target, WS_Creatures.CreatureObject).StopMoving()
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     'Target.cUnitFlags = Target.cUnitFlags And (Not UnitFlags.UNIT_FLAG_ROOTED)
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetMoveUnroot()
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).StopMoving()
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetMoveUnroot()
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).StopMoving()
                     End If
 
                 Case AuraAction.AURA_UPDATE
@@ -5028,14 +5028,14 @@ Namespace Spells
             End Select
 
             'DONE: Send update
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
-                CType(Target, CharacterObject).SendCharacterUpdate(True)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
             Else
-                Dim packet As New UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                 Target.SendToNearPlayers(packet)
                 tmpUpdate.Dispose()
                 packet.Dispose()
@@ -5043,24 +5043,24 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_STUN(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_STUN(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_ADD
                     Target.cUnitFlags = Target.cUnitFlags Or UnitFlags.UNIT_FLAG_STUNTED
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetMoveRoot()
-                        CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, 0UL)
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).StopMoving()
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetMoveRoot()
+                        CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_TARGET, 0UL)
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).StopMoving()
 
-                        If CType(Target, CreatureObject).aiScript IsNot Nothing Then CType(Target, CreatureObject).aiScript.OnGenerateHate(CType(Caster, BaseUnit), 1)
+                        If CType(Target, WS_Creatures.CreatureObject).aiScript IsNot Nothing Then CType(Target, WS_Creatures.CreatureObject).aiScript.OnGenerateHate(CType(Caster, WS_Base.BaseUnit), 1)
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Target.cUnitFlags = Target.cUnitFlags And (Not UnitFlags.UNIT_FLAG_STUNTED)
-                    If TypeOf Target Is CharacterObject Then
-                        CType(Target, CharacterObject).SetMoveUnroot()
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        CType(Target, WS_PlayerData.CharacterObject).SetMoveUnroot()
                     End If
 
                 Case AuraAction.AURA_UPDATE
@@ -5068,14 +5068,14 @@ Namespace Spells
             End Select
 
             'DONE: Send update
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
-                CType(Target, CharacterObject).SendCharacterUpdate(True)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
             Else
-                Dim packet As New UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
-                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                 Target.SendToNearPlayers(packet)
                 tmpUpdate.Dispose()
                 packet.Dispose()
@@ -5083,9 +5083,9 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_FEAR(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_FEAR(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
-            Dim response As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
             response.AddPackGUID(Target.GUID)
 
             Select Case Action
@@ -5103,16 +5103,16 @@ Namespace Spells
             End Select
 
             'DONE: Send update
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
-                CType(Target, CharacterObject).SendCharacterUpdate(True)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(True)
 
-                CType(Target, CharacterObject).client.Send(response)
+                CType(Target, WS_PlayerData.CharacterObject).client.Send(response)
             Else
-                Dim packet As New UpdatePacketClass
-                Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, Target.cUnitFlags)
-                tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                 Target.SendToNearPlayers(packet)
                 tmpUpdate.Dispose()
                 packet.Dispose()
@@ -5122,20 +5122,20 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_SAFE_FALL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_SAFE_FALL(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_FEATHER_FALL)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_FEATHER_FALL)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_NORMAL_FALL)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_NORMAL_FALL)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
@@ -5144,20 +5144,20 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_FEATHER_FALL(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_FEATHER_FALL(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_FEATHER_FALL)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_FEATHER_FALL)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_NORMAL_FALL)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_NORMAL_FALL)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
@@ -5166,20 +5166,20 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_WATER_WALK(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_WATER_WALK(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_WATER_WALK)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_WATER_WALK)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_LAND_WALK)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_LAND_WALK)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
@@ -5188,20 +5188,20 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_HOVER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_HOVER(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_SET_HOVER)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_SET_HOVER)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim packet As New PacketClass(OPCODES.SMSG_MOVE_UNSET_HOVER)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_MOVE_UNSET_HOVER)
                     packet.AddPackGUID(Target.GUID)
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
@@ -5210,29 +5210,29 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_WATER_BREATHING(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_WATER_BREATHING(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    CType(Target, CharacterObject).underWaterBreathing = True
+                    CType(Target, WS_PlayerData.CharacterObject).underWaterBreathing = True
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    CType(Target, CharacterObject).underWaterBreathing = False
+                    CType(Target, WS_PlayerData.CharacterObject).underWaterBreathing = False
 
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_ADD_FLAT_MODIFIER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_ADD_FLAT_MODIFIER(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
             If EffectInfo.MiscValue > 32 Then Exit Sub
 
             Dim op As SpellModOp = EffectInfo.MiscValue
-            Dim value As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+            Dim value As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
             Dim mask As Integer = EffectInfo.ItemType
 
             If Action = AuraAction.AURA_ADD Then
@@ -5255,12 +5255,12 @@ Namespace Spells
 
                 For eff As Integer = 0 To 31
                     If (mask And shiftdata) Then
-                        Dim packet As New PacketClass(OPCODES.SMSG_SET_FLAT_SPELL_MODIFIER)
+                        Dim packet As New Packets.PacketClass(OPCODES.SMSG_SET_FLAT_SPELL_MODIFIER)
                         packet.AddInt8(eff)
                         packet.AddInt8(op)
                         packet.AddUInt16(send_val)
                         packet.AddUInt16(send_mark)
-                        CType(Caster, CharacterObject).client.Send(packet)
+                        CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet)
                         packet.Dispose()
                     End If
                     shiftdata = shiftdata << 1
@@ -5270,12 +5270,12 @@ Namespace Spells
             End If
         End Sub
 
-        Public Sub SPELL_AURA_ADD_PCT_MODIFIER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_ADD_PCT_MODIFIER(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
             If EffectInfo.MiscValue > 32 Then Exit Sub
 
             Dim op As SpellModOp = EffectInfo.MiscValue
-            Dim value As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+            Dim value As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
             Dim mask As Integer = EffectInfo.ItemType
 
             If Action = AuraAction.AURA_ADD Then
@@ -5298,12 +5298,12 @@ Namespace Spells
 
                 For eff As Integer = 0 To 31
                     If (mask And shiftdata) Then
-                        Dim packet As New PacketClass(OPCODES.SMSG_SET_PCT_SPELL_MODIFIER)
+                        Dim packet As New Packets.PacketClass(OPCODES.SMSG_SET_PCT_SPELL_MODIFIER)
                         packet.AddInt8(eff)
                         packet.AddInt8(op)
                         packet.AddUInt16(send_val)
                         packet.AddUInt16(send_mark)
-                        CType(Caster, CharacterObject).client.Send(packet)
+                        CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet)
                         packet.Dispose()
                     End If
                     shiftdata = shiftdata << 1
@@ -5314,106 +5314,106 @@ Namespace Spells
         End Sub
 
         'TODO: Update values based on stats
-        Public Sub SPELL_AURA_MOD_STAT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_STAT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             If Action = AuraAction.AURA_UPDATE Then Exit Sub
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
-            Dim value As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+            Dim value As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
             Dim value_sign As Integer = value
             If Action = AuraAction.AURA_REMOVE Then value = -value
 
             Select Case EffectInfo.MiscValue
                 Case -1
-                    CType(Target, CharacterObject).Strength.Base /= CType(Target, CharacterObject).Strength.Modifier
-                    CType(Target, CharacterObject).Strength.Base += value
-                    CType(Target, CharacterObject).Strength.Base *= CType(Target, CharacterObject).Strength.Modifier
-                    CType(Target, CharacterObject).Agility.Base /= CType(Target, CharacterObject).Agility.Modifier
-                    CType(Target, CharacterObject).Agility.Base += value
-                    CType(Target, CharacterObject).Agility.Base *= CType(Target, CharacterObject).Agility.Modifier
-                    CType(Target, CharacterObject).Stamina.Base /= CType(Target, CharacterObject).Stamina.Modifier
-                    CType(Target, CharacterObject).Stamina.Base += value
-                    CType(Target, CharacterObject).Stamina.Base *= CType(Target, CharacterObject).Stamina.Modifier
-                    CType(Target, CharacterObject).Spirit.Base /= CType(Target, CharacterObject).Spirit.Modifier
-                    CType(Target, CharacterObject).Spirit.Base += value
-                    CType(Target, CharacterObject).Spirit.Base *= CType(Target, CharacterObject).Spirit.Modifier
-                    CType(Target, CharacterObject).Intellect.Base /= CType(Target, CharacterObject).Intellect.Modifier
-                    CType(Target, CharacterObject).Intellect.Base += value
-                    CType(Target, CharacterObject).Intellect.Base *= CType(Target, CharacterObject).Intellect.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base /= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base *= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base /= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base *= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base /= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base *= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base /= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base *= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base /= CType(Target, WS_PlayerData.CharacterObject).Intellect.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base *= CType(Target, WS_PlayerData.CharacterObject).Intellect.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Strength.PositiveBonus += value
-                        CType(Target, CharacterObject).Agility.PositiveBonus += value
-                        CType(Target, CharacterObject).Stamina.PositiveBonus += value
-                        CType(Target, CharacterObject).Spirit.PositiveBonus += value
-                        CType(Target, CharacterObject).Intellect.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Intellect.PositiveBonus += value
                     Else
-                        CType(Target, CharacterObject).Strength.NegativeBonus -= value
-                        CType(Target, CharacterObject).Agility.NegativeBonus -= value
-                        CType(Target, CharacterObject).Stamina.NegativeBonus -= value
-                        CType(Target, CharacterObject).Spirit.NegativeBonus -= value
-                        CType(Target, CharacterObject).Intellect.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Intellect.NegativeBonus -= value
                     End If
                 Case 0
-                    CType(Target, CharacterObject).Strength.Base /= CType(Target, CharacterObject).Strength.Modifier
-                    CType(Target, CharacterObject).Strength.Base += value
-                    CType(Target, CharacterObject).Strength.Base *= CType(Target, CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base /= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base *= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Strength.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.PositiveBonus += value
                     Else
-                        CType(Target, CharacterObject).Strength.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.NegativeBonus -= value
                     End If
                 Case 1
-                    CType(Target, CharacterObject).Agility.Base /= CType(Target, CharacterObject).Agility.Modifier
-                    CType(Target, CharacterObject).Agility.Base += value
-                    CType(Target, CharacterObject).Agility.Base *= CType(Target, CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base /= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base *= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Agility.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.PositiveBonus += value
                     Else
-                        CType(Target, CharacterObject).Agility.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.NegativeBonus -= value
                     End If
                 Case 2
-                    CType(Target, CharacterObject).Stamina.Base /= CType(Target, CharacterObject).Stamina.Modifier
-                    CType(Target, CharacterObject).Stamina.Base += value
-                    CType(Target, CharacterObject).Stamina.Base *= CType(Target, CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base /= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base *= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Stamina.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.PositiveBonus += value
                     Else
-                        CType(Target, CharacterObject).Stamina.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.NegativeBonus -= value
                     End If
                 Case 3
-                    CType(Target, CharacterObject).Intellect.Base /= CType(Target, CharacterObject).Intellect.Modifier
-                    CType(Target, CharacterObject).Intellect.Base += value
-                    CType(Target, CharacterObject).Intellect.Base *= CType(Target, CharacterObject).Intellect.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base /= CType(Target, WS_PlayerData.CharacterObject).Intellect.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base *= CType(Target, WS_PlayerData.CharacterObject).Intellect.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Intellect.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Intellect.PositiveBonus += value
                     Else
-                        CType(Target, CharacterObject).Intellect.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Intellect.NegativeBonus -= value
                     End If
                 Case 4
-                    CType(Target, CharacterObject).Spirit.Base /= CType(Target, CharacterObject).Spirit.Modifier
-                    CType(Target, CharacterObject).Spirit.Base += value
-                    CType(Target, CharacterObject).Spirit.Base *= CType(Target, CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base /= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base += value
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base *= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Spirit.PositiveBonus += value
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.PositiveBonus += value
                     Else
-                        CType(Target, CharacterObject).Spirit.NegativeBonus -= value
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.NegativeBonus -= value
                     End If
             End Select
 
-            CType(Target, CharacterObject).Life.Bonus = ((CType(Target, CharacterObject).Stamina.Base - 18) * 10)
-            CType(Target, CharacterObject).Mana.Bonus = ((CType(Target, CharacterObject).Intellect.Base - 18) * 15)
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
-            CType(Target, CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base += value * 2
-            CType(Target, CharacterObject).UpdateManaRegen()
+            CType(Target, WS_PlayerData.CharacterObject).Life.Bonus = ((CType(Target, WS_PlayerData.CharacterObject).Stamina.Base - 18) * 10)
+            CType(Target, WS_PlayerData.CharacterObject).Mana.Bonus = ((CType(Target, WS_PlayerData.CharacterObject).Intellect.Base - 18) * 15)
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
+            CType(Target, WS_PlayerData.CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base += value * 2
+            CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
 
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.BASE_ATTACK)
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.OFF_ATTACK)
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.BASE_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.OFF_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.RANGED_ATTACK)
 
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, CharacterObject).Strength.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, CharacterObject).Agility.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, CharacterObject).Stamina.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, CharacterObject).Spirit.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, CharacterObject).Intellect.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, WS_PlayerData.CharacterObject).Strength.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, WS_PlayerData.CharacterObject).Agility.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, WS_PlayerData.CharacterObject).Stamina.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, WS_PlayerData.CharacterObject).Spirit.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, WS_PlayerData.CharacterObject).Intellect.Base)
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT0, CType(CType(Target, CharacterObject).Strength.PositiveBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT1, CType(CType(Target, CharacterObject).Agility.PositiveBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT2, CType(CType(Target, CharacterObject).Stamina.PositiveBonus, Integer))
@@ -5424,201 +5424,201 @@ Namespace Spells
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_NEGSTAT2, CType(CType(Target, CharacterObject).Stamina.NegativeBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_NEGSTAT3, CType(CType(Target, CharacterObject).Intellect.NegativeBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_NEGSTAT4, CType(CType(Target, CharacterObject).Spirit.NegativeBonus, Integer))
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Target, CharacterObject).Life.Current)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target, CharacterObject).Life.Maximum)
-            If GetClassManaType(CType(Target, CharacterObject).Classe) = ManaTypes.TYPE_MANA Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, CType(Target, CharacterObject).Mana.Current)
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1, CType(Target, CharacterObject).Mana.Maximum)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Target, WS_PlayerData.CharacterObject).Life.Current)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target, WS_PlayerData.CharacterObject).Life.Maximum)
+            If _WS_Player_Initializator.GetClassManaType(CType(Target, WS_PlayerData.CharacterObject).Classe) = ManaTypes.TYPE_MANA Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, CType(Target, WS_PlayerData.CharacterObject).Mana.Current)
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1, CType(Target, WS_PlayerData.CharacterObject).Mana.Maximum)
             End If
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + CByte(DamageTypes.DMG_PHYSICAL), CType(Target, CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base)
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + CByte(DamageTypes.DMG_PHYSICAL), CType(Target, WS_PlayerData.CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
 
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
         End Sub
 
-        Public Sub SPELL_AURA_MOD_STAT_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_STAT_PERCENT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             If Action = AuraAction.AURA_UPDATE Then Exit Sub
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             'TODO: This is only supposed to add % of the base stat, not the entire one.
 
-            Dim value As Single = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100
-            Dim value_sign As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+            Dim value As Single = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100
+            Dim value_sign As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
             If Action = AuraAction.AURA_REMOVE Then value = -value
 
-            Dim OldStr As Short = CType(Target, CharacterObject).Strength.Base
-            Dim OldAgi As Short = CType(Target, CharacterObject).Agility.Base
-            Dim OldSta As Short = CType(Target, CharacterObject).Stamina.Base
-            Dim OldSpi As Short = CType(Target, CharacterObject).Spirit.Base
-            Dim OldInt As Short = CType(Target, CharacterObject).Intellect.Base
+            Dim OldStr As Short = CType(Target, WS_PlayerData.CharacterObject).Strength.Base
+            Dim OldAgi As Short = CType(Target, WS_PlayerData.CharacterObject).Agility.Base
+            Dim OldSta As Short = CType(Target, WS_PlayerData.CharacterObject).Stamina.Base
+            Dim OldSpi As Short = CType(Target, WS_PlayerData.CharacterObject).Spirit.Base
+            Dim OldInt As Short = CType(Target, WS_PlayerData.CharacterObject).Intellect.Base
 
             Select Case EffectInfo.MiscValue
                 Case -1
-                    CType(Target, CharacterObject).Strength.RealBase /= CType(Target, CharacterObject).Strength.BaseModifier
-                    CType(Target, CharacterObject).Strength.BaseModifier += value
-                    CType(Target, CharacterObject).Strength.RealBase *= CType(Target, CharacterObject).Strength.BaseModifier
-                    CType(Target, CharacterObject).Agility.RealBase /= CType(Target, CharacterObject).Agility.BaseModifier
-                    CType(Target, CharacterObject).Agility.BaseModifier += value
-                    CType(Target, CharacterObject).Agility.RealBase *= CType(Target, CharacterObject).Agility.BaseModifier
-                    CType(Target, CharacterObject).Stamina.RealBase /= CType(Target, CharacterObject).Stamina.BaseModifier
-                    CType(Target, CharacterObject).Stamina.BaseModifier += value
-                    CType(Target, CharacterObject).Stamina.RealBase *= CType(Target, CharacterObject).Stamina.BaseModifier
-                    CType(Target, CharacterObject).Spirit.RealBase /= CType(Target, CharacterObject).Spirit.BaseModifier
-                    CType(Target, CharacterObject).Spirit.BaseModifier += value
-                    CType(Target, CharacterObject).Spirit.RealBase *= CType(Target, CharacterObject).Spirit.BaseModifier
-                    CType(Target, CharacterObject).Intellect.RealBase /= CType(Target, CharacterObject).Intellect.BaseModifier
-                    CType(Target, CharacterObject).Intellect.BaseModifier += value
-                    CType(Target, CharacterObject).Intellect.RealBase *= CType(Target, CharacterObject).Intellect.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Strength.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Strength.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Agility.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Agility.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Stamina.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Stamina.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Spirit.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Spirit.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Intellect.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Intellect.BaseModifier
                 Case 0
-                    CType(Target, CharacterObject).Strength.RealBase /= CType(Target, CharacterObject).Strength.BaseModifier
-                    CType(Target, CharacterObject).Strength.BaseModifier += value
-                    CType(Target, CharacterObject).Strength.RealBase *= CType(Target, CharacterObject).Strength.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Strength.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Strength.BaseModifier
                 Case 1
-                    CType(Target, CharacterObject).Agility.RealBase /= CType(Target, CharacterObject).Agility.BaseModifier
-                    CType(Target, CharacterObject).Agility.BaseModifier += value
-                    CType(Target, CharacterObject).Agility.RealBase *= CType(Target, CharacterObject).Agility.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Agility.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Agility.BaseModifier
                 Case 2
-                    CType(Target, CharacterObject).Stamina.RealBase /= CType(Target, CharacterObject).Stamina.BaseModifier
-                    CType(Target, CharacterObject).Stamina.BaseModifier += value
-                    CType(Target, CharacterObject).Stamina.RealBase *= CType(Target, CharacterObject).Stamina.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Stamina.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Stamina.BaseModifier
                 Case 3
-                    CType(Target, CharacterObject).Intellect.RealBase /= CType(Target, CharacterObject).Intellect.BaseModifier
-                    CType(Target, CharacterObject).Intellect.BaseModifier += value
-                    CType(Target, CharacterObject).Intellect.RealBase *= CType(Target, CharacterObject).Intellect.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Intellect.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Intellect.BaseModifier
                 Case 4
-                    CType(Target, CharacterObject).Spirit.RealBase /= CType(Target, CharacterObject).Spirit.BaseModifier
-                    CType(Target, CharacterObject).Spirit.BaseModifier += value
-                    CType(Target, CharacterObject).Spirit.RealBase *= CType(Target, CharacterObject).Spirit.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.RealBase /= CType(Target, WS_PlayerData.CharacterObject).Spirit.BaseModifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.BaseModifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.RealBase *= CType(Target, WS_PlayerData.CharacterObject).Spirit.BaseModifier
             End Select
 
-            CType(Target, CharacterObject).Life.Bonus += (CType(Target, CharacterObject).Stamina.Base - OldSta) * 10
-            CType(Target, CharacterObject).Mana.Bonus += (CType(Target, CharacterObject).Intellect.Base - OldInt) * 15
-            CType(Target, CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base += (CType(Target, CharacterObject).Agility.Base - OldAgi) * 2
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
-            CType(Target, CharacterObject).UpdateManaRegen()
+            CType(Target, WS_PlayerData.CharacterObject).Life.Bonus += (CType(Target, WS_PlayerData.CharacterObject).Stamina.Base - OldSta) * 10
+            CType(Target, WS_PlayerData.CharacterObject).Mana.Bonus += (CType(Target, WS_PlayerData.CharacterObject).Intellect.Base - OldInt) * 15
+            CType(Target, WS_PlayerData.CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base += (CType(Target, WS_PlayerData.CharacterObject).Agility.Base - OldAgi) * 2
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
+            CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
 
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.BASE_ATTACK)
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.OFF_ATTACK)
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.BASE_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.OFF_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.RANGED_ATTACK)
 
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, CharacterObject).Strength.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, CharacterObject).Agility.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, CharacterObject).Stamina.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, CharacterObject).Spirit.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, CharacterObject).Intellect.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Target, CharacterObject).Life.Current)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target, CharacterObject).Life.Maximum)
-            If GetClassManaType(CType(Target, CharacterObject).Classe) = ManaTypes.TYPE_MANA Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, CType(Target, CharacterObject).Mana.Current)
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1, CType(Target, CharacterObject).Mana.Maximum)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, WS_PlayerData.CharacterObject).Strength.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, WS_PlayerData.CharacterObject).Agility.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, WS_PlayerData.CharacterObject).Stamina.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, WS_PlayerData.CharacterObject).Spirit.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, WS_PlayerData.CharacterObject).Intellect.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Target, WS_PlayerData.CharacterObject).Life.Current)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target, WS_PlayerData.CharacterObject).Life.Maximum)
+            If _WS_Player_Initializator.GetClassManaType(CType(Target, WS_PlayerData.CharacterObject).Classe) = ManaTypes.TYPE_MANA Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, CType(Target, WS_PlayerData.CharacterObject).Mana.Current)
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1, CType(Target, WS_PlayerData.CharacterObject).Mana.Maximum)
             End If
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + CByte(DamageTypes.DMG_PHYSICAL), CType(Target, CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base)
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + CByte(DamageTypes.DMG_PHYSICAL), CType(Target, WS_PlayerData.CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
 
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
         End Sub
 
-        Public Sub SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             If Action = AuraAction.AURA_UPDATE Then Exit Sub
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
-            Dim value As Single = EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100
-            Dim value_sign As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+            Dim value As Single = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100
+            Dim value_sign As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
             If Action = AuraAction.AURA_REMOVE Then value = -value
 
-            Dim OldStr As Short = CType(Target, CharacterObject).Strength.Base
-            Dim OldAgi As Short = CType(Target, CharacterObject).Agility.Base
-            Dim OldSta As Short = CType(Target, CharacterObject).Stamina.Base
-            Dim OldSpi As Short = CType(Target, CharacterObject).Spirit.Base
-            Dim OldInt As Short = CType(Target, CharacterObject).Intellect.Base
+            Dim OldStr As Short = CType(Target, WS_PlayerData.CharacterObject).Strength.Base
+            Dim OldAgi As Short = CType(Target, WS_PlayerData.CharacterObject).Agility.Base
+            Dim OldSta As Short = CType(Target, WS_PlayerData.CharacterObject).Stamina.Base
+            Dim OldSpi As Short = CType(Target, WS_PlayerData.CharacterObject).Spirit.Base
+            Dim OldInt As Short = CType(Target, WS_PlayerData.CharacterObject).Intellect.Base
 
             Select Case EffectInfo.MiscValue
                 Case -1
-                    CType(Target, CharacterObject).Strength.Base /= CType(Target, CharacterObject).Strength.Modifier
-                    CType(Target, CharacterObject).Strength.Modifier += value
-                    CType(Target, CharacterObject).Strength.Base *= CType(Target, CharacterObject).Strength.Modifier
-                    CType(Target, CharacterObject).Agility.Base /= CType(Target, CharacterObject).Agility.Modifier
-                    CType(Target, CharacterObject).Agility.Modifier += value
-                    CType(Target, CharacterObject).Agility.Base *= CType(Target, CharacterObject).Agility.Modifier
-                    CType(Target, CharacterObject).Stamina.Base /= CType(Target, CharacterObject).Stamina.Modifier
-                    CType(Target, CharacterObject).Stamina.Modifier += value
-                    CType(Target, CharacterObject).Stamina.Base *= CType(Target, CharacterObject).Stamina.Modifier
-                    CType(Target, CharacterObject).Spirit.Base /= CType(Target, CharacterObject).Spirit.Modifier
-                    CType(Target, CharacterObject).Spirit.Modifier += value
-                    CType(Target, CharacterObject).Spirit.Base *= CType(Target, CharacterObject).Spirit.Modifier
-                    CType(Target, CharacterObject).Intellect.Base /= CType(Target, CharacterObject).Intellect.Modifier
-                    CType(Target, CharacterObject).Intellect.Modifier += value
-                    CType(Target, CharacterObject).Intellect.Base *= CType(Target, CharacterObject).Intellect.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base /= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base *= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base /= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base *= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base /= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base *= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base /= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base *= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base /= CType(Target, WS_PlayerData.CharacterObject).Intellect.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Intellect.Base *= CType(Target, WS_PlayerData.CharacterObject).Intellect.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Strength.PositiveBonus += (CType(Target, CharacterObject).Strength.Base - OldStr)
-                        CType(Target, CharacterObject).Agility.PositiveBonus += (CType(Target, CharacterObject).Agility.Base - OldAgi)
-                        CType(Target, CharacterObject).Stamina.PositiveBonus += (CType(Target, CharacterObject).Stamina.Base - OldSta)
-                        CType(Target, CharacterObject).Spirit.PositiveBonus += (CType(Target, CharacterObject).Spirit.Base - OldSpi)
-                        CType(Target, CharacterObject).Intellect.PositiveBonus += (CType(Target, CharacterObject).Intellect.Base - OldInt)
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Strength.Base - OldStr)
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Agility.Base - OldAgi)
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Stamina.Base - OldSta)
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Spirit.Base - OldSpi)
+                        CType(Target, WS_PlayerData.CharacterObject).Intellect.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Intellect.Base - OldInt)
                     Else
-                        CType(Target, CharacterObject).Strength.NegativeBonus -= (CType(Target, CharacterObject).Strength.Base - OldStr)
-                        CType(Target, CharacterObject).Agility.NegativeBonus -= (CType(Target, CharacterObject).Agility.Base - OldAgi)
-                        CType(Target, CharacterObject).Stamina.NegativeBonus -= (CType(Target, CharacterObject).Stamina.Base - OldSta)
-                        CType(Target, CharacterObject).Spirit.NegativeBonus -= (CType(Target, CharacterObject).Spirit.Base - OldSpi)
-                        CType(Target, CharacterObject).Intellect.NegativeBonus -= (CType(Target, CharacterObject).Intellect.Base - OldInt)
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Strength.Base - OldStr)
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Agility.Base - OldAgi)
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Stamina.Base - OldSta)
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Spirit.Base - OldSpi)
+                        CType(Target, WS_PlayerData.CharacterObject).Intellect.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Intellect.Base - OldInt)
                     End If
                 Case 0
-                    CType(Target, CharacterObject).Strength.Base /= CType(Target, CharacterObject).Strength.Modifier
-                    CType(Target, CharacterObject).Strength.Modifier += value
-                    CType(Target, CharacterObject).Strength.Base *= CType(Target, CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base /= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Strength.Base *= CType(Target, WS_PlayerData.CharacterObject).Strength.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Strength.PositiveBonus += (CType(Target, CharacterObject).Strength.Base - OldStr)
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Strength.Base - OldStr)
                     Else
-                        CType(Target, CharacterObject).Strength.NegativeBonus -= (CType(Target, CharacterObject).Strength.Base - OldStr)
+                        CType(Target, WS_PlayerData.CharacterObject).Strength.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Strength.Base - OldStr)
                     End If
                 Case 1
-                    CType(Target, CharacterObject).Agility.Base /= CType(Target, CharacterObject).Agility.Modifier
-                    CType(Target, CharacterObject).Agility.Modifier += value
-                    CType(Target, CharacterObject).Agility.Base *= CType(Target, CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base /= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Agility.Base *= CType(Target, WS_PlayerData.CharacterObject).Agility.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Agility.PositiveBonus += (CType(Target, CharacterObject).Agility.Base - OldAgi)
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Agility.Base - OldAgi)
                     Else
-                        CType(Target, CharacterObject).Agility.NegativeBonus -= (CType(Target, CharacterObject).Agility.Base - OldAgi)
+                        CType(Target, WS_PlayerData.CharacterObject).Agility.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Agility.Base - OldAgi)
                     End If
                 Case 2
-                    CType(Target, CharacterObject).Stamina.Base /= CType(Target, CharacterObject).Stamina.Modifier
-                    CType(Target, CharacterObject).Stamina.Modifier += value
-                    CType(Target, CharacterObject).Stamina.Base *= CType(Target, CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base /= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Stamina.Base *= CType(Target, WS_PlayerData.CharacterObject).Stamina.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Stamina.PositiveBonus += (CType(Target, CharacterObject).Stamina.Base - OldSta)
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Stamina.Base - OldSta)
                     Else
-                        CType(Target, CharacterObject).Stamina.NegativeBonus -= (CType(Target, CharacterObject).Stamina.Base - OldSta)
+                        CType(Target, WS_PlayerData.CharacterObject).Stamina.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Stamina.Base - OldSta)
                     End If
                 Case 3
 
                 Case 4
-                    CType(Target, CharacterObject).Spirit.Base /= CType(Target, CharacterObject).Spirit.Modifier
-                    CType(Target, CharacterObject).Spirit.Modifier += value
-                    CType(Target, CharacterObject).Spirit.Base *= CType(Target, CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base /= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier += value
+                    CType(Target, WS_PlayerData.CharacterObject).Spirit.Base *= CType(Target, WS_PlayerData.CharacterObject).Spirit.Modifier
                     If value_sign > 0 Then
-                        CType(Target, CharacterObject).Spirit.PositiveBonus += (CType(Target, CharacterObject).Spirit.Base - OldSpi)
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.PositiveBonus += (CType(Target, WS_PlayerData.CharacterObject).Spirit.Base - OldSpi)
                     Else
-                        CType(Target, CharacterObject).Spirit.NegativeBonus -= (CType(Target, CharacterObject).Spirit.Base - OldSpi)
+                        CType(Target, WS_PlayerData.CharacterObject).Spirit.NegativeBonus -= (CType(Target, WS_PlayerData.CharacterObject).Spirit.Base - OldSpi)
                     End If
             End Select
 
-            CType(Target, CharacterObject).Life.Bonus = ((CType(Target, CharacterObject).Stamina.Base - 18) * 10)
-            CType(Target, CharacterObject).Mana.Bonus = ((CType(Target, CharacterObject).Intellect.Base - 18) * 15)
-            CType(Target, CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base += (CType(Target, CharacterObject).Agility.Base - OldAgi) * 2
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
-            CType(Target, CharacterObject).UpdateManaRegen()
+            CType(Target, WS_PlayerData.CharacterObject).Life.Bonus = ((CType(Target, WS_PlayerData.CharacterObject).Stamina.Base - 18) * 10)
+            CType(Target, WS_PlayerData.CharacterObject).Mana.Bonus = ((CType(Target, WS_PlayerData.CharacterObject).Intellect.Base - 18) * 15)
+            CType(Target, WS_PlayerData.CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base += (CType(Target, WS_PlayerData.CharacterObject).Agility.Base - OldAgi) * 2
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
+            CType(Target, WS_PlayerData.CharacterObject).UpdateManaRegen()
 
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.BASE_ATTACK)
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.OFF_ATTACK)
-            CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.BASE_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.OFF_ATTACK)
+            _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.RANGED_ATTACK)
 
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, CharacterObject).Strength.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, CharacterObject).Agility.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, CharacterObject).Stamina.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, CharacterObject).Spirit.Base)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, CharacterObject).Intellect.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STRENGTH, CType(Target, WS_PlayerData.CharacterObject).Strength.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_AGILITY, CType(Target, WS_PlayerData.CharacterObject).Agility.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_STAMINA, CType(Target, WS_PlayerData.CharacterObject).Stamina.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_SPIRIT, CType(Target, WS_PlayerData.CharacterObject).Spirit.Base)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_INTELLECT, CType(Target, WS_PlayerData.CharacterObject).Intellect.Base)
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT0, CType(CType(Target, CharacterObject).Strength.PositiveBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT1, CType(CType(Target, CharacterObject).Agility.PositiveBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POSSTAT2, CType(CType(Target, CharacterObject).Stamina.PositiveBonus, Integer))
@@ -5629,50 +5629,50 @@ Namespace Spells
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_NEGSTAT2, CType(CType(Target, CharacterObject).Stamina.NegativeBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_NEGSTAT3, CType(CType(Target, CharacterObject).Intellect.NegativeBonus, Integer))
             'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_NEGSTAT4, CType(CType(Target, CharacterObject).Spirit.NegativeBonus, Integer))
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Target, CharacterObject).Life.Current)
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target, CharacterObject).Life.Maximum)
-            If GetClassManaType(CType(Target, CharacterObject).Classe) = ManaTypes.TYPE_MANA Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, CType(Target, CharacterObject).Mana.Current)
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1, CType(Target, CharacterObject).Mana.Maximum)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, CType(Target, WS_PlayerData.CharacterObject).Life.Current)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, CType(Target, WS_PlayerData.CharacterObject).Life.Maximum)
+            If _WS_Player_Initializator.GetClassManaType(CType(Target, WS_PlayerData.CharacterObject).Classe) = ManaTypes.TYPE_MANA Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_POWER1, CType(Target, WS_PlayerData.CharacterObject).Mana.Current)
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1, CType(Target, WS_PlayerData.CharacterObject).Mana.Maximum)
             End If
-            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + CByte(DamageTypes.DMG_PHYSICAL), CType(Target, CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base)
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + CByte(DamageTypes.DMG_PHYSICAL), CType(Target, WS_PlayerData.CharacterObject).Resistances(DamageTypes.DMG_PHYSICAL).Base)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
 
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
-            CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
+            CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_HEALTH(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_INCREASE_HEALTH(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Target.Life.Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Life.Bonus += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Target.Life.Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                    Target.Life.Bonus -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
 
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
-                CType(Target, CharacterObject).SendCharacterUpdate()
-                CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate()
+                CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
             Else
-                Dim packet As New UpdatePacketClass
-                Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
-                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
 
-                CType(Target, CreatureObject).SendToNearPlayers(packet)
+                CType(Target, WS_Creatures.CreatureObject).SendToNearPlayers(packet)
                 packet.Dispose()
                 UpdateData.Dispose()
             End If
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -5686,24 +5686,24 @@ Namespace Spells
 
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
-                CType(Target, CharacterObject).SendCharacterUpdate()
-                CType(Target, CharacterObject).GroupUpdateFlag = CType(Target, CharacterObject).GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate()
+                CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag = CType(Target, WS_PlayerData.CharacterObject).GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP
             Else
-                Dim packet As New UpdatePacketClass
-                Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXHEALTH, Target.Life.Maximum)
-                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
 
-                CType(Target, CreatureObject).SendToNearPlayers(packet)
+                CType(Target, WS_Creatures.CreatureObject).SendToNearPlayers(packet)
                 packet.Dispose()
                 UpdateData.Dispose()
             End If
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_INCREASE_ENERGY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_INCREASE_ENERGY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -5711,56 +5711,56 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     If EffectInfo.MiscValue = Target.ManaType Then
-                        If Not TypeOf Target Is CharacterObject Then
-                            Target.Mana.Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                        If Not TypeOf Target Is WS_PlayerData.CharacterObject Then
+                            Target.Mana.Bonus += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                         Else
                             Select Case Target.ManaType
                                 Case ManaTypes.TYPE_ENERGY
-                                    CType(Target, CharacterObject).Energy.Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                                    CType(Target, WS_PlayerData.CharacterObject).Energy.Bonus += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                                 Case ManaTypes.TYPE_MANA
-                                    CType(Target, CharacterObject).Mana.Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                                    CType(Target, WS_PlayerData.CharacterObject).Mana.Bonus += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                                 Case ManaTypes.TYPE_RAGE
-                                    CType(Target, CharacterObject).Rage.Bonus += EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                                    CType(Target, WS_PlayerData.CharacterObject).Rage.Bonus += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                             End Select
                         End If
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     If EffectInfo.MiscValue = Target.ManaType Then
-                        If Not TypeOf Target Is CharacterObject Then
-                            Target.Mana.Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                        If Not TypeOf Target Is WS_PlayerData.CharacterObject Then
+                            Target.Mana.Bonus -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                         Else
                             Select Case Target.ManaType
                                 Case ManaTypes.TYPE_ENERGY
-                                    CType(Target, CharacterObject).Energy.Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                                    CType(Target, WS_PlayerData.CharacterObject).Energy.Bonus -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                                 Case ManaTypes.TYPE_MANA
-                                    CType(Target, CharacterObject).Mana.Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                                    CType(Target, WS_PlayerData.CharacterObject).Mana.Bonus -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                                 Case ManaTypes.TYPE_RAGE
-                                    CType(Target, CharacterObject).Rage.Bonus -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                                    CType(Target, WS_PlayerData.CharacterObject).Rage.Bonus -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                             End Select
                         End If
                     End If
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_ENERGY, CType(Target, CharacterObject).Energy.Maximum)
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_MANA, CType(Target, CharacterObject).Mana.Maximum)
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_RAGE, CType(Target, CharacterObject).Rage.Maximum)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_ENERGY, CType(Target, WS_PlayerData.CharacterObject).Energy.Maximum)
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_MANA, CType(Target, WS_PlayerData.CharacterObject).Mana.Maximum)
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + ManaTypes.TYPE_RAGE, CType(Target, WS_PlayerData.CharacterObject).Rage.Maximum)
             Else
-                Dim packet As New UpdatePacketClass
-                Dim UpdateData As New UpdateClass(EUnitFields.UNIT_END)
+                Dim packet As New Packets.UpdatePacketClass
+                Dim UpdateData As New Packets.UpdateClass(EUnitFields.UNIT_END)
                 UpdateData.SetUpdateFlag(EUnitFields.UNIT_FIELD_MAXPOWER1 + Target.ManaType, Target.Mana.Maximum)
-                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
 
-                CType(Target, CreatureObject).SendToNearPlayers(packet)
+                CType(Target, WS_Creatures.CreatureObject).SendToNearPlayers(packet)
                 packet.Dispose()
                 UpdateData.Dispose()
             End If
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_BASE_RESISTANCE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_BASE_RESISTANCE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -5768,29 +5768,29 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     For i As DamageTypes = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).Resistances(i).Base += EffectInfo.GetValue(Target.Level)
-                            CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base += EffectInfo.GetValue(Target.Level)
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     For i As DamageTypes = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
-                            CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_BASE_RESISTANCE_PCT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_BASE_RESISTANCE_PCT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -5798,29 +5798,29 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).Resistances(i).Modifier += (EffectInfo.GetValue(Target.Level) / 100)
-                            CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier += (EffectInfo.GetValue(Target.Level) / 100)
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).Resistances(i).Modifier -= (EffectInfo.GetValue(Target.Level) / 100)
-                            CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier -= (EffectInfo.GetValue(Target.Level) / 100)
+                            CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
             End Select
         End Sub
 
-        Public Sub SPELL_AURA_MOD_RESISTANCE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_RESISTANCE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -5828,46 +5828,46 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                Target.Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).Base += EffectInfo.GetValue(Target.Level)
-                                Target.Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).PositiveBonus += EffectInfo.GetValue(Target.Level)
                             Else
-                                Target.Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).Base += EffectInfo.GetValue(Target.Level)
-                                Target.Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).NegativeBonus -= EffectInfo.GetValue(Target.Level)
                             End If
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                Target.Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
-                                Target.Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).PositiveBonus -= EffectInfo.GetValue(Target.Level)
                             Else
-                                Target.Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
-                                Target.Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
+                                Target.Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 Target.Resistances(i).NegativeBonus += EffectInfo.GetValue(Target.Level)
                             End If
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
             End Select
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
         End Sub
 
-        Public Sub SPELL_AURA_MOD_RESISTANCE_PCT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_RESISTANCE_PCT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -5875,52 +5875,52 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            Dim OldBase As Short = CType(Target, CharacterObject).Resistances(i).Base
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            Dim OldBase As Short = CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Modifier += EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).PositiveBonus += CType(Target, CharacterObject).Resistances(i).Base - OldBase
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).PositiveBonus += CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base - OldBase
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + i, CType(Target, CharacterObject).Resistances(i).PositiveBonus)
                             Else
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Modifier -= EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + i, CType(Target, CharacterObject).Resistances(i).NegativeBonus)
-                                CType(Target, CharacterObject).Resistances(i).PositiveBonus += CType(Target, CharacterObject).Resistances(i).Base - OldBase
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).PositiveBonus += CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base - OldBase
                             End If
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            Dim OldBase As Short = CType(Target, CharacterObject).Resistances(i).Base
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            Dim OldBase As Short = CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Modifier -= EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).PositiveBonus -= CType(Target, CharacterObject).Resistances(i).Base - OldBase
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).PositiveBonus -= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base - OldBase
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + i, CType(Target, CharacterObject).Resistances(i).PositiveBonus)
                             Else
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Modifier += EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).NegativeBonus -= CType(Target, CharacterObject).Resistances(i).Base - OldBase
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).NegativeBonus -= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base - OldBase
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + i, CType(Target, CharacterObject).Resistances(i).NegativeBonus)
                             End If
-                            CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                         End If
                     Next
 
             End Select
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
         End Sub
 
-        Public Sub SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -5928,137 +5928,137 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Base += EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).PositiveBonus += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).PositiveBonus += EffectInfo.GetValue(Target.Level)
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + i, CType(Target, CharacterObject).Resistances(i).PositiveBonus)
-                                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                             Else
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).NegativeBonus -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).NegativeBonus -= EffectInfo.GetValue(Target.Level)
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + i, CType(Target, CharacterObject).Resistances(i).NegativeBonus)
-                                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                             End If
                         End If
                     Next
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     For i As Byte = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).PositiveBonus -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).PositiveBonus -= EffectInfo.GetValue(Target.Level)
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + i, CType(Target, CharacterObject).Resistances(i).PositiveBonus)
-                                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                             Else
-                                CType(Target, CharacterObject).Resistances(i).Base /= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).Base += EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).Resistances(i).Base *= CType(Target, CharacterObject).Resistances(i).Modifier
-                                CType(Target, CharacterObject).Resistances(i).PositiveBonus += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base /= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base *= CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Modifier
+                                CType(Target, WS_PlayerData.CharacterObject).Resistances(i).PositiveBonus += EffectInfo.GetValue(Target.Level)
                                 'CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + i, CType(Target, CharacterObject).Resistances(i).NegativeBonus)
-                                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, CharacterObject).Resistances(i).Base)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + i, CType(Target, WS_PlayerData.CharacterObject).Resistances(i).Base)
                             End If
                         End If
                     Next
 
             End Select
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
         End Sub
 
-        Public Sub SPELL_AURA_MOD_ATTACK_POWER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_ATTACK_POWER(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Target.AttackPowerMods += EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Target.AttackPowerMods += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Target.AttackPowerMods -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Target.AttackPowerMods -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
 
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_ATTACK_POWER, CType(Target, CharacterObject).AttackPower)
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_ATTACK_POWER_MODS, CType(Target, CharacterObject).AttackPowerMods)
-                CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.BASE_ATTACK)
-                CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.OFF_ATTACK)
-                CType(Target, CharacterObject).SendCharacterUpdate(False)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_ATTACK_POWER, CType(Target, WS_PlayerData.CharacterObject).AttackPower)
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_ATTACK_POWER_MODS, CType(Target, WS_PlayerData.CharacterObject).AttackPowerMods)
+                _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.BASE_ATTACK)
+                _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.OFF_ATTACK)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
             End If
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_RANGED_ATTACK_POWER(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_RANGED_ATTACK_POWER(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    Target.AttackPowerModsRanged += EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Target.AttackPowerModsRanged += EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Target.AttackPowerModsRanged -= EffectInfo.GetValue(CType(Caster, BaseUnit).Level) * StackCount
+                    Target.AttackPowerModsRanged -= EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) * StackCount
 
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER, CType(Target, CharacterObject).AttackPowerRanged)
-                CType(Target, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MODS, CType(Target, CharacterObject).AttackPowerModsRanged)
-                CalculateMinMaxDamage(CType(Target, CharacterObject), WeaponAttackType.RANGED_ATTACK)
-                CType(Target, CharacterObject).SendCharacterUpdate(False)
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER, CType(Target, WS_PlayerData.CharacterObject).AttackPowerRanged)
+                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_RANGED_ATTACK_POWER_MODS, CType(Target, WS_PlayerData.CharacterObject).AttackPowerModsRanged)
+                _WS_Combat.CalculateMinMaxDamage(CType(Target, WS_PlayerData.CharacterObject), WeaponAttackType.RANGED_ATTACK)
+                CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
             End If
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_HEALING_DONE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_HEALING_DONE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
-            Dim Value As Integer = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+            Dim Value As Integer = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    CType(Target, CharacterObject).healing.PositiveBonus += Value
+                    CType(Target, WS_PlayerData.CharacterObject).healing.PositiveBonus += Value
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    CType(Target, CharacterObject).healing.PositiveBonus -= Value
+                    CType(Target, WS_PlayerData.CharacterObject).healing.PositiveBonus -= Value
             End Select
 
             'CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_HEALING_DONE_POS, CType(Target, CharacterObject).healing.PositiveBonus)
             'CType(Target, CharacterObject).SendCharacterUpdate(False)
         End Sub
 
-        Public Sub SPELL_AURA_MOD_HEALING_DONE_PCT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_HEALING_DONE_PCT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
-            Dim Value As Single = (EffectInfo.GetValue(CType(Caster, BaseUnit).Level) / 100)
+            Dim Value As Single = (EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) / 100)
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    CType(Target, CharacterObject).healing.Modifier += Value
+                    CType(Target, WS_PlayerData.CharacterObject).healing.Modifier += Value
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    CType(Target, CharacterObject).healing.Modifier -= Value
+                    CType(Target, WS_PlayerData.CharacterObject).healing.Modifier -= Value
             End Select
 
             'CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_HEALING_DONE_POS, CType(Target, CharacterObject).healing.Value)
             'CType(Target, CharacterObject).SendCharacterUpdate(False)
         End Sub
 
-        Public Sub SPELL_AURA_MOD_DAMAGE_DONE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_DAMAGE_DONE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -6066,36 +6066,36 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     For i As DamageTypes = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                CType(Target, CharacterObject).spellDamage(i).PositiveBonus += EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, CType(Target, CharacterObject).spellDamage(i).PositiveBonus)
+                                CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).PositiveBonus += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).PositiveBonus)
                             Else
-                                CType(Target, CharacterObject).spellDamage(i).NegativeBonus -= EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, CType(Target, CharacterObject).spellDamage(i).NegativeBonus)
+                                CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).NegativeBonus -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).NegativeBonus)
                             End If
                         End If
                     Next
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     For i As DamageTypes = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
                             If EffectInfo.GetValue(Target.Level) > 0 Then
-                                CType(Target, CharacterObject).spellDamage(i).PositiveBonus -= EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, CType(Target, CharacterObject).spellDamage(i).PositiveBonus)
+                                CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).PositiveBonus -= EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).PositiveBonus)
                             Else
-                                CType(Target, CharacterObject).spellDamage(i).NegativeBonus += EffectInfo.GetValue(Target.Level)
-                                CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, CType(Target, CharacterObject).spellDamage(i).NegativeBonus)
+                                CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).NegativeBonus += EffectInfo.GetValue(Target.Level)
+                                CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).NegativeBonus)
                             End If
                         End If
                     Next
             End Select
 
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
         End Sub
 
-        Public Sub SPELL_AURA_MOD_DAMAGE_DONE_PCT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_DAMAGE_DONE_PCT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -6103,48 +6103,48 @@ Namespace Spells
 
                 Case AuraAction.AURA_ADD
                     For i As DamageTypes = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            CType(Target, CharacterObject).spellDamage(i).Modifier += (EffectInfo.GetValue(Target.Level) / 100)
-                            CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, CType(Target, CharacterObject).spellDamage(i).Modifier)
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).Modifier += (EffectInfo.GetValue(Target.Level) / 100)
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).Modifier)
                         End If
                     Next
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     For i As DamageTypes = DamageTypes.DMG_PHYSICAL To DamageTypes.DMG_ARCANE
-                        If HaveFlag(EffectInfo.MiscValue, i) Then
-                            CType(Target, CharacterObject).spellDamage(i).Modifier -= (EffectInfo.GetValue(Target.Level) / 100)
-                            CType(Target, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, CType(Target, CharacterObject).spellDamage(i).Modifier)
+                        If _Functions.HaveFlag(EffectInfo.MiscValue, i) Then
+                            CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).Modifier -= (EffectInfo.GetValue(Target.Level) / 100)
+                            CType(Target, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, CType(Target, WS_PlayerData.CharacterObject).spellDamage(i).Modifier)
                         End If
                     Next
             End Select
 
-            CType(Target, CharacterObject).SendCharacterUpdate(False)
+            CType(Target, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
         End Sub
 
-        Public Sub SPELL_AURA_EMPATHY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_EMPATHY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CreatureObject AndAlso CType(Target, CreatureObject).CreatureInfo.CreatureType = UNIT_TYPE.BEAST Then
-                        Dim packet As New UpdatePacketClass
-                        Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                    If TypeOf Target Is WS_Creatures.CreatureObject AndAlso CType(Target, WS_Creatures.CreatureObject).CreatureInfo.CreatureType = UNIT_TYPE.BEAST Then
+                        Dim packet As New Packets.UpdatePacketClass
+                        Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                         tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, Target.cDynamicFlags Or DynamicFlags.UNIT_DYNFLAG_SPECIALINFO)
-                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
-                        CType(Caster, CharacterObject).client.Send((packet))
+                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
+                        CType(Caster, WS_PlayerData.CharacterObject).client.Send((packet))
                         tmpUpdate.Dispose()
                         packet.Dispose()
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CreatureObject AndAlso CType(Target, CreatureObject).CreatureInfo.CreatureType = UNIT_TYPE.BEAST Then
-                        Dim packet As New UpdatePacketClass
-                        Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                    If TypeOf Target Is WS_Creatures.CreatureObject AndAlso CType(Target, WS_Creatures.CreatureObject).CreatureInfo.CreatureType = UNIT_TYPE.BEAST Then
+                        Dim packet As New Packets.UpdatePacketClass
+                        Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                         tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, Target.cDynamicFlags)
-                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
-                        CType(Caster, CharacterObject).client.Send((packet))
+                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
+                        CType(Caster, WS_PlayerData.CharacterObject).client.Send((packet))
                         tmpUpdate.Dispose()
                         packet.Dispose()
                     End If
@@ -6152,7 +6152,7 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_SILENCE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_SILENCE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -6161,7 +6161,7 @@ Namespace Spells
                 Case AuraAction.AURA_ADD
                     Target.Spell_Silenced = True
 
-                    If TypeOf Target Is CreatureObject AndAlso CType(Target, CreatureObject).aiScript IsNot Nothing Then CType(Target, CreatureObject).aiScript.OnGenerateHate(CType(Caster, BaseUnit), 1)
+                    If TypeOf Target Is WS_Creatures.CreatureObject AndAlso CType(Target, WS_Creatures.CreatureObject).aiScript IsNot Nothing Then CType(Target, WS_Creatures.CreatureObject).aiScript.OnGenerateHate(CType(Caster, WS_Base.BaseUnit), 1)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
                     Target.Spell_Silenced = False
@@ -6170,7 +6170,7 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_PACIFY(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_PACIFY(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
@@ -6186,146 +6186,146 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_LANGUAGE(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CharacterObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_LANGUAGE(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_PlayerData.CharacterObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    CType(Target, CharacterObject).Spell_Language = EffectInfo.MiscValue
+                    CType(Target, WS_PlayerData.CharacterObject).Spell_Language = EffectInfo.MiscValue
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    CType(Target, CharacterObject).Spell_Language = -1
+                    CType(Target, WS_PlayerData.CharacterObject).Spell_Language = -1
 
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_POSSESS(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If (Not TypeOf Target Is CreatureObject) AndAlso (Not TypeOf Target Is CharacterObject) Then Exit Sub
+        Public Sub SPELL_AURA_MOD_POSSESS(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If (Not TypeOf Target Is WS_Creatures.CreatureObject) AndAlso (Not TypeOf Target Is WS_PlayerData.CharacterObject) Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If Target.Level > EffectInfo.GetValue(CType(Caster, BaseUnit).Level) Then Exit Sub
+                    If Target.Level > EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level) Then Exit Sub
 
-                    Dim packet As New UpdatePacketClass
-                    Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                    Dim packet As New Packets.UpdatePacketClass
+                    Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                     tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_CHARMEDBY, Caster.GUID)
-                    tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FACTIONTEMPLATE, CType(Caster, CharacterObject).Faction)
-                    If TypeOf Target Is CharacterObject Then
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CharacterObject))
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                    tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FACTIONTEMPLATE, CType(Caster, WS_PlayerData.CharacterObject).Faction)
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_PlayerData.CharacterObject))
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                     End If
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
                     tmpUpdate.Dispose()
 
-                    packet = New UpdatePacketClass
-                    tmpUpdate = New UpdateClass(EUnitFields.UNIT_END)
+                    packet = New Packets.UpdatePacketClass
+                    tmpUpdate = New Packets.UpdateClass(EUnitFields.UNIT_END)
                     tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_CHARM, Target.GUID)
-                    If TypeOf Caster Is CharacterObject Then
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CharacterObject))
-                    ElseIf TypeOf Caster Is CreatureObject Then
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_PlayerData.CharacterObject))
+                    ElseIf TypeOf Caster Is WS_Creatures.CreatureObject Then
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_Creatures.CreatureObject))
                     End If
                     Caster.SendToNearPlayers(packet)
                     packet.Dispose()
                     tmpUpdate.Dispose()
 
-                    If TypeOf Caster Is CharacterObject Then
-                        SendPetInitialize(Caster, Target)
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        _WS_Pets.SendPetInitialize(Caster, Target)
 
-                        Dim packet2 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
+                        Dim packet2 As New Packets.PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                         packet2.AddPackGUID(Target.GUID)
                         packet2.AddInt8(1)
-                        CType(Caster, CharacterObject).client.Send(packet2)
+                        CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet2)
                         packet2.Dispose()
 
-                        CType(Caster, CharacterObject).cUnitFlags = CType(Caster, CharacterObject).cUnitFlags Or UnitFlags.UNIT_FLAG_UNK21
-                        CType(Caster, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, Target.GUID)
-                        CType(Caster, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Caster, CharacterObject).cUnitFlags)
-                        CType(Caster, CharacterObject).SendCharacterUpdate(False)
+                        CType(Caster, WS_PlayerData.CharacterObject).cUnitFlags = CType(Caster, WS_PlayerData.CharacterObject).cUnitFlags Or UnitFlags.UNIT_FLAG_UNK21
+                        CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, Target.GUID)
+                        CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Caster, WS_PlayerData.CharacterObject).cUnitFlags)
+                        CType(Caster, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
 
-                        CType(Caster, CharacterObject).MindControl = Target
+                        CType(Caster, WS_PlayerData.CharacterObject).MindControl = Target
                     End If
 
-                    If TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).aiScript.Reset()
-                    ElseIf TypeOf Target Is CharacterObject Then
-                        Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
+                    If TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).aiScript.Reset()
+                    ElseIf TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Dim packet1 As New Packets.PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                         packet1.AddPackGUID(Target.GUID)
                         packet1.AddInt8(0)
-                        CType(Target, CharacterObject).client.Send(packet1)
+                        CType(Target, WS_PlayerData.CharacterObject).client.Send(packet1)
                         packet1.Dispose()
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    Dim packet As New UpdatePacketClass
-                    Dim tmpUpdate As New UpdateClass(EUnitFields.UNIT_END)
+                    Dim packet As New Packets.UpdatePacketClass
+                    Dim tmpUpdate As New Packets.UpdateClass(EUnitFields.UNIT_END)
                     tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_CHARMEDBY, 0)
-                    If TypeOf Target Is CharacterObject Then
-                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FACTIONTEMPLATE, CType(Target, CharacterObject).Faction)
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CharacterObject))
-                    ElseIf TypeOf Target Is CreatureObject Then
-                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FACTIONTEMPLATE, CType(Target, CreatureObject).Faction)
-                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, CreatureObject))
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FACTIONTEMPLATE, CType(Target, WS_PlayerData.CharacterObject).Faction)
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_PlayerData.CharacterObject))
+                    ElseIf TypeOf Target Is WS_Creatures.CreatureObject Then
+                        tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_FACTIONTEMPLATE, CType(Target, WS_Creatures.CreatureObject).Faction)
+                        tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, CType(Target, WS_Creatures.CreatureObject))
                     End If
                     Target.SendToNearPlayers(packet)
                     packet.Dispose()
                     tmpUpdate.Dispose()
 
-                    packet = New UpdatePacketClass
-                    tmpUpdate = New UpdateClass(EUnitFields.UNIT_END)
+                    packet = New Packets.UpdatePacketClass
+                    tmpUpdate = New Packets.UpdateClass(EUnitFields.UNIT_END)
                     tmpUpdate.SetUpdateFlag(EUnitFields.UNIT_FIELD_CHARM, 0)
-                    If TypeOf Caster Is CharacterObject Then
-                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CharacterObject))
-                    ElseIf TypeOf Caster Is CreatureObject Then
-                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, CreatureObject))
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_PlayerData.CharacterObject))
+                    ElseIf TypeOf Caster Is WS_Creatures.CreatureObject Then
+                        tmpUpdate.AddToPacket((packet), ObjectUpdateType.UPDATETYPE_VALUES, CType(Caster, WS_Creatures.CreatureObject))
                     End If
                     Caster.SendToNearPlayers(packet)
                     packet.Dispose()
                     tmpUpdate.Dispose()
 
-                    If TypeOf Caster Is CharacterObject Then
-                        Dim packet1 As New PacketClass(OPCODES.SMSG_PET_SPELLS)
+                    If TypeOf Caster Is WS_PlayerData.CharacterObject Then
+                        Dim packet1 As New Packets.PacketClass(OPCODES.SMSG_PET_SPELLS)
                         packet1.AddUInt64(0)
-                        CType(Caster, CharacterObject).client.Send(packet1)
+                        CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet1)
                         packet1.Dispose()
 
-                        Dim packet2 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
+                        Dim packet2 As New Packets.PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                         packet2.AddPackGUID(Target.GUID)
                         packet2.AddInt8(0)
-                        CType(Caster, CharacterObject).client.Send(packet2)
+                        CType(Caster, WS_PlayerData.CharacterObject).client.Send(packet2)
                         packet2.Dispose()
 
-                        CType(Caster, CharacterObject).cUnitFlags = CType(Caster, CharacterObject).cUnitFlags And (Not UnitFlags.UNIT_FLAG_UNK21)
-                        CType(Caster, CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, 0)
-                        CType(Caster, CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Caster, CharacterObject).cUnitFlags)
-                        CType(Caster, CharacterObject).SendCharacterUpdate(False)
+                        CType(Caster, WS_PlayerData.CharacterObject).cUnitFlags = CType(Caster, WS_PlayerData.CharacterObject).cUnitFlags And (Not UnitFlags.UNIT_FLAG_UNK21)
+                        CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EPlayerFields.PLAYER_FARSIGHT, 0)
+                        CType(Caster, WS_PlayerData.CharacterObject).SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, CType(Caster, WS_PlayerData.CharacterObject).cUnitFlags)
+                        CType(Caster, WS_PlayerData.CharacterObject).SendCharacterUpdate(False)
 
-                        CType(Caster, CharacterObject).MindControl = Nothing
+                        CType(Caster, WS_PlayerData.CharacterObject).MindControl = Nothing
                     End If
 
-                    If TypeOf Target Is CreatureObject Then
-                        CType(Target, CreatureObject).aiScript.State = AIState.AI_ATTACKING
-                    ElseIf TypeOf Target Is CharacterObject Then
-                        Dim packet1 As New PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
+                    If TypeOf Target Is WS_Creatures.CreatureObject Then
+                        CType(Target, WS_Creatures.CreatureObject).aiScript.State = AIState.AI_ATTACKING
+                    ElseIf TypeOf Target Is WS_PlayerData.CharacterObject Then
+                        Dim packet1 As New Packets.PacketClass(OPCODES.SMSG_DEATH_NOTIFY_OBSOLETE)
                         packet1.AddPackGUID(Target.GUID)
                         packet1.AddInt8(1)
-                        CType(Target, CharacterObject).client.Send(packet1)
+                        CType(Target, WS_PlayerData.CharacterObject).client.Send(packet1)
                         packet1.Dispose()
                     End If
             End Select
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_THREAT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_THREAT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
 
             'NOTE: EffectInfo.MiscValue => DamageType (not used for now, till new combat sytem)
             'TODO: This does not work the correct way
@@ -6344,7 +6344,7 @@ Namespace Spells
 
         End Sub
 
-        Public Sub SPELL_AURA_MOD_TOTAL_THREAT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+        Public Sub SPELL_AURA_MOD_TOTAL_THREAT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
             Dim Value As Integer
 
             Select Case Action
@@ -6352,47 +6352,47 @@ Namespace Spells
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    If TypeOf Target Is CharacterObject Then
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
                         Value = EffectInfo.GetValue(Target.Level)
                     Else
-                        Value = EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                        Value = EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                     End If
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    If TypeOf Target Is CharacterObject Then
+                    If TypeOf Target Is WS_PlayerData.CharacterObject Then
                         Value = -EffectInfo.GetValue(Target.Level)
                     Else
-                        Value = -EffectInfo.GetValue(CType(Caster, BaseUnit).Level)
+                        Value = -EffectInfo.GetValue(CType(Caster, WS_Base.BaseUnit).Level)
                     End If
             End Select
 
-            If TypeOf Target Is CharacterObject Then
-                For Each CreatureGUID As ULong In CType(Target, CharacterObject).creaturesNear
+            If TypeOf Target Is WS_PlayerData.CharacterObject Then
+                For Each CreatureGUID As ULong In CType(Target, WS_PlayerData.CharacterObject).creaturesNear
                     If Not _WorldServer.WORLD_CREATUREs(CreatureGUID).aiScript Is Nothing AndAlso
                        _WorldServer.WORLD_CREATUREs(CreatureGUID).aiScript.aiHateTable.ContainsKey(Target) Then
                         _WorldServer.WORLD_CREATUREs(CreatureGUID).aiScript.OnGenerateHate(Target, Value)
                     End If
                 Next
             Else
-                If Not CType(Target, CreatureObject).aiScript Is Nothing AndAlso
-                   CType(Target, CreatureObject).aiScript.aiHateTable.ContainsKey(Caster) Then
-                    CType(Target, CreatureObject).aiScript.OnGenerateHate(Caster, Value)
+                If Not CType(Target, WS_Creatures.CreatureObject).aiScript Is Nothing AndAlso
+                   CType(Target, WS_Creatures.CreatureObject).aiScript.aiHateTable.ContainsKey(Caster) Then
+                    CType(Target, WS_Creatures.CreatureObject).aiScript.OnGenerateHate(Caster, Value)
                 End If
             End If
         End Sub
 
-        Public Sub SPELL_AURA_MOD_TAUNT(ByRef Target As BaseUnit, ByRef Caster As BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
-            If Not TypeOf Target Is CreatureObject Then Exit Sub
+        Public Sub SPELL_AURA_MOD_TAUNT(ByRef Target As WS_Base.BaseUnit, ByRef Caster As WS_Base.BaseObject, ByRef EffectInfo As SpellEffect, ByVal SpellID As Integer, ByVal StackCount As Integer, ByVal Action As AuraAction)
+            If Not TypeOf Target Is WS_Creatures.CreatureObject Then Exit Sub
 
             Select Case Action
                 Case AuraAction.AURA_UPDATE
                     Exit Sub
 
                 Case AuraAction.AURA_ADD
-                    CType(Target, CreatureObject).aiScript.OnGenerateHate(Caster, 9999999)
+                    CType(Target, WS_Creatures.CreatureObject).aiScript.OnGenerateHate(Caster, 9999999)
 
                 Case AuraAction.AURA_REMOVE, AuraAction.AURA_REMOVEBYDURATION
-                    CType(Target, CreatureObject).aiScript.OnGenerateHate(Caster, -9999999)
+                    CType(Target, WS_Creatures.CreatureObject).aiScript.OnGenerateHate(Caster, -9999999)
 
             End Select
 
@@ -6408,12 +6408,12 @@ Namespace Spells
         Public Const DUEL_COUNTER_START As Byte = 10
         Public Const DUEL_COUNTER_DISABLED As Byte = 11
 
-        Public Sub CheckDuelDistance(ByRef objCharacter As CharacterObject)
+        Public Sub CheckDuelDistance(ByRef objCharacter As WS_PlayerData.CharacterObject)
             If _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(objCharacter.DuelArbiter) = False Then Exit Sub
-            If GetDistance(objCharacter, _WorldServer.WORLD_GAMEOBJECTs(objCharacter.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
+            If _WS_Combat.GetDistance(objCharacter, _WorldServer.WORLD_GAMEOBJECTs(objCharacter.DuelArbiter)) > DUEL_OUTOFBOUNDS_DISTANCE Then
                 If objCharacter.DuelOutOfBounds = DUEL_COUNTER_DISABLED Then
                     'DONE: Notify for out of bounds of the duel flag and start counting
-                    Dim packet As New PacketClass(OPCODES.SMSG_DUEL_OUTOFBOUNDS)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_DUEL_OUTOFBOUNDS)
                     objCharacter.client.Send(packet)
                     packet.Dispose()
 
@@ -6424,19 +6424,19 @@ Namespace Spells
                     objCharacter.DuelOutOfBounds = DUEL_COUNTER_DISABLED
 
                     'DONE: Notify for in bounds of the duel flag
-                    Dim packet As New PacketClass(OPCODES.SMSG_DUEL_INBOUNDS)
+                    Dim packet As New Packets.PacketClass(OPCODES.SMSG_DUEL_INBOUNDS)
                     objCharacter.client.Send(packet)
                     packet.Dispose()
                 End If
             End If
         End Sub
 
-        Public Sub DuelComplete(ByRef Winner As CharacterObject, ByRef Loser As CharacterObject)
+        Public Sub DuelComplete(ByRef Winner As WS_PlayerData.CharacterObject, ByRef Loser As WS_PlayerData.CharacterObject)
             If Winner Is Nothing Then Exit Sub
             If Loser Is Nothing Then Exit Sub
 
             'DONE: First stop the fight
-            Dim response As New PacketClass(OPCODES.SMSG_DUEL_COMPLETE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_DUEL_COMPLETE)
             response.AddInt8(1)
             Winner.client.SendMultiplyPackets(response)
             Loser.client.SendMultiplyPackets(response)
@@ -6483,7 +6483,7 @@ Namespace Spells
             Winner.SendCharacterUpdate(True)
 
             'DONE: Notify client
-            Dim packet As New PacketClass(OPCODES.SMSG_DUEL_WINNER)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_DUEL_WINNER)
             packet.AddInt8(0)
             packet.AddString(Winner.Name)
             packet.AddInt8(1)
@@ -6492,21 +6492,21 @@ Namespace Spells
             packet.Dispose()
 
             'DONE: Beg emote for loser
-            Dim SMSG_EMOTE As New PacketClass(OPCODES.SMSG_EMOTE)
+            Dim SMSG_EMOTE As New Packets.PacketClass(OPCODES.SMSG_EMOTE)
             SMSG_EMOTE.AddInt32(Emotes.ONESHOT_BEG)
             SMSG_EMOTE.AddUInt64(Loser.GUID)
             Loser.SendToNearPlayers(SMSG_EMOTE)
             SMSG_EMOTE.Dispose()
 
             'DONE: Final clearing (if we clear it before we can't get names)
-            Dim tmpCharacter As CharacterObject
+            Dim tmpCharacter As WS_PlayerData.CharacterObject
             tmpCharacter = Winner
             Loser.DuelPartner = Nothing
             tmpCharacter.DuelPartner = Nothing
             tmpCharacter = Nothing
         End Sub
 
-        Public Sub On_CMSG_DUEL_ACCEPTED(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_DUEL_ACCEPTED(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -6516,8 +6516,8 @@ Namespace Spells
             'NOTE: Only invited player must have GUID set up
             If client.Character.DuelArbiter <> GUID Then Exit Sub
 
-            Dim c1 As CharacterObject = client.Character.DuelPartner
-            Dim c2 As CharacterObject = client.Character
+            Dim c1 As WS_PlayerData.CharacterObject = client.Character.DuelPartner
+            Dim c2 As WS_PlayerData.CharacterObject = client.Character
             c1.DuelArbiter = GUID
             c2.DuelArbiter = GUID
 
@@ -6530,7 +6530,7 @@ Namespace Spells
             c1.SendCharacterUpdate(True)
 
             'DONE: Start the duel
-            Dim response As New PacketClass(OPCODES.SMSG_DUEL_COUNTDOWN)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_DUEL_COUNTDOWN)
             response.AddInt32(DUEL_COUNTDOWN)
             c1.client.SendMultiplyPackets(response)
             c2.client.SendMultiplyPackets(response)
@@ -6543,7 +6543,7 @@ Namespace Spells
             StartDuel.Start()
         End Sub
 
-        Public Sub On_CMSG_DUEL_CANCELLED(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_DUEL_CANCELLED(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -6555,7 +6555,7 @@ Namespace Spells
             client.Character.DuelArbiter = 0
             client.Character.DuelPartner.DuelArbiter = 0
 
-            Dim response As New PacketClass(OPCODES.SMSG_DUEL_COMPLETE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_DUEL_COMPLETE)
             response.AddInt8(0)
             client.Character.client.SendMultiplyPackets(response)
             client.Character.DuelPartner.client.SendMultiplyPackets(response)
@@ -6566,7 +6566,7 @@ Namespace Spells
             client.Character.DuelPartner = Nothing
         End Sub
 
-        Public Sub On_CMSG_RESURRECT_RESPONSE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_RESURRECT_RESPONSE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -6588,7 +6588,7 @@ Namespace Spells
             If GUID <> client.Character.resurrectGUID Then Exit Sub
 
             'DONE: Resurrect
-            CharacterResurrect(client.Character)
+            _WS_Handlers_Misc.CharacterResurrect(client.Character)
             client.Character.Life.Current = client.Character.resurrectHealth
             If client.Character.ManaType = ManaTypes.TYPE_MANA Then client.Character.Mana.Current = client.Character.resurrectMana
             client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_HEALTH, client.Character.Life.Current)
@@ -6600,7 +6600,7 @@ Namespace Spells
 #End Region
 
 #Region "WS.Spells.Handlers"
-        Public Sub On_CMSG_CAST_SPELL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CAST_SPELL(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             'If (packet.Data.Length - 1) < 11 Then Exit Sub
             packet.GetInt16()
             Dim spellID As Integer = packet.GetInt32
@@ -6615,7 +6615,7 @@ Namespace Spells
             End If
             Dim spellCooldown As UInteger = client.Character.Spells(spellID).Cooldown
             If spellCooldown >= 0UI Then
-                Dim timeNow As UInteger = GetTimestamp(Now)
+                Dim timeNow As UInteger = _Functions.GetTimestamp(Now)
                 If timeNow >= spellCooldown Then
                     client.Character.Spells(spellID).Cooldown = 0UI
                     client.Character.Spells(spellID).CooldownItem = 0
@@ -6679,7 +6679,7 @@ Namespace Spells
             End Try
         End Sub
 
-        Public Sub On_CMSG_CANCEL_CAST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CANCEL_CAST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim SpellID As Integer = packet.GetInt32
@@ -6698,19 +6698,19 @@ Namespace Spells
             End If
         End Sub
 
-        Public Sub On_CMSG_CANCEL_AUTO_REPEAT_SPELL(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CANCEL_AUTO_REPEAT_SPELL(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_AUTO_REPEAT_SPELL", client.IP, client.Port)
 
             client.Character.FinishSpell(CurrentSpellTypes.CURRENT_AUTOREPEAT_SPELL)
         End Sub
 
-        Public Sub On_CMSG_CANCEL_CHANNELLING(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CANCEL_CHANNELLING(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_CANCEL_CHANNELLING", client.IP, client.Port)
 
             client.Character.FinishSpell(CurrentSpellTypes.CURRENT_CHANNELED_SPELL)
         End Sub
 
-        Public Sub On_CMSG_CANCEL_AURA(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_CANCEL_AURA(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim spellID As Integer = packet.GetInt32
@@ -6719,7 +6719,7 @@ Namespace Spells
             client.Character.RemoveAuraBySpell(spellID)
         End Sub
 
-        Public Sub On_CMSG_LEARN_TALENT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_LEARN_TALENT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 If (packet.Data.Length - 1) < 13 Then Exit Sub
                 packet.GetInt16()
@@ -6740,19 +6740,19 @@ Namespace Spells
 
                 'DONE: Now the character can't cheat, he must have the earlier rank to get the new one
                 If RequestedRank > 0 Then
-                    If Not client.Character.HaveSpell(Talents(TalentID).RankID(RequestedRank - 1)) Then
+                    If Not client.Character.HaveSpell(_WS_DBCDatabase.Talents(TalentID).RankID(RequestedRank - 1)) Then
                         Exit Sub
                     End If
                 End If
 
                 'DONE: Now the character can't cheat, he must have the other talents that is needed to get this one
                 For j = 0 To 2
-                    If Talents(TalentID).RequiredTalent(j) > 0 Then
+                    If _WS_DBCDatabase.Talents(TalentID).RequiredTalent(j) > 0 Then
                         HasEnoughRank = False
-                        DependsOn = Talents(TalentID).RequiredTalent(j)
-                        For i As Integer = Talents(TalentID).RequiredPoints(j) To 4
-                            If Talents(DependsOn).RankID(i) <> 0 Then
-                                If client.Character.HaveSpell(Talents(DependsOn).RankID(i)) Then
+                        DependsOn = _WS_DBCDatabase.Talents(TalentID).RequiredTalent(j)
+                        For i As Integer = _WS_DBCDatabase.Talents(TalentID).RequiredPoints(j) To 4
+                            If _WS_DBCDatabase.Talents(DependsOn).RankID(i) <> 0 Then
+                                If client.Character.HaveSpell(_WS_DBCDatabase.Talents(DependsOn).RankID(i)) Then
                                     HasEnoughRank = True
                                 End If
                             End If
@@ -6764,9 +6764,9 @@ Namespace Spells
 
                 'DONE: Count spent talent points
                 SpentPoints = 0
-                If Talents(TalentID).Row > 0 Then
-                    For Each TalentInfo As KeyValuePair(Of Integer, TalentInfo) In Talents
-                        If Talents(TalentID).TalentTab = TalentInfo.Value.TalentTab Then
+                If _WS_DBCDatabase.Talents(TalentID).Row > 0 Then
+                    For Each TalentInfo As KeyValuePair(Of Integer, WS_DBCDatabase.TalentInfo) In _WS_DBCDatabase.Talents
+                        If _WS_DBCDatabase.Talents(TalentID).TalentTab = TalentInfo.Value.TalentTab Then
                             For i As Integer = 0 To 4
                                 If TalentInfo.Value.RankID(i) <> 0 Then
                                     If client.Character.HaveSpell(TalentInfo.Value.RankID(i)) Then
@@ -6779,12 +6779,12 @@ Namespace Spells
                 End If
 
 #If DEBUG Then
-                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Talents spent: {0}", SpentPoints)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "_WS_DBCDatabase.Talents spent: {0}", SpentPoints)
 #End If
 
-                If SpentPoints < (Talents(TalentID).Row * 5) Then Exit Sub
+                If SpentPoints < (_WS_DBCDatabase.Talents(TalentID).Row * 5) Then Exit Sub
 
-                SpellID = Talents(TalentID).RankID(RequestedRank)
+                SpellID = _WS_DBCDatabase.Talents(TalentID).RankID(RequestedRank)
 
                 If SpellID = 0 Then Exit Sub
 
@@ -6797,7 +6797,7 @@ Namespace Spells
 
                 'DONE: Unlearning the earlier rank of the talent
                 If RequestedRank > 0 Then
-                    ReSpellID = Talents(TalentID).RankID(RequestedRank - 1)
+                    ReSpellID = _WS_DBCDatabase.Talents(TalentID).RankID(RequestedRank - 1)
                     client.Character.UnLearnSpell(ReSpellID)
                     client.Character.RemoveAuraBySpell(ReSpellID)
                 End If
@@ -6816,7 +6816,7 @@ Namespace Spells
 #End Region
 
 #Region "WS.Spells.Loot"
-        Public Sub SendLoot(ByVal Player As CharacterObject, ByVal GUID As ULong, ByVal LootingType As LootType)
+        Public Sub SendLoot(ByVal Player As WS_PlayerData.CharacterObject, ByVal GUID As ULong, ByVal LootingType As LootType)
             If _CommonGlobalFunctions.GuidIsGameObject(GUID) Then
                 Select Case _WorldServer.WORLD_GAMEOBJECTs(GUID).ObjectInfo.Type
                     Case GameObjectType.GAMEOBJECT_TYPE_DOOR, GameObjectType.GAMEOBJECT_TYPE_BUTTON
@@ -6838,5 +6838,5 @@ Namespace Spells
         End Sub
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

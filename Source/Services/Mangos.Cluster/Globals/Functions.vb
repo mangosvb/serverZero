@@ -371,13 +371,13 @@ Namespace Globals
 
         Public Sub Broadcast(message As String)
             _WorldCluster.CHARACTERs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-            For Each character As KeyValuePair(Of ULong, CharacterObject) In _WorldCluster.CHARACTERs
+            For Each character As KeyValuePair(Of ULong, WcHandlerCharacter.CharacterObject) In _WorldCluster.CHARACTERs
                 If character.Value.Client IsNot Nothing Then SendMessageSystem(character.Value.Client, "System Message: " & SetColor(message, 255, 0, 0))
             Next
             _WorldCluster.CHARACTERs_Lock.ReleaseReaderLock()
         End Sub
 
-        Public Sub SendAccountMD5(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
+        Public Sub SendAccountMD5(ByRef client As WC_Network.ClientClass, ByRef character As WcHandlerCharacter.CharacterObject)
             Dim FoundData As Boolean = False
 
             'TODO: How Does Mangos Zero Handle the Account Data For the Characters?
@@ -422,7 +422,7 @@ Namespace Globals
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_ACCOUNT_DATA_MD5", client.IP, client.Port)
         End Sub
 
-        Public Sub SendTriggerCinematic(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
+        Public Sub SendTriggerCinematic(ByRef client As WC_Network.ClientClass, ByRef character As WcHandlerCharacter.CharacterObject)
             Dim packet As New Packets.PacketClass(OPCODES.SMSG_TRIGGER_CINEMATIC)
             Try
                 If _WS_DBCDatabase.CharRaces.ContainsKey(character.Race) Then
@@ -445,7 +445,7 @@ Namespace Globals
             'Client.Send(packet)
         End Sub
 
-        Public Sub SendGameTime(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject)
+        Public Sub SendGameTime(ByRef client As WC_Network.ClientClass, ByRef character As WcHandlerCharacter.CharacterObject)
             Dim smsgLoginSettimespeed As New Packets.PacketClass(OPCODES.SMSG_LOGIN_SETTIMESPEED)
             Try
                 Dim time As Date = Date.Now
@@ -480,7 +480,7 @@ Namespace Globals
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_SET_PROFICIENCY", client.IP, client.Port)
         End Sub
 
-        Public Sub SendCorpseReclaimDelay(ByRef client As WC_Network.ClientClass, ByRef character As CharacterObject, Optional ByVal seconds As Integer = 30)
+        Public Sub SendCorpseReclaimDelay(ByRef client As WC_Network.ClientClass, ByRef character As WcHandlerCharacter.CharacterObject, Optional ByVal seconds As Integer = 30)
             Dim packet As New Packets.PacketClass(OPCODES.SMSG_CORPSE_RECLAIM_DELAY)
             Try
                 packet.AddInt32(seconds * 1000)

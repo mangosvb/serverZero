@@ -205,7 +205,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="guid">The unique identifier.</param>
         ''' <returns></returns>
-        Public Function GetQuestMenuGO(ByRef objCharacter As CharacterObject, ByVal guid As ULong) As QuestMenu
+        Public Function GetQuestMenuGO(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal guid As ULong) As QuestMenu
             Dim questMenu As New QuestMenu
             Dim gOEntry As Integer = _WorldServer.WORLD_GAMEOBJECTs(guid).ID
 
@@ -261,7 +261,7 @@ Namespace Quests
         ''' <param name="guid">The unique identifier.</param>
         ''' <param name="title">The title.</param>
         ''' <param name="questMenu">The quest menu.</param>
-        Public Sub SendQuestMenu(ByRef objCharacter As CharacterObject, ByVal guid As ULong, Optional ByVal title As String = "Available quests", Optional ByVal questMenu As QuestMenu = Nothing)
+        Public Sub SendQuestMenu(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal guid As ULong, Optional ByVal title As String = "Available quests", Optional ByVal questMenu As QuestMenu = Nothing)
             If questMenu Is Nothing Then
                 questMenu = GetQuestMenu(objCharacter, guid)
             End If
@@ -297,7 +297,7 @@ Namespace Quests
         ''' <param name="guid">The unique identifier.</param>
         ''' <param name="acceptActive">if set to <c>true</c> [accept active].</param>
         Public Sub SendQuestDetails(ByRef client As WS_Network.ClientClass, ByRef quest As WS_QuestInfo, ByVal guid As ULong, ByVal acceptActive As Boolean)
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_DETAILS)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_DETAILS)
             Try
                 packet.AddUInt64(guid)
 
@@ -324,7 +324,7 @@ Namespace Quests
                         If quest.RewardItems(i) <> 0 Then
                             'Add item if not loaded into server
                             If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
-                                Dim tmpItem As New ItemInfo(quest.RewardItems(i))
+                                Dim tmpItem As New WS_Items.ItemInfo(quest.RewardItems(i))
                                 packet.AddInt32(tmpItem.Id)
                             Else
                                 packet.AddInt32(quest.RewardItems(i))
@@ -351,7 +351,7 @@ Namespace Quests
                         If quest.RewardStaticItems(i) <> 0 Then
                             'Add item if not loaded into server
                             If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
-                                Dim tmpItem As New ItemInfo(quest.RewardStaticItems(i))
+                                Dim tmpItem As New WS_Items.ItemInfo(quest.RewardStaticItems(i))
                                 packet.AddInt32(tmpItem.Id)
                             Else
                                 packet.AddInt32(quest.RewardStaticItems(i))
@@ -378,7 +378,7 @@ Namespace Quests
                 For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                     'Add item if not loaded into server
                     If quest.ObjectivesItem(i) <> 0 AndAlso _WorldServer.ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
-                        Dim tmpItem As New ItemInfo(quest.ObjectivesItem(i))
+                        Dim tmpItem As New WS_Items.ItemInfo(quest.ObjectivesItem(i))
                         packet.AddInt32(tmpItem.Id)
                     Else
                         packet.AddInt32(quest.ObjectivesItem(i))
@@ -410,8 +410,8 @@ Namespace Quests
         ''' </summary>
         ''' <param name="client">The client.</param>
         ''' <param name="quest">The quest.</param>
-        Public Sub SendQuest(ByRef client As ClientClass, ByRef quest As WS_QuestInfo)
-            Dim packet As New PacketClass(OPCODES.SMSG_QUEST_QUERY_RESPONSE)
+        Public Sub SendQuest(ByRef client As WS_Network.ClientClass, ByRef quest As WS_QuestInfo)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUEST_QUERY_RESPONSE)
             Try
                 packet.AddUInt32(quest.ID)
 
@@ -430,9 +430,9 @@ Namespace Quests
                 packet.AddUInt32(quest.RewMoneyMaxLevel)
 
                 If quest.RewardSpell > 0 Then
-                    If WS_Spells.SPELLs.ContainsKey(quest.RewardSpell) Then
-                        If WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0) IsNot Nothing AndAlso WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).ID = SpellEffects_Names.SPELL_EFFECT_LEARN_SPELL Then
-                            packet.AddUInt32(WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).TriggerSpell)
+                    If _WS_Spells.SPELLs.ContainsKey(quest.RewardSpell) Then
+                        If _WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0) IsNot Nothing AndAlso _WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).ID = SpellEffects_Names.SPELL_EFFECT_LEARN_SPELL Then
+                            packet.AddUInt32(_WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).TriggerSpell)
                         Else
                             packet.AddUInt32(quest.RewardSpell)
                         End If
@@ -483,7 +483,7 @@ Namespace Quests
                     packet.AddUInt32(quest.ObjectivesItem_Count(i))
 
                     'HACK: Fix for not showing "Unknown Item" (sometimes client doesn't get items on time)
-                    If quest.ObjectivesItem(i) <> 0 Then SendItemInfo(client, quest.ObjectivesItem(i))
+                    If quest.ObjectivesItem(i) <> 0 Then _WS_Items.SendItemInfo(client, quest.ObjectivesItem(i))
                 Next
 
                 For i As Integer = 0 To QuestInfo.QUEST_OBJECTIVES_COUNT - 1
@@ -508,8 +508,8 @@ Namespace Quests
         ''' <param name="client">The client.</param>
         ''' <param name="itemID">The item identifier.</param>
         ''' <param name="itemCount">The item count.</param>
-        Public Sub SendQuestMessageAddItem(ByRef client As ClientClass, ByVal itemID As Integer, ByVal itemCount As Integer)
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTUPDATE_ADD_ITEM)
+        Public Sub SendQuestMessageAddItem(ByRef client As WS_Network.ClientClass, ByVal itemID As Integer, ByVal itemCount As Integer)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTUPDATE_ADD_ITEM)
             Try
                 packet.AddInt32(itemID)
                 packet.AddInt32(itemCount)
@@ -528,9 +528,9 @@ Namespace Quests
         ''' <param name="killID">The kill identifier.</param>
         ''' <param name="killCurrentCount">The kill current count.</param>
         ''' <param name="killCount">The kill count.</param>
-        Public Sub SendQuestMessageAddKill(ByRef client As ClientClass, ByVal questID As Integer, ByVal killGuid As ULong, ByVal killID As Integer, ByVal killCurrentCount As Integer, ByVal killCount As Integer)
+        Public Sub SendQuestMessageAddKill(ByRef client As WS_Network.ClientClass, ByVal questID As Integer, ByVal killGuid As ULong, ByVal killID As Integer, ByVal killCurrentCount As Integer, ByVal killCount As Integer)
             'Message: %s slain: %d/%d
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTUPDATE_ADD_KILL)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTUPDATE_ADD_KILL)
             Try
                 packet.AddInt32(questID)
                 If killID < 0 Then killID = ((-killID) Or &H80000000) 'Gameobject
@@ -549,9 +549,9 @@ Namespace Quests
         ''' </summary>
         ''' <param name="client">The client.</param>
         ''' <param name="questID">The quest identifier.</param>
-        Public Sub SendQuestMessageFailed(ByRef client As ClientClass, ByVal questID As Integer)
+        Public Sub SendQuestMessageFailed(ByRef client As WS_Network.ClientClass, ByVal questID As Integer)
             'Message: ?
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_FAILED)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_FAILED)
             Try
                 packet.AddInt32(questID)
                 ' TODO: Need to add failed reason to packet here
@@ -566,9 +566,9 @@ Namespace Quests
         ''' </summary>
         ''' <param name="client">The client.</param>
         ''' <param name="questID">The quest identifier.</param>
-        Public Sub SendQuestMessageFailedTimer(ByRef client As ClientClass, ByVal questID As Integer)
+        Public Sub SendQuestMessageFailedTimer(ByRef client As WS_Network.ClientClass, ByVal questID As Integer)
             'Message: ?
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTUPDATE_FAILEDTIMER)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTUPDATE_FAILEDTIMER)
             Try
                 packet.AddInt32(questID)
                 client.Send(packet)
@@ -582,9 +582,9 @@ Namespace Quests
         ''' </summary>
         ''' <param name="client">The client.</param>
         ''' <param name="questID">The quest identifier.</param>
-        Public Sub SendQuestMessageComplete(ByRef client As ClientClass, ByVal questID As Integer)
+        Public Sub SendQuestMessageComplete(ByRef client As WS_Network.ClientClass, ByVal questID As Integer)
             'Message: Objective Complete.
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTUPDATE_COMPLETE)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTUPDATE_COMPLETE)
             Try
                 packet.AddInt32(questID)
                 client.Send(packet)
@@ -600,8 +600,8 @@ Namespace Quests
         ''' <param name="quest">The quest.</param>
         ''' <param name="xP">The xp.</param>
         ''' <param name="gold">The gold.</param>
-        Public Sub SendQuestComplete(ByRef client As ClientClass, ByRef quest As WS_QuestInfo, ByVal xP As Integer, ByVal gold As Integer)
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_COMPLETE)
+        Public Sub SendQuestComplete(ByRef client As WS_Network.ClientClass, ByRef quest As WS_QuestInfo, ByVal xP As Integer, ByVal gold As Integer)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_COMPLETE)
             Try
                 packet.AddInt32(quest.ID)
                 packet.AddInt32(3)
@@ -633,8 +633,8 @@ Namespace Quests
         ''' <param name="quest">The quest.</param>
         ''' <param name="guid">The unique identifier.</param>
         ''' <param name="objBaseQuest">The Base Quest.</param>
-        Public Sub SendQuestReward(ByRef client As ClientClass, ByRef quest As WS_QuestInfo, ByVal guid As ULong, ByRef objBaseQuest As WS_QuestsBase)
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_OFFER_REWARD)
+        Public Sub SendQuestReward(ByRef client As WS_Network.ClientClass, ByRef quest As WS_QuestInfo, ByVal guid As ULong, ByRef objBaseQuest As WS_QuestsBase)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_OFFER_REWARD)
             Try
                 packet.AddUInt64(guid)
                 packet.AddInt32(objBaseQuest.ID)
@@ -667,7 +667,7 @@ Namespace Quests
 
                         'Add item if not loaded into server
                         If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardItems(i)) Then
-                            Dim tmpItem As New ItemInfo(quest.RewardItems(i))
+                            Dim tmpItem As New WS_Items.ItemInfo(quest.RewardItems(i))
                             packet.AddInt32(tmpItem.Model)
                         Else
                             packet.AddInt32(_WorldServer.ITEMDatabase(quest.RewardItems(i)).Model)
@@ -688,7 +688,7 @@ Namespace Quests
                         'Add item if not loaded into server
                         If Not _WorldServer.ITEMDatabase.ContainsKey(quest.RewardStaticItems(i)) Then
                             'TODO: Another one of these useless bits of code, needs to be implemented correctly
-                            Dim tmpItem As New ItemInfo(quest.RewardStaticItems(i))
+                            Dim tmpItem As New WS_Items.ItemInfo(quest.RewardStaticItems(i))
                         End If
                         packet.AddInt32(_WorldServer.ITEMDatabase(quest.RewardStaticItems(i)).Model)
                     End If
@@ -698,9 +698,9 @@ Namespace Quests
                 packet.AddInt32(0)
 
                 If quest.RewardSpell > 0 Then
-                    If WS_Spells.SPELLs.ContainsKey(quest.RewardSpell) Then
-                        If WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0) IsNot Nothing AndAlso WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).ID = SpellEffects_Names.SPELL_EFFECT_LEARN_SPELL Then
-                            packet.AddInt32(WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).TriggerSpell)
+                    If _WS_Spells.SPELLs.ContainsKey(quest.RewardSpell) Then
+                        If _WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0) IsNot Nothing AndAlso _WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).ID = SpellEffects_Names.SPELL_EFFECT_LEARN_SPELL Then
+                            packet.AddInt32(_WS_Spells.SPELLs(quest.RewardSpell).SpellEffects(0).TriggerSpell)
                         Else
                             packet.AddInt32(quest.RewardSpell)
                         End If
@@ -724,8 +724,8 @@ Namespace Quests
         ''' <param name="quest">The quest.</param>
         ''' <param name="guid">The unique identifier.</param>
         ''' <param name="objBaseQuest">The Base Quests.</param>
-        Public Sub SendQuestRequireItems(ByRef client As ClientClass, ByRef quest As WS_QuestInfo, ByVal guid As ULong, ByRef objBaseQuest As WS_QuestsBase)
-            Dim packet As New PacketClass(OPCODES.SMSG_QUESTGIVER_REQUEST_ITEMS)
+        Public Sub SendQuestRequireItems(ByRef client As WS_Network.ClientClass, ByRef quest As WS_QuestInfo, ByVal guid As ULong, ByRef objBaseQuest As WS_QuestsBase)
+            Dim packet As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_REQUEST_ITEMS)
             Try
                 packet.AddUInt64(guid)
                 packet.AddInt32(objBaseQuest.ID)
@@ -758,7 +758,7 @@ Namespace Quests
                     For i As Integer = 0 To quest.ObjectivesItem.GetUpperBound(0) 'QuestInfo.QUEST_OBJECTIVES_COUNT
                         If quest.ObjectivesItem(i) <> 0 Then
                             If _WorldServer.ITEMDatabase.ContainsKey(quest.ObjectivesItem(i)) = False Then
-                                Dim tmpItem As ItemInfo = New ItemInfo(quest.ObjectivesItem(i))
+                                Dim tmpItem As WS_Items.ItemInfo = New WS_Items.ItemInfo(quest.ObjectivesItem(i))
                                 packet.AddInt32(tmpItem.Id)
                             Else
                                 packet.AddInt32(quest.ObjectivesItem(i))
@@ -794,7 +794,7 @@ Namespace Quests
         ''' Loads the quests.
         ''' </summary>
         ''' <param name="objCharacter">The Character.</param>
-        Public Sub LoadQuests(ByRef objCharacter As CharacterObject)
+        Public Sub LoadQuests(ByRef objCharacter As WS_PlayerData.CharacterObject)
             Dim cQuests As New DataTable
             Dim i As Integer = 0
             _WorldServer.CharacterDatabase.Query(String.Format("SELECT quest_id, quest_status FROM characters_quests q WHERE q.char_guid = {0};", objCharacter.GUID), cQuests)
@@ -843,7 +843,7 @@ Namespace Quests
         ''' </summary>
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="creature">The creature.</param>
-        Public Sub OnQuestKill(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject)
+        Public Sub OnQuestKill(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef creature As WS_Creatures.CreatureObject)
             'HANDLERS: Added to DealDamage sub
 
             'DONE: Do not count killed from guards
@@ -901,7 +901,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="creature">The creature.</param>
         ''' <param name="spellID">The spell identifier.</param>
-        Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject, ByVal spellID As Integer)
+        Public Sub OnQuestCastSpell(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef creature As WS_Creatures.CreatureObject, ByVal spellID As Integer)
             'DONE: Count spell casts
             'DONE: Check if we're casting it on the correct creature
             For i As Integer = 0 To QuestInfo.QUEST_SLOTS
@@ -932,7 +932,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="gameObject">The game object.</param>
         ''' <param name="spellID">The spell identifier.</param>
-        Public Sub OnQuestCastSpell(ByRef objCharacter As CharacterObject, ByRef gameObject As GameObjectObject, ByVal spellID As Integer)
+        Public Sub OnQuestCastSpell(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef gameObject As WS_GameObjects.GameObjectObject, ByVal spellID As Integer)
             'DONE: Count spell casts
             'DONE: Check if we're casting it on the correct gameobject
             For i As Integer = 0 To QuestInfo.QUEST_SLOTS
@@ -964,7 +964,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="creature">The creature.</param>
         ''' <param name="emoteID">The emote identifier.</param>
-        Public Sub OnQuestDoEmote(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject, ByVal emoteID As Integer)
+        Public Sub OnQuestDoEmote(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef creature As WS_Creatures.CreatureObject, ByVal emoteID As Integer)
             Dim j As Byte
 
             'DONE: Count spell casts
@@ -998,7 +998,7 @@ Namespace Quests
         ''' <param name="objCharacter">The Character.</param>
         ''' <param name="itemEntry">The item entry.</param>
         ''' <returns></returns>
-        Public Function IsItemNeededForQuest(ByRef objCharacter As CharacterObject, ByRef itemEntry As Integer) As Boolean
+        Public Function IsItemNeededForQuest(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef itemEntry As Integer) As Boolean
 
             'DONE: Check if anyone in the group has the quest that requires this item
             'DONE: If the quest isn't a raid quest then you can't loot quest items
@@ -1044,7 +1044,7 @@ Namespace Quests
         ''' <param name="gameobject">The gameobject.</param>
         ''' <param name="objCharacter">The obj character.</param>
         ''' <returns></returns>
-        Public Function IsGameObjectUsedForQuest(ByRef gameobject As GameObjectObject, ByRef objCharacter As CharacterObject) As Byte
+        Public Function IsGameObjectUsedForQuest(ByRef gameobject As WS_GameObjects.GameObjectObject, ByRef objCharacter As WS_PlayerData.CharacterObject) As Byte
             If Not gameobject.IsUsedForQuests Then Return 0
 
             For Each questItemID As Integer In gameobject.IncludesQuestItems
@@ -1064,24 +1064,24 @@ Namespace Quests
         End Function
 
         'DONE: Quest's loot generation
-        Public Sub OnQuestAddQuestLoot(ByRef objCharacter As CharacterObject, ByRef creature As CreatureObject, ByRef loot As WS_Loot.LootObject)
+        Public Sub OnQuestAddQuestLoot(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef creature As WS_Creatures.CreatureObject, ByRef loot As WS_Loot.LootObject)
             'HANDLERS: Added in loot generation sub
 
             'TODO: Check for quest loots for adding to looted creature
         End Sub
 
-        Public Sub OnQuestAddQuestLoot(ByRef objCharacter As CharacterObject, ByRef gameObject As GameObjectObject, ByRef loot As LootObject)
+        Public Sub OnQuestAddQuestLoot(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef gameObject As WS_GameObjects.GameObjectObject, ByRef loot As WS_Loot.LootObject)
             'HANDLERS: None
             'TODO: Check for quest loots for adding to looted gameObject
         End Sub
 
-        Public Sub OnQuestAddQuestLoot(ByRef objCharacter As CharacterObject, ByRef character As CharacterObject, ByRef loot As LootObject)
+        Public Sub OnQuestAddQuestLoot(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef character As WS_PlayerData.CharacterObject, ByRef loot As WS_Loot.LootObject)
             'HANDLERS: None
             'TODO: Check for quest loots for adding to looted player (used only in battleground?)
         End Sub
 
         'DONE: Item quest events
-        Public Sub OnQuestItemAdd(ByRef objCharacter As CharacterObject, ByVal itemID As Integer, ByVal count As Byte)
+        Public Sub OnQuestItemAdd(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal itemID As Integer, ByVal count As Byte)
             'HANDLERS: Added to looting sub
 
             If count = 0 Then count = 1
@@ -1107,7 +1107,7 @@ Namespace Quests
             Next i
         End Sub
 
-        Public Sub OnQuestItemRemove(ByRef objCharacter As CharacterObject, ByVal itemID As Integer, ByVal count As Byte)
+        Public Sub OnQuestItemRemove(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal itemID As Integer, ByVal count As Byte)
             'HANDLERS: Added to delete sub
             If count = 0 Then count = 1
 
@@ -1133,7 +1133,7 @@ Namespace Quests
         End Sub
 
         'DONE: Exploration quest events
-        Public Sub OnQuestExplore(ByRef objCharacter As CharacterObject, ByVal areaID As Integer)
+        Public Sub OnQuestExplore(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal areaID As Integer)
             For i As Integer = 0 To QuestInfo.QUEST_SLOTS
                 If (Not objCharacter.TalkQuests(i) Is Nothing) AndAlso (objCharacter.TalkQuests(i).ObjectiveFlags And QuestObjectiveFlag.QUEST_OBJECTIVE_EXPLORE) Then
                     If TypeOf objCharacter.TalkQuests(i) Is WS_QuestsBaseScripted Then
@@ -1188,7 +1188,7 @@ Namespace Quests
             End Select
         End Function
 
-        Public Function GetQuestgiverStatus(ByRef objCharacter As CharacterObject, ByVal cGuid As ULong) As QuestgiverStatusFlag
+        Public Function GetQuestgiverStatus(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGuid As ULong) As QuestgiverStatusFlag
             'DONE: Invoke scripted quest status
             Dim status As QuestgiverStatusFlag = QuestgiverStatusFlag.DIALOG_STATUS_NONE
             'DONE: Do search for completed quests or in progress
@@ -1287,7 +1287,7 @@ Namespace Quests
             Return status
         End Function
 
-        Public Sub On_CMSG_QUESTGIVER_STATUS_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTGIVER_STATUS_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 If (packet.Data.Length - 1) < 13 Then Exit Sub
                 packet.GetInt16()
@@ -1295,7 +1295,7 @@ Namespace Quests
 
                 Dim status As QuestgiverStatusFlag = GetQuestgiverStatus(client.Character, guid)
 
-                Dim response As New PacketClass(OPCODES.SMSG_QUESTGIVER_STATUS)
+                Dim response As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_STATUS)
                 Try
                     response.AddUInt64(guid)
                     response.AddUInt32(status)
@@ -1308,7 +1308,7 @@ Namespace Quests
             End Try
         End Sub
 
-        Public Sub On_CMSG_QUESTGIVER_HELLO(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTGIVER_HELLO(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 If (packet.Data.Length - 1) < 13 Then Exit Sub
                 packet.GetInt16()
@@ -1331,7 +1331,7 @@ Namespace Quests
             End Try
         End Sub
 
-        Public Sub On_CMSG_QUESTGIVER_QUERY_QUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTGIVER_QUERY_QUEST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -1357,7 +1357,7 @@ Namespace Quests
             End If
         End Sub
 
-        Public Sub On_CMSG_QUESTGIVER_ACCEPT_QUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTGIVER_ACCEPT_QUEST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -1377,7 +1377,7 @@ Namespace Quests
             If client.Character.TalkCanAccept(client.Character.TalkCurrentQuest) Then
                 If client.Character.TalkAddQuest(client.Character.TalkCurrentQuest) Then
                     If _CommonGlobalFunctions.GuidIsPlayer(guid) Then
-                        Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                        Dim response As New Packets.PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                         Try
                             response.AddUInt64(client.Character.GUID)
                             response.AddInt8(QuestPartyPushError.QUEST_PARTY_MSG_ACCEPT_QUEST)
@@ -1388,7 +1388,7 @@ Namespace Quests
                         End Try
                     Else
                         Dim status As QuestgiverStatusFlag = GetQuestgiverStatus(client.Character, guid)
-                        Dim response As New PacketClass(OPCODES.SMSG_QUESTGIVER_STATUS)
+                        Dim response As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_STATUS)
                         Try
                             response.AddUInt64(guid)
                             response.AddInt32(status)
@@ -1398,7 +1398,7 @@ Namespace Quests
                         End Try
                     End If
                 Else
-                    Dim response As New PacketClass(OPCODES.SMSG_QUESTLOG_FULL)
+                    Dim response As New Packets.PacketClass(OPCODES.SMSG_QUESTLOG_FULL)
                     Try
                         client.Send(response)
                     Finally
@@ -1408,7 +1408,7 @@ Namespace Quests
             End If
         End Sub
 
-        Public Sub On_CMSG_QUESTLOG_REMOVE_QUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTLOG_REMOVE_QUEST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 6 Then Exit Sub
             packet.GetInt16()
             Dim slot As Byte = packet.GetInt8
@@ -1418,7 +1418,7 @@ Namespace Quests
             client.Character.TalkDeleteQuest(slot)
         End Sub
 
-        Public Sub On_CMSG_QUEST_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUEST_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim questID As Integer = packet.GetInt32
@@ -1451,7 +1451,7 @@ Namespace Quests
             End If
         End Sub
 
-        Public Sub CompleteQuest(ByRef objCharacter As CharacterObject, ByVal questID As Integer, ByVal questGiverGuid As ULong)
+        Public Sub CompleteQuest(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal questID As Integer, ByVal questGiverGuid As ULong)
             If Not _WorldServer.ALLQUESTS.IsValidQuest(questID) Then
                 Dim tmpQuest As New WS_QuestInfo(questID)
                 For i As Integer = 0 To QuestInfo.QUEST_SLOTS
@@ -1509,7 +1509,7 @@ Namespace Quests
 
         End Sub
 
-        Public Sub On_CMSG_QUESTGIVER_COMPLETE_QUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTGIVER_COMPLETE_QUEST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -1520,7 +1520,7 @@ Namespace Quests
             CompleteQuest(client.Character, questID, guid)
         End Sub
 
-        Public Sub On_CMSG_QUESTGIVER_REQUEST_REWARD(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTGIVER_REQUEST_REWARD(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 17 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -1555,7 +1555,7 @@ Namespace Quests
 
         End Sub
 
-        Public Sub On_CMSG_QUESTGIVER_CHOOSE_REWARD(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_QUESTGIVER_CHOOSE_REWARD(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 21 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -1578,7 +1578,7 @@ Namespace Quests
                             'NOTE: Negative reward gold is required gold, that's why this should be plus
                             client.Character.Copper += client.Character.TalkCurrentQuest.RewardGold
                         Else
-                            Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                            Dim errorPacket As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                             errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_MONEY)
                             client.Send(errorPacket)
                             errorPacket.Dispose()
@@ -1596,7 +1596,7 @@ Namespace Quests
                                     client.Character.Copper -= client.Character.TalkCurrentQuest.RewardGold
                                 End If
                                 'TODO: Restore items (not needed?)
-                                Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                                Dim errorPacket As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                                 errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_ITEMS)
                                 client.Send(errorPacket)
                                 errorPacket.Dispose()
@@ -1638,7 +1638,7 @@ Namespace Quests
                         Dim spellTargets As New WS_Spells.SpellTargets
                         spellTargets.SetTarget_UNIT(client.Character)
 
-                        Dim castParams As New CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
+                        Dim castParams As New WS_Spells.CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
                         ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
                     End If
 
@@ -1661,7 +1661,7 @@ Namespace Quests
                         Dim qLevel As Integer = client.Character.TalkCurrentQuest.Level_Normal
                         Dim fullxp As Single = 0.0F
 
-                        If pLevel <= DEFAULT_MAX_LEVEL Then
+                        If pLevel <= _WS_Player_Initializator.DEFAULT_MAX_LEVEL Then
                             If qLevel >= 65 Then
                                 fullxp = reqMoneyMaxLevel / 6.0F
                             ElseIf qLevel = 64 Then
@@ -1738,7 +1738,7 @@ Namespace Quests
                             'NOTE: Negative reward gold is required gold, that's why this should be plus
                             client.Character.Copper += client.Character.TalkCurrentQuest.RewardGold
                         Else
-                            Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                            Dim errorPacket As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                             errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_MONEY)
                             client.Send(errorPacket)
                             errorPacket.Dispose()
@@ -1756,7 +1756,7 @@ Namespace Quests
                                     client.Character.Copper -= client.Character.TalkCurrentQuest.RewardGold
                                 End If
                                 'TODO: Restore items (not needed?)
-                                Dim errorPacket As New PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
+                                Dim errorPacket As New Packets.PacketClass(OPCODES.SMSG_QUESTGIVER_QUEST_INVALID)
                                 errorPacket.AddInt32(QuestInvalidError.INVALIDREASON_DONT_HAVE_REQ_ITEMS)
                                 client.Send(errorPacket)
                                 errorPacket.Dispose()
@@ -1795,10 +1795,10 @@ Namespace Quests
 
                     'DONE: Cast spell
                     If client.Character.TalkCurrentQuest.RewardSpell > 0 Then
-                        Dim spellTargets As New SpellTargets
+                        Dim spellTargets As New WS_Spells.SpellTargets
                         spellTargets.SetTarget_UNIT(client.Character)
 
-                        Dim castParams As New CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
+                        Dim castParams As New WS_Spells.CastSpellParameters(spellTargets, _WorldServer.WORLD_CREATUREs(guid), client.Character.TalkCurrentQuest.RewardSpell, True)
                         ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf castParams.Cast))
                     End If
 
@@ -1821,7 +1821,7 @@ Namespace Quests
                         Dim qLevel As Integer = client.Character.TalkCurrentQuest.Level_Normal
                         Dim fullxp As Single = 0.0F
 
-                        If pLevel <= DEFAULT_MAX_LEVEL Then
+                        If pLevel <= _WS_Player_Initializator.DEFAULT_MAX_LEVEL Then
                             If qLevel >= 65 Then
                                 fullxp = reqMoneyMaxLevel / 6.0F
                             ElseIf qLevel = 64 Then
@@ -1887,7 +1887,7 @@ Namespace Quests
 
         End Sub
 
-        Public Sub On_CMSG_PUSHQUESTTOPARTY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_PUSHQUESTTOPARTY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim questID As Integer = packet.GetInt32
@@ -1902,7 +1902,7 @@ Namespace Quests
 
                         With _WorldServer.CHARACTERs(guid)
 
-                            Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                            Dim response As New Packets.PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                             response.AddUInt64(guid)
                             response.AddInt32(QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST)
                             response.AddInt8(0)
@@ -1929,7 +1929,7 @@ Namespace Quests
 
                             'DONE: Send error if present
                             If message <> QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST Then
-                                Dim errorPacket As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                                Dim errorPacket As New Packets.PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                                 errorPacket.AddUInt64(.GUID)
                                 errorPacket.AddInt32(message)
                                 errorPacket.AddInt8(0)
@@ -1945,7 +1945,7 @@ Namespace Quests
 
                         With _WorldServer.CHARACTERs(guid)
 
-                            Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                            Dim response As New Packets.PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                             response.AddUInt64(guid)
                             response.AddInt32(QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST)
                             response.AddInt8(0)
@@ -1972,7 +1972,7 @@ Namespace Quests
 
                             'DONE: Send error if present
                             If message <> QuestPartyPushError.QUEST_PARTY_MSG_SHARRING_QUEST Then
-                                Dim errorPacket As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+                                Dim errorPacket As New Packets.PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
                                 errorPacket.AddUInt64(.GUID)
                                 errorPacket.AddInt32(message)
                                 errorPacket.AddInt8(0)
@@ -1986,7 +1986,7 @@ Namespace Quests
             End If
         End Sub
 
-        Public Sub On_MSG_QUEST_PUSH_RESULT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_QUEST_PUSH_RESULT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 14 Then Exit Sub
             packet.GetInt16()
             Dim guid As ULong = packet.GetUInt64
@@ -1994,7 +1994,7 @@ Namespace Quests
 
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_QUEST_PUSH_RESULT [{2:X} {3}]", client.IP, client.Port, guid, message)
 
-            Dim response As New PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
+            Dim response As New Packets.PacketClass(OPCODES.MSG_QUEST_PUSH_RESULT)
             response.AddUInt64(guid)
             response.AddInt8(QuestPartyPushError.QUEST_PARTY_MSG_ACCEPT_QUEST)
             response.AddInt32(0)
@@ -2009,4 +2009,4 @@ Namespace Quests
 
         End Sub
     End Class
-End NameSpace
+End Namespace

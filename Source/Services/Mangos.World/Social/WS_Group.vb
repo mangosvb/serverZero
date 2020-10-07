@@ -25,7 +25,7 @@ Imports Mangos.World.Player
 
 Namespace Social
 
-    Public Module WS_Group
+    Public Class WS_Group
         Public ReadOnly Groups As New Dictionary(Of Long, Group)
         Private _lastLooter As ULong = 0
 
@@ -44,7 +44,7 @@ Namespace Social
 
             Public Sub New(ByVal groupID As Long)
                 ID = groupID
-                Groups.Add(ID, Me)
+                _WS_Group.Groups.Add(ID, Me)
             End Sub
 
 #Region "IDisposable Support"
@@ -55,7 +55,7 @@ Namespace Social
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    Groups.Remove(ID)
+                    _WS_Group.Groups.Remove(ID)
                 End If
                 _disposedValue = True
             End Sub
@@ -82,25 +82,25 @@ Namespace Social
             ''' Gets the next looter.
             ''' </summary>
             ''' <returns></returns>
-            Public Function GetNextLooter() As CharacterObject
+            Public Function GetNextLooter() As WS_PlayerData.CharacterObject
                 Dim nextIsLooter As Boolean = False
                 Dim nextLooterFound As Boolean = False
 
                 For Each guid As ULong In LocalMembers
                     If nextIsLooter Then
-                        _lastLooter = guid
+                        _WS_Group._lastLooter = guid
                         nextLooterFound = True
                         Exit For
                     End If
 
-                    If guid = _lastLooter Then nextIsLooter = True
+                    If guid = _WS_Group._lastLooter Then nextIsLooter = True
                 Next
 
                 If Not nextLooterFound Then
-                    _lastLooter = LocalMembers.Item(0)
+                    _WS_Group._lastLooter = LocalMembers.Item(0)
                 End If
 
-                Return _WorldServer.CHARACTERs(_lastLooter)
+                Return _WorldServer.CHARACTERs(_WS_Group._lastLooter)
             End Function
 
             ''' <summary>
@@ -118,29 +118,29 @@ Namespace Social
         ''' <param name="objCharacter">The objCharacter.</param>
         ''' <param name="flag">The flag.</param>
         ''' <returns></returns>
-        Function BuildPartyMemberStats(ByRef objCharacter As CharacterObject, ByVal flag As UInteger) As PacketClass
+        Function BuildPartyMemberStats(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal flag As UInteger) As Packets.PacketClass
             Dim opCode As OPCODES = OPCODES.SMSG_PARTY_MEMBER_STATS
-            If flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL OrElse flag = PartyMemberStatsFlag.GROUP_UPDATE_FULL_PET Then
+            If flag = Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FULL OrElse flag = Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FULL_PET Then
                 opCode = OPCODES.SMSG_PARTY_MEMBER_STATS_FULL
 
-                If objCharacter.ManaType <> ManaTypes.TYPE_MANA Then flag = flag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE
+                If objCharacter.ManaType <> ManaTypes.TYPE_MANA Then flag = flag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE
             End If
 
-            Dim packet As New PacketClass(opCode)
+            Dim packet As New Packets.PacketClass(opCode)
             packet.AddPackGUID(objCharacter.GUID)
             packet.AddUInt32(flag)
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS) Then
-                Dim memberFlags As Byte = PartyMemberStatsStatus.STATUS_ONLINE
-                If objCharacter.isPvP Then memberFlags = memberFlags Or PartyMemberStatsStatus.STATUS_PVP
-                If objCharacter.DEAD Then memberFlags = memberFlags Or PartyMemberStatsStatus.STATUS_DEAD
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_STATUS) Then
+                Dim memberFlags As Byte = Globals.Functions.PartyMemberStatsStatus.STATUS_ONLINE
+                If objCharacter.isPvP Then memberFlags = memberFlags Or Globals.Functions.PartyMemberStatsStatus.STATUS_PVP
+                If objCharacter.DEAD Then memberFlags = memberFlags Or Globals.Functions.PartyMemberStatsStatus.STATUS_DEAD
                 packet.AddInt8(memberFlags)
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP) Then packet.AddUInt16(objCharacter.Life.Current)
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP) Then packet.AddUInt16(objCharacter.Life.Maximum)
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE) Then packet.AddInt8(objCharacter.ManaType)
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_HP) Then packet.AddUInt16(objCharacter.Life.Current)
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_HP) Then packet.AddUInt16(objCharacter.Life.Maximum)
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POWER_TYPE) Then packet.AddInt8(objCharacter.ManaType)
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_CUR_POWER) Then
                 If objCharacter.ManaType = ManaTypes.TYPE_RAGE Then
                     packet.AddUInt16(objCharacter.Rage.Current)
                 ElseIf objCharacter.ManaType = ManaTypes.TYPE_ENERGY Then
@@ -150,7 +150,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_MAX_POWER) Then
                 If objCharacter.ManaType = ManaTypes.TYPE_RAGE Then
                     packet.AddUInt16(objCharacter.Rage.Maximum)
                 ElseIf objCharacter.ManaType = ManaTypes.TYPE_ENERGY Then
@@ -160,14 +160,14 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL) Then packet.AddUInt16(objCharacter.Level)
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE) Then packet.AddUInt16(objCharacter.ZoneID)
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_LEVEL) Then packet.AddUInt16(objCharacter.Level)
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE) Then packet.AddUInt16(objCharacter.ZoneID)
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION) Then
                 packet.AddInt16(Fix(objCharacter.positionX))
                 packet.AddInt16(Fix(objCharacter.positionY))
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_AURAS) Then
                 Dim auraMask As ULong = 0
                 Dim auraPos As Integer = packet.Data.Length
                 packet.AddUInt64(0) 'AuraMask (is set after the loop)
@@ -181,7 +181,7 @@ Namespace Social
                 packet.AddUInt64(auraMask, auraPos) 'Set the AuraMask
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_GUID) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_GUID) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddUInt64(objCharacter.Pet.GUID)
                 Else
@@ -189,7 +189,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_NAME) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_NAME) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddString(objCharacter.Pet.PetName)
                 Else
@@ -197,7 +197,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MODEL_ID) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MODEL_ID) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddUInt16(objCharacter.Pet.Model)
                 Else
@@ -205,7 +205,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_HP) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_HP) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddUInt16(objCharacter.Pet.Life.Current)
                 Else
@@ -213,7 +213,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_HP) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_HP) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddUInt16(objCharacter.Pet.Life.Maximum)
                 Else
@@ -221,7 +221,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_POWER_TYPE) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_POWER_TYPE) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddInt8(ManaTypes.TYPE_FOCUS)
                 Else
@@ -229,7 +229,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_POWER) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_CUR_POWER) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddUInt16(objCharacter.Pet.Mana.Current)
                 Else
@@ -237,7 +237,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_POWER) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_MAX_POWER) Then
                 If objCharacter.Pet IsNot Nothing Then
                     packet.AddUInt16(objCharacter.Pet.Mana.Maximum)
                 Else
@@ -245,7 +245,7 @@ Namespace Social
                 End If
             End If
 
-            If (flag And PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS) Then
+            If (flag And Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_PET_AURAS) Then
                 If objCharacter.Pet IsNot Nothing Then
                     Dim auraMask As ULong = 0
                     Dim auraPos As Integer = packet.Data.Length
@@ -265,5 +265,5 @@ Namespace Social
 
             Return packet
         End Function
-    End Module
-End NameSpace
+    End Class
+End Namespace

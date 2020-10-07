@@ -31,7 +31,7 @@ Imports Mangos.World.Server
 
 Namespace Handlers
 
-    Public Module WS_Handlers_Misc
+    Public Class WS_Handlers_Misc
 
         'Public Function SelectMonsterSay(ByVal MonsterID As Integer) As String
         '    ' Select Random Text Field From Monster Say HashTable(s)
@@ -70,13 +70,13 @@ Namespace Handlers
                 packet.GetInt16()
                 Dim GUID As ULong = packet.GetUInt64()
                 _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_NAME_QUERY [GUID={2:X}]", client.IP, client.Port, GUID)
-                Dim SMSG_NAME_QUERY_RESPONSE As New PacketClass(OPCODES.SMSG_NAME_QUERY_RESPONSE)
+                Dim SMSG_NAME_QUERY_RESPONSE As New Packets.PacketClass(OPCODES.SMSG_NAME_QUERY_RESPONSE)
 
                 'RESERVED For Warden Bot
-                If GUID = SystemGUID Then
+                If GUID = _WS_Commands.SystemGUID Then
                     Try
                         SMSG_NAME_QUERY_RESPONSE.AddUInt64(GUID)
-                        SMSG_NAME_QUERY_RESPONSE.AddString(SystemNAME)
+                        SMSG_NAME_QUERY_RESPONSE.AddString(_WS_Commands.SystemNAME)
                         SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
                         SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
                         SMSG_NAME_QUERY_RESPONSE.AddInt32(1)
@@ -147,7 +147,7 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_CMSG_TUTORIAL_FLAG(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TUTORIAL_FLAG(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim Flag As Integer = packet.GetInt32()
@@ -157,7 +157,7 @@ Namespace Handlers
             client.Character.SaveCharacter()
         End Sub
 
-        Public Sub On_CMSG_TUTORIAL_CLEAR(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TUTORIAL_CLEAR(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_CLEAR", client.IP, client.Port)
 
             For i As Integer = 0 To 31
@@ -166,7 +166,7 @@ Namespace Handlers
             client.Character.SaveCharacter()
         End Sub
 
-        Public Sub On_CMSG_TUTORIAL_RESET(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TUTORIAL_RESET(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TUTORIAL_RESET", client.IP, client.Port)
 
             For i As Integer = 0 To 31
@@ -175,7 +175,7 @@ Namespace Handlers
             client.Character.SaveCharacter()
         End Sub
 
-        Public Sub On_CMSG_TOGGLE_HELM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TOGGLE_HELM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_HELM", client.IP, client.Port)
 
             If (client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_HELM) Then
@@ -188,7 +188,7 @@ Namespace Handlers
             client.Character.SendCharacterUpdate(True)
         End Sub
 
-        Public Sub On_CMSG_TOGGLE_CLOAK(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TOGGLE_CLOAK(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_CLOAK", client.IP, client.Port)
 
             If (client.Character.cPlayerFlags And PlayerFlags.PLAYER_FLAGS_HIDE_CLOAK) Then
@@ -201,7 +201,7 @@ Namespace Handlers
             client.Character.SendCharacterUpdate(True)
         End Sub
 
-        Public Sub On_CMSG_SET_ACTIONBAR_TOGGLES(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SET_ACTIONBAR_TOGGLES(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim ActionBar As Byte = packet.GetInt8
 
@@ -213,10 +213,10 @@ Namespace Handlers
             client.Character.SendCharacterUpdate(True)
         End Sub
 
-        Public Sub On_CMSG_MOUNTSPECIAL_ANIM(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MOUNTSPECIAL_ANIM(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOUNTSPECIAL_ANIM", client.IP, client.Port)
 
-            Dim response As New PacketClass(OPCODES.SMSG_MOUNTSPECIAL_ANIM)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_MOUNTSPECIAL_ANIM)
             Try
                 response.AddPackGUID(client.Character.GUID)
                 client.Character.SendToNearPlayers(response)
@@ -225,13 +225,13 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_CMSG_EMOTE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_EMOTE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim emoteID As Integer = packet.GetInt32
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_EMOTE [{2}]", client.IP, client.Port, emoteID)
 
-            Dim response As New PacketClass(OPCODES.SMSG_EMOTE)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_EMOTE)
             Try
                 response.AddInt32(emoteID)
                 response.AddUInt64(client.Character.GUID)
@@ -241,7 +241,7 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_CMSG_TEXT_EMOTE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TEXT_EMOTE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 21 Then Exit Sub
             packet.GetInt16()
             Dim TextEmote As Integer = packet.GetInt32
@@ -256,16 +256,16 @@ Namespace Handlers
 
                 'DONE: Doing emotes to guards
                 If _WorldServer.WORLD_CREATUREs(GUID).aiScript IsNot Nothing AndAlso (TypeOf _WorldServer.WORLD_CREATUREs(GUID).aiScript Is WS_Creatures_AI.GuardAI) Then
-                    CType(_WorldServer.WORLD_CREATUREs(GUID).aiScript, GuardAI).OnEmote(TextEmote)
+                    CType(_WorldServer.WORLD_CREATUREs(GUID).aiScript, WS_Creatures_AI.GuardAI).OnEmote(TextEmote)
                 End If
             End If
 
             'DONE: Send Emote animation
-            If EmotesText.ContainsKey(TextEmote) Then
-                If EmotesState(EmotesText(TextEmote)) = 0 Then
-                    client.Character.DoEmote(EmotesText(TextEmote))
-                ElseIf EmotesState(EmotesText(TextEmote)) = 2 Then
-                    client.Character.cEmoteState = EmotesText(TextEmote)
+            If _WS_DBCDatabase.EmotesText.ContainsKey(TextEmote) Then
+                If _WS_DBCDatabase.EmotesState(_WS_DBCDatabase.EmotesText(TextEmote)) = 0 Then
+                    client.Character.DoEmote(_WS_DBCDatabase.EmotesText(TextEmote))
+                ElseIf _WS_DBCDatabase.EmotesState(_WS_DBCDatabase.EmotesText(TextEmote)) = 2 Then
+                    client.Character.cEmoteState = _WS_DBCDatabase.EmotesText(TextEmote)
                     client.Character.SetUpdateFlag(EUnitFields.UNIT_NPC_EMOTESTATE, client.Character.cEmoteState)
                     client.Character.SendCharacterUpdate(True)
                 End If
@@ -281,9 +281,9 @@ Namespace Handlers
                 End If
             End If
 
-            Dim SMSG_TEXT_EMOTE As New PacketClass(OPCODES.SMSG_TEXT_EMOTE)
+            Dim SMSG_TEXT_EMOTE As New Packets.PacketClass(OPCODES.SMSG_TEXT_EMOTE)
             Try
-                SMSG_TEXT_EMOTE.AddUInt64(Client.Character.GUID)
+                SMSG_TEXT_EMOTE.AddUInt64(client.Character.GUID)
                 SMSG_TEXT_EMOTE.AddInt32(TextEmote)
                 SMSG_TEXT_EMOTE.AddInt32(&HFF)
                 SMSG_TEXT_EMOTE.AddInt32(secondName.Length + 1)
@@ -294,27 +294,27 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_MSG_CORPSE_QUERY(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_CORPSE_QUERY(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If client.Character.corpseGUID = 0 Then Exit Sub
 
             'TODO: Find out the proper structure of this packet or at least what is wrong with instances!
 
             'DONE: Send corpse coords
-            Dim MSG_CORPSE_QUERY As New PacketClass(OPCODES.MSG_CORPSE_QUERY)
+            Dim MSG_CORPSE_QUERY As New Packets.PacketClass(OPCODES.MSG_CORPSE_QUERY)
             Try
                 MSG_CORPSE_QUERY.AddInt8(1)
                 ''MSG_CORPSE_QUERY.AddInt32(Client.Character.corpseMapID)
-                MSG_CORPSE_QUERY.AddInt32(Client.Character.MapID) ' Without changing this from the above line, the corpse pointer on the minimap did not show
+                MSG_CORPSE_QUERY.AddInt32(client.Character.MapID) ' Without changing this from the above line, the corpse pointer on the minimap did not show
                 ' when I was on a different map at least.
-                MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionX)
-                MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionY)
-                MSG_CORPSE_QUERY.AddSingle(Client.Character.corpsePositionZ)
+                MSG_CORPSE_QUERY.AddSingle(client.Character.corpsePositionX)
+                MSG_CORPSE_QUERY.AddSingle(client.Character.corpsePositionY)
+                MSG_CORPSE_QUERY.AddSingle(client.Character.corpsePositionZ)
                 ''If client.Character.corpseMapID <> client.Character.MapID Then
                 ''    MSG_CORPSE_QUERY.AddInt32(0)                '1-Normal 0-Corpse in instance
                 ''Else
                 ''    MSG_CORPSE_QUERY.AddInt32(1)                '1-Normal 0-Corpse in instance
                 ''End If
-                MSG_CORPSE_QUERY.AddInt32(Client.Character.corpseMapID) ' This change from the above lines, gets rid of the "You must enter the instance to recover your corpse."
+                MSG_CORPSE_QUERY.AddInt32(client.Character.corpseMapID) ' This change from the above lines, gets rid of the "You must enter the instance to recover your corpse."
                 ' message when you did not die in an instance, although I did not see it when I did die in the instance either, but I did rez upon reentrance into the instance.
                 client.Send(MSG_CORPSE_QUERY)
             Finally
@@ -322,36 +322,36 @@ Namespace Handlers
             End Try
 
             'DONE: Send ping on minimap
-            Dim MSG_MINIMAP_PING As New PacketClass(OPCODES.MSG_MINIMAP_PING)
+            Dim MSG_MINIMAP_PING As New Packets.PacketClass(OPCODES.MSG_MINIMAP_PING)
             Try
-                MSG_MINIMAP_PING.AddUInt64(Client.Character.corpseGUID)
-                MSG_MINIMAP_PING.AddSingle(Client.Character.corpsePositionX)
-                MSG_MINIMAP_PING.AddSingle(Client.Character.corpsePositionY)
+                MSG_MINIMAP_PING.AddUInt64(client.Character.corpseGUID)
+                MSG_MINIMAP_PING.AddSingle(client.Character.corpsePositionX)
+                MSG_MINIMAP_PING.AddSingle(client.Character.corpsePositionY)
                 client.Send(MSG_MINIMAP_PING)
             Finally
                 MSG_MINIMAP_PING.Dispose()
             End Try
         End Sub
 
-        Public Sub On_CMSG_REPOP_REQUEST(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_REPOP_REQUEST(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_REPOP_REQUEST [GUID={2:X}]", client.IP, client.Port, client.Character.GUID)
             If client.Character.repopTimer IsNot Nothing Then
                 client.Character.repopTimer.Dispose()
                 client.Character.repopTimer = Nothing
             End If
-            CharacterRepop(Client)
+            CharacterRepop(client)
         End Sub
 
-        Public Sub On_CMSG_RECLAIM_CORPSE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_RECLAIM_CORPSE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_RECLAIM_CORPSE [GUID={2:X}]", client.IP, client.Port, GUID)
 
-            CharacterResurrect(Client.Character)
+            CharacterResurrect(client.Character)
         End Sub
 
-        Public Sub CharacterRepop(ByRef client As ClientClass)
+        Public Sub CharacterRepop(ByRef client As WS_Network.ClientClass)
             Try
                 'DONE: Make really dead
                 With client.Character
@@ -364,7 +364,7 @@ Namespace Handlers
                     .cDynamicFlags = 0
                     .cPlayerFlags = client.Character.cPlayerFlags Or PlayerFlags.PLAYER_FLAGS_DEAD
                 End With
-                SendCorpseReclaimDelay(Client, client.Character, 30)
+                _Functions.SendCorpseReclaimDelay(client, client.Character, 30)
 
                 'DONE: Clear some things like spells, flags and timers
                 client.Character.StopMirrorTimer(MirrorTimer.FATIGUE)
@@ -375,14 +375,14 @@ Namespace Handlers
                 End If
 
                 'DONE: Spawn Corpse
-                Dim myCorpse As New WS_Corpses.CorpseObject(Client.Character)
+                Dim myCorpse As New WS_Corpses.CorpseObject(client.Character)
                 myCorpse.Save()
                 myCorpse.AddToWorld()
 
                 'DONE: Update to see only dead
                 client.Character.Invisibility = InvisibilityLevel.DEAD
                 client.Character.CanSeeInvisibility = InvisibilityLevel.DEAD
-                UpdateCell(Client.Character)
+                _WS_CharMovement.UpdateCell(client.Character)
 
                 'DONE: Remove all auras
                 For i As Integer = 0 To _Global_Constants.MAX_AURA_EFFECTs - 1
@@ -408,7 +408,7 @@ Namespace Handlers
                 client.Character.SendCharacterUpdate()
 
                 'DONE: Get closest graveyard
-                _WorldServer.AllGraveYards.GoToNearestGraveyard(Client.Character, False, True)
+                _WorldServer.AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
             Catch e As Exception
                 _WorldServer.Log.WriteLine(LogType.FAILED, "Error on repop: {0}", e.ToString)
             End Try
@@ -432,7 +432,7 @@ Namespace Handlers
 
             'DONE: Update to see only alive
             Character.InvisibilityReset()
-            UpdateCell(Character)
+            _WS_CharMovement.UpdateCell(Character)
             Character.SetLandWalk()
 
             If Character.Race = Races.RACE_NIGHT_ELF Then
@@ -467,14 +467,14 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub On_CMSG_TOGGLE_PVP(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_TOGGLE_PVP(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_TOGGLE_PVP", client.IP, client.Port)
 
             client.Character.isPvP = Not client.Character.isPvP
             client.Character.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, client.Character.cUnitFlags)
             client.Character.SendCharacterUpdate()
         End Sub
-        Public Sub On_MSG_INSPECT_HONOR_STATS(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_INSPECT_HONOR_STATS(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 13 Then Exit Sub
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
@@ -482,7 +482,7 @@ Namespace Handlers
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_INSPECT_HONOR_STATS [{2:X}]", client.IP, client.Port, GUID)
             If _WorldServer.CHARACTERs.ContainsKey(GUID) = False Then Exit Sub
 
-            Dim response As New PacketClass(OPCODES.MSG_INSPECT_HONOR_STATS)
+            Dim response As New Packets.PacketClass(OPCODES.MSG_INSPECT_HONOR_STATS)
             Try
                 response.AddUInt64(GUID)
 
@@ -507,23 +507,23 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_CMSG_MOVE_FALL_RESET(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MOVE_FALL_RESET(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_FALL_RESET", client.IP, client.Port)
-            DumpPacket(packet.Data)
+            _Packets.DumpPacket(packet.Data)
         End Sub
-        Public Sub On_CMSG_BATTLEFIELD_STATUS(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_BATTLEFIELD_STATUS(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_BATTLEFIELD_STATUS", client.IP, client.Port)
         End Sub
-        Public Sub On_CMSG_SET_ACTIVE_MOVER(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SET_ACTIVE_MOVER(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_ACTIVE_MOVER [GUID={2:X}]", client.IP, client.Port, GUID)
         End Sub
-        Public Sub On_CMSG_MEETINGSTONE_INFO(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MEETINGSTONE_INFO(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MEETINGSTONE_INFO", client.IP, client.Port)
         End Sub
 
-        Public Sub On_CMSG_SET_FACTION_ATWAR(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SET_FACTION_ATWAR(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim faction As Integer = packet.GetInt32
             Dim enabled As Byte = packet.GetInt8
@@ -536,24 +536,24 @@ Namespace Handlers
                 client.Character.Reputation(faction).Flags = client.Character.Reputation(faction).Flags And (Not 2)
             End If
 
-            Dim response As New PacketClass(OPCODES.SMSG_SET_FACTION_STANDING)
+            Dim response As New Packets.PacketClass(OPCODES.SMSG_SET_FACTION_STANDING)
             Try
-                response.AddInt32(Client.Character.Reputation(faction).Flags)
+                response.AddInt32(client.Character.Reputation(faction).Flags)
                 response.AddInt32(faction)
-                response.AddInt32(Client.Character.Reputation(faction).Value)
+                response.AddInt32(client.Character.Reputation(faction).Value)
                 client.Send(response)
             Finally
                 response.Dispose()
             End Try
         End Sub
-        Public Sub On_CMSG_SET_FACTION_INACTIVE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SET_FACTION_INACTIVE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim faction As Integer = packet.GetInt32
             Dim enabled As Byte = packet.GetInt8
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_FACTION_INACTIVE [faction={2:X} enabled={3}]", client.IP, client.Port, faction, enabled)
             If enabled > 1 Then Exit Sub
         End Sub
-        Public Sub On_CMSG_SET_WATCHED_FACTION(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_SET_WATCHED_FACTION(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim faction As Integer = packet.GetInt32
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_SET_WATCHED_FACTION [faction={2:X}]", client.IP, client.Port, faction)
@@ -565,10 +565,10 @@ Namespace Handlers
             client.Character.SendCharacterUpdate(False)
         End Sub
 
-        Public Sub On_MSG_PVP_LOG_DATA(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_PVP_LOG_DATA(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             ' TODO: Implement this packet - As far as I know, this packet only applys if the character is in a battleground.
-            If (Not WS_Maps.Maps(client.Character.MapID).IsBattleGround) Then Return
+            If (Not _WS_Maps.Maps(client.Character.MapID).IsBattleGround) Then Return
         End Sub
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

@@ -23,7 +23,7 @@ Imports Mangos.World.Player
 
 Namespace Battlegrounds
 
-    Public Module WS_Battlegrounds
+    Public Class WS_Battlegrounds
 
         Public BATTLEFIELDs As New Dictionary(Of Integer, Battlefield)
 
@@ -31,14 +31,14 @@ Namespace Battlegrounds
             Implements IDisposable
 
             Public MembersTeam1 As New List(Of WS_PlayerData.CharacterObject)
-            Public MembersTeam2 As New List(Of CharacterObject)
+            Public MembersTeam2 As New List(Of WS_PlayerData.CharacterObject)
 
             Public ID As Integer
             Public Map As UInteger
             Public MapType As BattlefieldMapType
 
             Public Sub New(ByVal rMapType As BattlefieldMapType, ByVal rMap As UInteger)
-                BATTLEFIELDs.Add(ID, Me)
+                _WS_Battlegrounds.BATTLEFIELDs.Add(ID, Me)
             End Sub
 
 #Region "IDisposable Support"
@@ -49,7 +49,7 @@ Namespace Battlegrounds
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    BATTLEFIELDs.Remove(ID)
+                    _WS_Battlegrounds.BATTLEFIELDs.Remove(ID)
                 End If
                 _disposedValue = True
             End Sub
@@ -69,18 +69,18 @@ Namespace Battlegrounds
                 BroadcastTeam1(p)
                 BroadcastTeam2(p)
             End Sub
-            Public Sub BroadcastTeam1(ByVal p As PacketClass)
-                For Each objCharacter As CharacterObject In MembersTeam1.ToArray
+            Public Sub BroadcastTeam1(ByVal p As Packets.PacketClass)
+                For Each objCharacter As WS_PlayerData.CharacterObject In MembersTeam1.ToArray
                     objCharacter.client.SendMultiplyPackets(p)
                 Next
             End Sub
-            Public Sub BroadcastTeam2(ByVal p As PacketClass)
-                For Each objCharacter As CharacterObject In MembersTeam2.ToArray
+            Public Sub BroadcastTeam2(ByVal p As Packets.PacketClass)
+                For Each objCharacter As WS_PlayerData.CharacterObject In MembersTeam2.ToArray
                     objCharacter.client.SendMultiplyPackets(p)
                 Next
             End Sub
 
         End Class
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

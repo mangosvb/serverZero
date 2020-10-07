@@ -36,7 +36,7 @@ Imports Mangos.World.Weather
 
 Namespace Handlers
 
-    Module WS_CharMovement
+    Public Class WS_CharMovement
 
 #Region "WS.CharacterMovement.MovementHandlers"
         Private Const PId2 As Single = Math.PI / 2
@@ -111,8 +111,8 @@ Namespace Handlers
                 End If
             ElseIf client.Character.OnTransport IsNot Nothing Then
                 'DONE: Unboarding transport
-                If TypeOf client.Character.OnTransport Is TransportObject Then
-                    CType(client.Character.OnTransport, TransportObject).RemovePassenger(client.Character)
+                If TypeOf client.Character.OnTransport Is WS_Transports.TransportObject Then
+                    CType(client.Character.OnTransport, WS_Transports.TransportObject).RemovePassenger(client.Character)
                 End If
                 client.Character.OnTransport = Nothing
             End If
@@ -141,21 +141,21 @@ Namespace Handlers
             End If
 
             If client.Character.exploreCheckQueued_ AndAlso (Not client.Character.DEAD) Then
-                Dim exploreFlag As Integer = GetAreaFlag(client.Character.positionX, client.Character.positionY, client.Character.MapID)
+                Dim exploreFlag As Integer = _WS_Maps.GetAreaFlag(client.Character.positionX, client.Character.positionY, client.Character.MapID)
 
                 'DONE: Checking Explore System
                 If exploreFlag <> &HFFFF Then
                     Dim areaFlag As Integer = exploreFlag Mod 32
                     Dim areaFlagOffset As Byte = exploreFlag \ 32
 
-                    If Not HaveFlag(client.Character.ZonesExplored(areaFlagOffset), areaFlag) Then
-                        SetFlag(client.Character.ZonesExplored(areaFlagOffset), areaFlag, True)
+                    If Not _Functions.HaveFlag(client.Character.ZonesExplored(areaFlagOffset), areaFlag) Then
+                        _Functions.SetFlag(client.Character.ZonesExplored(areaFlagOffset), areaFlag, True)
 
-                        Dim GainedXP As Integer = AreaTable(exploreFlag).Level * 10
-                        GainedXP = AreaTable(exploreFlag).Level * 10
+                        Dim GainedXP As Integer = _WS_Maps.AreaTable(exploreFlag).Level * 10
+                        GainedXP = _WS_Maps.AreaTable(exploreFlag).Level * 10
 
-                        Dim SMSG_EXPLORATION_EXPERIENCE As New PacketClass(OPCODES.SMSG_EXPLORATION_EXPERIENCE)
-                        SMSG_EXPLORATION_EXPERIENCE.AddInt32(AreaTable(exploreFlag).ID)
+                        Dim SMSG_EXPLORATION_EXPERIENCE As New Packets.PacketClass(OPCODES.SMSG_EXPLORATION_EXPERIENCE)
+                        SMSG_EXPLORATION_EXPERIENCE.AddInt32(_WS_Maps.AreaTable(exploreFlag).ID)
                         SMSG_EXPLORATION_EXPERIENCE.AddInt32(GainedXP)
                         client.Send(SMSG_EXPLORATION_EXPERIENCE)
                         SMSG_EXPLORATION_EXPERIENCE.Dispose()
@@ -181,7 +181,7 @@ Namespace Handlers
                 'DONE: Stop casting
                 If client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL) IsNot Nothing Then
                     With client.Character.spellCasted(CurrentSpellTypes.CURRENT_GENERIC_SPELL)
-                        If .Finished = False And (WS_Spells.SPELLs(.SpellID).interruptFlags And SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT) Then
+                        If .Finished = False And (_WS_Spells.SPELLs(.SpellID).interruptFlags And SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT) Then
                             client.Character.FinishSpell(CurrentSpellTypes.CURRENT_GENERIC_SPELL)
                         End If
                     End With
@@ -197,13 +197,13 @@ Namespace Handlers
 
             'DONE: Movement time calculation
             'TODO: PROPERLY MOVE THIS OVER TO THE CMSG_MOVE_TIME_SKIPPED OPCODE, Reference @ LN 406
-            Dim MsTime As Integer = WS_Network.MsTime()
+            Dim MsTime As Integer = _WS_Network.MsTime()
             Dim ClientTimeDelay As Integer = MsTime - Time
             Dim MoveTime As Integer = (Time - (MsTime - ClientTimeDelay)) + 500 + MsTime
             packet.AddInt32(MoveTime, 10)
 
             'DONE: Send to nearby players
-            Dim response As New PacketClass(packet.OpCode)
+            Dim response As New Packets.PacketClass(packet.OpCode)
             response.AddPackGUID(client.Character.GUID)
             Dim tempArray(packet.Data.Length - 6) As Byte
             Array.Copy(packet.Data, 6, tempArray, 0, packet.Data.Length - 6)
@@ -222,7 +222,7 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub OnControlledMovementPacket(ByRef packet As PacketClass, ByRef Controlled As BaseUnit, ByRef Controller As WS_PlayerData.CharacterObject)
+        Public Sub OnControlledMovementPacket(ByRef packet As Packets.PacketClass, ByRef Controlled As WS_Base.BaseUnit, ByRef Controller As WS_PlayerData.CharacterObject)
             Dim MovementFlags As Integer = packet.GetInt32()
             Dim Time As UInteger = packet.GetUInt32()
             Dim PositionX As Single = packet.GetFloat()
@@ -230,16 +230,16 @@ Namespace Handlers
             Dim PositionZ As Single = packet.GetFloat()
             Dim Orientation As Single = packet.GetFloat()
 
-            If TypeOf Controlled Is CharacterObject Then
-                With CType(Controlled, CharacterObject)
+            If TypeOf Controlled Is WS_PlayerData.CharacterObject Then
+                With CType(Controlled, WS_PlayerData.CharacterObject)
                     .charMovementFlags = MovementFlags
                     .positionX = PositionX
                     .positionY = PositionY
                     .positionZ = PositionZ
                     .orientation = Orientation
                 End With
-            ElseIf TypeOf Controlled Is CreatureObject Then
-                With CType(Controlled, CreatureObject)
+            ElseIf TypeOf Controlled Is WS_Creatures.CreatureObject Then
+                With CType(Controlled, WS_Creatures.CreatureObject)
                     .positionX = PositionX
                     .positionY = PositionY
                     .positionZ = PositionZ
@@ -248,13 +248,13 @@ Namespace Handlers
             End If
 
             'DONE: Movement time calculation
-            Dim MsTime As Integer = WS_Network.MsTime
+            Dim MsTime As Integer = _WS_Network.MsTime
             Dim ClientTimeDelay As Integer = MsTime - Time
             Dim MoveTime As Integer = (Time - (MsTime - ClientTimeDelay)) + 500 + MsTime
             packet.AddInt32(MoveTime, 10)
 
             'DONE: Send to nearby players
-            Dim response As New PacketClass(packet.OpCode)
+            Dim response As New Packets.PacketClass(packet.OpCode)
             response.AddPackGUID(Controlled.GUID)
             Dim tempArray(packet.Data.Length - 6) As Byte
             Array.Copy(packet.Data, 6, tempArray, 0, packet.Data.Length - 6)
@@ -263,12 +263,12 @@ Namespace Handlers
             response.Dispose()
         End Sub
 
-        Public Sub OnStartSwim(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub OnStartSwim(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             OnMovementPacket(packet, client)
 
-            If client.Character.positionZ < GetWaterLevel(client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
+            If client.Character.positionZ < _WS_Maps.GetWaterLevel(client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
                 If (client.Character.underWaterTimer Is Nothing) AndAlso (Not client.Character.underWaterBreathing) AndAlso (Not client.Character.DEAD) Then
-                    client.Character.underWaterTimer = New TDrowningTimer(client.Character)
+                    client.Character.underWaterTimer = New WS_PlayerHelper.TDrowningTimer(client.Character)
                 End If
             Else
                 If client.Character.underWaterTimer IsNot Nothing Then
@@ -278,7 +278,7 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub OnStopSwim(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub OnStopSwim(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If client.Character.underWaterTimer IsNot Nothing Then
                 client.Character.underWaterTimer.Dispose()
                 client.Character.underWaterTimer = Nothing
@@ -287,7 +287,7 @@ Namespace Handlers
             OnMovementPacket(packet, client)
         End Sub
 
-        Public Sub OnChangeSpeed(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub OnChangeSpeed(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             packet.GetInt16()
             Dim GUID As ULong = packet.GetUInt64
 
@@ -356,15 +356,15 @@ Namespace Handlers
             End Select
         End Sub
 
-        Public Sub SendAreaTriggerMessage(ByRef client As ClientClass, ByVal Text As String)
-            Dim p As New PacketClass(OPCODES.SMSG_AREA_TRIGGER_MESSAGE)
+        Public Sub SendAreaTriggerMessage(ByRef client As WS_Network.ClientClass, ByVal Text As String)
+            Dim p As New Packets.PacketClass(OPCODES.SMSG_AREA_TRIGGER_MESSAGE)
             p.AddInt32(Text.Length)
             p.AddString(Text)
             client.Send(p)
             p.Dispose()
         End Sub
 
-        Public Sub On_CMSG_AREATRIGGER(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_AREATRIGGER(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 If (packet.Data.Length - 1) < 9 Then Exit Sub
                 packet.GetInt16()
@@ -406,7 +406,7 @@ Namespace Handlers
 
                     If client.Character.DEAD Then
                         If client.Character.corpseMapID = tMap Then
-                            CharacterResurrect(client.Character)
+                            _WS_Handlers_Misc.CharacterResurrect(client.Character)
                         Else
                             _WorldServer.AllGraveYards.GoToNearestGraveyard(client.Character, False, True)
                             Exit Sub
@@ -438,7 +438,7 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             'TODO: Figure out why this is causing a freeze everytime the packet is called, Reference @ LN 180
 
             'packet.GetUInt64()
@@ -449,7 +449,7 @@ Namespace Handlers
             'packet.AddInt32(MoveTime, 10)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
         End Sub
-        Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             Try
                 OnMovementPacket(packet, client)
 
@@ -473,7 +473,7 @@ Namespace Handlers
                 Dim FallTime As Integer = packet.GetInt32()
 
                 'DONE: If FallTime > 1100 and not Dead
-                If FallTime > 1100 AndAlso (Not client.Character.DEAD) AndAlso client.Character.positionZ > GetWaterLevel(client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
+                If FallTime > 1100 AndAlso (Not client.Character.DEAD) AndAlso client.Character.positionZ > _WS_Maps.GetWaterLevel(client.Character.positionX, client.Character.positionY, client.Character.MapID) Then
                     If client.Character.HaveAuraType(AuraEffects_Names.SPELL_AURA_FEATHER_FALL) = False Then
                         Dim safe_fall As Integer = client.Character.GetAuraModifier(AuraEffects_Names.SPELL_AURA_SAFE_FALL)
                         If safe_fall > 0 Then
@@ -510,8 +510,8 @@ Namespace Handlers
 
                 If Not client.Character.LogoutTimer Is Nothing Then
                     'DONE: Initialize packet
-                    Dim UpdateData As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                    Dim SMSG_UPDATE_OBJECT As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                    Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                    Dim SMSG_UPDATE_OBJECT As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                     Try
                         SMSG_UPDATE_OBJECT.AddInt32(1)      'Operations.Count
                         SMSG_UPDATE_OBJECT.AddInt8(0)
@@ -530,7 +530,7 @@ Namespace Handlers
                         SMSG_UPDATE_OBJECT.Dispose()
                     End Try
 
-                    Dim packetACK As New PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
+                    Dim packetACK As New Packets.PacketClass(OPCODES.SMSG_STANDSTATE_CHANGE_ACK)
                     Try
                         packetACK.AddInt8(StandStates.STANDSTATE_SIT)
                         client.Send(packetACK)
@@ -543,7 +543,7 @@ Namespace Handlers
             End Try
         End Sub
 
-        Public Sub On_CMSG_ZONEUPDATE(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_CMSG_ZONEUPDATE(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             If (packet.Data.Length - 1) < 9 Then Exit Sub
             packet.GetInt16()
             Dim newZone As Integer = packet.GetInt32
@@ -557,25 +557,25 @@ Namespace Handlers
             _WorldServer.ClsWorldServer.Cluster.ClientUpdate(client.Index, client.Character.ZoneID, client.Character.Level)
 
             'DONE: Send weather
-            If WeatherZones.ContainsKey(newZone) Then
-                SendWeather(newZone, client)
+            If _WS_Weather.WeatherZones.ContainsKey(newZone) Then
+                _WS_Weather.SendWeather(newZone, client)
             End If
         End Sub
 
-        Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As PacketClass, ByRef client As ClientClass)
+        Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             OnMovementPacket(packet, client)
 
-            If client.Character.CellX <> GetMapTileX(client.Character.positionX) Or client.Character.CellY <> GetMapTileY(client.Character.positionY) Then
+            If client.Character.CellX <> _WS_Maps.GetMapTileX(client.Character.positionX) Or client.Character.CellY <> _WS_Maps.GetMapTileY(client.Character.positionY) Then
                 MoveCell(client.Character)
             End If
             UpdateCell(client.Character)
 
-            client.Character.GroupUpdateFlag = client.Character.GroupUpdateFlag Or PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION
+            client.Character.GroupUpdateFlag = client.Character.GroupUpdateFlag Or Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION
 
             client.Character.ZoneCheck()
 
             'DONE: Check for out of continent - coordinates from WorldMapContinent.dbc
-            If IsOutsideOfMap((client.Character)) Then
+            If _WS_Maps.IsOutsideOfMap((client.Character)) Then
                 If client.Character.outsideMapID_ = False Then
                     client.Character.outsideMapID_ = True
                     client.Character.StartMirrorTimer(MirrorTimer.FATIGUE, 30000)
@@ -588,14 +588,14 @@ Namespace Handlers
             End If
 
             'DONE: Duel check
-            If client.Character.IsInDuel Then CheckDuelDistance(client.Character)
+            If client.Character.IsInDuel Then _WS_Spells.CheckDuelDistance(client.Character)
 
             'DONE: Aggro range
             For Each cGUID As ULong In client.Character.creaturesNear.ToArray
-                If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso ((TypeOf _WorldServer.WORLD_CREATUREs(cGUID).aiScript Is WS_Creatures_AI.DefaultAI) OrElse (TypeOf _WorldServer.WORLD_CREATUREs(cGUID).aiScript Is GuardAI)) Then
+                If _WorldServer.WORLD_CREATUREs.ContainsKey(cGUID) AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript IsNot Nothing AndAlso ((TypeOf _WorldServer.WORLD_CREATUREs(cGUID).aiScript Is WS_Creatures_AI.DefaultAI) OrElse (TypeOf _WorldServer.WORLD_CREATUREs(cGUID).aiScript Is WS_Creatures_AI.GuardAI)) Then
                     If _WorldServer.WORLD_CREATUREs(cGUID).IsDead = False AndAlso _WorldServer.WORLD_CREATUREs(cGUID).aiScript.InCombat() = False Then
                         If client.Character.inCombatWith.Contains(cGUID) Then Continue For
-                        If client.Character.GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), client.Character) <= _WorldServer.WORLD_CREATUREs(cGUID).AggroRange(client.Character) Then
+                        If client.Character.GetReaction(_WorldServer.WORLD_CREATUREs(cGUID).Faction) = TReaction.HOSTILE AndAlso _WS_Combat.GetDistance(_WorldServer.WORLD_CREATUREs(cGUID), client.Character) <= _WorldServer.WORLD_CREATUREs(cGUID).AggroRange(client.Character) Then
                             _WorldServer.WORLD_CREATUREs(cGUID).aiScript.OnGenerateHate(client.Character, 1)
                             client.Character.AddToCombat(_WorldServer.WORLD_CREATUREs(cGUID))
                             _WorldServer.WORLD_CREATUREs(cGUID).aiScript.State = AIState.AI_ATTACKING
@@ -627,12 +627,12 @@ Namespace Handlers
             For i As Short = -1 To 1
                 For j As Short = -1 To 1
                     If x + i > -1 AndAlso x + i < 64 AndAlso y + j > -1 AndAlso y + j < 64 Then
-                        If WS_Maps.Maps(Map).TileUsed(x + i, y + j) = False Then
+                        If _WS_Maps.Maps(Map).TileUsed(x + i, y + j) = False Then
                             _WorldServer.Log.WriteLine(LogType.INFORMATION, "Loading map [{2}: {0},{1}]...", x + i, y + j, Map)
-                            WS_Maps.Maps(Map).TileUsed(x + i, y + j) = True
-                            WS_Maps.Maps(Map).Tiles(x + i, y + j) = New WS_Maps.TMapTile(x + i, y + j, Map)
+                            _WS_Maps.Maps(Map).TileUsed(x + i, y + j) = True
+                            _WS_Maps.Maps(Map).Tiles(x + i, y + j) = New WS_Maps.TMapTile(x + i, y + j, Map)
                             'DONE: Load spawns
-                            LoadSpawns(x + i, y + j, Map, 0)
+                            _WS_Maps.LoadSpawns(x + i, y + j, Map, 0)
                         End If
                     End If
                 Next
@@ -641,22 +641,22 @@ Namespace Handlers
         End Sub
 
         Public Sub MAP_UnLoad(ByVal x As Byte, ByVal y As Byte, ByVal Map As Integer)
-            If WS_Maps.Maps(Map).Tiles(x, y).PlayersHere.Count = 0 Then
+            If _WS_Maps.Maps(Map).Tiles(x, y).PlayersHere.Count = 0 Then
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Unloading map [{2}: {0},{1}]...", x, y, Map)
-                WS_Maps.Maps(Map).Tiles(x, y).Dispose()
-                WS_Maps.Maps(Map).Tiles(x, y) = Nothing
+                _WS_Maps.Maps(Map).Tiles(x, y).Dispose()
+                _WS_Maps.Maps(Map).Tiles(x, y) = Nothing
             End If
         End Sub
 
-        Public Sub AddToWorld(ByRef Character As CharacterObject)
-            GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
+        Public Sub AddToWorld(ByRef Character As WS_PlayerData.CharacterObject)
+            _WS_Maps.GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
 
             'DONE: Dynamic map loading
-            If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then MAP_Load(Character.CellX, Character.CellY, Character.MapID)
+            If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then MAP_Load(Character.CellX, Character.CellY, Character.MapID)
 
             'DONE: Cleanig
             'myPacket.Dispose()
-            WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Add(Character.GUID)
+            _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Add(Character.GUID)
 
             'DONE: Send all creatures and gameobjects to the client
             UpdateCell(Character)
@@ -667,14 +667,14 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub RemoveFromWorld(ByRef Character As CharacterObject)
-            If Not WS_Maps.Maps.ContainsKey(Character.MapID) Then Return
+        Public Sub RemoveFromWorld(ByRef Character As WS_PlayerData.CharacterObject)
+            If Not _WS_Maps.Maps.ContainsKey(Character.MapID) Then Return
 
-            If Not WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then
+            If Not _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then
                 'DONE: Remove character from map
                 Try
-                    GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
-                    WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Remove(Character.GUID)
+                    _WS_Maps.GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
+                    _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Remove(Character.GUID)
                 Catch ex As Exception
                     _WorldServer.Log.WriteLine(LogType.FAILED, "Error removing character {0} from map", Character.Name)
                 End Try
@@ -741,24 +741,24 @@ Namespace Handlers
             End If
         End Sub
 
-        Public Sub MoveCell(ByRef Character As CharacterObject)
+        Public Sub MoveCell(ByRef Character As WS_PlayerData.CharacterObject)
             Dim oldX As Byte = Character.CellX
             Dim oldY As Byte = Character.CellY
-            GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
+            _WS_Maps.GetMapTile(Character.positionX, Character.positionY, Character.CellX, Character.CellY)
 
             'Map Loading
-            If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then MAP_Load(Character.CellX, Character.CellY, Character.MapID)
+            If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then MAP_Load(Character.CellX, Character.CellY, Character.MapID)
 
             'TODO: Fix map unloading
 
             If Character.CellX <> oldX Or Character.CellY <> oldY Then
-                WS_Maps.Maps(Character.MapID).Tiles(oldX, oldY).PlayersHere.Remove(Character.GUID)
+                _WS_Maps.Maps(Character.MapID).Tiles(oldX, oldY).PlayersHere.Remove(Character.GUID)
                 'MAP_UnLoad(oldX, oldY)
-                WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Add(Character.GUID)
+                _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Add(Character.GUID)
             End If
         End Sub
 
-        Public Sub UpdateCell(ByRef Character As CharacterObject)
+        Public Sub UpdateCell(ByRef Character As WS_PlayerData.CharacterObject)
             'Dim start As Integer = _NativeMethods.timeGetTime("")
             Dim list() As ULong
 
@@ -847,82 +847,82 @@ Namespace Handlers
             'DONE: Add new if dist is <
             Dim CellXAdd As Short = -1
             Dim CellYAdd As Short = -1
-            If GetSubMapTileX(Character.positionX) > 32 Then CellXAdd = 1
-            If GetSubMapTileX(Character.positionY) > 32 Then CellYAdd = 1
+            If _WS_Maps.GetSubMapTileX(Character.positionX) > 32 Then CellXAdd = 1
+            If _WS_Maps.GetSubMapTileX(Character.positionY) > 32 Then CellYAdd = 1
             If (Character.CellX + CellXAdd) > 63 Or (Character.CellX + CellXAdd) < 0 Then CellXAdd = 0
             If (Character.CellY + CellYAdd) > 63 Or (Character.CellY + CellYAdd) < 0 Then CellYAdd = 0
 
             'DONE: Load cell if needed
-            If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then
+            If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY) Is Nothing Then
                 MAP_Load(Character.CellX, Character.CellY, Character.MapID)
             End If
             'DONE: Sending near creatures and gameobjects in <CENTER CELL>
-            If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).CreaturesHere.Count > 0 OrElse WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).GameObjectsHere.Count > 0 Then
-                UpdateCreaturesAndGameObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY), Character)
+            If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).CreaturesHere.Count > 0 OrElse _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).GameObjectsHere.Count > 0 Then
+                UpdateCreaturesAndGameObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY), Character)
             End If
             'DONE: Sending near players in <CENTER CELL>
-            If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Count > 0 Then
-                UpdatePlayersInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY), Character)
+            If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).PlayersHere.Count > 0 Then
+                UpdatePlayersInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY), Character)
             End If
             'DONE: Sending near corpseobjects in <CENTER CELL>
-            If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).CorpseObjectsHere.Count > 0 Then
-                UpdateCorpseObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY), Character)
+            If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY).CorpseObjectsHere.Count > 0 Then
+                UpdateCorpseObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY), Character)
             End If
 
             If CellXAdd <> 0 Then
                 'DONE: Load cell if needed
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY) Is Nothing Then
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY) Is Nothing Then
                     MAP_Load(Character.CellX + CellXAdd, Character.CellY, Character.MapID)
                 End If
                 'DONE: Sending near creatures and gameobjects in <LEFT/RIGHT CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).CreaturesHere.Count > 0 OrElse WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).GameObjectsHere.Count > 0 Then
-                    UpdateCreaturesAndGameObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).CreaturesHere.Count > 0 OrElse _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).GameObjectsHere.Count > 0 Then
+                    UpdateCreaturesAndGameObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY), Character)
                 End If
                 'DONE: Sending near players in <LEFT/RIGHT CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).PlayersHere.Count > 0 Then
-                    UpdatePlayersInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).PlayersHere.Count > 0 Then
+                    UpdatePlayersInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY), Character)
                 End If
                 'DONE: Sending near corpseobjects in <LEFT/RIGHT CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).CorpseObjectsHere.Count > 0 Then
-                    UpdateCorpseObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY).CorpseObjectsHere.Count > 0 Then
+                    UpdateCorpseObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY), Character)
                 End If
             End If
 
             If CellYAdd <> 0 Then
                 'DONE: Load cell if needed
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd) Is Nothing Then
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd) Is Nothing Then
                     MAP_Load(Character.CellX, Character.CellY + CellYAdd, Character.MapID)
                 End If
                 'DONE: Sending near creatures and gameobjects in <TOP/BOTTOM CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).CreaturesHere.Count > 0 OrElse WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).GameObjectsHere.Count > 0 Then
-                    UpdateCreaturesAndGameObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).CreaturesHere.Count > 0 OrElse _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).GameObjectsHere.Count > 0 Then
+                    UpdateCreaturesAndGameObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd), Character)
                 End If
                 'DONE: Sending near players in <TOP/BOTTOM CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).PlayersHere.Count > 0 Then
-                    UpdatePlayersInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).PlayersHere.Count > 0 Then
+                    UpdatePlayersInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd), Character)
                 End If
                 'DONE: Sending near corpseobjects in <TOP/BOTTOM CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).CorpseObjectsHere.Count > 0 Then
-                    UpdateCorpseObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd).CorpseObjectsHere.Count > 0 Then
+                    UpdateCorpseObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX, Character.CellY + CellYAdd), Character)
                 End If
             End If
 
             If CellYAdd <> 0 AndAlso CellXAdd <> 0 Then
                 'DONE: Load cell if needed
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd) Is Nothing Then
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd) Is Nothing Then
                     MAP_Load(Character.CellX + CellXAdd, Character.CellY + CellYAdd, Character.MapID)
                 End If
                 'DONE: Sending near creatures and gameobjects in <CORNER CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).CreaturesHere.Count > 0 OrElse WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).GameObjectsHere.Count > 0 Then
-                    UpdateCreaturesAndGameObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).CreaturesHere.Count > 0 OrElse _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).GameObjectsHere.Count > 0 Then
+                    UpdateCreaturesAndGameObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd), Character)
                 End If
                 'DONE: Sending near players in <LEFT/RIGHT CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).PlayersHere.Count > 0 Then
-                    UpdatePlayersInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).PlayersHere.Count > 0 Then
+                    UpdatePlayersInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd), Character)
                 End If
                 'DONE: Sending near corpseobjects in <LEFT/RIGHT CELL>
-                If WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).CorpseObjectsHere.Count > 0 Then
-                    UpdateCorpseObjectsInCell(WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd), Character)
+                If _WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd).CorpseObjectsHere.Count > 0 Then
+                    UpdateCorpseObjectsInCell(_WS_Maps.Maps(Character.MapID).Tiles(Character.CellX + CellXAdd, Character.CellY + CellYAdd), Character)
                 End If
             End If
 
@@ -931,7 +931,7 @@ Namespace Handlers
         End Sub
 
         <MethodImpl(MethodImplOptions.Synchronized)>
-        Public Sub UpdatePlayersInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
+        Public Sub UpdatePlayersInCell(ByRef MapTile As WS_Maps.TMapTile, ByRef Character As WS_PlayerData.CharacterObject)
             Dim list() As ULong
 
             With MapTile
@@ -941,10 +941,10 @@ Namespace Handlers
                     'DONE: Send to me
                     If Not _WorldServer.CHARACTERs(GUID).SeenBy.Contains(Character.GUID) Then
                         If Character.CanSee(_WorldServer.CHARACTERs(GUID)) Then
-                            Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                             _WorldServer.CHARACTERs(GUID).FillAllUpdateFlags(tmpUpdate)
                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.CHARACTERs(GUID))
                             tmpUpdate.Dispose()
@@ -958,10 +958,10 @@ Namespace Handlers
                     'DONE: Send to him
                     If Not Character.SeenBy.Contains(GUID) Then
                         If _WorldServer.CHARACTERs(GUID).CanSee(Character) Then
-                            Dim myPacket As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim myPacket As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             myPacket.AddInt32(1)
                             myPacket.AddInt8(0)
-                            Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                            Dim myTmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                             Character.FillAllUpdateFlags(myTmpUpdate)
                             myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Character)
                             myTmpUpdate.Dispose()
@@ -976,16 +976,16 @@ Namespace Handlers
             End With
         End Sub
 
-        Public Sub UpdateCreaturesAndGameObjectsInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
+        Public Sub UpdateCreaturesAndGameObjectsInCell(ByRef MapTile As WS_Maps.TMapTile, ByRef Character As WS_PlayerData.CharacterObject)
             Dim list() As ULong
-            Dim packet As New UpdatePacketClass
+            Dim packet As New Packets.UpdatePacketClass
 
             With MapTile
                 list = .CreaturesHere.ToArray
                 For Each GUID As ULong In list
                     If Not Character.creaturesNear.Contains(GUID) AndAlso _WorldServer.WORLD_CREATUREs.ContainsKey(GUID) Then
                         If Character.CanSee(_WorldServer.WORLD_CREATUREs(GUID)) Then
-                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
+                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
                             _WorldServer.WORLD_CREATUREs(GUID).FillAllUpdateFlags(tmpUpdate)
                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_CREATUREs(GUID))
                             tmpUpdate.Dispose()
@@ -1001,7 +1001,7 @@ Namespace Handlers
                     If Not Character.gameObjectsNear.Contains(GUID) Then
                         If _CommonGlobalFunctions.GuidIsMoTransport(GUID) Then
                             If Character.CanSee(_WorldServer.WORLD_TRANSPORTs(GUID)) Then
-                                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                                 _WorldServer.WORLD_TRANSPORTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
                                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_TRANSPORTs(GUID))
                                 tmpUpdate.Dispose()
@@ -1011,7 +1011,7 @@ Namespace Handlers
                             End If
                         Else
                             If Character.CanSee(_WorldServer.WORLD_GAMEOBJECTs(GUID)) Then
-                                Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                                Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                                 _WorldServer.WORLD_GAMEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
                                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_GAMEOBJECTs(GUID))
                                 tmpUpdate.Dispose()
@@ -1028,7 +1028,7 @@ Namespace Handlers
                 For Each GUID As ULong In list
                     If Not Character.dynamicObjectsNear.Contains(GUID) Then
                         If Character.CanSee(_WorldServer.WORLD_DYNAMICOBJECTs(GUID)) Then
-                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_DYNAMICOBJECT)
+                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_DYNAMICOBJECT)
                             _WorldServer.WORLD_DYNAMICOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate)
                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT_SELF, _WorldServer.WORLD_DYNAMICOBJECTs(GUID))
                             tmpUpdate.Dispose()
@@ -1049,7 +1049,7 @@ Namespace Handlers
             packet.Dispose()
         End Sub
 
-        Public Sub UpdateCreaturesInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
+        Public Sub UpdateCreaturesInCell(ByRef MapTile As WS_Maps.TMapTile, ByRef Character As WS_PlayerData.CharacterObject)
             Dim list() As ULong
 
             With MapTile
@@ -1058,10 +1058,10 @@ Namespace Handlers
 
                     If Not Character.creaturesNear.Contains(GUID) Then
                         If Character.CanSee(_WorldServer.WORLD_CREATUREs(GUID)) Then
-                            Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
+                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
                             _WorldServer.WORLD_CREATUREs(GUID).FillAllUpdateFlags(tmpUpdate)
                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_CREATUREs(GUID))
                             tmpUpdate.Dispose()
@@ -1076,7 +1076,7 @@ Namespace Handlers
             End With
         End Sub
 
-        Public Sub UpdateGameObjectsInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
+        Public Sub UpdateGameObjectsInCell(ByRef MapTile As WS_Maps.TMapTile, ByRef Character As WS_PlayerData.CharacterObject)
             With MapTile
 
                 Dim list() As ULong
@@ -1086,10 +1086,10 @@ Namespace Handlers
 
                     If Not Character.gameObjectsNear.Contains(GUID) Then
                         If _CommonGlobalFunctions.GuidIsGameObject(GUID) AndAlso _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(GUID) AndAlso Character.CanSee(_WorldServer.WORLD_GAMEOBJECTs(GUID)) Then
-                            Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                             _WorldServer.WORLD_GAMEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate, Character)
                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_GAMEOBJECTs(GUID))
                             tmpUpdate.Dispose()
@@ -1106,7 +1106,7 @@ Namespace Handlers
             End With
         End Sub
 
-        Public Sub UpdateCorpseObjectsInCell(ByRef MapTile As TMapTile, ByRef Character As CharacterObject)
+        Public Sub UpdateCorpseObjectsInCell(ByRef MapTile As WS_Maps.TMapTile, ByRef Character As WS_PlayerData.CharacterObject)
             With MapTile
 
                 Dim list() As ULong
@@ -1116,10 +1116,10 @@ Namespace Handlers
 
                     If Not Character.corpseObjectsNear.Contains(GUID) Then
                         If Character.CanSee(_WorldServer.WORLD_CORPSEOBJECTs(GUID)) Then
-                            Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             packet.AddInt32(1)
                             packet.AddInt8(0)
-                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
+                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_CORPSE)
                             _WorldServer.WORLD_CORPSEOBJECTs(GUID).FillAllUpdateFlags(tmpUpdate)
                             tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, _WorldServer.WORLD_CORPSEOBJECTs(GUID))
                             tmpUpdate.Dispose()
@@ -1137,5 +1137,5 @@ Namespace Handlers
 
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

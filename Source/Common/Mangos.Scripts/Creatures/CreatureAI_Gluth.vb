@@ -88,7 +88,7 @@ Namespace Creatures
 
         Public Sub CastDecimate()
             For i As Integer = 0 To 3
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(Spell_Decimate, aiTarget)
@@ -100,7 +100,7 @@ Namespace Creatures
 
         Public Sub CastFrenzy()
             For i As Integer = 1 To 3
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Frenzy)
@@ -112,7 +112,7 @@ Namespace Creatures
 
         Public Sub CastMortalWound()
             For i As Integer = 2 To 3
-                Dim target As BaseUnit = aiCreature
+                Dim target As WS_Base.BaseUnit = aiCreature
                 If target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(Spell_Mortal_Wound, aiTarget)
@@ -124,7 +124,7 @@ Namespace Creatures
 
         Public Sub CastTerrifyingRoar()
             For i As Integer = 3 To 3
-                Dim target As BaseUnit = aiCreature
+                Dim target As WS_Base.BaseUnit = aiCreature
                 If target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpell(Spell_Terrifying_Roar, aiTarget)

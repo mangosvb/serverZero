@@ -417,7 +417,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            Dim objCharacter As CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
+            Dim objCharacter As WcHandlerCharacter.CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
 
             If objCharacter.IsGuildLeader Then
                 _WC_Guild.SendGuildResult(client, GuildCommand.GUILD_QUIT_S, GuildError.GUILD_LEADER_LEAVE)
@@ -463,7 +463,7 @@ Namespace Handlers
                 _WC_Guild.SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_FOUND, playerName)
                 Exit Sub
             End If
-            Dim objCharacter As CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
+            Dim objCharacter As WcHandlerCharacter.CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
             If objCharacter.Guild.ID <> client.Character.Guild.ID Then
                 _WC_Guild.SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
                 Exit Sub
@@ -519,7 +519,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            Dim objCharacter As CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
+            Dim objCharacter As WcHandlerCharacter.CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
             If objCharacter.Guild.ID <> client.Character.Guild.ID Then
                 _WC_Guild.SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.GUILD_PLAYER_NOT_IN_GUILD_S, playerName)
                 Exit Sub
@@ -583,7 +583,7 @@ Namespace Handlers
                 Exit Sub
             End If
 
-            Dim objCharacter As CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
+            Dim objCharacter As WcHandlerCharacter.CharacterObject = _WorldCluster.CHARACTERs(q.Rows(0).Item("char_guid"))
             If objCharacter.IsInGuild Then
                 _WC_Guild.SendGuildResult(client, GuildCommand.GUILD_INVITE_S, GuildError.ALREADY_IN_GUILD, playerName)
                 Exit Sub

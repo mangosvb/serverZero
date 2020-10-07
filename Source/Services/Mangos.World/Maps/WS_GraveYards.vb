@@ -184,9 +184,9 @@ Namespace Maps
             Dim entryFar As TGraveyard = Nothing
 
             'Death in an instance ?
-            If Maps(Character.MapID).IsDungeon = True Or Maps(Character.MapID).IsBattleGround = True Or Maps(Character.MapID).IsRaid = True Then   'In an instance
+            If _WS_Maps.Maps(Character.MapID).IsDungeon = True Or _WS_Maps.Maps(Character.MapID).IsBattleGround = True Or _WS_Maps.Maps(Character.MapID).IsRaid = True Then   'In an instance
                 Character.ZoneCheckInstance()
-                Ghostzone = AreaTable(GetAreaIDByMapandParent(Character.MapID, AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone)).ID
+                Ghostzone = _WS_Maps.AreaTable(_WS_Maps.GetAreaIDByMapandParent(Character.MapID, _WS_Maps.AreaTable(_WS_Maps.GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone)).ID
                 _WorldServer.WorldDatabase.Query(String.Format("SELECT id, faction FROM game_graveyard_zone WHERE ghost_zone = {0} and (faction = 0 or faction = {1}) ", Ghostzone, Character.Team), GraveQuery)
 
                 'AreaTable(GetAreaFlag(Character.resurrectPositionX, Character.resurrectPositionY, Character.MapID)).Zone()
@@ -195,7 +195,7 @@ Namespace Maps
                     Exit Sub
                 End If
 
-                If Maps(Character.MapID).IsDungeon = True Or Maps(Character.MapID).IsBattleGround = True Or Maps(Character.MapID).IsRaid = True Then   'In an instance
+                If _WS_Maps.Maps(Character.MapID).IsDungeon = True Or _WS_Maps.Maps(Character.MapID).IsBattleGround = True Or _WS_Maps.Maps(Character.MapID).IsRaid = True Then   'In an instance
                     If Graveyards.ContainsKey(GraveQuery.Rows(0).Item("id")) = True Then
                         entryFar = Graveyards(GraveQuery.Rows(0).Item("id"))
                         entryNear = entryFar
@@ -220,7 +220,7 @@ Namespace Maps
                         'Skip graveyards that ain't for your faction
                         If GraveyardFaction <> 0 AndAlso GraveyardFaction <> Character.Team Then Continue For
 
-                        Dim dist2 As Single = GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
+                        Dim dist2 As Single = _WS_Combat.GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
                         If foundNear Then
                             If dist2 < distNear Then
                                 distNear = dist2
@@ -284,7 +284,7 @@ Namespace Maps
                     'Skip graveyards that ain't for your faction
                     If GraveyardFaction <> 0 AndAlso GraveyardFaction <> Character.Team Then Continue For
 
-                    Dim dist2 As Single = GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
+                    Dim dist2 As Single = _WS_Combat.GetDistance(Character.positionX, Graveyards(GraveyardID).X, Character.positionY, Graveyards(GraveyardID).Y, Character.positionZ, Graveyards(GraveyardID).Z)
                     If foundNear Then
                         If dist2 < distNear Then
                             distNear = dist2
@@ -302,7 +302,7 @@ Namespace Maps
 
                 If Teleport Then
                     If Alive And Character.DEAD Then
-                        CharacterResurrect(Character)
+                        _WS_Handlers_Misc.CharacterResurrect(Character)
                         Character.Life.Current = Character.Life.Maximum
                         If Character.ManaType = ManaTypes.TYPE_MANA Then Character.Mana.Current = Character.Mana.Maximum
                         If selectedGraveyard.Map = Character.MapID Then

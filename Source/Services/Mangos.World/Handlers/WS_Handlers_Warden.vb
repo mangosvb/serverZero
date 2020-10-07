@@ -28,7 +28,7 @@ Imports Mangos.World.Warden
 
 Namespace Handlers
 
-    Public Module WS_Handlers_Warden
+    Public Class WS_Handlers_Warden
 
         Private OutKeyAdr As Integer
         Private InKeyAdr As Integer
@@ -50,13 +50,13 @@ Namespace Handlers
             If client.Character.WardenData.Ready Then
                 Select Case Response
                     Case MaievResponse.MAIEV_RESPONSE_FAILED_OR_MISSING
-                        MaievSendTransfer(Client.Character)
+                        MaievSendTransfer(client.Character)
 
                     Case MaievResponse.MAIEV_RESPONSE_SUCCESS
-                        MaievSendSeed(Client.Character)
+                        MaievSendSeed(client.Character)
 
                     Case MaievResponse.MAIEV_RESPONSE_RESULT
-                        MaievResult(Client.Character, packet)
+                        MaievResult(client.Character, packet)
 
                     Case MaievResponse.MAIEV_RESPONSE_HASH
                         Dim hash(20 - 1) As Byte
@@ -64,23 +64,23 @@ Namespace Handlers
 
                         'TODO: Only one character can do this at the same time
 
-                        Maiev.GenerateNewRC4Keys(Client.Character.WardenData.K)
+                        _WS_Warden.Maiev.GenerateNewRC4Keys(client.Character.WardenData.K)
 
                         Dim PacketData(16) As Byte
                         PacketData(0) = MaievOpcode.MAIEV_MODULE_SEED
-                        Buffer.BlockCopy(Client.Character.WardenData.Seed, 0, PacketData, 1, 16)
+                        Buffer.BlockCopy(client.Character.WardenData.Seed, 0, PacketData, 1, 16)
 
-                        Dim HandledBytes As Integer = Maiev.HandlePacket(PacketData)
+                        Dim HandledBytes As Integer = _WS_Warden.Maiev.HandlePacket(PacketData)
                         If HandledBytes <= 0 Then
                             _WorldServer.Log.WriteLine(LogType.CRITICAL, "[WARDEN] Failed to handle 0x05 packet.")
                             Exit Sub
                         End If
-                        Dim thePacket() As Byte = Maiev.ReadPacket()
+                        Dim thePacket() As Byte = _WS_Warden.Maiev.ReadPacket()
                         Dim ourHash(20 - 1) As Byte
                         Array.Copy(thePacket, 1, ourHash, 0, ourHash.Length)
 
-                        Maiev.ReadXorByte(Client.Character)
-                        Maiev.ReadKeys(Client.Character)
+                        _WS_Warden.Maiev.ReadXorByte(client.Character)
+                        _WS_Warden.Maiev.ReadKeys(client.Character)
 
                         _WorldServer.Log.WriteLine(LogType.DEBUG, "[WARDEN] XorByte: {0}", client.Character.WardenData.xorByte)
 
@@ -114,92 +114,92 @@ Namespace Handlers
 
             objCharacter.WardenData.xorByte = 0
             objCharacter.WardenData.K = k
-            RAND_bytes(objCharacter.WardenData.Seed, 16)
+            _Functions.RAND_bytes(objCharacter.WardenData.Seed, 16)
 
             'Sending our test module
             MaievSendModule(objCharacter)
         End Sub
-        Public Sub MaievSendModule(ByRef objCharacter As CharacterObject)
+        Public Sub MaievSendModule(ByRef objCharacter As WS_PlayerData.CharacterObject)
             If Not objCharacter.WardenData.Ready Then Throw New ApplicationException("Maiev.mod not ready!")
 
-            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [{2}]", objCharacter.Client.IP, objCharacter.Client.Port, Maiev.ModuleName)
+            _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [{2}]", objCharacter.client.IP, objCharacter.client.Port, _WS_Warden.Maiev.ModuleName)
 
-            Dim r As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
+            Dim r As New Packets.PacketClass(OPCODES.SMSG_WARDEN_DATA)
             r.AddInt8(MaievOpcode.MAIEV_MODULE_INFORMATION)     'Opcode
-            r.AddByteArray(Maiev.WardenModule)                  'MD5 checksum of the modules compressed encrypted data
-            r.AddByteArray(Maiev.ModuleKey)                     'RC4 seed for decryption of the module
-            r.AddUInt32(Maiev.ModuleSize)                       'Module Compressed Length - Size of the packet
+            r.AddByteArray(_WS_Warden.Maiev.WardenModule)                  'MD5 checksum of the modules compressed encrypted data
+            r.AddByteArray(_WS_Warden.Maiev.ModuleKey)                     'RC4 seed for decryption of the module
+            r.AddUInt32(_WS_Warden.Maiev.ModuleSize)                       'Module Compressed Length - Size of the packet
 
-            SendWardenPacket(objCharacter, r)
+            _WS_Warden.SendWardenPacket(objCharacter, r)
         End Sub
-        Public Sub MaievSendTransfer(ByRef objCharacter As CharacterObject)
+        Public Sub MaievSendTransfer(ByRef objCharacter As WS_PlayerData.CharacterObject)
             If Not objCharacter.WardenData.Ready Then Throw New ApplicationException("Maiev.mod not ready!")
 
-            Dim file As New IO.FileStream(String.Format("warden\{0}.bin", Maiev.ModuleName), IO.FileMode.Open, IO.FileAccess.Read)
+            Dim file As New IO.FileStream(String.Format("warden\{0}.bin", _WS_Warden.Maiev.ModuleName), IO.FileMode.Open, IO.FileAccess.Read)
             Dim size As Integer = file.Length()
 
             While size > 500
-                Dim r As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
+                Dim r As New Packets.PacketClass(OPCODES.SMSG_WARDEN_DATA)
                 r.AddInt8(MaievOpcode.MAIEV_MODULE_TRANSFER)                'Opcode
                 r.AddInt16(500)                                             'Payload Length
                 For i As Integer = 1 To 500                                 'Payload
                     r.AddInt8(file.ReadByte)
                 Next
 
-                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [data]", objCharacter.Client.IP, objCharacter.Client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [data]", objCharacter.client.IP, objCharacter.client.Port)
                 'DumpPacket(r.Data, objCharacter.Client, 4)
 
-                SendWardenPacket(objCharacter, r)
+                _WS_Warden.SendWardenPacket(objCharacter, r)
 
                 size -= 500
             End While
 
             If size > 0 Then
-                Dim r As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
+                Dim r As New Packets.PacketClass(OPCODES.SMSG_WARDEN_DATA)
                 r.AddInt8(MaievOpcode.MAIEV_MODULE_TRANSFER)                'Opcode
                 r.AddUInt16(size)                                           'Payload Length
                 For i As Integer = 1 To size                                'Payload
                     r.AddInt8(file.ReadByte)
                 Next
 
-                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [done]", objCharacter.Client.IP, objCharacter.Client.Port)
+                _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] SMSG_WARDEN_DATA [done]", objCharacter.client.IP, objCharacter.client.Port)
                 'DumpPacket(r.Data, objCharacter.Client, 4)
 
-                SendWardenPacket(objCharacter, r)
+                _WS_Warden.SendWardenPacket(objCharacter, r)
             End If
 
         End Sub
-        Public Sub MaievSendUnk(ByRef objCharacter As CharacterObject)
-            Dim unk As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
+        Public Sub MaievSendUnk(ByRef objCharacter As WS_PlayerData.CharacterObject)
+            Dim unk As New Packets.PacketClass(OPCODES.SMSG_WARDEN_DATA)
             Try
                 unk.AddInt8(MaievOpcode.MAIEV_MODULE_UNK)
                 unk.AddByteArray(New Byte() {&H14, &H0, &H60, &HD0, &HFE, &H2C, &H1, &H0, &H2, &H0, &H20, &H1A, &H36, &H0, &HC0, &HE3, &H35, &H0, &H50, &HF1, &H35, &H0, &HC0, &HF5, &H35, &H0, &H3, &H8, &H0, &H77, &H6C, &H93, &HA9, &H4, &H0, &H0, &H60, &HA8, &H40, &H0, &H1, &H3, &H8, &H0, &H36, &H85, &HEA, &HF0, &H1, &H1, &H0, &H90, &HF4, &H45, &H0, &H1})
 
-                SendWardenPacket(objCharacter, unk)
+                _WS_Warden.SendWardenPacket(objCharacter, unk)
             Finally
                 unk.Dispose()
             End Try
         End Sub
-        Public Sub MaievSendCheck(ByRef objCharacter As CharacterObject)
+        Public Sub MaievSendCheck(ByRef objCharacter As WS_PlayerData.CharacterObject)
             If Not objCharacter.WardenData.Ready Then Throw New ApplicationException("Maiev.mod not ready!")
 
             objCharacter.WardenData.Scan.Do_TIMING_CHECK()
-            Dim packet As PacketClass = objCharacter.WardenData.Scan.GetPacket()
+            Dim packet As Packets.PacketClass = objCharacter.WardenData.Scan.GetPacket()
             Try
-                SendWardenPacket(objCharacter, packet)
+                _WS_Warden.SendWardenPacket(objCharacter, packet)
             Finally
                 packet.Dispose()
             End Try
         End Sub
-        Public Sub MaievSendSeed(ByRef objCharacter As CharacterObject)
-            Dim r As New PacketClass(OPCODES.SMSG_WARDEN_DATA)
+        Public Sub MaievSendSeed(ByRef objCharacter As WS_PlayerData.CharacterObject)
+            Dim r As New Packets.PacketClass(OPCODES.SMSG_WARDEN_DATA)
             r.AddInt8(MaievOpcode.MAIEV_MODULE_SEED)
             r.AddByteArray(objCharacter.WardenData.Seed)
 
-            SendWardenPacket(objCharacter, r)
+            _WS_Warden.SendWardenPacket(objCharacter, r)
         End Sub
 
-        Public Sub MaievResult(ByRef objCharacter As CharacterObject, ByRef Packet As PacketClass)
+        Public Sub MaievResult(ByRef objCharacter As WS_PlayerData.CharacterObject, ByRef Packet As Packets.PacketClass)
             Dim bufLen As UShort = Packet.GetUInt16()
             Dim checkSum As UInteger = Packet.GetUInt32()
 
@@ -244,7 +244,7 @@ Namespace Handlers
             Public ClientSeed() As Byte = Nothing
             Public xorByte As Byte = 0
 
-            Public Scan As WardenScan = Nothing
+            Public Scan As WS_Warden.WardenScan = Nothing
 
         End Class
 
@@ -282,7 +282,7 @@ Namespace Handlers
             Public Function GetBytes(ByVal count As Integer) As Byte()
                 Dim b(count - 1) As Byte
                 For i As Integer = 0 To count - 1
-                    b(i) = GetByte
+                    b(i) = GetByte()
                 Next
                 Return b
             End Function
@@ -372,5 +372,5 @@ Namespace Handlers
         End Function
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

@@ -32,7 +32,7 @@ Imports Mangos.Common
 
 Namespace Objects
 
-    Public Module WS_Transports
+    Public Class WS_Transports
         Private Function GetNewGUID() As ULong
             _WorldServer.TransportGUIDCounter += 1
             GetNewGUID = _WorldServer.TransportGUIDCounter
@@ -113,12 +113,12 @@ Namespace Objects
 #End Region
 
         Public Class TransportObject
-            Inherits GameObjectObject
+            Inherits WS_GameObjects.GameObjectObject
             Implements IDisposable
 
             Public TransportName As String = ""
 
-            Private Passengers As New List(Of BaseUnit)
+            Private Passengers As New List(Of WS_Base.BaseUnit)
 
             Private Waypoints As New List(Of TransportWP)
             Private Period As Integer = 0
@@ -136,7 +136,7 @@ Namespace Objects
             Private TransportAt As Byte = 0
 
             Public Sub New(ByVal ID_ As Integer, ByVal Name As String, ByVal Period_ As Integer)
-                MyBase.New(ID_, GetNewGUID)
+                MyBase.New(ID_, _WS_Transports.GetNewGUID)
 
                 'TODO: Only handle transports on the map(s) this server handles
 
@@ -170,7 +170,7 @@ Namespace Objects
             Public Function GenerateWaypoints() As Boolean
                 Dim PathID As Integer = Sound(0)
                 Dim ShipSpeed As Single = Sound(1)
-                If TaxiPaths.ContainsKey(PathID) = False Then
+                If _WS_DBCDatabase.TaxiPaths.ContainsKey(PathID) = False Then
                     _WorldServer.Log.WriteLine(LogType.CRITICAL, "An transport [{0} - {1}] is created with an invalid TaxiPath.", ID, TransportName)
                     Return False
                 End If
@@ -180,14 +180,14 @@ Namespace Objects
                 Dim PathPoints As New List(Of TransportMove)
                 Dim t As Integer = 0
 
-                If TaxiPathNodes.ContainsKey(PathID) = True Then
-                    For i As Integer = 0 To (TaxiPathNodes(PathID).Count - 2)
+                If _WS_DBCDatabase.TaxiPathNodes.ContainsKey(PathID) = True Then
+                    For i As Integer = 0 To (_WS_DBCDatabase.TaxiPathNodes(PathID).Count - 2)
                         If MapChange = 0 Then
-                            If TaxiPathNodes(PathID).ContainsKey(i) = True And TaxiPathNodes(PathID).ContainsKey(i + 1) = True Then
-                                If TaxiPathNodes(PathID)(i).MapID = TaxiPathNodes(PathID)(i + 1).MapID Then
-                                    PathPoints.Add(New TransportMove(TaxiPathNodes(PathID)(i).x, TaxiPathNodes(PathID)(i).y, TaxiPathNodes(PathID)(i).z, TaxiPathNodes(PathID)(i).MapID, TaxiPathNodes(PathID)(i).action, TaxiPathNodes(PathID)(i).waittime))
+                            If _WS_DBCDatabase.TaxiPathNodes(PathID).ContainsKey(i) = True And _WS_DBCDatabase.TaxiPathNodes(PathID).ContainsKey(i + 1) = True Then
+                                If _WS_DBCDatabase.TaxiPathNodes(PathID)(i).MapID = _WS_DBCDatabase.TaxiPathNodes(PathID)(i + 1).MapID Then
+                                    PathPoints.Add(New TransportMove(_WS_DBCDatabase.TaxiPathNodes(PathID)(i).x, _WS_DBCDatabase.TaxiPathNodes(PathID)(i).y, _WS_DBCDatabase.TaxiPathNodes(PathID)(i).z, _WS_DBCDatabase.TaxiPathNodes(PathID)(i).MapID, _WS_DBCDatabase.TaxiPathNodes(PathID)(i).action, _WS_DBCDatabase.TaxiPathNodes(PathID)(i).waittime))
 
-                                    If WS_Maps.Maps.ContainsKey(TaxiPathNodes(PathID)(i).MapID) Then
+                                    If _WS_Maps.Maps.ContainsKey(_WS_DBCDatabase.TaxiPathNodes(PathID)(i).MapID) Then
                                         MapsUsed += 1
                                     End If
                                 End If
@@ -210,7 +210,7 @@ Namespace Objects
                         If PathPoints(i).ActionFlag = 1 OrElse PathPoints(i).MapID <> PathPoints(i - 1).MapID Then
                             PathPoints(i).DistFromPrev = 0.0F
                         Else
-                            PathPoints(i).DistFromPrev = GetDistance(PathPoints(i).X, PathPoints(i - 1).X, PathPoints(i).Y, PathPoints(i - 1).Y, PathPoints(i).Z, PathPoints(i - 1).Z)
+                            PathPoints(i).DistFromPrev = _WS_Combat.GetDistance(PathPoints(i).X, PathPoints(i - 1).X, PathPoints(i).Y, PathPoints(i - 1).Y, PathPoints(i).Z, PathPoints(i - 1).Z)
                         End If
                         If PathPoints(i).ActionFlag = 2 Then
                             If FirstStop = -1 Then
@@ -350,7 +350,7 @@ Namespace Objects
                 Return tmpWP
             End Function
 
-            Public Sub AddPassenger(ByRef Unit As BaseUnit)
+            Public Sub AddPassenger(ByRef Unit As WS_Base.BaseUnit)
                 If Passengers.Contains(Unit) Then Exit Sub
 
                 SyncLock Passengers
@@ -358,7 +358,7 @@ Namespace Objects
                 End SyncLock
             End Sub
 
-            Public Sub RemovePassenger(ByRef Unit As BaseUnit)
+            Public Sub RemovePassenger(ByRef Unit As WS_Base.BaseUnit)
                 If Passengers.Contains(Unit) = False Then Exit Sub
 
                 SyncLock Passengers
@@ -369,7 +369,7 @@ Namespace Objects
             Public Sub Update()
                 If Waypoints.Count <= 1 Then Exit Sub
 
-                Dim Timer As Integer = MsTime() Mod Period
+                Dim Timer As Integer = _WS_Network.MsTime() Mod Period
                 While (Math.Abs(Timer - Waypoints(CurrentWaypoint).Time) Mod PathTime) > (Math.Abs(Waypoints(NextWaypoint).Time - Waypoints(CurrentWaypoint).Time) Mod PathTime)
                     CurrentWaypoint = GetNextWaypoint()
                     NextWaypoint = GetNextWaypoint()
@@ -408,56 +408,56 @@ Namespace Objects
                 Dim mePacket As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                 mePacket.AddInt32(1)
                 mePacket.AddInt8(0)
-                Dim meTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                Dim meTmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
                 Character.FillAllUpdateFlags(meTmpUpdate)
                 meTmpUpdate.AddToPacket(mePacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Character)
                 meTmpUpdate.Dispose()
                 mePacket.CompressUpdatePacket()
 
-                Dim tmpArray() As BaseUnit = Passengers.ToArray
-                For Each tmpUnit As BaseUnit In tmpArray
+                Dim tmpArray() As WS_Base.BaseUnit = Passengers.ToArray
+                For Each tmpUnit As WS_Base.BaseUnit In tmpArray
                     If tmpUnit Is Nothing Then Continue For
 
-                    If TypeOf tmpUnit Is CharacterObject Then 'If the passenger is a player
+                    If TypeOf tmpUnit Is WS_PlayerData.CharacterObject Then 'If the passenger is a player
                         If Character.CanSee(tmpUnit) Then 'If you can see player
-                            Dim myPacket As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim myPacket As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             Try
                                 myPacket.AddInt32(1)
                                 myPacket.AddInt8(0)
-                                Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-                                CType(tmpUnit, CharacterObject).FillAllUpdateFlags(myTmpUpdate)
-                                myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CharacterObject))
+                                Dim myTmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                                CType(tmpUnit, WS_PlayerData.CharacterObject).FillAllUpdateFlags(myTmpUpdate)
+                                myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, WS_PlayerData.CharacterObject))
                                 myTmpUpdate.Dispose()
-                                Character.Client.Send(myPacket)
+                                Character.client.Send(myPacket)
                             Finally
                                 myPacket.Dispose()
                             End Try
 
-                            CType(tmpUnit, CharacterObject).SeenBy.Add(Character.GUID)
+                            CType(tmpUnit, WS_PlayerData.CharacterObject).SeenBy.Add(Character.GUID)
                             Character.playersNear.Add(tmpUnit.GUID)
                         End If
-                        If CType(tmpUnit, CharacterObject).CanSee(Character) Then 'If player can see you
-                            CType(tmpUnit, CharacterObject).Client.SendMultiplyPackets(mePacket)
+                        If CType(tmpUnit, WS_PlayerData.CharacterObject).CanSee(Character) Then 'If player can see you
+                            CType(tmpUnit, WS_PlayerData.CharacterObject).client.SendMultiplyPackets(mePacket)
 
                             Character.SeenBy.Add(tmpUnit.GUID)
-                            CType(tmpUnit, CharacterObject).playersNear.Add(Character.GUID)
+                            CType(tmpUnit, WS_PlayerData.CharacterObject).playersNear.Add(Character.GUID)
                         End If
-                    ElseIf TypeOf tmpUnit Is CreatureObject Then 'If the passenger is a creature
+                    ElseIf TypeOf tmpUnit Is WS_Creatures.CreatureObject Then 'If the passenger is a creature
                         If Character.CanSee(tmpUnit) Then 'If you can see creature
-                            Dim myPacket As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                            Dim myPacket As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                             Try
                                 myPacket.AddInt32(1)
                                 myPacket.AddInt8(0)
-                                Dim myTmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
-                                CType(tmpUnit, CreatureObject).FillAllUpdateFlags(myTmpUpdate)
-                                myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, CreatureObject))
+                                Dim myTmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_UNIT)
+                                CType(tmpUnit, WS_Creatures.CreatureObject).FillAllUpdateFlags(myTmpUpdate)
+                                myTmpUpdate.AddToPacket(myPacket, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, CType(tmpUnit, WS_Creatures.CreatureObject))
                                 myTmpUpdate.Dispose()
-                                Character.Client.Send(myPacket)
+                                Character.client.Send(myPacket)
                             Finally
                                 myPacket.Dispose()
                             End Try
 
-                            CType(tmpUnit, CharacterObject).SeenBy.Add(Character.GUID)
+                            CType(tmpUnit, WS_PlayerData.CharacterObject).SeenBy.Add(Character.GUID)
                             Character.creaturesNear.Add(tmpUnit.GUID)
                         End If
                     End If
@@ -468,11 +468,11 @@ Namespace Objects
 
             Public Sub CheckCell(Optional ByVal Teleported As Boolean = False)
                 Dim TileX As Byte, TileY As Byte
-                GetMapTile(positionX, positionY, TileX, TileY)
+                _WS_Maps.GetMapTile(positionX, positionY, TileX, TileY)
                 If Teleported OrElse CellX <> TileX OrElse CellY <> TileY Then
-                    If WS_Maps.Maps(MapID).Tiles(CellX, CellY) IsNot Nothing Then
+                    If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) IsNot Nothing Then
                         Try
-                            WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Remove(GUID)
+                            _WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Remove(GUID)
                         Catch
                         End Try
                     End If
@@ -480,9 +480,9 @@ Namespace Objects
                     CellX = TileX
                     CellY = TileY
 
-                    If WS_Maps.Maps(MapID).Tiles(CellX, CellY) IsNot Nothing Then
+                    If _WS_Maps.Maps(MapID).Tiles(CellX, CellY) IsNot Nothing Then
                         Try
-                            WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Add(GUID)
+                            _WS_Maps.Maps(MapID).Tiles(CellX, CellY).GameObjectsHere.Add(GUID)
                         Catch
                         End Try
                     End If
@@ -496,23 +496,23 @@ Namespace Objects
                 Dim list() As ULong
                 For i As Short = -1 To 1
                     For j As Short = -1 To 1
-                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
-                            With WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
+                        If (CellX + i) >= 0 AndAlso (CellX + i) <= 63 AndAlso (CellY + j) >= 0 AndAlso (CellY + j) <= 63 AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j) IsNot Nothing AndAlso _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j).PlayersHere.Count > 0 Then
+                            With _WS_Maps.Maps(MapID).Tiles(CellX + i, CellY + j)
                                 list = .PlayersHere.ToArray
                                 For Each plGUID As ULong In list
                                     If _WorldServer.CHARACTERs.ContainsKey(plGUID) AndAlso _WorldServer.CHARACTERs(plGUID).CanSee(Me) Then
-                                        Dim packet As New PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                                        Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
                                         Try
                                             packet.AddInt32(1)
                                             packet.AddInt8(0)
-                                            Dim tmpUpdate As New UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
+                                            Dim tmpUpdate As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_GAMEOBJECT)
                                             Try
                                                 FillAllUpdateFlags(tmpUpdate, _WorldServer.CHARACTERs(plGUID))
                                                 tmpUpdate.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_CREATE_OBJECT, Me)
                                             Finally
                                                 tmpUpdate.Dispose()
                                             End Try
-                                            _WorldServer.CHARACTERs(plGUID).Client.SendMultiplyPackets(packet)
+                                            _WorldServer.CHARACTERs(plGUID).client.SendMultiplyPackets(packet)
                                             _WorldServer.CHARACTERs(plGUID).gameObjectsNear.Add(GUID)
                                             SeenBy.Add(plGUID)
                                         Finally
@@ -543,8 +543,8 @@ Namespace Objects
             Public Sub TeleportTransport(ByVal NewMap As UInteger, ByVal PosX As Single, ByVal PosY As Single, ByVal PosZ As Single)
                 Dim oldMap As UInteger = MapID
 
-                Dim tmpArray() As BaseUnit = Passengers.ToArray
-                For Each tmpUnit As BaseUnit In tmpArray
+                Dim tmpArray() As WS_Base.BaseUnit = Passengers.ToArray
+                For Each tmpUnit As WS_Base.BaseUnit In tmpArray
                     Try
                         'Remove passengers that doesn't exist anymore
                         If tmpUnit Is Nothing Then
@@ -555,27 +555,27 @@ Namespace Objects
                         End If
 
                         If tmpUnit.IsDead Then
-                            If TypeOf tmpUnit Is CharacterObject Then
-                                CharacterResurrect(CType(tmpUnit, CharacterObject))
-                            ElseIf TypeOf tmpUnit Is CreatureObject Then
+                            If TypeOf tmpUnit Is WS_PlayerData.CharacterObject Then
+                                _WS_Handlers_Misc.CharacterResurrect(CType(tmpUnit, WS_PlayerData.CharacterObject))
+                            ElseIf TypeOf tmpUnit Is WS_Creatures.CreatureObject Then
                                 'TODO!
                             End If
                         End If
 
-                        If TypeOf tmpUnit Is CharacterObject Then
-                            If CType(tmpUnit, CharacterObject).OnTransport IsNot Nothing AndAlso CType(tmpUnit, CharacterObject).OnTransport Is Me Then
-                                CType(tmpUnit, CharacterObject).Teleport(PosX, PosY, PosZ, CType(tmpUnit, CharacterObject).orientation, NewMap)
+                        If TypeOf tmpUnit Is WS_PlayerData.CharacterObject Then
+                            If CType(tmpUnit, WS_PlayerData.CharacterObject).OnTransport IsNot Nothing AndAlso CType(tmpUnit, WS_PlayerData.CharacterObject).OnTransport Is Me Then
+                                CType(tmpUnit, WS_PlayerData.CharacterObject).Teleport(PosX, PosY, PosZ, CType(tmpUnit, WS_PlayerData.CharacterObject).orientation, NewMap)
                             Else
                                 'Remove players no longer on this transport
                                 SyncLock Passengers
                                     Passengers.Remove(tmpUnit)
                                 End SyncLock
                             End If
-                        ElseIf TypeOf tmpUnit Is CreatureObject Then
-                            CType(tmpUnit, CreatureObject).positionX = PosX
-                            CType(tmpUnit, CreatureObject).positionY = PosY
-                            CType(tmpUnit, CreatureObject).positionZ = PosZ
-                            CType(tmpUnit, CreatureObject).MapID = MapID
+                        ElseIf TypeOf tmpUnit Is WS_Creatures.CreatureObject Then
+                            CType(tmpUnit, WS_Creatures.CreatureObject).positionX = PosX
+                            CType(tmpUnit, WS_Creatures.CreatureObject).positionY = PosY
+                            CType(tmpUnit, WS_Creatures.CreatureObject).positionZ = PosZ
+                            CType(tmpUnit, WS_Creatures.CreatureObject).MapID = MapID
                             'TODO: What more?
                         End If
                     Catch ex As Exception
@@ -594,7 +594,7 @@ Namespace Objects
                 End If
             End Sub
 
-            Public Overrides Sub FillAllUpdateFlags(ByRef Update As UpdateClass, ByRef Character As CharacterObject)
+            Public Overrides Sub FillAllUpdateFlags(ByRef Update As Packets.UpdateClass, ByRef Character As WS_PlayerData.CharacterObject)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_GUID, GUID)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_TYPE, ObjectType.TYPE_GAMEOBJECT + ObjectType.TYPE_OBJECT)
                 Update.SetUpdateFlag(EObjectFields.OBJECT_FIELD_ENTRY, ID)
@@ -620,5 +620,5 @@ Namespace Objects
                 'Update.SetUpdateFlag(EGameObjectFields.GAMEOBJECT_TIMESTAMP, msTime) ' Changed in 1.12.x client branch?
             End Sub
         End Class
-    End Module
-End NameSpace
+    End Class
+End Namespace

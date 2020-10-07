@@ -120,7 +120,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub Say(message As String, msgLang As Integer, ByRef character As CharacterObject)
+            Public Sub Say(message As String, msgLang As Integer, ByRef character As WcHandlerCharacter.CharacterObject)
                 If Muted.Contains(character.Guid) Then
                     Dim p As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_YOUCANTSPEAK, character.Guid, Nothing, Nothing)
                     character.Client.Send(p)
@@ -139,7 +139,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Overridable Sub Join(ByRef character As CharacterObject, clientPassword As String)
+            Public Overridable Sub Join(ByRef character As WcHandlerCharacter.CharacterObject, clientPassword As String)
                 'DONE: Check if Already joined
                 If Joined.Contains(character.Guid) Then
 
@@ -212,7 +212,7 @@ Namespace Handlers
                 Joined_Mode(character.Guid) = modes
             End Sub
 
-            Public Overridable Sub Part(ByRef Character As CharacterObject)
+            Public Overridable Sub Part(ByRef Character As WcHandlerCharacter.CharacterObject)
                 'DONE: Check if not on this channel
                 If Not Joined.Contains(Character.Guid) Then
                     If Character.Client IsNot Nothing Then
@@ -255,8 +255,8 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Overridable Sub Kick(ByRef Character As CharacterObject, ByVal Name As String)
-                Dim VictimGUID As ULong = GetCharacterGUIDByName(Name)
+            Public Overridable Sub Kick(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
+                Dim VictimGUID As ULong = _WcHandlerCharacter.GetCharacterGUIDByName(Name)
 
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
@@ -291,8 +291,8 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Overridable Sub Ban(ByRef Character As CharacterObject, ByVal Name As String)
-                Dim VictimGUID As ULong = GetCharacterGUIDByName(Name)
+            Public Overridable Sub Ban(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
+                Dim VictimGUID As ULong = _WcHandlerCharacter.GetCharacterGUIDByName(Name)
 
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
@@ -333,8 +333,8 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Overridable Sub UnBan(ByRef Character As CharacterObject, ByVal Name As String)
-                Dim VictimGUID As ULong = GetCharacterGUIDByName(Name)
+            Public Overridable Sub UnBan(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
+                Dim VictimGUID As ULong = _WcHandlerCharacter.GetCharacterGUIDByName(Name)
 
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
@@ -362,7 +362,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub List(ByRef Character As CharacterObject)
+            Public Sub List(ByRef Character As WcHandlerCharacter.CharacterObject)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -383,13 +383,13 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub Invite(ByRef Character As CharacterObject, ByVal Name As String)
+            Public Sub Invite(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
                     packet.Dispose()
                 Else
-                    Dim GUID As ULong = GetCharacterGUIDByName(Name)
+                    Dim GUID As ULong = _WcHandlerCharacter.GetCharacterGUIDByName(Name)
 
                     If Not _WorldCluster.CHARACTERs.ContainsKey(GUID) Then
                         Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON_FOR_NAME, Character.Guid, Nothing, Name)
@@ -421,7 +421,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Function CanSetOwner(ByRef Character As CharacterObject, ByVal Name As String) As Boolean
+            Public Function CanSetOwner(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String) As Boolean
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -447,7 +447,7 @@ Namespace Handlers
                 Return False
             End Function
 
-            Public Sub GetOwner(ByRef Character As CharacterObject)
+            Public Sub GetOwner(ByRef Character As WcHandlerCharacter.CharacterObject)
                 Dim p As Packets.PacketClass
 
                 If Not Joined.Contains(Character.Guid) Then
@@ -462,7 +462,7 @@ Namespace Handlers
                 p.Dispose()
             End Sub
 
-            Public Sub SetOwner(ByRef Character As CharacterObject)
+            Public Sub SetOwner(ByRef Character As WcHandlerCharacter.CharacterObject)
                 If Joined_Mode.ContainsKey(Owner) Then
                     Joined_Mode(Owner) = Joined_Mode(Owner) And Not CHANNEL_USER_FLAG.CHANNEL_FLAG_OWNER
                 End If
@@ -477,7 +477,7 @@ Namespace Handlers
                 p.Dispose()
             End Sub
 
-            Public Sub SetAnnouncements(ByRef Character As CharacterObject)
+            Public Sub SetAnnouncements(ByRef Character As WcHandlerCharacter.CharacterObject)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -499,7 +499,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub SetModeration(ByRef Character As CharacterObject)
+            Public Sub SetModeration(ByRef Character As WcHandlerCharacter.CharacterObject)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -521,7 +521,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub SetPassword(ByRef Character As CharacterObject, ByVal NewPassword As String)
+            Public Sub SetPassword(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal NewPassword As String)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -539,7 +539,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub SetModerator(ByRef Character As CharacterObject, ByVal Name As String)
+            Public Sub SetModerator(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -570,7 +570,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub SetUnModerator(ByRef Character As CharacterObject, ByVal Name As String)
+            Public Sub SetUnModerator(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -601,7 +601,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub SetMute(ByRef Character As CharacterObject, ByVal Name As String)
+            Public Sub SetMute(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)
@@ -632,7 +632,7 @@ Namespace Handlers
                 End If
             End Sub
 
-            Public Sub SetUnMute(ByRef Character As CharacterObject, ByVal Name As String)
+            Public Sub SetUnMute(ByRef Character As WcHandlerCharacter.CharacterObject, ByVal Name As String)
                 If Not Joined.Contains(Character.Guid) Then
                     Dim packet As Packets.PacketClass = BuildChannelNotify(CHANNEL_NOTIFY_FLAGS.CHANNEL_NOT_ON, Character.Guid, Nothing, Nothing)
                     Character.Client.Send(packet)

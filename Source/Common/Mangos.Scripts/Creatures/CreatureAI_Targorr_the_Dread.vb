@@ -55,7 +55,7 @@ Namespace Creatures
 
         Public Sub CastThrash()
             For i As Integer = 0 To 0
-                Dim Target As BaseUnit = aiCreature
+                Dim Target As WS_Base.BaseUnit = aiCreature
                 If Target Is Nothing Then Exit Sub
                 Try
                     aiCreature.CastSpellOnSelf(Spell_Thrash)

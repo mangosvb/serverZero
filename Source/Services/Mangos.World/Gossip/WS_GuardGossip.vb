@@ -27,7 +27,7 @@ Imports Mangos.Common
 
 Namespace Gossip
 
-    Public Module WS_GuardGossip
+    Public Class WS_GuardGossip
 
         Public Class TGuardTalk
             Inherits TBaseTalk
@@ -66,7 +66,7 @@ Namespace Gossip
                 End Select
             End Sub
 
-            Public Overrides Sub OnGossipSelect(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
+            Public Overrides Sub OnGossipSelect(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal selected As Integer)
                 Dim Gossip As Gossips = GetGossip(_WorldServer.WORLD_CREATUREs(cGUID).ID)
 
                 Select Case Gossip
@@ -131,7 +131,7 @@ Namespace Gossip
 #End Region
 
 #Region "Stormwind"
-            Private Sub OnGossipHello_Stormwind(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Stormwind(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
@@ -155,7 +155,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 933, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Stormwind(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Stormwind(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Auctionhouse
@@ -306,7 +306,7 @@ Namespace Gossip
 #End Region
 
 #Region "Orgrimmar"
-            Private Sub OnGossipHello_Orgrimmar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Orgrimmar(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -330,7 +330,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 2593, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Orgrimmar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Orgrimmar(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -477,7 +477,7 @@ Namespace Gossip
 #End Region
 
 #Region "Thunder Bluff"
-            Private Sub OnGossipHello_Thunderbluff(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Thunderbluff(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -499,7 +499,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 3543, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Thunderbluff(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Thunderbluff(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -632,7 +632,7 @@ Namespace Gossip
 #End Region
 
 #Region "Darnassus"
-            Private Sub OnGossipHello_Darnassus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Darnassus(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
@@ -654,7 +654,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 3543, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Darnassus(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Darnassus(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Auction House
@@ -775,7 +775,7 @@ Namespace Gossip
 #End Region
 
 #Region "Ironforge"
-            Private Sub OnGossipHello_Ironforge(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Ironforge(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_AUCTIONHOUSE, MenuIcon.MENUICON_GOSSIP)
@@ -798,7 +798,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 933, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Ironforge(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Ironforge(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Auctionhouse
@@ -942,7 +942,7 @@ Namespace Gossip
 #End Region
 
 #Region "Undercity"
-            Private Sub OnGossipHello_Undercity(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Undercity(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -965,7 +965,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 3543, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Undercity(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Undercity(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -1101,7 +1101,7 @@ Namespace Gossip
 #End Region
 
 #Region "Mulgore"
-            Private Sub OnGossipHello_Mulgore(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Mulgore(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -1118,7 +1118,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 3543, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Mulgore(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Mulgore(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -1204,7 +1204,7 @@ Namespace Gossip
 #End Region
 
 #Region "Durotar"
-            Private Sub OnGossipHello_Durotar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Durotar(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -1221,7 +1221,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 4037, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Durotar(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Durotar(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -1324,7 +1324,7 @@ Namespace Gossip
 #End Region
 
 #Region "Elwynn Forest"
-            Private Sub OnGossipHello_ElwynnForest(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_ElwynnForest(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -1342,7 +1342,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 933, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_ElwynnForest(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_ElwynnForest(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -1451,7 +1451,7 @@ Namespace Gossip
 #End Region
 
 #Region "Dun Morogh"
-            Private Sub OnGossipHello_DunMorogh(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_DunMorogh(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -1469,7 +1469,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 4287, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_DunMorogh(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_DunMorogh(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -1573,7 +1573,7 @@ Namespace Gossip
 #End Region
 
 #Region "Tirisfall Glades"
-            Private Sub OnGossipHello_Tirisfall(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Tirisfall(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -1590,7 +1590,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 4097, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Tirisfall(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Tirisfall(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -1686,7 +1686,7 @@ Namespace Gossip
 #End Region
 
 #Region "Teldrassil"
-            Private Sub OnGossipHello_Teldrassil(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong)
+            Private Sub OnGossipHello_Teldrassil(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong)
                 Dim npcMenu As New GossipMenu
                 objCharacter.TalkMenuTypes.Clear()
                 npcMenu.AddMenu(_Global_Constants.GOSSIP_TEXT_BANK, MenuIcon.MENUICON_GOSSIP)
@@ -1704,7 +1704,7 @@ Namespace Gossip
                 objCharacter.SendGossip(cGUID, 4316, npcMenu)
             End Sub
 
-            Private Sub OnGossipSelect_Teldrassil(ByRef objCharacter As CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
+            Private Sub OnGossipSelect_Teldrassil(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal cGUID As ULong, ByVal Selected As Integer)
                 'TODO: These hardcoded values need to be replaced by values from either the DB or DBC's
                 Select Case objCharacter.TalkMenuTypes(Selected)
                     Case 1 'Bank
@@ -1793,5 +1793,5 @@ Namespace Gossip
 
         End Class
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

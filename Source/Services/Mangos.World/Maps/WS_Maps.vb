@@ -30,7 +30,7 @@ Imports Mangos.World.Server
 
 Namespace Maps
 
-    Public Module WS_Maps
+    Public Class WS_Maps
 #Region "Zones"
         Public AreaTable As New Dictionary(Of Integer, TArea)
 
@@ -136,9 +136,9 @@ Namespace Maps
 
             Public Sub New(ByVal tileX As Byte, ByVal tileY As Byte, ByVal tileMap As UInteger)
                 'DONE: Don't load maptiles we don't handle
-                If Not Maps.ContainsKey(tileMap) Then Exit Sub
+                If Not _WS_Maps.Maps.ContainsKey(tileMap) Then Exit Sub
 
-                ReDim ZCoord(RESOLUTION_ZMAP, RESOLUTION_ZMAP)
+                ReDim ZCoord(_WS_Maps.RESOLUTION_ZMAP, _WS_Maps.RESOLUTION_ZMAP)
 #If ENABLE_PPOINTS Then
             ReDim ZCoord_PP(RESOLUTION_ZMAP, RESOLUTION_ZMAP)
 #End If
@@ -179,8 +179,8 @@ Namespace Maps
                             WaterLevel(x, y) = b.ReadSingle
                         Next y
                     Next x
-                    For x = 0 To RESOLUTION_ZMAP
-                        For y = 0 To RESOLUTION_ZMAP
+                    For x = 0 To _WS_Maps.RESOLUTION_ZMAP
+                        For y = 0 To _WS_Maps.RESOLUTION_ZMAP
                             ZCoord(x, y) = b.ReadSingle
                         Next y
                     Next x
@@ -283,7 +283,7 @@ Namespace Maps
                 If Not _disposedValue Then
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
-                    UnloadSpawns(CellX, CellY, CellMap)
+                    _WS_Maps.UnloadSpawns(CellX, CellY, CellMap)
                 End If
                 _disposedValue = True
             End Sub
@@ -345,11 +345,11 @@ Namespace Maps
                             '* Naxxramas: Every Tuesday at 3:00AM or during weekly maintenance
                             Select Case ID
                                 Case 249 'Onyxia's Lair
-                                    Return GetNextDate(5, 3).Subtract(Now).TotalSeconds
+                                    Return _Functions.GetNextDate(5, 3).Subtract(Now).TotalSeconds
                                 Case 309, 509 'Zul'Gurub and Ruins of Ahn'Qiraj
-                                    Return GetNextDate(3, 3).Subtract(Now).TotalSeconds
+                                    Return _Functions.GetNextDate(3, 3).Subtract(Now).TotalSeconds
                                 Case 409, 469, 531, 533 'Molten Core, Blackwing Lair, Temple of Ahn'Qiraj and Naxxramas
-                                    Return GetNextDay(DayOfWeek.Tuesday, 3).Subtract(Now).TotalSeconds
+                                    Return _Functions.GetNextDay(DayOfWeek.Tuesday, 3).Subtract(Now).TotalSeconds
                             End Select
 
                             Return _Global_Constants.DEFAULT_INSTANCE_EXPIRE_TIME
@@ -453,8 +453,8 @@ Namespace Maps
 #End If
 
             Public Sub New(ByVal Map As Integer)
-                If Not Maps.ContainsKey(Map) Then
-                    Maps.Add(Map, Me)
+                If Not _WS_Maps.Maps.ContainsKey(Map) Then
+                    _WS_Maps.Maps.Add(Map, Me)
                     For x As Integer = 0 To 63
                         For y As Integer = 0 To 63
                             TileUsed(x, y) = False
@@ -500,7 +500,7 @@ Namespace Maps
                         Next
                     Next
 
-                    Maps.Remove(ID)
+                    _WS_Maps.Maps.Remove(ID)
                     'iTree.Dispose()
                 End If
                 _disposedValue = True
@@ -584,17 +584,17 @@ Namespace Maps
                 If Maps(Map).Tiles(MapTileX, MapTileY) Is Nothing Then Return 0.0F
 
                 Try
-                    Dim topHeight As Single = MathLerp(
+                    Dim topHeight As Single = _Functions.MathLerp(
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
                         xNormalized)
 
-                    Dim bottomHeight As Single = MathLerp(
+                    Dim bottomHeight As Single = _Functions.MathLerp(
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
                         xNormalized)
 
-                    Return MathLerp(topHeight, bottomHeight, yNormalized)
+                    Return _Functions.MathLerp(topHeight, bottomHeight, yNormalized)
                 Catch
                     Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
                 End Try
@@ -736,17 +736,17 @@ Namespace Maps
              OrElse Maps(Map).Tiles(MapTileX, MapTileY).ZCoord_PP(MapTile_LocalX, MapTile_LocalY) = PPOINT_BAD Then
 
                 Try
-                    Dim topHeight As Single = MathLerp( _
+                    Dim topHeight As Single = _Functions.MathLerp( _
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY), _
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY), _
                         xNormalized)
 
-                    Dim bottomHeight As Single = MathLerp( _
+                    Dim bottomHeight As Single = _Functions.MathLerp( _
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1), _
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1), _
                         xNormalized)
 
-                    Return MathLerp(topHeight, bottomHeight, yNormalized)
+                    Return _Functions.MathLerp(topHeight, bottomHeight, yNormalized)
                 Catch
                     Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
                 End Try
@@ -762,17 +762,17 @@ Namespace Maps
 
             'Return pp info if we are too far from ground
             Try
-                Dim topHeight As Single = MathLerp( _
+                Dim topHeight As Single = _Functions.MathLerp( _
                     GetHeightPP(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY), _
                     GetHeightPP(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY), _
                     xNormalized)
 
-                Dim bottomHeight As Single = MathLerp( _
+                Dim bottomHeight As Single = _Functions.MathLerp( _
                     GetHeightPP(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1), _
                     GetHeightPP(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1), _
                     xNormalized)
 
-                Return MathLerp(topHeight, bottomHeight, yNormalized)
+                Return _Functions.MathLerp(topHeight, bottomHeight, yNormalized)
             Catch
                 Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord_PP(MapTile_LocalX, MapTile_LocalY)
             End Try
@@ -837,17 +837,17 @@ Namespace Maps
                 End If
 
                 Try
-                    Dim topHeight As Single = MathLerp(
+                    Dim topHeight As Single = _Functions.MathLerp(
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY),
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY),
                         xNormalized)
 
-                    Dim bottomHeight As Single = MathLerp(
+                    Dim bottomHeight As Single = _Functions.MathLerp(
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX, MapTile_LocalY + 1),
                         GetHeight(Map, MapTileX, MapTileY, MapTile_LocalX + 1, MapTile_LocalY + 1),
                         xNormalized)
 
-                    Return MathLerp(topHeight, bottomHeight, yNormalized)
+                    Return _Functions.MathLerp(topHeight, bottomHeight, yNormalized)
                 Catch
                     Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTile_LocalX, MapTile_LocalY)
                 End Try
@@ -877,11 +877,11 @@ Namespace Maps
             Return Maps(Map).Tiles(MapTileX, MapTileY).ZCoord(MapTileLocalX, MapTileLocalY)
         End Function
 
-        Public Function IsInLineOfSight(ByRef obj As BaseObject, ByRef obj2 As BaseObject) As Boolean
+        Public Function IsInLineOfSight(ByRef obj As WS_Base.BaseObject, ByRef obj2 As WS_Base.BaseObject) As Boolean
             Return IsInLineOfSight(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, obj2.positionX, obj2.positionY, obj2.positionZ + 2.0F)
         End Function
 
-        Public Function IsInLineOfSight(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
+        Public Function IsInLineOfSight(ByRef obj As WS_Base.BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single) As Boolean
             x2 = ValidateMapCoord(x2)
             y2 = ValidateMapCoord(y2)
             z2 = ValidateMapCoord(z2)
@@ -941,14 +941,14 @@ Namespace Maps
             Return height
         End Function
 
-        Public Function GetObjectHitPos(ByRef obj As BaseObject, ByRef obj2 As BaseObject, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+        Public Function GetObjectHitPos(ByRef obj As WS_Base.BaseObject, ByRef obj2 As WS_Base.BaseObject, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
             rx = ValidateMapCoord(rx)
             ry = ValidateMapCoord(ry)
             rz = ValidateMapCoord(rz)
             Return GetObjectHitPos(obj.MapID, obj.positionX, obj.positionY, obj.positionZ + 2.0F, obj2.positionX, obj2.positionY, obj2.positionZ + 2.0F, rx, ry, rz, pModifyDist)
         End Function
 
-        Public Function GetObjectHitPos(ByRef obj As BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
+        Public Function GetObjectHitPos(ByRef obj As WS_Base.BaseObject, ByVal x2 As Single, ByVal y2 As Single, ByVal z2 As Single, ByRef rx As Single, ByRef ry As Single, ByRef rz As Single, ByVal pModifyDist As Single) As Boolean
             rx = ValidateMapCoord(rx)
             ry = ValidateMapCoord(ry)
             rz = ValidateMapCoord(rz)
@@ -1019,7 +1019,7 @@ Namespace Maps
             For Each InfoRow As DataRow In MysqlQuery.Rows
                 If Not _WorldServer.WORLD_CREATUREs.ContainsKey(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd + _Global_Constants.GUID_UNIT) Then
                     Try
-                        Dim tmpCr As CreatureObject = New CreatureObject(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd, InfoRow)
+                        Dim tmpCr As WS_Creatures.CreatureObject = New WS_Creatures.CreatureObject(CType(InfoRow.Item("guid"), Long) + InstanceGuidAdd, InfoRow)
                         If tmpCr.GameEvent = 0 Then
                             tmpCr.instance = TileInstance
                             tmpCr.AddToWorld()
@@ -1037,7 +1037,7 @@ Namespace Maps
                 If Not _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + _Global_Constants.GUID_GAMEOBJECT) AndAlso
                    Not _WorldServer.WORLD_GAMEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd + _Global_Constants.GUID_TRANSPORT) Then
                     Try
-                        Dim tmpGo As GameObjectObject = New GameObjectObject(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd, InfoRow)
+                        Dim tmpGo As WS_GameObjects.GameObjectObject = New WS_GameObjects.GameObjectObject(CType(InfoRow.Item("guid"), ULong) + InstanceGuidAdd, InfoRow)
                         If tmpGo.GameEvent = 0 Then
                             tmpGo.instance = TileInstance
                             tmpGo.AddToWorld()
@@ -1054,7 +1054,7 @@ Namespace Maps
             For Each InfoRow As DataRow In MysqlQuery.Rows
                 If Not _WorldServer.WORLD_CORPSEOBJECTs.ContainsKey(CType(InfoRow.Item("guid"), ULong) + _Global_Constants.GUID_CORPSE) Then
                     Try
-                        Dim tmpCorpse As CorpseObject = New CorpseObject(InfoRow.Item("guid"), InfoRow) With {
+                        Dim tmpCorpse As WS_Corpses.CorpseObject = New WS_Corpses.CorpseObject(InfoRow.Item("guid"), InfoRow) With {
                                 .instance = TileInstance
                                 }
                         tmpCorpse.AddToWorld()
@@ -1067,7 +1067,7 @@ Namespace Maps
             'DONE: Transports
             Try
                 _WorldServer.WORLD_TRANSPORTs_Lock.AcquireReaderLock(1000)
-                For Each Transport As KeyValuePair(Of ULong, TransportObject) In _WorldServer.WORLD_TRANSPORTs
+                For Each Transport As KeyValuePair(Of ULong, WS_Transports.TransportObject) In _WorldServer.WORLD_TRANSPORTs
                     Try
                         If Transport.Value.MapID = TileMap AndAlso Transport.Value.positionX >= MinX AndAlso Transport.Value.positionX <= MaxX AndAlso Transport.Value.positionY >= MinY AndAlso Transport.Value.positionY <= MaxY Then
                             If Maps(TileMap).Tiles(TileX, TileY).GameObjectsHere.Contains(Transport.Value.GUID) = False Then
@@ -1104,7 +1104,7 @@ Namespace Maps
 
             Try
                 _WorldServer.WORLD_CREATUREs_Lock.AcquireReaderLock(_Global_Constants.DEFAULT_LOCK_TIMEOUT)
-                For Each Creature As KeyValuePair(Of ULong, CreatureObject) In _WorldServer.WORLD_CREATUREs
+                For Each Creature As KeyValuePair(Of ULong, WS_Creatures.CreatureObject) In _WorldServer.WORLD_CREATUREs
                     If Creature.Value.MapID = TileMap AndAlso Creature.Value.SpawnX >= MinX AndAlso Creature.Value.SpawnX <= MaxX AndAlso Creature.Value.SpawnY >= MinY AndAlso Creature.Value.SpawnY <= MaxY Then
                         Creature.Value.Destroy()
                     End If
@@ -1115,13 +1115,13 @@ Namespace Maps
                 _WorldServer.WORLD_CREATUREs_Lock.ReleaseReaderLock()
             End Try
 
-            For Each Gameobject As KeyValuePair(Of ULong, GameObjectObject) In _WorldServer.WORLD_GAMEOBJECTs
+            For Each Gameobject As KeyValuePair(Of ULong, WS_GameObjects.GameObjectObject) In _WorldServer.WORLD_GAMEOBJECTs
                 If Gameobject.Value.MapID = TileMap AndAlso Gameobject.Value.positionX >= MinX AndAlso Gameobject.Value.positionX <= MaxX AndAlso Gameobject.Value.positionY >= MinY AndAlso Gameobject.Value.positionY <= MaxY Then
                     Gameobject.Value.Destroy(Gameobject)
                 End If
             Next
 
-            For Each Corpseobject As KeyValuePair(Of ULong, CorpseObject) In _WorldServer.WORLD_CORPSEOBJECTs
+            For Each Corpseobject As KeyValuePair(Of ULong, WS_Corpses.CorpseObject) In _WorldServer.WORLD_CORPSEOBJECTs
                 If Corpseobject.Value.MapID = TileMap AndAlso Corpseobject.Value.positionX >= MinX AndAlso Corpseobject.Value.positionX <= MaxX AndAlso Corpseobject.Value.positionY >= MinY AndAlso Corpseobject.Value.positionY <= MaxY Then
                     Corpseobject.Value.Destroy()
                 End If
@@ -1147,5 +1147,5 @@ Namespace Maps
 
 #End Region
 
-    End Module
+    End Class
 End Namespace

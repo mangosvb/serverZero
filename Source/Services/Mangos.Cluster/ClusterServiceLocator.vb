@@ -22,4 +22,5 @@ Public Module ClusterServiceLocator
     Public Property _WC_Handlers_Social As New WC_Handlers_Social
     Public Property _WC_Handlers_Tickets As New WC_Handlers_Tickets
     Public Property _WS_Handler_Channels As New WS_Handler_Channels
+    Public Property _WcHandlerCharacter As New WcHandlerCharacter
 End Module

@@ -27,13 +27,13 @@ Imports Mangos.World.Objects
 
 Namespace Player
 
-    Public Module WS_Player_Creation
+    Public Class WS_Player_Creation
         Public Function CreateCharacter(ByVal Account As String, ByVal Name As String, ByVal Race As Byte, ByVal Classe As Byte, ByVal Gender As Byte, ByVal Skin As Byte, ByVal Face As Byte, ByVal HairStyle As Byte, ByVal HairColor As Byte, ByVal FacialHair As Byte, ByVal OutfitID As Byte) As Integer
-            Dim Character As New CharacterObject
+            Dim Character As New WS_PlayerData.CharacterObject
             Dim MySQLQuery As New DataTable
 
             'DONE: Make name capitalized as on official
-            Character.Name = CapitalizeName(Name)
+            Character.Name = _Functions.CapitalizeName(Name)
             Character.Race = Race
             Character.Classe = Classe
             Character.Gender = Gender
@@ -49,7 +49,7 @@ Namespace Player
             Dim Account_Access As AccessLevel = MySQLQuery.Rows(0).Item("gmlevel")
             Character.Access = Account_Access
 
-            If Not ValidateName(Character.Name) Then
+            If Not _Functions.ValidateName(Character.Name) Then
                 Return CharResponse.CHAR_NAME_INVALID_CHARACTER
             End If
 
@@ -75,7 +75,7 @@ Namespace Player
                 MySQLQuery.Clear()
                 _WorldServer.CharacterDatabase.Query(String.Format("SELECT char_race FROM characters WHERE account_id = ""{0}"" LIMIT 1;", Account_ID), MySQLQuery)
                 If MySQLQuery.Rows.Count > 0 Then
-                    If Character.IsHorde <> GetCharacterSide(MySQLQuery.Rows(0).Item("char_race")) Then
+                    If Character.IsHorde <> _Functions.GetCharacterSide(MySQLQuery.Rows(0).Item("char_race")) Then
                         Return CharResponse.CHAR_CREATE_PVP_TEAMS_VIOLATION
                     End If
                 End If
@@ -98,7 +98,7 @@ Namespace Player
             'DONE: Generate GUID, MySQL Auto generation
             'DONE: Create Char
             Try
-                InitializeReputations(Character)
+                _WS_Player_Initializator.InitializeReputations(Character)
                 CreateCharacter(Character)
                 Character.SaveAsNewCharacter(Account_ID)
                 CreateCharacterSpells(Character)
@@ -115,7 +115,7 @@ Namespace Player
             Return CharResponse.CHAR_CREATE_SUCCESS
         End Function
 
-        Public Sub CreateCharacter(ByRef objCharacter As CharacterObject)
+        Public Sub CreateCharacter(ByRef objCharacter As WS_PlayerData.CharacterObject)
             Dim CreateInfo As New DataTable
             Dim CreateInfoBars As New DataTable
             Dim CreateInfoSkills As New DataTable
@@ -161,12 +161,12 @@ Namespace Player
             objCharacter.Rage.Base = 0
             objCharacter.Energy.Current = 0
             objCharacter.Energy.Base = 0
-            objCharacter.ManaType = GetClassManaType(objCharacter.Classe)
+            objCharacter.ManaType = _WS_Player_Initializator.GetClassManaType(objCharacter.Classe)
 
             ' Set Character Create Information
-            objCharacter.Model = GetRaceModel(objCharacter.Race, objCharacter.Gender)
+            objCharacter.Model = _Functions.GetRaceModel(objCharacter.Race, objCharacter.Gender)
 
-            objCharacter.Faction = CharRaces(objCharacter.Race).FactionID
+            objCharacter.Faction = _WS_DBCDatabase.CharRaces(objCharacter.Race).FactionID
             objCharacter.MapID = CreateInfo.Rows(0).Item("map")
             objCharacter.ZoneID = CreateInfo.Rows(0).Item("zone")
             objCharacter.positionX = CreateInfo.Rows(0).Item("position_x")
@@ -209,7 +209,7 @@ Namespace Player
 
             ' Set Player Taxi Zones
             For i As Integer = 0 To 31
-                If (CharRaces(objCharacter.Race).TaxiMask And (1 << i)) Then
+                If (_WS_DBCDatabase.CharRaces(objCharacter.Race).TaxiMask And (1 << i)) Then
                     objCharacter.TaxiZones.Set(i + 1, True)
                 End If
             Next
@@ -218,13 +218,13 @@ Namespace Player
             For Each BarRow As DataRow In CreateInfoBars.Rows
                 If BarRow.Item("action") > 0 Then
                     ButtonPos = BarRow.Item("button")
-                    objCharacter.ActionButtons(ButtonPos) = New TActionButton(BarRow.Item("action"), BarRow.Item("type"), 0)
+                    objCharacter.ActionButtons(ButtonPos) = New WS_PlayerHelper.TActionButton(BarRow.Item("action"), BarRow.Item("type"), 0)
                 End If
             Next
 
         End Sub
 
-        Public Sub CreateCharacterSpells(ByRef objCharacter As CharacterObject)
+        Public Sub CreateCharacterSpells(ByRef objCharacter As WS_PlayerData.CharacterObject)
             Dim CreateInfoSpells As New DataTable
 
             _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_spell WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoSpells)
@@ -238,7 +238,7 @@ Namespace Player
             Next
         End Sub
 
-        Public Sub CreateCharacterItems(ByRef objCharacter As CharacterObject)
+        Public Sub CreateCharacterItems(ByRef objCharacter As WS_PlayerData.CharacterObject)
 
             Dim CreateInfoItems As New DataTable
             _WorldServer.WorldDatabase.Query(String.Format("SELECT * FROM playercreateinfo_item WHERE race = {0} AND class = {1};", CType(objCharacter.Race, Integer), CType(objCharacter.Classe, Integer)), CreateInfoItems)
@@ -285,9 +285,9 @@ Namespace Player
                     End If
                 Next
                 objCharacter.ItemADD(Item.Key, 255, 255, Item.Value)
-                NextItem:
+NextItem:
             Next
 
         End Sub
-    End Module
-End NameSpace
+    End Class
+End Namespace

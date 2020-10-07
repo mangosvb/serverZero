@@ -51,13 +51,13 @@ Namespace Creatures
 
         Public Sub CastInfectedWound()
             For i As Integer = 0 To 0
-                Dim target As BaseUnit = aiCreature
+                Dim target As WS_Base.BaseUnit = aiCreature
                 If target Is Nothing Then Exit Sub
                 aiCreature.CastSpell(Spell_Infected_Wound, aiTarget)
             Next
         End Sub
 
-        Public Sub HealGluth(ByRef NPC_Gluth As CreatureObject, ByRef Zombie_Chow As CreatureObject)
+        Public Sub HealGluth(ByRef NPC_Gluth As WS_Creatures.CreatureObject, ByRef Zombie_Chow As WS_Creatures.CreatureObject)
             Dim Waypoint1 As New coords
             With Waypoint1
                 .X = 3304.919922

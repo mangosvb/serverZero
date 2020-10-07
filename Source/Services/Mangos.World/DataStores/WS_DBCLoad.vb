@@ -29,7 +29,7 @@ Imports Mangos.World.Weather
 
 Namespace DataStores
 
-    Public Module WS_DBCLoad
+    Public Class WS_DBCLoad
 
 #Region "Spells"
         Public Sub InitializeSpellRadius()
@@ -45,7 +45,7 @@ Namespace DataStores
                     radiusValue = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT)
                     '   radiusValue2 = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT) ' May be needed in the future
 
-                    SpellRadius(radiusID) = radiusValue
+                    _WS_Spells.SpellRadius(radiusID) = radiusValue
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", tmpDBC.Rows - 1)
@@ -67,7 +67,7 @@ Namespace DataStores
                     spellCastID = tmpDBC.Item(i, 0)
                     spellCastTimeS = tmpDBC.Item(i, 1)
 
-                    SpellCastTime(spellCastID) = spellCastTimeS
+                    _WS_Spells.SpellCastTime(spellCastID) = spellCastTimeS
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", tmpDBC.Rows - 1)
@@ -91,7 +91,7 @@ Namespace DataStores
                     '   spellRangeMin = tmpDBC.Item(i, 1, DBCValueType.DBC_FLOAT) ' Added back may be needed in the future
                     spellRangeMax = tmpDBC.Item(i, 2, DBCValueType.DBC_FLOAT)
 
-                    SpellRange(spellRangeIndex) = spellRangeMax
+                    _WS_Spells.SpellRange(spellRangeIndex) = spellRangeMax
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", tmpDBC.Rows - 1)
@@ -117,7 +117,7 @@ Namespace DataStores
                     creatureType = tmpDBC.Item(i, 12)
                     attackSpeed = tmpDBC.Item(i, 13)
 
-                    SpellShapeShiftForm.Add(New TSpellShapeshiftForm(id, flags1, creatureType, attackSpeed))
+                    _WS_DBCDatabase.SpellShapeShiftForm.Add(New WS_DBCDatabase.TSpellShapeshiftForm(id, flags1, creatureType, attackSpeed))
                 Next i
 
                 tmpDBC.Dispose()
@@ -139,7 +139,7 @@ Namespace DataStores
                     spellFocusIndex = tmpDBC.Item(i, 0)
                     spellFocusObjectName = tmpDBC.Item(i, 1, DBCValueType.DBC_STRING)
 
-                    SpellFocusObject(spellFocusIndex) = spellFocusObjectName
+                    _WS_Spells.SpellFocusObject(spellFocusIndex) = spellFocusObjectName
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", tmpDBC.Rows - 1)
@@ -165,7 +165,7 @@ Namespace DataStores
                     '    SpellDurationValue2 = tmpDBC.Item(i, 2) ' May be needed in the future
                     '    SpellDurationValue3 = tmpDBC.Item(i, 3) ' May be needed in the future
 
-                    SpellDuration(spellDurationIndex) = spellDurationValue
+                    _WS_Spells.SpellDuration(spellDurationIndex) = spellDurationValue
                 Next i
 
                 tmpDBC.Dispose()
@@ -190,7 +190,7 @@ Namespace DataStores
                         ' 3 = Not Used
                         ' AttributesEx3 = SpellDBC.Item(i, 9)
                         ' AttributesEx4 = SpellDBC.Item(i, 10)
-                        WS_Spells.SPELLs(id) = New WS_Spells.SpellInfo With {
+                        _WS_Spells.SPELLs(id) = New WS_Spells.SpellInfo With {
                             .ID = id,
                             .School = spellDBC.Item(i, 1),
                             .Category = spellDBC.Item(i, 2),
@@ -229,36 +229,36 @@ Namespace DataStores
                             .modalNextSpell = spellDBC.Item(i, 38), ' Not Used
                             .maxStack = spellDBC.Item(i, 39)
                             }
-                        WS_Spells.SPELLs(id).Totem(0) = spellDBC.Item(i, 40)
-                        WS_Spells.SPELLs(id).Totem(1) = spellDBC.Item(i, 41)
+                        _WS_Spells.SPELLs(id).Totem(0) = spellDBC.Item(i, 40)
+                        _WS_Spells.SPELLs(id).Totem(1) = spellDBC.Item(i, 41)
 
                         '-CORRECT-
-                        WS_Spells.SPELLs(id).Reagents(0) = spellDBC.Item(i, 42)
-                        WS_Spells.SPELLs(id).Reagents(1) = spellDBC.Item(i, 43)
-                        WS_Spells.SPELLs(id).Reagents(2) = spellDBC.Item(i, 44)
-                        WS_Spells.SPELLs(id).Reagents(3) = spellDBC.Item(i, 45)
-                        WS_Spells.SPELLs(id).Reagents(4) = spellDBC.Item(i, 46)
-                        WS_Spells.SPELLs(id).Reagents(5) = spellDBC.Item(i, 47)
-                        WS_Spells.SPELLs(id).Reagents(6) = spellDBC.Item(i, 48)
-                        WS_Spells.SPELLs(id).Reagents(7) = spellDBC.Item(i, 49)
+                        _WS_Spells.SPELLs(id).Reagents(0) = spellDBC.Item(i, 42)
+                        _WS_Spells.SPELLs(id).Reagents(1) = spellDBC.Item(i, 43)
+                        _WS_Spells.SPELLs(id).Reagents(2) = spellDBC.Item(i, 44)
+                        _WS_Spells.SPELLs(id).Reagents(3) = spellDBC.Item(i, 45)
+                        _WS_Spells.SPELLs(id).Reagents(4) = spellDBC.Item(i, 46)
+                        _WS_Spells.SPELLs(id).Reagents(5) = spellDBC.Item(i, 47)
+                        _WS_Spells.SPELLs(id).Reagents(6) = spellDBC.Item(i, 48)
+                        _WS_Spells.SPELLs(id).Reagents(7) = spellDBC.Item(i, 49)
 
-                        WS_Spells.SPELLs(id).ReagentsCount(0) = spellDBC.Item(i, 50)
-                        WS_Spells.SPELLs(id).ReagentsCount(1) = spellDBC.Item(i, 51)
-                        WS_Spells.SPELLs(id).ReagentsCount(2) = spellDBC.Item(i, 52)
-                        WS_Spells.SPELLs(id).ReagentsCount(3) = spellDBC.Item(i, 53)
-                        WS_Spells.SPELLs(id).ReagentsCount(4) = spellDBC.Item(i, 54)
-                        WS_Spells.SPELLs(id).ReagentsCount(5) = spellDBC.Item(i, 55)
-                        WS_Spells.SPELLs(id).ReagentsCount(6) = spellDBC.Item(i, 56)
-                        WS_Spells.SPELLs(id).ReagentsCount(7) = spellDBC.Item(i, 57)
+                        _WS_Spells.SPELLs(id).ReagentsCount(0) = spellDBC.Item(i, 50)
+                        _WS_Spells.SPELLs(id).ReagentsCount(1) = spellDBC.Item(i, 51)
+                        _WS_Spells.SPELLs(id).ReagentsCount(2) = spellDBC.Item(i, 52)
+                        _WS_Spells.SPELLs(id).ReagentsCount(3) = spellDBC.Item(i, 53)
+                        _WS_Spells.SPELLs(id).ReagentsCount(4) = spellDBC.Item(i, 54)
+                        _WS_Spells.SPELLs(id).ReagentsCount(5) = spellDBC.Item(i, 55)
+                        _WS_Spells.SPELLs(id).ReagentsCount(6) = spellDBC.Item(i, 56)
+                        _WS_Spells.SPELLs(id).ReagentsCount(7) = spellDBC.Item(i, 57)
                         '-/CORRECT-
 
-                        WS_Spells.SPELLs(id).EquippedItemClass = spellDBC.Item(i, 58) 'Value
-                        WS_Spells.SPELLs(id).EquippedItemSubClass = spellDBC.Item(i, 59) 'Mask
-                        WS_Spells.SPELLs(id).EquippedItemInventoryType = spellDBC.Item(i, 60) 'Mask
+                        _WS_Spells.SPELLs(id).EquippedItemClass = spellDBC.Item(i, 58) 'Value
+                        _WS_Spells.SPELLs(id).EquippedItemSubClass = spellDBC.Item(i, 59) 'Mask
+                        _WS_Spells.SPELLs(id).EquippedItemInventoryType = spellDBC.Item(i, 60) 'Mask
 
                         For j As Integer = 0 To 2
                             If CInt(spellDBC.Item(i, 61 + j)) <> 0 Then
-                                WS_Spells.SPELLs(id).SpellEffects(j) = New SpellEffect(WS_Spells.SPELLs(id)) With {
+                                _WS_Spells.SPELLs(id).SpellEffects(j) = New WS_Spells.SpellEffect(_WS_Spells.SPELLs(id)) With {
                                     .ID = spellDBC.Item(i, 61 + j),
                                     .valueDie = spellDBC.Item(i, 64 + j),
                                     .diceBase = spellDBC.Item(i, 67 + j),
@@ -279,16 +279,16 @@ Namespace DataStores
                                     .valuePerComboPoint = spellDBC.Item(i, 112 + j)
                                     }
                             Else
-                                WS_Spells.SPELLs(id).SpellEffects(j) = Nothing
+                                _WS_Spells.SPELLs(id).SpellEffects(j) = Nothing
                             End If
                         Next
 
-                        WS_Spells.SPELLs(id).SpellVisual = spellDBC.Item(i, 115)
+                        _WS_Spells.SPELLs(id).SpellVisual = spellDBC.Item(i, 115)
                         '116 = Always zero? - SpellVisual2 - Not Used
-                        WS_Spells.SPELLs(id).SpellIconID = spellDBC.Item(i, 117)
-                        WS_Spells.SPELLs(id).ActiveIconID = spellDBC.Item(i, 118)
+                        _WS_Spells.SPELLs(id).SpellIconID = spellDBC.Item(i, 117)
+                        _WS_Spells.SPELLs(id).ActiveIconID = spellDBC.Item(i, 118)
                         '119 = spellPriority
-                        WS_Spells.SPELLs(id).Name = spellDBC.Item(i, 120, DBCValueType.DBC_STRING)
+                        _WS_Spells.SPELLs(id).Name = spellDBC.Item(i, 120, DBCValueType.DBC_STRING)
                         '121 = Always zero?
                         '122 = Always zero?
                         '123 = Always zero?
@@ -297,7 +297,7 @@ Namespace DataStores
                         '126 = Always zero?
                         '127 = Always zero?
                         '128 = Always zero?
-                        WS_Spells.SPELLs(id).Rank = spellDBC.Item(i, 129, DBCValueType.DBC_STRING)
+                        _WS_Spells.SPELLs(id).Rank = spellDBC.Item(i, 129, DBCValueType.DBC_STRING)
                         '130 = Always zero?
                         '131 = Always zero?
                         '132 = Always zero?
@@ -324,20 +324,20 @@ Namespace DataStores
                         '153 = Always zero?
                         '154 = Always zero?
                         '155 = ToolTipFlags - Not Used
-                        WS_Spells.SPELLs(id).manaCostPercent = spellDBC.Item(i, 156)
-                        WS_Spells.SPELLs(id).StartRecoveryCategory = spellDBC.Item(i, 157)
-                        WS_Spells.SPELLs(id).StartRecoveryTime = spellDBC.Item(i, 158)
-                        WS_Spells.SPELLs(id).AffectedTargetLevel = spellDBC.Item(i, 159)
-                        WS_Spells.SPELLs(id).SpellFamilyName = spellDBC.Item(i, 160)
-                        WS_Spells.SPELLs(id).SpellFamilyFlags = spellDBC.Item(i, 161) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
-                        WS_Spells.SPELLs(id).MaxTargets = spellDBC.Item(i, 163)
-                        WS_Spells.SPELLs(id).DamageType = spellDBC.Item(i, 164) ' defenseType
+                        _WS_Spells.SPELLs(id).manaCostPercent = spellDBC.Item(i, 156)
+                        _WS_Spells.SPELLs(id).StartRecoveryCategory = spellDBC.Item(i, 157)
+                        _WS_Spells.SPELLs(id).StartRecoveryTime = spellDBC.Item(i, 158)
+                        _WS_Spells.SPELLs(id).AffectedTargetLevel = spellDBC.Item(i, 159)
+                        _WS_Spells.SPELLs(id).SpellFamilyName = spellDBC.Item(i, 160)
+                        _WS_Spells.SPELLs(id).SpellFamilyFlags = spellDBC.Item(i, 161) ' ClassFamilyMask SpellFamilyFlags;                   // 161+162
+                        _WS_Spells.SPELLs(id).MaxTargets = spellDBC.Item(i, 163)
+                        _WS_Spells.SPELLs(id).DamageType = spellDBC.Item(i, 164) ' defenseType
                         'SPELLs(ID).PreventionType = SpellDBC.Item(i, 165)
                         '166 = StanceBarOrder - Not Used
 
                         For j As Integer = 0 To 2
-                            If WS_Spells.SPELLs(id).SpellEffects(j) IsNot Nothing Then
-                                WS_Spells.SPELLs(id).SpellEffects(j).DamageMultiplier = spellDBC.Item(i, 167 + j, DBCValueType.DBC_FLOAT)
+                            If _WS_Spells.SPELLs(id).SpellEffects(j) IsNot Nothing Then
+                                _WS_Spells.SPELLs(id).SpellEffects(j).DamageMultiplier = spellDBC.Item(i, 167 + j, DBCValueType.DBC_FLOAT)
                             End If
                         Next
 
@@ -345,7 +345,7 @@ Namespace DataStores
                         '171 = MinReputation - Not Used
                         '172 = RequiredAuraVision - Not Used
 
-                        WS_Spells.SPELLs(id).InitCustomAttributes()
+                        _WS_Spells.SPELLs(id).InitCustomAttributes()
 
                     Catch e As Exception
                         _WorldServer.Log.WriteLine(LogType.FAILED, "Line {0} caused error: {1}", i, e.ToString)
@@ -368,7 +368,7 @@ Namespace DataStores
                 _WorldServer.WorldDatabase.Query("SELECT spell_id, prev_spell FROM spell_chain", spellChainQuery)
 
                 For Each spellChain As DataRow In spellChainQuery.Rows
-                    SpellChains.Add(spellChain.Item("spell_id"), spellChain.Item("prev_spell"))
+                    _WS_Spells.SpellChains.Add(spellChain.Item("spell_id"), spellChain.Item("prev_spell"))
                 Next
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} SpellChains initialized.", spellChainQuery.Rows.Count)
@@ -403,7 +403,7 @@ Namespace DataStores
                     taxiMountTypeAlliance = tmpDBC.Item(i, 15)
 
                     If _WorldServer.Config.Maps.Contains(taxiMapID.ToString) Then
-                        TaxiNodes.Add(taxiNode, New TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountTypeHorde, taxiMountTypeAlliance))
+                        _WS_DBCDatabase.TaxiNodes.Add(taxiNode, New WS_DBCDatabase.TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountTypeHorde, taxiMountTypeAlliance))
                     End If
                 Next i
 
@@ -431,7 +431,7 @@ Namespace DataStores
                     taxiTo = tmpDBC.Item(i, 2)
                     taxiPrice = tmpDBC.Item(i, 3)
 
-                    TaxiPaths.Add(taxiNode, New TTaxiPath(taxiFrom, taxiTo, taxiPrice))
+                    _WS_DBCDatabase.TaxiPaths.Add(taxiNode, New WS_DBCDatabase.TTaxiPath(taxiFrom, taxiTo, taxiPrice))
 
                 Next i
 
@@ -470,10 +470,10 @@ Namespace DataStores
                     taxiWait = tmpDBC.Item(i, 8)
 
                     If _WorldServer.Config.Maps.Contains(taxiMapID.ToString) Then
-                        If TaxiPathNodes.ContainsKey(taxiPath) = False Then
-                            TaxiPathNodes.Add(taxiPath, New Dictionary(Of Integer, TTaxiPathNode))
+                        If _WS_DBCDatabase.TaxiPathNodes.ContainsKey(taxiPath) = False Then
+                            _WS_DBCDatabase.TaxiPathNodes.Add(taxiPath, New Dictionary(Of Integer, WS_DBCDatabase.TTaxiPathNode))
                         End If
-                        TaxiPathNodes(taxiPath).Add(taxiSeq, New TTaxiPathNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiPath, taxiSeq, taxiAction, taxiWait))
+                        _WS_DBCDatabase.TaxiPathNodes(taxiPath).Add(taxiSeq, New WS_DBCDatabase.TTaxiPathNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiPath, taxiSeq, taxiAction, taxiWait))
                     End If
                 Next i
 
@@ -508,7 +508,7 @@ Namespace DataStores
                     'skillDescription = tmpDBC.Item(i, 12, DBCValueType.DBC_STRING)
                     'skillSpellIcon = tmpDBC.Item(i, 21)
 
-                    SkillLines(skillID) = skillLine
+                    _WS_DBCDatabase.SkillLines(skillID) = skillLine
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", tmpDBC.Rows - 1)
@@ -525,7 +525,7 @@ Namespace DataStores
                 Dim tmpDBC As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "SkillLineAbility.dbc")
 
                 For i As Integer = 0 To tmpDBC.Rows - 1
-                    Dim tmpSkillLineAbility As New TSkillLineAbility With {
+                    Dim tmpSkillLineAbility As New WS_DBCDatabase.TSkillLineAbility With {
                             .ID = tmpDBC.Item(i, 0),
                             .SkillID = tmpDBC.Item(i, 1),
                             .SpellID = tmpDBC.Item(i, 2),
@@ -540,7 +540,7 @@ Namespace DataStores
                             .Min_Value = tmpDBC.Item(i, 11)
                             }
 
-                    SkillLineAbility.Add(tmpSkillLineAbility.ID, tmpSkillLineAbility)
+                    _WS_DBCDatabase.SkillLineAbility.Add(tmpSkillLineAbility.ID, tmpSkillLineAbility)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", tmpDBC.Rows - 1)
@@ -580,7 +580,7 @@ Namespace DataStores
                     reqMining = tmpDBC.Item(i, 17) ' Not sure about this one leaving it like it is
                     reqLockSkill = tmpDBC.Item(i, 17)
 
-                    Locks(lockID) = New WS_Loot.TLock(keyType, key, reqMining, reqLockSkill)
+                    _WS_Loot.Locks(lockID) = New WS_Loot.TLock(keyType, key, reqMining, reqLockSkill)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", tmpDBC.Rows - 1)
@@ -629,7 +629,7 @@ Namespace DataStores
                     If areaLevel < 0 Then areaLevel = 0
 
                     'AreaTable(areaExploreFlag).Name = areaName
-                    AreaTable(areaExploreFlag) = New WS_Maps.TArea With {
+                    _WS_Maps.AreaTable(areaExploreFlag) = New WS_Maps.TArea With {
                         .ID = areaID,
                         .mapId = areaMapID,
                         .Level = areaLevel,
@@ -659,7 +659,7 @@ Namespace DataStores
                     emoteID = tmpDBC.Item(i, 0)
                     emoteState = tmpDBC.Item(i, 4)
 
-                    If emoteID <> 0 Then EmotesState(emoteID) = emoteState
+                    If emoteID <> 0 Then _WS_DBCDatabase.EmotesState(emoteID) = emoteState
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", tmpDBC.Rows - 1)
@@ -691,7 +691,7 @@ Namespace DataStores
                     'EmoteID5 = tmpDBC.Item(i, 7) ' May be needed in the future
                     'EmoteID6 = tmpDBC.Item(i, 8) ' May be needed in the future
 
-                    If emoteID <> 0 Then EmotesText(textEmoteID) = emoteID
+                    If emoteID <> 0 Then _WS_DBCDatabase.EmotesText(textEmoteID) = emoteID
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", tmpDbc.Rows - 1)
@@ -733,7 +733,7 @@ Namespace DataStores
                     reputationFlags(3) = tmpDBC.Item(i, 17)
                     'factionName = tmpDBC.Item(i, 19) ' May be needed in the future
 
-                    FactionInfo(factionID) = New TFaction(factionID, factionFlag,
+                    _WS_DBCDatabase.FactionInfo(factionID) = New WS_DBCDatabase.TFaction(factionID, factionFlag,
                                                           flags(0), flags(1), flags(2), flags(3),
                                                           reputationStats(0), reputationStats(1), reputationStats(2), reputationStats(3),
                                                           reputationFlags(0), reputationFlags(1), reputationFlags(2), reputationFlags(3))
@@ -757,19 +757,19 @@ Namespace DataStores
 
                 For i As Integer = 0 To tmpDBC.Rows - 1
                     templateID = tmpDBC.Item(i, 0)
-                    FactionTemplatesInfo.Add(templateID, New TFactionTemplate)
-                    FactionTemplatesInfo(templateID).FactionID = tmpDBC.Item(i, 1)
-                    FactionTemplatesInfo(templateID).ourMask = tmpDBC.Item(i, 3)
-                    FactionTemplatesInfo(templateID).friendMask = tmpDBC.Item(i, 4)
-                    FactionTemplatesInfo(templateID).enemyMask = tmpDBC.Item(i, 5)
-                    FactionTemplatesInfo(templateID).enemyFaction1 = tmpDBC.Item(i, 6)
-                    FactionTemplatesInfo(templateID).enemyFaction2 = tmpDBC.Item(i, 7)
-                    FactionTemplatesInfo(templateID).enemyFaction3 = tmpDBC.Item(i, 8)
-                    FactionTemplatesInfo(templateID).enemyFaction4 = tmpDBC.Item(i, 9)
-                    FactionTemplatesInfo(templateID).friendFaction1 = tmpDBC.Item(i, 10)
-                    FactionTemplatesInfo(templateID).friendFaction2 = tmpDBC.Item(i, 11)
-                    FactionTemplatesInfo(templateID).friendFaction3 = tmpDBC.Item(i, 12)
-                    FactionTemplatesInfo(templateID).friendFaction4 = tmpDBC.Item(i, 13)
+                    _WS_DBCDatabase.FactionTemplatesInfo.Add(templateID, New WS_DBCDatabase.TFactionTemplate)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).FactionID = tmpDBC.Item(i, 1)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).ourMask = tmpDBC.Item(i, 3)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).friendMask = tmpDBC.Item(i, 4)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).enemyMask = tmpDBC.Item(i, 5)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).enemyFaction1 = tmpDBC.Item(i, 6)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).enemyFaction2 = tmpDBC.Item(i, 7)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).enemyFaction3 = tmpDBC.Item(i, 8)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).enemyFaction4 = tmpDBC.Item(i, 9)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).friendFaction1 = tmpDBC.Item(i, 10)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).friendFaction2 = tmpDBC.Item(i, 11)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).friendFaction3 = tmpDBC.Item(i, 12)
+                    _WS_DBCDatabase.FactionTemplatesInfo(templateID).friendFaction4 = tmpDBC.Item(i, 13)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", tmpDBC.Rows - 1)
@@ -805,7 +805,7 @@ Namespace DataStores
                     cinematicID = tmpDBC.Item(i, 16)
                     name = tmpDBC.Item(i, 17, DBCValueType.DBC_STRING)
 
-                    CharRaces(CByte(raceID)) = New TCharRace(factionID, modelM, modelF, teamID, taxiMask, cinematicID, name)
+                    _WS_DBCDatabase.CharRaces(CByte(raceID)) = New WS_DBCDatabase.TCharRace(factionID, modelM, modelF, teamID, taxiMask, cinematicID, name)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
@@ -829,7 +829,7 @@ Namespace DataStores
                     classID = tmpDBC.Item(i, 0)
                     cinematicID = tmpDBC.Item(i, 5)
 
-                    CharClasses(CByte(classID)) = New TCharClass(cinematicID)
+                    _WS_DBCDatabase.CharClasses(CByte(classID)) = New WS_DBCDatabase.TCharClass(cinematicID)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", tmpDBC.Rows - 1)
@@ -856,7 +856,7 @@ Namespace DataStores
 
                     For itemType = 1 To tmpDBC.Columns - 1
                         itemPrice = tmpDBC.Item(i, itemType)
-                        DurabilityCosts(itemBroken, itemType - 1) = itemPrice
+                        _WS_DBCDatabase.DurabilityCosts(itemBroken, itemType - 1) = itemPrice
                     Next
 
                 Next i
@@ -876,10 +876,10 @@ Namespace DataStores
             Try
                 Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "Talent.dbc")
 
-                Dim tmpInfo As TalentInfo
+                Dim tmpInfo As WS_DBCDatabase.TalentInfo
 
                 For i As Integer = 0 To dbc.Rows - 1
-                    tmpInfo = New TalentInfo With {
+                    tmpInfo = New WS_DBCDatabase.TalentInfo With {
                         .TalentID = dbc.Item(i, 0),
                         .TalentTab = dbc.Item(i, 1),
                         .Row = dbc.Item(i, 2),
@@ -899,7 +899,7 @@ Namespace DataStores
                     'tmpInfo.RequiredPoints(1) = DBC.Item(i, 17) ' ???
                     'tmpInfo.RequiredPoints(2) = DBC.Item(i, 18) ' ???
 
-                    Talents.Add(tmpInfo.TalentID, tmpInfo)
+                    _WS_DBCDatabase.Talents.Add(tmpInfo.TalentID, tmpInfo)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", dbc.Rows - 1)
@@ -924,7 +924,7 @@ Namespace DataStores
                     talentMask = dbc.Item(i, 12)
                     '   TalentTabPage = dbc.Item(i, 13) ' May be needed in the future
 
-                    TalentsTab.Add(talentTab, talentMask)
+                    _WS_DBCDatabase.TalentsTab.Add(talentTab, talentMask)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", dbc.Rows - 1)
@@ -954,9 +954,9 @@ Namespace DataStores
                     tax = dbc.Item(i, 3)
 
                     'TODO: This needs to be put into a class or dictionary collection
-                    AuctionID = ahId
-                    AuctionFee = fee
-                    AuctionTax = tax
+                    _WS_Auction.AuctionID = ahId
+                    _WS_Auction.AuctionFee = fee
+                    _WS_Auction.AuctionTax = tax
 
                 Next i
 
@@ -1000,7 +1000,7 @@ Namespace DataStores
                     slot = dbc.Item(i, 23)
                     'EnchantmentConditions = DBC.Item(i, 23) ' TODO: Correct?
 
-                    SpellItemEnchantments.Add(id, New TSpellItemEnchantment(type, amount, spellID, auraID, slot)) ', EnchantmentConditions))
+                    _WS_DBCDatabase.SpellItemEnchantments.Add(id, New WS_DBCDatabase.TSpellItemEnchantment(type, amount, spellID, auraID, slot)) ', EnchantmentConditions))
                 Next
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", dbc.Rows - 1)
@@ -1054,7 +1054,7 @@ Namespace DataStores
                     'Required_Skill_ID = DBC.Item(i, 43)
                     'Required_Skill_Value = DBC.Item(i, 44)
 
-                    ItemSet.Add(id, New TItemSet(name, itemID, spellID, itemCount, requiredSkillID, requiredSkillValue))
+                    _WS_DBCDatabase.ItemSet.Add(id, New WS_DBCDatabase.TItemSet(name, itemID, spellID, itemCount, requiredSkillID, requiredSkillValue))
                 Next
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", dbc.Rows - 1)
@@ -1070,16 +1070,16 @@ Namespace DataStores
             Try
                 Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "ItemDisplayInfo.dbc")
 
-                Dim tmpItemDisplayInfo As TItemDisplayInfo
+                Dim tmpItemDisplayInfo As WS_DBCDatabase.TItemDisplayInfo
 
                 For i As Integer = 0 To dbc.Rows - 1
-                    tmpItemDisplayInfo = New TItemDisplayInfo With {
+                    tmpItemDisplayInfo = New WS_DBCDatabase.TItemDisplayInfo With {
                         .ID = dbc.Item(i, 0),
                         .RandomPropertyChance = dbc.Item(i, 11),
                         .Unknown = dbc.Item(i, 22)
                         }
 
-                    ItemDisplayInfo.Add(tmpItemDisplayInfo.ID, tmpItemDisplayInfo)
+                    _WS_DBCDatabase.ItemDisplayInfo.Add(tmpItemDisplayInfo.ID, tmpItemDisplayInfo)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", dbc.Rows - 1)
@@ -1095,10 +1095,10 @@ Namespace DataStores
             Try
                 Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "ItemRandomProperties.dbc")
 
-                Dim tmpInfo As TItemRandomPropertiesInfo
+                Dim tmpInfo As WS_DBCDatabase.TItemRandomPropertiesInfo
 
                 For i As Integer = 0 To dbc.Rows - 1
-                    tmpInfo = New TItemRandomPropertiesInfo With {
+                    tmpInfo = New WS_DBCDatabase.TItemRandomPropertiesInfo With {
                         .ID = dbc.Item(i, 0)
                         }
 
@@ -1106,7 +1106,7 @@ Namespace DataStores
                     tmpInfo.Enchant_ID(1) = dbc.Item(i, 3)
                     tmpInfo.Enchant_ID(2) = dbc.Item(i, 4)
 
-                    ItemRandomPropertiesInfo.Add(tmpInfo.ID, tmpInfo)
+                    _WS_DBCDatabase.ItemRandomPropertiesInfo.Add(tmpInfo.ID, tmpInfo)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", dbc.Rows - 1)
@@ -1129,12 +1129,12 @@ Namespace DataStores
                 Dim guid As ULong
                 For Each gossip As DataRow In gossipQuery.Rows
                     guid = gossip.Item("npc_guid")
-                    If CreatureGossip.ContainsKey(guid) = False Then
-                        CreatureGossip.Add(guid, gossip.Item("textid"))
+                    If _WS_DBCDatabase.CreatureGossip.ContainsKey(guid) = False Then
+                        _WS_DBCDatabase.CreatureGossip.Add(guid, gossip.Item("textid"))
                     End If
                 Next
 
-                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature gossips initialized.", CreatureGossip.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature gossips initialized.", _WS_DBCDatabase.CreatureGossip.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : npc_gossip missing.")
@@ -1146,10 +1146,10 @@ Namespace DataStores
             Try
                 Dim dbc As BufferedDbc = New BufferedDbc("dbc" & Path.DirectorySeparatorChar & "CreatureFamily.dbc")
 
-                Dim tmpInfo As CreatureFamilyInfo
+                Dim tmpInfo As WS_DBCDatabase.CreatureFamilyInfo
 
                 For i As Integer = 0 To dbc.Rows - 1
-                    tmpInfo = New CreatureFamilyInfo With {
+                    tmpInfo = New WS_DBCDatabase.CreatureFamilyInfo With {
                         .ID = dbc.Item(i, 0),
                         .Unknown1 = dbc.Item(i, 5),
                         .Unknown2 = dbc.Item(i, 6),
@@ -1157,7 +1157,7 @@ Namespace DataStores
                         .Name = dbc.Item(i, 12, DBCValueType.DBC_STRING)
                         }
 
-                    CreaturesFamily.Add(tmpInfo.ID, tmpInfo)
+                    _WS_DBCDatabase.CreaturesFamily.Add(tmpInfo.ID, tmpInfo)
                 Next i
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", dbc.Rows - 1)
@@ -1177,13 +1177,13 @@ Namespace DataStores
                 Dim id As Integer
                 For Each movement As DataRow In movementsQuery.Rows
                     id = movement.Item("id")
-                    If CreatureMovement.ContainsKey(id) = False Then
-                        CreatureMovement.Add(id, New Dictionary(Of Integer, CreatureMovePoint))
+                    If _WS_DBCDatabase.CreatureMovement.ContainsKey(id) = False Then
+                        _WS_DBCDatabase.CreatureMovement.Add(id, New Dictionary(Of Integer, WS_DBCDatabase.CreatureMovePoint))
                     End If
-                    CreatureMovement(id).Add(movement.Item("point"), New CreatureMovePoint(movement.Item("position_x"), movement.Item("position_y"), movement.Item("position_z"), movement.Item("delay"), movement.Item("move_flag"), movement.Item("action"), movement.Item("action_chance")))
+                    _WS_DBCDatabase.CreatureMovement(id).Add(movement.Item("point"), New WS_DBCDatabase.CreatureMovePoint(movement.Item("position_x"), movement.Item("position_y"), movement.Item("position_z"), movement.Item("delay"), movement.Item("move_flag"), movement.Item("action"), movement.Item("action_chance")))
                 Next
 
-                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature movements for {1} creatures initialized.", movementsQuery.Rows.Count, CreatureMovement.Count)
+                _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature movements for {1} creatures initialized.", movementsQuery.Rows.Count, _WS_DBCDatabase.CreatureMovement.Count)
             Catch e As DirectoryNotFoundException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : Waypoint_Data missing.")
@@ -1198,8 +1198,8 @@ Namespace DataStores
                 Dim entry As Integer
                 For Each equipInfo As DataRow In equipQuery.Rows
                     entry = equipInfo.Item("entry")
-                    If CreatureEquip.ContainsKey(entry) Then Continue For
-                    CreatureEquip.Add(entry, New CreatureEquipInfo(equipInfo.Item("equipmodel1"), equipInfo.Item("equipmodel2"), equipInfo.Item("equipmodel3"), equipInfo.Item("equipinfo1"), equipInfo.Item("equipinfo2"), equipInfo.Item("equipinfo3"), equipInfo.Item("equipslot1"), equipInfo.Item("equipslot2"), equipInfo.Item("equipslot3")))
+                    If _WS_DBCDatabase.CreatureEquip.ContainsKey(entry) Then Continue For
+                    _WS_DBCDatabase.CreatureEquip.Add(entry, New WS_DBCDatabase.CreatureEquipInfo(equipInfo.Item("equipmodel1"), equipInfo.Item("equipmodel2"), equipInfo.Item("equipmodel3"), equipInfo.Item("equipinfo1"), equipInfo.Item("equipinfo2"), equipInfo.Item("equipinfo3"), equipInfo.Item("equipslot1"), equipInfo.Item("equipslot2"), equipInfo.Item("equipslot3")))
                 Next
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", equipQuery.Rows.Count)
@@ -1217,8 +1217,8 @@ Namespace DataStores
                 Dim entry As Integer
                 For Each modelInfo As DataRow In modelQuery.Rows
                     entry = modelInfo.Item("modelid")
-                    If CreatureModel.ContainsKey(entry) Then Continue For
-                    CreatureModel.Add(entry, New CreatureModelInfo(modelInfo.Item("bounding_radius"), modelInfo.Item("combat_reach"), modelInfo.Item("gender"), modelInfo.Item("modelid_other_gender")))
+                    If _WS_DBCDatabase.CreatureModel.ContainsKey(entry) Then Continue For
+                    _WS_DBCDatabase.CreatureModel.Add(entry, New WS_DBCDatabase.CreatureModelInfo(modelInfo.Item("bounding_radius"), modelInfo.Item("combat_reach"), modelInfo.Item("gender"), modelInfo.Item("modelid_other_gender")))
                 Next
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature models initialized.", modelQuery.Rows.Count)
@@ -1284,15 +1284,15 @@ Namespace DataStores
 
 #Region "Loot"
         Public Sub LoadLootStores()
-            LootTemplates_Creature = New LootStore("creature_loot_template")
-            LootTemplates_Disenchant = New LootStore("disenchant_loot_template")
-            LootTemplates_Fishing = New LootStore("fishing_loot_template")
-            LootTemplates_Gameobject = New LootStore("gameobject_loot_template")
-            LootTemplates_Item = New LootStore("item_loot_template")
-            LootTemplates_Pickpocketing = New LootStore("pickpocketing_loot_template")
-            LootTemplates_QuestMail = New LootStore("quest_mail_loot_template")
-            LootTemplates_Reference = New LootStore("reference_loot_template")
-            LootTemplates_Skinning = New LootStore("skinning_loot_template")
+            _WS_Loot.LootTemplates_Creature = New WS_Loot.LootStore("creature_loot_template")
+            _WS_Loot.LootTemplates_Disenchant = New WS_Loot.LootStore("disenchant_loot_template")
+            _WS_Loot.LootTemplates_Fishing = New WS_Loot.LootStore("fishing_loot_template")
+            _WS_Loot.LootTemplates_Gameobject = New WS_Loot.LootStore("gameobject_loot_template")
+            _WS_Loot.LootTemplates_Item = New WS_Loot.LootStore("item_loot_template")
+            _WS_Loot.LootTemplates_Pickpocketing = New WS_Loot.LootStore("pickpocketing_loot_template")
+            _WS_Loot.LootTemplates_QuestMail = New WS_Loot.LootStore("quest_mail_loot_template")
+            _WS_Loot.LootTemplates_Reference = New WS_Loot.LootStore("reference_loot_template")
+            _WS_Loot.LootTemplates_Skinning = New WS_Loot.LootStore("skinning_loot_template")
         End Sub
 #End Region
 
@@ -1305,13 +1305,13 @@ Namespace DataStores
                 For Each weather As DataRow In weatherQuery.Rows
                     Dim zone As Integer = weather.Item("zone")
 
-                    If WeatherZones.ContainsKey(zone) = False Then
+                    If _WS_Weather.WeatherZones.ContainsKey(zone) = False Then
                         Dim zoneChanges As New WS_Weather.WeatherZone(zone)
-                        zoneChanges.Seasons(0) = New WeatherSeasonChances(weather.Item("spring_rain_chance"), weather.Item("spring_snow_chance"), weather.Item("spring_storm_chance"))
-                        zoneChanges.Seasons(1) = New WeatherSeasonChances(weather.Item("summer_rain_chance"), weather.Item("summer_snow_chance"), weather.Item("summer_storm_chance"))
-                        zoneChanges.Seasons(2) = New WeatherSeasonChances(weather.Item("fall_rain_chance"), weather.Item("fall_snow_chance"), weather.Item("fall_storm_chance"))
-                        zoneChanges.Seasons(3) = New WeatherSeasonChances(weather.Item("winter_rain_chance"), weather.Item("winter_snow_chance"), weather.Item("winter_storm_chance"))
-                        WeatherZones.Add(zone, zoneChanges)
+                        zoneChanges.Seasons(0) = New WS_Weather.WeatherSeasonChances(weather.Item("spring_rain_chance"), weather.Item("spring_snow_chance"), weather.Item("spring_storm_chance"))
+                        zoneChanges.Seasons(1) = New WS_Weather.WeatherSeasonChances(weather.Item("summer_rain_chance"), weather.Item("summer_snow_chance"), weather.Item("summer_storm_chance"))
+                        zoneChanges.Seasons(2) = New WS_Weather.WeatherSeasonChances(weather.Item("fall_rain_chance"), weather.Item("fall_snow_chance"), weather.Item("fall_storm_chance"))
+                        zoneChanges.Seasons(3) = New WS_Weather.WeatherSeasonChances(weather.Item("winter_rain_chance"), weather.Item("winter_snow_chance"), weather.Item("winter_storm_chance"))
+                        _WS_Weather.WeatherZones.Add(zone, zoneChanges)
                     End If
                 Next
 
@@ -1324,5 +1324,5 @@ Namespace DataStores
         End Sub
 #End Region
 
-    End Module
-End NameSpace
+    End Class
+End Namespace

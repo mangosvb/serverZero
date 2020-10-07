@@ -35,7 +35,7 @@ Imports Mangos.Cluster.Handlers.WC_Handlers_Group
 
 Namespace Handlers
 
-    Public Module WcHandlerCharacter
+    Public Class WcHandlerCharacter
 
         Class CharacterObject
             Implements IDisposable
@@ -400,5 +400,5 @@ Namespace Handlers
             End If
         End Function
 
-    End Module
+    End Class
 End Namespace
