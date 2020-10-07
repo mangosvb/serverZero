@@ -18,17 +18,15 @@
 
 Imports System.Data
 Imports System.IO
-Imports System.Net
-Imports System.Net.Sockets
 Imports System.Reflection
 Imports System.Security.Cryptography
 Imports System.Text
-Imports System.Threading
 Imports System.Xml.Serialization
 Imports Mangos.Common
 Imports Mangos.Common.Enums.Authentication
 Imports Mangos.Common.Enums.Global
 Imports Mangos.Common.Enums.Misc
+Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
 Imports Mangos.Realm
 
@@ -36,56 +34,6 @@ Public Class RealmServer
     Private Const RealmPath As String = "configs/RealmServer.ini"
 
     Public Log As New BaseWriter
-
-    <XmlRoot(ElementName:="RealmServer")>
-    Public Class XmlConfigFile
-        'Server Configurations
-        <XmlElement(ElementName:="RealmServerPort")>
-        Private _realmServerPort As Integer = 3724
-
-        <XmlElement(ElementName:="RealmServerAddress")>
-        Private _realmServerAddress As String = "127.0.0.1"
-
-        <XmlElement(ElementName:="AccountDatabase")>
-        Private _accountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-
-        Property RealmServerPort As Integer
-            Get
-                Return _realmServerPort
-            End Get
-            Set(value As Integer)
-                _realmServerPort = value
-            End Set
-        End Property
-
-        Property RealmServerAddress As String
-            Get
-                Return _realmServerAddress
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _realmServerAddress = value
-            End Set
-        End Property
-
-        Property AccountDatabase As String
-            Get
-                Return _accountDatabase
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _accountDatabase = value
-            End Set
-        End Property
-    End Class
 
     Private Sub LoadConfig()
         Try
@@ -130,75 +78,7 @@ Public Class RealmServer
         End Try
     End Sub
 
-    Private Class RealmServerClass
-        Implements IDisposable
-
-        Public Sub New()
-            Try
-                Dim tcpListener As TcpListener = New TcpListener(LstHost, RealmServiceLocator._RealmServer.Config.RealmServerPort)
-                LstConnection = tcpListener
-                LstConnection.Start()
-
-                Dim rsListenThread As Thread
-                Dim thread As Thread = New Thread(AddressOf AcceptConnection) With {
-                    .Name = "Realm Server, Listening"
-                }
-                rsListenThread = thread
-                rsListenThread.Start()
-
-                Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), LstHost, RealmServiceLocator._RealmServer.Config.RealmServerPort)
-            Catch e As Exception
-                Console.WriteLine()
-                Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] Error in {2}: {1}.", Format(TimeOfDay, "hh:mm:ss"), e.Message, e.Source)
-                Console.ForegroundColor = ConsoleColor.Gray
-            End Try
-        End Sub
-
-        Private Sub AcceptConnection()
-            Do While Not FlagStopListen
-                Thread.Sleep(_Global_Constants.ConnectionSleepTime)
-                If LstConnection.Pending() Then
-                    Dim client As New ClientClass With {
-                        .Socket = LstConnection.AcceptSocket
-                    }
-
-                    Call New Thread(AddressOf client.Process).Start()
-                End If
-            Loop
-        End Sub
-
-#Region "IDisposable Support"
-
-        Private _disposedValue As Boolean ' To detect redundant calls
-
-        Public Property FlagStopListen As Boolean = False
-        Public ReadOnly Property LstConnection As TcpListener
-        Public ReadOnly Property LstHost As IPAddress = IPAddress.Parse(RealmServiceLocator._RealmServer.Config.RealmServerAddress)
-
-        ' IDisposable
-        'Default Functions
-        Protected Overridable Sub Dispose(ByVal disposing As Boolean)
-            If Not _disposedValue Then
-                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                ' TODO: set large fields to null.
-                FlagStopListen = True
-                LstConnection.Stop()
-            End If
-            _disposedValue = True
-        End Sub
-
-        ' This code added by Visual Basic to correctly implement the disposable pattern.
-        Public Sub Dispose() Implements IDisposable.Dispose
-            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
-            Dispose(True)
-            GC.SuppressFinalize(Me)
-        End Sub
-
-#End Region
-    End Class
-
-    Private Property RealmServer As RealmServerClass
+    Public Property RealmServer As RealmServerClass
     Public ReadOnly Property LastSocketConnection As New Dictionary(Of UInteger, Date)
     Public Property Config As XmlConfigFile
     Public Property AccountDatabase As New SQL
@@ -224,159 +104,7 @@ Public Class RealmServer
     '    FrFr = 3
     'End Enum
 
-    Private NotInheritable Class ClientClass
-        Implements IDisposable
-
-        Public Socket As Socket
-        Public Ip As IPAddress = IPAddress.Parse("127.0.0.1")
-        Public Port As Integer = 0
-        Public AuthEngine As AuthEngineClass
-        Public Account As String = ""
-        'Public Language As String = "enGB"
-        'Public Expansion As ExpansionLevel = ExpansionLevel.NORMAL
-        Public UpdateFile As String = ""
-        Public Access As AccessLevel = AccessLevel.Player
-
-        Private Sub OnData(ByVal data() As Byte)
-            Select Case data(0)
-                Case AuthCMD.CMD_AUTH_LOGON_CHALLENGE, AuthCMD.CMD_AUTH_RECONNECT_CHALLENGE
-                    Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_CHALLENGE", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                    RealmServiceLocator._RealmServer.On_RS_LOGON_CHALLENGE(data, Me)
-
-                Case AuthCMD.CMD_AUTH_LOGON_PROOF, AuthCMD.CMD_AUTH_RECONNECT_PROOF
-                    Console.WriteLine("[{0}] [{1}:{2}] RS_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                    RealmServiceLocator._RealmServer.On_RS_LOGON_PROOF(data, Me)
-
-                Case AuthCMD.CMD_AUTH_REALMLIST
-                    Console.WriteLine("[{0}] [{1}:{2}] RS_REALMLIST", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                    RealmServiceLocator._RealmServer.On_RS_REALMLIST(data, Me)
-
-                'TODO: No Value listed for AuthCMD
-                'Case CMD_AUTH_UPDATESRV
-                '    Console.WriteLine("[{0}] [{1}:{2}] RS_UPDATESRV", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-
-                'ToDo: Check if these packets exist in supported version
-                Case AuthCMD.CMD_XFER_ACCEPT
-                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
-                    RealmServiceLocator._RealmServer.On_CMD_XFER_ACCEPT(data, Me)
-
-                Case AuthCMD.CMD_XFER_RESUME
-                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
-                    RealmServiceLocator._RealmServer.On_CMD_XFER_RESUME(data, Me)
-
-                Case AuthCMD.CMD_XFER_CANCEL
-                    'Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), IP, Port)
-                    RealmServiceLocator._RealmServer.On_CMD_XFER_CANCEL(data, Me)
-                Case Else
-                    Console.ForegroundColor = ConsoleColor.Red
-                    Console.WriteLine("[{0}] [{1}:{2}] Unknown Opcode 0x{3}", Format(TimeOfDay, "hh:mm:ss"), Ip, Port, data(0))
-                    Console.ForegroundColor = ConsoleColor.Gray
-                    RealmServiceLocator._RealmServer.DumpPacket(data, Me)
-            End Select
-        End Sub
-
-        Public Sub Process()
-            Dim remoteEndPoint As IPEndPoint = CType(Socket.RemoteEndPoint, IPEndPoint)
-            Ip = remoteEndPoint.Address
-            Port = remoteEndPoint.Port
-
-            'DONE: Connection spam protection
-            Dim ipInt As UInteger
-            ipInt = RealmServiceLocator._RealmServer.Ip2Int(Ip.ToString)
-
-            If Not RealmServiceLocator._RealmServer.LastSocketConnection.ContainsKey(ipInt) Then
-                RealmServiceLocator._RealmServer.LastSocketConnection.Add(ipInt, Now.AddSeconds(5))
-            Else
-                If Now > RealmServiceLocator._RealmServer.LastSocketConnection(ipInt) Then
-                    RealmServiceLocator._RealmServer.LastSocketConnection(ipInt) = Now.AddSeconds(5)
-                Else
-                    Socket.Close()
-                    Dispose()
-                    Exit Sub
-                End If
-            End If
-
-            Console.ForegroundColor = ConsoleColor.DarkGray
-            Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-            Console.WriteLine("[{0}] [{1}:{2}] Checking for banned IP.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-            Console.ForegroundColor = ConsoleColor.Gray
-            If Not RealmServiceLocator._RealmServer.AccountDatabase.QuerySQL("SELECT ip FROM ip_banned WHERE ip = '" & Ip.ToString & "';") Then
-
-                While Not RealmServiceLocator._RealmServer.RealmServer.FlagStopListen
-                    Thread.Sleep(_Global_Constants.ConnectionSleepTime)
-                    If Socket.Available > 0 Then
-                        If Socket.Available > 100 Then 'DONE: Data flood protection
-                            Console.ForegroundColor = ConsoleColor.Red
-                            Console.WriteLine("[{0}] Incoming Connection dropped for flooding", Format(TimeOfDay, "hh:mm:ss"))
-                            Console.ForegroundColor = ConsoleColor.Gray
-                            Exit While
-                        End If
-
-
-                        Dim buffer() As Byte
-                        ReDim buffer(Socket.Available - 1)
-                        Dim dummyBytes As Integer = Socket.Receive(buffer, buffer.Length, 0)
-                        Console.WriteLine("[{0}] Incoming connection from [{1}:{2}]", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                        Console.WriteLine("Data Packet: [{0}] ", dummyBytes)
-
-                        OnData(buffer)
-                    End If
-                    If Not Socket.Connected Then Exit While
-                    If Socket.Poll(100, SelectMode.SelectRead) And (Socket.Available = 0) Then Exit While
-                End While
-
-            Else
-                Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] [{1}:{2}] This ip is banned.", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                Console.ForegroundColor = ConsoleColor.Gray
-            End If
-
-            Socket.Close()
-
-            Console.ForegroundColor = ConsoleColor.DarkGray
-            Console.WriteLine("[{0}] Connection from [{1}:{2}] closed", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-            Console.ForegroundColor = ConsoleColor.Gray
-
-            Dispose()
-        End Sub
-
-        Public Sub Send(ByVal data() As Byte, ByVal packetName As String)
-            Try
-                Console.ForegroundColor = ConsoleColor.DarkGray
-                Console.WriteLine("[{0}] [{1}:{2}] ({4}) Data sent, result code {3}", Format(TimeOfDay, "hh:mm:ss"), Ip, Port, Socket.Send(data, 0, data.Length, SocketFlags.None), packetName)
-                Console.ForegroundColor = ConsoleColor.Gray
-
-            Catch err As Exception
-                Console.ForegroundColor = ConsoleColor.Red
-                Console.WriteLine("[{0}] Connection from [{1}:{2}] do not exist - ERROR!!!", Format(TimeOfDay, "hh:mm:ss"), Ip, Port)
-                Console.ForegroundColor = ConsoleColor.Gray
-                Socket.Close()
-            End Try
-        End Sub
-
-#Region "IDisposable Support"
-
-        Private _disposedValue As Boolean ' To detect redundant calls
-
-        ' IDisposable
-        Private Sub Dispose(ByVal disposing As Boolean)
-            If Not _disposedValue Then
-                ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                ' TODO: set large fields to null.
-            End If
-            _disposedValue = True
-        End Sub
-        ' This code added by Visual Basic to correctly implement the disposable pattern.
-        Public Sub Dispose() Implements IDisposable.Dispose
-            ' Do not change this code.  Put cleanup code in Dispose(ByVal disposing As Boolean) above.
-            Dispose(True)
-            GC.SuppressFinalize(Me)
-        End Sub
-
-#End Region
-    End Class
-
-    Private Sub On_RS_LOGON_CHALLENGE(ByRef data() As Byte, ByRef client As ClientClass)
+    Public Sub On_RS_LOGON_CHALLENGE(ByRef data() As Byte, ByRef client As ClientClass)
         Dim iUpper As Integer = (data(33) - 1)
         Dim packetSize As Integer = BitConverter.ToInt16(New Byte() {data(3), data(2)}, 0)
         Dim packetAccount As String
@@ -591,7 +319,7 @@ Public Class RealmServer
         End If
     End Sub
 
-    Private Sub On_RS_LOGON_PROOF(ByRef data() As Byte, ByRef client As ClientClass)
+    Public Sub On_RS_LOGON_PROOF(ByRef data() As Byte, ByRef client As ClientClass)
         Console.WriteLine("[{0}] [{1}:{2}] CMD_AUTH_LOGON_PROOF", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
         Dim a(31) As Byte
         Array.Copy(data, 1, a, 0, 32)
@@ -650,7 +378,7 @@ Public Class RealmServer
         End If
     End Sub
 
-    Private Sub On_RS_REALMLIST(ByRef data() As Byte, ByRef client As ClientClass)
+    Public Sub On_RS_REALMLIST(ByRef data() As Byte, ByRef client As ClientClass)
         Console.WriteLine("[{0}] [{1}:{2}] CMD_REALM_LIST", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
 
         Dim packetLen As Integer = 0
@@ -767,13 +495,13 @@ Public Class RealmServer
         client.Send(dataResponse, "RS-REALMLIST")
     End Sub
 
-    Private Sub On_CMD_XFER_CANCEL(ByRef data() As Byte, ByRef client As ClientClass)
+    Public Sub On_CMD_XFER_CANCEL(ByRef data() As Byte, ByRef client As ClientClass)
         'TODO: data parameter is never used
         Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_CANCEL", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
         client.Socket.Close()
     End Sub
 
-    Private Sub On_CMD_XFER_ACCEPT(ByRef data() As Byte, ByRef client As ClientClass)
+    Public Sub On_CMD_XFER_ACCEPT(ByRef data() As Byte, ByRef client As ClientClass)
         'TODO: data parameter is never used
         Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_ACCEPT", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
         Dim tmp As Integer '= 1
@@ -817,7 +545,7 @@ Public Class RealmServer
         'Client.Socket.Close()
     End Sub
 
-    Private Sub On_CMD_XFER_RESUME(ByRef data() As Byte, ByRef client As ClientClass)
+    Public Sub On_CMD_XFER_RESUME(ByRef data() As Byte, ByRef client As ClientClass)
         Console.WriteLine("[{0}] [{1}:{2}] CMD_XFER_RESUME", Format(TimeOfDay, "hh:mm:ss"), client.Ip, client.Port)
         Dim tmp As Integer = 1
         Dim buffer() As Byte
@@ -866,7 +594,7 @@ Public Class RealmServer
         'Client.Socket.Close()
     End Sub
 
-    Private Sub DumpPacket(ByRef data() As Byte, ByRef client As ClientClass)
+    Public Sub DumpPacket(ByRef data() As Byte, ByRef client As ClientClass)
         Dim buffer As String = ""
         If client Is Nothing Then
             buffer += String.Format("[{0}] DEBUG: Packet Dump{1}", Format(TimeOfDay, "hh:mm:ss"), Environment.NewLine)
@@ -994,7 +722,7 @@ Public Class RealmServer
         WorldServer_Status_Report()
     End Sub
 
-    Private Function Ip2Int(ByVal ip As String) As UInteger
+    Public Function Ip2Int(ByVal ip As String) As UInteger
         If ip.Split(".").Length <> 4 Then Return 0
 
         Try
