@@ -54,7 +54,7 @@ Public Class RealmServer
         _configurationProvider = configurationProvider
     End Sub
 
-    Private Async Function LoadConfig() As Task
+    Private Sub LoadConfig()
         Try
             'Make sure RealmServer.ini exists
             If File.Exists(RealmPath) = False Then
@@ -71,7 +71,7 @@ Public Class RealmServer
             Console.WriteLine(".[done]")
 
             'DONE: Setting SQL Connection
-            Dim configuration = Await _configurationProvider.GetConfigurationAsync()
+            Dim configuration = _configurationProvider.GetConfiguration()
             Dim accountDbSettings() As String = Split(configuration.AccountDatabase, ";")
             If accountDbSettings.Length <> 6 Then
                 Console.WriteLine("Invalid connect string for the account database!")
@@ -87,7 +87,7 @@ Public Class RealmServer
         Catch e As Exception
             Console.WriteLine(e.ToString)
         End Try
-    End Function
+    End Sub
 
     Public Property RealmServer As RealmServerClass
     Public ReadOnly Property LastSocketConnection As New Dictionary(Of UInteger, Date)
@@ -727,7 +727,7 @@ Public Class RealmServer
         End If
 
         RealmServer = _RealmServerClassFactory.Create(Me)
-        Await RealmServer.StartAsync()
+        RealmServer.Start()
         GC.Collect()
 
         WorldServer_Status_Report()
