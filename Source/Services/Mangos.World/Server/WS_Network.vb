@@ -192,7 +192,7 @@ Namespace Server
                 Try
                     If _WorldServer.CLIENTs.ContainsKey(id) = False Then _WorldServer.Log.WriteLine(LogType.FAILED, "Client ID doesn't contain a key!: {0}", ToString)
                     _WorldServer.CLIENTs(id).Packets.Enqueue(p)
-                    ThreadPool.QueueUserWorkItem(AddressOf _WorldServer.CLIENTs(id).OnPacket)
+                    ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf _WorldServer.CLIENTs(id).OnPacket))
                 Catch ex As Exception
                     _WorldServer.Log.WriteLine(LogType.FAILED, "Error on Client OnPacket: {0}", ex.ToString)
                 Finally

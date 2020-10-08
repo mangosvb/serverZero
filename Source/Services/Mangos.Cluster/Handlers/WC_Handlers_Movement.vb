@@ -416,5 +416,32 @@ Namespace Handlers
                 statsPacket.Dispose()
             End If
         End Sub
+
+        Public Sub On_MSG_MOVE_SET_FACING(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
+            Try
+                client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
+                _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] MSG_MOVE_SET_FACING [{2}", client.IP, client.Port, client.Character.Map)
+            Catch
+                _WC_Network.WorldServer.Disconnect("NULL", New List(Of UInteger)() From {client.Character.Map})
+                _WorldCluster.Log.WriteLine(LogType.WARNING, "[{0}:{1}] MSG_MOVE_SET_FACING error occured [{2}", client.IP, client.Port, client.Character.Map)
+                Exit Sub
+            End Try
+
+            'DONE: Save location on cluster
+            client.Character.PositionX = packet.GetFloat '(15)
+            client.Character.PositionY = packet.GetFloat
+            client.Character.PositionZ = packet.GetFloat
+            client.Character.PositionO = packet.GetFloat
+
+            'DONE: Sync your location to other party / raid members
+            If client.Character.IsInGroup Then
+                Dim statsPacket As New Packets.PacketClass(OPCODES.UMSG_UPDATE_GROUP_MEMBERS) With {
+                    .Data = client.Character.GetWorld.GroupMemberStats(client.Character.Guid, Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION + Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE)
+                }
+
+                client.Character.Group.BroadcastToOutOfRange(statsPacket, client.Character)
+                statsPacket.Dispose()
+            End If
+        End Sub
     End Class
 End Namespace

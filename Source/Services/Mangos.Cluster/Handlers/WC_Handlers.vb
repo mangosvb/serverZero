@@ -51,6 +51,8 @@ Namespace Handlers
             _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_STRAFE) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP_STRAFE
             _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_SWIM) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP_SWIM
             _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_TURN) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP_TURN
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_SET_FACING) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_SET_FACING
+
             _WorldCluster.PacketHandlers(OPCODES.CMSG_CANCEL_TRADE) = AddressOf _WC_Handlers_Misc.On_CMSG_CANCEL_TRADE
             _WorldCluster.PacketHandlers(OPCODES.CMSG_LOGOUT_CANCEL) = AddressOf _WC_Handlers_Misc.On_CMSG_LOGOUT_CANCEL
 
@@ -156,7 +158,8 @@ Namespace Handlers
             _WorldCluster.PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATE) = AddressOf _WC_Handlers_Chat.On_CMSG_CHANNEL_MODERATE
 
             'Opcodes redirected from the WorldServer
-            '   none
+            _WorldCluster.PacketHandlers(OPCODES.CMSG_CREATURE_QUERY) = AddressOf OnClusterPacket
+            _WorldCluster.PacketHandlers(OPCODES.CMSG_GAMEOBJECT_QUERY) = AddressOf OnClusterPacket
 
             'NOTE: TODO Opcodes
             '   none
