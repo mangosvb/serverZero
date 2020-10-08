@@ -55,18 +55,19 @@ Namespace Server
             Public Sub New()
                 Try
                     m_Socket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                    m_Socket.Bind(New IPEndPoint(IPAddress.Parse(_WorldCluster.Config.WorldClusterAddress), _WorldCluster.Config.WorldClusterPort))
+                    Dim configuration = _ConfigurationProvider.GetConfiguration()
+                    m_Socket.Bind(New IPEndPoint(IPAddress.Parse(configuration.WorldClusterAddress), configuration.WorldClusterPort))
                     m_Socket.Listen(5)
                     m_Socket.BeginAccept(AddressOf AcceptConnection, Nothing)
 
-                    _WorldCluster.Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(_WorldCluster.Config.WorldClusterAddress), _WorldCluster.Config.WorldClusterPort)
+                    _WorldCluster.Log.WriteLine(LogType.SUCCESS, "Listening on {0} on port {1}", IPAddress.Parse(configuration.WorldClusterAddress), configuration.WorldClusterPort)
 
                     'Creating ping timer
                     m_TimerPing = New Timer(AddressOf Ping, Nothing, 0, 15000)
 
                     'Creating stats timer
-                    If _WorldCluster.Config.StatsEnabled Then
-                        m_TimerStats = New Timer(AddressOf _WC_Stats.GenerateStats, Nothing, _WorldCluster.Config.StatsTimer, _WorldCluster.Config.StatsTimer)
+                    If configuration.StatsEnabled Then
+                        m_TimerStats = New Timer(AddressOf _WC_Stats.GenerateStats, Nothing, configuration.StatsTimer, configuration.StatsTimer)
                     End If
 
                     'Creating CPU check timer
@@ -636,7 +637,7 @@ Namespace Server
                         p = Queue.Dequeue
                     End SyncLock
 
-                    If _WorldCluster.Config.PacketLogging Then _Packets.LogPacket(p.Data, False, Me)
+                    If _ConfigurationProvider.GetConfiguration().PacketLogging Then _Packets.LogPacket(p.Data, False, Me)
                     If _WorldCluster.PacketHandlers.ContainsKey(p.OpCode) <> True Then
                         If Character Is Nothing OrElse Character.IsInWorld = False Then
                             Socket.Dispose()
@@ -672,7 +673,7 @@ Namespace Server
                 If Not Socket.Connected Then Exit Sub
 
                 Try
-                    If _WorldCluster.Config.PacketLogging Then _Packets.LogPacket(data, True, Me)
+                    If _ConfigurationProvider.GetConfiguration().PacketLogging Then _Packets.LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
@@ -688,7 +689,7 @@ Namespace Server
 
                 Try
                     Dim data As Byte() = packet.Data
-                    If _WorldCluster.Config.PacketLogging Then _Packets.LogPacket(data, True, Me)
+                    If _ConfigurationProvider.GetConfiguration().PacketLogging Then _Packets.LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch err As Exception
@@ -708,7 +709,7 @@ Namespace Server
 
                 Try
                     Dim data As Byte() = packet.Data.Clone
-                    If _WorldCluster.Config.PacketLogging Then _Packets.LogPacket(data, True, Me)
+                    If _ConfigurationProvider.GetConfiguration().PacketLogging Then _Packets.LogPacket(data, True, Me)
                     If Encryption Then Encode(data)
                     Socket.BeginSend(data, 0, data.Length, SocketFlags.None, AddressOf OnSendComplete, Nothing)
                 Catch Err As Exception
@@ -797,7 +798,7 @@ Namespace Server
             End Sub
 
             Public Sub EnQueue(ByVal state As Object)
-                While _WorldCluster.CHARACTERs.Count > _WorldCluster.Config.ServerPlayerLimit
+                While _WorldCluster.CHARACTERs.Count > _ConfigurationProvider.GetConfiguration().ServerPlayerLimit
                     If Not Socket.Connected Then Exit Sub
 
                     Call New Packets.PacketClass(OPCODES.SMSG_AUTH_RESPONSE).AddInt8(LoginResponse.LOGIN_WAIT_QUEUE)

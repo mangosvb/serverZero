@@ -155,7 +155,7 @@ Namespace Maps
                     locationPosY = tmpDBC.Item(i, 3, DBCValueType.DBC_FLOAT)
                     locationPosZ = tmpDBC.Item(i, 4, DBCValueType.DBC_FLOAT)
 
-                    If _WorldServer.Config.Maps.Contains(locationMapID.ToString) Then
+                    If _ConfigurationProvider.GetConfiguration().Maps.Contains(locationMapID.ToString) Then
                         Graveyards.Add(locationIndex, New TGraveyard(locationPosX, locationPosY, locationPosZ, locationMapID))
                         _WorldServer.Log.WriteLine(LogType.DEBUG, "         : Map: {0}  X: {1}  Y: {2}  Z: {3}", locationMapID, locationPosX, locationPosY, locationPosZ)
                     End If

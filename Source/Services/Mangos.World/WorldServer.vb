@@ -36,6 +36,7 @@ Imports Mangos.World.Quests
 Imports Mangos.World.Server
 
 Public Class WorldServer
+    Private server As ProxyServer(Of WS_Network.WorldServerClass)
 
 #Region "Global.Variables"
     'Players' containers
@@ -92,51 +93,6 @@ Public Class WorldServer
 
 #End Region
 
-    Public Config As XMLConfigFile
-    <XmlRoot(ElementName:="WorldServer")>
-    Public Class XMLConfigFile
-        'Database Settings
-        <XmlElement(ElementName:="AccountDatabase")> Public AccountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-        <XmlElement(ElementName:="CharacterDatabase")> Public CharacterDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-        <XmlElement(ElementName:="WorldDatabase")> Public WorldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-
-        'Server Settings
-        <XmlElement(ElementName:="ServerPlayerLimit")> Public ServerPlayerLimit As Integer = 10
-        <XmlElement(ElementName:="CommandCharacter")> Public CommandCharacter As String = "."
-        <XmlElement(ElementName:="XPRate")> Public XPRate As Single = 1.0
-        <XmlElement(ElementName:="ManaRegenerationRate")> Public ManaRegenerationRate As Single = 1.0
-        <XmlElement(ElementName:="HealthRegenerationRate")> Public HealthRegenerationRate As Single = 1.0
-        <XmlElement(ElementName:="GlobalAuction")> Public GlobalAuction As Boolean = False
-        <XmlElement(ElementName:="SaveTimer")> Public SaveTimer As Integer = 120000
-        <XmlElement(ElementName:="WeatherTimer")> Public WeatherTimer As Integer = 600000
-        <XmlElement(ElementName:="MapResolution")> Public MapResolution As Integer = 64
-        <XmlArray(ElementName:="HandledMaps"), XmlArrayItem(GetType(String), ElementName:="Map")> Public Maps As New List(Of String)
-
-        'VMap Settings
-        <XmlElement(ElementName:="VMaps")> Public VMapsEnabled As Boolean = False
-        <XmlElement(ElementName:="VMapLineOfSightCalc")> Public LineOfSightEnabled As Boolean = False
-        <XmlElement(ElementName:="VMapHeightCalc")> Public HeightCalcEnabled As Boolean = False
-
-        'Logging Settings
-        <XmlElement(ElementName:="LogType")> Public LogType As String = "FILE"
-        <XmlElement(ElementName:="LogLevel")> Public LogLevel As LogType = [Global].LogType.NETWORK
-        <XmlElement(ElementName:="LogConfig")> Public LogConfig As String = ""
-
-        'Other Settings
-        <XmlArray(ElementName:="ScriptsCompiler"), XmlArrayItem(GetType(String), ElementName:="Include")> Public CompilerInclude As New ArrayList
-        <XmlElement(ElementName:="CreatePartyInstances")> Public CreatePartyInstances As Boolean = False
-        <XmlElement(ElementName:="CreateRaidInstances")> Public CreateRaidInstances As Boolean = False
-        <XmlElement(ElementName:="CreateBattlegrounds")> Public CreateBattlegrounds As Boolean = False
-        <XmlElement(ElementName:="CreateArenas")> Public CreateArenas As Boolean = False
-        <XmlElement(ElementName:="CreateOther")> Public CreateOther As Boolean = False
-
-        'Cluster Settings
-        <XmlElement(ElementName:="ClusterConnectHost")> Public ClusterConnectHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="ClusterConnectPort")> Public ClusterConnectPort As Integer = 50001
-        <XmlElement(ElementName:="LocalConnectHost")> Public LocalConnectHost As String = "127.0.0.1"
-        <XmlElement(ElementName:="LocalConnectPort")> Public LocalConnectPort As Integer = 50002
-    End Class
-
     Public Sub LoadConfig()
         Try
             Dim FileName As String = "configs/WorldServer.ini"
@@ -159,28 +115,19 @@ Public Class WorldServer
             End If
             'Load config
             Console.Write("[{0}] Loading Configuration from {1}...", Format(TimeOfDay, "hh:mm:ss"), FileName)
+            Dim configuration = _ConfigurationProvider.GetConfiguration()
 
-            Config = New XMLConfigFile
-            Console.Write("...")
-
-            Dim oXS As XmlSerializer = New XmlSerializer(GetType(XMLConfigFile))
-
-            Console.Write("...")
-            Dim oStmR As StreamReader
-            oStmR = New StreamReader(FileName)
-            Config = oXS.Deserialize(oStmR)
-            oStmR.Close()
 
             Console.WriteLine(".[done]")
 
             'DONE: Make sure VMap functionality is disabled with VMaps
-            If Not Config.VMapsEnabled Then
-                Config.LineOfSightEnabled = False
-                Config.HeightCalcEnabled = False
+            If Not configuration.VMapsEnabled Then
+                configuration.LineOfSightEnabled = False
+                configuration.HeightCalcEnabled = False
             End If
 
             'DONE: Setting SQL Connections
-            Dim AccountDBSettings() As String = Split(Config.AccountDatabase, ";")
+            Dim AccountDBSettings() As String = Split(configuration.AccountDatabase, ";")
             If AccountDBSettings.Length = 6 Then
                 AccountDatabase.SQLDBName = AccountDBSettings(4)
                 AccountDatabase.SQLHost = AccountDBSettings(2)
@@ -192,7 +139,7 @@ Public Class WorldServer
                 Console.WriteLine("Invalid connect string for the account database!")
             End If
 
-            Dim CharacterDBSettings() As String = Split(Config.CharacterDatabase, ";")
+            Dim CharacterDBSettings() As String = Split(configuration.CharacterDatabase, ";")
             If CharacterDBSettings.Length = 6 Then
                 CharacterDatabase.SQLDBName = CharacterDBSettings(4)
                 CharacterDatabase.SQLHost = CharacterDBSettings(2)
@@ -204,7 +151,7 @@ Public Class WorldServer
                 Console.WriteLine("Invalid connect string for the character database!")
             End If
 
-            Dim WorldDBSettings() As String = Split(Config.WorldDatabase, ";")
+            Dim WorldDBSettings() As String = Split(configuration.WorldDatabase, ";")
             If WorldDBSettings.Length = 6 Then
                 WorldDatabase.SQLDBName = WorldDBSettings(4)
                 WorldDatabase.SQLHost = WorldDBSettings(2)
@@ -216,13 +163,13 @@ Public Class WorldServer
                 Console.WriteLine("Invalid connect string for the world database!")
             End If
 
-            _WS_Maps.RESOLUTION_ZMAP = Config.MapResolution - 1
+            _WS_Maps.RESOLUTION_ZMAP = configuration.MapResolution - 1
             If _WS_Maps.RESOLUTION_ZMAP < 63 Then _WS_Maps.RESOLUTION_ZMAP = 63
             If _WS_Maps.RESOLUTION_ZMAP > 255 Then _WS_Maps.RESOLUTION_ZMAP = 255
 
             'DONE: Creating logger
-            Log = CreateLog(Config.LogType, Config.LogConfig)
-            Log.LogLevel = Config.LogLevel
+            Log = CreateLog(configuration.LogType, configuration.LogConfig)
+            Log.LogLevel = configuration.LogLevel
 
         Catch e As Exception
             Console.WriteLine(e.ToString)
@@ -262,7 +209,7 @@ Public Class WorldServer
 #End Region
 
     <MTAThread()>
-    Sub Main()
+    Sub Start()
         Console.BackgroundColor = ConsoleColor.Black
         Console.Title = String.Format("{0} v{1}", CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute).Title, [Assembly].GetExecutingAssembly().GetName().Version)
 
@@ -366,7 +313,8 @@ Public Class WorldServer
         _WS_Transports.LoadTransports()
 
         ClsWorldServer = New WS_Network.WorldServerClass
-        Dim server = New ProxyServer(Of WS_Network.WorldServerClass)(Dns.GetHostAddresses(Config.LocalConnectHost)(0), Config.LocalConnectPort, ClsWorldServer)
+        Dim configuration = _ConfigurationProvider.GetConfiguration()
+        Server = New ProxyServer(Of WS_Network.WorldServerClass)(Dns.GetHostAddresses(configuration.LocalConnectHost)(0), configuration.LocalConnectPort, ClsWorldServer)
         ClsWorldServer.ClusterConnect()
         Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}", ClsWorldServer.LocalURI)
         GC.Collect()

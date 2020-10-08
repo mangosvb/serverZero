@@ -23,8 +23,8 @@ Public Class RealmServerClass
         _configurationProvider = configurationProvider
     End Sub
 
-    Public Async Function StartAsync() As Task
-        Dim configuration = Await _configurationProvider.GetConfigurationAsync()
+    Public Sub Start()
+        Dim configuration = _configurationProvider.GetConfiguration()
         LstHost = IPAddress.Parse(configuration.RealmServerAddress)
         Try
             Dim tcpListener As TcpListener = New TcpListener(LstHost, configuration.RealmServerPort)
@@ -45,7 +45,7 @@ Public Class RealmServerClass
             Console.WriteLine("[{0}] Error in {2}: {1}.", Format(TimeOfDay, "hh:mm:ss"), e.Message, e.Source)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
-    End Function
+    End Sub
 
     Private Sub AcceptConnection()
         Do While Not FlagStopListen

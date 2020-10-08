@@ -8,9 +8,9 @@
         _configurationProvider = configurationProvider
     End Sub
 
-    Public Async Function GetConfigurationAsync() As Task(Of T) Implements IConfigurationProvider(Of T).GetConfigurationAsync
+    Public Function GetConfiguration() As T Implements IConfigurationProvider(Of T).GetConfiguration
         If (_configuration Is Nothing) Then
-            _configuration = Await _configurationProvider.GetConfigurationAsync()
+            _configuration = _configurationProvider.GetConfiguration()
         End If
         Return _configuration
     End Function

@@ -122,7 +122,7 @@ Namespace Server
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "Generating stats")
             PrepareStats()
 
-            Dim f As XmlWriter = XmlWriter.Create(_WorldCluster.Config.StatsLocation)
+            Dim f As XmlWriter = XmlWriter.Create(_ConfigurationProvider.GetConfiguration().StatsLocation)
             f.WriteStartDocument(True)
             f.WriteComment("generated at " & Date.Now.ToString("hh:mm:ss"))
             '<?xml-stylesheet type="text/xsl" href="stats.xsl"?>

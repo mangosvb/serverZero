@@ -337,8 +337,8 @@ Namespace Player
             Public AttackTimeMods() As Single = {1.0F, 1.0F, 1.0F}
 
             'Item Bonuses
-            Public ManaRegenerationModifier As Single = _WorldServer.Config.ManaRegenerationRate
-            Public LifeRegenerationModifier As Single = _WorldServer.Config.HealthRegenerationRate
+            Public ManaRegenerationModifier As Single = _ConfigurationProvider.GetConfiguration().ManaRegenerationRate
+            Public LifeRegenerationModifier As Single = _ConfigurationProvider.GetConfiguration().HealthRegenerationRate
             Public ManaRegenBonus As Integer = 0
             Public ManaRegenPercent As Single = 1
             Public ManaRegen As Integer = 0

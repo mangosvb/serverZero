@@ -400,7 +400,7 @@ Namespace DataStores
                     taxiMountTypeHorde = tmpDBC.Item(i, 14)
                     taxiMountTypeAlliance = tmpDBC.Item(i, 15)
 
-                    If _WorldServer.Config.Maps.Contains(taxiMapID.ToString) Then
+                    If _ConfigurationProvider.GetConfiguration().Maps.Contains(taxiMapID.ToString) Then
                         _WS_DBCDatabase.TaxiNodes.Add(taxiNode, New WS_DBCDatabase.TTaxiNode(taxiPosX, taxiPosY, taxiPosZ, taxiMapID, taxiMountTypeHorde, taxiMountTypeAlliance))
                     End If
                 Next i
@@ -467,7 +467,7 @@ Namespace DataStores
                     taxiAction = tmpDBC.Item(i, 7)
                     taxiWait = tmpDBC.Item(i, 8)
 
-                    If _WorldServer.Config.Maps.Contains(taxiMapID.ToString) Then
+                    If _ConfigurationProvider.GetConfiguration().Maps.Contains(taxiMapID.ToString) Then
                         If _WS_DBCDatabase.TaxiPathNodes.ContainsKey(taxiPath) = False Then
                             _WS_DBCDatabase.TaxiPathNodes.Add(taxiPath, New Dictionary(Of Integer, WS_DBCDatabase.TTaxiPathNode))
                         End If

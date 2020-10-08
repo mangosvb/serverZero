@@ -1159,10 +1159,10 @@ Namespace Handlers
         <ChatCommand("los", "los #on/off - Enables/Disables line of sight calculation.", AccessLevel.Developer)>
         Public Function cmdLineOfSight(ByRef objCharacter As WS_PlayerData.CharacterObject, ByVal Message As String) As Boolean
             If Message.ToUpper = "on" Then
-                _WorldServer.Config.LineOfSightEnabled = True
+                _ConfigurationProvider.GetConfiguration().LineOfSightEnabled = True
                 objCharacter.CommandResponse("Line of Sight Calculation is now Enabled.")
             ElseIf Message.ToUpper = "on" Then
-                _WorldServer.Config.LineOfSightEnabled = False
+                _ConfigurationProvider.GetConfiguration().LineOfSightEnabled = False
                 objCharacter.CommandResponse("Line of Sight Calculation is now Disabled.")
             Else
                 Return False

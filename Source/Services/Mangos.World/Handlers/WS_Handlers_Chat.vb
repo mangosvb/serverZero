@@ -58,7 +58,7 @@ Namespace Handlers
                 Case ChatMsg.CHAT_MSG_SAY, ChatMsg.CHAT_MSG_YELL, ChatMsg.CHAT_MSG_EMOTE, ChatMsg.CHAT_MSG_WHISPER
                     Dim Message As String = packet.GetString()
                     'Handle admin/gm commands
-                    If Message.StartsWith(_WorldServer.Config.CommandCharacter) AndAlso client.Character.Access > AccessLevel.Player Then
+                    If Message.StartsWith(_ConfigurationProvider.GetConfiguration().CommandCharacter) AndAlso client.Character.Access > AccessLevel.Player Then
                         Message = Message.Remove(0, 1) ' Remove Command Start Character From Message
                         Dim toCommand As Packets.PacketClass = _Functions.BuildChatMessage(_WS_Commands.SystemGUID, Message, ChatMsg.CHAT_MSG_SYSTEM, LANGUAGES.LANG_UNIVERSAL)
                         Try

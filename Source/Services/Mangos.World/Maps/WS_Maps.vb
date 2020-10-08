@@ -520,7 +520,7 @@ Namespace Maps
 
         Public Sub InitializeMaps()
             'DONE: Creating map list for queries
-            Dim e As IEnumerator = _WorldServer.Config.Maps.GetEnumerator
+            Dim e As IEnumerator = _ConfigurationProvider.GetConfiguration().Maps.GetEnumerator
             e.Reset()
             If e.MoveNext() Then
                 MapList = e.Current
@@ -530,7 +530,7 @@ Namespace Maps
             End If
 
             ''DONE: Loading maps
-            For Each id As UInteger In _WorldServer.Config.Maps
+            For Each id As UInteger In _ConfigurationProvider.GetConfiguration().Maps
                 Dim map As New TMap(id)
             Next
 

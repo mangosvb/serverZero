@@ -29,11 +29,12 @@ Imports Mangos.Common.Logging.BaseWriter
 Imports Mangos.Cluster.Globals
 Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
-Imports Mangos.Common.Enums
 Imports Mangos.Common.Enums.Global
+Imports Mangos.Configuration
 
 Public Class WorldCluster
     Private Const ClusterPath As String = "configs/WorldCluster.ini"
+    Private server As ProxyServer(Of WC_Network.WorldServerClass)
 
     'Players' containers
     Public CLIETNIDs As Long = 0
@@ -47,242 +48,9 @@ Public Class WorldCluster
     'System Things...
     Public Log As New BaseWriter
     Public Rnd As New Random
+
+
     Delegate Sub HandlePacket(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
-
-    <XmlRoot(ElementName:="WorldCluster")>
-    Public Class XMLConfigFile
-        <XmlElement(ElementName:="WorldClusterPort")>
-        Private _worldClusterPort As Integer = 8085
-
-        <XmlElement(ElementName:="WorldClusterAddress")>
-        Private _worldClusterAddress As String = "127.0.0.1"
-
-        <XmlElement(ElementName:="ServerPlayerLimit")>
-        Private _serverPlayerLimit As Integer = 10
-
-        'Database Settings
-        <XmlElement(ElementName:="AccountDatabase")>
-        Private _accountDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-
-        <XmlElement(ElementName:="CharacterDatabase")>
-        Private _characterDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-
-        <XmlElement(ElementName:="WorldDatabase")>
-        Private _worldDatabase As String = "root;mangosVB;localhost;3306;mangosVB;MySQL"
-
-        'Cluster Settings
-
-        <XmlElement(ElementName:="ClusterListenAddress")>
-        Private _clusterListenAddress As String = "127.0.0.1"
-
-        <XmlElement(ElementName:="ClusterListenPort")>
-        Private _clusterListenPort As Integer = 50001
-
-        'Stats Settings
-        <XmlElement(ElementName:="StatsEnabled")>
-        Private _statsEnabled As Boolean = True
-
-        <XmlElement(ElementName:="StatsTimer")>
-        Private _statsTimer As Integer = 120000
-
-        <XmlElement(ElementName:="StatsLocation")>
-        Private _statsLocation As String = "stats.xml"
-
-        'Logging Settings
-        <XmlElement(ElementName:="LogType")>
-        Private _logType As String = "FILE"
-
-        <XmlElement(ElementName:="LogLevel")>
-        Private _logLevel As LogType = [Global].LogType.NETWORK
-
-        <XmlElement(ElementName:="LogConfig")>
-        Private _logConfig As String = ""
-
-        <XmlElement(ElementName:="PacketLogging")>
-        Private _packetLogging As Boolean = False
-
-        <XmlElement(ElementName:="GMLogging")>
-        Private _gMLogging As Boolean = False
-
-        Property WorldClusterPort As Integer
-            Get
-                Return _worldClusterPort
-            End Get
-            Set(value As Integer)
-                _worldClusterPort = value
-            End Set
-        End Property
-
-        Property WorldClusterAddress As String
-            Get
-                Return _worldClusterAddress
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _worldClusterAddress = value
-            End Set
-        End Property
-
-        Property ServerPlayerLimit As Integer
-            Get
-                Return _serverPlayerLimit
-            End Get
-            Set(value As Integer)
-                _serverPlayerLimit = value
-            End Set
-        End Property
-
-        Property AccountDatabase As String
-            Get
-                Return _accountDatabase
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _accountDatabase = value
-            End Set
-        End Property
-
-        Property CharacterDatabase As String
-            Get
-                Return _characterDatabase
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _characterDatabase = value
-            End Set
-        End Property
-
-        Property WorldDatabase As String
-            Get
-                Return _worldDatabase
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _worldDatabase = value
-            End Set
-        End Property
-
-        Property ClusterListenAddress As String
-            Get
-                Return _clusterListenAddress
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _clusterListenAddress = value
-            End Set
-        End Property
-
-        Property ClusterListenPort As Integer
-            Get
-                Return _clusterListenPort
-            End Get
-            Set(value As Integer)
-                _clusterListenPort = value
-            End Set
-        End Property
-
-        Property StatsEnabled As Boolean
-            Get
-                Return _statsEnabled
-            End Get
-            Set(value As Boolean)
-                _statsEnabled = value
-            End Set
-        End Property
-
-        Property StatsTimer As Integer
-            Get
-                Return _statsTimer
-            End Get
-            Set(value As Integer)
-                _statsTimer = value
-            End Set
-        End Property
-
-        Property StatsLocation As String
-            Get
-                Return _statsLocation
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _statsLocation = value
-            End Set
-        End Property
-
-        Property LogType As String
-            Get
-                Return _logType
-            End Get
-            Set(value As String)
-
-                If value Is Nothing Then
-                    Throw New ArgumentNullException(NameOf(value))
-                End If
-
-                _logType = value
-            End Set
-        End Property
-
-        Property LogLevel As LogType
-            Get
-                Return _logLevel
-            End Get
-            Set(value As LogType)
-                _logLevel = value
-            End Set
-        End Property
-
-        Public Property LogConfig As String
-            Get
-                Return _logConfig
-            End Get
-            Set(value As String)
-                _logConfig = value
-            End Set
-        End Property
-
-        Property PacketLogging As Boolean
-            Get
-                Return _packetLogging
-            End Get
-            Set(value As Boolean)
-                _packetLogging = value
-            End Set
-        End Property
-
-        Property GMLogging As Boolean
-            Get
-                Return _gMLogging
-            End Get
-            Set(value As Boolean)
-                _gMLogging = value
-            End Set
-        End Property
-    End Class
 
     Public Sub LoadConfig()
         Try
@@ -298,19 +66,12 @@ Public Class WorldCluster
 
             Console.Write("[{0}] Loading Configuration...", Format(TimeOfDay, "hh:mm:ss"))
 
-            Dim xmlConfigFile As XMLConfigFile = New XMLConfigFile
-            Config = xmlConfigFile
-            Console.Write("...")
-
-            Dim ostream As StreamReader
-            ostream = New StreamReader(ClusterPath)
-            Config = New XmlSerializer(GetType(XMLConfigFile)).Deserialize(ostream)
-            ostream.Close()
+            Dim configuration = _configurationProvider.GetConfiguration()
 
             Console.WriteLine(".[done]")
 
             'DONE: Setting SQL Connections
-            Dim AccountDBSettings() As String = Split(Config.AccountDatabase, ";")
+            Dim AccountDBSettings() As String = Split(configuration.AccountDatabase, ";")
             If AccountDBSettings.Length <> 6 Then
                 Console.WriteLine("Invalid connect string for the account database!")
             Else
@@ -322,7 +83,7 @@ Public Class WorldCluster
                 AccountDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), AccountDBSettings(5))
             End If
 
-            Dim CharacterDBSettings() As String = Split(Config.CharacterDatabase, ";")
+            Dim CharacterDBSettings() As String = Split(configuration.CharacterDatabase, ";")
             If CharacterDBSettings.Length <> 6 Then
                 Console.WriteLine("Invalid connect string for the character database!")
             Else
@@ -334,7 +95,7 @@ Public Class WorldCluster
                 CharacterDatabase.SQLTypeServer = [Enum].Parse(GetType(SQL.DB_Type), CharacterDBSettings(5))
             End If
 
-            Dim WorldDBSettings() As String = Split(Config.WorldDatabase, ";")
+            Dim WorldDBSettings() As String = Split(configuration.WorldDatabase, ";")
             If WorldDBSettings.Length <> 6 Then
                 Console.WriteLine("Invalid connect string for the world database!")
             Else
@@ -347,11 +108,11 @@ Public Class WorldCluster
             End If
 
             'DONE: Creating logger
-            Log = CreateLog(Config.LogType, Config.LogConfig)
-            Log.LogLevel = Config.LogLevel
+            Log = CreateLog(configuration.LogType, configuration.LogConfig)
+            Log.LogLevel = configuration.LogLevel
 
             'DONE: Cleaning up the packet log
-            If Config.PacketLogging Then
+            If configuration.PacketLogging Then
                 File.Delete("packets.log")
             End If
 
@@ -363,8 +124,6 @@ Public Class WorldCluster
 #Region "WS.DataAccess"
 
     Public Property PacketHandlers As New Dictionary(Of OPCODES, HandlePacket)
-
-    Public Property Config As XMLConfigFile
 
     Public Property AccountDatabase As New SQL
     Public Property CharacterDatabase As New SQL
@@ -404,8 +163,7 @@ Public Class WorldCluster
     End Sub
 #End Region
 
-    <MTAThread()>
-    Public Sub Main()
+    Public Sub Start()
         Console.BackgroundColor = ConsoleColor.Black
         Dim assemblyTitleAttribute As AssemblyTitleAttribute = CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute)
         Console.Title = $"{assemblyTitleAttribute.Title } v{[Assembly].GetExecutingAssembly().GetName().Version }"
@@ -522,9 +280,10 @@ Public Class WorldCluster
             End If
         End If
 
-        _WC_Network.WorldServer = New WC_Network.WorldServerClass
-        Dim server = New ProxyServer(Of WC_Network.WorldServerClass)(IPAddress.Parse(Config.ClusterListenAddress), Config.ClusterListenPort, _WC_Network.WorldServer)
-        Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}:{1}", Config.ClusterListenAddress, Config.ClusterListenPort)
+        _WC_Network.WorldServer = New WC_Network.WorldServerClass()
+        Dim configuration = _configurationProvider.GetConfiguration()
+        server = New ProxyServer(Of WC_Network.WorldServerClass)(IPAddress.Parse(configuration.ClusterListenAddress), configuration.ClusterListenPort, _WC_Network.WorldServer)
+        Log.WriteLine(LogType.INFORMATION, "Interface UP at: {0}:{1}", configuration.ClusterListenAddress, configuration.ClusterListenPort)
 
         GC.Collect()
 

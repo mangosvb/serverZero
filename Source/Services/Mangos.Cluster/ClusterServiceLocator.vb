@@ -5,9 +5,12 @@ Imports Mangos.Cluster.Handlers
 Imports Mangos.Cluster.Server
 Imports Mangos.Common
 Imports Mangos.Common.Globals
+Imports Mangos.Configuration
 
 Public Module ClusterServiceLocator
     Public Property _Container As IContainer = CreateContainer()
+
+    Public Property _ConfigurationProvider As IConfigurationProvider(Of ClusterServerConfiguration) = _Container.Resolve(Of IConfigurationProvider(Of ClusterServerConfiguration))
 
     Public Property _Global_Constants As Global_Constants = _Container.Resolve(Of Global_Constants)
     Public Property _CommonGlobalFunctions As Mangos.Common.Globals.Functions = _Container.Resolve(Of Mangos.Common.Globals.Functions)
