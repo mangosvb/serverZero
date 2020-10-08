@@ -1,9 +1,13 @@
 Imports System.Net
 Imports System.Net.Sockets
 Imports System.Threading
+Imports Mangos.Configuration
+Imports Mangos.Realm.Factories
 
 Public Class RealmServerClass
     Implements IDisposable
+
+    Private ReadOnly _configurationProvider As IConfigurationProvider(Of RealmServerConfiguration)
 
     Private ReadOnly _Global_Constants As Global_Constants
     Private ReadOnly _ClientClassFactory As ClientClassFactory
@@ -11,13 +15,19 @@ Public Class RealmServerClass
 
     Public Sub New(globalConstants As Global_Constants,
                    clientClassFactory As ClientClassFactory,
-                   realmServer As RealmServer)
+                   realmServer As RealmServer,
+                   configurationProvider As IConfigurationProvider(Of RealmServerConfiguration))
         _Global_Constants = globalConstants
         _ClientClassFactory = clientClassFactory
         _RealmServer = realmServer
-        LstHost = IPAddress.Parse(_RealmServer.Config.RealmServerAddress)
+        _configurationProvider = configurationProvider
+    End Sub
+
+    Public Async Function StartAsync() As Task
+        Dim configuration = Await _configurationProvider.GetConfigurationAsync()
+        LstHost = IPAddress.Parse(configuration.RealmServerAddress)
         Try
-            Dim tcpListener As TcpListener = New TcpListener(LstHost, _RealmServer.Config.RealmServerPort)
+            Dim tcpListener As TcpListener = New TcpListener(LstHost, configuration.RealmServerPort)
             LstConnection = tcpListener
             LstConnection.Start()
 
@@ -28,14 +38,14 @@ Public Class RealmServerClass
             rsListenThread = thread
             rsListenThread.Start()
 
-            Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), LstHost, _RealmServer.Config.RealmServerPort)
+            Console.WriteLine("[{0}] Listening on {1} on port {2}", Format(TimeOfDay, "hh:mm:ss"), LstHost, configuration.RealmServerPort)
         Catch e As Exception
             Console.WriteLine()
             Console.ForegroundColor = ConsoleColor.Red
             Console.WriteLine("[{0}] Error in {2}: {1}.", Format(TimeOfDay, "hh:mm:ss"), e.Message, e.Source)
             Console.ForegroundColor = ConsoleColor.Gray
         End Try
-    End Sub
+    End Function
 
     Private Sub AcceptConnection()
         Do While Not FlagStopListen
@@ -53,8 +63,8 @@ Public Class RealmServerClass
     Private _disposedValue As Boolean ' To detect redundant calls
 
     Public Property FlagStopListen As Boolean = False
-    Public ReadOnly Property LstConnection As TcpListener
-    Public ReadOnly Property LstHost As IPAddress
+    Public Property LstConnection As TcpListener
+    Public Property LstHost As IPAddress
 
     ' IDisposable
     'Default Functions
