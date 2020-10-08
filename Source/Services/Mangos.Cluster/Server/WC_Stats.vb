@@ -110,10 +110,12 @@ Namespace Server
             End If
 
             For Each objCharacter As KeyValuePair(Of UInteger, WC_Network.WorldInfo) In _WC_Network.WorldServer.WorldsInfo
-                If Not w.ContainsKey(objCharacter.Value) Then
-                    w.Add(objCharacter.Value, New List(Of String))
+                If Not IsNothing(objCharacter.Value) Then
+                    If Not w.ContainsKey(objCharacter.Value) Then
+                        w.Add(objCharacter.Value, New List(Of String))
+                    End If
+                    w(objCharacter.Value).Add(objCharacter.Key)
                 End If
-                w(objCharacter.Value).Add(objCharacter.Key)
             Next
         End Sub
         Public Sub GenerateStats(state As Object)

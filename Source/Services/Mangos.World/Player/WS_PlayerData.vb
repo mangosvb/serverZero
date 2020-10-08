@@ -302,6 +302,7 @@ Namespace Player
                                 Return (Strength.Base * 2 - 20)
                             End If
                     End Select
+                    Return 0
                 End Get
             End Property
 
@@ -322,6 +323,7 @@ Namespace Player
                                 Return (Agility.Base - 10)
                             End If
                     End Select
+                    Return 0
                 End Get
             End Property
 

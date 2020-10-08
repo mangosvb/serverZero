@@ -44,9 +44,9 @@ Namespace Logging
                 Case LogType.WARNING
                     Console.ForegroundColor = ConsoleColor.Yellow
                 Case LogType.FAILED
-                    Console.ForegroundColor = ConsoleColor.Red
+                    Console.ForegroundColor = ConsoleColor.Cyan
                 Case LogType.CRITICAL
-                    Console.ForegroundColor = ConsoleColor.DarkRed
+                    Console.ForegroundColor = ConsoleColor.Red 'DarkRed
                 Case LogType.DATABASE
                     Console.ForegroundColor = ConsoleColor.DarkMagenta
             End Select

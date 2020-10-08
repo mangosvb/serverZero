@@ -435,7 +435,10 @@ Namespace Server
                         If packet.OpCode = OPCODES.SMSG_UPDATE_OBJECT Then packet.CompressUpdatePacket()
                         packet.UpdateLength()
 
-                        _WorldServer.ClsWorldServer.Cluster.ClientSend(Index, packet.Data)
+                        ' Maybe attempt to reaquire cluster here
+                        If Not IsNothing(_WorldServer.ClsWorldServer.Cluster) Then
+                            _WorldServer.ClsWorldServer.Cluster.ClientSend(Index, packet.Data)
+                        End If
                         packet.Dispose()
                     Catch Err As Exception
                         If DEBUG_CONNECTION Then Exit Sub

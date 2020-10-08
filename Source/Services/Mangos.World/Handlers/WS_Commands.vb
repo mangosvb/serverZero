@@ -770,7 +770,7 @@ Namespace Handlers
             If Integer.TryParse(tID, ID) = False OrElse ID < 0 Then Return False
             If _WS_Spells.SPELLs.ContainsKey(ID) = False Then
                 objCharacter.CommandResponse("You tried learning a spell that did not exist.")
-                Exit Function
+                Return False
             End If
 
             If _WorldServer.CHARACTERs.ContainsKey(objCharacter.TargetGUID) Then
@@ -1747,25 +1747,31 @@ Namespace Handlers
         End Sub
 
         Public Function SetUpdateValue(ByVal GUID As ULong, ByVal Index As Integer, ByVal Value As Integer, ByVal client As WS_Network.ClientClass) As Boolean
-            Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
-            packet.AddInt32(1)      'Operations.Count
-            packet.AddInt8(0)
-            Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
-            UpdateData.SetUpdateFlag(Index, Value)
+            Dim noErrors As Boolean = True
+            Try
+                Dim packet As New Packets.PacketClass(OPCODES.SMSG_UPDATE_OBJECT)
+                packet.AddInt32(1)      'Operations.Count
+                packet.AddInt8(0)
+                Dim UpdateData As New Packets.UpdateClass(_Global_Constants.FIELD_MASK_SIZE_PLAYER)
+                UpdateData.SetUpdateFlag(Index, Value)
 
-            If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
-                UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
-            ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
-                If GUID = client.Character.GUID Then
-                    UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.CHARACTERs(GUID))
-                Else
-                    UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.CHARACTERs(GUID))
+                If _CommonGlobalFunctions.GuidIsCreature(GUID) Then
+                    UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.WORLD_CREATUREs(GUID))
+                ElseIf _CommonGlobalFunctions.GuidIsPlayer(GUID) Then
+                    If GUID = client.Character.GUID Then
+                        UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.CHARACTERs(GUID))
+                    Else
+                        UpdateData.AddToPacket(packet, ObjectUpdateType.UPDATETYPE_VALUES, _WorldServer.CHARACTERs(GUID))
+                    End If
                 End If
-            End If
 
-            client.Send(packet)
-            packet.Dispose()
-            UpdateData.Dispose()
+                client.Send(packet)
+                packet.Dispose()
+                UpdateData.Dispose()
+            Catch ex As DataException
+                noErrors = False
+            End Try
+            Return noErrors
         End Function
 
 #End Region
