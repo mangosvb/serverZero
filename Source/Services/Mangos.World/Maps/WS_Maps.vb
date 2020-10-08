@@ -479,7 +479,7 @@ Namespace Maps
                         _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: 1 Map initialized.", tmpDBC.Rows - 1)
                         tmpDBC.Dispose()
                     Catch e As DirectoryNotFoundException
-                        Console.ForegroundColor = ConsoleColor.DarkRed
+                        Console.ForegroundColor = ConsoleColor.Red
                         Console.WriteLine("DBC File : Map missing.")
                         Console.ForegroundColor = ConsoleColor.Gray
                     End Try

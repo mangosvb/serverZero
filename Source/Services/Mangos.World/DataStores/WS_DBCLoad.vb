@@ -49,7 +49,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRadius initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SpellRadius missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -71,7 +71,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellCastTimes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SpellCastTimes missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -95,7 +95,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellRanges initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SpellRanges missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -121,7 +121,7 @@ Namespace DataStores
                 tmpDBC.Dispose()
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellShapeshiftForms initialized.", tmpDBC.Rows - 1)
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SpellShapeshiftForms missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -143,7 +143,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellFocusObjects initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SpellFocusObjects missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -169,7 +169,7 @@ Namespace DataStores
                 tmpDBC.Dispose()
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellDurations initialized.", tmpDBC.Rows - 1)
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SpellDurations missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -354,7 +354,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Spells initialized.", spellDBC.Rows - 1)
                 spellDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : Spells missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -371,7 +371,7 @@ Namespace DataStores
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} SpellChains initialized.", spellChainQuery.Rows.Count)
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Database : SpellChains missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -408,7 +408,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiNodes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : TaxiNodes missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -436,7 +436,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPaths initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : TaxiPath missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -478,7 +478,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} TaxiPathNodes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : TaxiPathNode missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -512,7 +512,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLines initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SkillLines missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -544,7 +544,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SkillLineAbilitys initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SkillLineAbility missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -584,7 +584,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Locks initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : Locks missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -639,7 +639,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Areas initialized.", tmpDbc.Rows - 1)
                 tmpDbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : AreaTable missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -663,7 +663,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Emotes initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : Emotes missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -695,7 +695,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} EmotesText initialized.", tmpDbc.Rows - 1)
                 tmpDbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : EmotesText missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -740,7 +740,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Factions initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : Factions missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -773,7 +773,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} FactionTemplates initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : FactionsTemplates missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -809,7 +809,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharRaces initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : CharRaces missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -833,7 +833,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CharClasses initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : CharRaces missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -862,7 +862,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} DurabilityCosts initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : DurabilityCosts missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -903,7 +903,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talents initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : Talents missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -928,7 +928,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Talent tabs initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : TalentTab missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -962,7 +962,7 @@ Namespace DataStores
                 dbc.Dispose()
 
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : AuctionHouse missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1004,7 +1004,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} SpellItemEnchantments initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : SpellItemEnchantments missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1058,7 +1058,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemSets initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : ItemSet missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1083,7 +1083,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemDisplayInfos initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : ItemDisplayInfo missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1110,7 +1110,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ItemRandomProperties initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : ItemRandomProperties missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1134,7 +1134,7 @@ Namespace DataStores
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature gossips initialized.", _WS_DBCDatabase.CreatureGossip.Count)
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Database : npc_gossip missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1161,7 +1161,7 @@ Namespace DataStores
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} CreatureFamilys initialized.", dbc.Rows - 1)
                 dbc.Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : CreatureFamily missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1183,7 +1183,7 @@ Namespace DataStores
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature movements for {1} creatures initialized.", movementsQuery.Rows.Count, _WS_DBCDatabase.CreatureMovement.Count)
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Database : Waypoint_Data missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1209,7 +1209,7 @@ Namespace DataStores
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", equipQuery.Rows.Count)
             Catch e As DataException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Database : Creature_Equip_Template_raw missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1228,7 +1228,7 @@ Namespace DataStores
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature models initialized.", modelQuery.Rows.Count)
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Database : Creature_Model_Info missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -1322,7 +1322,7 @@ Namespace DataStores
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} Weather zones initialized.", weatherQuery.Rows.Count)
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Database : TransportQuery missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try

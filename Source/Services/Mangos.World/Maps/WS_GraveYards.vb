@@ -165,7 +165,7 @@ Namespace Maps
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Graveyards initialized.", tmpDBC.Rows - 1)
                 tmpDBC.Dispose()
             Catch e As IO.DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : WorldSafeLocs missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try

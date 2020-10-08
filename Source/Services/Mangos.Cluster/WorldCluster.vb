@@ -573,7 +573,7 @@ Public Class WorldCluster
                                 Console.WriteLine("")
                                 Console.WriteLine("'shutdown' - Shuts down WorldCluster.")
                             Case Else
-                                Console.ForegroundColor = ConsoleColor.DarkRed
+                                Console.ForegroundColor = ConsoleColor.Red
                                 Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on console for commands.")
                                 Console.ForegroundColor = ConsoleColor.Gray
                         End Select

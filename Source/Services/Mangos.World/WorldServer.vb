@@ -414,7 +414,7 @@ Public Class WorldServer
                             '        Console.WriteLine("[Account: " & cmd(1) & " Password: " & cmd(2) & " Email: " & cmd(3) & "] has been created.")
                             '        Console.ForegroundColor = ConsoleColor.Gray
                             '    Else
-                            '        Console.ForegroundColor = ConsoleColor.DarkRed
+                            '        Console.ForegroundColor = ConsoleColor.Red
                             '        Console.WriteLine("[Account: " & cmd(1) & " Password: " & cmd(2) & " Email: " & cmd(3) & "] could not be created.")
                             '        Console.ForegroundColor = ConsoleColor.Gray
                             '    End If
@@ -437,7 +437,7 @@ Public Class WorldServer
                                 Console.WriteLine("")
                                 Console.WriteLine("'shutdown' - Shuts down 'WorldServer'.")
                             Case Else
-                                Console.ForegroundColor = ConsoleColor.DarkRed
+                                Console.ForegroundColor = ConsoleColor.Red
                                 Console.WriteLine("Error! Cannot find specified command. Please type 'help' for information on 'WorldServer' console commands.")
                                 Console.ForegroundColor = ConsoleColor.Gray
                         End Select

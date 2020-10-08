@@ -49,7 +49,7 @@ Namespace Objects
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} Transports initialized.", TransportQuery.Rows.Count)
             Catch e As IO.DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("Database : TransportQuery missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try

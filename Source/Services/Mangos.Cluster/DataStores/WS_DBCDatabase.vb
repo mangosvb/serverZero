@@ -46,7 +46,7 @@ Namespace DataStores
                 _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} Maps Initialized.", New BufferedDbc(MapDBC).Rows - 1)
                 Call New BufferedDbc(MapDBC).Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : Maps.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -106,7 +106,7 @@ Namespace DataStores
                 _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} WorldSafeLocs Initialized.", New BufferedDbc(WorldSafeLocsDBC).Rows - 1)
                 Call New BufferedDbc(WorldSafeLocsDBC).Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : WorldSafeLocs.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -179,7 +179,7 @@ Namespace DataStores
                 _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChatChannels Initialized.", New BufferedDbc(ChatChannelsDBC).Rows - 1)
                 Call New BufferedDbc(ChatChannelsDBC).Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : ChatChannels.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -217,7 +217,7 @@ Namespace DataStores
                 _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrRace Loaded.", New BufferedDbc(ChrRacesDBC).Rows - 1)
                 Call New BufferedDbc(ChrRacesDBC).Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : ChrRaces.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
@@ -241,7 +241,7 @@ Namespace DataStores
                 _WorldCluster.Log.WriteLine(LogType.INFORMATION, "DBC: {0} ChrClasses Loaded.", New BufferedDbc(ChrClassesDBC).Rows - 1)
                 Call New BufferedDbc(ChrClassesDBC).Dispose()
             Catch e As DirectoryNotFoundException
-                Console.ForegroundColor = ConsoleColor.DarkRed
+                Console.ForegroundColor = ConsoleColor.Red
                 Console.WriteLine("DBC File : ChrClasses.dbc missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
             End Try
