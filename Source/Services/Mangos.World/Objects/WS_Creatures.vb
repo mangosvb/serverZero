@@ -37,6 +37,7 @@ Imports Mangos.World.Objects.WS_Base
 Imports Mangos.World.Player
 Imports Mangos.World.Server
 Imports Mangos.World.Spells
+Imports Microsoft.Extensions.FileProviders.Physical
 
 Namespace Objects
 
@@ -269,31 +270,39 @@ Namespace Objects
                 Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_FACTIONTEMPLATE, Faction)
                 Update.SetUpdateFlag(EUnitFields.UNIT_NPC_FLAGS, _WorldServer.CREATURESDatabase(ID).cNpcFlags)
 
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_FLAGS, cUnitFlags)
 
                 Update.SetUpdateFlag(EUnitFields.UNIT_DYNAMIC_FLAGS, cDynamicFlags)
 
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_PHYSICAL, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_PHYSICAL))
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_HOLY, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_HOLY))
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_FIRE, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_FIRE))
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_NATURE, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_NATURE))
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_FROST, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_FROST))
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_SHADOW, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_SHADOW))
-                'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_ARCANE, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_ARCANE))
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_PHYSICAL, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_PHYSICAL))
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_HOLY, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_HOLY))
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_FIRE, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_FIRE))
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_NATURE, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_NATURE))
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_FROST, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_FROST))
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_SHADOW, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_SHADOW))
+                Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_RESISTANCES + DamageTypes.DMG_ARCANE, _WorldServer.CREATURESDatabase(ID).Resistances(DamageTypes.DMG_ARCANE))
 
                 If EquipmentID > 0 Then
-                    Dim EquipmentInfo As WS_DBCDatabase.CreatureEquipInfo = _WS_DBCDatabase.CreatureEquip(EquipmentID)
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, EquipmentInfo.EquipModel(0))
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO, EquipmentInfo.EquipInfo(0))
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 1, EquipmentInfo.EquipSlot(0))
+                    Try
+                        If _WS_DBCDatabase.CreatureEquip.ContainsKey(EquipmentID) Then
+                            Dim EquipmentInfo As WS_DBCDatabase.CreatureEquipInfo = _WS_DBCDatabase.CreatureEquip(EquipmentID)
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, EquipmentInfo.EquipModel(0))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO, EquipmentInfo.EquipInfo(0))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 1, EquipmentInfo.EquipSlot(0))
 
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 1, EquipmentInfo.EquipModel(1))
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 2, EquipmentInfo.EquipInfo(1))
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 2 + 1, EquipmentInfo.EquipSlot(1))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 1, EquipmentInfo.EquipModel(1))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 2, EquipmentInfo.EquipInfo(1))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 2 + 1, EquipmentInfo.EquipSlot(1))
 
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 2, EquipmentInfo.EquipModel(2))
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 4, EquipmentInfo.EquipInfo(2))
-                    Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 4 + 1, EquipmentInfo.EquipSlot(2))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 2, EquipmentInfo.EquipModel(2))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 4, EquipmentInfo.EquipInfo(2))
+                            Update.SetUpdateFlag(EUnitFields.UNIT_VIRTUAL_ITEM_INFO + 4 + 1, EquipmentInfo.EquipSlot(2))
+                        End If
+                    Catch ex As DataException
+                        Console.ForegroundColor = ConsoleColor.Red
+                        Console.WriteLine(String.Format("FillAllUpdateFlags : Unable to equip items {0} for Creature", EquipmentID))
+                        Console.ForegroundColor = ConsoleColor.Gray
+                    End Try
                 End If
 
                 'Update.SetUpdateFlag(EUnitFields.UNIT_FIELD_BASEATTACKTIME, _WorldServer.CREATURESDatabase(ID).BaseAttackTime)

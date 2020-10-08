@@ -1192,16 +1192,23 @@ Namespace DataStores
             Try
                 Dim equipQuery As New DataTable
                 _WorldServer.WorldDatabase.Query("SELECT * FROM creature_equip_template_raw;", equipQuery)
+                '_WorldServer.WorldDatabase.Query("SELECT creature_equip_template.*, COALESCE(A.displayid,0) AS equipmodel1, COALESCE(B.displayid,0) AS equipmodel2,  COALESCE(C.displayid,0) AS equipmodel3, COALESCE(A.`inventory_type`,0) AS equipslot1, COALESCE(B.`inventory_type`,0) AS equipslot2,  COALESCE(C.`inventory_type`,0) AS equipslot3, 0 AS equipinfo1,  0 AS equipinfo2,  0 AS equipinfo3  FROM creature_equip_template LEFT JOIN `creature_item_template` A ON creature_equip_template.equipentry1 = A.entry LEFT JOIN `creature_item_template` B ON creature_equip_template.equipentry2 = B.entry LEFT JOIN `creature_item_template` C ON creature_equip_template.equipentry3 = C.entry;", equipQuery)
 
                 Dim entry As Integer
                 For Each equipInfo As DataRow In equipQuery.Rows
                     entry = equipInfo.Item("entry")
                     If _WS_DBCDatabase.CreatureEquip.ContainsKey(entry) Then Continue For
-                    _WS_DBCDatabase.CreatureEquip.Add(entry, New WS_DBCDatabase.CreatureEquipInfo(equipInfo.Item("equipmodel1"), equipInfo.Item("equipmodel2"), equipInfo.Item("equipmodel3"), equipInfo.Item("equipinfo1"), equipInfo.Item("equipinfo2"), equipInfo.Item("equipinfo3"), equipInfo.Item("equipslot1"), equipInfo.Item("equipslot2"), equipInfo.Item("equipslot3")))
+                    Try
+                        _WS_DBCDatabase.CreatureEquip.Add(entry, New WS_DBCDatabase.CreatureEquipInfo(equipInfo.Item("equipmodel1"), equipInfo.Item("equipmodel2"), equipInfo.Item("equipmodel3"), equipInfo.Item("equipinfo1"), equipInfo.Item("equipinfo2"), equipInfo.Item("equipinfo3"), equipInfo.Item("equipslot1"), equipInfo.Item("equipslot2"), equipInfo.Item("equipslot3")))
+                    Catch e As DataException
+                        Console.ForegroundColor = ConsoleColor.Red
+                        Console.WriteLine(String.Format("Creature_Equip_Template_raw : Unable to equip items {0} for Creature ", entry))
+                        Console.ForegroundColor = ConsoleColor.Gray
+                    End Try
                 Next
 
                 _WorldServer.Log.WriteLine(LogType.INFORMATION, "Database: {0} creature equips initialized.", equipQuery.Rows.Count)
-            Catch e As DirectoryNotFoundException
+            Catch e As DataException
                 Console.ForegroundColor = ConsoleColor.DarkRed
                 Console.WriteLine("Database : Creature_Equip_Template_raw missing.")
                 Console.ForegroundColor = ConsoleColor.Gray
