@@ -36,7 +36,21 @@ Namespace Handlers
             _WorldCluster.PacketHandlers(OPCODES.CMSG_REQUEST_ACCOUNT_DATA) = AddressOf _WC_Handlers_Auth.On_CMSG_REQUEST_ACCOUNT_DATA
 
             'NOTE: These opcodes are only partialy handled by Cluster and must be handled by WorldServer
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_HEARTBEAT) = AddressOf _WC_Handlers_Misc.On_MSG_MOVE_HEARTBEAT
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_HEARTBEAT) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_HEARTBEAT
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_BACKWARD) = AddressOf _WC_Handlers_Movement.On_MSG_START_BACKWARD
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_FORWARD) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_START_FORWARD
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_PITCH_DOWN) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_START_PITCH_DOWN
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_PITCH_UP) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_START_PITCH_UP
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_STRAFE_LEFT) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STRAFE_LEFT
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_STRAFE_RIGHT) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STRAFE_LEFT
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_SWIM) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_START_SWIM
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_TURN_LEFT) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_START_TURN_LEFT
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_TURN_RIGHT) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_START_TURN_RIGHT
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_PITCH) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP_PITCH
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_STRAFE) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP_STRAFE
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_SWIM) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP_SWIM
+            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_TURN) = AddressOf _WC_Handlers_Movement.On_MSG_MOVE_STOP_TURN
             _WorldCluster.PacketHandlers(OPCODES.CMSG_CANCEL_TRADE) = AddressOf _WC_Handlers_Misc.On_CMSG_CANCEL_TRADE
             _WorldCluster.PacketHandlers(OPCODES.CMSG_LOGOUT_CANCEL) = AddressOf _WC_Handlers_Misc.On_CMSG_LOGOUT_CANCEL
 
@@ -142,21 +156,7 @@ Namespace Handlers
             _WorldCluster.PacketHandlers(OPCODES.CMSG_CHANNEL_MODERATE) = AddressOf _WC_Handlers_Chat.On_CMSG_CHANNEL_MODERATE
 
             'Opcodes redirected from the WorldServer
-            'Commonly occurs while trying to peform actions while loading/transfering
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_BACKWARD) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_FORWARD) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_PITCH_DOWN) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_PITCH_UP) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_STRAFE_LEFT) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_STRAFE_RIGHT) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_SWIM) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_TURN_LEFT) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_START_TURN_RIGHT) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_PITCH) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_STRAFE) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_SWIM) = AddressOf OnClusterPacket
-            _WorldCluster.PacketHandlers(OPCODES.MSG_MOVE_STOP_TURN) = AddressOf OnClusterPacket
+            '   none
 
             'NOTE: TODO Opcodes
             '   none

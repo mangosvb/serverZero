@@ -86,30 +86,6 @@ Namespace Handlers
             _WorldCluster.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_INSPECT [GUID={2:X}]", client.IP, client.Port, GUID)
         End Sub
 
-        Public Sub On_MSG_MOVE_HEARTBEAT(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
-            Try
-                client.Character.GetWorld.ClientPacket(client.Index, packet.Data)
-            Catch
-                _WC_Network.WorldServer.Disconnect("NULL", New List(Of UInteger)() From {client.Character.Map})
-                Exit Sub
-            End Try
-
-            'DONE: Save location on cluster
-            client.Character.PositionX = packet.GetFloat '(15)
-            client.Character.PositionY = packet.GetFloat
-            client.Character.PositionZ = packet.GetFloat
-
-            'DONE: Sync your location to other party / raid members
-            If client.Character.IsInGroup Then
-                Dim statsPacket As New Packets.PacketClass(OPCODES.UMSG_UPDATE_GROUP_MEMBERS) With {
-                    .Data = client.Character.GetWorld.GroupMemberStats(client.Character.Guid, Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_POSITION + Globals.Functions.PartyMemberStatsFlag.GROUP_UPDATE_FLAG_ZONE)
-                }
-
-                client.Character.Group.BroadcastToOutOfRange(statsPacket, client.Character)
-                statsPacket.Dispose()
-            End If
-        End Sub
-
         Public Sub On_CMSG_CANCEL_TRADE(ByRef packet As Packets.PacketClass, ByRef client As WC_Network.ClientClass)
             If client.Character IsNot Nothing AndAlso client.Character.IsInWorld Then
                 Try

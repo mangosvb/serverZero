@@ -49,6 +49,7 @@ Namespace Handlers
             Public PositionX As Single
             Public PositionY As Single
             Public PositionZ As Single
+            Public PositionO As Single
 
             Public Access As AccessLevel
             Public Name As String

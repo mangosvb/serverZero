@@ -35,6 +35,7 @@ Public Module Program
         builder.RegisterType(Of WC_Handlers_Group).As(Of WC_Handlers_Group)()
         builder.RegisterType(Of WC_Handlers_Guild).As(Of WC_Handlers_Guild)()
         builder.RegisterType(Of WC_Handlers_Misc).As(Of WC_Handlers_Misc)()
+        builder.RegisterType(Of WC_Handlers_Movement).As(Of WC_Handlers_Movement)()
         builder.RegisterType(Of WC_Handlers_Social).As(Of WC_Handlers_Social)()
         builder.RegisterType(Of WC_Handlers_Tickets).As(Of WC_Handlers_Tickets)()
         builder.RegisterType(Of WS_Handler_Channels).As(Of WS_Handler_Channels)()

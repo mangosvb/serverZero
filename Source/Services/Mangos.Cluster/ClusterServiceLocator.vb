@@ -30,6 +30,7 @@ Public Module ClusterServiceLocator
     Public Property _WC_Handlers_Group As WC_Handlers_Group = _Container.Resolve(Of WC_Handlers_Group)
     Public Property _WC_Handlers_Guild As WC_Handlers_Guild = _Container.Resolve(Of WC_Handlers_Guild)
     Public Property _WC_Handlers_Misc As WC_Handlers_Misc = _Container.Resolve(Of WC_Handlers_Misc)
+    Public Property _WC_Handlers_Movement As WC_Handlers_Movement = _Container.Resolve(Of WC_Handlers_Movement)
     Public Property _WC_Handlers_Social As WC_Handlers_Social = _Container.Resolve(Of WC_Handlers_Social)
     Public Property _WC_Handlers_Tickets As WC_Handlers_Tickets = _Container.Resolve(Of WC_Handlers_Tickets)
     Public Property _WS_Handler_Channels As WS_Handler_Channels = _Container.Resolve(Of WS_Handler_Channels)
