@@ -132,7 +132,7 @@ Namespace Handlers
             'Next
 
             'DONE: If server full then queue, If GM/Admin let in
-            If _WorldCluster.CLIENTs.Count > _WorldCluster.Config.ServerPlayerLimit And client.Access <= AccessLevel.Player Then
+            If _WorldCluster.CLIENTs.Count > _ConfigurationProvider.GetConfiguration().ServerPlayerLimit And client.Access <= AccessLevel.Player Then
                 ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf client.EnQueue))
             Else
                 SendLoginOk(client)

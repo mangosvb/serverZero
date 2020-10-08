@@ -58,8 +58,9 @@ Namespace Server
             Public Cluster As ICluster = Nothing
 
             Public Sub New()
-                m_RemoteURI = String.Format("http://{0}:{1}", _WorldServer.Config.ClusterConnectHost, _WorldServer.Config.ClusterConnectPort)
-                LocalURI = String.Format("http://{0}:{1}", _WorldServer.Config.LocalConnectHost, _WorldServer.Config.LocalConnectPort)
+                Dim configuration = _ConfigurationProvider.GetConfiguration()
+                m_RemoteURI = String.Format("http://{0}:{1}", configuration.ClusterConnectHost, configuration.ClusterConnectPort)
+                LocalURI = String.Format("http://{0}:{1}", configuration.LocalConnectHost, configuration.LocalConnectPort)
                 Cluster = Nothing
 
                 'Creating connection timer
@@ -104,8 +105,9 @@ Namespace Server
                         'NOTE: Not protected remoting
                         'Cluster = RemotingServices.Connect(GetType(ICluster), m_RemoteURI)
                         If Not IsNothing(Cluster) Then
-                            If Cluster.Connect(LocalURI, _WorldServer.Config.Maps.Select(Function(x) CType(x, UInteger)).ToList()) Then Exit While
-                            Cluster.Disconnect(LocalURI, _WorldServer.Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
+                            Dim configuration = _ConfigurationProvider.GetConfiguration()
+                            If Cluster.Connect(LocalURI, configuration.Maps.Select(Function(x) CType(x, UInteger)).ToList()) Then Exit While
+                            Cluster.Disconnect(LocalURI, configuration.Maps.Select(Function(x) CType(x, UInteger)).ToList())
                         End If
                     Catch e As Exception
                         _WorldServer.Log.WriteLine(LogType.FAILED, "Unable to connect to cluster. [{0}]", e.Message)
@@ -118,7 +120,7 @@ Namespace Server
             End Sub
             Public Sub ClusterDisconnect()
                 Try
-                    Cluster.Disconnect(LocalURI, _WorldServer.Config.Maps.Select(Function(x) CType(x, UInteger)).ToList())
+                    Cluster.Disconnect(LocalURI, _ConfigurationProvider.GetConfiguration().Maps.Select(Function(x) CType(x, UInteger)).ToList())
                 Catch
                 Finally
                     Cluster = Nothing
@@ -250,15 +252,16 @@ Namespace Server
                 _WS_Maps.Maps(MapID).Dispose()
             End Sub
             Public Function InstanceCanCreate(ByVal Type As Integer) As Boolean Implements IWorld.InstanceCanCreate
+                Dim configuration = _ConfigurationProvider.GetConfiguration()
                 Select Case Type
                     Case MapTypes.MAP_BATTLEGROUND
-                        Return _WorldServer.Config.CreateBattlegrounds
+                        Return configuration.CreateBattlegrounds
                     Case MapTypes.MAP_INSTANCE
-                        Return _WorldServer.Config.CreatePartyInstances
+                        Return configuration.CreatePartyInstances
                     Case MapTypes.MAP_RAID
-                        Return _WorldServer.Config.CreateRaidInstances
+                        Return configuration.CreateRaidInstances
                     Case MapTypes.MAP_COMMON
-                        Return _WorldServer.Config.CreateOther
+                        Return configuration.CreateOther
                 End Select
                 Return False
             End Function

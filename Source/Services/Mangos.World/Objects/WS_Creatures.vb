@@ -772,7 +772,7 @@ Namespace Objects
                 'DONE: Killing elites
                 If _WorldServer.CREATURESDatabase(ID).Elite > 0 Then XP *= 2
                 'DONE: XP Rate config
-                XP *= _WorldServer.Config.XPRate
+                XP *= _ConfigurationProvider.GetConfiguration().XPRate
 
                 If Not Character.IsInGroup Then
                     'DONE: Rested

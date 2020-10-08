@@ -1,5 +1,6 @@
 ﻿Imports Autofac
 Imports Mangos.Common.Globals
+Imports Mangos.Configuration
 Imports Mangos.World.AI
 Imports Mangos.World.Auction
 Imports Mangos.World.Battlegrounds
@@ -19,6 +20,8 @@ Imports Mangos.World.Weather
 
 Public Module WorldServiceLocator
     Public Property _Container As IContainer = CreateContainer()
+
+    Public Property _ConfigurationProvider as IConfigurationProvider(Of WorldServerConfiguration) = _Container.Resolve(Of IConfigurationProvider(Of WorldServerConfiguration))
 
     Public Property _Global_Constants As Global_Constants = _Container.Resolve(Of Global_Constants)
     Public Property _CommonGlobalFunctions As Mangos.Common.Globals.Functions = _Container.Resolve(Of Mangos.Common.Globals.Functions)

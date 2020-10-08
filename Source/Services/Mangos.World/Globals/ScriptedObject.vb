@@ -62,7 +62,7 @@ Namespace Globals
                 Dim cParameters As New CompilerParameters
                 Dim cResults As CompilerResults
 
-                For Each include As String In _WorldServer.Config.CompilerInclude
+                For Each include As String In _ConfigurationProvider.GetConfiguration().CompilerInclude
                     cParameters.ReferencedAssemblies.Add(include)
                 Next
                 cParameters.OutputAssembly = AssemblyFile
@@ -107,7 +107,7 @@ Namespace Globals
                 Dim cResults As CompilerResults
 
                 If Not InMemory Then cParameters.OutputAssembly = AssemblyFile
-                For Each Include As String In _WorldServer.Config.CompilerInclude
+                For Each Include As String In _ConfigurationProvider.GetConfiguration().CompilerInclude
                     cParameters.ReferencedAssemblies.Add(Include)
                 Next
                 cParameters.ReferencedAssemblies.Add(AppDomain.CurrentDomain.FriendlyName)

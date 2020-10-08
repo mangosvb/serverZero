@@ -20,19 +20,18 @@ Public Module Program
     End Function
 
     Sub RegisterConfiguration(builder As ContainerBuilder)
-        builder.Register(Function(x) New XmlFileConfigurationProvider(Of RealmServerConfiguration)("configs/RealmServer.ini")).As(Of IConfigurationProvider(Of RealmServerConfiguration))()
+        builder.Register(Function(x) New XmlFileConfigurationProvider(Of RealmServerConfiguration)("configs/RealmServer.ini")).As(Of IConfigurationProvider(Of RealmServerConfiguration))().SingleInstance()
         builder.RegisterDecorator(Of StoredConfigurationProvider(Of RealmServerConfiguration), IConfigurationProvider(Of RealmServerConfiguration))()
     End Sub
 
     Sub RegisterServices(builder As ContainerBuilder)
-
-        builder.RegisterType(Of RealmServer).As(Of RealmServer)()
+        builder.RegisterType(Of RealmServer).As(Of RealmServer)().SingleInstance()
         builder.RegisterType(Of RealmServerClass).As(Of RealmServerClass)()
-        builder.RegisterType(Of Converter).As(Of Converter)()
-        builder.RegisterType(Of Global_Constants).As(Of Global_Constants)()
-        builder.RegisterType(Of Functions).As(Of Functions)()
+        builder.RegisterType(Of Converter).As(Of Converter)().SingleInstance()
+        builder.RegisterType(Of Global_Constants).As(Of Global_Constants)().SingleInstance()
+        builder.RegisterType(Of Functions).As(Of Functions)().SingleInstance()
 
-        builder.RegisterType(Of ClientClassFactory).As(Of ClientClassFactory)()
-        builder.RegisterType(Of RealmServerClassFactory).As(Of RealmServerClassFactory)()
+        builder.RegisterType(Of ClientClassFactory).As(Of ClientClassFactory)().SingleInstance()
+        builder.RegisterType(Of RealmServerClassFactory).As(Of RealmServerClassFactory)().SingleInstance()
     End Sub
 End Module

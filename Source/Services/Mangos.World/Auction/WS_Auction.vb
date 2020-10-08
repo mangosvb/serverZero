@@ -37,7 +37,7 @@ Namespace Auction
         Public AuctionTax As Integer
 
         Public Function GetAuctionSide(ByVal GUID As ULong) As AuctionHouses
-            If _WorldServer.Config.GlobalAuction Then Return AuctionHouses.AUCTION_UNDEFINED
+            If _ConfigurationProvider.GetConfiguration().GlobalAuction Then Return AuctionHouses.AUCTION_UNDEFINED
             Select Case _WorldServer.WORLD_CREATUREs(GUID).CreatureInfo.Faction
                 Case 29, 68, 104
                     Return AuctionHouses.AUCTION_HORDE

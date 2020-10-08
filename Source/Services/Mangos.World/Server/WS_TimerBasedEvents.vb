@@ -478,7 +478,7 @@ Namespace Server
             Public CharacterSaverTimer As Timer = Nothing
             Private CharacterSaverWorking As Boolean = False
 
-            Public UPDATE_TIMER As Integer = _WorldServer.Config.SaveTimer     'Timer period (ms)
+            Public UPDATE_TIMER As Integer = _ConfigurationProvider.GetConfiguration().SaveTimer     'Timer period (ms)
             Public Sub New()
                 CharacterSaverTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
             End Sub
@@ -537,7 +537,7 @@ Namespace Server
             Public WeatherTimer As Timer = Nothing
             Private WeatherWorking As Boolean = False
 
-            Public UPDATE_TIMER As Integer = _WorldServer.Config.WeatherTimer     'Timer period (ms)
+            Public UPDATE_TIMER As Integer = _ConfigurationProvider.GetConfiguration().WeatherTimer     'Timer period (ms)
             Public Sub New()
                 WeatherTimer = New Timer(AddressOf Update, Nothing, 10000, UPDATE_TIMER)
             End Sub
