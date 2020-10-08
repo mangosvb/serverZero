@@ -21,20 +21,21 @@ Imports System.IO
 Imports System.Reflection
 Imports System.Security.Cryptography
 Imports System.Text
-Imports System.Xml.Serialization
 Imports Mangos.Common
 Imports Mangos.Common.Enums.Authentication
 Imports Mangos.Common.Enums.Global
-Imports Mangos.Common.Enums.Misc
 Imports Mangos.Common.Globals
 Imports Mangos.Common.Logging
-Imports Mangos.Realm
+Imports Mangos.Configuration
+Imports Mangos.Realm.Factories
 
 Public Class RealmServer
+    Private ReadOnly _configurationProvider As IConfigurationProvider(Of RealmServerConfiguration)
+
     Private ReadOnly _CommonGlobalFunctions As Common.Globals.Functions
     Private ReadOnly _Converter As Converter
     Private ReadOnly _Global_Constants As Global_Constants
-    Private ReadOnly _RealmServerClassFactory as RealmServerClassFactory
+    Private ReadOnly _RealmServerClassFactory As RealmServerClassFactory
 
     Private Const RealmPath As String = "configs/RealmServer.ini"
 
@@ -44,14 +45,16 @@ Public Class RealmServer
                    commonGlobalFunctions As Common.Globals.Functions,
                    converter As Converter,
                    globalConstants As Global_Constants,
-                   realmServerClassFactory As RealmServerClassFactory)
+                   realmServerClassFactory As RealmServerClassFactory,
+                   configurationProvider As IConfigurationProvider(Of RealmServerConfiguration))
         _CommonGlobalFunctions = commonGlobalFunctions
         _Converter = converter
         _Global_Constants = globalConstants
         _RealmServerClassFactory = realmServerClassFactory
+        _configurationProvider = configurationProvider
     End Sub
 
-    Private Sub LoadConfig()
+    Private Async Function LoadConfig() As Task
         Try
             'Make sure RealmServer.ini exists
             If File.Exists(RealmPath) = False Then
@@ -65,19 +68,11 @@ Public Class RealmServer
 
             Console.Write("[{0}] Loading Configuration...", Format(TimeOfDay, "hh:mm:ss"))
 
-            Dim xmlConfigFile As XmlConfigFile = New XmlConfigFile
-            Config = xmlConfigFile
-            Console.Write("...")
-
-            Dim ostream As StreamReader
-            ostream = New StreamReader(RealmPath)
-            Config = New XmlSerializer(GetType(XmlConfigFile)).Deserialize(ostream)
-            ostream.Close()
-
             Console.WriteLine(".[done]")
 
             'DONE: Setting SQL Connection
-            Dim accountDbSettings() As String = Split(Config.AccountDatabase, ";")
+            Dim configuration = Await _configurationProvider.GetConfigurationAsync()
+            Dim accountDbSettings() As String = Split(configuration.AccountDatabase, ";")
             If accountDbSettings.Length <> 6 Then
                 Console.WriteLine("Invalid connect string for the account database!")
             Else
@@ -92,11 +87,10 @@ Public Class RealmServer
         Catch e As Exception
             Console.WriteLine(e.ToString)
         End Try
-    End Sub
+    End Function
 
     Public Property RealmServer As RealmServerClass
     Public ReadOnly Property LastSocketConnection As New Dictionary(Of UInteger, Date)
-    Public Property Config As XmlConfigFile
     Public Property AccountDatabase As New SQL
 
     Private Sub SqlEventHandler(ByVal messageId As SQL.EMessages, ByVal outBuf As String)
@@ -665,7 +659,7 @@ Public Class RealmServer
         Console.ForegroundColor = ConsoleColor.Gray
     End Sub
 
-    Public Sub Main()
+    Public Async Function StartAsync() As Task
 
         Console.BackgroundColor = ConsoleColor.Black
         Dim assemblyTitleAttribute As AssemblyTitleAttribute = CType([Assembly].GetExecutingAssembly().GetCustomAttributes(GetType(AssemblyTitleAttribute), False)(0), AssemblyTitleAttribute)
@@ -733,10 +727,11 @@ Public Class RealmServer
         End If
 
         RealmServer = _RealmServerClassFactory.Create(Me)
+        Await RealmServer.StartAsync()
         GC.Collect()
 
         WorldServer_Status_Report()
-    End Sub
+    End Function
 
     Public Function Ip2Int(ByVal ip As String) As UInteger
         If ip.Split(".").Length <> 4 Then Return 0
