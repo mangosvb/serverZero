@@ -27,10 +27,10 @@ Namespace Global
 
         Public ReadOnly RevisionDbMangosVersion As Integer = 21
         Public ReadOnly RevisionDbMangosStructure As Integer = 7
-        Public ReadOnly RevisionDbMangosContent As Integer = 1
+        Public ReadOnly RevisionDbMangosContent As Integer = 77
 
         Public ReadOnly RevisionDbRealmVersion As Integer = 21
-        Public ReadOnly RevisionDbRealmStructure As Integer = 7
+        Public ReadOnly RevisionDbRealmStructure As Integer = 2
         Public ReadOnly RevisionDbRealmContent As Integer = 1
 
         Public ReadOnly GROUP_SUBGROUPSIZE As Integer = 5  '(MAX_RAID_SIZE / MAX_GROUP_SIZE)
