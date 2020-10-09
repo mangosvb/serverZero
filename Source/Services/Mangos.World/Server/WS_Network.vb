@@ -33,10 +33,10 @@ Namespace Server
 
     Public Class WS_Network
 
-        Private LastPing As Integer = 0
-        Public WC_MsTime As Integer = 0
+        Private Shared LastPing As Integer = 0
+        Public Shared WC_MsTime As Integer = 0
 
-        Public Function MsTime() As Integer
+        Public Shared Function MsTime() As Integer
             'DONE: Calculate the clusters _NativeMethods.timeGetTime("")
             Return WC_MsTime + (_NativeMethods.timeGetTime("") - LastPing)
         End Function
@@ -459,8 +459,9 @@ Namespace Server
                         packet.UpdateLength()
 
                         Dim data() As Byte = packet.Data.Clone
-                        _WorldServer.ClsWorldServer.Cluster.ClientSend(Index, data)
-
+                        If Not IsNothing(_WorldServer.ClsWorldServer.Cluster) Then
+                            _WorldServer.ClsWorldServer.Cluster.ClientSend(Index, data)
+                        End If
                     Catch Err As Exception
                         If DEBUG_CONNECTION Then Exit Sub
                         _WorldServer.Log.WriteLine(LogType.CRITICAL, "Connection from [{0}:{1}] cause error {3}{2}", IP, Port, Err.ToString, Environment.NewLine)

@@ -432,12 +432,12 @@ Namespace Handlers
         Public Sub On_CMSG_MOVE_TIME_SKIPPED(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
             'TODO: Figure out why this is causing a freeze everytime the packet is called, Reference @ LN 180
 
-            'packet.GetUInt64()
-            'packet.GetUInt32()
-            'Dim MsTime As Integer = WS_Network.msTime()
-            'Dim ClientTimeDelay As Integer = MsTime - MsTime
-            'Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 500 + MsTime
-            'packet.AddInt32(MoveTime, 10)
+            packet.GetUInt64()
+            packet.GetUInt32()
+            Dim MsTime As Integer = WS_Network.MsTime()
+            Dim ClientTimeDelay As Integer = MsTime - MsTime
+            Dim MoveTime As Integer = (MsTime - (MsTime - ClientTimeDelay)) + 500 + MsTime
+            packet.AddInt32(MoveTime, 10)
             _WorldServer.Log.WriteLine(LogType.DEBUG, "[{0}:{1}] CMSG_MOVE_TIME_SKIPPED", client.IP, client.Port)
         End Sub
         Public Sub On_MSG_MOVE_FALL_LAND(ByRef packet As Packets.PacketClass, ByRef client As WS_Network.ClientClass)
