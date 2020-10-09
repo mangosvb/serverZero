@@ -399,8 +399,8 @@ Namespace Server
             End Sub
             Private Sub Update(ByVal state As Object)
                 If AIManagerWorking Then
-                    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: AI Manager skipping update")
                     Exit Sub
+                    '    _WorldServer.Log.WriteLine(LogType.WARNING, "Update: AI Manager updating")
                 End If
 
                 Dim StartTime As Integer = _NativeMethods.timeGetTime("")
